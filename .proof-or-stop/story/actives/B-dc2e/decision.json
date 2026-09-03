@@ -1,0 +1,70 @@
+{
+  "principles": [
+    "A check that cannot fail is removed or repaired, never left registered as decoration.",
+    "Every repair ships with the exact mutation that previously slipped through, committed failing first.",
+    "Real inventory data over synthetic fixtures wherever the check's purpose is the real inventory.",
+    "Guards must distinguish legitimate exceptions explicitly (a marker with a reason), never by silently widening.",
+    "Persist parsed, bounded evidence; never raw provider output."
+  ],
+  "drivers": [
+    "B-a745 F-002 and F-012 and two implementer reports showed four green checks protecting nothing.",
+    "B-41c8's REVIEW rounds used commit subjects the current RED guard cannot even see, so the guard's blind spot is already live.",
+    "cross_host_review runs are expensive (Codex quota, agy minutes); discarding the independent host's findings wastes them and hides disagreement.",
+    "Each item is a different file, so parallel fresh workers keep the story short."
+  ],
+  "options": [
+    {
+      "name": "A-repair-each-check-with-its-mutation",
+      "pros": [
+        "Each check gains a committed failing mutation, so the credibility claim is mechanical.",
+        "Four independent files allow parallel implementation.",
+        "The RED guard becomes a shared helper reusable by other suites."
+      ],
+      "cons": [
+        "Four RED/GREEN pairs and four reviews of small diffs.",
+        "The orphan sweep may find more orphans than the two known ones and must classify each."
+      ]
+    },
+    {
+      "name": "B-delete-the-weak-checks",
+      "pros": [
+        "Smallest diff."
+      ],
+      "cons": [
+        "Loses the membership check, the RED guard and cross-host findings entirely; the story's user value is that these checks bite, not that they vanish."
+      ]
+    },
+    {
+      "name": "C-one-generic-test-credibility-framework",
+      "pros": [
+        "A single mutation-testing harness could cover future checks."
+      ],
+      "cons": [
+        "Far larger scope, speculative, and would delay the four concrete repairs the evidence already demands."
+      ]
+    }
+  ],
+  "chosen": "A-repair-each-check-with-its-mutation",
+  "rationale": "Option A is the only one that delivers the story's stated value (four checks that bite) with mechanical proof per item, and the four disjoint files make it cheap to parallelise. Option B discards checks whose intent is still needed. Option C is a framework nobody asked for; the shared RED-guard helper in A captures the reusable part without it.",
+  "preMortem": [
+    {
+      "scenario": "CHK-001 registers validation-protocol-smoke and it fails on case-insensitive filesystems only.",
+      "trigger": "The CASE_MISMATCH assertion depends on filesystem case sensitivity.",
+      "consequence": "The full suite reddens on macOS but not Linux.",
+      "mitigation": "The RED case must reproduce the failure on this macOS checkout; the GREEN fix must either make the check filesystem-aware or skip with an explicit reason, and the smoke runs in the full suite on this machine before REVIEW."
+    },
+    {
+      "scenario": "The real-data membership case flags test:serial-reference-prefix members as stalePolicy and fails on a healthy tree.",
+      "trigger": "The prefix chain is a separate inventory.",
+      "consequence": "A false failure that trains operators to ignore the smoke.",
+      "mitigation": "The case evaluates both chains (test:serial-reference-prefix plus test:serial-reference) against RESOURCE_POLICY and asserts PASS on the real tree before asserting FAIL on the scratch mutation."
+    },
+    {
+      "scenario": "The extended RED guard rejects this story's own history or B-41c8's merged history.",
+      "trigger": "Subjects like 'RED: B-41c8 CHK-001 ...' do not match the new regex, or a merge commit carries no marker.",
+      "consequence": "validation-tier-planner-smoke fails at REVIEW->TEST.",
+      "mitigation": "The guard scans only main..HEAD of the current branch, accepts the documented subject forms (RED(CHK-nnn):, RED(F-nnn):, and the colon form used by B-41c8 if adopted), and the story's own commits follow the format it enforces."
+    }
+  ],
+  "timestamp": "2026-09-03T04:36:57.187Z"
+}
