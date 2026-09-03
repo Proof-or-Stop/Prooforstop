@@ -3762,18 +3762,15 @@ function priorRedIds(cwd: string | null): ReadonlySet<string> {
   return ids;
 }
 
-/** The branch range `main..HEAD` through the helper, as the smoke's own guard consumes it. */
+/** The branch range `main..HEAD` through the helper, with the branch point's RED ids, as the smoke's own guard consumes it. */
 function evaluateBranchRedGreen(cwd: string | null) {
-  return evaluateRedGreenCommitOrder(readRedGreenCommits(cwd, ['main..HEAD']));
+  return evaluateRedGreenCommitOrder(readRedGreenCommits(cwd, ['main..HEAD']), { priorRedIds: priorRedIds(cwd) });
 }
 
 testCase('a GREEN whose RED landed on main before the branch point is satisfied through priorRedIds', () => {
   // The helper stays pure: the caller hands it the ids that have a RED subject in the
   // branch point's history, and a GREEN for such an id counts as satisfied.
-  const evaluate = evaluateRedGreenCommitOrder as (
-    commits: readonly { subject: string; body?: string }[],
-    options?: { priorRedIds?: ReadonlySet<string> },
-  ) => ReturnType<typeof evaluateRedGreenCommitOrder>;
+  const evaluate = evaluateRedGreenCommitOrder;
   const mainSide = [{ subject: 'RED(CHK-001): a fixture fails, committed on main', body: '' }];
   const prior = new Set(mainSide.map((commit) => parseRedGreenSubject(commit.subject)).filter((parsed) => parsed?.phase === 'RED').map((parsed) => parsed!.id));
   const inRange = [{ subject: 'GREEN(CHK-001): the fix on the story branch', body: '' }];
@@ -3781,6 +3778,8 @@ testCase('a GREEN whose RED landed on main before the branch point is satisfied 
   const satisfied = evaluate(inRange, { priorRedIds: prior });
   assert.equal(satisfied.ok, true, `a GREEN whose id has a RED before the branch point must pass: ${describeRedGreenViolations(satisfied)}`);
   assert.deepEqual(satisfied.violatingIds, []);
+  assert.deepEqual(satisfied.priorRedAccepted, [{ index: 0, id: 'CHK-001' }], 'the result names the GREEN satisfied by a RED before the range');
+  assert.match(describeRedGreenViolations(satisfied), /1 satisfied by a RED before the range/);
   // An id with no RED anywhere is still a violation, prior set or not.
   const other = evaluate([{ subject: 'GREEN(CHK-002): no RED anywhere', body: '' }], { priorRedIds: prior });
   assert.equal(other.ok, false, 'a GREEN whose id is not in the prior set and has no RED in range must still fail');

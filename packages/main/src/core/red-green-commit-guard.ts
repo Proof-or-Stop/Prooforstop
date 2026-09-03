@@ -18,6 +18,14 @@
  * necessarily adjacently) by a RED(id). Only subjects count: a RED subject
  * that survives squashing as a body line is NOT a RED commit.
  *
+ * The list is usually a branch range such as `main..HEAD`, which EXCLUDES the
+ * commits before the branch point. A RED(id) that already sits on main ahead of
+ * the branch point is therefore invisible to the list, and a GREEN(id) on the
+ * branch would be a false `green_without_red` (B-dc2e F-006). The caller may
+ * pass `priorRedIds`, the ids with a RED subject in the branch point's history
+ * (reachable from the merge-base), and a GREEN for such an id is satisfied; the
+ * result lists those in `priorRedAccepted`. The helper still does no git I/O.
+ *
  * The one exception is the documented no-RED marker. A GREEN with no earlier
  * RED is accepted only when its BODY carries a line of the form
  *
@@ -77,6 +85,20 @@ export interface RedGreenNoRedAcceptance {
   readonly reason: string;
 }
 
+export interface RedGreenGuardOptions {
+  /**
+   * Ids that have a RED subject BEFORE the evaluated list, e.g. on main ahead
+   * of the branch point (excluded from `main..HEAD`). A GREEN for such an id is
+   * satisfied. The caller reads git; the helper only consumes the set.
+   */
+  readonly priorRedIds?: ReadonlySet<string>;
+}
+
+export interface RedGreenPriorRedAcceptance {
+  readonly index: number;
+  readonly id: string;
+}
+
 export interface RedGreenGuardResult {
   readonly ok: boolean;
   /** Every id seen in a RED or GREEN subject, first-seen order. */
@@ -88,6 +110,8 @@ export interface RedGreenGuardResult {
   readonly violatingIds: readonly string[];
   /** GREEN commits accepted on the strength of a reasoned no-RED marker. */
   readonly noRedAccepted: readonly RedGreenNoRedAcceptance[];
+  /** GREEN commits satisfied by a RED before the list (`priorRedIds`). */
+  readonly priorRedAccepted: readonly RedGreenPriorRedAcceptance[];
 }
 
 /** Parse a commit subject; null when it is not a RED/GREEN subject of a recognised form. */
@@ -115,11 +139,16 @@ export function parseNoRedMarker(body: string | undefined): NoRedMarker | null {
  * Evaluate RED-before-GREEN ordering over commits listed OLDEST FIRST.
  * Pure: no I/O, no clock, deterministic for the same input.
  */
-export function evaluateRedGreenCommitOrder(commits: readonly RedGreenCommitInput[]): RedGreenGuardResult {
+export function evaluateRedGreenCommitOrder(
+  commits: readonly RedGreenCommitInput[],
+  options: RedGreenGuardOptions = {},
+): RedGreenGuardResult {
   const ids: string[] = [];
   const seenRed = new Set<string>();
+  const priorRedIds = options.priorRedIds ?? new Set<string>();
   const violations: RedGreenViolation[] = [];
   const noRedAccepted: RedGreenNoRedAcceptance[] = [];
+  const priorRedAccepted: RedGreenPriorRedAcceptance[] = [];
   let redCount = 0;
   let greenCount = 0;
 
@@ -136,6 +165,10 @@ export function evaluateRedGreenCommitOrder(commits: readonly RedGreenCommitInpu
 
     greenCount += 1;
     if (seenRed.has(parsed.id)) return;
+    if (priorRedIds.has(parsed.id)) {
+      priorRedAccepted.push({ index, id: parsed.id });
+      return;
+    }
 
     const marker = parseNoRedMarker(commit.body);
     if (!marker) {
@@ -187,14 +220,18 @@ export function evaluateRedGreenCommitOrder(commits: readonly RedGreenCommitInpu
     violations,
     violatingIds,
     noRedAccepted,
+    priorRedAccepted,
   };
 }
 
 /** One bounded line naming every violating id, or a pass summary. */
 export function describeRedGreenViolations(result: RedGreenGuardResult): string {
   if (result.ok) {
+    const prior = result.priorRedAccepted.length > 0
+      ? ` (${result.priorRedAccepted.length} satisfied by a RED before the range)`
+      : '';
     return `RED-before-GREEN ok: ${result.greenCount} GREEN, ${result.redCount} RED, `
-      + `${result.noRedAccepted.length} reasoned no-RED across ${result.ids.length} id(s)`;
+      + `${result.noRedAccepted.length} reasoned no-RED across ${result.ids.length} id(s)${prior}`;
   }
   const details = result.violations.map((violation) => `${violation.id} [${violation.code}] ${violation.detail}`);
   return `RED-before-GREEN violated for ${result.violatingIds.join(', ')}: ${details.join(' | ')}`;
