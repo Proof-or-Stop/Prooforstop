@@ -52,9 +52,9 @@
       "id": "CHK-002",
       "title": "Give the full-suite membership smoke a real-data case that fails on genuine chain-versus-policy drift",
       "context": "tasks/full-suite-runner-smoke.ts around line 563 only compares synthetic fixtures. RED: remove a real RESOURCE_POLICY row on a scratch copy and assert the new case fails; account for test:serial-reference-prefix members that legitimately read as stalePolicy against the main chain. Keep the synthetic cases.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-03T04:47:47.022Z",
-      "endTime": null,
+      "endTime": "2026-09-03T04:51:16.104Z",
       "relatedDocs": [
         "docs/requirements/decisions/test-runner-consolidation-plan.md"
       ],
@@ -90,6 +90,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "a8b2f4c57ebd11755d810d489df7b003d57fd3eab1e76aec803775f9cb570ce3",
+        "storyFilesHash": "3a56a709c6e40e9cd4145bad5f4b2ae72997842d29cc2eaa388404fa328824d4",
+        "headHash": "86b0ba9a209570df24dcf890ef5cbea37db234d2",
+        "attestedAt": "2026-09-03T04:51:16.349Z",
+        "materialHash": "e56b08fc8c5fded125dd06e786bb0496f870c1dc9ec9b61841f89b957ecddd44"
       }
     },
     {
