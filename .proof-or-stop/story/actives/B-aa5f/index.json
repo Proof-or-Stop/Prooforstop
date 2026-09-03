@@ -4,7 +4,7 @@
   "title": "Verification Execution Receipt Fan-out and Input-Scoped Freshness",
   "description": "Separate verifier execution identity from per-intent selector assertions so a stale evidence set executes each affected command once, while preserving independent assertion results and fail-closed freshness. Add input-scoped reuse only when a verifier dependency closure is mechanically complete; otherwise retain strict materialHash/storyFilesHash invalidation.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "riskSignals": [
     {
@@ -24,6 +24,20 @@
       "user": "Harmonynet",
       "sessionId": "sess-deaee3ad16e4211255db95e9e1e23e8a",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-03T16:20:32.004Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-deaee3ad16e4211255db95e9e1e23e8a",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-aa5f",
+    "branch": "story/B-aa5f",
+    "createdAt": "2026-09-03T16:20:28.506Z"
+  }
 }

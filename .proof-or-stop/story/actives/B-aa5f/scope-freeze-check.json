@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-aa5f",
+  "checkedAt": "2026-09-03T16:19:32.128Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "7a9529b6d90fcbbec00f93bd8e18e40f60f83b4d70dcc7a8a10cafad800a6b89",
+  "executionBoundaryHash": "cafe5ff938a19d9791caf4504ff3a9ae1d719f68149c5997d844d25929c21011",
+  "freshnessHash": "5785b86580c7eff9089b9230f5b6e468cbb5c469611bd5ded10cd60e8d2353ec",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Caching manual or docs attestations as executable evidence",
+    "Changing selector repin policy owned by B-1482 except for compatible receipt bindings",
+    "customerKeyRef",
+    "Generic remote or cross-repository build cache",
+    "Layer4",
+    "repair UX",
+    "Reuse for arbitrary shell, network-dependent, dynamically unbounded, or incompletely declared verifiers",
+    "Unrelated validation, review, DONE, or evidence-platform redesign",
+    "Weakening materialHash or storyFilesHash fallback when an input closure cannot be proven complete"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Caching manual or docs attestations as executable evidence",
+      "source": "scopeBoundary.excluded",
+      "text": "Caching manual or docs attestations as executable evidence",
+      "excluded": true
+    },
+    {
+      "keyword": "Changing selector repin policy owned by B-1482 except for compatible receipt bindings",
+      "source": "scopeBoundary.excluded",
+      "text": "Changing selector repin policy owned by B-1482 except for compatible receipt bindings",
+      "excluded": true
+    },
+    {
+      "keyword": "Generic remote or cross-repository build cache",
+      "source": "scopeBoundary.excluded",
+      "text": "Generic remote or cross-repository build cache",
+      "excluded": true
+    },
+    {
+      "keyword": "Reuse for arbitrary shell, network-dependent, dynamically unbounded, or incompletely declared verifiers",
+      "source": "scopeBoundary.excluded",
+      "text": "Reuse for arbitrary shell, network-dependent, dynamically unbounded, or incompletely declared verifiers",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated validation, review, DONE, or evidence-platform redesign",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated validation, review, DONE, or evidence-platform redesign",
+      "excluded": true
+    },
+    {
+      "keyword": "Weakening materialHash or storyFilesHash fallback when an input closure cannot be proven complete",
+      "source": "scopeBoundary.excluded",
+      "text": "Weakening materialHash or storyFilesHash fallback when an input closure cannot be proven complete",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "200b596d9742793140db55400e8019a33671f9d9bcf67a9443996f84058987d2"
+}

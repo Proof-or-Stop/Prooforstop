@@ -1,15 +1,15 @@
 ## Trigger Event
 
-2026-09-03 repro-first intake is creating a story from accepted candidate evidence. Probe rp-mtlq4b1z-hem77a and review rr-mtlq63zn-umve6e are bound before development starts.
+On 2026-09-03, B-fe8f exposed a reproducible verification amplification defect: 71 pinned intents referred to two commands, while selector-bound refresh behavior scheduled nearly one subprocess per intent. Probe rp-mtlq4b1z-hem77a and independent review rr-mtlq63zn-umve6e confirmed the current execution key contains the selector.
 
 ## Key Insights
 
-The repro review is red-reviewed and classified as target-bug, so this story starts from observed failing behavior instead of a speculative fix. Candidate verification-execution-fanout-input-freshness-20260903 remains intake evidence only.
+Story-owned file changes must continue to invalidate evidence, but invalidation does not require duplicate command execution. Command execution identity, per-intent selector assertion identity, and reuse eligibility are distinct facts that need separate immutable bindings and fail-closed gate consumption.
 
 ## Solution Tradeoffs
 
-Using story_create_from_repro keeps the normal story lifecycle intact while adding a pre-story binding artifact. It avoids pretending candidate evidence is verificationEvidence, DONE evidence, Authority proof, or production proof.
+Keep materialHash and storyFilesHash as conservative fallback signals. Permit command fan-out immediately, and permit input-scoped reuse only when dependency closure, environment, toolchain, command, timeout, and output integrity are mechanically complete. Uncertain inputs always cause a real rerun.
 
 ## Conversational Texture
 
-The maintainer sees a normal ProofOrStop story with a durable intake binding, then still expects DEV, REVIEW, TEST, validation, and DONE evidence to prove the actual fix after implementation.
+The user explicitly rejected treating this as several loosely connected fixes and requested one strict Story. The first requested deliverable is a committed RED followed by GREEN evidence demonstrating the 71-intent, two-command execution amplification and its safe correction.
