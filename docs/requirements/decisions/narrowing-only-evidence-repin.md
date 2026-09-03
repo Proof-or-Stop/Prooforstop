@@ -124,6 +124,8 @@ failing run that the already-narrowed selector still matched.
 | `narrowing_intent_not_executable` | the intent is attestation-only and carries no pin |
 | `narrowing_intent_not_pinned` | the intent has no pin yet; the first selector-bearing evidence write pins it |
 | `narrowing_receipt_set_unchanged` | this recorded-receipt set has already spent its one narrowing |
+| `narrowing_selector_unchanged` | the requested selector is identical to the pinned one, so the request re-pins nothing |
+| `narrowing_no_recorded_receipts` | no receipt has been recorded for the pinned command, so there is nothing recorded to prove the narrowing against |
 | `narrowing_selector_loosens` | a recorded receipt proves the candidate is broader than the current pin |
 | `narrowing_selector_not_discriminating` | the candidate is present in the recorded failing render too, so narrowing to it proves nothing |
 | `narrowing_no_recorded_failing_render` | no recorded receipt shows the current selector matching a failing run |
@@ -131,6 +133,7 @@ failing run that the already-narrowed selector still matched.
 | `narrowing_selector_absent_from_passing_receipt` | the candidate is missing from a recorded passing receipt, so narrowing would start failing a run that genuinely passed |
 | `narrowing_receipt_selector_unknown` | the witness receipt predates B-1482 and does not record which selector it was judged against; that is UNKNOWN, not re-derivable from the current pin |
 | `narrowing_receipt_material_mismatch` | the witness receipt was recorded against different story material than the passing receipts it is weighed against |
+| `narrowing_receipt_not_predating_request` | a receipt used by the proof carries no usable execution time, or claims to have run AFTER the request; only receipts recorded before the request can prove it |
 
 ## What this does and does not bound
 

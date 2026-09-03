@@ -868,7 +868,9 @@ Refusal codes: `narrowing_caller_output_not_admissible`,
 `narrowing_selector_not_discriminating`, `narrowing_no_recorded_failing_render`,
 `narrowing_no_recorded_passing_receipt`,
 `narrowing_selector_absent_from_passing_receipt`,
-`narrowing_receipt_selector_unknown`, `narrowing_receipt_material_mismatch`.
+`narrowing_receipt_selector_unknown`, `narrowing_receipt_material_mismatch`,
+`narrowing_selector_unchanged`, `narrowing_no_recorded_receipts`,
+`narrowing_receipt_not_predating_request`.
 
 **What is and is not bounded.** Mechanically enforced: the witness must be a genuine
 tool-recorded receipt of the same pinned command, judged and matched by the current
