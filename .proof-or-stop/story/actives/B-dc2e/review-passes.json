@@ -151,6 +151,28 @@
         "scanEscalationReason": null
       },
       "_hash": "f36537df7eece298eebb3738a1a97efb595b905ac172f221db37edaaf31047c0"
+    },
+    {
+      "id": "B-dc2e:RP-006",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 3 audit: all 12 verificationIntent entries (CHK-001..004 x happy/edge/adversarial) have mechanical=true verificationEvidence with selectorMatched=true and result=pass (checklist_get --json). CHK-003 edge intent fixture (guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes) still asserts bareMarker.ok=false, shortMarker (<30 chars).ok=false, reasoned(>=30 chars).ok=true, matching NO_RED_MIN_REASON_LENGTH=30 in core/red-green-commit-guard.ts. Verified RED/GREEN pairs by checking out ae74bec96e (RED F-008) and 4e92a3e86e (RED F-007) in detached worktrees, building, and running validation-tier-planner-smoke.js: RED(F-008) fails 3 cases including a bare GREEN(CHK-001) wrongly satisfied by a bare RED(CHK-001) (true !== false); RED(F-007) fails 3 cases including the real-repository priorRedIds comparison returning actual [] vs expected 8 qualified B-a745 RED ids, confirming the comparison is non-vacuous (independent git --grep query on this repo merge-base returns 9 qualified RED subjects, not empty, so an empty-set regression would be caught). GREEN(F-008) 9de39f92a3 and GREEN(F-007) 8fec18017b (per story evidence receipts) both pass. git log main..HEAD confirms RED(F-008) ae74bec96e precedes GREEN(F-008) 9de39f92a3 precedes RED(F-007) 4e92a3e86e precedes GREEN(F-007) 8fec18017b, all subjects conform to RED(F-nnn)/GREEN(F-nnn) pattern. No open blocking findings remain (F-007/F-008 resolvedBy B-dc2e:F-007@8fec180 / B-dc2e:F-008@8fec180; F-005 dismissed; F-001/F-002/F-003/F-004/F-006 previously resolved).",
+      "createdAt": "2026-09-03T06:26:04.969Z",
+      "reviewRound": "2026-09-03T06:21:01.454Z",
+      "reviewRunId": "B-dc2e:RR-012",
+      "envelopeId": "574365aae283e73cce4aac5915c99a88181ae2b67038385aee65e6a62002ac7e",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "da28104a623a000ae789d8f8b6e648235c6d5ddddfce2650683263c17388cd78"
     }
   ]
 }
