@@ -930,8 +930,8 @@ function assertRedGreenRelation(repositoryRoot: string): void {
 }
 
 function assertVersionSync(repositoryRoot: string): void {
-  const previous = '0.3.271';
-  const expected = '0.3.272';
+  const previous = '0.3.272';
+  const expected = '0.3.273';
   const rootPackage = JSON.parse(readFileSync(join(repositoryRoot, 'package.json'), 'utf8')) as { version: string };
   const mainPackage = JSON.parse(readFileSync(join(repositoryRoot, 'packages', 'main', 'package.json'), 'utf8')) as { version: string };
   const lockfile = JSON.parse(readFileSync(join(repositoryRoot, 'package-lock.json'), 'utf8')) as {
@@ -947,13 +947,13 @@ function assertVersionSync(repositoryRoot: string): void {
   assert.equal(mainPackage.version, expected);
   assert.equal(lockfile.version, expected);
   assert.equal(lockfile.packages?.['']?.version, expected);
-  assert.match(runtimeConstant, /PROOF_OR_STOP_CLI_VERSION = '0\.3\.272' as const/);
+  assert.match(runtimeConstant, /PROOF_OR_STOP_CLI_VERSION = '0\.3\.273' as const/);
 
   const local = spawnSync(process.execPath, [join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'), '--version'], {
     cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
   });
   assert.equal(local.status, 0, `local CLI version failed: ${local.stderr}`);
-  assert.match(local.stdout, /Proof-or-Stop 0\.3\.272/);
+  assert.match(local.stdout, /Proof-or-Stop 0\.3\.273/);
   const installed = spawnSync('proof-or-stop', ['--version'], {
     cwd: repositoryRoot, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
   });
@@ -1022,7 +1022,7 @@ function assertCleanPackInstall(repositoryRoot: string): void {
       cwd: consumer, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'],
     });
     assert.equal(cli.status, 0, `clean-installed CLI failed: ${cli.stderr}`);
-    assert.match(cli.stdout, /Proof-or-Stop 0\.3\.272/);
+    assert.match(cli.stdout, /Proof-or-Stop 0\.3\.273/);
     console.log('green.clean_pack_install: PASS core=@proof-or-stop/core lab=@proof-or-stop/lab bundled=false registryFetch=false cli=true');
   } finally {
     rmSync(scratch, { recursive: true, force: true });
