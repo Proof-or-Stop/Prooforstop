@@ -20088,6 +20088,46 @@
       ],
       "signatureTag": "missing|mjs|serveandfetch-packages-graph",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-380",
+      "desc": "RE-FILE of prior F-374 (still unfixed): a fresh run of causal-evidence.test.mjs still fails at test F-247 before reaching CHK-004:happy:2/3 marker emission. acceptance_topology_check now reports status=fail with diagnostics=[AT_COVERAGE_BASIS_STALE] (not on the topologyRefreshBootstrap allow-list at causal-evidence.test.mjs:2475-2478), so the very first assert.ok at line 2479 throws before the pre_review_check_read bootstrap branch is even reached. pre_review_check_read independently confirms status=fail codes=[PR_ARTIFACT_TAMPERED,PR_COVERAGE_BASIS_CHANGED], matching the bootstrap allow-list at line 2503 (isEvidenceRefreshBootstrap true), so even past the topology gate the markers at lines 2515-2522 would not fire. Root cause unchanged from F-374: acceptance_basis_generate was re-run after CHK-004:happy:2/3 receipts were earned, moving basisDigest (pre_review_check snapshots it as priorPlanBasisDigest at pre-review-check.ts:350) and storyFilesHash-based binding (pre-review-check.ts:111-119,360). checklist.json currently shows total=53 required=51 covered=53 missingRequired=0 (buildVerificationCoverage, no currentHead arg) with all 53 entries mechanical:true, and the two should-priority entries are exactly CHK-004:happy:2/3 (integration_test, headHash=e58037c vs current HEAD=3a06de3a -- stale). This is the known F-435/F-438 ordering trap; not yet fixed as of this review round. Recommended fix: proceed with the planned finalize -> DEV -> rebuild-chain -> re-earn -> REVIEW cycle (see companion finding on ordering trap in the plan itself).",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T04:00:25.049Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-910",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fe79bee5b9ec8223853b9715a770d10ac74af33f15a2ec0c79829e0d88548d4d",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|mjs|file-prior-still",
+      "signatureTagSource": "auto"
     }
   ]
 }
