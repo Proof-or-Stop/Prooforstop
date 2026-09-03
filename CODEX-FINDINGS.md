@@ -22,7 +22,7 @@ Scope: review of the current INIT story/checklist and the already-identified bra
 
 4. **[high] Renaming the package identity without updating the hook silently disables the repository's pre-push safety gate.**
 
-   **Proof:** The hook documents `@lattice/core` as its self-repository discriminator (`.githooks/pre-push:24-25`) and exits success whenever `packages/main/package.json` has any other name (`.githooks/pre-push:147-150`). Therefore a broad brand mapping that changes the package name but omits the hook does not fail loudly; it reclassifies this repository as external and bypasses the rest of the hook.
+   **Proof:** The hook documents `@lattice/core` (since renamed to `@proof-or-stop/core`) as its self-repository discriminator (`.githooks/pre-push:24-25`) and exits success whenever `packages/main/package.json` has any other name (`.githooks/pre-push:147-150`). Therefore a broad brand mapping that changes the package name but omits the hook does not fail loudly; it reclassifies this repository as external and bypasses the rest of the hook.
 
    **Concrete change B-cdf6 must make:** Put the package name in CHK-001's mapping table with an explicit `FROZEN` or `RENAME` verdict. If frozen, add a regression assertion explaining why the hook predicate remains correct. If renamed, change the hook discriminator and its tests in the same commit, and prove both cases: the renamed self-repository executes/fails closed on a deliberately failing gate, while a genuinely external package still takes the intended bypass. Also update the hook's user-facing command examples and rejection text to the new primary binary while retaining only clearly labeled alias guidance.
 
