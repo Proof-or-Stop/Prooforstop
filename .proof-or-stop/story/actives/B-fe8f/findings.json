@@ -588,6 +588,24 @@
       "resolvedAt": "2026-09-03T12:05:51.983Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-026",
+      "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:94-97,380-395 — CHK-001:edge:3 current-state regression coverage is not fail-closed. legacyPinnedNegativeControl eligibility omits currentGreenPasses, while simulatedCurrentRegression checks only the new currentGreenPasses token. A source-extracted mechanical probe of the committed renderer returned oldSelectorStillMatchesWhenCurrentGreenFails=true. Therefore the immutable old selector can still match a rendered currentGreenPasses=false state through nested compatibility text instead of requiring current GREEN success. Include currentGreenPasses in legacy-selector eligibility and add a negative assertion that the old selector is absent for the simulated current failure, while preserving the existing corrupted-relation-acceptance rejection control.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T12:12:37.809Z",
+      "reviewRound": "2026-09-03T12:01:57.552Z",
+      "reviewRunId": "B-fe8f:RR-051",
+      "_hash": "35968ef3b61a047f95b9984ae579b5d88ce49c5e2b8650c35953513607407494",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
