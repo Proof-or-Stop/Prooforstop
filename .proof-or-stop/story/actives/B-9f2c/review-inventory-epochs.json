@@ -343,5 +343,37 @@
       "_hash": "7e712098357af9e10353386c1827f307de955b221d5e2d16ccc0ba8b8e8c2218"
     }
   ],
-  "criticReceipts": []
+  "criticReceipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-9f2c:RI-004:CRIT-01",
+      "epochId": "B-9f2c:RI-004",
+      "storyId": "B-9f2c",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "c06f9f841acd34a1af761f2548a4658c15516768",
+        "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+        "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978"
+      },
+      "aggregateFindingSetDigest": "6aacf56743d4935caf595184cf770bf37eaa8731a97dd1b4622df6ad606c3cad",
+      "requiredLaneCoverageDigest": "35ef54644fd333c7b3addb0d938bc02524b82239f71f7538430390849bcd700b",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-9f2c:RR-060",
+      "terminalEvidenceIds": [
+        "B-9f2c:F-010"
+      ],
+      "readEvidenceDigest": "85406bc94c3741d5be7645527305401df2d92fafad909037626d6fad82b6906c",
+      "findingDispositions": [
+        {
+          "findingId": "B-9f2c:F-009",
+          "disposition": "verified_family",
+          "familyKey": "verify-missing-assets-fail-torn-write-residual",
+          "reason": "Independently confirmed: quality lane's F-009 documents a real non-adversarial torn-write race in verify-missing-assets-fail.mjs (existsSync-only settle poll can sample a truncated app.html mid-write), resolved as accepted_risk per CLAUDE.md defect-triage rule 2/3 (medium/low, not a direct regression of this story's acceptance scope, does not affect user core outcome). Consistent with F-005/F-007/F-008 in the same file and root cause family (orphaned-build race from the SIGTERM-does-not-reach-nested-spawnSync-grandchild semantic)."
+        }
+      ],
+      "createdAt": "2026-09-03T07:17:28.181Z",
+      "_hash": "3e79370c4f8759af8e0800be5ea539156404966780f91d5a9efd64bd325f7f38"
+    }
+  ]
 }
