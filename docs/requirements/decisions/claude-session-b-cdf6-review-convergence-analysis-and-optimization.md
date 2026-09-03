@@ -42,12 +42,12 @@ Claude subagent transcript：
   a57f5dd5-4fe3-4355-b24b-09464e55c30a/subagents/*.jsonl
 ```
 
-Story 事实通过 Proofbound CLI 读取：
+Story 事实通过 Proof-or-Stop CLI 读取：
 
 ```bash
-lattice story_get '{"storyId":"B-cdf6","slim":true,"fields":["story","checklist","review"]}'
-lattice checklist_get '{"storyId":"B-cdf6","slim":true,"fields":["counts","items"]}'
-lattice finding_list '{"storyId":"B-cdf6","brief":true}'
+proof-or-stop story_get '{"storyId":"B-cdf6","slim":true,"fields":["story","checklist","review"]}'
+proof-or-stop checklist_get '{"storyId":"B-cdf6","slim":true,"fields":["counts","items"]}'
+proof-or-stop finding_list '{"storyId":"B-cdf6","brief":true}'
 ```
 
 Review、finding 和 validation 聚合指标来自 Story runtime evidence：
