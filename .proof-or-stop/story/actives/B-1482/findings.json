@@ -273,6 +273,21 @@
       "_hash": "201d1e3d5ab3f2695fae53bd32b388d7f14ddf1622fdb1e656290c937e5efc2a",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1482:F-016",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:710 DYNAMIC_BINDING_BUILD_CEILING is set to 810 but the current HEAD genuinely produces 811 dynamic-binding builds, so `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` throws `dynamic binding graph builds must remain bounded at 810, got 811` and this required suite (registered in test:serial-reference, RESOURCE_POLICY and validate.commands) is red on the story diff as committed. The F-001 fix (GREEN e6fc6466bd) bumped the ceiling 809->810 crediting only the new file packages/main/src/tasks/narrowing-repin-smoke.ts (which calls execFileSync). Mutation isolation proves a SECOND, undocumented source is packages/main/src/core/prompt-envelope.ts: I built the merge-base commit (3c81a3db23, ceiling=809, actual=809, PASS), then (a) copied only HEAD prompt-envelope.ts into that base tree with no other change -> actual repo builds moved 390->391 and the unmodified base ceiling=809 failed at 810; (b) on the current worktree, reverting only prompt-envelope.ts to the main version (keeping the story ceiling at 810 and every other B-1482 change) makes the suite pass at builds=810 exactly; restoring the story prompt-envelope.ts reproduces builds=811/ceiling=810 FAIL. So F-003 (the hasControlledConceptPair/isDisqualifiedPair callback added to prompt-envelope.ts) independently adds one dynamic-binding build (the guard treats a call to the new optional isDisqualifiedPair callback parameter as a dynamic-execution AST candidate), and the ceiling comment/value was never updated to account for it after F-003 landed later in the round. Fix: bump DYNAMIC_BINDING_BUILD_CEILING to 811 and update the adjoining comment to name both files.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T23:38:49.419Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-002",
+      "_hash": "bb4683e7b03e98788885faa2a1a1a45ad3c0e4ec051c43d5aee842c1995ed92f",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
