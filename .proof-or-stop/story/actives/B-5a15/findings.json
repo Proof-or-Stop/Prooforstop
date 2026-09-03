@@ -20483,8 +20483,8 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto",
-      "resolvedReason": "Superseded by , which consolidates this instance with the other zero-match paths the concept lane identified (packages/graph/src/*, packages/main/templates/agents/*) into the single architectural gap they share: CERTIFICATION_DOMAIN_PATH_RULES has no catch-all, and one unclassifiable story-owned path aborts the whole deriveCertificationDomainInputHashes pass. The concept lane confirmed same-family mechanically by evaluating the live rules table against src/app.ts and getting zero matches, identical to those other paths, and recommended consolidating rather than tracking separately. Tracking one root cause instead of several instances.",
-      "resolvedAt": "2026-09-03T10:03:04.102Z",
+      "resolvedReason": "Superseded by B-5a15:F-397 (correcting an earlier resolution note on this finding that read 'Superseded by , which...' because the shell variable holding the id came back empty -- the successor is F-397). F-397 consolidates this instance with the other zero-match paths the concept lane identified (packages/graph/src/*, packages/main/templates/agents/*) into the single architectural gap they share: CERTIFICATION_DOMAIN_PATH_RULES has no catch-all, so one unclassifiable story-owned path aborts the entire deriveCertificationDomainInputHashes pass. The concept lane confirmed same-family mechanically by evaluating the live rules table against src/app.ts and getting zero matches, identical to those paths, and recommended consolidating. Two corrections to my original F-394 text are carried into F-397: the orphan task predates this story (B-1e1f, commit 410b3c913d) and my cfc8402e1f made a pre-existing silent orphan start failing loudly rather than introducing it; and the orphan problem is wider than I found -- the quality lane established that ALL FOUR certification-window-*-smoke.ts siblings have zero references anywhere in the repo, where I had only checked one.",
+      "resolvedAt": "2026-09-03T10:04:09.519Z",
       "resolutionType": "superseded"
     },
     {
