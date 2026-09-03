@@ -1,0 +1,56 @@
+{
+  "storyId": "B-41c8",
+  "changes": "core/evidence-freshness.ts: the three rename-aware diff readers parse git diff --name-status -M -z records through one exported parseNameStatusRecords; a record that does not fit the shape throws instead of being skipped, and an unresolvable ref still throws. core/done-required-validation.ts: its private shell-versus-argv parser is gone; it delegates to parseLegacyValidationCommandString through a named wrapper that preserves the absent-shell-key shape. core/story-workspace.ts (new): resolveStoryWorkspace returns gitCwd, a workspace-rooted store, workspace config, source and rootReason with an explicit terminalPhaseGuard; handlers/story-query.ts, handlers/session.ts, core/local-assurance-story-projection.ts and handlers/validation-plan.ts delegate to it, and validation_plan is now guarded for DONE stories. packages/main/src/tasks/single-owner-extraction-smoke.ts (new, 40 cases) is registered in package.json test:serial-reference, full-suite-runner RESOURCE_POLICY and proof-or-stop.config.json validate.commands; its CHK-004 group is a masked call-expression audit that lists every resolveGitCwd caller under handlers with its call lines and classifies each as workspace-rooted or reads ctx.root (currently 28 of 28 flagged). Also: validation-tier-planner-smoke real-inventory digest re-pinned, retired-authority-vocabulary-guard ceiling 808 to 809, gitroot-cwd-contract-smoke comment updated.",
+  "usage": "npm run test:single-owner-extraction (or node packages/main/dist/tasks/single-owner-extraction-smoke.js; SINGLE_OWNER_AUDIT_VERBOSE=1 prints per-read detail). Consumers call resolveStoryWorkspace(ctx, storyId, { terminalPhaseGuard }) from core/story-workspace.ts instead of resolving a story workspace themselves. The audit block printed by the smoke is the caller list for story B-77e6.",
+  "expectedOutcome": "node packages/main/dist/tasks/single-owner-extraction-smoke.js ends with 40/40 cases passed and single-owner-extraction-smoke: PASS; validation_plan --storyId=B-41c8 --tier=fast --json prints the same selectionDigest from the story worktree and from the main checkout; a renamed non-ASCII or quoted path is reported on both sides by the readers.",
+  "actualTranscript": "single-owner-extraction-smoke: 40/40 cases passed, single-owner-extraction-smoke: PASS (default output 10609 chars). validation_plan selectionDigest identical from both checkouts (delivery re-check 2026-09-03). DONE-required validation PASS (packages/main build, root full test suite). Review escalation full-3x2: three local lane passes plus three independent agy host reviews, each VERDICT: PASS.",
+  "outcomeDiff": "No difference between expected and actual.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The 28 flagged resolveGitCwd callers keep reading ctx.root by design of this story; migrating them is story B-77e6 and its scope is the audit block this story prints. The via-handler label marks unverified delegation, not a proven read. The audit default output must stay under 11000 chars because the verification executor truncates at 12000 before matching selectors (draft evidence-executor-selector-truncation).",
+  "pitfalls": "Story commands run with the shell cwd in the main checkout wrote understanding, decision and scope contract into the main checkout copy of the story; always cd into the worktree in the same command. Attribution trailers in commits triggered a harness history rewrite that orphaned every hash-bound receipt and review run; the branch was rewritten once more to strip the remaining trailers, then receipts were re-earned and a new review round minted (six rounds total, 15 findings). The executor 12000-char truncation refused three CHK-004 selectors until the audit block was compacted. The vocabulary-guard ceiling and the tier-planner digest pin both broke because the story added a scanned smoke file; both were re-pinned with maintenance comments. done_prepare needed: finish decision and lessons captured before the certification window, inventory finalized after every material change, and the 3x2 quorum recorded before re-entering TEST.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 308656
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 28849
+    },
+    "PLAN": {
+      "count": 2,
+      "durationMs": 674811
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 8979836
+    },
+    "REVIEW": {
+      "count": 6,
+      "durationMs": 16746613
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 12233707
+    }
+  },
+  "totalDurationMs": 38973317,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-03T00:17:19.377Z",
+  "updatedAt": "2026-09-03T00:17:19.377Z"
+}

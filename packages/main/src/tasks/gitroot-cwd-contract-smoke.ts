@@ -163,8 +163,13 @@ const BENIGN_BOOTSTRAP_ALLOWLIST = new Set<string>([
   // inferStoryIdFromGit: infers the active story from the repo-root branch before
   // any storyId is known; self-bootstrap discovery, nothing to key a resolve on.
   'packages/main/src/handlers/fixture.ts',
-  // listActiveWorktrees / branch probe: an inline-arg bare-root git probe used to
-  // enumerate worktrees / infer the active story before a storyId is in scope.
+  // branch / status probes: detectActiveStoryFromGit runs `git rev-parse
+  // --abbrev-ref HEAD` at ctx.root to INFER the active story before a storyId is
+  // in scope (no-story-context, same shape as stale-detector), and the brief's
+  // `git status --porcelain` / `git log -3 --oneline` describe the invocation
+  // root itself. Worktree enumeration is no longer inline here: since B-41c8
+  // CHK-003 session_brief resolves each story through resolveStoryWorkspace
+  // (core/story-workspace.ts), which takes gitCwd from resolveGitCwd.
   'packages/main/src/handlers/session.ts',
   // test_auto harness branch bookkeeping: snapshots branches before a full
   // regression and prunes the ones it created afterward, from the repo root; this

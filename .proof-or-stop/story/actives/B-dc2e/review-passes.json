@@ -1,0 +1,316 @@
+{
+  "passes": [
+    {
+      "id": "B-dc2e:RP-001",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue review, B-dc2e (4 checks made to bite). Verified all four CHK diffs against claims, ran validation-protocol-smoke/observability-snapshot-smoke/full-suite-runner-smoke/validation-tier-planner-smoke/cross-host-review-smoke plus tsc --noEmit -- all exit 0. No stale orphan/unregistered claims, no stale proofOrStop.observability_snapshot.v1 literal, RED-guard CHK-only comment is accurate (describes the older item-39 guard, not the new item-44 guard), no stdoutDigest-only stale claims. git log --grep=claude --grep=codex main..HEAD is empty. Analysis (non-blocking): test:all-as-4th-inventory is documented in the smoke's own header/tags and matches docs/requirements/decisions/test-runner-consolidation-plan.md's canonical-vs-noncanonical-discovery distinction -- no contradiction. No concept deletion/replacement residue found this round.",
+      "createdAt": "2026-09-03T05:21:05.140Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-005",
+      "envelopeId": "5d99f1ac0316819f0a49addb9efd943fe8f2f273719d732df8ee7e12152d91ce",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "package.json",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/audit-silent-catches-baseline.json"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+          "packages/main/src/tasks/english-open-source-surface-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5743bcc57dfe57021bfce002a9bdd3a5e8ea9c424f697e7b6f8e60cb9c417e03"
+    },
+    {
+      "id": "B-dc2e:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 2 test-coverage re-audit: F-002 verified via an independent mutation on a real temp dist copy (not the in-process fixture) — neutralising prefixMembersReadStale to () => true on a mutated copy of packages/main/dist/tasks/full-suite-runner-smoke.js makes the smoke exit 1 with the discriminating-control assertion throwing and the pinned membership line count is 0, confirming the edge assertion genuinely gates the print. F-004 verified against git log main..HEAD: the corrected note on CHK-001:adversarial:0 accurately separates the RED commit registration-case failure from the pre-existing CASE_MISMATCH failure at the parent commit, matching RED(CHK-001) 9c33736320 verbatim. Re-audited all 12 verificationIntent entries via checklist_get --json: every receipt is mechanical=true, exitCode 0, selectorMatched true, headHash 48912e2b7a is an ancestor of current HEAD 9e41c6bd and materialHash matches the story materialHash (fresh). Confirmed RED-before-GREEN in git log for F-001 (e54330ff73->98b22b6c79), F-002 (38d7cef39f->9d700d8967), F-006 (d277830f7c->ec9a4b5ddc); GREEN(F-003) 3b1536f17d carries a No-RED marker with a >30-char reason. Confirmed the three CHK-003 pinned tier-planner selectors print verbatim in default (VERBOSE unset) mode via a direct run (1975 chars). Spot-checked RED(F-002) 38d7cef39f in a temp detached worktree (built packages/main fresh): the smoke fails exit 1 matching the RED commit body claimed failure exactly. No blocking finding remains open; F-001..F-004/F-006 are resolved verified, F-005 dismissed as an accidental test finding.",
+      "createdAt": "2026-09-03T05:58:03.317Z",
+      "reviewRound": "2026-09-03T05:53:36.659Z",
+      "reviewRunId": "B-dc2e:RR-008",
+      "envelopeId": "9e5ff64658b586cb37215e029fd36454d943bb1be44e588a483f3d37ee8010a3",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          "packages/main/src/core/red-green-commit-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e68b7569d10d2afe9f9072033c8d608d571781cc64fa2e5dc5ed756cce45d742"
+    },
+    {
+      "id": "B-dc2e:RP-003",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round-2 concept re-sweep of the F-001/F-002/F-006/F-003 fix wave (7 commits e54330ff73..3b1536f17d). No concept residue found: (1) F-001 capText/boundPersistedFindings signature change (string -> {text,truncated}) has no stale call sites (grep confirms all consumers updated); PERSISTED_FINDING_TRUNCATION_MARKER/truncatedFields fully wired, no doc still describes silent truncation for this path. (2) F-002 evaluateRealInventory prints the pinned real-inventory line via printMembershipLine only after both the edge-discrimination assertion and composed-chain assertion pass (verified by reading full-suite-runner-smoke.ts:70-96 and the two call sites at 203/217); ran node dist/tasks/full-suite-runner-smoke.js live -> both new [PASS] real inventory / real inventory edge mutation lines print, 168 assertions PASS. (3) F-006 red-green-commit-guard.ts priorRedIds is correctly threaded end to end: validation-tier-planner-smoke.ts derives it from git merge-base(main,HEAD) history via priorRedIds()/evaluateBranchRedGreen(), no stale main..HEAD-only doc claim found (plan.md wording still accurate, not exclusive). Ran node dist/tasks/validation-tier-planner-smoke.js live: guard line prints [PASS] RED-before-GREEN guard ... and the new priorRedIds fixture/temp-repo cases pass. (4) F-003 beginSection/flushSection fully replaced every bare console.log(`running CHK-...`) call (grep confirms zero remaining raw occurrences) and declaredChecklistItems regex updated to match beginSection(); ran the smoke twice (default and VALIDATION_TIER_PLANNER_VERBOSE=1), default stdout collapses to per-section ok-N-cases-passed lines (1975 chars measured, matches commit-body projection) while CHK-006 keeps its per-case lines and pinned selectors are byte-identical; both runs end PASS. Verified each GREEN commit body against its diff (F-001/F-002/F-006/F-003) -- all claims match the actual code change. git log --format=%h -i --grep=claude --grep=codex main..HEAD | wc -l = 0. Every commit subject on main..HEAD is either RED(id): / GREEN(id): or the proof-or-stop: metadata-commit prefix; none are bare/nonconforming. This is a re-sweep only; F-003/F-004 (quality/test-coverage doc-accuracy findings) and other checklist items are outside this concept lane and already tracked separately.",
+      "createdAt": "2026-09-03T05:58:33.441Z",
+      "reviewRound": "2026-09-03T05:53:36.659Z",
+      "reviewRunId": "B-dc2e:RR-006",
+      "envelopeId": "7aa784c29f70a3caa85d663f44d724a61690752908694e1dba128f3142f3d8b9",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ef556e6e67ea0531ca079f78ca34f97725e29d17b82b3da5d1cb6cffab017852"
+    },
+    {
+      "id": "B-dc2e:RP-004",
+      "agent": "proof-or-stop-review-concept",
+      "note": "F-008/F-007 residue sweep clean: helper header, smoke comment, and renamed testCase titles show no stale references to the pre-fix unqualified-id rule or the old whole-history/silent-null contract; gitOutput/gitOutputIn still catch-and-return-null as documented; no dangling refs to old fixture titles; plan.md CHK-003 predates F-007/F-008 (not drift); no mentions in docs/requirements or CLAUDE.md; git log --grep=claude --grep=codex main..HEAD is 0; rebuilt and ran validation-tier-planner-smoke.js, all cases pass including the RED-before-GREEN guard line and final PASS.",
+      "createdAt": "2026-09-03T06:23:54.350Z",
+      "reviewRound": "2026-09-03T06:21:01.454Z",
+      "reviewRunId": "B-dc2e:RR-010",
+      "envelopeId": "8d6424ca44ce5165f46e9ccd4f3ddb03765bdba87a6d52b72a6434cf8f3998de",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5b77617dd9c833ab97f661fa23cd8723904b17ed548c23303988d33378394cdf"
+    },
+    {
+      "id": "B-dc2e:RP-005",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 3 quality re-review of full main...HEAD diff, focused verification of F-007/F-008 fixes (priorRedIds gitOutputStrict + qualified-only rule). tsc clean, mutation test on maxBuffer confirms loud fail not silent empty. All F-001..F-008 findings resolved/dismissed, no open blockers. No dead code / as any / empty catch introduced.",
+      "createdAt": "2026-09-03T06:24:37.357Z",
+      "reviewRound": "2026-09-03T06:21:01.454Z",
+      "reviewRunId": "B-dc2e:RR-011",
+      "envelopeId": "f399f8ebc341a4e701e26d13497fdb68260aa4f134269a321b832852849b75f6",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f36537df7eece298eebb3738a1a97efb595b905ac172f221db37edaaf31047c0"
+    },
+    {
+      "id": "B-dc2e:RP-006",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 3 audit: all 12 verificationIntent entries (CHK-001..004 x happy/edge/adversarial) have mechanical=true verificationEvidence with selectorMatched=true and result=pass (checklist_get --json). CHK-003 edge intent fixture (guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes) still asserts bareMarker.ok=false, shortMarker (<30 chars).ok=false, reasoned(>=30 chars).ok=true, matching NO_RED_MIN_REASON_LENGTH=30 in core/red-green-commit-guard.ts. Verified RED/GREEN pairs by checking out ae74bec96e (RED F-008) and 4e92a3e86e (RED F-007) in detached worktrees, building, and running validation-tier-planner-smoke.js: RED(F-008) fails 3 cases including a bare GREEN(CHK-001) wrongly satisfied by a bare RED(CHK-001) (true !== false); RED(F-007) fails 3 cases including the real-repository priorRedIds comparison returning actual [] vs expected 8 qualified B-a745 RED ids, confirming the comparison is non-vacuous (independent git --grep query on this repo merge-base returns 9 qualified RED subjects, not empty, so an empty-set regression would be caught). GREEN(F-008) 9de39f92a3 and GREEN(F-007) 8fec18017b (per story evidence receipts) both pass. git log main..HEAD confirms RED(F-008) ae74bec96e precedes GREEN(F-008) 9de39f92a3 precedes RED(F-007) 4e92a3e86e precedes GREEN(F-007) 8fec18017b, all subjects conform to RED(F-nnn)/GREEN(F-nnn) pattern. No open blocking findings remain (F-007/F-008 resolvedBy B-dc2e:F-007@8fec180 / B-dc2e:F-008@8fec180; F-005 dismissed; F-001/F-002/F-003/F-004/F-006 previously resolved).",
+      "createdAt": "2026-09-03T06:26:04.969Z",
+      "reviewRound": "2026-09-03T06:21:01.454Z",
+      "reviewRunId": "B-dc2e:RR-012",
+      "envelopeId": "574365aae283e73cce4aac5915c99a88181ae2b67038385aee65e6a62002ac7e",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "da28104a623a000ae789d8f8b6e648235c6d5ddddfce2650683263c17388cd78"
+    },
+    {
+      "id": "B-dc2e:RP-007",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round-3 re-verification of F-007/F-008 fixes (RED ae74bec96e/GREEN 9de39f92a3 for F-008; RED 4e92a3e86e/GREEN 8fec18017b for F-007) against the built dist. (1) Independently re-ran an 8-case battery directly against dist/core/red-green-commit-guard.js (not the smoke fixtures): unqualified GREEN(CHK-001) rejected despite unrelated bare RED(CHK-001) prior; qualified GREEN(B-dc2e:CHK-001) accepted by matching qualified prior RED; qualified GREEN not rescued by another storys qualified RED of same number; merge-commit and revert-wrapped subjects correctly ignored; No-RED reason length correctly computed after trim (29 chars fails, 30 passes, whitespace padding does not game the count); No-RED marker is case-sensitive and must start the line; isStoryQualifiedRedGreenId rejects uppercase-hex/short/lowercase-prefix malformed qualifiers. All 8 passed. (2) Built a from-scratch temp git repo (not reusing the smokes own fixture helpers) reproducing the merge-base movement scenario: RED(B-dc2e:F-001) landing on main after the branch point leaves GREEN(B-dc2e:F-001) unsatisfied (empty prior set) before git merge main, and satisfied only after the merge moves the merge-base to include it -- matches CLAUDE.mds documented DONE-requires-merge-main flow. Judgment: this flip is NOT a new hole introduced by the F-008 fix. The RED-before-GREEN guard is a commit-message-pattern check with no tie to actual test execution, so an author could already fabricate a fake RED(B-dc2e:...) commit directly on their own story branch with equal ease and identical trust level; routing it through main+merge does not lower the bar further, and only the SAME qualified story id is ever accepted (verified with a second RED(B-1234:F-001) on main confirming cross-story ids are still rejected post-merge). (3) F-007 inverse test: cloned the branch --single-branch (no local main ref) into a throwaway dir, built dist there, and ran the real compiled validation-tier-planner-smoke.js end-to-end. It exited 1 / reported FAIL (not a silent PASS with an empty prior set): the real-repo self-check case explicitly asserted a real merge-base is required and failed loud with that message; the two synthetic-repo priorRedIds-raises cases (no main branch, not-a-repo) still passed as designed. Separately confirmed via a raw execFileSync probe that git merge-base also fails (exit 1, empty stderr) for an orphan/no-common-ancestor main+story pair, and that priorRedIds gitOutputStrict has no catch-to-empty path (only catch-and-rethrow), so this shape is covered by construction too. (4) Ran the full validation-tier-planner-smoke.js on the real branch: PASS, prints [PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason, all CHK-006 cross-cutting cases ok including the story-qualified prior-RED and merge-base-movement cases. finding_list shows F-001..F-008 all resolved/dismissed with evidenceState=verified, none reopened. No blocker found for this round.",
+      "createdAt": "2026-09-03T06:28:26.253Z",
+      "reviewRound": "2026-09-03T06:21:01.454Z",
+      "reviewRunId": "B-dc2e:RR-013",
+      "envelopeId": "9207b445f4aebfe10088d5cb44abc0667c21b01f7365300d163f449e4ad4ac5e",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "c78ec6f1b1d55705e8581dec21902127e06346cee33c4560ed247594114a893a"
+    },
+    {
+      "id": "B-dc2e:RP-008",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 4 re-sweep after a main-merge-only HEAD move invalidated RP-004's prompt envelope (no story SOURCE file changed). git diff --name-only main...HEAD lists only this story's own files (code + .proof-or-stop/story/actives/B-dc2e/*), confirming the merged-in commits (other stories' metadata, .githooks/commit-msg hook, dev-memory/experience.jsonl, a docs draft) live only on main's side, not in this diff. review_incremental_context confirms changedFiles since RP-004 are exactly [.githooks/commit-msg, .proof-or-stop/dev-memory/experience.jsonl] classified KNOWN_UNRELATED_MATERIAL_DRIFT/FULL_UNKNOWN_IMPACT -- not story-owned. Re-ran round-1 residue checks: beginSection/flushSection fully replaced raw console.log(running CHK-...) (0 remaining), capText/boundPersistedFindings has no stale callers, no orphan concept references found. Re-ran round-3 F-007/F-008 wording checks: priorRedIds() carries the F-007 bounded gitOutputStrict (explicit 64MB maxBuffer, raises instead of silently returning empty) and the F-008 story-qualified-only rule (isStoryQualifiedRedGreenId / PRIOR_RED_SUBJECT_GREP); red-green-commit-guard.ts header doc and validation-tier-planner-smoke.ts comments/test titles accurately describe the current qualified/bounded behavior, with no doc or comment still describing the pre-fix unqualified prior-RED rule or the old unbounded/silent-null git read (gitOutput/gitOutputIn keep their documented catch-and-return-null contract for the callers that still want it). git log --format=%h -i --grep=claude --grep=codex main..HEAD = 0. node packages/main/dist/tasks/validation-tier-planner-smoke.js: all sections PASS including [PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason, ending validation-tier-planner-smoke: PASS. No concept deletion/replacement residue found this round; story content unchanged since RP-004.",
+      "createdAt": "2026-09-03T11:28:30.664Z",
+      "reviewRound": "2026-09-03T11:25:21.397Z",
+      "reviewRunId": "B-dc2e:RR-014",
+      "envelopeId": "f72dd919f1f48a3e3e35ff6f9e80d3888d4518b55a71a174a3fda354cd138915",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "84b2cb22c7081bef700540eda88b53f7f7171c951b2150ab2a2f9e9d356b2c13"
+    },
+    {
+      "id": "B-dc2e:RP-009",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 4 re-verification after main-merge head move invalidated RP-005 envelope. review_incremental_context confirms isFirstPass=false, changedFiles since RP-005 = [.githooks/commit-msg, .proof-or-stop/dev-memory/experience.jsonl] only; neither is a story SOURCE file per scope-contract allowedCreate/Modify/Test. git diff --name-only main...HEAD confirms .githooks/commit-msg is NOT part of this story diff. Inspected .githooks/commit-msg (commit d80e1255): it only strips trailer lines matching Co-Authored-By/Claude-Session/Codex-Session/Generated-with markers via grep+stripspace and always exit 0 (never blocks a commit); it never touches the subject line, so it cannot affect the RED/GREEN(CHK-nnn|F-nnn) subject regex red-green-commit-guard reads. Re-ran: npm --prefix packages/main run build (clean), npx tsc --noEmit -p packages/main (exit 0, no output), validation-protocol-smoke.js final line \"validation protocol smoke passed\" (362 files classified, 0 unclassified), full-suite-runner-smoke.js final line \"full-suite-runner-smoke: PASS (168 assertions)\", validation-tier-planner-smoke.js default stdout projection: 2519 chars (bound 11000), guard line \"[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\", final \"validation-tier-planner-smoke: PASS\", cross-host-review-smoke.js final line \"cross_host_review smoke passed (28 checks)\". git status --short clean throughout. No code-quality findings this round; prior round-3 findings/passes stand since no story SOURCE files changed.",
+      "createdAt": "2026-09-03T11:30:34.079Z",
+      "reviewRound": "2026-09-03T11:25:21.397Z",
+      "reviewRunId": "B-dc2e:RR-016",
+      "envelopeId": "7b148afa62aff4e923e41ac0afc7682d5e58d9bc6d346f677fa2b91dba3e3ca8",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/commit-msg",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/dev-memory/experience.jsonl",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5ded9a82699bdda7f42439f011f2f2a9227b26f6b2dc54f054305e80161dac96"
+    },
+    {
+      "id": "B-dc2e:RP-010",
+      "agent": "proof-or-stop-review-behavior",
+      "note": "Round-4 re-review after merge-only HEAD move (no story source changed since RP-007). Verified the new .githooks/commit-msg attribution-strip hook does not interact with this story RED-before-GREEN guard: built a scratch git repo with core.hooksPath pointed at the same .githooks, committed GREEN(F-nnn) subjects with a No-RED: <reason> body line plus a Co-Authored-By trailer, and confirmed the hook strips only the trailer (uses git stripspace, no reflow) while the RED/GREEN subject and the No-RED marker line survive byte-for-byte, including exact 30/29-char reason-length boundary preservation. This matches how the guard actually reads commits (readRedGreenCommits in validation-tier-planner-smoke.ts uses git log --format=%s%x00%b%x1e, subject/body split on NUL, record split on RS), so trailer stripping cannot hide or fabricate a marker. Re-ran the short battery: squashed RED rejected, story-qualified prior-RED accepted only for the same story (bare/other-story ids rejected), No-RED reason length boundary enforced, merge-base movement handled — all already covered and passing inside validation-tier-planner-smoke.js CHK-006. Re-ran all four story smokes against a fresh build: validation-tier-planner-smoke, validation-protocol-smoke, full-suite-runner-smoke, cross-host-review-smoke — all PASS.",
+      "createdAt": "2026-09-03T11:31:26.910Z",
+      "reviewRound": "2026-09-03T11:25:21.397Z",
+      "reviewRunId": "B-dc2e:RR-017",
+      "envelopeId": "3f105e4cca1ec19fce45a8367cb54447128807bef76ca84ed3fab2eb81977af2",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".githooks/commit-msg",
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          "packages/main/src/core/red-green-commit-guard.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "caad95ac5b18df05847d061c99fb8ee3e80fe41d6ab732ffbcf4112cb0317ba5"
+    },
+    {
+      "id": "B-dc2e:RP-011",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 4 re-verification after main-merge HEAD move (no story SOURCE file changed since RP-006). (a) 12/12 verificationIntent items (happy/edge/adversarial x CHK-001..004) have mechanical evidence: receipt present, exitCode=0, selectorMatched=true, result=pass; all 12 evidence records storyFilesHash=fd7cae9a... matches current task-context storyFilesHash (0 mismatches). review_incremental_context confirms freshnessClassification=KNOWN_UNRELATED_MATERIAL_DRIFT, changedFiles since RP-006 = only .githooks/commit-msg and .proof-or-stop/dev-memory/experience.jsonl (neither story-owned SOURCE). (b) git diff --name-only main...HEAD lists 39 files, all story-owned (story metadata dir + the 8 in-scope code files + package.json + proof-or-stop.config.json), no unrelated files. (c) git log --reverse main..HEAD confirms RED before GREEN ordering for CHK-001..004 and F-001/F-002/F-006/F-007/F-008; GREEN(F-003) has no RED(F-003) and carries a No-RED marker with a 75-char reason. (d) Rebuilt packages/main dist, then ran all four smokes fresh: validation-protocol-smoke.js, full-suite-runner-smoke.js, validation-tier-planner-smoke.js, cross-host-review-smoke.js -- all exit 0 and all print their pinned selector lines verbatim. No blocker found; no findings raised this round.",
+      "createdAt": "2026-09-03T11:32:50.762Z",
+      "reviewRound": "2026-09-03T11:25:21.397Z",
+      "reviewRunId": "B-dc2e:RR-015",
+      "envelopeId": "a2de37a260ba07d8de3129c5fb91fb30e305149fb9f40052c3d8ef1822c8c59a",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "23230da6fb232d7c01617a6fb33988570175ac536d7f692a415211dbd31857ad"
+    }
+  ]
+}

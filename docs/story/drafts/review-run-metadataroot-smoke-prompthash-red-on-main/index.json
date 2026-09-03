@@ -1,0 +1,14 @@
+{
+  "name": "review-run-metadataroot-smoke-prompthash-red-on-main",
+  "title": "review-run-metadataroot-wrapper-root-smoke fails on main with the same legacy promptHash mismatch as evidence-state-gate-smoke",
+  "description": "node packages/main/dist/tasks/review-run-metadataroot-wrapper-root-smoke.js (not registered in proof-or-stop.config.json validate.commands nor in the root test:serial-reference chain) fails on the unmodified main dist at 28e6372a03 in Proof B (rr-mr-e2e-1) with invalid Prompt Envelope: legacy ReviewRun promptHash does not match the frozen legacy role body. Reproduced byte-identically on main by the B-83aa CHK-003 implementer on 2026-09-03 while fixing the wrapper-root legacy-run cwd routing (commit 3c1f50e10a on story/B-83aa), so it is unrelated to that change. This is the same failure class as draft evidence-state-gate-smoke-prompthash-red-on-main and should be fixed together: re-derive the legacy promptHash from the current frozen role body (or decide the legacy v1 path is retired), then register both smokes so they cannot rot silently.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "review-run",
+    "promptHash",
+    "wrapper-root",
+    "smoke-red-on-main"
+  ],
+  "createdAt": "2026-09-03T00:14:40.504Z"
+}

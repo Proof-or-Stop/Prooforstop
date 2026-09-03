@@ -1,0 +1,192 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-41c8:CW-001",
+      "storyId": "B-41c8",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-02T20:48:03.275Z",
+      "updatedAt": "2026-09-02T20:48:03.275Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "Inventory receipt is not on the current storyFilesHash lineage.",
+      "inventory": {
+        "epochId": "B-41c8:RIE-001",
+        "receiptId": "B-41c8:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "9c09141691efbb68e835e023f18a0a3d5a535b4ccdff617e43b4a11129f8e937"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-41c8:CW-002",
+      "storyId": "B-41c8",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-02T20:48:18.809Z",
+      "updatedAt": "2026-09-02T20:48:18.809Z",
+      "blockerCode": "pre_cert_coverage_missing",
+      "blockerDetail": "15 required verification intent(s) are missing coverage.",
+      "inventory": {
+        "epochId": "B-41c8:RIE-002",
+        "receiptId": "B-41c8:RIE-002:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "d732b4373f47d1e18f868edc351b742724a44bfa11e4d928b61c10197c6636bd"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-41c8:CW-003",
+      "storyId": "B-41c8",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-02T21:39:38.489Z",
+      "updatedAt": "2026-09-02T21:39:38.489Z",
+      "blockerCode": "pre_cert_main_not_merged",
+      "blockerDetail": "Local main is not an ancestor of HEAD.",
+      "inventory": {
+        "epochId": "B-41c8:RIE-002",
+        "receiptId": "B-41c8:RIE-002:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "c30a284f3c01dda32a59de057153f66a818bc632d737f39c641cc2830d7d779b"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-41c8:CW-004",
+      "storyId": "B-41c8",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-02T21:48:40.350Z",
+      "updatedAt": "2026-09-02T21:48:40.350Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "Whole-tree materialHash drift is not an unchanged certification identity.",
+      "inventory": {
+        "epochId": "B-41c8:RIE-002",
+        "receiptId": "B-41c8:RIE-002:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "13fbd8f951350cb29531e4742b3d52612c685c05be3c66e11a5d6c7f56dc12ef"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-41c8:CW-005",
+      "storyId": "B-41c8",
+      "state": "INVALIDATED",
+      "createdAt": "2026-09-02T21:49:07.309Z",
+      "updatedAt": "2026-09-03T01:00:04.501Z",
+      "frozen": {
+        "headHash": "4bf81bdcd59d352192e3b0092cfcbe0b6b322513",
+        "materialHash": "4030db6e1de9ed94de989ffe773c93ea8dc307a3189c306cff1353227c386cab",
+        "storyFilesHash": "c83312385958ff498641f61cdc88e6b38b162b85ba3ead708dab09a6e1b259b9",
+        "expectedMainSha": "28e6372a0352b7939ae27d5c7da624ad79ff33b9",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-41c8:RIE-003",
+        "receiptId": "B-41c8:RIE-003:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-41c8:PRECERT-001",
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "storyFilesHash changed",
+      "invalidation": {
+        "detectedAt": "2026-09-03T01:00:04.501Z",
+        "oldHeadHash": "4bf81bdcd59d352192e3b0092cfcbe0b6b322513",
+        "currentHeadHash": "2d4af06f35cb7d5b2c40843c1e2d52d53e30e9be",
+        "oldMaterialHash": "4030db6e1de9ed94de989ffe773c93ea8dc307a3189c306cff1353227c386cab",
+        "currentMaterialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+        "oldStoryFilesHash": "c83312385958ff498641f61cdc88e6b38b162b85ba3ead708dab09a6e1b259b9",
+        "currentStoryFilesHash": "cab3d44f8bb96c7306d26f14b08240ca2ab08a378bbb3654458ce509dfc8890c",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "4431eb0e9b40a59489b29f8ccae54b88de28b211361adfc7d5d67ae3695d4a4b"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-41c8:CW-006",
+      "storyId": "B-41c8",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-03T02:46:17.115Z",
+      "updatedAt": "2026-09-03T02:46:17.115Z",
+      "blockerCode": "pre_cert_coverage_missing",
+      "blockerDetail": "15 required verification intent(s) are missing coverage.",
+      "inventory": {
+        "epochId": "B-41c8:RIE-005",
+        "receiptId": "B-41c8:RIE-005:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "3ebb3484e42220e26bfbf7fa84ce0f04fbf893275648ce2e205f9b73c6774861"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-41c8:CW-007",
+      "storyId": "B-41c8",
+      "state": "RUNNING",
+      "createdAt": "2026-09-03T03:40:21.435Z",
+      "updatedAt": "2026-09-03T03:40:23.267Z",
+      "frozen": {
+        "headHash": "e9bb3b81c7fae769e6ce55aa85c91abf636b81e5",
+        "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+        "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+        "expectedMainSha": "44e438faff6d05c9258d021f976b9728a9ccffbf",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-41c8:RIE-008",
+        "receiptId": "B-41c8:RIE-008:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-41c8:PRECERT-002",
+      "_hash": "858b1893d2e0235ad78eae45108587572cffc4e4c362f94cb45d1966eac88542"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-41c8:PRECERT-001",
+      "windowId": "B-41c8:CW-005",
+      "storyId": "B-41c8",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "4bf81bdcd59d352192e3b0092cfcbe0b6b322513",
+        "materialHash": "4030db6e1de9ed94de989ffe773c93ea8dc307a3189c306cff1353227c386cab",
+        "storyFilesHash": "c83312385958ff498641f61cdc88e6b38b162b85ba3ead708dab09a6e1b259b9",
+        "expectedMainSha": "28e6372a0352b7939ae27d5c7da624ad79ff33b9",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-41c8:RIE-003",
+      "inventoryReceiptId": "B-41c8:RIE-003:RCP-001",
+      "createdAt": "2026-09-02T21:49:07.309Z",
+      "_hash": "5d368f472f8287f91623717a0c94c89ec95e726337c15ba6f99f815e9409f096"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-41c8:PRECERT-002",
+      "windowId": "B-41c8:CW-007",
+      "storyId": "B-41c8",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "e9bb3b81c7fae769e6ce55aa85c91abf636b81e5",
+        "materialHash": "465becffe9d5b0cb531de83f11a41a213efe25715848ff0990a0ba412f69628b",
+        "storyFilesHash": "370dba2819ccbfb51f83e1cab54aba431aab33fd8452759bd460dde1abd88f2b",
+        "expectedMainSha": "44e438faff6d05c9258d021f976b9728a9ccffbf",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-41c8:RIE-008",
+      "inventoryReceiptId": "B-41c8:RIE-008:RCP-001",
+      "createdAt": "2026-09-03T03:40:21.435Z",
+      "_hash": "4d6946dbf4c000f9d68f9cc9b581243079900ca8a67f983159581108834321df"
+    }
+  ]
+}

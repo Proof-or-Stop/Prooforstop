@@ -1,0 +1,49 @@
+#!/bin/sh
+# Enforce the repository rule that AI-host attribution never enters git history.
+#
+# Every agent session receives a harness instruction telling it to append an
+# attribution trailer. That instruction is re-injected per session, so a rule
+# written in prose is re-broken by the next session. This hook removes the
+# trailers mechanically at commit time, whoever or whatever wrote the message.
+#
+# Behaviour:
+#   1. Attribution trailers are STRIPPED silently (they carry no information).
+#   2. Any other mention of the host names is WARNED about, not blocked.
+#      Blocking would abort the auto-commits that the CLI makes in the middle of
+#      story transitions and could leave story state half-written; a warning
+#      keeps the operator informed without that risk.
+#
+# Enable with: git config core.hooksPath .githooks
+
+MSG_FILE="$1"
+[ -f "$MSG_FILE" ] || exit 0
+
+TMP="$MSG_FILE.attribution-strip.$$"
+trap 'rm -f "$TMP"' EXIT
+
+# 1. Drop attribution trailer lines.
+grep -viE '^[[:space:]]*Co-Authored-By:.*(Claude|Codex|Anthropic|noreply@anthropic\.com)|^[[:space:]]*Claude-Session:|^[[:space:]]*Codex-Session:|Generated with \[?Claude Code|🤖 Generated with' \
+  "$MSG_FILE" > "$TMP" || true
+
+# Collapse the blank lines the removal leaves behind.
+if command -v git >/dev/null 2>&1; then
+  git stripspace < "$TMP" > "$TMP.clean" && mv "$TMP.clean" "$TMP"
+fi
+
+if ! cmp -s "$MSG_FILE" "$TMP"; then
+  cat "$TMP" > "$MSG_FILE"
+  echo "commit-msg: removed AI attribution trailer(s) from the commit message." >&2
+fi
+
+# 2. Warn about remaining host-name mentions (subject or body), excluding the
+#    unavoidable path spellings for the host asset directories and files.
+LEFTOVER=$(sed -E 's#\.claude/[A-Za-z0-9_./*-]*##g; s#CLAUDE\.md##g; s#\.proof-or-stop-codex/[A-Za-z0-9_./*-]*##g; s#proof-or-stop-codex##g; s#verify_codex##g' "$MSG_FILE" \
+  | grep -inE 'claude|codex' || true)
+
+if [ -n "$LEFTOVER" ]; then
+  echo "commit-msg: WARNING - the message still names an AI host:" >&2
+  echo "$LEFTOVER" | sed 's/^/  /' >&2
+  echo "commit-msg: repository rule is to describe host files without the host name." >&2
+fi
+
+exit 0

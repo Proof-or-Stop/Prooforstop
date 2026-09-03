@@ -8,6 +8,7 @@ import { StoryStore } from '../core/store.js';
 import { assertCwdInWorktree, collectContext } from './context.js';
 import { loadConfig } from '../core/config.js';
 import { resolveProjectGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { resolveStoryWorkspace } from '../core/story-workspace.js';
 import { formatProcessMetricsSummary } from '../core/process-metrics.js';
 import { isVolatileRuntimeArtifactPath } from '../core/runtime-artifact-registry.js';
 import {
@@ -405,40 +406,23 @@ export function detectStoryResidue(
 export function createStoryQueryHandlers(ctx: HandlerContext) {
   const { store, root } = ctx;
 
-  function readStoryProjection(id: string, linkedWorktrees: Map<string, string>): {
+  // B-41c8 CHK-003: workspace resolution is owned by core/story-workspace.ts.
+  // story_list keeps the phase-terminal guard it always had: a DONE / DISCARDED
+  // story is projected from the invocation root, never from a residual worktree.
+  function readStoryProjection(id: string): {
     story: StoryInfo;
     sourceStore: StoryStore;
     mainPhase: StoryPhase | null;
   } {
-    const mainStory = store.readStory(id);
-    const linkedPath = linkedWorktrees.get(id);
-    if (
-      linkedPath &&
-      mainStory.phase !== 'DONE' &&
-      mainStory.phase !== 'DISCARDED'
-    ) {
-      try {
-        const sourceStore = new StoryStore(linkedPath);
-        const story = sourceStore.readStory(id);
-        return {
-          story,
-          sourceStore,
-          mainPhase: story.phase !== mainStory.phase ? mainStory.phase : null,
-        };
-      } catch {
-        // PROBE: if the linked worktree cannot be read, fall back to main metadata.
-      }
-    }
-    return { story: mainStory, sourceStore: store, mainPhase: null };
-  }
-
-  function listLinkedStoryWorktrees(): Map<string, string> {
-    const out = new Map<string, string>();
-    for (const entry of listGitWorktrees(root)) {
-      const m = entry.branch?.match(/^story\/(.+)$/);
-      if (m) out.set(m[1], entry.path);
-    }
-    return out;
+    const workspace = resolveStoryWorkspace(ctx, id, { terminalPhaseGuard: true });
+    return {
+      story: workspace.story,
+      sourceStore: workspace.store,
+      mainPhase:
+        workspace.source === 'linked-worktree' && workspace.story.phase !== workspace.rootStory.phase
+          ? workspace.rootStory.phase
+          : null,
+    };
   }
 
   return {
@@ -565,9 +549,8 @@ export function createStoryQueryHandlers(ctx: HandlerContext) {
       const zombieIds = new Set(zombies.map(z => z.storyId));
       const residueIds = new Set(residues.map(r => r.storyId));
 
-      const linkedWorktrees = listLinkedStoryWorktrees();
       const results = ids.map(id => {
-        const { story, sourceStore, mainPhase } = readStoryProjection(id, linkedWorktrees);
+        const { story, sourceStore, mainPhase } = readStoryProjection(id);
         const cl = (() => {
           try { return sourceStore.readChecklist(id); } catch { return { items: [] }; }
         })();

@@ -1,0 +1,60 @@
+{
+  "storyId": "B-dc2e",
+  "checkedAt": "2026-09-03T11:40:56.600Z",
+  "headHash": "3ba27c7da98d1132b19246688ec29a37adbea8dd",
+  "materialHash": "39d75b0e761c32eecd336f5941ae87f3386034e0c86544db44de3e3aa5ca2919",
+  "storyFilesHash": "fd7cae9a9838c4cb364580be9d02678c893ce6ff8e6e789ba28c1f8c558d3aa1",
+  "reviewRound": "2026-09-03T11:25:21.397Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "plan.md#CHK-001 / checklist#CHK-001.userSees",
+      "promise": "validation-protocol-smoke.ts is fixed and registered in all three canonical inventories (test:serial-reference in package.json, RESOURCE_POLICY in full-suite-runner.ts, validate.commands in proof-or-stop.config.json), plus a sweep case classifies every packages/main/src/tasks file (registered/deleted/kept-unregistered); observability-snapshot-smoke.ts is fixed and registered as test:observability-snapshot.",
+      "verifiedBy": "diff/grep + real-machine run on rebuilt dist (HEAD 3ba27c7da98d1132b19246688ec29a37adbea8dd)",
+      "evidence": "grep -n validation-protocol package.json packages/main/src/tasks/full-suite-runner.ts proof-or-stop.config.json shows the 4 registration sites (test:serial-reference chain entry, npm script, RESOURCE_POLICY repoRead row, validate.commands block). node packages/main/dist/tasks/validation-protocol-smoke.js just now printed the 3 required [PASS] lines including 'tasks sweep: 362 packages/main/src/tasks files classified, 0 unclassified' and explicit ledger lines 'ledger validation-protocol-smoke registered:npm-script+serial-reference+RESOURCE_POLICY+validate.commands+test:all' and 'ledger observability-snapshot-smoke registered:npm-script+test:all'. observability-snapshot-smoke.ts diff shows the regex fix (schema constant OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION replacing the stale literal), and npm run test:observability-snapshot just passed."
+    },
+    {
+      "docPath": "plan.md#CHK-002 / checklist#CHK-002.userSees",
+      "promise": "full-suite-runner-smoke.ts gains a real-inventory membership case reading the REAL test:serial-reference/-prefix chains and REAL RESOURCE_POLICY, plus a scratch-copy mutation removing a policy row (asserts membership FAILS naming the row) and an edge-neutralisation mutation on the prefix-stale predicate.",
+      "verifiedBy": "real-machine run on rebuilt dist (HEAD 3ba27c7da98d1132b19246688ec29a37adbea8dd)",
+      "evidence": "node packages/main/dist/tasks/full-suite-runner-smoke.js just now printed all three named [PASS] lines: '[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row', '[PASS] real inventory edge mutation: a prefix-stale predicate neutralised to true fails the case before the membership line is printed', '[PASS] real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership', then 'full-suite-runner-smoke: PASS (168 assertions)'."
+    },
+    {
+      "docPath": "plan.md#CHK-003 / checklist#CHK-003.userSees",
+      "promise": "A new pure core/red-green-commit-guard.ts is wired into validation-tier-planner-smoke.ts: derives CHK-nnn and F-nnn ids, requires RED before GREEN or a documented No-RED marker with a reason >= 30 chars, accepts story-qualified prior-RED ids from a bounded strict git query, and the smoke's default output stays under 11000 chars.",
+      "verifiedBy": "diff read of core/red-green-commit-guard.ts + real-machine run on rebuilt dist (HEAD 3ba27c7da98d1132b19246688ec29a37adbea8dd)",
+      "evidence": "core/red-green-commit-guard.ts exports NO_RED_MARKER='No-RED:' and NO_RED_MIN_REASON_LENGTH=30, an F-nnn/CHK-nnn subject regex, and a STORY_QUALIFIED_ID regex gating prior-RED acceptance to B-xxxx:id (F-008). node packages/main/dist/tasks/validation-tier-planner-smoke.js just now printed '[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason', the priorRedIds bounded/raising cases, and 'default stdout projection: 2519 chars (bound 11000)' / 'ok bound (F-003): the default ... total stdout of this smoke is under 11000 chars', ending 'validation-tier-planner-smoke: PASS'."
+    },
+    {
+      "docPath": "plan.md#CHK-004 / checklist#CHK-004.userSees",
+      "promise": "cross-host-review.ts persists host B's (and host A's) parsed findings as a bounded, truncation-marked array (PersistedReviewFinding with truncatedFields) in the verdict artifact and via --json, and a sentinel sweep proves no raw provider stdout is ever persisted.",
+      "verifiedBy": "diff read of handlers/cross-host-review.ts + real-machine run on rebuilt dist (HEAD 3ba27c7da98d1132b19246688ec29a37adbea8dd)",
+      "evidence": "Diff shows PersistedReviewFinding, PERSISTED_FINDING_TRUNCATION_MARKER, boundPersistedFindings() with per-field caps and truncatedFields, and findings bound into buildLocalHostVerdict's digested base. node packages/main/dist/tasks/cross-host-review-smoke.js just now printed '[PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact', '[PASS] F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names', and 'CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree', ending 'cross_host_review smoke passed (28 checks)'. GREEN(CHK-004) commit body (443e5eda69) records the finding_add-registration decision (no, verdict artifact is durable record) as required by DoneWhen."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/validation-protocol-smoke.js (rebuilt from HEAD 3ba27c7da9): [PASS] validation-protocol-smoke registered in npm scripts, test:serial-reference, RESOURCE_POLICY and validate.commands; [PASS] full-suite runner refuses a test:serial-reference member without a RESOURCE_POLICY row; [PASS] tasks sweep: 362 packages/main/src/tasks files classified, 0 unclassified (with explicit ledger lines for validation-protocol-smoke and observability-snapshot-smoke); [PASS] managed asset CASE_MISMATCH detected for case-only variant; [PASS] no-story validate is read-only; final line 'validation protocol smoke passed'. npm run test:observability-snapshot also passed separately."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/full-suite-runner-smoke.js (rebuilt from HEAD 3ba27c7da9): '[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row', '[PASS] real inventory edge mutation: a prefix-stale predicate neutralised to true fails the case before the membership line is printed', '[PASS] real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership', ending 'full-suite-runner-smoke: PASS (168 assertions)'."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "node packages/main/dist/tasks/validation-tier-planner-smoke.js (rebuilt from HEAD 3ba27c7da9): CHK-006 cross-cutting acceptance guards block passes (RED-before-GREEN squash/marker/story-qualified/merge-base cases, priorRedIds bounded/raising cases), '[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason', default output bound case passes at 2519/11000 chars, ending 'validation-tier-planner-smoke: PASS'."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "node packages/main/dist/tasks/cross-host-review-smoke.js (rebuilt from HEAD 3ba27c7da9): 28 checks including '[PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact', '[PASS] F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names', 'CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree', ending 'cross_host_review smoke passed (28 checks)'."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Re-check on HEAD 3ba27c7da98d1132b19246688ec29a37adbea8dd (clean tree; five unrelated commits merged from main since the earlier pass; no B-dc2e story-source file listed in git diff main...HEAD changed content): all four docsPromises independently re-verified against source and by re-running the five real-machine commands fresh (validation-protocol-smoke, full-suite-runner-smoke, validation-tier-planner-smoke including the RED-before-GREEN [PASS] line, cross-host-review-smoke, npm run test:observability-snapshot), all passing with the exact named PASS lines. No TODO/FIXME/HACK in the source diff. Edge/adversarial coverage is real: scratch-policy-row removal and prefix-stale edge-neutralisation mutations bite (CHK-002), squashed-RED/bare-marker/story-qualification adversarial guard cases bite (CHK-003), and a sentinel-stdout-leak adversarial case plus truncation-cap case bite (CHK-004). 8 findings (F-001..F-008) all resolved or dismissed per finding_list, matching the story's stated review history. One judgement item, not a blocker: CLAUDE.md does not document the RED(F-nnn)/No-RED commit-marker convention this story extends (it is self-documented only in the new helper's header comment and in the smoke); documenting it there would be a reasonable follow-up but does not affect delivered behavior."
+  },
+  "_hash": "a08d1447bcf92a2b020129e3720e30cc434675553ac3882ddde8cbf1b2754082"
+}

@@ -53,6 +53,7 @@ import { listActiveLoops, deriveLatestLoopRecord } from '../core/review-loop.js'
 import type { ReviewLoopIteration } from '../core/types.js';
 import { renderScopeAntiExpansionSummary } from '../core/machine.js';
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
+import { resolveStoryWorkspace, type StoryWorkspace } from '../core/story-workspace.js';
 import { evaluateStoryEvidenceBindingGate } from '../core/repro-evidence-binding-gate.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPack, type RuntimeConsumer } from '../core/playbook-runtime-memory.js';
 import { surfaceRuntimeMemoryPack } from '../core/experience-pack-surface.js';
@@ -288,46 +289,6 @@ function canonicalPath(path: string): string {
 function isPathInside(root: string, candidate: string): boolean {
   const rel = relative(canonicalPath(root), canonicalPath(candidate));
   return rel === '' || (!rel.startsWith('..') && !isAbsolute(rel));
-}
-
-/**
- * B-89c7 CHK-016: map of storyId → worktree path, derived from
- * `git worktree list --porcelain`. Used by main-branch brief to show
- * which in-flight stories already have a worktree (so agents can cd
- * directly into them instead of story_advance-ing blindly).
- */
-function listActiveWorktrees(root: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  try {
-    const raw = execSync('git worktree list --porcelain', {
-      cwd: root,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    let currentPath = '';
-    for (const line of raw.split('\n')) {
-      if (line.startsWith('worktree ')) {
-        currentPath = line.slice('worktree '.length).trim();
-      } else if (line.startsWith('branch ')) {
-        const branch = line.slice('branch '.length).trim();
-        // refs/heads/story/B-xxx → B-xxx
-        const m = branch.match(/refs\/heads\/story\/(.+)$/);
-        if (m && currentPath) {
-          out[m[1]] = currentPath;
-        }
-      }
-    }
-  } catch { /* not a git repo or git worktree unsupported — PROBE, return empty */ }
-  return out;
-}
-
-function readStoryFromLinkedWorktree(storyId: string, worktreePath: string): { story: StoryInfo; store: StoryStore } | null {
-  try {
-    const store = new StoryStore(worktreePath);
-    return { story: store.readStory(storyId), store };
-  } catch {
-    return null;
-  }
 }
 
 /**
@@ -817,7 +778,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
         // We call the same handler via ctx-level helpers so the exact
         // same numbers show up in brief and in `proof-or-stop story_list`.
         let dashboardText: string | null = null;
-        const worktrees = listActiveWorktrees(ctx.root);
+        // B-41c8 CHK-003: workspace resolution is owned by core/story-workspace.ts;
+        // the brief keeps its phase-terminal guard (a DONE / DISCARDED story is
+        // never read from a residual worktree). Resolved once per story here
+        // and reused for the cd hints and the INIT fallback scan below.
+        const workspaces = new Map<string, StoryWorkspace>();
         const zombiesForBrief = detectZombieStories(ctx.store, ctx.root);
         const zombieIds = new Set(zombiesForBrief.map(z => z.storyId));
         let activeStories: Array<{
@@ -838,12 +803,11 @@ export function createSessionHandlers(ctx: HandlerContext) {
           const phases: Record<string, number> = {};
           for (const id of allStoryIds) {
             try {
-              const mainStory = ctx.store.readStory(id);
-              const linked = worktrees[id] && mainStory.phase !== 'DONE' && mainStory.phase !== 'DISCARDED'
-                ? readStoryFromLinkedWorktree(id, worktrees[id])
-                : null;
-              const sourceStore = linked?.store || ctx.store;
-              const s = linked?.story || mainStory;
+              const workspace = resolveStoryWorkspace(ctx, id, { terminalPhaseGuard: true });
+              workspaces.set(id, workspace);
+              const mainStory = workspace.rootStory;
+              const sourceStore = workspace.store;
+              const s = workspace.story;
               phases[s.phase] = (phases[s.phase] || 0) + 1;
               if (s.phase === 'DONE') {
                 doneStories++;
@@ -868,8 +832,8 @@ export function createSessionHandlers(ctx: HandlerContext) {
                 activeStories.push({
                   storyId: id,
                   phase: s.phase,
-                  mainPhase: linked?.story && linked.story.phase !== mainStory.phase ? mainStory.phase : null,
-                  phaseAuthority: linked?.story ? 'worktree' : 'main',
+                  mainPhase: workspace.source === 'linked-worktree' && s.phase !== mainStory.phase ? mainStory.phase : null,
+                  phaseAuthority: workspace.readFromStoryWorktree ? 'worktree' : 'main',
                   title: s.title || '',
                   bugsOpen,
                   hasBg,
@@ -903,7 +867,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
           lines.push(`## Active stories (${activeStories.length})`);
           const limit = concise ? 3 : activeStories.length;
           for (const s of activeStories.slice(0, limit)) {
-            const wt = worktrees[s.storyId];
+            const wt = workspaces.get(s.storyId)?.worktreePath ?? null;
             const bugStr = s.bugsOpen > 0 ? ` [${s.bugsOpen} bugs]` : '';
             // B-45ed CHK-008: bg:✓ trailing marker; not displayed when background.md does not exist
             const bgStr = s.hasBg ? ' bg:✓' : '';
@@ -927,8 +891,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         const fallbackActiveStoryIds: string[] = [];
         for (const s of activeStories) {
           try {
-            const wt = worktrees[s.storyId];
-            const sourceStore = wt ? new StoryStore(wt) : ctx.store;
+            const sourceStore = workspaces.get(s.storyId)?.store ?? ctx.store;
             const initCheck = sourceStore.readInitCheck(s.storyId);
             if (initCheck && initCheckAttestationMode(initCheck) === 'fallback') {
               fallbackActiveStoryIds.push(s.storyId);
@@ -1036,7 +999,7 @@ export function createSessionHandlers(ctx: HandlerContext) {
         lines.push('## → Next step');
         if (activeStories.length > 0) {
           const top = activeStories[0];
-          const wt = worktrees[top.storyId];
+          const wt = workspaces.get(top.storyId)?.worktreePath ?? null;
           if (!gitReady && configuredGitRootStatus?.signedWorkspaceRoot) {
             lines.push(`  Metadata root is not a git repo, but configured gitRoot resolves the signed workspace: ${configuredGitRootStatus.signedWorkspaceRoot}`);
           } else if (!gitReady) {
