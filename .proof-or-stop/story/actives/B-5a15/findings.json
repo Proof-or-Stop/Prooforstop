@@ -20760,6 +20760,52 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-5a15:F-403",
+      "desc": "packages/main/src/tasks/full-suite-runner.ts:118-172 (RESOURCE_POLICY): fdb0837a8b added test:verifier-causal-preflight to root package.json test:serial-reference (the sole membership authority per this file own comment at line 117-118) but did NOT add a matching entriesFromSerialReference/RESOURCE_POLICY registration (compare to sibling test:closeout-trust entry at full-suite-runner.ts:172, which has one). Mechanically confirmed: entriesFromSerialReference (full-suite-runner.ts:207-215) computes unknown = names.filter(name => !policy[name]); the new script name is now in test:serial-reference but absent from RESOURCE_POLICY keys (verified against built dist/tasks/full-suite-runner.js, the file npm test actually runs), so this throws canonical inventory mismatch unknownPolicy=[test:verifier-causal-preflight] the next time npm test (root scripts.test -> full-suite-runner.js main()) runs, breaking the DONE-required full suite entrypoint entirely rather than merely skipping the new task. Fix: add a RESOURCE_POLICY entry for test:verifier-causal-preflight, e.g. repoRead(name) with default tempOwnership runner-owned-unique, since the smoke only mkdtempSync-isolates and reads repo/dist per packages/main/tests/verifier-causal-preflight.test.mjs.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T10:35:40.889Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-954",
+      "readManifest": {
+        "filesReadFully": [
+          "package.json",
+          "packages/main/src/tasks/closeout-trust-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+          "packages/main/tests/verifier-causal-preflight.test.mjs",
+          "scripts/ensure-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/tasks/production-test-seam-guard.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "853bf29f16e1605ed5211875ec7f4b61f4d34acdc21ae2a5ae85c956ed951575",
+      "files": [
+        "package.json",
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "signatureTag": "missing|json|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
