@@ -14675,6 +14675,29 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "1f9f62b37fa91dd55fa0cb576211c5b192321883f4f8dbb4f36afa4c6c3da67e"
+    },
+    {
+      "id": "B-5a15:RP-317",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "WAVE 2 completeness-critic pass for RI-071: independently confirmed genuine saturation. RR-912/913/914 (concept/quality/test-coverage) all share materialHash 947310a6... and storyFilesHash 267503bee810... byte-identical to wave-1 RR-908/909/910; only headHash moved. Confirmed via git diff --stat between wave-1 and wave-2 headHash on non-.proof-or-stop paths: zero material changes; every intervening commit is a proof-or-stop metadata auto-commit (finding_add/review_pass_set/finding_resolve/critic-receipt). Confirmed the two source commits since RR-905 (3245a61b6d F-371 fix, 51ca9d3afb AST re-pin) were both already inside wave-1 scope. Computed union of filesReadFully+filesTriagedByName across RP-312..RP-316: all 43 material files from git diff --name-status -M main...HEAD are covered by at least one lane; none unreviewed. All three wave-2 reviewer signatures valid. Zero new finding families surfaced (RP-314/315/316 each give concrete falsifiable basis: 2-site AST digest re-pin, verified call-site survivors with zero stranded refs, and unchanged 53/51/51/0 coverage counts with 0 waivers). Wave 1s six findings (F-376..F-381) already dispositioned verified_family by CRIT-01/RR-911; not reopened. Verdict: saturation demonstrated, epoch may finalize.",
+      "createdAt": "2026-09-03T04:32:37.390Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-915",
+      "envelopeId": "c4970faae1774b113e82a5853b97c8870d48abab0ece0d5f568f4494fd64793e",
+      "writerSessionId": "sess-e67531d65a1be8912ccf8b6e62108866",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/core/acceptance-discovery-adapters.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "96e7821891c6a8552524bdd460ccca267941c5aeb1f9fa3d0f5d99b12a025841"
     }
   ]
 }
