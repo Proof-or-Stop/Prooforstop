@@ -20592,6 +20592,58 @@
       ],
       "signatureTag": "missing|ts|scope-correction-5a15",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-399",
+      "desc": "F-395 resolvedReason claims all 53 verificationEvidence rows were re-earned against current HEAD after the d16cdeeec8 drift, but git history shows the opposite ordering: the last verification_evidence_batch_add commit (c066fd81c1, 2026-09-03T17:02:55+08:00, stamped storyFilesHash=8e57bba899496b0c) is an ANCESTOR of d16cdeeec8 (2026-09-03T17:45:58+08:00, the source commit F-395 itself names as the drift cause), confirmed via git merge-base --is-ancestor c066fd81c1 d16cdeeec8. No batch_add/refresh_stale commit exists after d16cdeeec8. Live read-only verification_evidence_refresh_stale --storyId=B-5a15 --dryRun right now reports all 53 rows stale, and the milestone brief independently confirms M1-M5 all Blocked with stale storyFilesHash 8e57bba89949 (current d535628105e8). So checklist_get cached verificationEvidence.passing=10/9/10/14/10 (53/53) does not reflect current-HEAD coverage; buildVerificationCoverage reports covered=0 required=51. The resolution recorded on F-395 describes a remediation that, by its own cited cause, could not have happened; no re-earn has occurred since d16cdeeec8 landed. This blocks any REVIEW-round claim that verification coverage is currently satisfied.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T10:23:48.123Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-951",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/checklist.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "ddbdfc17633ff27afb5d1246815963c558c34c8789abe3ca00f6f8b280128b08"
+      },
+      "readDiagnostics": [],
+      "_hash": "e23f8c9eb6dcc99a5599bf2cc452881b8d6454aa057b43b9aee2a86cccf807b5",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/causal-evidence.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/core/runtime-artifact-registry.ts"
+      ],
+      "signatureTag": "missing|mjs|resolvedreason-claims-verificationevidence",
+      "signatureTagSource": "auto"
     }
   ]
 }
