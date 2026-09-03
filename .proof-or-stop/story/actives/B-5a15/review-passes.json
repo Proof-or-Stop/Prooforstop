@@ -15559,6 +15559,33 @@
       },
       "readDiagnostics": [],
       "_hash": "9ad853c66ba248fe7f5113635ed418875047a164a0e6ffffc8899c4d8c8d1714"
+    },
+    {
+      "id": "B-5a15:RP-341",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Wave-2 saturation pass over d16cdeeec8 (the only material commit since wave 1, storyFilesHash d535628105e8fb2a unchanged): probed 3 residue classes a name-status D/R scan cannot see (stale cross-package string/type refs to CERTIFICATION_DOMAIN_PATH_RULES and dev-memory-experience-log registry id; byte-level dist currency for stateDirExact call site and the new export in both .js and .d.ts; and independent re-derivation of F-397 zero-match instances). No new finding family surfaced -- all three checks are clean or fold into the existing F-397 family. Zero cross-package consumers of CERTIFICATION_DOMAIN_PATH_RULES or the dev-memory-experience-log id (only the smoke test that legitimately imports the new export). dist/ is byte-current: stateDirExact(dev-memory/experience.jsonl) call compiled, CERTIFICATION_DOMAIN_PATH_RULES exported in both .js and .d.ts, smoke-test dist imports it correctly. Re-ran certificationDomainForPath against 60+ probe paths and confirmed F-397 correctly generalizes to a structural gap (every rule needs an explicit root filename allowlist entry or a directory prefix), but its named instance list (src/app.ts, packages/graph/src/*, packages/main/templates/agents/*) is NOT exhaustive -- see report for additional real zero-match instances (CITATION.cff, LICENSE, .gitignore, and future-shape paths). This is commentary on an already-open finding, not a new family, per instructions not to re-file F-397 duplicates.",
+      "createdAt": "2026-09-03T10:19:44.458Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-950",
+      "envelopeId": "8ee03b3582dc924adb760f773a53f7821f12f836a3e3fc2f9de6cfad47ec01f2",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/dist/core/runtime-artifact-registry.js",
+          "packages/main/dist/handlers/certification-window.d.ts",
+          "packages/main/dist/handlers/certification-window.js",
+          "packages/main/dist/tasks/certification-window-smoke.js",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-dev-memory.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1536c2d214901c56904fc0a3a3c758680f42a8f21637a2990e09926a76cd852f"
     }
   ]
 }
