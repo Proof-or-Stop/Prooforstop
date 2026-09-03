@@ -54,9 +54,34 @@ try {
 
   if (rebuilt) {
     // Scenario 1: on-demand recovery. The handler rebuilt the client, so the command is
-    // allowed to have served. What must NOT happen is serving without the asset.
+    // allowed to have served. What must NOT happen is serving a client that is missing or
+    // corrupt, so presence of app.html alone is NOT sufficient evidence of recovery.
+    //
+    // An earlier version of this branch accepted `fs.existsSync(asset)` plus an output
+    // substring, which a review negative control showed would pass for a handler that
+    // wrote ANY bytes to assets/app.html (truncated, stale or corrupt) and logged the
+    // right words. These assertions close that: the rebuilt client must be a real built
+    // page, and the d3 bundle that ensureGraphClientBuilt also requires must be present.
     if (!out.includes('building browser client') && !out.includes('graph serving')) {
       failures.push('client was rebuilt but the command never reported building or serving');
+    }
+    const html = fs.readFileSync(asset, 'utf8');
+    if (!html.includes('<!doctype html') && !html.includes('<!DOCTYPE html')) {
+      failures.push('rebuilt app.html is not an HTML document');
+    }
+    // The real build inlines the app shell; a stub or truncated file will not carry it.
+    if (!html.includes('openStoryDossier')) {
+      failures.push('rebuilt app.html does not contain the built client (no openStoryDossier)');
+    }
+    if (html.length < 100_000) {
+      failures.push(`rebuilt app.html is implausibly small (${html.length} bytes) for a built client`);
+    }
+    // ensureGraphClientBuilt treats the d3 bundle as required output alongside app.html,
+    // because a build without dependencies still emits app.html while omitting d3 and the
+    // page then silently falls back to a different renderer.
+    const d3 = path.join(pkgRoot, 'assets', 'd3.min.js');
+    if (!fs.existsSync(d3)) {
+      failures.push('recovery produced app.html but not the required d3.min.js bundle');
     }
   } else {
     // Scenario 2: recovery did not produce the asset. The original invariant applies in
