@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-aa5f",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff*",
+    "git log*",
+    "git rev-parse*",
+    "git show*",
+    "git status*",
+    "node *",
+    "npm *",
+    "proof-or-stop *",
+    "rg *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "local subagents for required independent review",
+    "proof-or-stop CLI"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-aa5f",
+    "docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/verification-execution-evidence.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "proof-or-stop.config.json",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-runtime-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git checkout -- *",
+    "git push *",
+    "git reset --hard*",
+    "rm -rf *"
+  ],
+  "excludedTools": [
+    "destructive repository reset",
+    "remote publication"
+  ],
+  "excludedPaths": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/handlers/reviewer-batch.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Local-only strict Story. No remote push. A committed failing fixture and tool-owned red_evidence record must precede the Green production fix.",
+  "createdAt": "2026-09-03T16:19:31.608Z",
+  "updatedAt": "2026-09-03T16:19:31.608Z",
+  "_hash": "cafe5ff938a19d9791caf4504ff3a9ae1d719f68149c5997d844d25929c21011"
+}
