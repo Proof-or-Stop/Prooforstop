@@ -1580,7 +1580,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:274-321,345-405,585-629 and packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:760-810 — HIGH: bf04310938 models the declared relation families but still misclassifies bounded polarity composition using only its own registered subject/outcome vocabulary. On current production dist, story, checklist, and verificationIntent surfaces all ACCEPT `Severity does not merely inform risk. It determines Story scope.`, `Unknown applicability does not itself authorize routing. It permits transfer to another Story.`, `A dismissed Finding does not establish out_of_scope. It proves another Story owns the defect.`, and `defer_with_proof does not merely record a plan. It transfers responsibility away from the current Story.`; period and semicolon variants both pass. The same three surfaces falsely REJECT the safe separation `Severity is only one input to Story scope; applicability and gate policy remain separate.` Root cause: severity/deferral relations are not recomposed across segments, while flattened unknown/dismissal relations let an earlier negative token mark a later affirmative outcome safe; any same-segment severity/responsibility pair without literal negation is treated unsafe. Existing focused smokes pass because they do not compose a directly negated first relation with an affirmative second relation or cover this bounded one-input safe control. This is within the accepted F-069/F-070 finite relation-family boundary, not an arbitrary-English completeness request, and violates CHK-001 adversarial:2/5 plus the promised polarity-aware false-safe/false-red behavior.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T12:46:32.557Z",
@@ -1588,7 +1588,11 @@
       "reviewRunId": "B-9a49:RR-113",
       "_hash": "2780e2627355de41119327a0274124e251db48fe90adf165f1c25a26674ebe38",
       "signatureTag": "adversarial|unknown|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by commit 1482c1290d402d94a55785350ae9e32fee17ad50. The controlled relation classifier now recomposes adjacent period/semicolon segments for the existing severity, unknown-applicability, dismissal, and deferral relation families, while preserving the explicitly safe one-input severity separation. On committed HEAD, npm --prefix packages/main run build exited zero; node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js printed prompt full-context envelope smoke: PASS; the focused registry smoke printed review finding triage registry delivery smoke: PASS; process-fact and runtime-fact contract checks exited zero. The commit changes only prompt-envelope.ts and prompt-full-context-envelope-smoke.ts, and the protected Dynamic Finding authority/runtime/schema/handler/gate diff is empty.",
+      "resolvedAt": "2026-09-03T13:07:15.242Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
