@@ -50,7 +50,7 @@
       "desc": "commit b13839b411 (git cherry-pick -x from story/B-83aa 8ebfff3550) modifies packages/main/src/tasks/validation-tier-planner-smoke.ts and packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, neither of which is in .proof-or-stop/story/actives/B-e256/scope-contract.json allowedModify/allowedCreate, and no checklist item carries a reason for the scope change. Content verified correct (byte-identical body to 8ebfff3550, cwd-neutrality assertion is non-vacuous, DYNAMIC_BINDING_BUILD_CEILING 808->809 is harmless since B-e256 adds no new .ts source and the guard still reports builds=808), but the story now carries an unreviewed-under-this-story, cross-story commit authored for B-83aa CHK-004 embedded via cherry-pick before B-83aa has landed on main. This is a scope-contract/provenance gap (mode=shadow, so not mechanically blocked), not a functional defect: recommend amending scope-contract/checklist to record the reason, or landing the shared F-023/ceiling fixture fix on main directly instead of duplicating it across in-flight stories via cherry-pick.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T01:12:59.277Z",
@@ -58,7 +58,11 @@
       "reviewRunId": "B-e256:RR-006",
       "_hash": "ab279611eab80a9c747937694a79b492fc3a4b1f4e7104edcbbf1dc7ef552fa5",
       "signatureTag": "missing|unknown|commit-b13839b411-cherry",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Scope contract widened with an explicit scopeChangeReason naming commit b13839b411 (cherry-pick -x of B-83aa 8ebfff3550), why the fixture repair is needed for this story's own validate (CHK-002 registers a validate command, which moved the pinned F-023 digest) and why the identical commit was taken (no merge conflict at B-83aa DONE); both fixture files are now in allowedModify/allowedTest. The reviewer's broader point (land shared fixture repairs once on main instead of per-story cherry-picks) is accepted: B-83aa carries the canonical commit and merges first.",
+      "resolvedAt": "2026-09-03T01:14:38.476Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "medium"
     }
   ]
 }
