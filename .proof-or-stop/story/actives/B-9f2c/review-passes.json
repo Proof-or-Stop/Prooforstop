@@ -1036,6 +1036,32 @@
         "scanEscalationReason": null
       },
       "_hash": "6ff8a3fed58065c774543fb19f92c8341e9d004d50a0fb8a3f997eada120f197"
+    },
+    {
+      "id": "B-9f2c:RP-035",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-review at frozen tree c06f9f841a (HEAD dc63af13f0, only metadata-only commits since). Confirmed by diff that no source file differs between c06f9f841a and current HEAD. Judged the F-009 disposition (accepted_risk deferral): the mechanism is correctly analyzed by the original finding -- verify-missing-assets-fail.mjs polls fs.existsSync(asset) alone without a post-poll stability re-check, so a torn write from an orphaned build (execFileSync 60s timeout SIGTERMs only the direct child, leaving a nested npm run build writing async) could in principle satisfy the doctype/openStoryDossier/size/d3 assertions on a boundary. Independently verified this mechanism by reading the script directly (lines 94-97 and the settle-poll above them). Independently verified the deferral rationale by reading the production backstop: ensureGraphClientBuilt (packages/main/src/handlers/graph.ts:75-129) re-checks existsSync(appHtml) && existsSync(d3Bundle) too, but that check runs AFTER a blocking spawnSync with no timeout option -- so unlike the verifier, production has no reachable orphan/torn-write trigger for the same theoretical gap. This makes the deferral stronger than claimed, not weaker: production is not actually exposed to the race the finding describes. Severity is low, the guard is internal (npm run check, not a shipped path), this is the fourth finding against the same 30-line verify-missing-assets-fail.mjs function (F-005, F-006, F-007, F-008 all preceded it and were legitimately fixed), and the two real fixes (atomic write-and-rename in build-web.mjs, or a build-input-derived digest, already named as F-007s follow-up) are both outside this storys owned files. Deferral under accepted_risk is the correct call per CLAAUDE.md defect-triage, not scope-creep avoidance. Also re-confirmed independently: packages/main/src/handlers/graph.ts -- GraphArgs.story is `story?: string` (optional); assertGraphStoryExists (line 418) runs at line 533, before both the args.json===true early-return branch and before ensureGraphClientBuilt/startServer; graphStorySuggestions results are deterministically sorted by (band, distance, id.localeCompare); the served URL uses encodeURIComponent(story), not raw interpolation. packages/main/src/cli/command-catalog.ts:2156 -- story: z.string().optional().describe(...), no .default() wrapper, matching the documented convention (open/json flags use the same pattern). npx tsc --noEmit -p packages/main exits 0. No new quality findings this round.",
+      "createdAt": "2026-09-03T07:02:09.066Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-059",
+      "envelopeId": "847f2696dce63584457027dde5bb73776f135598c82e9e6010829c0b5e91814c",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          "packages/graph/package.json",
+          "packages/graph/scripts/build-web.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bbc5cfdf2c74757e5c3806cbd5224a5b861efadca72afbbb1059b169734d1e85"
     }
   ]
 }
