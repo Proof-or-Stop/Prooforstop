@@ -24,6 +24,12 @@ import { collectVerificationIntents } from './verification.js';
 
 // ── Verdict ──
 
+/**
+ * B-1482: the one audited movement an evidence pin admits. Named here so the teaching
+ * message cannot keep offering a two-option Fix list after the third option shipped.
+ */
+const NARROWING_COMMAND = 'verification_pin_narrow';
+
 export type EvidencePinVerdict = 'allow' | 'deny';
 
 /** The two evidence-write entrypoints this guard recognizes. */
@@ -210,7 +216,14 @@ export function computeEvidencePinVerdict(
     reasons: [
       `evidence-pin seatbelt: this verification_evidence_add would be refused. The intent ${ref} is already pinned to an immutable verification (B-ec67) and your write does not match it.`,
       ...mismatches,
-      `Fix: run \`proof-or-stop verification_run --storyId=${story} --intentRef=${ref}\` (it re-uses the pinned command), or pass the exact pinned command/selector. The pin is immutable once set.`,
+      `Fix: run \`proof-or-stop verification_run --storyId=${story} --intentRef=${ref}\` (it re-uses the pinned command), or pass the exact pinned command/selector.`,
+      // B-1482: the pin is no longer immutable WITHOUT exception — exactly one movement
+      // exists. Naming it here matters because this refusal is what a caller hits the
+      // moment they try a different selector against a pin that is not discriminating,
+      // which is the very defect the narrowing was built for. The precondition is stated
+      // with it, so the reader is not sent to a command that will refuse them for a
+      // reason they were never told.
+      `Third option: if the pinned selector is not discriminating — it matched a run that genuinely FAILED — re-pin it with \`proof-or-stop ${NARROWING_COMMAND} --storyId=${story} --intentRef=${ref} --selector=<stricter> --reason=<why>\`. It moves the pin to a STRICTER selector on the same pinned command, and only when a recorded FAILING receipt of that command, which the current selector matched, lacks the new selector in its retained output; a LOOSER selector and a different pinned command stay refused everywhere.`,
     ],
   };
 }
