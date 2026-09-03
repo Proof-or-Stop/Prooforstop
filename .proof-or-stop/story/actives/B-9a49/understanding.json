@@ -1,0 +1,38 @@
+{
+  "task": "Project the approved REVIEW Finding triage policy into all active REVIEW Agent prompts without amending Dynamic Finding authority or runtime mechanics.",
+  "outcome": "The generated prompt for each of the five canonical REVIEW Agents displays the same English Finding triage contract, including “severity and applicability are separate axes,” evidence-backed routing, fail-closed unknown applicability, and bounded current-Story repair; non-REVIEW prompts do not display that contract.",
+  "facts": [
+    "The Dynamic Finding System execution plan is authoritative and remains unchanged by this Story.",
+    "The proposal is a subordinate Agent-side projection, not a runtime or authority amendment.",
+    "Five canonical active REVIEW lanes consume centrally assembled prompts in full-envelope and legacy-full-context modes.",
+    "Retired verdict vocabulary may appear only in historical evidence or negative test inputs, never as an active Task Context alias.",
+    "Role-contract requiredCheckIds are declarative metadata and are not execution or gate evidence.",
+    "Current finding_dismiss compatibility behavior changes current blocking status but proves neither applicability, repair, resolution, nor deferral.",
+    "CHK-005 and CHK-006 are separately reviewed acceptance/identity infrastructure repairs needed for truthful Story evidence."
+  ],
+  "constraints": [
+    "All new proposal and Agent-facing prose must be English.",
+    "Severity, evidenceState, applicability, disposition, and gate impact remain separate axes.",
+    "Unknown applicability fails closed when the Finding would otherwise block.",
+    "Reviewers do not repair, dismiss, create follow-up Stories, use gap_log for product routing, rewrite severity, or widen scope.",
+    "Do not modify Dynamic Finding schemas, handlers, predicates, process-fact registries, lifecycle gates, or its authority document.",
+    "Use RED then GREEN and verify the final committed source through the local CLI."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/templates/agents/proof-or-stop-implementer.md",
+    ".claude/agents/proof-or-stop-implementer.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "AGENTS.md",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-09-02T02:48:44.480Z"
+}

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-9a49",
+  "records": [
+    {
+      "id": "RED-REVIEW-TRIAGE-MARKER",
+      "trigger": "Pre-implementation assembled REVIEW prompt is missing the approved canonical Finding triage contract.",
+      "acceptanceTargetRef": "CHK-004:happy:red-green-same-contract",
+      "baselineHeadHash": "17eaf3a74fa01ac5e7faa5f13c7cce1fdb6f9570",
+      "baselineMaterialHash": "22c039b66848ddda5837188023ad27825e20a6d07b1b952fd765579443ed6fa6",
+      "observedFailure": "After a successful source build, the focused prompt assembly probe exited 1 with: RED: assembled REVIEW prompt lacks canonical Finding triage contract marker.",
+      "failingCommand": "node --input-type=module -e \"import { readPromptRegistry, resolvePromptTemplateBody } from './packages/main/dist/core/prompt-registry.js'; const entry=readPromptRegistry().agents.find(x=>x.agentId==='lattice-review-quality'); const marker='<!-- proofbound:review-finding-triage-contract:v1 -->'; const body=resolvePromptTemplateBody(entry,'full-envelope'); if (!body.includes(marker)) { console.error('RED: assembled REVIEW prompt lacks canonical Finding triage contract marker'); process.exit(1); }\"",
+      "expectedGreenCommand": "node --input-type=module -e \"import { readPromptRegistry, resolvePromptTemplateBody } from './packages/main/dist/core/prompt-registry.js'; const entry=readPromptRegistry().agents.find(x=>x.agentId==='lattice-review-quality'); const marker='<!-- proofbound:review-finding-triage-contract:v1 -->'; const body=resolvePromptTemplateBody(entry,'full-envelope'); if (!body.includes(marker)) { console.error('RED: assembled REVIEW prompt lacks canonical Finding triage contract marker'); process.exit(1); }\"",
+      "greenRelation": {
+        "targetRef": "CHK-004:happy:red-green-same-contract",
+        "relation": "same_acceptance",
+        "command": "node --input-type=module -e \"import { readPromptRegistry, resolvePromptTemplateBody } from './packages/main/dist/core/prompt-registry.js'; const entry=readPromptRegistry().agents.find(x=>x.agentId==='lattice-review-quality'); const marker='<!-- proofbound:review-finding-triage-contract:v1 -->'; const body=resolvePromptTemplateBody(entry,'full-envelope'); if (!body.includes(marker)) { console.error('RED: assembled REVIEW prompt lacks canonical Finding triage contract marker'); process.exit(1); }\""
+      },
+      "note": "A first attempt against a missing dist tree was rejected as false RED. The accepted RED was rerun after npm --prefix packages/main run build succeeded and failed only on the missing canonical contract marker.",
+      "createdAt": "2026-08-31T14:38:20.246Z"
+    }
+  ],
+  "createdAt": "2026-08-31T14:38:20.246Z",
+  "updatedAt": "2026-08-31T14:38:20.246Z"
+}

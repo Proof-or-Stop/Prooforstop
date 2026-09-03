@@ -1,0 +1,56 @@
+{
+  "storyId": "B-9a49",
+  "changes": "All five active REVIEW Agent prompts now receive one canonical, English Finding-triage contract in both supported envelope modes. Owner and implementer guidance is bounded, and focused safeguards reject authority-laundering language without changing Dynamic Finding runtime semantics.",
+  "usage": "Generate any active REVIEW role through proof-or-stop agent_prompt or review_run_start; the assembled prompt instructs the reviewer to classify, preserve evidence, route with an owner, and leave machine gate decisions to Proof-or-Stop.",
+  "expectedOutcome": "Each active REVIEW Agent sees the same bounded triage rules, non-REVIEW roles do not receive them, and Dynamic Finding handlers, schemas, predicates, and lifecycle gates remain unchanged.",
+  "actualTranscript": "Focused prompt-registry and full-context smokes passed, the live transcript records all checklist scenarios passing, independent REVIEW and delivery checks passed, and the complete configured validation suite passed.",
+  "outcomeDiff": "No user-visible difference from the expected outcome; the delivered behavior matches the approved Agent-side scope.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Dynamic Finding runtime schemas, handlers, predicates, gates, and the future signed deferral mechanism remain intentionally unchanged; this Story implements Agent guidance and prompt assembly only.",
+  "pitfalls": "Review repeatedly widened finite language witnesses into broader phrasing concerns. Future changes must freeze exact acceptance examples first. A validation run also passed its commands but could not persist while CLI-generated metadata was dirty; commit only that generated metadata before retrying.",
+  "phaseStats": {
+    "INIT": {
+      "count": 6,
+      "durationMs": 1630783
+    },
+    "INIT_CHECK": {
+      "count": 6,
+      "durationMs": 47726
+    },
+    "PLAN": {
+      "count": 20,
+      "durationMs": 7813870
+    },
+    "DEV": {
+      "count": 49,
+      "durationMs": 122183052
+    },
+    "REVIEW": {
+      "count": 35,
+      "durationMs": 129337435
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 5948627
+    }
+  },
+  "totalDurationMs": 266962047,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-03T16:02:01.636Z",
+  "updatedAt": "2026-09-03T16:02:01.636Z"
+}

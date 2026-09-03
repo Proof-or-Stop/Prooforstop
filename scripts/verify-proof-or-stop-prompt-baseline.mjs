@@ -67,6 +67,34 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
  * one, i.e. the drift is brand-only with no semantic edit.
  *
+ * B-9a49: re-approved the proof-or-stop-implementer body after adding its bounded
+ * out-of-item Finding handoff rule, and the five active modular REVIEW bodies
+ * after appending the canonical Finding triage contract in both rollout modes.
+ * The reviewer source templates and their frozen legacy reconstruction hashes
+ * did not move; only selected assembled bodies and their derived identities do.
+ * REVIEW follow-up: re-approved the same five active reviewer assembled
+ * bodies after the reviewed contract gained its explicit current/future
+ * compatibility boundary and verdict-specific minimum proof requirements.
+ * Focused semantic validation, including contradictory-permission mutation
+ * probes, passed before these content addresses were updated.
+ * F-010/F-011/F-012 follow-up: re-approved the same five reviewer bodies
+ * after making history correction explicitly compatibility-aware and expanding
+ * the fail-closed semantic mutation inventory. The source templates and frozen
+ * legacy reconstruction inputs remain unchanged; only the appended canonical
+ * contract and its derived body/host-render identities move.
+ * F-022/F-023/F-024 follow-up: re-approved the five assembled reviewer bodies
+ * after the canonical contract adopted the current-witness verdict and the
+ * future signed defer-with-proof disposition boundary. The source templates and
+ * frozen legacy reconstructions remain unchanged. Focused RED/GREEN mutations
+ * reject obsolete and inverse semantics even after deliberate digest repinning.
+ * F-040/F-041 follow-up: the five reviewer bodies preserve the independent
+ * claimed-lineage floor, the downstream closure-only mandatory-repair floor,
+ * and the exact lineage-release verdict allowlist after the identity cutover.
+ * F-042/F-046/F-047 follow-up: re-approved the same five assembled reviewer
+ * bodies after the Agent projection restored complete repair closure as the
+ * other claimed-lineage release, kept downstream mandatory repair closure-only,
+ * and documented the current Owner-only dismissal effect without changing the
+ * protected Dynamic Finding runtime.
  * B-022e F-056 re-approved only proof-or-stop-review-story-init after replacing
  * its live direct StoryStore reads/writes with background_get, story_get,
  * checklist_get, and init_check_set. The CLI-only surface invariant below binds
@@ -87,11 +115,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-implementer',
-    templateHash: '6c2484dcef54a7d82e0c5f191c5e04030bba225f9455cc1712f21a7279d90404',
+    templateHash: '028d733d3d2832e182d1b9a5921e49f9ec583e73e8ae25f132c011fcf1f20012',
   },
   {
     role: 'proof-or-stop-review-behavior',
-    templateHash: '36a32b748fa951a7dff68136d5ee5cca2cf33ae5c0d607f1881ad49a527bc294',
+    templateHash: '27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb',
   },
   {
     role: 'proof-or-stop-review-channel',
@@ -99,7 +127,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: 'cd849d08a65c9fcd3fa1317f46e4b03b9bad67fd3fed33df33d6a8195122953f',
+    templateHash: '95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae',
   },
   {
     role: 'proof-or-stop-review-delivery',
@@ -107,11 +135,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-docs',
-    templateHash: 'e4d2d75c54925ca398c8a9278e2ebe21298f623b8111a53abc3767ef9c7f7f8c',
+    templateHash: 'e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36',
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: '5ceef86e65ecbf577a2f1f647654d480644b091f7b470023980d4588726f89d3',
+    templateHash: '85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
@@ -123,7 +151,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: 'bc152cd5c25683a804c87ef167e97287ebe990ec01c00d5915e9f8e525868a1b',
+    templateHash: '556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
@@ -143,11 +171,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
-  ['proof-or-stop-review-behavior', 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2', 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4', 'af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8', '3ebf56716b7a9354a147df2ee221ba63e3439cf837a67393dea2bc26d649eab0', '0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d', '0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a', '32683356fbb8b38e6b5b2f423d275c1cc9dd17b0010c9308a37fab0a1b65e767', '3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99'],
-  ['proof-or-stop-review-concept', 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c', '3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a', '197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2', 'aa959585d8566f2974f4de6b636b92ec63a1d433eaebe7416341b12bf7e38f43', 'cdb5f4abe7224db712a61b7c5fc1912a5af1551371262132ff07ffc6a9ea4622', '1e45b2db67503b833934d78c489267c8964a45faa9c67e77a476060f7bb0ca63', '5333050f9af3b04ef751a73fb49382a0446f371ddc9cd4dc63bd219cc2bf86e1', 'daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1'],
-  ['proof-or-stop-review-docs', 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af', '835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6', '9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7', '6dc808cd000a19b8f897011d8e84ccb221320b9141c4538b5de95208b8a96a47', '904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b', '10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f', '776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5', '5866702beea655d933491ebfef927d0441887bce5f35fa9c45a20fe5c4544c6c'],
-  ['proof-or-stop-review-quality', '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504', '4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15', 'ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0', '10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b', 'ea06fe995cad296be48b924bbf52a32955c69606bebee9d56be843c5587ff539', '969abfc83df845b61c2cfc2149d57e22c290928dbccdc62bce04491315035d27', '1c2fe6227362a4b8dbdd8ab3e2de550bbbc89a8e4b9881c41327d96645dde52a', 'f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249'],
-  ['proof-or-stop-review-test-coverage', '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88', '99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0', '9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7', 'f605de383aca246bbfc1d107237d89cb8c377f01168e81d2cdf61331200358d3', 'f09f04111090048a98f80224e72c224cba7c9469fa6ed24fb6f90cd2b94e6256', '683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f', 'f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495', '71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2'],
+  ['proof-or-stop-review-behavior', 'e71931ff4b465178b9192c30ae9a892212f086598f5d43abdaa30626ec8ce7dc', '27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb', '2ba770838c177aa99106da93a5c35abd5a378649b9bf952bbb3fca365c405f7c', '6552d8fb6099be2aee6b59c06f6b9e523772bbbb7e68639ed0b4e74fccfcce49', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a'],
+  ['proof-or-stop-review-concept', '37e57cf6c2be5c035a0bf4cc1c4e2d07458f586ed305cd0f835ed6643114bca6', '95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae', '662a3bd15d165ce5231ca99d1a9f1d837267c779286937b190edfa6e5d313a70', '8015c7666b706a3f3c82656e453b0170e0488d3f8c5e742a6b9c59bfd06303e2', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e'],
+  ['proof-or-stop-review-docs', 'c46d3cddfac0de303c7882cf3394655b597b59c7681dba81a21e96bf65402187', 'e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36', '2f953f81bdb37182f2b62c5af7505e55b4bc49630362dad169c93dca998ab8ba', '2f79cbe2131ab262d773c3ff3f97a3acb8ce20d48dd491460872ece48b784fe0', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea'],
+  ['proof-or-stop-review-quality', '89a12840851dd785bdec0737cd95087d274dac950a2775a4e74c0f6447a82b34', '85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9', '9dfa73bfc2f10e3d8e849c481b59c83a38ce20d0def78d88156697ce7a40698b', '95d7461125302f36bb41b63622347c1d6baf221c765b2f602c6b4be447cfbd19', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304'],
+  ['proof-or-stop-review-test-coverage', 'aa146d8ebfb6d46c39dfbeba4cfeeea9f2801b99f9789632b4e466c8ea080ea1', '556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203', '3aa40c0b90355343edce8cf30a7e71b3056e6a7f385b3c7b7041b963a695e088', 'b9ab1333855c2b14ba8d18a907d2d488cd61dbf5826c55da0d688d7ec1c800d8', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50'],
 ].map(([role, legacyBodySha256, modularBodySha256, roleSemanticDigest, roleRenderDigest, legacyClaudeRenderDigest, legacyCodexRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role,
   legacyBodySha256,
