@@ -20140,7 +20140,7 @@
       "desc": "Planned fix ordering for F-374/F-380 (finalize -> DEV -> rebuild basis -> rollout -> live-proof -> pre_review_check -> re-earn CHK-004:happy:2/3 LAST -> REVIEW) will NOT converge as written: pre_review_check must run strictly LAST, after the two should receipts are re-earned, not before them. Two independent mechanical traps confirmed by reading pre-review-check.ts: (1) storyFilesHash trap -- pre_review_check freezes basis.binding.storyFilesHash from the PLAN-phase acceptance_basis_generate artifact (pre-review-check.ts:348,387) and evidenceState() requires an EXACT match evidence.storyFilesHash === storyFilesHash (pre-review-check.ts:111,115,119) with no material-only tolerance; verification_evidence_add/verification_evidence_batch_add call autoCommitStoryMetadata (checklist.ts:2440,2579) which moves HEAD, and evidenceHashes() (checklist.ts:308-320) stamps storyFilesHash from the HEAD immediately BEFORE that call's own auto-commit -- i.e. whatever commit the rollout/live-proof/pre-review steps left behind, not the earlier basis-generation commit. So re-earning the two receipts after pre_review_check necessarily stamps a storyFilesHash that mismatches basis.binding.storyFilesHash, and the very next pre_review_check_read will report PR_EVIDENCE_STALE / PR_POSITIVE_EVIDENCE_MISSING for exactly those two receipts. (2) cutoffAt trap -- pre_review_check freezes issuedAt as cutoffAt (pre-review-check.ts:398) and evidenceState() requires evidence.timestamp < cutoff to count as current (pre-review-check.ts:117-119); any evidence timestamped after pre_review_check was issued falls into afterCutoff and triggers PR_CUTOFF_UNBOUND (pre-review-check.ts:363). Re-earning receipts LAST is necessarily after cutoffAt. Conclusion: correct order is rebuild basis -> rollout -> live-proof -> re-earn CHK-004:happy:2/3 receipts -> pre_review_check LAST (mirroring the same acceptance_basis_generate-before-pre_review_check discipline CLAUDE.md already documents for F-435/F-438, extended one more hop down the chain). If pre_review_check runs before the receipts are earned, the plan reproduces the exact same PR_ARTIFACT_TAMPERED/PR_COVERAGE_BASIS_CHANGED failure this round, costing another full REVIEW round.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-03T04:01:11.120Z",
@@ -20170,7 +20170,9 @@
         "packages/main/src/handlers/checklist.ts"
       ],
       "signatureTag": "missing|ts|planned-ordering-finalize",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Adopted and applied; the finding prevented a fifth repetition of this trap. The analysis was verified in source before acting: pre-review-check.ts:115 requires exact storyFilesHash equality with no material-only tolerance, and :112/:363/:398 freeze issuedAt as cutoffAt so any evidence timestamped at or after it lands in afterCutoff and raises PR_CUTOFF_UNBOUND. My planned order (chain -> pre_review_check -> re-earn receipts) would therefore have guaranteed both PR_EVIDENCE_STALE and PR_CUTOFF_UNBOUND. The corrected order was executed instead, and observation confirmed the mechanism twice: after earning the final 2 receipts following the first pre_review_check PASS, pre_review_check_read immediately reported PR_ARTIFACT_TAMPERED,PR_CUTOFF_UNBOUND exactly as predicted, and re-issuing pre_review_check with all 53 receipts already earned returned PASS with no codes. Net rule learned: pre_review_check must be the LAST write in the chain, after every receipt is earned.",
+      "resolvedAt": "2026-09-03T04:57:09.166Z"
     }
   ]
 }
