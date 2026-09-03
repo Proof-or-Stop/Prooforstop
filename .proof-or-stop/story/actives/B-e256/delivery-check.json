@@ -1,31 +1,31 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-03T06:31:03.736Z",
-  "headHash": "045d51d141bf77d6e03b40d510a64ff2488469f6",
-  "materialHash": "33361aff6462f3173e56132203d5fc419f6a556a05662beda5184826366c2881",
-  "storyFilesHash": "c3e0fe8d13289f147b4719c09cd70af6543195ea662b9334e4c4b89fea68a361",
-  "reviewRound": "2026-09-03T06:04:30.304Z",
+  "checkedAt": "2026-09-03T07:31:17.818Z",
+  "headHash": "b3fa860c93e7c7d93032878ad88ffeaa96086d16",
+  "materialHash": "3ec179129e4e88e86179fef9d8436cd047323023d12e3152b3e6c9c1a96fb693",
+  "storyFilesHash": "71f2f72d32862d507f714834f16e3dbd2e558a4eee116db9646e45a501b2a036",
+  "reviewRound": "2026-09-03T06:39:54.131Z",
   "agentId": "proof-or-stop-review-delivery",
   "docsPromises": [],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node packages/main/tests/red/red-global-cli-exec-bit.mjs exits 0 (re-run at current HEAD, TEST phase). Hermetic cases (a)-(f) cover: 0644 bin target -> 0755 with byte-identical content and reported as restored; absent bin target returns [] without throwing; package.json missing/malformed/no-bin all return [] without throwing; a non-ENOENT stat/chmod failure (EACCES on a 0000 dir) propagates instead of being swallowed; promoteDist restores the bit on the STAGING tree before evicting old dist; a failed staging restoration aborts promotion before old dist is evicted (no trash, previous working dist kept). Live check also confirms packages/main/dist/cli.js is mode 0755 and the build pipeline restores the bit."
+      "transcript": "node packages/main/tests/red/red-global-cli-exec-bit.mjs exits with GREEN summary: hermetic (a) 0644->0755 byte-identical restore; hermetic (b) absent bin target returns [] without throwing; hermetic (c) no-bin-field/unparseable/missing package.json all return [] without throwing; hermetic (d) non-ENOENT stat/chmod failure (EACCES) propagates instead of being swallowed; hermetic (e) promoteDist restores executable bit on staging tree; hermetic (f) failed staging restoration aborts promotion before old dist evicted; live check confirms packages/main/dist/cli.js mode 0755. Final line: GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "red-global-cli-exec-bit.mjs is committed at packages/main/tests/red/red-global-cli-exec-bit.mjs and registered as a validate.commands entry in proof-or-stop.config.json (confirmed via git diff main...HEAD showing the new commands[] entry with args [packages/main/tests/red/red-global-cli-exec-bit.mjs], timeoutMs 180000, git-common-dir resource). Recorded evidence includes a node -e probe reading proof-or-stop.config.json and asserting the entry exists, plus the same test run GREEN."
+      "transcript": "red-global-cli-exec-bit.mjs is committed at packages/main/tests/red/red-global-cli-exec-bit.mjs (289 lines) and registered in proof-or-stop.config.json validate.commands (node packages/main/tests/red/red-global-cli-exec-bit.mjs, timeoutMs 180000, git-common-dir shared resource). Re-ran it directly: exits GREEN as above."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "node packages/main/tests/global-core-realpath.test.mjs exits 0 with 'ok global-core-realpath' covering 13 cases: canonical worktree-built core (pass with realpath/version/binTarget/binMode/executable/worktreeCheckout/remediation facts), non-git fallback match/drift, non-executable bin target (chmod +x remediation, never a silent pass), realpath inside a .worktrees/ checkout (npm link repoint remediation, drift line + .worktrees/ named), no global install (informational pass naming npm link), absent bin target and directory-shaped bin target (npm --prefix ... run build remediation, distinct from chmod), the access(2) X_OK probe seam proving the executable verdict is the CURRENT-process X_OK check rather than raw mode bits (probe-denied 0755 -> executable=no; probe-allowed 0644 -> executable=yes; default probe on real 0700/0600 files), and four installed-but-unverifiable package.json shapes (malformed, missing, no bin field, bin entry missing for this package name) each reported as drift with the exact reason and package.json path, never a pass rendered as executable=unverified. Independently re-ran node packages/main/dist/cli.js doctor and grepped global-core-realpath at current HEAD and observed: global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.272 mode=0755 executable=yes, matching the compactFactDetail format added in the diff (realpath version=<v> mode=<mode> executable=<yes/no>)."
+      "transcript": "node packages/main/tests/global-core-realpath.test.mjs exits 0 with final line ok global-core-realpath, covering 16 numbered scenarios in the file including tests 14-16 added for this re-run: (14) drifted .worktrees/ realpath with non-executable old bin target reports the old-target fact but the npm link relink is the SOLE remediation (no chained chmod), (15) same drift with a MISSING old bin target likewise gets relink-only remediation (no chained rebuild), (16) regression guard confirming canonical-path chmod/rebuild cases keep their single-command remediation unchanged. Also ran the live doctor row: node packages/main/dist/cli.js doctor | grep global-core-realpath -> '  ✓ global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.272 mode=0755 executable=yes', proving the checked-in behavior matches the deployed global install today (no drift). Ran node packages/main/dist/tasks/validation-tier-planner-smoke.js as an adjacent regression guard (unrelated code touched by this commit): exits with validation-tier-planner-smoke: PASS."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Zero product documentation promises: the diff touches only story metadata plan.md plus source/tests/config (no CLAUDE.md or docs/ changes), confirmed by grepping the diff and re-scanning for doc changes. All 3 checklist items (CHK-001..CHK-003) are done with real-machine test evidence covering happy, edge and adversarial cases, and I independently re-ran all 4 requested verification commands at the current HEAD (post REVIEW-to-TEST transition, no source drift since the implementer commit) with exit 0 each. No TODO/FIXME/HACK found in the diff."
+    "summary": "Zero doc promises: no CLAUDE.md or docs/ changes in this diff, only story-internal plan.md, matching the honest zero-promise finding from the prior signed round. All three checklist items (executable-bit restore in promote-dist.mjs, the committed red test wired into validate.commands, and the doctor global-core-realpath fact/remediation rework) are backed by real, independently re-run machine tests covering happy path, missing/absent targets, non-file targets, access(2) X_OK probe semantics, unverifiable-install variants, and the re-run-motivating drifted-worktree-plus-broken-old-bin scenarios (tests 14-16) where the relink is proven to be the sole remediation with no chained chmod/rebuild against the obsolete checkout."
   },
-  "_hash": "1b2694456e5edf165bf625dd40189d6291f053d019920a4871ee0955613fdfe0"
+  "_hash": "35341f24a66ff278c3b2d1494b8f92d51d861bce43e7adcedf2e69e5b559c814"
 }
