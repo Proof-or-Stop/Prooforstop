@@ -703,7 +703,11 @@ const typeProgramInstrumentation = {
 // packages/main/src/tasks/single-owner-extraction-smoke.ts (CHK-001 introduced
 // the fixture, which calls execFileSync); the story's core/story-workspace.ts
 // (CHK-003) has no candidate, is prefilter-skipped, and did not move it.
-const DYNAMIC_BINDING_BUILD_CEILING = 809;
+// B-1482 moved it from 809 to 810 for the same reason: CHK-001 added
+// packages/main/src/tasks/narrowing-repin-smoke.ts, which calls execFileSync and
+// so reaches full dynamic analysis; every other file that story touches under
+// the scanned directories was already counted, so the ceiling moved by one.
+const DYNAMIC_BINDING_BUILD_CEILING = 810;
 const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
