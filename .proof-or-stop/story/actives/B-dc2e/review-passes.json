@@ -194,6 +194,38 @@
         "scanEscalationReason": null
       },
       "_hash": "c78ec6f1b1d55705e8581dec21902127e06346cee33c4560ed247594114a893a"
+    },
+    {
+      "id": "B-dc2e:RP-008",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 4 re-sweep after a main-merge-only HEAD move invalidated RP-004's prompt envelope (no story SOURCE file changed). git diff --name-only main...HEAD lists only this story's own files (code + .proof-or-stop/story/actives/B-dc2e/*), confirming the merged-in commits (other stories' metadata, .githooks/commit-msg hook, dev-memory/experience.jsonl, a docs draft) live only on main's side, not in this diff. review_incremental_context confirms changedFiles since RP-004 are exactly [.githooks/commit-msg, .proof-or-stop/dev-memory/experience.jsonl] classified KNOWN_UNRELATED_MATERIAL_DRIFT/FULL_UNKNOWN_IMPACT -- not story-owned. Re-ran round-1 residue checks: beginSection/flushSection fully replaced raw console.log(running CHK-...) (0 remaining), capText/boundPersistedFindings has no stale callers, no orphan concept references found. Re-ran round-3 F-007/F-008 wording checks: priorRedIds() carries the F-007 bounded gitOutputStrict (explicit 64MB maxBuffer, raises instead of silently returning empty) and the F-008 story-qualified-only rule (isStoryQualifiedRedGreenId / PRIOR_RED_SUBJECT_GREP); red-green-commit-guard.ts header doc and validation-tier-planner-smoke.ts comments/test titles accurately describe the current qualified/bounded behavior, with no doc or comment still describing the pre-fix unqualified prior-RED rule or the old unbounded/silent-null git read (gitOutput/gitOutputIn keep their documented catch-and-return-null contract for the callers that still want it). git log --format=%h -i --grep=claude --grep=codex main..HEAD = 0. node packages/main/dist/tasks/validation-tier-planner-smoke.js: all sections PASS including [PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason, ending validation-tier-planner-smoke: PASS. No concept deletion/replacement residue found this round; story content unchanged since RP-004.",
+      "createdAt": "2026-09-03T11:28:30.664Z",
+      "reviewRound": "2026-09-03T11:25:21.397Z",
+      "reviewRunId": "B-dc2e:RR-014",
+      "envelopeId": "f72dd919f1f48a3e3e35ff6f9e80d3888d4518b55a71a174a3fda354cd138915",
+      "writerSessionId": "sess-9b57c81f7bf17f973ab4cc41d9110a4d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/core/red-green-commit-guard.ts",
+          "packages/main/src/handlers/cross-host-review.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/observability-snapshot-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "84b2cb22c7081bef700540eda88b53f7f7171c951b2150ab2a2f9e9d356b2c13"
     }
   ]
 }
