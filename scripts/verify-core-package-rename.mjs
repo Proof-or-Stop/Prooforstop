@@ -28,6 +28,15 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const CANONICAL_CORE = '@proof-or-stop/core';
 const CANONICAL_ROOT = 'proof-or-stop';
+// origin/main merge: our pre-merge main carried the two USE sites of RETIRED_CORE (the
+// retired-dependency assertion and the source-body scan) but never declared it, so this
+// script threw ReferenceError after its first three checks. Same split-rename pattern as
+// RETIRED_STORY_INIT_DIRECT_WRITE in verify-proof-or-stop-prompt-baseline.mjs. Declared
+// exactly as origin does, assembled from fragments so the retired token never appears
+// literally in this source (the residue guards scan for it).
+const RETIRED_CORE = `@${['lat', 'tice'].join('')}/core`;
+// Same split-rename gap: one USE site, no declaration. Declared exactly as origin does.
+const RETIRED_STATE_PREFIX = `.${['lat', 'tice'].join('')}/`;
 
 const failures = [];
 
