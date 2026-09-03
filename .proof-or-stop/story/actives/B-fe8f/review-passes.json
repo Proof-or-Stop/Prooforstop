@@ -1011,6 +1011,35 @@
       },
       "readDiagnostics": [],
       "_hash": "5ebfbaed4834f07f2da55e04ad238a16dd3a08e177369a2650661754803988df"
+    },
+    {
+      "id": "B-fe8f:RP-031",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Incremental test-coverage re-attestation passed: canonical RR-066 basis reports no changed files, affected contracts, impacted intents, or unresolved findings and trusts prior RR-063/RP-028. Current evidence_plan remains 71 fresh with zero missing, rerun, or refresh-only intents at unchanged materialHash 9556f27c39b5bfec72f7eb314b9003e3ba7aa7bf49b9282931b6be95b55c4cd0 and storyFilesHash 0c8ccb7ba4a144c0c5e0719052cc8021cfb761c8aa9ab1e2938414a6599bb561; current finding projection has no open blocking findings and F-027/F-028/F-029 remain resolved. Diff since RP-028 contains only Proof-or-Stop process/review metadata, so the previously fresh committed regression and real-corpus evidence remains directly applicable.",
+      "createdAt": "2026-09-03T18:05:13.134Z",
+      "reviewRound": "2026-09-03T17:50:54.762Z",
+      "reviewRunId": "B-fe8f:RR-066",
+      "envelopeId": "7d925dfce1a22b5bce42472b6ebbc3b3ff38c973a2802e4e24763b4ec8713fa6",
+      "writerSessionId": "sess-60dca796ce9134eb0a3c85af5049d05d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-passes.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-runs.json",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "scanEscalationReason": "Canonical incremental basis was complete and showed no changed material, affected contract, impacted intent, or unresolved finding; review was bounded to freshness and metadata-only drift re-attestation."
+      },
+      "_hash": "e06e55ab0a66b187881ce7ff9c113bd29247ddb953adb7ef59918f5a607e6535"
     }
   ]
 }
