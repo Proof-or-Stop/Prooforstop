@@ -566,6 +566,24 @@
       "resolvedAt": "2026-09-03T01:38:18.829Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-025",
+      "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:356 hard-codes red.relation_evaluate currentFails=true even though lines 277-280 assert the current GREEN module import succeeds and the integrated GREEN smoke reports currentPasses=true. This makes executable RED/GREEN evidence self-contradictory after GREEN and can mislead lifecycle/audit consumers; derive the current state from the executed currentGreen result or emit a phase-correct currentPasses=true statement.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T10:57:50.094Z",
+      "reviewRound": "2026-09-03T10:35:11.874Z",
+      "reviewRunId": "B-fe8f:RR-045",
+      "_hash": "3abe9bd480dbf9c12a52b54ea87ae7990e40a4af063942ba49ae0b7754e41548",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "adversarial|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
