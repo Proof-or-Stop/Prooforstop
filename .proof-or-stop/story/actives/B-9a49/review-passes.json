@@ -1026,6 +1026,43 @@
         "scanEscalationReason": null
       },
       "_hash": "26e4b0b48ff45a86f4a3bdbe71435f2b3c3998dfe85c32446df585a75e358596"
+    },
+    {
+      "id": "B-9a49:RP-024",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 35 bounded concept re-attestation found no blocker. Verified the exact F-071 period/semicolon contradictions and F-072 consequently-clause contradictions reject on all five canonical REVIEW roles across story, checklist, and verificationIntent surfaces, while declared safe controls accept (285/285 checks). The proposal remains an English Agent-side projection: severity, applicability, disposition, gate impact, and append-only Finding history remain separate; unknown applicability fails closed; dismissal is not applicability proof; owner/route evidence remains required. Protected Dynamic Finding authority/runtime handler/gate/process-fact paths have no Story diff. Full-context, focused registry, process-fact, runtime-fact, pre-review, and rollout checks pass. No arbitrary NLP completeness was required.",
+      "createdAt": "2026-09-03T13:29:06.952Z",
+      "reviewRound": "2026-09-03T13:24:28.264Z",
+      "reviewRunId": "B-9a49:RR-119",
+      "envelopeId": "1757c3064875c0881be4022b053ab5a994e023421abc146483a8f7e4e7dd6168",
+      "writerSessionId": "sess-3787b9b492d1cd121854fb125edaa9bc",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/background.md",
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          ".proof-or-stop/story/actives/B-9a49/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/role-separation.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "74ecba4865060a05f43331a15e77ba591ff03d5f90eb1e547e6b1d923e26f41d"
     }
   ]
 }
