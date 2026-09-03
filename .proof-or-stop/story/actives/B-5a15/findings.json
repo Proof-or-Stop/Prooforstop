@@ -20523,7 +20523,7 @@
       "desc": "F-393 guard (certification-window-smoke.ts CERTIFICATION_DOMAIN_PATH_RULES mutual-exclusivity check + positive control) is logically correct -- independently re-verified against the rebuilt dist: 24 probes zero ambiguous, positive control fires 2/2 -- but the entire certification-window-smoke.ts task, along with its siblings certification-window-invalidation-smoke.ts / certification-window-replay-smoke.ts / certification-window-heavy-choke-smoke.ts, has zero references anywhere in the repo (not in package.json scripts, not in full-suite-runner.ts, not in command-catalog.ts, no dynamic tasks/ glob loader). Running it standalone (node packages/main/dist/tasks/certification-window-smoke.js) confirms it dies earlier at a pre-existing, unrelated fixture failure ([pre_cert_causal_freshness_required] in the B-cw-selective mock-inventory scenario, well before reaching the F-393 guard block appended near EOF) -- so the F-393 guard never executes in CI today. This is the exact same defect independently reported as B-5a15:F-394 by the author. Recording as its own low finding per Handler-encoding-convention self-check discipline (a guard whose host task is unregistered is not yet a delivered regression protection) and to keep it traceable if F-394 gets dismissed or lost; defer to the follow-up that registers all four certification-window-star-smoke tasks in a runner and fixes the pre-existing B-cw-selective fixture failure blocking them.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-03T10:02:23.066Z",
@@ -20564,7 +20564,11 @@
         "packages/main/src/tasks/certification-window-heavy-choke-smoke.ts"
       ],
       "signatureTag": "missing|ts|guard-certification-window",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED with evidence, not fixed. Defect: the F-393 mutual-exclusivity guard added by this story lives in packages/main/src/tasks/certification-window-smoke.ts, which is registered in NO runner, so it is not a live CI regression guard. The quality lane correctly split this from F-393 itself: the code change (certification-window.ts CERTIFICATION_DOMAIN_PATH_RULES package-local scripts rule) is correct and verified, but a guard nothing executes cannot prevent regression. Verified standalone against the compiled rules table (8 rules, zero ambiguous paths over 24 probes, positive control with a deliberately overlapping rule pair observed as a double match); the task additionally fails earlier at its pre-existing B-cw-selective F-142 fixture, so simply registering it would red the suite. Scope note: this story DID fix the same defect class for verifier-causal-preflight (F-400, registered in both /package.json test:serial-reference and RESOURCE_POLICY in full-suite-runner.ts per F-402), so the pattern is understood; the certification-window sibling additionally needs its F-142 fixture repaired, which is out of this story's scope. Why deferred per rule 3: severity low, non-blocking, not claimed by any checklist item. Follow-up must: repair the B-cw-selective F-142 fixture, then register certification-window-smoke in BOTH membership authorities (/package.json and RESOURCE_POLICY, or it fails closed with unknownPolicy), and confirm the F-393 guard executes by observing its positive control fire in the suite. The quality lane found all four certification-window-*-smoke.ts siblings unreferenced, so scope the whole family.",
+      "resolvedAt": "2026-09-03T11:02:32.154Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-5a15:F-397",
