@@ -621,8 +621,8 @@ try {
     assert.doesNotMatch(prompt, /proof-or-stop-test-intent|proof-or-stop-test-case-reviewer|testIntent|testintent_/);
     assert.doesNotMatch(prompt, /git commit|status["': ]+done/i);
   }
-  const previousPlanActor = process.env.LATTICE_AGENT;
-  process.env.LATTICE_AGENT = 'verification-intent';
+  const previousPlanActor = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'verification-intent';
   try {
     checklistHandlers.checklist_update({
       storyId,
@@ -659,8 +659,8 @@ try {
       'canonical PLAN role cannot write verificationEvidence',
     );
   } finally {
-    if (previousPlanActor === undefined) delete process.env.LATTICE_AGENT;
-    else process.env.LATTICE_AGENT = previousPlanActor;
+    if (previousPlanActor === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousPlanActor;
   }
   const beforeUnknown = store.readProcessEvents(storyId).length;
   assert.throws(

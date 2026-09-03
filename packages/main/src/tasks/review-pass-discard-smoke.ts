@@ -738,7 +738,7 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
       'unknown explicit agent type must fail before prompt generation',
     );
     await assert.rejects(
-      runProofOrStop(root, 'checklist_update', { storyId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'proof-or-stop-review-quality' }),
+      runProofOrStop(root, 'checklist_update', { storyId, itemId: 'CHK-001', status: 'done' }, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-quality' }),
       /agent_dispatch_mutation_denied/,
       'reviewer role must not complete checklist status',
     );
@@ -762,7 +762,7 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
       );
     }
     await assert.rejects(
-      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { LATTICE_AGENT: 'verification-intent' }),
+      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { PROOF_OR_STOP_AGENT: 'verification-intent' }),
       /agent_dispatch_mutation_scope_denied/,
       'verification-intent role must not mark checklist done',
     );
