@@ -73,6 +73,24 @@
       ],
       "signatureTag": "missing|md|docs-requirements-decisions",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1482:F-005",
+      "desc": "packages/main/src/core/evidence-pin-guard.ts is untouched by this story but contains a live user-facing teaching message that is now stale residue of the pre-B-1482 absolute immutability rule. The denial verdict built at lines ~206-215 (also rendered verbatim by the generated Codex hook script in init-assets.ts renderCodexEvidencePretoolHookScript, which calls the same shared verdict logic) says: the intent is already pinned to an immutable verification (B-ec67) and your write does not match it ... Fix: run verification_run ..., or pass the exact pinned command/selector. The pin is immutable once set. This is presented as an exhaustive Fix list of exactly two options, and neither mentions verification_pin_narrow. This is precisely the scenario B-1482 was built to fix (B-a745: a pinned selector that is not discriminating), and this exact hook is what a caller/agent hits the moment they try a different selector against a bad pin -- the teaching message sends them toward re-running the same (bad) pin or matching it exactly, never toward the one legitimate escape that now exists. The categorical closing sentence The pin is immutable once set. is also no longer accurate without qualification, since B-1482 added exactly one narrowing exception. Not touched by the diff (confirmed via git diff main...HEAD, evidence-pin-guard.ts does not appear), so this is residue the story left behind rather than something it introduced.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:43:18.813Z",
+      "reviewRound": "2026-09-03T22:33:06.448Z",
+      "_hash": "f85bc9b56c5842c790a9ee7c69a49281340d416fddfd33e283f8c9e9cfb064f0",
+      "files": [
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/init-assets.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
