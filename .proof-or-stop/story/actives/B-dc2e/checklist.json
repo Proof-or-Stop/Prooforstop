@@ -142,9 +142,9 @@
       "id": "CHK-004",
       "title": "Persist host B's parsed findings from cross_host_review as structured evidence",
       "context": "handlers/cross-host-review.ts persists only stdoutDigest; findings exist in memory at diffFindings and findingCount. Persist title/severity/file/desc into the verdict JSON or register them through finding_add with the host as agent so they enter the resolve/dismiss lifecycle; never persist raw provider stdout. RED: a FAIL leaf with two findings must leave their text in a committed artifact.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-03T04:48:35.321Z",
-      "endTime": null,
+      "endTime": "2026-09-03T04:50:38.203Z",
       "relatedDocs": [
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
@@ -180,6 +180,13 @@
             "priority": "must"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e512e38fe334ea4c25a34a23984afec09f8eb403542eb2bd09a058842bb3085a",
+        "storyFilesHash": "8cf971f95f1d14cfc516df0fad37954c817a46bc02e78b7a6fc5e4f104616dc5",
+        "headHash": "443e5eda696f685ef567f99df2090a53ac1ca935",
+        "attestedAt": "2026-09-03T04:50:38.593Z",
+        "materialHash": "ed08e00675b1b9ce2140a7271182d706cd2082c82979f7ade106f6dbb160b1b1"
       }
     }
   ]
