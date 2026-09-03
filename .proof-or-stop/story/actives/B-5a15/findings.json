@@ -20471,7 +20471,7 @@
       "desc": "packages/main/src/tasks/certification-window-smoke.ts is registered in NO runner: grep finds zero references in proof-or-stop.config.json validate.commands, packages/main/package.json scripts, and packages/main/src/tasks/full-suite-runner.ts. It is an orphan task, so nothing executes it and nothing reports when it breaks. It currently FAILS (exit 1) at its F-142 selective-invalidation fixture with 'Error: Certification window: B-cw-selective:CW-001'. Root cause of that failure: the fixture writes src/app.ts at its synthetic root, which matches zero CERTIFICATION_DOMAIN_PATH_RULES entries (the source rule requires packages/main/src/), so deriveCertificationDomainInputHashes returns undefined and the window cannot admit. Verified NOT caused by this story's certification fix in 6bf7ce77a3: reverting only the new integration rule and re-running reproduces the identical error, and the added rule cannot match src/app.ts under either version. The failure traces to cfc8402e1f (this story's earlier F-142 work). Deferred rather than fixed in this story per the triage rules: it is non-blocking (no gate consumes an unregistered task, which is precisely the defect), medium, and the fix is a judgement call between registering the task (which would then require fixing the fixture's unclassifiable path) and correcting the fixture to use a classifiable path such as packages/main/src/core/app.ts. Recommended handling: a follow-up story that both registers the task in a runner and makes the fixture path classifiable, plus an audit for other orphan tasks under packages/main/src/tasks/ since this one went unnoticed for the whole story.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-03T09:45:18.506Z",
@@ -20482,7 +20482,10 @@
         "proof-or-stop.config.json"
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Superseded by , which consolidates this instance with the other zero-match paths the concept lane identified (packages/graph/src/*, packages/main/templates/agents/*) into the single architectural gap they share: CERTIFICATION_DOMAIN_PATH_RULES has no catch-all, and one unclassifiable story-owned path aborts the whole deriveCertificationDomainInputHashes pass. The concept lane confirmed same-family mechanically by evaluating the live rules table against src/app.ts and getting zero matches, identical to those other paths, and recommended consolidating rather than tracking separately. Tracking one root cause instead of several instances.",
+      "resolvedAt": "2026-09-03T10:03:04.102Z",
+      "resolutionType": "superseded"
     },
     {
       "id": "B-5a15:F-395",
