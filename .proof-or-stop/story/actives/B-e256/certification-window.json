@@ -113,9 +113,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-e256:CW-004",
       "storyId": "B-e256",
-      "state": "ADMITTED",
+      "state": "INVALIDATED",
       "createdAt": "2026-09-03T06:31:34.443Z",
-      "updatedAt": "2026-09-03T06:31:34.443Z",
+      "updatedAt": "2026-09-03T09:30:55.556Z",
       "frozen": {
         "headHash": "c5b1e2e5d66ca0607330770ea92d690bc8d36b7e",
         "materialHash": "33361aff6462f3173e56132203d5fc419f6a556a05662beda5184826366c2881",
@@ -131,7 +131,36 @@
         "authorizesTest": false
       },
       "receiptId": "B-e256:PRECERT-004",
-      "_hash": "1713ab97e6bc00ed8dc21da105783c2288affd4ba3ee6bcdc757acb94ae20b50"
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "storyFilesHash changed",
+      "invalidation": {
+        "detectedAt": "2026-09-03T09:30:55.556Z",
+        "oldHeadHash": "c5b1e2e5d66ca0607330770ea92d690bc8d36b7e",
+        "currentHeadHash": "4f7d6e705a3cf48590e2da833547d5990d35c8b3",
+        "oldMaterialHash": "33361aff6462f3173e56132203d5fc419f6a556a05662beda5184826366c2881",
+        "currentMaterialHash": "3ec179129e4e88e86179fef9d8436cd047323023d12e3152b3e6c9c1a96fb693",
+        "oldStoryFilesHash": "c3e0fe8d13289f147b4719c09cd70af6543195ea662b9334e4c4b89fea68a361",
+        "currentStoryFilesHash": "71f2f72d32862d507f714834f16e3dbd2e558a4eee116db9646e45a501b2a036",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "6bce07ea8549b3f126bfcaed53dbe896822a53b16e7c52fbfe609e1f45283945"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-e256:CW-005",
+      "storyId": "B-e256",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-03T09:30:56.002Z",
+      "updatedAt": "2026-09-03T09:30:56.002Z",
+      "blockerCode": "pre_cert_main_not_merged",
+      "blockerDetail": "Local main is not an ancestor of HEAD.",
+      "inventory": {
+        "epochId": "B-e256:RIE-005",
+        "receiptId": "B-e256:RIE-005:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "aea05db95e5eed993bcd360c237063c4da9d2c6f14d5f70f66ce89f85967d763"
     }
   ],
   "receipts": [
