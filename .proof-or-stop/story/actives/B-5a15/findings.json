@@ -20911,6 +20911,25 @@
       ],
       "signatureTag": "missing|ts|wave-independent-verification",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-407",
+      "desc": "packages/main/tests/causal-evidence.test.mjs:2469 (test F-247, backing CHK-004 must-priority receipts) FAILS deterministically right now: node --test packages/main/tests/causal-evidence.test.mjs -> 20/21 pass, F-247 fails at line 2506 (assert.equal(preReview.status,\"pass\") -> actual \"fail\"). Root cause: the CHK-004:happy:2/happy:3 waiver evidence rows were written at 2026-09-03T14:54:15.184Z, AFTER the stored pre-review-check.json artifacts cutoffAt of 2026-09-03T14:52:14.284Z; evidenceState() in core/pre-review-check.ts:111-114 (allEvidence includes waiver rows regardless of kind/result) counts that waiver row as afterCutoff, so a fresh pre_review_check_read now reproducibly returns codes=[PR_ARTIFACT_TAMPERED,PR_CUTOFF_UNBOUND] (verified live twice, deterministic, not flaky) instead of the single PR_EVIDENCE_STALE the DEV waiver note and the CHK-004:happy:0/1/edge:0-7/adversarial:0-1 verificationEvidence receipts (executedAt 2026-09-03T14:34:44.333Z, result=pass) were bound to. The pinned suites tolerated-bootstrap allow-list at test.mjs:2495-2504 was widened three separate times during this storys own DEV history (commits 3972cce333, 7b51bf87f7, 735f159f8f) to keep pace with pre_review_check drift, but PR_ARTIFACT_TAMPERED,PR_CUTOFF_UNBOUND (sorted) is not one of the four tolerated combinations, so isEvidenceRefreshBootstrap=false and the strict-PASS branch fires and fails. Net effect: every must-priority CHK-004 integration_test receipt currently on file (pass, 21/21, executedAt 14:34:44) would read FAIL if re-earned right now -- registered evidence is stale-to-false in the CLAUDE.md sense (a receipt claiming pass for a command that no longer passes), caused by DEVs own waiver-write sequencing rather than an unrelated drift. This is separate from the already-filed B-5a15:F-406 (which covers currentTopologyReceiptStateForContext missing a freshness fallback) though it shares the same underlying pre_review_check staleness surface; F-405/F-406 do not cover this specific pinned-suite-red symptom. Recommend either (a) re-run verification_evidence_batch_add for CHK-004s must intents AFTER the waiver rows are in place so receipts bind to a state that actually reproduces green, or (b) widen the tolerated bootstrap set once more for this newly observed combination with the same care taken in the prior three widenings (documented, not silently loosening the strict branch), then re-earn.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T15:05:04.869Z",
+      "reviewRound": "2026-09-03T14:55:02.746Z",
+      "reviewRunId": "B-5a15:RR-972",
+      "_hash": "93157f17396f4c7e37d9e161f0076165562901c823e237694b7d624f109840c3",
+      "files": [
+        "packages/main/tests/causal-evidence.test.mjs",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto"
     }
   ]
 }
