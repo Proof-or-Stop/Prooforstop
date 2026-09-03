@@ -19681,6 +19681,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-5a15:F-368",
+      "desc": "packages/main/src/handlers/validate-concept.ts:103-121 - defaultGitDiffReader/defaultGrepReader run `git diff --unified=1000000 main...HEAD` via execSync; on stories with large diffs (e.g. this one, >239MB) this fails with spawnSync /bin/sh ENOBUFS (a pipe ceiling, not the maxBuffer guard - raising maxBuffer to 200MB does not fix it). checkConcept (~line 1040-1055) maps any diff-read failure to status=warn, recommendation=skip, so `validate --concept` silently no-ops on large diffs instead of failing closed. Out of B-5a15 scope (validate-concept.ts is not touched by this story diff); recorded and deferred per Defect Triage rule 3, re-filed from prior review round (originally F-366).",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-03T02:37:45.189Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-902",
+      "_hash": "78826cd7a8aea138a75dd1d1dd16fa222af0758b7ed31584d856e7ceeee5effd",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
