@@ -91,6 +91,23 @@
       ],
       "signatureTag": "missing|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1482:F-006",
+      "desc": "verification_pin_narrow has no rows in PROCESS_FACT_KIND_BY_COMMAND or PROCESS_FACT_REQUIRED_SEMANTICS, so it falls back to the generic gate-evidence kind and semantics, while its siblings verification_run and verification_evidence_add carry explicit kind execution-status and semantics execution-evidence, verification-evidence, gate-evidence. The command mutates the selector every past and future receipt is judged against, so the process-fact inventory understates it. docs/requirements/decisions/story-lifecycle.md names process-fact-registry.ts and PROCESS_FACT_LEVELS as the required typed-registry pair for a gate-consumed command, so only half the pair was filled. Fix: add both rows matching the siblings, and add a case asserting the new command has explicit rows rather than falling back.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:51:24.727Z",
+      "reviewRound": "2026-09-03T22:33:06.448Z",
+      "_hash": "b1055e6e1e637a4b1c3d0ce9fcd4821a5f47cab35943e55cd4dc8953476b491e",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|verification-narrow-rows",
+      "signatureTagSource": "auto"
     }
   ]
 }
