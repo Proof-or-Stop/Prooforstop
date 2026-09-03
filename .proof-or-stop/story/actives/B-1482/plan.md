@@ -50,6 +50,7 @@ This story edits an evidence gate that DONE consumes, so every change fails clos
 **DependsOn**: CHK-002
 **Files**:
 - Modify: CLAUDE.md, package.json, packages/main/src/tasks/full-suite-runner.ts, proof-or-stop.config.json
+- Create: docs/requirements/decisions/narrowing-only-evidence-repin.md
 - Test: packages/main/src/tasks/narrowing-repin-smoke.ts
 
 **Verify**:
@@ -60,4 +61,5 @@ This story edits an evidence gate that DONE consumes, so every change fails clos
 - CLAUDE.md's Verification Intent / Evidence section states: the narrowing-only rule, that the proof reads only tool-recorded receipts, the one-narrowing-per-recorded-receipt-set bound, every refusal case, and the engineered-failing-run limitation as either a named bound or an accepted limitation
 - No documentation text claims the engineered-failing-run case is mechanically excluded; a case greps for that overclaiming phrasing and asserts its absence
 - The decision (already recorded at PLAN) carries at least four pre-mortems including the engineered-failing-run gap
+- A decision document `docs/requirements/decisions/narrowing-only-evidence-repin.md` states the invariant and its one exception. The PLAN scope review found that the B-ec67 evidence-pin immutability invariant this story changes is stated nowhere in `docs/requirements/decisions/`, only in code comments and CLAUDE.md, so the change would otherwise land with no decision record. The document states: what immutability protects and why loosening stays refused; the narrowing-only exception and its inputs; the one-narrowing-per-recorded-receipt-set bound; every refusal case; and the engineered-failing-run limitation named as a bound or accepted
 - The suite is registered in `test:serial-reference`, the full-suite runner's RESOURCE_POLICY and `proof-or-stop.config.json` validate.commands, copying the shape of a sibling entry, and a case reads those real files to assert it
