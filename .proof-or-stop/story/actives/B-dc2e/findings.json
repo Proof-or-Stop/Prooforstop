@@ -17,6 +17,41 @@
       ],
       "signatureTag": "missing|ts|quality-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-dc2e:F-002",
+      "desc": "CHK-002:edge:0 evidence is vacuous: it is pinned to the SAME selector as CHK-002:happy:0 (packages/main/src/tasks/full-suite-runner-smoke.ts:171, printed by the composed-chain assertion at lines 168-170), not to the actual distinguishing assertion at lines 160-163 (mainOnlyMessage stalePolicy check for prefix members). I confirmed by mutation test: neutralizing the line 160-163 assertWithDetail condition to a constant true still prints the pinned selector line and exits 0 (verified by patching packages/main/dist/tasks/full-suite-runner-smoke.js locally, running it, then restoring the original file byte-for-byte). So a regression or deletion of the mainOnlyMessage check would leave the edge:0 receipt result=pass/selectorMatched=true unchanged; the pinned evidence provides no mechanical proof that the edge intent (prefix members are not reported as stalePolicy against the main chain alone) is actually being exercised. Fix: pin CHK-002:edge:0 to a distinct process.stdout.write emitted right after the mainOnlyMessage assertWithDetail succeeds (mirroring the pattern already used for the other three CHK-002 selectors), then re-add the evidence against the new distinct selector.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T05:25:18.910Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/background.md",
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e5c363e3b63e87c92a9f569d3ab52c1d296aaf3bcafac4c28beeb5ca02a60db",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|edge-evidence-vacuous",
+      "signatureTagSource": "auto"
     }
   ]
 }
