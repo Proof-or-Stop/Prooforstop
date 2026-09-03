@@ -15419,6 +15419,52 @@
         "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
       },
       "_hash": "448610dd361de80e5aac6142695849f07d54c53b240f8dc16388fb7291c42b5d"
+    },
+    {
+      "id": "B-5a15:RP-337",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage review for RI-073 wave 1. Audited checklist_get output directly (all 5 items, 53 verificationIntent entries: 51 must + 2 should) and independently confirmed the known-stale state via finding_list/checklist_get analysis: all 53 verificationEvidence records are bound to storyFilesHash 8e57bba899496b0c (prior tree), current storyFilesHash is d535628105e8fb2a, buildVerificationCoverage-equivalent count is covered=0 required=51 missingRequired=51, matching F-395 exactly. This is expected pending-DEV staleness, not a new coverage gap: intent-to-evidence mapping is 1:1 and well-formed (every must/should intent maps to exactly one evidence record with matching kind and a concrete receipt payload); once RI-073 finalizes and DEV re-earns via the established order the coverage reconciles mechanically. Independently verified the freeze claim via finding_list: of 229 status=open findings, 226 belong to superseded rounds (2026-08-20 through 2026-09-01, all pre-dating currentReviewRound 2026-09-03T09:03:49.640Z); only 3 are bound to the current round (F-390, F-391, F-394), all medium/missing, all carrying recorded evidence they are unmodified by any commit this round (F-390: validate-concept.ts untouched per git log; F-391: byte-identical since prior filing per git diff --stat; F-394: revert-and-reproduce isolates the failure from this story fix). No open finding demands a source change; tree should stay frozen at d535628105e8fb2a through this round -- confirmed. On F-394 (orphan task): grepped all 53 verificationEvidence command strings across CHK-001..CHK-005, zero reference certification-window-smoke.ts, so no verificationIntent in this checklist depends on it. Task predates this story (added by B-1e1f commit 410b3c913d); this story's commit cfc8402e1f made the pre-existing silent orphan start failing loudly via a new domain rule that does not match the fixture's src/app.ts path, but F-394 already isolates that cleanly. Concur with deferral: medium, non-blocking, not claimed by any CHK item, no gate this story depends on consumes the orphan task. No blocking finding from this lane.",
+      "createdAt": "2026-09-03T10:00:15.350Z",
+      "reviewRound": "2026-09-03T09:03:49.640Z",
+      "reviewRunId": "B-5a15:RR-943",
+      "envelopeId": "d070e10a7f67c0dad32371e9617de57e31d1b1f0461cb2963c635b88d344fa17",
+      "writerSessionId": "claude-b5a15-1788234253",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/annotation-system.md",
+          "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+          "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+          "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+          "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/story-files-hash-material-drift.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/tests/causal-evidence.test.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "85a753ad824c6b17afa0994f78a435247d0c82e3b47831c854ab276073e70038",
+        "corpusDigest": "c7534616659c757757ae7536c6c415a624703792a9f806c96789d7a5d30c6154"
+      },
+      "_hash": "5a1f1a24d77deb34e84874a4d385f963ea3a89b68b27479025c1fc9fc0d3bbd9"
     }
   ]
 }
