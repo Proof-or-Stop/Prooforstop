@@ -16,6 +16,12 @@
 // B-e256 cross-host review B-e256-xhr-r7 (MAJOR): when the realpath DRIFTS, the
 // old target's mode / missing facts are reported but the canonical `npm link`
 // stays the sole actionable remediation (no chmod/rebuild of the obsolete path).
+// B-e256 cross-host review B-e256-xhr-r11 (MAJOR x2): (i) a global package entry
+// that is a BROKEN LINK (its checkout was removed) is present-but-unresolvable
+// drift naming the broken target + the relink, never a pass with
+// installed=false; (ii) `chmod +x` is offered only when the execute bits are
+// actually clear - X_OK denied WITH the bits set is an ownership/ACL/noexec
+// denial that chmod cannot repair, so it gets rebuild-and-relink instead.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { chmodSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -223,6 +229,7 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     assert.equal(report.globalCoreRealpath.status, 'pass', 'missing global install is informational, not a warning');
     assert.equal(report.globalCoreRealpath.warnings, undefined);
     assert.equal(actual.installed, false);
+    assert.equal(actual.presence, 'absent', 'a genuinely absent install is ABSENT, not a broken link');
     assert.equal(actual.realpath, null);
     assert.equal(actual.executable, null);
     assert.equal(actual.verification, null, 'an ABSENT install has nothing to verify and must not be classified as unverifiable');
@@ -306,21 +313,32 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
   try {
     const { repo, worktree } = makeRepoWithWorktree(base, { binMode: 0o755 });
     const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
     const expectedBin = realpathSync(join(repo, 'packages', 'main', 'dist', 'cli.js'));
 
-    // (i) mode 0755 but the current user may NOT execute it (probe denies)
+    // (i) mode 0755 but the current user may NOT execute it (probe denies).
+    // B-e256-xhr-r11 MAJOR: the execute bits ARE set here, so `chmod +x` is a
+    // no-op; the row must name the ownership / ACL / noexec cause and hand out
+    // the rebuild-and-relink action instead.
     const probed = [];
     const denied = runChecks(join(base, 'deny'), join(worktree, 'packages', 'main'), globalRoot, {
       executableAccessProbe: (path) => { probed.push(path); return false; },
     });
+    const rebuild = `npm --prefix ${canonical} run build`;
+    const relink = `cd -- ${canonical} && npm link`;
     assert.deepEqual(probed, [expectedBin], 'the probe must be asked about exactly the bin target');
     assert.notEqual(denied.globalCoreRealpath.status, 'pass', 'a target the current user cannot execute must never pass, whatever its mode bits say');
     assert.equal(denied.globalCoreRealpath.actual.executable, false, 'executable is the X_OK verdict, not the mode bits');
     assert.equal(denied.globalCoreRealpath.actual.binMode, '0755', 'the mode is still reported for display');
     assert.equal(denied.globalCoreRealpath.actual.verification, 'ok');
-    assert.equal(denied.globalCoreRealpath.actual.remediation, `chmod +x ${expectedBin}`);
+    assert.equal(denied.globalCoreRealpath.actual.remediation, `${rebuild} && ${relink}`, 'X_OK denied with the execute bits SET must not be remediated with chmod');
     const deniedWarnings = (denied.globalCoreRealpath.warnings ?? []).join('\n');
-    assert.ok(deniedWarnings.includes(`global bin target ${expectedBin} is not executable by the current user (mode 0755); fix: chmod +x ${expectedBin}`), `warning must say the CURRENT USER cannot execute it, got: ${deniedWarnings}`);
+    // chmod is named ONLY to say it cannot repair this; it is never offered as a command.
+    assert.doesNotMatch(deniedWarnings, /fix: chmod/, 'chmod must not be presented as the fix');
+    assert.ok(!deniedWarnings.includes(`chmod +x ${expectedBin}`), `no runnable chmod command may be offered, got: ${deniedWarnings}`);
+    assert.ok(deniedWarnings.includes(`global bin target ${expectedBin} is marked executable (mode 0755) but the current user still cannot execute it`), `warning must say the file IS marked executable yet the CURRENT USER cannot execute it, got: ${deniedWarnings}`);
+    assert.match(deniedWarnings, /ownership or an ACL denying execute to this user, or a filesystem mounted noexec/, `warning must name the likely causes, got: ${deniedWarnings}`);
+    assert.ok(deniedWarnings.includes(`rebuild and relink: ${rebuild} && ${relink}`), `warning must carry the canonical rebuild-and-relink action, got: ${deniedWarnings}`);
 
     // (ii) mode 0644 but the probe allows -> executable=yes (the probe decides, the mode is display only)
     chmodSync(expectedBin, 0o644);
@@ -492,6 +510,82 @@ for (const [variant, reasonCode, reasonText] of [
     const rebuildReport = runChecks(join(base, 'rebuild'), join(absent.worktree, 'packages', 'main'), globalRootAbsent);
     assert.equal(rebuildReport.globalCoreRealpath.actual.remediation, `npm --prefix ${canonicalAbsent} run build`, 'canonical missing target keeps the single rebuild remediation');
     assert.doesNotMatch(rebuildReport.globalCoreRealpath.actual.remediation, /&&/, 'exactly one command');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 17. B-e256-xhr-r11 MAJOR (a): the global scoped package entry is a symlink
+//    whose target checkout was REMOVED (the exact failure this story targets:
+//    a globally linked worktree that no longer exists). `existsSync` follows
+//    the link and reports false, which used to render the row as a PASS with
+//    installed=false. The entry is present but unresolvable: drift naming the
+//    broken target and the canonical relink.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-dangling-link-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base);
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const removed = join(base, 'removed-core');
+    writeCorePackage(removed);
+    const globalRoot = makeGlobalRootLinkedTo(base, removed);
+    // the link stays; only its target goes away
+    rmSync(removed, { recursive: true, force: true });
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'a broken global link must never pass');
+    assert.equal(actual.presence, 'dangling', 'the entry is present but unresolvable, not absent');
+    assert.equal(actual.installed, true, 'a broken link is a broken INSTALL, never installed=false');
+    assert.equal(actual.realpath, null, 'a broken link has no realpath');
+    assert.equal(actual.linkTarget, removed, 'the broken link target is reported');
+    assert.equal(actual.packagePath, join(globalRoot, '@proof-or-stop', 'core'));
+    assert.equal(actual.remediation, relink, 'the relink is the remediation for a broken link');
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes(`is a broken link -> ${removed}`), `warning must name the broken link target, got: ${warnings}`);
+    assert.ok(warnings.includes(relink), `warning must carry the exact relink command, got: ${warnings}`);
+    assert.doesNotMatch(warnings, /not installed/, 'a broken link is not an absent install');
+
+    // a broken link INTO a `.worktrees/` checkout also names that condition
+    const wtBase = mkdtempSync(join(tmpdir(), 'gcr-dangling-worktree-'));
+    try {
+      const worktreeDir = join(wtBase, 'repo', '.worktrees', 'B-test');
+      const wt = makeRepoWithWorktree(wtBase, { worktreeDir });
+      const linkedWorktreeCore = realpathSync(join(wt.worktree, 'packages', 'main'));
+      const wtGlobalRoot = makeGlobalRootLinkedTo(wtBase, linkedWorktreeCore);
+      rmSync(join(wtBase, 'repo', '.worktrees'), { recursive: true, force: true });
+      const wtReport = runChecks(wtBase, join(wt.repo, 'packages', 'main'), wtGlobalRoot);
+      const wtActual = wtReport.globalCoreRealpath.actual;
+      assert.notEqual(wtReport.globalCoreRealpath.status, 'pass');
+      assert.equal(wtActual.presence, 'dangling');
+      assert.equal(wtActual.worktreeCheckout, true, 'the removed target was a .worktrees/ checkout');
+      assert.match((wtReport.globalCoreRealpath.warnings ?? []).join('\n'), /\.worktrees\//, 'the worktree condition is named');
+    } finally {
+      rmSync(wtBase, { recursive: true, force: true });
+    }
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 18. B-e256-xhr-r11 MAJOR (b) regression guard: when the execute bits really
+//    ARE clear, `chmod +x` remains the plausible repair and must still be
+//    offered - the mode-aware branch only diverts the bits-set case.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-noexec-bits-chmod-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { binMode: 0o644 });
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const expectedBin = realpathSync(join(repo, 'packages', 'main', 'dist', 'cli.js'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot, { executableAccessProbe: () => false });
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass');
+    assert.equal(actual.binMode, '0644');
+    assert.equal(actual.executable, false);
+    assert.equal(actual.remediation, `chmod +x ${expectedBin}`, 'bits clear + denied is exactly the case chmod repairs');
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes(`global bin target ${expectedBin} is not executable by the current user (mode 0644); fix: chmod +x ${expectedBin}`), `got: ${warnings}`);
+    assert.doesNotMatch(warnings, /marked executable/, 'the bits are clear, so the ownership/ACL diagnostic must not fire');
   } finally {
     rmSync(base, { recursive: true, force: true });
   }

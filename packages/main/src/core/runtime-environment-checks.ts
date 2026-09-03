@@ -1,5 +1,5 @@
 import { execFileSync } from 'node:child_process';
-import { accessSync, constants, existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 import { basename, delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadConfig, PROJECT_CONFIG_FILENAMES } from './config.js';
@@ -134,10 +134,17 @@ const LOCAL_HOST_RE = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|\[?::1\]?)(?::
 const HEALTH_SEMANTICS_RE = /\b(health\s*check|healthcheck|health\s*command|doctor|ping|readiness|liveness)\b|health check|health command/i;
 const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-only';
 
+// B-e256 cross-host review B-e256-xhr-r11 MAJOR: presence is THREE-valued.
+// `existsSync` follows symlinks, so a global `npm link` whose target checkout
+// was deleted (exactly the failure this story targets) reads as `absent` and
+// the global-core-realpath row silently passes with installed=false. A link
+// entry that is present but does not resolve is its own state.
+type CorePackagePresence = 'resolved' | 'dangling' | 'absent';
+
 interface CorePackageCandidate {
   path: string;
   packageName: typeof CANONICAL_CORE_PACKAGE_NAME | typeof DEPRECATED_CORE_PACKAGE_NAME;
-  exists: boolean;
+  presence: CorePackagePresence;
 }
 
 export function runRuntimeEnvironmentChecks(
@@ -518,8 +525,14 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
 // only REPORT — doctor never mutates the host's global install.
 //   (1) realpath inside a `.worktrees/` checkout (or any non-canonical path)
 //       -> drift + exact `cd -- <canonical core root> && npm link` repoint
-//   (2) package.json bin target not executable -> exact `chmod +x <abs path>`
+//   (2) package.json bin target not executable -> `chmod +x <abs path>` ONLY when
+//       the execute bits are actually clear; a target that IS marked executable
+//       yet fails X_OK is an ownership/ACL/noexec denial that chmod cannot
+//       repair, so it gets the rebuild-and-relink action (B-e256-xhr-r11 MAJOR)
 //   (3) no global install -> informational (pass) row naming how to link one
+//   (3b) the global package entry EXISTS but is a broken link (its checkout was
+//       removed) -> drift naming the broken target + the relink; never a pass
+//       with installed=false (B-e256-xhr-r11 MAJOR)
 //   (4) canonical realpath + executable bin -> pass with realpath/version/mode
 //   (5) installed but unverifiable (package.json unreadable / no `bin` /
 //       no proof-or-stop bin entry) -> drift naming the exact reason + path;
@@ -530,6 +543,10 @@ interface GlobalCoreExecutableFacts {
   binTarget: string | null;
   binMode: string | null;
   binTargetExists: boolean;
+  // B-e256-xhr-r11 MAJOR: whether ANY 0o111 bit is set on the target. This is
+  // NOT the executable verdict (that is the X_OK probe); it is what decides
+  // whether `chmod +x` is a plausible repair at all.
+  executeBitsSet: boolean;
   // null = unverifiable; `verification` names why, and checkGlobalCoreRealpath
   // treats every non-'ok' reason on an INSTALLED package as drift.
   executable: boolean | null;
@@ -574,7 +591,7 @@ function formatFileMode(mode: number): string {
 
 function inspectGlobalCoreExecutable(packageRoot: string, executableAccessProbe: (path: string) => boolean): GlobalCoreExecutableFacts {
   const unverifiable = (verification: Exclude<GlobalCoreExecutableVerification, 'ok'>): GlobalCoreExecutableFacts =>
-    ({ binTarget: null, binMode: null, binTargetExists: false, executable: null, verification });
+    ({ binTarget: null, binMode: null, binTargetExists: false, executeBitsSet: false, executable: null, verification });
   const pkg = readPackageJson(packageRoot);
   if (!pkg || typeof pkg !== 'object') return unverifiable('package-json-unreadable');
   const bin = pkg.bin;
@@ -591,30 +608,69 @@ function inspectGlobalCoreExecutable(packageRoot: string, executableAccessProbe:
     stat = statSync(binTarget);
   } catch {
     // PROBE: a declared bin target that does not exist is reported as missing, not thrown.
-    return { binTarget, binMode: null, binTargetExists: false, executable: false, verification: 'ok' };
+    return { binTarget, binMode: null, binTargetExists: false, executeBitsSet: false, executable: false, verification: 'ok' };
   }
-  if (!stat.isFile()) return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: false, executable: false, verification: 'ok' };
+  const executeBitsSet = (stat.mode & 0o111) !== 0;
+  if (!stat.isFile()) return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: false, executeBitsSet, executable: false, verification: 'ok' };
   // `binMode` is display-only; the executable verdict is the access(2) probe.
   const executable = executableAccessProbe(binTarget);
-  return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: true, executable, verification: 'ok' };
+  return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: true, executeBitsSet, executable, verification: 'ok' };
 }
 
 function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'details' | 'warnings'> {
   const globalRoot = context.globalNpmRoot;
   const globalPackage = globalRoot ? resolveCorePackageCandidate(globalRoot) : null;
   const globalPackagePath = globalPackage?.path ?? null;
-  const globalRealpath = globalPackage && globalPackage.exists ? safeRealpath(globalPackage.path) : null;
+  const globalRealpath = globalPackage && globalPackage.presence === 'resolved' ? safeRealpath(globalPackage.path) : null;
   const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : resolveCanonicalCoreRoot(context.corePackageRoot);
   const relink = globalCoreRelinkCommand(expected);
+  if (globalPackage && globalPackagePath && globalPackage.presence === 'dangling') {
+    // (3b) The scoped package entry is still there, so the global install is
+    // NOT absent: it is broken and every `proof-or-stop` invocation through it
+    // fails. Reporting this as "not installed" would hide the exact failure
+    // this story targets (a linked worktree that was removed).
+    const linkTarget = safeReadlinkTarget(globalPackagePath);
+    const brokenTarget = linkTarget ?? '<unreadable link target>';
+    const warnings = [
+      `global ${describeCorePackageCandidate(globalPackage)} at ${globalPackagePath} is a broken link -> ${brokenTarget}; the linked checkout no longer exists, so the global installation cannot resolve`,
+    ];
+    if (linkTarget && isWorktreeCheckoutPath(linkTarget)) {
+      warnings.push(`the broken link points inside a \`.worktrees/\` checkout; that worktree was removed or rebuilt`);
+    }
+    warnings.push(`repoint: ${relink}`);
+    return {
+      status: statusForDrift(severity),
+      actual: {
+        installed: true,
+        presence: 'dangling',
+        npmRoot: globalRoot,
+        packageName: globalPackage.packageName,
+        packagePath: globalPackagePath,
+        linkTarget,
+        realpath: null,
+        version: null,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        verification: null,
+        worktreeCheckout: linkTarget ? isWorktreeCheckoutPath(linkTarget) : false,
+        remediation: relink,
+      },
+      expected,
+      warnings,
+    };
+  }
   if (!globalPackage || !globalPackagePath || !globalRealpath) {
     // (3) Informational: nothing to verify, but tell the operator exactly how to link one.
     return {
       status: 'pass',
       actual: {
         installed: false,
+        presence: 'absent',
         npmRoot: globalRoot,
         packageName: globalPackage?.packageName ?? CANONICAL_CORE_PACKAGE_NAME,
         packagePath: globalPackagePath,
+        linkTarget: null,
         realpath: null,
         version: null,
         binTarget: null,
@@ -672,6 +728,15 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       } else {
         warnings.push(`global bin target ${executableFacts.binTarget} does not exist (reported for the obsolete target only; the repoint above is the fix)`);
       }
+    } else if (pathMatches && executableFacts.executeBitsSet) {
+      // B-e256-xhr-r11 MAJOR: X_OK denied although the execute bits ARE set.
+      // `chmod +x` is a no-op here (it would set bits that are already set) and
+      // naming it as "the fix" leaves the operator with a global CLI that stays
+      // unusable. The denial comes from something chmod cannot reach.
+      const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+      warnings.push(`global bin target ${executableFacts.binTarget} is marked executable (mode ${executableFacts.binMode}) but the current user still cannot execute it; \`chmod +x\` cannot repair this - the likely causes are file ownership or an ACL denying execute to this user, or a filesystem mounted noexec`);
+      warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+      remediations.push(rebuild, relink);
     } else if (pathMatches) {
       const chmod = `chmod +x ${shellQuote(executableFacts.binTarget)}`;
       warnings.push(`global bin target ${executableFacts.binTarget} is not executable by the current user (mode ${executableFacts.binMode}); fix: ${chmod}`);
@@ -685,9 +750,11 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     status,
     actual: {
       installed: true,
+      presence: 'resolved',
       npmRoot: globalRoot,
       packageName: globalPackage.packageName,
       packagePath: globalPackagePath,
+      linkTarget: null,
       realpath: globalRealpath,
       version: typeof version === 'string' ? version : null,
       binTarget: executableFacts.binTarget,
@@ -1222,18 +1289,47 @@ function packagePathFromName(root: string, packageName: string): string {
   return join(root, scope, name);
 }
 
+// B-e256-xhr-r11: lstat sees the link ENTRY (existsSync follows it), so a
+// package directory that is a symlink to a removed checkout is reported as
+// `dangling` instead of `absent`.
+function probeCorePackagePresence(path: string): CorePackagePresence {
+  let entry;
+  try {
+    entry = lstatSync(path);
+  } catch {
+    return 'absent';
+  }
+  if (!entry.isSymbolicLink()) return 'resolved';
+  return existsSync(path) ? 'resolved' : 'dangling';
+}
+
+// B-e256-xhr-r11: the raw link target of a broken link, so the warning can name
+// what the global installation still points at. Relative targets are resolved
+// against the link's own directory.
+function safeReadlinkTarget(path: string): string | null {
+  try {
+    const raw = readlinkSync(path);
+    return isAbsolute(raw) ? raw : resolve(dirname(path), raw);
+  } catch {
+    return null;
+  }
+}
+
 function resolveCorePackageCandidate(root: string): CorePackageCandidate {
   const canonicalPath = packagePathFromName(root, CANONICAL_CORE_PACKAGE_NAME);
-  if (existsSync(canonicalPath)) {
-    return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: true };
-  }
   // B-cc10 CHK-005: fall back to the deprecated scope so an already-installed global
   // @proof-or-stop/core is still FOUND (and reported) instead of looking absent.
   const deprecatedPath = packagePathFromName(root, DEPRECATED_CORE_PACKAGE_NAME);
-  if (existsSync(deprecatedPath)) {
-    return { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, exists: true };
-  }
-  return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: false };
+  const candidates: CorePackageCandidate[] = [
+    { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, presence: probeCorePackagePresence(canonicalPath) },
+    { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, presence: probeCorePackagePresence(deprecatedPath) },
+  ];
+  // A usable install always wins; a broken link is only reported when nothing resolves.
+  const resolved = candidates.find((candidate) => candidate.presence === 'resolved');
+  if (resolved) return resolved;
+  const dangling = candidates.find((candidate) => candidate.presence === 'dangling');
+  if (dangling) return dangling;
+  return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, presence: 'absent' };
 }
 
 function describeCorePackageCandidate(candidate: CorePackageCandidate): string {
@@ -1400,6 +1496,11 @@ function compactFactDetail(result: RuntimeFactCheckResult): string {
   }
   if (result.outputKey === 'globalCoreRealpath') {
     const actual = result.actual as any;
+    if (actual?.presence === 'dangling') {
+      // B-e256-xhr-r11: a broken link must never render as "not installed".
+      const hint = typeof actual?.remediation === 'string' ? ` (repoint: ${actual.remediation})` : '';
+      return `broken link ${actual?.packagePath ?? 'unknown'} -> ${actual?.linkTarget ?? 'unreadable link target'}${hint}`;
+    }
     if (!actual?.realpath) {
       const hint = typeof actual?.remediation === 'string' ? ` (informational; link one with: ${actual.remediation})` : '';
       return `not installed${hint}`;
