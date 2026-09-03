@@ -610,6 +610,25 @@
       "resolvedAt": "2026-09-03T13:30:17.016Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-027",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:902-923 does not validate the persisted outer requestDigest for a current signed ledger receipt. Independent current-build repro cloned the B-fe8f ledger, changed only receipts[index].requestDigest to 64 zeroes, and queryFindingLedger still returned accepted=true (original=bab7..., mutated=0000...). The query checks the signed receipt, operation, record IDs and exactRequestDigest, but never recomputes requestDigest from the committed carrier. The existing incomplete-tamper matrix at packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1643-1660 mutates other fields only. This violates CHK-005 and Section 9.3 stable read-only scorecard tamper refusal: an unsigned carrier identity field can be relabelled without rejection.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T13:44:30.870Z",
+      "reviewRound": "2026-09-03T13:27:50.557Z",
+      "reviewRunId": "B-fe8f:RR-055",
+      "_hash": "f883fb0bd9745bf2494b22293d30e731fa8147613a90aae8c0e68f2caa4926a8",
+      "files": [
+        "packages/main/src/handlers/finding-ledger.ts",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
