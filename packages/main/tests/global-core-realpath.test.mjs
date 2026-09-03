@@ -60,11 +60,22 @@ function git(cwd, ...args) {
 // emitted) or 'directory' (declared path exists but is not a regular file).
 // `version` controls the package.json `version` field: a string declares it,
 // `null` omits it entirely (the B-e256-xhr-r12 missing-version case).
-function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file', version = '0.0.0' } = {}) {
-  mkdirSync(join(coreRoot, 'dist'), { recursive: true });
+// `compiledVersion` (B-e256 cross-host review B-e256-xhr-r13) controls the
+// SEPARATE `dist/core/proof-or-stop-brand.js` artifact the check reads for the
+// runtime's actually-compiled version; it defaults to the running build's own
+// PROOF_OR_STOP_CLI_VERSION when `version` is `null` (mirroring
+// `readExpectedCoreVersion`'s fallback) so a fixture that only means to
+// exercise the MANIFEST-missing-version case does not also manufacture an
+// unrelated stale-compiled-runtime finding. Pass an explicit `compiledVersion`
+// distinct from `version` to construct that drift on purpose (case 22 below).
+function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file', version = '0.0.0', compiledVersion = version ?? PROOF_OR_STOP_CLI_VERSION } = {}) {
+  mkdirSync(join(coreRoot, 'dist', 'core'), { recursive: true });
   const manifest = { name: '@proof-or-stop/core', bin: { 'proof-or-stop': 'dist/cli.js' } };
   if (version !== null) manifest.version = version;
   writeFileSync(join(coreRoot, 'package.json'), JSON.stringify(manifest) + '\n');
+  if (compiledVersion !== null) {
+    writeFileSync(join(coreRoot, 'dist', 'core', 'proof-or-stop-brand.js'), `export const PROOF_OR_STOP_CLI_VERSION = '${compiledVersion}';\n`);
+  }
   const bin = join(coreRoot, 'dist', 'cli.js');
   if (binTarget === 'absent') {
     // keep dist/ non-empty so git tracks the directory without the bin target
@@ -82,9 +93,9 @@ function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file', versi
   return bin;
 }
 
-function makeRepoWithWorktree(base, { binMode = 0o755, binTarget = 'file', worktreeDir, version = '0.0.0' } = {}) {
+function makeRepoWithWorktree(base, { binMode = 0o755, binTarget = 'file', worktreeDir, version = '0.0.0', compiledVersion = version ?? PROOF_OR_STOP_CLI_VERSION } = {}) {
   const repo = join(base, 'repo');
-  writeCorePackage(join(repo, 'packages', 'main'), { binMode, binTarget, version });
+  writeCorePackage(join(repo, 'packages', 'main'), { binMode, binTarget, version, compiledVersion });
   git(repo, 'init', '-b', 'main');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'add', '.');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-m', 'init');
@@ -259,10 +270,20 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     const details = (report.globalCoreRealpath.details ?? []).join('\n');
     assert.ok(details.includes(relink), `informational row must name how to link one, got: ${details}`);
 
-    // The `npm root -g` probe itself failing is the same informational case.
+    // B-e256 cross-host review B-e256-xhr-r13 MAJOR: the `npm root -g` PROBE
+    // itself failing is NOT the same informational case as a probe that
+    // genuinely succeeded and found nothing - the real probe never resolves to
+    // nothing on success (it always names SOME directory), so a `null` root
+    // (however it was produced) observed nothing at all and must never
+    // collapse into this pass. This line used to assert exactly the false pass
+    // this finding closes; see case (a) below for the dedicated structured
+    // failure-reason coverage.
     const noRoot = runChecks(join(base, 'noroot'), join(worktree, 'packages', 'main'), null);
-    assert.equal(noRoot.globalCoreRealpath.status, 'pass');
-    assert.equal(noRoot.globalCoreRealpath.actual.installed, false);
+    assert.notEqual(noRoot.globalCoreRealpath.status, 'pass', 'a probe that resolved to no root at all must never pass silently');
+    assert.notEqual(noRoot.globalCoreRealpath.actual.installed, false, 'nothing was observed, so installed=false is a claim the probe cannot make');
+    assert.equal(noRoot.globalCoreRealpath.actual.installed, null, 'installed is UNKNOWN for a failed probe');
+    const noRootWarnings = (noRoot.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.doesNotMatch(noRootWarnings, /not installed/, 'a probe failure is not an absent install');
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
@@ -820,6 +841,133 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
     assert.equal(drifted.globalCoreRealpath.actual.expectedVersion, '1.2.3');
     assert.match(driftWarnings, /resolves to/);
     assert.doesNotMatch(driftWarnings, /reports version|declares no version/, 'a matching version adds no warning');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 25. B-e256 cross-host review B-e256-xhr-r13 MAJOR (a): the `npm root -g`
+//    probe COMMAND itself fails (npm missing / non-zero exit / timeout /
+//    unparsable output) -> unverifiable drift naming the failure, never the
+//    informational "not installed" pass a genuinely resolved-but-empty root
+//    (case 6) or a genuinely absent package (case 21) get.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-npm-root-probe-fail-'));
+  try {
+    const { worktree } = makeRepoWithWorktree(base);
+    const report = runChecks(base, join(worktree, 'packages', 'main'), null, {
+      globalNpmRootProbeResolver: () => ({ root: null, failureReason: 'npm root -g exited with code 1' }),
+    });
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'an npm root -g probe failure must never pass silently');
+    assert.equal(actual.installed, null, 'nothing was observed, so installed is UNKNOWN, never false');
+    assert.equal(actual.presence, 'npm-root-probe-failed');
+    assert.equal(actual.realpath, null);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes('npm root -g exited with code 1'), `the warning must name the exact probe failure, got: ${warnings}`);
+    assert.match(warnings, /could not be inspected - it is not known to be absent/, `got: ${warnings}`);
+    assert.doesNotMatch(warnings, /not installed/, 'a probe failure is not an absent install');
+    assert.ok(typeof actual.remediation === 'string' && actual.remediation.length > 0, 'the row must name an actionable next step');
+    const row = globalCoreRow(report);
+    assert.doesNotMatch(row, /not installed/, `the doctor row must never render a probe failure as "not installed", got: ${row}`);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 26. B-e256 cross-host review B-e256-xhr-r13 MAJOR (b): a SUCCESSFUL
+//    structured `npm root -g` probe (no failureReason) whose scoped package
+//    entry does not exist (ENOENT) stays the informational pass - a resolved
+//    root is not itself a failure signal, even via the new structured seam.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-npm-root-probe-ok-absent-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base);
+    const emptyGlobalRoot = join(base, 'global', 'node_modules');
+    mkdirSync(emptyGlobalRoot, { recursive: true });
+    const report = runChecks(base, join(worktree, 'packages', 'main'), null, {
+      globalNpmRootProbeResolver: () => ({ root: emptyGlobalRoot, failureReason: null }),
+    });
+    const actual = report.globalCoreRealpath.actual;
+    const relink = `cd -- ${realpathSync(join(repo, 'packages', 'main'))} && npm link`;
+    assert.equal(report.globalCoreRealpath.status, 'pass', 'a resolved root with nothing installed under it is informational, not a warning');
+    assert.equal(actual.installed, false);
+    assert.equal(actual.presence, 'absent');
+    assert.equal(actual.remediation, relink);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 27. B-e256 cross-host review B-e256-xhr-r13 MAJOR (c): package.json was
+//    bumped but `dist/` was never rebuilt (the exact silently-non-landing
+//    rebuild this story targets) - comparing the manifest to itself sees NO
+//    drift (this is the blind spot the finding names), but the compiled
+//    runtime's own reported version is stale drift naming BOTH versions, with
+//    the rebuild-and-relink remediation.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-stale-compiled-version-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { version: '2.0.0', compiledVersion: '1.9.0' });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const rebuild = `npm --prefix ${canonical} run build`;
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'a stale compiled runtime must never pass, even when package.json matches its own expectation');
+    assert.equal(actual.version, '2.0.0', 'the manifest itself was bumped and reads correctly');
+    assert.equal(actual.expectedVersion, '2.0.0', 'the manifest-only comparison alone sees no drift here - exactly the blind spot the fix closes');
+    assert.equal(actual.compiledVersion, '1.9.0', 'the never-rebuilt compiled runtime is reported as its own fact');
+    assert.equal(actual.remediation, `${rebuild} && ${relink}`, 'a stale compiled runtime on the canonical path is rebuilt and relinked');
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes('compiled runtime reports version 1.9.0; expected 2.0.0'), `the warning must name BOTH the compiled and expected version, got: ${warnings}`);
+    assert.ok(warnings.includes(`rebuild and relink: ${rebuild} && ${relink}`), `got: ${warnings}`);
+    assert.doesNotMatch(warnings, /resolves to/, 'the realpath itself is canonical; only the compiled runtime is stale');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 28. B-e256 cross-host review B-e256-xhr-r13 MAJOR (d) regression guard: a
+//    compiled runtime version that MATCHES the expected version adds no
+//    warning, even though the manifest and the compiled artifact are two
+//    independent files read independently.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-compiled-version-match-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base, { version: '3.1.4', compiledVersion: '3.1.4' });
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
+    assert.equal(report.globalCoreRealpath.status, 'pass', `a matching compiled version must not warn, got: ${(report.globalCoreRealpath.warnings ?? []).join(' | ')}`);
+    assert.equal(report.globalCoreRealpath.actual.compiledVersion, '3.1.4');
+    assert.equal(report.globalCoreRealpath.warnings, undefined);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 29. B-e256 cross-host review B-e256-xhr-r13 MAJOR (e): the compiled-version
+//    PROBE itself failing or timing out is unverifiable drift with a
+//    rebuild-and-relink remediation, never a pass.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-compiled-version-probe-fail-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base);
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const relink = `cd -- ${canonical} && npm link`;
+    const rebuild = `npm --prefix ${canonical} run build`;
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot, {
+      compiledCoreVersionProbe: () => ({ version: null, failureReason: 'compiled runtime version probe timed out after 5000ms' }),
+    });
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'a compiled-version probe failure/timeout must never pass');
+    assert.equal(actual.compiledVersion, null);
+    assert.equal(actual.remediation, `${rebuild} && ${relink}`);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.ok(warnings.includes('compiled runtime version could not be verified: compiled runtime version probe timed out after 5000ms'), `got: ${warnings}`);
+    assert.ok(warnings.includes(`rebuild and relink: ${rebuild} && ${relink}`), `got: ${warnings}`);
   } finally {
     rmSync(base, { recursive: true, force: true });
   }

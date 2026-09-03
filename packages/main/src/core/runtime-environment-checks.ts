@@ -58,6 +58,16 @@ export type RuntimeEnvironmentReport = {
 export interface RuntimeEnvironmentOptions {
   commandResolver?: (projectRoot: string) => string | null;
   globalNpmRootResolver?: (projectRoot: string) => string | null;
+  // B-e256 cross-host review B-e256-xhr-r13 MAJOR: test seam for a STRUCTURED
+  // `npm root -g` probe. Unlike `globalNpmRootResolver` above (a plain string
+  // that cannot distinguish "genuinely nothing installed" from "the probe
+  // itself failed"), this carries a `failureReason` so npm being missing, a
+  // non-zero exit, a timeout, or unparsable output is reported as unverifiable
+  // drift instead of collapsing into the informational "not installed" pass.
+  // Takes priority over `globalNpmRootResolver` when both are supplied.
+  // Production always uses the default (a real `npm root -g` probe with the
+  // failure captured).
+  globalNpmRootProbeResolver?: (projectRoot: string) => GlobalNpmRootProbeResult;
   corePackageRoot?: string;
   // B-e256-xhr-r6: test seam for the access(2) X_OK probe behind the
   // global-core-realpath executable fact (owner/group cases cannot be built
@@ -72,11 +82,38 @@ export interface RuntimeEnvironmentOptions {
   // first, so it would be classified before this code is reached. Production
   // always uses the default (realpathSync plus errno capture).
   globalCoreRealpathProbe?: (path: string) => GlobalCoreRealpathProbeResult;
+  // B-e256 cross-host review B-e256-xhr-r13 MAJOR: test seam for the compiled
+  // runtime's OWN reported version, read from the authoritative build artifact
+  // (`dist/core/proof-or-stop-brand.js`) instead of the package.json manifest a
+  // stale/skipped rebuild never touches. Production always uses the default
+  // (reads that compiled file).
+  compiledCoreVersionProbe?: (globalRealpath: string) => CompiledCoreVersionProbeResult;
 }
 
 export interface GlobalCoreRealpathProbeResult {
   realpath: string | null;
   errorCode: string | null;
+}
+
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: `npm root -g` itself can fail
+// (npm missing from PATH, a non-zero exit, a timeout, or unparsable output).
+// `root` is only ever non-null on a genuinely successful probe; any failure
+// carries a human-readable `failureReason` instead of collapsing into
+// `root: null`, which downstream was otherwise indistinguishable from "npm
+// succeeded and there is genuinely nothing installed" - the false-pass class
+// this MAJOR finding closes.
+export interface GlobalNpmRootProbeResult {
+  root: string | null;
+  failureReason: string | null;
+}
+
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: the compiled runtime's actual
+// reported version, read from the authoritative build artifact instead of the
+// package.json manifest (which stays whatever it was hand-edited to even when
+// `dist/` was never rebuilt - exactly the failure mode this story targets).
+export interface CompiledCoreVersionProbeResult {
+  version: string | null;
+  failureReason: string | null;
 }
 
 interface RuntimeCheckContext {
@@ -88,8 +125,10 @@ interface RuntimeCheckContext {
   cliEntrypoint: string | null;
   activeCliEntrypoint: string | null;
   globalNpmRoot: string | null;
+  globalNpmRootProbe: GlobalNpmRootProbeResult;
   executableAccessProbe: (path: string) => boolean;
   globalCoreRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
+  compiledCoreVersionProbe: (globalRealpath: string) => CompiledCoreVersionProbeResult;
 }
 
 export const STALE_GLOBAL_RUNTIME_REASON_CODE = 'stale_global_runtime_in_worktree' as const;
@@ -178,7 +217,21 @@ export function runRuntimeEnvironmentChecks(
   const resolvedRoot = resolve(projectRoot);
   const corePackageRoot = options.corePackageRoot ? resolve(options.corePackageRoot) : currentCorePackageRoot();
   const cliEntrypoint = (options.commandResolver ?? resolveCliCommandPath)(resolvedRoot);
-  const globalNpmRoot = (options.globalNpmRootResolver ?? resolveGlobalNpmRoot)(resolvedRoot);
+  // B-e256 cross-host review B-e256-xhr-r13 MAJOR: `globalNpmRootProbeResolver`
+  // (structured) takes priority. A plain legacy `globalNpmRootResolver` cannot
+  // express a probe failure, but its `null` also is not a genuine success: the
+  // real `npm root -g` probe never resolves to nothing on success (it always
+  // names SOME directory, even one with nothing installed under it - real
+  // absence is `probeCorePackagePresence` finding ENOENT/ENOTDIR under a
+  // known-good root, not the root itself missing), so a legacy resolver
+  // returning `null` is wrapped as an (unspecified-reason) failure rather than
+  // silently treated as "genuinely absent".
+  const globalNpmRootProbe: GlobalNpmRootProbeResult = options.globalNpmRootProbeResolver
+    ? options.globalNpmRootProbeResolver(resolvedRoot)
+    : options.globalNpmRootResolver
+      ? wrapLegacyGlobalNpmRootResolver(options.globalNpmRootResolver(resolvedRoot))
+      : probeGlobalNpmRoot(resolvedRoot);
+  const globalNpmRoot = globalNpmRootProbe.root;
   const isSelfProject = detectSelfProject(resolvedRoot);
   const context: RuntimeCheckContext = {
     projectRoot: resolvedRoot,
@@ -189,8 +242,10 @@ export function runRuntimeEnvironmentChecks(
     cliEntrypoint,
     activeCliEntrypoint: resolveActiveCliEntrypoint(resolvedRoot, corePackageRoot, cliEntrypoint),
     globalNpmRoot,
+    globalNpmRootProbe,
     executableAccessProbe: options.executableAccessProbe ?? defaultExecutableAccessProbe,
     globalCoreRealpathProbe: options.globalCoreRealpathProbe ?? defaultGlobalCoreRealpathProbe,
+    compiledCoreVersionProbe: options.compiledCoreVersionProbe ?? defaultCompiledCoreVersionProbe,
   };
 
   const results = RUNTIME_FACT_REGISTRY.map((entry) => runRegistryCheck(entry, context));
@@ -661,6 +716,42 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
   const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : resolveCanonicalCoreRoot(context.corePackageRoot);
   const expectedVersion = readExpectedCoreVersion(expected);
   const relink = globalCoreRelinkCommand(expected);
+  if (globalRoot === null && context.globalNpmRootProbe.failureReason) {
+    // (3a) B-e256 cross-host review B-e256-xhr-r13 MAJOR: the `npm root -g`
+    // PROBE failed (npm missing, non-zero exit, timeout, unparsable output).
+    // Nothing was observed about the global installation, so it must never be
+    // reported as the informational "not installed" pass below - that collapse
+    // is exactly the false-pass this finding names. Only a probe that actually
+    // SUCCEEDED and named no package there is genuinely "not installed".
+    const diagnose = 'npm root -g';
+    return {
+      status: statusForDrift(severity),
+      actual: {
+        installed: null,
+        presence: 'npm-root-probe-failed',
+        npmRoot: null,
+        packageName: CANONICAL_CORE_PACKAGE_NAME,
+        packagePath: null,
+        linkTarget: null,
+        realpath: null,
+        version: null,
+        expectedVersion,
+        errorCode: null,
+        compiledVersion: null,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        verification: null,
+        worktreeCheckout: false,
+        remediation: diagnose,
+      },
+      expected,
+      warnings: [
+        `the \`npm root -g\` probe failed: ${context.globalNpmRootProbe.failureReason}; the global ${CANONICAL_CORE_PACKAGE_NAME} installation could not be inspected - it is not known to be absent`,
+        `diagnose: ${diagnose}`,
+      ],
+    };
+  }
   if (globalPackage && globalPackagePath && globalPackage.presence === 'dangling') {
     // (3b) The scoped package entry is still there, so the global install is
     // NOT absent: it is broken and every `proof-or-stop` invocation through it
@@ -890,6 +981,42 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} ${observed}; expected ${expectedVersion} (reported for the obsolete target only; the repoint above is the fix)`);
     }
   }
+  // (7) B-e256 cross-host review B-e256-xhr-r13 MAJOR: the version compared
+  // above is read from package.json, which a rebuild that silently fails or is
+  // skipped never touches - on the canonical path it is even the SAME file as
+  // `expected`'s manifest, so (6) can only ever catch a missing declaration,
+  // never a genuinely stale compiled runtime. This compares what the runtime
+  // ACTUALLY compiles to (`dist/core/proof-or-stop-brand.js`'s
+  // PROOF_OR_STOP_CLI_VERSION), independent of the manifest. A probe that
+  // cannot even be read/parsed is unverifiable drift, never a pass - it is
+  // exactly the "package.json says new, dist/ still serves old" case this
+  // story targets.
+  let compiledVersion: string | null = null;
+  if (globalPackageJson) {
+    const compiledVersionProbe = context.compiledCoreVersionProbe(globalRealpath);
+    compiledVersion = compiledVersionProbe.version;
+    if (compiledVersionProbe.failureReason) {
+      warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} compiled runtime version could not be verified: ${compiledVersionProbe.failureReason}`);
+      if (pathMatches) {
+        const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+        warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+        addRemediation(rebuild);
+        addRemediation(relink);
+      } else {
+        warnings.push(`reported for the obsolete target only; the repoint above is the fix`);
+      }
+    } else if (compiledVersion !== expectedVersion) {
+      if (pathMatches) {
+        const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+        warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} compiled runtime reports version ${compiledVersion}; expected ${expectedVersion} (dist appears stale)`);
+        warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+        addRemediation(rebuild);
+        addRemediation(relink);
+      } else {
+        warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} compiled runtime reports version ${compiledVersion}; expected ${expectedVersion} (reported for the obsolete target only; the repoint above is the fix)`);
+      }
+    }
+  }
   const status = warnings.length === 0 ? 'pass' : statusForDrift(severity);
   return {
     status,
@@ -904,6 +1031,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       realpath: globalRealpath,
       version,
       expectedVersion,
+      compiledVersion,
       binTarget: executableFacts.binTarget,
       binMode: executableFacts.binMode,
       executable: executableFacts.executable,
@@ -1390,8 +1518,72 @@ function isRunnablePath(path: string): boolean {
   }
 }
 
-function resolveGlobalNpmRoot(projectRoot: string): string | null {
-  return runCommand('npm', ['root', '-g'], projectRoot);
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: a legacy plain-string resolver
+// has no vocabulary for "the probe failed", so its `null` is wrapped as an
+// unspecified-reason failure rather than being trusted as "genuinely absent".
+function wrapLegacyGlobalNpmRootResolver(root: string | null): GlobalNpmRootProbeResult {
+  return root !== null
+    ? { root, failureReason: null }
+    : { root: null, failureReason: 'the configured globalNpmRootResolver reported no root (probe outcome unspecified)' };
+}
+
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: the generic `runCommand`
+// collapses EVERY failure (missing binary, non-zero exit, timeout, empty
+// output) into a bare `null`, which is exactly the signal
+// `checkGlobalCoreRealpath` used to treat as "nothing installed". This probe
+// captures WHICH failure happened so that check can tell "npm root -g really
+// found nothing" apart from "the probe itself could not run" and report the
+// latter as unverifiable drift instead of a silent pass.
+function probeGlobalNpmRoot(projectRoot: string, timeoutMs = 2_000): GlobalNpmRootProbeResult {
+  let stdout: string;
+  try {
+    stdout = execFileSync('npm', ['root', '-g'], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: timeoutMs,
+      env: process.env,
+    });
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException & { signal?: NodeJS.Signals | null; status?: number | null; killed?: boolean };
+    if (err.code === 'ENOENT') return { root: null, failureReason: 'npm was not found on PATH (ENOENT)' };
+    if (err.killed || err.signal === 'SIGTERM') return { root: null, failureReason: `npm root -g did not respond within ${timeoutMs}ms and was killed` };
+    const status = typeof err.status === 'number' ? err.status : null;
+    return {
+      root: null,
+      failureReason: status !== null ? `npm root -g exited with code ${status}` : `npm root -g failed [${errnoCode(error)}]`,
+    };
+  }
+  const trimmed = stdout.trim();
+  if (trimmed.length === 0) return { root: null, failureReason: 'npm root -g produced no output' };
+  return { root: trimmed, failureReason: null };
+}
+
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: the ACTUAL version the
+// compiled runtime reports, read from the build artifact tsc emits from
+// proof-or-stop-brand.ts, never from package.json (a rebuild that silently
+// fails or is skipped leaves the manifest bumped while dist/ still serves the
+// old code, and comparing package.json to package.json can never observe
+// that). Same regex shape as core/version-bump.ts's BRAND_EXPORT_RE, applied
+// to the compiled JS instead of the TS source: tsc only strips `as const`, so
+// the declaration shape survives compilation unchanged. A file read/spawn is
+// deliberately NOT used here (the alternative this finding names is running
+// the global executable's own `--version`); inspecting this artifact gets the
+// same authoritative fact without the cost and hang risk of spawning the
+// global CLI from inside a doctor check.
+const COMPILED_CORE_VERSION_RE = /^[ \t]*export\s+const\s+PROOF_OR_STOP_CLI_VERSION\s*=\s*'(\d+\.\d+\.\d+)'/m;
+
+function defaultCompiledCoreVersionProbe(globalRealpath: string): CompiledCoreVersionProbeResult {
+  const brandFile = join(globalRealpath, 'dist', 'core', 'proof-or-stop-brand.js');
+  let content: string;
+  try {
+    content = readFileSync(brandFile, 'utf-8');
+  } catch (error) {
+    return { version: null, failureReason: `compiled runtime file ${brandFile} could not be read [${errnoCode(error)}]` };
+  }
+  const match = COMPILED_CORE_VERSION_RE.exec(content);
+  if (!match) return { version: null, failureReason: `compiled runtime file ${brandFile} does not declare a parseable PROOF_OR_STOP_CLI_VERSION` };
+  return { version: match[1], failureReason: null };
 }
 
 function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string, fallbackEntrypoint: string | null): string | null {
@@ -1682,6 +1874,13 @@ function compactFactDetail(result: RuntimeFactCheckResult): string {
   }
   if (result.outputKey === 'globalCoreRealpath') {
     const actual = result.actual as any;
+    if (actual?.presence === 'npm-root-probe-failed') {
+      // B-e256 cross-host review B-e256-xhr-r13 MAJOR: the `npm root -g`
+      // probe itself failing observed nothing, so it must never render as
+      // "not installed" either.
+      const hint = typeof actual?.remediation === 'string' ? ` (${actual.remediation})` : '';
+      return `unverifiable (npm root -g probe failed; not known to be absent)${hint}`;
+    }
     if (actual?.presence === 'dangling') {
       // B-e256-xhr-r11: a broken link must never render as "not installed".
       const hint = typeof actual?.remediation === 'string' ? ` (repoint: ${actual.remediation})` : '';
