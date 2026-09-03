@@ -26,9 +26,11 @@
  *      confirmable in this environment (see PENDING-REAL-TOKEN below); the e2e
  *      asserts only that the documented CANDIDATE tokens (shell|local_shell|
  *      exec_command) fire — never a false green that Codex coverage is confirmed.
- *   E. stale-refresh exact-semantics dedupe: identical command/selector/timeout
- *      rows execute once and receive one cloned receipt per intent; selector or
- *      timeout differences remain distinct; one shared failure demotes all rows.
+ *   E. stale-refresh execution fan-out: execution identity is command + resolved
+ *      cwd + effective timeout. Selectors remain independent assertions over one
+ *      shared execution output; timeout differences remain distinct; one shared
+ *      execution failure demotes all dependent rows. The B-aa5f regression shape
+ *      proves 71 intents over two commands launch exactly two refresh executions.
  *
  * RED-first: each core assertion mutation-kills — reverting the corresponding
  * behavior (make refresh demote instead of re-execute; make the guard always-allow;
@@ -532,7 +534,7 @@ async function partD(): Promise<string> {
 }
 
 // ════════════════════════════════════════════════════════════════════════════
-// E. stale refresh exact-semantics dedupe — real child-process execution count.
+// E. stale refresh execution fan-out — real child-process execution count.
 // ════════════════════════════════════════════════════════════════════════════
 
 function externalVerifierCommand(counterPath: string, outputPath: string, gitIndexRefreshRoot?: string): string {
@@ -583,7 +585,7 @@ function executionCount(counterPath: string): number {
   return readFileSync(counterPath, 'utf8').length;
 }
 
-async function partE(): Promise<void> {
+async function partE(): Promise<{ subprocessExecutionCount: number; assertionReceiptCount: number }> {
   const externalRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-refresh-dedupe-'));
   try {
     // E1: two intents with one exact pin/provenance key execute once. Each row
@@ -756,6 +758,73 @@ async function partE(): Promise<void> {
         }
       } finally { cleanup(env); }
     }
+
+    // E4 / B-aa5f RED: reproduce the B-fe8f amplification shape through the real
+    // stale-refresh handler. Seeding intentionally runs every intent once, so reset
+    // both counters before drift; the measured count below is refresh-owned only.
+    // The output for each command contains every selector in its group, allowing the
+    // fixture to distinguish duplicate scheduling from selector assertion failure.
+    {
+      const fullIntentCount = 58;
+      const redIntentCount = 13;
+      const intents = [
+        ...Array.from({ length: fullIntentCount }, (_, index) => intent(`FULL-${index}`, 'cli')),
+        ...Array.from({ length: redIntentCount }, (_, index) => intent(`RED-${index}`, 'cli')),
+      ];
+      const env = makeEnv('B-aa5f-fanout-71x2', intents);
+      try {
+        const fullCounter = join(externalRoot, 'baa5f-full-counter.txt');
+        const redCounter = join(externalRoot, 'baa5f-red-counter.txt');
+        const fullOutput = join(externalRoot, 'baa5f-full-output.txt');
+        const redOutput = join(externalRoot, 'baa5f-red-output.txt');
+        writeFileSync(fullCounter, '');
+        writeFileSync(redCounter, '');
+        writeFileSync(fullOutput, `${Array.from({ length: fullIntentCount }, (_, index) => `FULL_SELECTOR_${index}`).join('\n')}\n`);
+        writeFileSync(redOutput, `${Array.from({ length: redIntentCount }, (_, index) => `RED_SELECTOR_${index}`).join('\n')}\n`);
+        const fullCommand = externalVerifierCommand(fullCounter, fullOutput);
+        const redCommand = externalVerifierCommand(redCounter, redOutput);
+
+        for (let index = 0; index < fullIntentCount; index++) {
+          await seedPinnedReceipt(env, {
+            intentRef: `FULL-${index}`,
+            command: fullCommand,
+            selector: `FULL_SELECTOR_${index}`,
+          });
+        }
+        for (let index = 0; index < redIntentCount; index++) {
+          await seedPinnedReceipt(env, {
+            intentRef: `RED-${index}`,
+            command: redCommand,
+            selector: `RED_SELECTOR_${index}`,
+          });
+        }
+
+        writeFileSync(fullCounter, '');
+        writeFileSync(redCounter, '');
+        commitRefreshDrift(env, 'baa5f-71x2');
+        await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+
+        const subprocessExecutionCount = executionCount(fullCounter) + executionCount(redCounter);
+        const evidence = env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? [];
+        const assertionReceiptCount = evidence.filter(row =>
+          row.mechanical === true
+          && row.result === 'pass'
+          && row.receipt?.exitCode === 0
+          && row.receipt.selectorMatched === true,
+        ).length;
+        console.log(
+          `B-aa5f fanout actualExecutionCount=${subprocessExecutionCount} ` +
+          `expectedExecutionCount=2 assertionReceiptCount=${assertionReceiptCount}`,
+        );
+        assert.equal(assertionReceiptCount, 71, 'E4: all 71 immutable selectors receive independent passing receipts');
+        assert.equal(
+          subprocessExecutionCount,
+          2,
+          'E4: 71 intents over two commands launch exactly two refresh-owned verifier executions',
+        );
+        return { subprocessExecutionCount, assertionReceiptCount };
+      } finally { cleanup(env); }
+    }
   } finally {
     rmSync(externalRoot, { recursive: true, force: true });
   }
@@ -768,9 +837,12 @@ async function partE(): Promise<void> {
   await partB();
   await partC();
   const codexNote = await partD();
-  await partE();
+  const fanout = await partE();
   if (codexNote) console.log(codexNote);
-  console.log('verification-run-and-guard-smoke: PASS');
+  console.log(
+    `PASS verification-run-and-guard-smoke subprocessExecutionCount=${fanout.subprocessExecutionCount} ` +
+    `assertionReceiptCount=${fanout.assertionReceiptCount}`,
+  );
 })().catch((e) => {
   console.error('verification-run-and-guard-smoke: FAIL');
   console.error(e instanceof Error ? (e.stack || e.message) : String(e));
