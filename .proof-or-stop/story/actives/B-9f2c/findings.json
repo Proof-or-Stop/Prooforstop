@@ -105,6 +105,44 @@
       ],
       "signatureTag": "adversarial|mjs|recorded-behalf-test",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-9f2c:F-006",
+      "desc": "packages/graph/scripts/verify-missing-assets-fail.mjs:53-89 (current HEAD, unchanged since 4912d8390a): `rebuilt = fs.existsSync(asset)` (line 53) is sampled once, right after execFileSync's 60s timeout fires, and races the child's own spawnSync(npm run build) inside ensureGraphClientBuilt. Reproduced live in this worktree with the unmodified script: `npm --prefix packages/graph run check` failed at verify-missing-assets-fail with MISSING_ASSET_HANDLING_BROKEN, even though assets/app.html and assets/d3.min.js were both freshly rebuilt (mtimes matched the run within the same second) -- the rebuild genuinely succeeded, just moments after the 60s sample point. Because the script falls into the else (recovery-impossible) branch whenever `rebuilt` samples false, and the SIGKILL cleanup at the bottom only runs `if (rebuilt) { ...kill... } else if (held.length) { ...report... }`, the still-serving graph process was left running and leaked, listening on the port (verified via lsof/ps: PID 45353 for GRAPH_VERIFY_PORT=8819, uncleaned by the script, had to be killed manually). Two concrete effects: (1) the commit's own stated goal -- 'the command must never end up listening while the client is still missing' -- is inverted in this exact scenario: the client WAS built (so nothing is missing), yet the check reports MISSING_ASSET_HANDLING_BROKEN and simultaneously fails to kill or even report the real leaked listener, because that report path is also gated on `!rebuilt`. (2) repeated runs of `npm run check` on a loaded machine will accumulate leaked `node bin/proof-or-stop.js graph --port=8819` processes with no diagnostic pointing at the actual cause (a timing race, not a broken recovery path). This is a genuine, reproduced-twice defect distinct from the assertion-strength gap already fixed in 4912d8390a (content validation of the rebuilt app.html/d3.min.js) -- that fix hardens the `rebuilt===true` branch's assertions but does not touch how `rebuilt` itself is determined, so the race is unaffected by it.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T06:19:06.192Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-048",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-assets-ignored.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/package.json",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c06634bc9e54d100bc7c23e037828a5459eae7b84d2067e07a3d6ae8d4f33926",
+      "signatureTag": "adversarial|unknown|packages-graph-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
