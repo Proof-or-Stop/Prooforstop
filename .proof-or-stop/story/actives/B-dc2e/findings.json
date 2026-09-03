@@ -160,6 +160,21 @@
       "_hash": "ec9f9107d314a8fbee6bd6f492617e8d2d03fc6054e70426051d52e24e16f09c",
       "signatureTag": "edge|unknown|quality-packages-main",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-dc2e:F-008",
+      "desc": "packages/main/src/tasks/validation-tier-planner-smoke.ts:3801-3811 priorRedIds() + core/red-green-commit-guard.ts priorRedAccepted: the F-006 fix satisfies a GREEN(id) whenever ANY RED subject with the SAME BARE id string is reachable from merge-base(main,HEAD) -- with no scoping to the same story/lineage. Checklist/finding ids restart at CHK-001/F-001 in every story and are usually written unqualified; this repo already has RED(CHK-001)..RED(CHK-006) and RED(F-010) on main from unrelated, already-merged stories. Since git merge main is REQUIRED before DONE (CLAUDE.md DONE gate), a vacuous GREEN(CHK-001) on B-dc2e own branch -- with no RED of its own anywhere in this story -- is ALREADY accepted right now, satisfied by an unrelated story RED(CHK-001) (\"add stable validation command identity fixture suite\"), purely by string-equal id collision. Verified live against the current branch: merge-base(main,HEAD)=a53b4a5..., priorRedIds() includes CHK-001..CHK-006, F-010, plus 8 B-a745:F-nnn ids from another story; feeding evaluateRedGreenCommitOrder([{subject:\"GREEN(CHK-001): fabricated, never observed a failing CHK-001 fixture\"}], {priorRedIds}) returns ok:true with priorRedAccepted:[{id:\"CHK-001\"}]. This defeats the guard entire purpose (never squash/skip the RED) for the common case of low-numbered ids -- exactly the pattern this codebase own history already exhibits, and it will bite this exact story or any future one at DONE-time merge. Fix should scope acceptance to the SAME story (e.g. require the RED subject be story-qualified with THIS story id, or otherwise bind priorRedIds to only the branch own earlier RED lineage instead of any RED reachable from merge-base).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-03T06:07:27.506Z",
+      "reviewRound": "2026-09-03T05:53:36.659Z",
+      "reviewRunId": "B-dc2e:RR-009",
+      "_hash": "4bb4b7ce6625f9296dbf68f16a3a7adea27ee5e308a8862487155f5ad78a0d8c",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
