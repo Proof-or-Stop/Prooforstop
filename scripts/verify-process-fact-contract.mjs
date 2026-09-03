@@ -1617,9 +1617,20 @@ function assertProofStoryProgressiveBoundary() {
   // are thin/mirror adapters that `proof-or-stop init --upgrade` rewrites). Validate
   // the tokens in the template source, and prove the guidance does not depend
   // on the bootstrap-only modular-reviewer shims.
-  const rolloutPromptTemplates = rolloutPromptNames.map(
-    name => rolePromptPath('packages/main/templates/agents', name),
-  );
+  // origin/main merge: exempt RETIRED role identities from the rollout-guidance
+  // requirement. origin still ships test-case-reviewer as a live 157-line reviewer
+  // prompt; this repo deliberately reduced it (and test-intent) to a stub whose own
+  // frontmatter reads 'Legacy compatibility identity; not dispatchable for new stories'.
+  // A non-dispatchable identity can never act on acceptance-rollout guidance, so
+  // requiring the tokens in its body would force us to resurrect a role we retired on
+  // purpose -- and copying origin's body back is the one resolution that would silently
+  // undo that decision. Detected by reading the retirement marker out of the template
+  // rather than hardcoding names, so a future retirement or revival needs no edit here
+  // and a role cannot be exempted without declaring itself retired in its own prompt.
+  const RETIRED_IDENTITY_MARKER = 'Legacy compatibility identity; not dispatchable for new stories';
+  const rolloutPromptTemplates = rolloutPromptNames
+    .map(name => rolePromptPath('packages/main/templates/agents', name))
+    .filter(relPath => !read(relPath).includes(RETIRED_IDENTITY_MARKER));
   // Modular reviewer roles render as a body-free review_run_start bootstrap in
   // the host shim; their guidance must live in the template and reach them via
   // review_run_start, never via the shim.
@@ -2026,7 +2037,7 @@ function assertCloseoutTrustBoundary() {
     // F-363: verification_evidence_refresh_stale is NOT a divergence (4 on both branches).
     // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
     // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
-    '3152baa872783911cf2a221356498cb1d413932134c76b21f0070772c609461b',
+    'f667fbec3e1616859739a8c027ed925beef455616cef6e55d546d4745c750776',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -2040,7 +2051,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    '96b246fba1b363f9388ee4c641aa4840497886c98d57636cdd3750e9a09da75b',
+    '699e160f4977664bebc96fc887b522f805d03128394cfab5c50ac6a6b0169271',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2141,17 +2152,17 @@ function assertCloseoutTrustBoundary() {
     '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7',
     '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772',
     "'packages/main/src/handlers/fixture-executors.ts'",
-    'acaa12e34e6e9b3304d176b9cbb65d9edfcdfa3ec9fc7db57a14d83411f026c7',
-    '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6',
-    'bin/bootstrap-runner.js and packages/main/src/handlers/graph.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making nine exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
+    '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303',
+    'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
+    'bin/bootstrap-runner.js, packages/main/src/handlers/graph.ts and packages/main/src/cli.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making eleven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    '194106a85a463a660100ab1006b2515dfdc56032cbe0c34fc7eadb3fcacf71b6',
-    'c8906ce79242cd30e4519990a69fc7b2b6725a29b12699b9ad32d703b4e0b6d1',
+    'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
+    '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
     'package-imports-self-exports-edge-inventory-sha256-v1',
-    '884e04286b0e30ad3a40addbe110c2593eb214746bda8a2d7b656ec76a7b7f75',
+    '3b484827d8704b3952b2fe20528d24a1e0b569bce8f5a8aaa36f69f321e3f7eb',
     'resolvePackageAlias',
     'unresolved package import/self-reference alias',
     'package imports alias',
