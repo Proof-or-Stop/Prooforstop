@@ -54,6 +54,25 @@
       ],
       "signatureTag": "missing|ts|review-start-unconditionally",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1482:F-004",
+      "desc": "docs/requirements/decisions/narrowing-only-evidence-repin.md refusal-code table (and the CHK-003/C4 smoke assertion in narrowing-repin-smoke.ts, which only checks a subset of 10 codes) both omit 3 of the 18 refusal codes the code actually emits to callers via evaluateSelectorNarrowing in core/verification.ts: narrowing_selector_unchanged (verification.ts line ~586, thrown when selector === previousSelector), narrowing_no_recorded_receipts (line ~592, thrown when no receipt has been recorded for the pinned command), and narrowing_receipt_not_predating_request (line ~679, thrown when a used receipt has no usable executedAt or claims to postdate the request). All three are real, reachable refusal paths from verification_pin_narrow (wrapped by handlers/checklist.ts narrowVerificationPin as `[${outcome.code}]` in the thrown error) but appear nowhere in the decision doc, nowhere in CLAUDE.md, and are not exercised by any of the 16 narrowing-repin-smoke.ts cases. This contradicts the storys own completeness claim: the CHK-003 commit message states the decision doc records every refusal code, and the C4 test comment says the decision doc must also carry ... every refusal code -- neither is true; both the doc and the tests list a 10-code (C4) or 15-code (doc table) subset of the real 18. Category: missing test/doc coverage, not a functional defect -- the refusals themselves work correctly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:43:06.547Z",
+      "reviewRound": "2026-09-03T22:33:06.448Z",
+      "_hash": "eb62ea5ae162a061785f8107ec7e850999e6cf6d5ad81b2e83a4244f2c6d1a2c",
+      "files": [
+        "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto"
     }
   ]
 }
