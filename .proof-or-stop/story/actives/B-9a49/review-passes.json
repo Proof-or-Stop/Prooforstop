@@ -1168,6 +1168,32 @@
         "scanEscalationReason": null
       },
       "_hash": "5800fcd94b2aa82cb01e4a76c13049c39fb70f9bcd63bf9b483ea192540f188b"
+    },
+    {
+      "id": "B-9a49:RP-028",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "All 6 items verificationEvidence pass (63/63). Focus: CHK-004:edge:version-and-local-artifacts PLAN-only checklist.json correction (commit 471ce3ac67) replaced embedded single-quote marker construction with String.fromCharCode(39) to avoid breaking the shell-free parseAllowlistedCommand tokenizer; assertions (vals.every, src.includes(marker), dist.includes(marker), cli.includes(v)) unchanged. Re-executed pinned command locally: version sync: PASS 0.3.273, exit 0, matches stored receipt (outputDigest c18dcd17..., selectorMatched true, materialHash/storyFilesHash match story). No blocker.",
+      "createdAt": "2026-09-03T16:59:08.065Z",
+      "reviewRound": "2026-09-03T16:56:04.574Z",
+      "reviewRunId": "B-9a49:RR-129",
+      "envelopeId": "e1f3cd98300ab7f9e2bdd83bd77493343d4c166c05160aa230ca11aa0a7345ab",
+      "writerSessionId": "sess-0456b8bcd2c261efef271ebe39d7489c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9a49/checklist.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b5ede9fab139ccfecb09830ff815a52f23ab9490d8c7e20bc50f6fd5dedcd64e"
     }
   ]
 }
