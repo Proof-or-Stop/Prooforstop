@@ -780,6 +780,61 @@
         "scanEscalationReason": null
       },
       "_hash": "4eed4cc44e6e023f66cac21f96d170028539ad3ad0a38e006b0c16ac591156f0"
+    },
+    {
+      "id": "B-fe8f:RP-025",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No blocker found. The F-025 repair is conceptually honest in actual output: it separately reports historicalBaselineFails=true, currentGreenPasses=true, and currentCorruptedRelationRejected=true; the old currentFails token survives only inside a named and quoted legacyPinnedNegativeControl compatibility payload, is guarded by the historical/corruption/assertion facts, and is withheld when corrupted-relation rejection is simulated false. The current RED verifier and complete Story 3 smoke both exited zero. The smoke also retained F024 outer carrier operation/requestDigest refusal, signed nested exact-request binding, fail-closed exact-record CAS/defer substrate, Story 3 persistence-only non-authority and forbidden-import boundaries, and canonical @proof-or-stop clean-install evidence. Repository concept scans found only explicitly quarantined identity-migration negative fixtures, not live retired package authority.",
+      "createdAt": "2026-09-03T12:10:55.445Z",
+      "reviewRound": "2026-09-03T12:01:57.552Z",
+      "reviewRunId": "B-fe8f:RR-050",
+      "envelopeId": "1a3d36468e18ae30797329d0ca551cd1c17959bc550a0f51cedc61330a64e8df",
+      "writerSessionId": "sess-537f842eb49dc7c01316c5dcf5d160e4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json",
+          "scripts/proof-or-stop-identity-current-legacy-contexts.json",
+          "scripts/verify-migration-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "The F-025 compatibility token and the earlier identity cutover required repository-wide residue scans for currentFails, retired @lattice package names, lattice-brand, LATTICE_CLI_VERSION, and forbidden Story 1 or Story 2 authority imports."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "362cb36022cc4542a86dae9d24ffa9579ec8ab5710931817a343aef9f22aa187"
     }
   ]
 }
