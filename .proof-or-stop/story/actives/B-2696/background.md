@@ -2,11 +2,13 @@
 
 On 2026-09-03 an operator asked whether the behavior rules in CLAUDE.md are
 actually correct, and asked for evidence. A read-only audit ran the documented
-commands against this repository and falsified seven separate claims in
-CLAUDE.md while confirming the rest. The falsified claims include the agent
-prompt asset section, the story channel count, the story artifact directory
-rule, several source citations, and a link to a file that no longer exists
-anywhere in the repository.
+commands against this repository and falsified seven claims while confirming
+the rest. The seven are: the agent prompt asset section; the story channel
+count; the story artifact directory rule; one stale story-review.ts line
+citation; one stale attribution of where the INIT_CHECK blocker messages are
+defined; a link to an experiment file that is absent from the whole
+repository; and an incomplete host hook inventory that also omits three
+commands the framework's own gate messages instruct agents to run.
 
 ## Key Insight
 
