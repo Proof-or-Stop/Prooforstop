@@ -6,9 +6,9 @@ import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
+import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
-import { buildVerificationCoverage, collectVerificationIntents, detectEvidenceRowContradiction, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
+import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, isExecutableIntentType, makeEvidence, NARROWING_TAIL_BOUNDED_NOTE, VERIFICATION_LANES } from '../core/verification.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { configuredValidationCommands } from './verifier.js';
 import { createHash } from 'crypto';
@@ -884,6 +884,171 @@ function applyVerificationPin(
     return;
   }
   intent.verification = { command: pin.verification.command, selector: pin.verification.selector };
+}
+
+// ── B-1482: narrowing-only re-pin entry point ────────────────────────────────
+
+/** Minimum length of the caller-supplied reason, matching the other audited escapes. */
+const MIN_NARROWING_REASON = 30;
+
+/** Exactly the fields a narrowing request may carry. Anything else is refused. */
+const NARROWING_REQUEST_FIELDS = new Set(['storyId', 'itemId', 'intentRef', 'selector', 'reason']);
+
+/**
+ * Field names a caller might reach for to hand the tool an output, a transcript or a
+ * receipt. None of them is an input: the proof reads recorded receipts only. They are
+ * named explicitly so the refusal can say WHY rather than "unknown field".
+ */
+const NARROWING_INADMISSIBLE_OUTPUT_FIELDS = new Set([
+  'transcript', 'transcripts', 'output', 'outputs', 'outputTail', 'tail',
+  'stdout', 'stderr', 'log', 'logs', 'receipt', 'receipts', 'evidence', 'proof', 'run', 'runs',
+]);
+
+export interface VerificationPinNarrowingRequest {
+  storyId: string;
+  itemId: string;
+  intentRef: string;
+  /** The NEW, stricter selector. Accepted only when recorded receipts prove it stricter. */
+  selector: string;
+  /** Caller-supplied justification, retained on the record. Never a substitute for the proof. */
+  reason: string;
+}
+
+/**
+ * B-1482 — the ONLY way an evidence pin's selector may change, and it may change in
+ * one direction only.
+ *
+ * Inputs are the story, the intent, the requested selector and a reason. There is no
+ * transcript parameter, no output parameter and no receipt parameter, because a
+ * caller-supplied rendering of a run could be fabricated; the proof is drawn entirely
+ * from receipts this tool recorded (see `evaluateSelectorNarrowing`). A request that
+ * carries such a field is refused before any proof is attempted, so it can never be
+ * "considered and then ignored".
+ *
+ * The pinned COMMAND never changes here. Narrowing a selector answers "this pin matched
+ * a failing run"; changing the command would be a different pin altogether and stays
+ * refused by the existing immutability check.
+ *
+ * The bound: a recorded-receipt SET admits at most one narrowing. The set's digest is
+ * retained on the accepted record and re-checked FIRST on every later request, so a
+ * chain of narrowings cannot walk a pin down onto one hand-picked run without new
+ * recorded evidence in between. Because a narrowing also requires a failing render
+ * judged by the CURRENT pin, the new evidence that unlocks a second narrowing has to be
+ * a genuine failing run that the narrowed selector still matched.
+ */
+export function narrowVerificationPin(ctx: HandlerContext, args: VerificationPinNarrowingRequest): string {
+  const { store, root } = ctx;
+  const raw = args as unknown as Record<string, unknown>;
+  const offeredOutput = Object.keys(raw ?? {}).filter(key => NARROWING_INADMISSIBLE_OUTPUT_FIELDS.has(key));
+  if (offeredOutput.length > 0) {
+    throw new Error(
+      `verification pin narrowing refused: ${offeredOutput.join(', ')} is not an input. A narrowing is proved ONLY from ` +
+      `receipts this tool recorded for the pinned command; a caller-supplied transcript, output or receipt could be ` +
+      `fabricated, so it is refused outright rather than weighed. [narrowing_caller_output_not_admissible]`,
+    );
+  }
+  const unknownFields = Object.keys(raw ?? {}).filter(key => !NARROWING_REQUEST_FIELDS.has(key));
+  if (unknownFields.length > 0) {
+    throw new Error(
+      `verification pin narrowing refused: unknown request field(s) ${unknownFields.join(', ')}; a narrowing request ` +
+      `carries only ${[...NARROWING_REQUEST_FIELDS].join(', ')} [narrowing_unknown_input_field]`,
+    );
+  }
+  const requestedSelector = (args.selector ?? '').trim();
+  if (!requestedSelector) {
+    throw new Error('verification pin narrowing refused: selector must be a non-empty string [narrowing_selector_empty]');
+  }
+  const reason = (args.reason ?? '').trim();
+  if (reason.length < MIN_NARROWING_REASON) {
+    throw new Error(
+      `verification pin narrowing refused: reason must be at least ${MIN_NARROWING_REASON} characters explaining why the ` +
+      `pinned selector is not discriminating; the reason is retained for audit and is never itself the proof ` +
+      `[narrowing_reason_too_short]`,
+    );
+  }
+
+  const gitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
+  return withChecklistLock(ctx, args.storyId, () => {
+    const cl = store.readChecklist(args.storyId);
+    const item = cl.items.find(i => i.id === args.itemId);
+    if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+    const resolved = resolveIntentForRef(item, args.intentRef);
+    if (!resolved) {
+      throw new Error(
+        `verification pin narrowing refused: intentRef ${args.intentRef} does not resolve to a verificationIntent on ${item.id} [intent_ref_unresolved]`,
+      );
+    }
+    const { intent } = resolved;
+    if (!isExecutableIntentType(intent.type)) {
+      throw new Error(
+        `verification pin narrowing refused: intent ${args.intentRef} is type ${intent.type}, which is attestation-only and carries no pin [narrowing_intent_not_executable]`,
+      );
+    }
+    const pin = intent.verification;
+    if (!pin) {
+      throw new Error(
+        `verification pin narrowing refused: intent ${args.intentRef} has no verification pin yet; the first selector-bearing evidence write pins it [narrowing_intent_not_pinned]`,
+      );
+    }
+
+    const receipts = collectRecordedPinnedReceipts(cl, pin.command);
+    const receiptSetDigest = computeRecordedReceiptSetDigest(receipts);
+    const priorNarrowings = pin.narrowings ?? [];
+    // The bound is checked BEFORE the proof, and deliberately so: a second narrowing
+    // against unchanged receipts must be refused even when it WOULD be provable against
+    // exactly those receipts. That is the whole point — repeated narrowing on one
+    // recorded-receipt set is how a pin could be walked down onto a hand-picked run.
+    const spent = priorNarrowings.find(record => record.receiptSetDigest === receiptSetDigest);
+    if (spent) {
+      throw new Error(
+        `verification pin narrowing refused: this recorded-receipt set (${receiptSetDigest.slice(0, 12)}, ${receipts.length} receipt(s)) ` +
+        `has already been narrowed once — ${JSON.stringify(spent.previousSelector)} to ${JSON.stringify(spent.selector)} at ${spent.narrowedAt}. ` +
+        `A set of recorded receipts admits at most ONE narrowing; record new evidence (a failing render the CURRENT pin matched) ` +
+        `before narrowing again. [narrowing_receipt_set_unchanged]`,
+      );
+    }
+
+    const requestedAt = new Date().toISOString();
+    const outcome = evaluateSelectorNarrowing({
+      command: pin.command,
+      previousSelector: pin.selector,
+      selector: requestedSelector,
+      receipts,
+      requestedAt,
+    });
+    if (!outcome.ok) {
+      throw new Error(`verification pin narrowing refused: ${outcome.message} [${outcome.code}]`);
+    }
+
+    const hashes = evidenceHashes(gitCwd, root);
+    const record: VerificationPinNarrowingRecord = {
+      previousSelector: pin.selector,
+      selector: outcome.proof.selector,
+      reason,
+      command: pin.command,
+      receiptSetDigest: outcome.proof.receiptSetDigest,
+      failingReceiptIds: outcome.proof.failingReceiptIds,
+      passingReceiptIds: outcome.proof.passingReceiptIds,
+      materialKey: outcome.proof.materialKey,
+      narrowedAt: requestedAt,
+      ...hashes,
+    };
+    intent.verification = {
+      command: pin.command,
+      selector: outcome.proof.selector,
+      narrowings: [...priorNarrowings, record],
+    };
+    store.writeChecklist(args.storyId, cl);
+    const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_pin_narrow');
+    return (
+      `Verification pin NARROWED for ${item.id} → ${args.intentRef}: selector ${JSON.stringify(record.previousSelector)} → ` +
+      `${JSON.stringify(record.selector)} (pinned command unchanged: ${pin.command}). Reason: ${reason}. ` +
+      `Proved from tool-recorded receipts only — failing render(s) the old selector matched: ${record.failingReceiptIds.join(', ')}; ` +
+      `passing receipt(s) the new selector matches: ${record.passingReceiptIds.join(', ')}; ` +
+      `recorded-receipt set ${record.receiptSetDigest.slice(0, 12)} (${receipts.length} receipt(s)), now spent — this set admits no further narrowing. ` +
+      `${NARROWING_TAIL_BOUNDED_NOTE}${commitHint}`
+    );
+  });
 }
 
 /**

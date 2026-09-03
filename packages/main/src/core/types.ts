@@ -288,6 +288,50 @@ export function formatVerificationEvidenceVerdict(verdict: VerificationEvidenceV
 export interface VerificationIntentPin {
   command: string;
   selector: string;
+  /**
+   * B-1482: append-only log of the NARROWING-ONLY re-pins this intent has taken.
+   * Absent until the first narrowing. Each record retains the old pin, the new pin,
+   * the caller-supplied reason and the ids of the tool-recorded receipts the proof
+   * used, so a reader can re-check the proof against the same receipts.
+   *
+   * Written ONLY by the narrowing entry point after a proof drawn from recorded
+   * receipts; the caller-facing pin schema does not accept it, so it can never be
+   * injected. Loosening remains impossible: a re-pin that is not provably stricter
+   * on recorded receipts is refused and never produces a record.
+   */
+  narrowings?: VerificationPinNarrowingRecord[];
+}
+
+/**
+ * B-1482: one accepted narrowing re-pin, retained on the pin it changed.
+ *
+ * `receiptSetDigest` identifies the exact set of recorded receipts the proof read.
+ * A set admits at most ONE narrowing: a later request whose corpus digests to the
+ * same value is refused, so repeated narrowing cannot home in on one hand-picked
+ * run without new recorded evidence.
+ */
+export interface VerificationPinNarrowingRecord {
+  /** The pin as it stood BEFORE this narrowing. */
+  previousSelector: string;
+  /** The pin as it stands AFTER it, identical to the owning pin's current selector. */
+  selector: string;
+  /** Caller-supplied justification. Never evidence on its own — the proof is the receipts. */
+  reason: string;
+  /** The pinned command whose recorded receipts the proof was drawn from (unchanged by a narrowing). */
+  command: string;
+  /** Digest of the recorded-receipt set the proof read; bounds this set to one narrowing. */
+  receiptSetDigest: string;
+  /** Recorded receipts the OLD selector matched on a FAILING run where the new selector is absent. */
+  failingReceiptIds: string[];
+  /** Recorded PASSING receipts the new selector matches; all of them must, or the re-pin is refused. */
+  passingReceiptIds: string[];
+  /** Shared recorded material binding of every receipt the proof used. */
+  materialKey: string;
+  narrowedAt: string;
+  /** Git/material binding of the narrowing REQUEST itself (not of the receipts). */
+  headHash?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
 }
 
 export interface VerificationIntentItem {
