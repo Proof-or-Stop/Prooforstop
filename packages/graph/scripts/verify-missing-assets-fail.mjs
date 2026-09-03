@@ -1,34 +1,23 @@
 /**
- * Proves a missing browser client never results in serving a blank page.
+ * Proves a missing browser client is never silently served as a blank page.
  *
- * This is pre-mortem scenario 1 from the story's decision.json: a command that starts a
+ * Pre-mortem scenario 1 from B-3e16's decision.json is that a command which starts a
  * server but 404s on app.html looks registered and working while rendering nothing, which
- * is worse than failing. The invariant is "never serve a client-less page" -- NOT one
- * specific mechanism for upholding it.
+ * is worse than failing. That invariant still holds; HOW it is satisfied changed.
  *
- * B-5a15: main commit 3aa57145 ("graph: fail loudly on missing d3; build the browser
- * client on demand") changed HOW that invariant is met. `graph` now rebuilds the client
- * on demand, so a stashed app.html is regenerated and the command serves correctly
- * instead of refusing. The old assertions demanded the refusal wording ("app.html" and
- * "npm --prefix packages/graph run build") and therefore failed on main itself -- the
- * commit updated the behavior but not this verifier. Verified failing on the main
- * checkout at 3aa57145 with d3 and assets present, so this was pre-existing breakage,
- * not worktree drift.
+ * main commit 3aa57145d8 replaced the refuse-before-listen path with
+ * `ensureGraphClientBuilt` (packages/main/src/handlers/graph.ts): a missing client is now
+ * REBUILT on demand rather than reported, because packages/graph is not an npm workspace
+ * and both its node_modules/ and assets/ are gitignored, so a fresh clone or worktree
+ * legitimately has neither. This verifier was still asserting the old contract and so
+ * failed against the new handler; it now asserts the new one.
  *
- * Two admissible outcomes now satisfy the invariant:
- *   (a) rebuild-and-serve -- the asset is regenerated AND actually served over HTTP; or
- *   (b) refuse-before-listening -- non-zero exit, no listener, and the message names the
- *       missing file plus the build command that produces it.
- * Serving while the client is still missing remains a hard failure in both branches.
- *
- * B-5a15:F-371 -- an earlier version of branch (a) checked only `existsSync(asset)` plus
- * the presence of the log line "graph: building browser client...". That line is printed
- * at graph.ts:113 inside ensureGraphClientBuilt (called at :424) BEFORE startServer is
- * reached (:436), and the check issued no HTTP request at all, so a run that rebuilt the
- * asset but then failed to serve it would still have been recorded as a pass. Branch (a)
- * therefore now GETs the client from the live server and requires a 200 whose body
- * carries real client markup -- the invariant says "never serve a client-less page", so
- * "served" has to be measured, not inferred from a build log.
+ * What is checked, and why each half matters:
+ *   1. RECOVERY — with assets/app.html removed, the command must rebuild it and serve
+ *      normally. This is the behavior 3aa57145d8 introduced.
+ *   2. NO SILENT BLANK PAGE — the original safety property, unchanged: the command must
+ *      never end up listening while the client is still missing. If recovery cannot
+ *      produce app.html, the command must fail before binding a port and say so.
  *
  * The asset is moved aside and restored in a finally block, so a failure cannot leave the
  * working tree without its built client.
@@ -41,9 +30,7 @@ const pkgRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), '.
 const repo = path.resolve(pkgRoot, '..', '..');
 const asset = path.join(pkgRoot, 'assets', 'app.html');
 const stash = path.join(pkgRoot, 'assets', '.app.html.verify-stash');
-// Separate parking spot for the on-demand-rebuilt copy, so `stash` always holds the
-// genuine original (B-5a15:F-377).
-const rebuiltStash = path.join(pkgRoot, 'assets', '.app.html.verify-rebuilt');
+const rebuiltStash = `${asset}.rebuilt-probe`;
 const PORT = Number(process.env.GRAPH_VERIFY_PORT ?? 8819);
 
 if (!fs.existsSync(asset)) {
@@ -53,84 +40,6 @@ if (!fs.existsSync(asset)) {
 
 const failures = [];
 fs.renameSync(asset, stash);
-try {
-  let out = '';
-  let exitCode = 0;
-  try {
-    out = execFileSync('node', ['bin/proof-or-stop.js', 'graph', '--no-open', `--port=${PORT}`],
-      { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 60_000 });
-  } catch (e) {
-    exitCode = typeof e.status === 'number' ? e.status : 1;
-    out = String(e.stdout ?? '') + String(e.stderr ?? '');
-  }
-
-  // Branch (a): the client was rebuilt on demand. Existence of the asset is necessary but
-  // NOT sufficient (B-5a15:F-371) -- the invariant is about SERVING, so re-run the command
-  // as a live server and GET the client over HTTP.
-  const rebuilt = fs.existsSync(asset);
-  let mode;
-  if (rebuilt) {
-    mode = 'rebuilt-on-demand';
-    if (!out.includes('building browser client')) {
-      failures.push('asset reappeared but the run never announced the on-demand build');
-    }
-    // Stash it again so the live run must genuinely rebuild before it can serve.
-    // B-5a15:F-377 -- this must NOT reuse `stash`: renameSync silently overwrites its
-    // destination, so a second rename onto `stash` would discard the true pre-verifier
-    // app.html and leave the finally block restoring a rebuilt copy instead. Park the
-    // regenerated file under its own path and delete it once the probe is done.
-    fs.renameSync(asset, rebuiltStash);
-    const served = await serveAndFetch();
-    if (!served.ok) {
-      failures.push(`rebuilt-on-demand did not serve the client: ${served.reason}`);
-    }
-  } else {
-    // Branch (b): no rebuild, so the run MUST have refused before listening and said why.
-    mode = 'refused';
-    if (exitCode === 0) failures.push('command exited 0 with no browser client — it should refuse');
-    for (const needle of ['app.html', 'npm --prefix packages/graph run build']) {
-      if (!out.includes(needle)) failures.push(`failure message does not name ${JSON.stringify(needle)}`);
-    }
-    // It must refuse before listening at all.
-    try {
-      const held = execFileSync('lsof', ['-ti', `:${PORT}`], { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] })
-        .split('\n').filter(Boolean);
-      if (held.length) failures.push(`a listener was left on ${PORT}: ${held.join(',')}`);
-    } catch { /* nothing listening: correct */ }
-  }
-
-  if (!failures.length) console.log(`missing client handled by ${mode}: never served a client-less page`);
-} finally {
-  // The live-serve probe in branch (a) may itself have rebuilt `asset`. Restoring must
-  // therefore tolerate either state: prefer the stashed original, and drop the stash if
-  // a fresh build already put a real client back in place. Never leave the tree without
-  // its built client, and never leave a stray stash behind.
-  if (fs.existsSync(rebuiltStash)) fs.rmSync(rebuiltStash);
-  if (fs.existsSync(stash)) {
-    // The genuine original always wins over anything the probe regenerated, and a single
-    // renameSync is the whole restore. B-5a15:F-383 -- an earlier version of this fix did
-    // `rmSync(asset)` first, which opened an interruption window that did not exist before
-    // it: a crash/EBUSY/SIGKILL between the two calls left NO app.html at all, with the
-    // real 401KB original stranded under an invisible dotfile, and a re-run could not
-    // self-heal because the precondition check exits on the missing asset before ever
-    // looking at the stash. renameSync overwrites its destination atomically (verified),
-    // so the delete was never needed -- one call, no window.
-    fs.renameSync(stash, asset);
-  }
-}
-
-if (failures.length) {
-  console.error('MISSING_ASSET_HANDLING_BROKEN');
-  for (const f of failures) console.error(`  ${f}`);
-  process.exit(1);
-}
-console.log('MISSING_ASSETS_FAIL_LOUDLY_OK');
-
-/**
- * Runs `graph` as a live server, GETs `/` once it is listening, and returns whether a
- * real client page came back. Proves the "serve" half of the invariant that an
- * existsSync check cannot: a rebuild that lands but never serves must fail.
- */
 async function serveAndFetch() {
   const child = spawn('node', ['bin/proof-or-stop.js', 'graph', '--no-open', `--port=${PORT}`],
     { cwd: repo, stdio: ['ignore', 'pipe', 'pipe'] });
@@ -183,3 +92,153 @@ async function serveAndFetch() {
     if (child.exitCode === null) child.kill('SIGKILL');
   }
 }
+
+try {
+  let out = '';
+  let exitCode = 0;
+  try {
+    out = execFileSync('node', ['bin/proof-or-stop.js', 'graph', '--no-open', `--port=${PORT}`],
+      { cwd: repo, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 60_000 });
+  } catch (e) {
+    exitCode = typeof e.status === 'number' ? e.status : 1;
+    out = String(e.stdout ?? '') + String(e.stderr ?? '');
+  }
+
+  // Our own listener must be stopped BEFORE sampling, and UNCONDITIONALLY.
+  //
+  // Two defects this ordering fixes, both found by review:
+  //   - RACE: execFileSync's timeout can fire while the child is still inside its own
+  //     `npm run build`, so a single fs.existsSync() sample taken immediately after can
+  //     read false for a rebuild that succeeds moments later. Stopping the child first
+  //     makes the sample deterministic: once it is dead, assets/app.html stops changing.
+  //   - LEAK: cleanup used to be gated behind `if (rebuilt)`, so in exactly the branch
+  //     where a leaked listener matters most (recovery believed impossible) the still
+  //     serving process was neither killed nor reported. It is now always stopped, and
+  //     separately still REPORTED as a failure in that branch.
+  const ours = (pid) => {
+    try {
+      return execFileSync('ps', ['-p', String(pid), '-o', 'command='], { encoding: 'utf8' })
+        .includes('proof-or-stop');
+    } catch { return false }
+  };
+  const listeners = () => {
+    try {
+      return execFileSync('lsof', ['-ti', `:${PORT}`], { encoding: 'utf8', stdio: ['ignore','pipe','ignore'] })
+        .split('\n').filter(Boolean).filter(ours);
+    } catch { return [] }
+  };
+  const leaked = listeners();
+  for (const pid of leaked) { try { process.kill(Number(pid), 'SIGKILL') } catch { /* already gone */ } }
+
+  // Settle UNCONDITIONALLY, and by polling rather than by a blind sleep.
+  //
+  // An earlier version armed the settle only `if (leaked.length)`, which review showed
+  // misses the worse window. ensureGraphClientBuilt runs `npm run build` through a
+  // SYNCHRONOUS spawnSync, so while that build is in flight the command has not bound the
+  // port yet. If execFileSync's timeout fires during the build, the SIGTERM reaches only
+  // our direct child; the nested build is orphaned and keeps writing assets/app.html. In
+  // that case `leaked` is empty -- nothing was ever listening -- so the settle was skipped
+  // and `rebuilt` was sampled with zero delay against a file still being written.
+  //
+  // Polling for the asset is both stricter and faster than a fixed sleep: it returns as
+  // soon as the orphan finishes, and it waits the full budget when it never does. The
+  // budget is deliberately longer than a slow rebuild's tail so a true negative (recovery
+  // genuinely impossible) still costs it in full, which is the correct trade for a check
+  // that must not report a working rebuild as broken.
+  const settleDeadline = Date.now() + 15_000;
+  while (!fs.existsSync(asset) && Date.now() < settleDeadline) {
+    execFileSync('sleep', ['0.25']);
+  }
+
+  const rebuilt = fs.existsSync(asset);
+
+  if (rebuilt) {
+    // Scenario 1: on-demand recovery. The handler rebuilt the client, so the command is
+    // allowed to have served. What must NOT happen is serving a client that is missing or
+    // corrupt, so presence of app.html alone is NOT sufficient evidence of recovery.
+    //
+    // An earlier version of this branch accepted `fs.existsSync(asset)` plus an output
+    // substring, which a review negative control showed would pass for a handler that
+    // wrote ANY bytes to assets/app.html (truncated, stale or corrupt) and logged the
+    // right words. These assertions close that: the rebuilt client must be a real built
+    // page, and the d3 bundle that ensureGraphClientBuilt also requires must be present.
+    if (!out.includes('building browser client') && !out.includes('graph serving')) {
+      failures.push('client was rebuilt but the command never reported building or serving');
+    }
+    const html = fs.readFileSync(asset, 'utf8');
+    if (!html.includes('<!doctype html') && !html.includes('<!DOCTYPE html')) {
+      failures.push('rebuilt app.html is not an HTML document');
+    }
+    // The real build inlines the app shell; a stub or truncated file will not carry it.
+    if (!html.includes('openStoryDossier')) {
+      failures.push('rebuilt app.html does not contain the built client (no openStoryDossier)');
+    }
+    if (html.length < 100_000) {
+      failures.push(`rebuilt app.html is implausibly small (${html.length} bytes) for a built client`);
+    }
+    // ensureGraphClientBuilt treats the d3 bundle as required output alongside app.html,
+    // because a build without dependencies still emits app.html while omitting d3 and the
+    // page then silently falls back to a different renderer.
+    const d3 = path.join(pkgRoot, 'assets', 'd3.min.js');
+    if (!fs.existsSync(d3)) {
+      failures.push('recovery produced app.html but not the required d3.min.js bundle');
+    }
+
+    // B-5a15:F-371 -- the content assertions above prove the rebuilt FILE is a real built
+    // client, but the invariant this script protects is "never SERVE a client-less page".
+    // A handler that rebuilds correctly and then fails to serve it would satisfy every
+    // check above, so measure serving instead of inferring it from a build log: stash the
+    // regenerated asset, re-run as a live server, and GET the client over HTTP.
+    // B-5a15:F-377/F-383 -- park it under its own path, never onto `stash`: renameSync
+    // overwrites its destination, so reusing `stash` would discard the true pre-verifier
+    // app.html and leave the finally block restoring a rebuilt copy instead.
+    fs.renameSync(asset, rebuiltStash);
+    const served = await serveAndFetch();
+    if (!served.ok) {
+      failures.push(`rebuilt-on-demand did not serve the client: ${served.reason}`);
+    }
+  } else {
+    // Scenario 2: recovery did not produce the asset. The original invariant applies in
+    // full — refuse before listening, and name the file plus the command that builds it.
+    if (exitCode === 0) failures.push('command exited 0 while the browser client is still missing — it must refuse');
+    for (const needle of ['app.html', 'npm --prefix packages/graph run build']) {
+      if (!out.includes(needle)) failures.push(`failure message does not name ${JSON.stringify(needle)}`);
+    }
+  }
+
+  // The no-silent-blank-page invariant is about OUR command, so the port check only
+  // applies to the failure scenario. In the recovery scenario `graph` is a foreground
+  // serve command: rebuilding and then serving is the correct outcome, so it is still
+  // listening when execFileSync's timeout returns, and killing it is cleanup rather than
+  // a finding. The port is also NOT a reliable identity check on its own -- an unrelated
+  // process (observed here: Google Chrome, holding both 8819 and a freshly chosen 8877)
+  // can occupy any high port, so a bare `lsof -ti:<port>` hit must never be reported as
+  // our leaked listener. Match on the command line instead.
+  // Reporting, using the pre-sample snapshot. Serving after a successful rebuild is
+  // correct for a foreground serve command, so it is only a failure when the client was
+  // still missing -- which is the invariant this script exists to protect.
+  if (!rebuilt && leaked.length) {
+    failures.push(`a listener was left on ${PORT} despite the missing client: ${leaked.join(',')}`);
+  }
+
+  if (!failures.length) {
+    console.log(rebuilt
+      ? `rebuilt the missing client on demand (exit ${exitCode}), left no listener on ${PORT}`
+      : `refused with exit ${exitCode}, named the asset and the build command, started no listener`);
+  }
+} finally {
+  if (fs.existsSync(rebuiltStash)) fs.rmSync(rebuiltStash);
+  if (fs.existsSync(stash)) {
+    // B-5a15:F-383 -- single atomic restore. An earlier version did rmSync(asset) first,
+    // which opened an interruption window that did not exist before it. renameSync
+    // overwrites its destination, so no pre-delete is needed.
+    fs.renameSync(stash, asset);
+  }
+}
+
+if (failures.length) {
+  console.error('MISSING_ASSET_HANDLING_BROKEN');
+  for (const f of failures) console.error(`  ${f}`);
+  process.exit(1);
+}
+console.log('MISSING_ASSETS_HANDLED_OK');

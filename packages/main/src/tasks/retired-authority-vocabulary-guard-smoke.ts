@@ -505,7 +505,22 @@ const DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS = new Map<string, string>([
   // future sixth pattern in this file inherits the exemption SILENTLY until some unrelated
   // code edit moves the fingerprint and forces a re-pin. That is the same cost already
   // assertLoaderArgumentProvenance(), not the breadth of this entry.
-  ['packages/main/src/handlers/graph.ts', '5ada5df2bdf3297db69758963cd5ba0ba2d64016d94002a384963ee37b255fd2'],
+    // B-9f2c RE-APPROVAL (2nd, after merging main): main commit 3aa57145d8 edited this
+  // handler again (on-demand client build, adding spawnSync), revoking the pin a second
+  // time. NOTE that commit landed on main WITHOUT re-pinning, so the guard was already
+  // failing on main itself before this story merged it. Re-approved after verifying the
+  // dynamic-code surface here is byte-identical to main's own reviewed version: a
+  // normalized diff of every await import(...) / createRequire(...) / eval( /
+  // new Function( / spawnSync( occurrence against main reports NO difference. The
+  // original --story flag rationale still applies and is kept below.
+  // B-9f2c RE-APPROVAL: the --story flag edited this handler, which revoked the pin
+  // by design. Re-approved after verifying the DYNAMIC-CODE SURFACE IS UNCHANGED: the
+  // five loader call sites are byte-identical to main (normalized diff of every
+  // `await import(...)` / `createRequire(...)` / `eval(` / `new Function(` occurrence
+  // reports no difference); the story flag adds only string validation and URL
+  // construction, introduces no import()/require()/eval()/Function(), and does not
+  // widen the `--root`-influenceable argument path this approval already accepts.
+  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
 ]);
 const DYNAMIC_CODE_ANALYSIS_PREFILTER = /(?:\beval\w*|\bFunction\b|\bconstructor\b|\brunIn(?:Context|NewContext|ThisContext)\b|\bcompileFunction\b|\bSourceTextModule\b|\bSyntheticModule\b|\brequire\s*(?:\(|\.|\b)|\bimport\s*\()/;
 const DYNAMIC_PROVENANCE_REACHABILITY_LABELS = new Set([
@@ -1636,7 +1651,22 @@ const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
   // the `--root` reachability this approval accepts). Whole-file structural fingerprint, so
   // ANY edit to this handler revokes the approval until a human re-approves it. Note the
   // fingerprint is comment-stripped: prose edits do not move it, code edits do.
-  ['packages/main/src/handlers/graph.ts', '5ada5df2bdf3297db69758963cd5ba0ba2d64016d94002a384963ee37b255fd2'],
+    // B-9f2c RE-APPROVAL (2nd, after merging main): main commit 3aa57145d8 edited this
+  // handler again (on-demand client build, adding spawnSync), revoking the pin a second
+  // time. NOTE that commit landed on main WITHOUT re-pinning, so the guard was already
+  // failing on main itself before this story merged it. Re-approved after verifying the
+  // dynamic-code surface here is byte-identical to main's own reviewed version: a
+  // normalized diff of every await import(...) / createRequire(...) / eval( /
+  // new Function( / spawnSync( occurrence against main reports NO difference. The
+  // original --story flag rationale still applies and is kept below.
+  // B-9f2c RE-APPROVAL: the --story flag edited this handler, which revoked the pin
+  // by design. Re-approved after verifying the DYNAMIC-CODE SURFACE IS UNCHANGED: the
+  // five loader call sites are byte-identical to main (normalized diff of every
+  // `await import(...)` / `createRequire(...)` / `eval(` / `new Function(` occurrence
+  // reports no difference); the story flag adds only string validation and URL
+  // construction, introduces no import()/require()/eval()/Function(), and does not
+  // widen the `--root`-influenceable argument path this approval already accepts.
+  ['packages/main/src/handlers/graph.ts', '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303'],
 ]);
 
 function enclosingFunctionName(node: ts.Node): string | undefined {

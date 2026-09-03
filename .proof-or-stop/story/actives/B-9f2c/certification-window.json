@@ -1,0 +1,299 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9f2c:CW-001",
+      "storyId": "B-9f2c",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-02T14:16:59.609Z",
+      "updatedAt": "2026-09-02T14:16:59.609Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "3aa2b870459aef0c25a79081cea442b097585b64647cfbb5e349cde2f10ec7c5"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9f2c:CW-002",
+      "storyId": "B-9f2c",
+      "state": "INVALIDATED",
+      "createdAt": "2026-09-02T14:17:19.379Z",
+      "updatedAt": "2026-09-02T16:15:54.155Z",
+      "frozen": {
+        "headHash": "161aa08faa358f9a46ff84f7ba8681a5bb88be02",
+        "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
+        "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+        "expectedMainSha": "09ff92e51d6b0c7a8bc98a43bde4b50bfe0f0a0b",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-9f2c:RIE-001",
+        "receiptId": "B-9f2c:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-9f2c:PRECERT-001",
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "storyFilesHash changed",
+      "invalidation": {
+        "detectedAt": "2026-09-02T16:15:54.155Z",
+        "oldHeadHash": "161aa08faa358f9a46ff84f7ba8681a5bb88be02",
+        "currentHeadHash": "71be1ffbc47a1b74a45dc9f8a5152b145084a558",
+        "oldMaterialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
+        "currentMaterialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+        "oldStoryFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+        "currentStoryFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "353a5a6d777664653f3dd92cceb2266a4e7177714d37e4a11df64863270f71e9"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9f2c:CW-003",
+      "storyId": "B-9f2c",
+      "state": "INVALIDATED",
+      "createdAt": "2026-09-02T16:39:06.817Z",
+      "updatedAt": "2026-09-02T17:21:22.867Z",
+      "frozen": {
+        "headHash": "fe9af668db45dd476956582a93588df5d600fb2b",
+        "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+        "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
+        "expectedMainSha": "09ff92e51d6b0c7a8bc98a43bde4b50bfe0f0a0b",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-9f2c:RIE-002",
+        "receiptId": "B-9f2c:RIE-002:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-9f2c:PRECERT-002",
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "storyFilesHash changed",
+      "invalidation": {
+        "detectedAt": "2026-09-02T17:21:22.867Z",
+        "oldHeadHash": "fe9af668db45dd476956582a93588df5d600fb2b",
+        "currentHeadHash": "d992948600a5a9c613a328a080eba06fac9a8c6d",
+        "oldMaterialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+        "currentMaterialHash": "ccfdb13e69090a5d5e57c98bc0a8f9ec78a0cefc7934f21eee8c024a2107c714",
+        "oldStoryFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
+        "currentStoryFilesHash": "0fc41dd013946e3410bbd63533e0e4ee33427c9d715e7a58e7af979e332947e6",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "9710d48cb2fcee2c241e23a7bf76174f7bb8c2d6b000d4a2b47e2aa1d5aa5d23"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9f2c:CW-004",
+      "storyId": "B-9f2c",
+      "state": "INVALIDATED",
+      "createdAt": "2026-09-02T17:36:31.171Z",
+      "updatedAt": "2026-09-03T03:35:39.252Z",
+      "frozen": {
+        "headHash": "ad6bf2fc21133f73d112c93a0d901552ab48af7e",
+        "materialHash": "ccfdb13e69090a5d5e57c98bc0a8f9ec78a0cefc7934f21eee8c024a2107c714",
+        "storyFilesHash": "0fc41dd013946e3410bbd63533e0e4ee33427c9d715e7a58e7af979e332947e6",
+        "expectedMainSha": "09ff92e51d6b0c7a8bc98a43bde4b50bfe0f0a0b",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-9f2c:RIE-003",
+        "receiptId": "B-9f2c:RIE-003:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-9f2c:PRECERT-003",
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "storyFilesHash changed",
+      "invalidation": {
+        "detectedAt": "2026-09-03T03:35:39.252Z",
+        "oldHeadHash": "ad6bf2fc21133f73d112c93a0d901552ab48af7e",
+        "currentHeadHash": "f637d5434e4128d60397554ad7c392663dc73c23",
+        "oldMaterialHash": "ccfdb13e69090a5d5e57c98bc0a8f9ec78a0cefc7934f21eee8c024a2107c714",
+        "currentMaterialHash": "6e5c3b9983df1f153f5c8ee270321f095ce5913f9d3e6937731d32f4c240487d",
+        "oldStoryFilesHash": "0fc41dd013946e3410bbd63533e0e4ee33427c9d715e7a58e7af979e332947e6",
+        "currentStoryFilesHash": "f746f43eec105b8ac2bcc056fc893b15d16d7c93113858906b1d40acecc6580f",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "8ffd128b349369fb3a5e08e48e9b706c55a2ac6a6d67610a5bdbf7eafb05597a"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9f2c:CW-005",
+      "storyId": "B-9f2c",
+      "state": "INVALIDATED",
+      "createdAt": "2026-09-03T03:35:39.684Z",
+      "updatedAt": "2026-09-03T05:58:38.924Z",
+      "frozen": {
+        "headHash": "f637d5434e4128d60397554ad7c392663dc73c23",
+        "materialHash": "6e5c3b9983df1f153f5c8ee270321f095ce5913f9d3e6937731d32f4c240487d",
+        "storyFilesHash": "f746f43eec105b8ac2bcc056fc893b15d16d7c93113858906b1d40acecc6580f",
+        "expectedMainSha": "3aa57145d8469545e4181ec9b77e72a577eca5a5",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-9f2c:RIE-004",
+        "receiptId": "B-9f2c:RIE-004:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-9f2c:PRECERT-004",
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "storyFilesHash changed",
+      "invalidation": {
+        "detectedAt": "2026-09-03T05:58:38.924Z",
+        "oldHeadHash": "f637d5434e4128d60397554ad7c392663dc73c23",
+        "currentHeadHash": "f03ca38eb6e114b9dc0cf4e3293bad3ce97d946c",
+        "oldMaterialHash": "6e5c3b9983df1f153f5c8ee270321f095ce5913f9d3e6937731d32f4c240487d",
+        "currentMaterialHash": "f6d21173ca88bf856d69760b75b59cd0e6ae99ed216235fd93aea05680fe0019",
+        "oldStoryFilesHash": "f746f43eec105b8ac2bcc056fc893b15d16d7c93113858906b1d40acecc6580f",
+        "currentStoryFilesHash": "c8e3588ff6172c7755fb67849ad2c70255e9c7904b5fe78bbce0ef6e0dd4bad2",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "a59c19b50dc9ba72af8b01adbd1a8e3a575a7b3f5e34aef488923d6a32fe389c"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9f2c:CW-006",
+      "storyId": "B-9f2c",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-03T07:03:05.564Z",
+      "updatedAt": "2026-09-03T07:03:05.564Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "d3849ebf9b9b7a19f078e0f59de64a1fb6fd59ec97245ba2b5cf9d686900c63e"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-9f2c:CW-007",
+      "storyId": "B-9f2c",
+      "state": "RUNNING",
+      "createdAt": "2026-09-03T08:01:17.632Z",
+      "updatedAt": "2026-09-03T08:43:00.372Z",
+      "frozen": {
+        "headHash": "362d5da9054765f313e14e98e7a8012831273228",
+        "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+        "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+        "expectedMainSha": "3aa57145d8469545e4181ec9b77e72a577eca5a5",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-9f2c:RI-006",
+        "receiptId": "B-9f2c:RI-006:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-9f2c:PRECERT-005",
+      "_hash": "c75930da39ab42c92fd223c8a6b90261161fa1a55c7962f3f53968cdf4326227"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-9f2c:PRECERT-001",
+      "windowId": "B-9f2c:CW-002",
+      "storyId": "B-9f2c",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "161aa08faa358f9a46ff84f7ba8681a5bb88be02",
+        "materialHash": "ef9c885a2b21847ec90329a2f74b5bcbd66cb035561580ecd51b2e2f7cd88cde",
+        "storyFilesHash": "3c7c5e11e69794cbbd16404508d5bc9c47bfae193bfe3f6cdb036d5526c349b4",
+        "expectedMainSha": "09ff92e51d6b0c7a8bc98a43bde4b50bfe0f0a0b",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-9f2c:RIE-001",
+      "inventoryReceiptId": "B-9f2c:RIE-001:RCP-001",
+      "createdAt": "2026-09-02T14:17:19.379Z",
+      "_hash": "e02447ffd25c0cc57a5edbfccc3145792a162c4606ff111022666fa9da951f4e"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-9f2c:PRECERT-002",
+      "windowId": "B-9f2c:CW-003",
+      "storyId": "B-9f2c",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "fe9af668db45dd476956582a93588df5d600fb2b",
+        "materialHash": "082eec378e8277e4f7f90e8be10ffd673608f3a73e3dec332fa53af3e28accfa",
+        "storyFilesHash": "a2db4f9cc83a06c4128fe24b403eccb815948c2904fb319b95cd9d2f7f2a0c25",
+        "expectedMainSha": "09ff92e51d6b0c7a8bc98a43bde4b50bfe0f0a0b",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-9f2c:RIE-002",
+      "inventoryReceiptId": "B-9f2c:RIE-002:RCP-001",
+      "createdAt": "2026-09-02T16:39:06.817Z",
+      "_hash": "236faa1243525ac6995bc1dbfc6680d56f5280721f793be3f5b8e28432abc7f2"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-9f2c:PRECERT-003",
+      "windowId": "B-9f2c:CW-004",
+      "storyId": "B-9f2c",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "ad6bf2fc21133f73d112c93a0d901552ab48af7e",
+        "materialHash": "ccfdb13e69090a5d5e57c98bc0a8f9ec78a0cefc7934f21eee8c024a2107c714",
+        "storyFilesHash": "0fc41dd013946e3410bbd63533e0e4ee33427c9d715e7a58e7af979e332947e6",
+        "expectedMainSha": "09ff92e51d6b0c7a8bc98a43bde4b50bfe0f0a0b",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-9f2c:RIE-003",
+      "inventoryReceiptId": "B-9f2c:RIE-003:RCP-001",
+      "createdAt": "2026-09-02T17:36:31.171Z",
+      "_hash": "1a3fbe3b1e082ed039011cba70e33bd17606328421a9783b1ecacda9211fac4b"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-9f2c:PRECERT-004",
+      "windowId": "B-9f2c:CW-005",
+      "storyId": "B-9f2c",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "f637d5434e4128d60397554ad7c392663dc73c23",
+        "materialHash": "6e5c3b9983df1f153f5c8ee270321f095ce5913f9d3e6937731d32f4c240487d",
+        "storyFilesHash": "f746f43eec105b8ac2bcc056fc893b15d16d7c93113858906b1d40acecc6580f",
+        "expectedMainSha": "3aa57145d8469545e4181ec9b77e72a577eca5a5",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-9f2c:RIE-004",
+      "inventoryReceiptId": "B-9f2c:RIE-004:RCP-001",
+      "createdAt": "2026-09-03T03:35:39.684Z",
+      "_hash": "1bb007328441dabb6a12357175bd755d6116c7083001a300095dcc4131dd7a32"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-9f2c:PRECERT-005",
+      "windowId": "B-9f2c:CW-007",
+      "storyId": "B-9f2c",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "362d5da9054765f313e14e98e7a8012831273228",
+        "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+        "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+        "expectedMainSha": "3aa57145d8469545e4181ec9b77e72a577eca5a5",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-9f2c:RI-006",
+      "inventoryReceiptId": "B-9f2c:RI-006:RCP-001",
+      "createdAt": "2026-09-03T08:01:17.632Z",
+      "_hash": "6d8c88e5d5c1cc10a1d396ed2424d0001a495f293836e93a911feed49b09a728"
+    }
+  ]
+}

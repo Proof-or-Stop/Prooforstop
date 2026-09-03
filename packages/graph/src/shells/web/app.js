@@ -847,6 +847,12 @@ async function open(id,keepTab){
   document.getElementById("dId").textContent=s.id;
   document.getElementById("dT").textContent=s.title||"(untitled)";
   const C=CH[id]||{items:[],findings:[]};
+  // beside the story id, where the header has room; hidden if the detail
+  // fetch failed (the dossier needs the raw files)
+  document.getElementById("dossierSlot").innerHTML=C.raw
+    ?`<button class="chip dossier" id="dossierBtn"
+       title="Open this story's dossier page (/story/${esc(s.id)}) — finding map, lifecycle loop, dispatch swarm, wire log">open dossier<span class="arr">↗</span></button>`
+    :"";
   document.getElementById("dC").innerHTML=
     `<span class="chip ph">${s.phase}</span>`+
     (s.inFlight?`<span class="chip live">in flight</span>`:"")+
@@ -871,6 +877,13 @@ async function open(id,keepTab){
       ${tab("files","Files",Object.keys((C.raw&&C.raw.files)||{}).length,true)}
       <span class="tabbar" id="tabBar"></span>
     </div>`;
+  document.getElementById("dossierBtn")?.addEventListener("click",()=>{
+    if(!window.openStoryDossier){
+      alert("The dossier page did not load. Run npm run build and reload.");
+      return;
+    }
+    openDossierFor(s.id,true);   // pushes /story/<id> so the page has a real URL
+  });
   // don't open onto an empty tab
   const avail={live:!!s.inFlight,chain:(C.items||[]).length>0,find:(C.findings||[]).length>0,
                gate:hasGate(s),origin:hasOrigin(s),plan:hasPlan(s),scope:hasScope(s),
@@ -2374,6 +2387,42 @@ function jumpToLifecycle(fid){
     el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
   });
 }
+/* ---- dossier routing: /story/<id> deep-links the full-window page.
+   The drawer button pushes that path; closing the dossier restores /; the
+   back/forward buttons replay both. The graph page itself stays at /. ---- */
+const dossierPath=id=>"/story/"+encodeURIComponent(id);
+/* The story's neighbourhood in the web. Edges live in the graph payload, not
+   in the story detail, so the dossier is handed a ready-made summary.
+   Edge shape is {s,t,k} (graph/fn.ts); s → t means s builds on t. */
+function relationsOf(id){
+  const up=[],down=[];
+  for(const e of ED){
+    if(e.s===id&&byId[e.t])up.push({id:e.t,kind:e.k||"ref",phase:byId[e.t].phase,title:byId[e.t].title||""});
+    else if(e.t===id&&byId[e.s])down.push({id:e.s,kind:e.k||"ref",phase:byId[e.s].phase,title:byId[e.s].title||""});
+  }
+  const n=byId[id]||{};
+  return {up,down,depth:n.depth??null,indeg:n.indeg||0,outdeg:n.outdeg||0};
+}
+async function openDossierFor(id,push){
+  const s=byId[id];
+  if(!s){ console.warn("dossier: unknown story",id); return false }
+  if(!CH[id]||!CH[id].raw) await open(id);   // fetches the detail, opens the drawer behind
+  const C=CH[id];
+  if(!C||!C.raw||!window.openStoryDossier) return false;
+  if(push&&location.pathname!==dossierPath(id))
+    history.pushState({dossier:id},"",dossierPath(id));
+  window.openStoryDossier(s,C.raw,{
+    jump:fid=>jumpToFinding(fid),
+    openStory:sid=>openDossierFor(sid,true),   // web panel: hop to a neighbour
+    onClose:()=>{ if(location.pathname.startsWith("/story/")) history.pushState({},"","/") },
+  },relationsOf(id));
+  return true;
+}
+addEventListener("popstate",()=>{
+  const m=location.pathname.match(/^\/story\/([^/]+)$/);
+  if(m) openDossierFor(decodeURIComponent(m[1]),false);
+  else if(window.closeStoryDossier) window.closeStoryDossier();
+});
 function cssEsc(v){return String(v).replace(/["\\]/g,"\\$&")}
 function sec(t,h){return `<div class="sec"><p class="st">${t}</p>${h}</div>`}
 function mt(v,l,k){return `<div class="m ${k||""}"><div class="v">${v}</div><div class="l">${l}</div></div>`}
@@ -2704,17 +2753,32 @@ function showFile(s,C,name){
 
 /* ---------- boot: fetch graph, then run the same 3D renderer ---------- */
 (async function boot(){
+  /* /story/<id> deep link: cover the window BEFORE the graph loads, so the
+     reader never sees the graph page flash and then get replaced. The cover
+     matches the dossier's ground and drops once the dossier is up. The id is
+     escaped like all injected data in this file. */
+  const dl=location.pathname.match(/^\/story\/([^/]+)$/);
+  let cover=null;
+  if(dl){
+    cover=document.createElement("div");
+    cover.className="dsrcover";
+    const safeId=decodeURIComponent(dl[1]).replace(/[^\w.-]/g,"");
+    cover.innerHTML=`<div><span class="mono">${safeId}</span>loading dossier<i>▍</i></div>`;
+    document.body.appendChild(cover);
+  }
+  const dropCover=()=>{ if(cover){const c=cover;cover=null;
+    c.classList.add("out");setTimeout(()=>c.remove(),260)} };
   const tag=document.getElementById("liveTag");
   const setTag=(t,cls)=>{tag.textContent=t;tag.className="livetag "+(cls||"")};
   setTag("loading","busy");
   let g;
   try{ g=await API.graph() }
-  catch(e){ setTag("offline","err");
+  catch(e){ setTag("offline","err"); dropCover();
     document.body.insertAdjacentHTML("beforeend",
       `<div class="loading">cannot reach the server — is <code>node server.mjs</code> running?</div>`); return }
   try{ applyGraph(g) }
   catch(e){
-    setTag("error","err");
+    setTag("error","err"); dropCover();
     console.error("applyGraph failed:",e);
     document.body.insertAdjacentHTML("beforeend",
       `<div class="loading"><div style="max-width:70ch"><b>Render error</b><br>${String(e&&e.message||e)}<br><br><pre class="raw">${String(e&&e.stack||"").slice(0,900)}</pre></div></div>`);
@@ -2752,6 +2816,12 @@ function showFile(s,C,name){
 
   setTag("live","ok");
   for(const el of document.querySelectorAll("#boot,.loading")) el.remove();
+
+  // deep link: /story/<id> opens the dossier straight over the graph
+  if(dl){
+    try{ await openDossierFor(decodeURIComponent(dl[1]),false) }
+    finally{ dropCover() }
+  }
 
   // poll for changes; the server rebuilds only when the story tree hash moves
   const sigOfGraph=x=>`${x.contentHash||''}|${x.liveHash||''}`;

@@ -1,0 +1,44 @@
+{
+  "task": "Port the upstream story dossier page into packages/graph and add a --story=<id> flag to the graph command that deep-links to it.",
+  "outcome": "Running proof-or-stop graph --story=B-xxxx opens a browser on the dossier page for that story at /story/B-xxxx; an unknown id is refused before the server listens; the dossier is also reachable from a button in the graph drawer.",
+  "facts": [
+    "B-3e16 migrated the standalone proof-or-stop-graph repo into packages/graph at upstream commit 10b5921de4b1fe5b4e796d1a7d78ec655cc400fd.",
+    "Upstream has four newer commits building the dossier: 4c3bde0, 7ecad9a, a0b14da, 1536588.",
+    "git diff --stat 10b5921 HEAD upstream is 7 files and 1860 insertions; 1119 of those lines are the new src/shells/web/dossier.js.",
+    "packages/graph/src/io/http.ts, src/shells/web/app.body.html, app.css and app.js are byte-identical to upstream 10b5921 here, verified by shasum, so the upstream diffs apply without conflict resolution.",
+    "packages/graph/README.md diverges by design: this repo says proof-or-stop graph rather than proof-or-stop-graph and has a How the CLI reaches this package section.",
+    "packages/graph/scripts/build-web.mjs carries an uncommitted local change making a missing d3 a hard failure, which the upstream diff does not contain.",
+    "Upstream serves the dossier by matching /story/<id> in the existing / and /index.html branch of io/http.ts and returning the same app.html; the client reads location.pathname at boot.",
+    "dossier.js self-registers window.openStoryDossier and must load after app.js, the same contract playback.js already uses in scripts/build-web.mjs.",
+    "The graph command is a normal registered handler in packages/main/src/handlers/graph.ts, long-running like serve, with a watchdog heartbeat.",
+    "The handler already refuses an unresolvable --root before listening rather than serving an empty graph.",
+    "The catalog convention is an optional Zod field with the default documented in the description, never .default(), because the help renderer detects optionality via instanceof ZodOptional.",
+    "resolveStories is exported from packages/graph/src/index.ts and returns a Resolved whose primary maps story id to directory.",
+    "Status returned by createApp().getStatus() carries only counts, not story ids, so it cannot validate an id on its own.",
+    "packages/graph is not an npm workspace; its node_modules and assets are gitignored build output, and the handler already builds the client on demand."
+  ],
+  "constraints": [
+    "The dossier is ported as authored upstream, not redesigned.",
+    "The local d3 hard-failure change in build-web.mjs must be preserved while adding the dossier.js concatenation.",
+    "This repository's README wording must survive the README port; only the dossier material is added.",
+    "The new flag must follow the existing catalog convention: optional, default documented in the description, applied in the handler.",
+    "An unknown --story id must be refused before startServer, matching the existing --root precedent.",
+    "packages/graph requires Node >= 22.5 because the index uses node:sqlite.",
+    "The graph command must stay read-only with respect to story state and must not write into the inspected repository.",
+    "Only one long-running command shape: no second server command competing for the same port."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/graph/src/shells/web/dossier.js",
+    "packages/graph/src/shells/web/app.css",
+    "packages/graph/src/shells/web/app.js",
+    "packages/graph/src/shells/web/app.body.html",
+    "packages/graph/src/io/http.ts",
+    "packages/graph/scripts/build-web.mjs",
+    "packages/graph/README.md",
+    "packages/main/src/handlers/graph.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "CLAUDE.md"
+  ],
+  "timestamp": "2026-09-02T08:17:02.402Z"
+}
