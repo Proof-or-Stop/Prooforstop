@@ -3944,6 +3944,77 @@ testCase('merge-base movement: a RED on main after the branch point satisfies th
   assert.deepEqual(after.violatingIds, ['B-dc2e:F-001', 'CHK-002'], 'another story\'s RED(B-1234:F-001) and the bare RED(CHK-002) rescue nothing');
 });
 
+// B-dc2e F-007: priorRedIds() read the WHOLE subject history below the merge-base
+// through execFileSync's default 1 MB maxBuffer; this repository's subjects are
+// already ~1.39 MB, so the call threw ENOBUFS, the bare catch turned it into null,
+// and the prior set was silently EMPTY in the very repository the F-006 fix ships
+// in. The cases below pin: no throw and agreement with an independent bounded
+// query on this real repository, a > 1 MB matching-subject history in a temp
+// repository, and a LOUD failure (never an empty set) when git itself fails.
+
+const QUALIFIED_RED_SUBJECT_GREP = '^RED\\(B-[0-9a-f]{4}:(CHK|F)-[0-9]{3}\\):';
+
+testCase('priorRedIds on this real repository does not throw and matches an independent bounded git query', () => {
+  const base = (gitOutput(['merge-base', 'main', 'HEAD']) ?? '').trim();
+  assert.ok(base, 'this case needs a real merge-base between main and HEAD');
+  const independent = execFileSync(
+    'git',
+    ['log', '--format=%s', '-E', `--grep=${QUALIFIED_RED_SUBJECT_GREP}`, base],
+    { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 256 * 1024 * 1024 },
+  ).split('\n').map((line) => parseRedGreenSubject(line.trim())).filter((parsed) => parsed?.phase === 'RED').map((parsed) => parsed!.id);
+  let collected: ReadonlySet<string> | null = null;
+  assert.doesNotThrow(() => { collected = priorRedIds(null); }, 'priorRedIds must not throw on the real repository');
+  assert.deepEqual([...collected!].sort(), [...new Set(independent)].sort(), 'the prior set must equal the qualified RED ids reachable from the merge-base, never a silently empty set');
+});
+
+testCase('priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)', () => {
+  const root = redGreenFixtureRepo('proof-or-stop-red-green-big-history-');
+  const padding = 'x'.repeat(100_000);
+  const expected: string[] = [];
+  for (let index = 1; index <= 12; index += 1) {
+    const id = `B-f0f7:F-${String(index).padStart(3, '0')}`;
+    expected.push(id);
+    writeFixtureFile(root, `fixture-${index}.txt`, `${id}\n`);
+    writeFixtureFile(root, 'message.txt', `RED(${id}): ${padding}\n`);
+    fixtureGit(root, ['add', 'fixture-' + index + '.txt']);
+    fixtureGit(root, ['commit', '-q', '-F', 'message.txt']);
+  }
+  for (let index = 1; index <= 4; index += 1) {
+    writeFixtureFile(root, `noise-${index}.txt`, `${index}\n`);
+    writeFixtureFile(root, 'message.txt', `chore: unrelated ${padding}\n`);
+    fixtureGit(root, ['add', 'noise-' + index + '.txt']);
+    fixtureGit(root, ['commit', '-q', '-F', 'message.txt']);
+  }
+  fixtureGit(root, ['checkout', '-q', '-b', 'story/B-f0f7']);
+  redGreenFixtureCommit(root, 'fix.txt', 'GREEN(B-f0f7:F-001): the fix on the story branch');
+  const matching = execFileSync(
+    'git',
+    ['log', '--format=%s', '-E', `--grep=${QUALIFIED_RED_SUBJECT_GREP}`, 'main'],
+    { cwd: root, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 256 * 1024 * 1024 },
+  );
+  assert.ok(matching.length > 1024 * 1024, `the matching subjects alone must exceed 1 MB to exercise the buffer (got ${matching.length} bytes)`);
+  assert.deepEqual([...priorRedIds(root)].sort(), expected.sort(), 'every qualified RED below the merge-base must be collected despite the > 1 MB subject volume');
+  const accepted = evaluateBranchRedGreen(root);
+  assert.equal(accepted.ok, true, `the branch GREEN must be satisfied through the large history: ${describeRedGreenViolations(accepted)}`);
+});
+
+testCase('priorRedIds raises when the git call fails instead of returning an empty set', () => {
+  // A repository with no `main` branch: merge-base fails. Silence here would turn
+  // every GREEN into a false green_without_red (or, with the old whole-history read,
+  // hide a buffer overflow); the smoke must fail loudly naming git.
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-red-green-git-failure-'));
+  temporaryRoots.push(root);
+  writeFixtureFile(root, 'README.md', '# no main branch\n');
+  fixtureGit(root, ['init', '-q']);
+  fixtureGit(root, ['checkout', '-q', '-B', 'trunk']);
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'base']);
+  assert.throws(() => priorRedIds(root), /git/, 'a failing git call must raise, never degrade to an empty prior set');
+  const notARepo = mkdtempSync(join(tmpdir(), 'proof-or-stop-red-green-not-a-repo-'));
+  temporaryRoots.push(notARepo);
+  assert.throws(() => priorRedIds(notARepo), /git/, 'a directory that is not a repository must raise as well');
+});
+
 testCase('main..HEAD passes the RED-before-GREEN helper', () => {
   const range = readRedGreenCommits(null, ['main..HEAD']);
   // Once merged the range is empty; fall back to the subject-filtered whole
