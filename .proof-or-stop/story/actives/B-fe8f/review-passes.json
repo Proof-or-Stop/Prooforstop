@@ -864,6 +864,60 @@
         "scanEscalationReason": null
       },
       "_hash": "dee5f60e00af2e6c5fb98f53d3856c09067a272a53fe735a32b182f8fb9891be"
+    },
+    {
+      "id": "B-fe8f:RP-027",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No blocker found in the current committed Story diff. F-025 now emits distinct historicalBaselineFails, currentGreenPasses, and currentCorruptedRelationRejected facts. F-026 closes the remaining compatibility-selector hole by requiring currentGreenPasses before legacyPinnedNegativeControl is admitted and mechanically proving the old selector is absent for both a simulated current GREEN failure and an accepted corrupted relation. The current RED verifier and full Story 3 smoke exited zero. Story 3 still owns only ledger persistence and runtime receipt integrity: persistence rows remain L2 non-gate, runtime receipts remain gate-eligible inputs rather than direct lifecycle authority, forbidden Story 1/2 imports are rejected, F024 outer operation/requestDigest binding remains closed, exact-CAS deferral substrate fails closed, and clean install uses canonical @proof-or-stop packages. Repository residue scans found only explicit identity-migration negative fixtures and the intentionally pinned compatibility selector.",
+      "createdAt": "2026-09-03T13:35:00.641Z",
+      "reviewRound": "2026-09-03T13:27:50.557Z",
+      "reviewRunId": "B-fe8f:RR-053",
+      "envelopeId": "93650f13ec409dc434d8f1889b3d9d81a4316d73a85c3cef1e061b8755bcec8a",
+      "writerSessionId": "sess-537f842eb49dc7c01316c5dcf5d160e4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "package-lock.json",
+          "package.json",
+          "packages/lab/package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/utils/package.json",
+          "proof-or-stop.config.json",
+          "scripts/proof-or-stop-identity-current-legacy-contexts.json",
+          "scripts/verify-migration-contract.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-identity-cutover.mjs"
+        ],
+        "scanEscalationReason": "The F-025 and F-026 compatibility-selector correction plus the earlier identity cutover required repository-wide scans for currentFails, legacyPinnedNegativeControl, retired @lattice package names, lattice-brand, LATTICE_CLI_VERSION, and forbidden Story 1 or Story 2 authority imports."
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "f26b2fb5957a5dcbb657861e5b9bdd1929129c97b5d603d803b519517039c337"
     }
   ]
 }
