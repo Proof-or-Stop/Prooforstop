@@ -1,0 +1,36 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-001",
+      "rootCause": "Multiple findings all involve packages/main/src/handlers/validation-plan.ts, packages/main/src/core/story-workspace.ts",
+      "findingIds": [
+        "B-41c8:F-002",
+        "B-41c8:F-004",
+        "B-41c8:F-005"
+      ],
+      "files": [
+        "packages/main/src/handlers/validation-plan.ts",
+        "packages/main/src/core/story-workspace.ts",
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+        "packages/main/src/handlers/proof-or-stop-handoff.ts",
+        "packages/main/src/handlers/story-query.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-09-02T15:14:40.511Z"
+    },
+    {
+      "clusterId": "CL-002",
+      "rootCause": "Multiple findings all involve packages/main/src/tasks/single-owner-extraction-smoke.ts",
+      "findingIds": [
+        "B-41c8:F-008",
+        "B-41c8:F-011"
+      ],
+      "files": [
+        "packages/main/src/tasks/single-owner-extraction-smoke.ts",
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-09-02T16:04:57.175Z"
+    }
+  ]
+}
