@@ -157,21 +157,33 @@
           {
             "desc": "The real package.json chains (test:serial-reference and test:serial-reference-prefix) are evaluated against the real RESOURCE_POLICY and pass on the current tree.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+              "selector": "[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Members of test:serial-reference-prefix are not reported as stalePolicy against the main chain; the synthetic cases remain and still pass.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+              "selector": "[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Removing one real RESOURCE_POLICY row on a scratch copy makes the real-data case fail with the row named.",
             "type": "logic",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+              "selector": "[PASS] real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership"
+            }
           }
         ]
       },
@@ -181,7 +193,72 @@
         "headHash": "86b0ba9a209570df24dcf890ef5cbea37db234d2",
         "attestedAt": "2026-09-03T04:51:16.349Z",
         "materialHash": "e56b08fc8c5fded125dd06e786bb0496f870c1dc9ec9b61841f89b957ecddd44"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "result": "pass",
+          "note": "Live package.json chains evaluated against the live policy (FULL_SUITE_ENTRIES); passes on the real tree.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "cc7e22d6c4b1a7ab4da746daa96a450c60e2340c4b3a526933a90450d11edd86",
+            "outputTail": "rministic sorted and deduplicated signatures\",\"deleting one observed assertion line bites the output-derived inventory\",\"meaningful assertion seeds and numbers remain inventory-significant\",\"known generated hex fixture IDs normalize only in story-list output lines\",\"named and static story IDs remain inventory-significant\",\"only observedDurationMs values normalize recursively inside incremental stress receipts\",\"stress seed, iteration count and status remain inventory-significant\",\"explicit marker assertions are retained alongside observed output signatures\",\"marker JSON formatting and timing-only serialization do not alter member inventory\",\"changing parsed marker assertions and mutations alters member inventory\",\"marker assertions and non-marker output signatures are retained as separate facts\",\"suppressing an assertion before member output changes observed detailed inventory\",\"suppressing an explicit marker assertion before emission changes parsed inventory\",\"suppressing an explicit marker mutation before emission changes mutation inventory\",\"member consumes one unique temp ownership root through PROOF_OR_STOP/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launches0\",\"ta\n...[truncated 1071 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T05:12:24.256Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "be7a4a67ce346dc70a5c0f8fbf6cd60ba10caa10",
+          "materialHash": "828b1d2a142d3363dee11c255b9d34646105e26f52c01155a3fbf8f916b3622b",
+          "storyFilesHash": "5fff12c6b260bdd2597674f5c523d4b117fa7e41d67ef8610c9ee525a695e2ff",
+          "timestamp": "2026-09-03T05:13:30.126Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "result": "pass",
+          "note": "The case composes prefix plus main chains like the runner and keeps the main-only stalePolicy reading as an explicit edge assertion; synthetic cases unchanged (166 assertions).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2905909b4a989e31affcade525f45bd34a4c42d8970af3155439ec554c464cb0",
+            "outputTail": "ds deterministic sorted and deduplicated signatures\",\"deleting one observed assertion line bites the output-derived inventory\",\"meaningful assertion seeds and numbers remain inventory-significant\",\"known generated hex fixture IDs normalize only in story-list output lines\",\"named and static story IDs remain inventory-significant\",\"only observedDurationMs values normalize recursively inside incremental stress receipts\",\"stress seed, iteration count and status remain inventory-significant\",\"explicit marker assertions are retained alongside observed output signatures\",\"marker JSON formatting and timing-only serialization do not alter member inventory\",\"changing parsed marker assertions and mutations alters member inventory\",\"marker assertions and non-marker output signatures are retained as separate facts\",\"suppressing an assertion before member output changes observed detailed inventory\",\"suppressing an explicit marker assertion before emission changes parsed inventory\",\"suppressing an explicit marker mutation before emission changes mutation inventory\",\"member consumes one unique temp ownership root through PROOF_OR_STOP/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launche\n...[truncated 1078 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T05:12:56.975Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "be7a4a67ce346dc70a5c0f8fbf6cd60ba10caa10",
+          "materialHash": "828b1d2a142d3363dee11c255b9d34646105e26f52c01155a3fbf8f916b3622b",
+          "storyFilesHash": "5fff12c6b260bdd2597674f5c523d4b117fa7e41d67ef8610c9ee525a695e2ff",
+          "timestamp": "2026-09-03T05:13:30.126Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "command": "node packages/main/dist/tasks/full-suite-runner-smoke.js",
+          "result": "pass",
+          "note": "Removing the first test:serial-reference member's row on an in-memory copy of the live policy fails with unknownPolicy naming the row (RED 4c98f544e5 committed failing).",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "519649e949a122a0bca0b78207a31530d239d88d68a6cfc4084c57cc58d22b74",
+            "outputTail": "lds deterministic sorted and deduplicated signatures\",\"deleting one observed assertion line bites the output-derived inventory\",\"meaningful assertion seeds and numbers remain inventory-significant\",\"known generated hex fixture IDs normalize only in story-list output lines\",\"named and static story IDs remain inventory-significant\",\"only observedDurationMs values normalize recursively inside incremental stress receipts\",\"stress seed, iteration count and status remain inventory-significant\",\"explicit marker assertions are retained alongside observed output signatures\",\"marker JSON formatting and timing-only serialization do not alter member inventory\",\"changing parsed marker assertions and mutations alters member inventory\",\"marker assertions and non-marker output signatures are retained as separate facts\",\"suppressing an assertion before member output changes observed detailed inventory\",\"suppressing an explicit marker assertion before emission changes parsed inventory\",\"suppressing an explicit marker mutation before emission changes mutation inventory\",\"member consumes one unique temp ownership root through PROOF_OR_STOP/TMPDIR/TMP/TEMP\",\"successful temp ownership marker records a stable label without dynamic paths\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"invalid temp ownership roots fail with dynamic diagnostic detail\",\"normal parent completion remains PASS after descendant cleanup\",\"normal completion fixture proves the grandchild started\",\"normal parent completion kills complete descendant process group\",\"actual process spawn increments launch accounting exactly once\",\"normal timeout removes only the runner-owned unique temp root\",\"runner cleanup cannot target the caller repository root\",\"timeout kills complete descendant process group\",\"external interruption reports INTERRUPTED\",\"PASS member residue fails closed and is retained for diagnosis\",\"SIGTERM cleanup removes all declared sentinel-owned resources and preserves siblings\",\"cleanup manifest is recorded before spawn and reconciled after interruption\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel token markers allow all three SIGKILL-interrupted resources to be removed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel missing-marker mutation is retained and fails closed\",\"real production sentinel publishes ownership-ready handshake before pause\",\"real production sentinel creates all three runner-cleanable directories before pause\",\"real production sentinel tampered-marker mutation is retained and fails closed\",\"runner-cleanable target outside approved runtime roots is denied\",\"pre-existing runner-cleanable symlink is rejected before spawn and retained\",\"runner-cleanable target with symlinked ancestor is denied\",\"nonempty foreign ownership is reported and never recursively deleted\",\"pre-spawn manifest records pre-existing target type and absent owner marker\",\"pre-existing empty owned path fails before spawn and is never deleted\",\"pre-existing file and owner content are recorded, rejected before spawn, and retained\",\"post-spawn empty directory without launch marker is retained and fails cleanup\",\"post-spawn tampered ownership marker is retained and fails cleanup\",\"member-removed ownership marker is retained and reported as terminal FAIL\",\"member-tampered ownership marker is retained and reported as terminal FAIL\",\"fixture runner starts real descendant before SIGINT\",\"top-level SIGINT exits 130\",\"SIGINT receipt marks started and pending members INTERRUPTED\",\"pending INTERRUPTED members do not inflate processLaunchCount\",\"top-level SIGINT leaves no descendant heartbeat\",\"stale source makes direct npm test fail before argument parsing with launch\n...[truncated 1079 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T05:13:29.956Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "be7a4a67ce346dc70a5c0f8fbf6cd60ba10caa10",
+          "materialHash": "828b1d2a142d3363dee11c255b9d34646105e26f52c01155a3fbf8f916b3622b",
+          "storyFilesHash": "5fff12c6b260bdd2597674f5c523d4b117fa7e41d67ef8610c9ee525a695e2ff",
+          "timestamp": "2026-09-03T05:13:30.126Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
