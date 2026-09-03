@@ -31,6 +31,7 @@ import { createChecklistHandlers } from '../handlers/checklist.js';
 import { buildVerificationCoverage, SELECTOR_NARROWING_REFUSAL_CODES } from '../core/verification.js';
 import { computeEvidencePinVerdict } from '../core/evidence-pin-guard.js';
 import { renderCodexEvidencePretoolHookScript } from '../init-assets.js';
+import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import {
   getProcessFactRegistryEntry,
   PROCESS_FACT_KIND_BY_COMMAND,
@@ -857,6 +858,66 @@ function runCli(root: string, command: string, args: Record<string, unknown>): C
   }
 }
 
+/** Run the REAL compiled CLI with a raw argv, exactly as an operator would type it. */
+function runCliArgv(root: string, argv: readonly string[]): CliResult {
+  try {
+    const stdout = execFileSync(process.execPath, [CLI_PATH, ...argv], {
+      cwd: root,
+      env: { ...process.env, PROOF_OR_STOP_PROJECT_ROOT: root },
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return { code: 0, stdout, stderr: '' };
+  } catch (e) {
+    const err = e as { status?: number; stdout?: unknown; stderr?: unknown; message?: string };
+    return {
+      code: typeof err.status === 'number' ? err.status : 1,
+      stdout: err.stdout ? String(err.stdout) : '',
+      stderr: err.stderr ? String(err.stderr) : String(err.message ?? e),
+    };
+  }
+}
+
+/**
+ * Every argument the REGISTERED schema requires, read from the catalog at RUNTIME.
+ * B-1482 F-008: the refusal taught a command form that omitted a required flag, so a
+ * reader who pasted it got a schema error instead of a re-pin. Reading the requirement
+ * from the same catalog the CLI validates against means a newly required argument fails
+ * this suite rather than a reader's terminal.
+ */
+function requiredNarrowArgs(): string[] {
+  const tool = MAIN_TOOLS.find(t => t.name === NARROW_COMMAND);
+  assert.ok(tool, `${NARROW_COMMAND} is registered in the command catalog`);
+  return Object.entries(tool.schema)
+    .filter(([, schema]) => !schema.safeParse(undefined).success)
+    .map(([key]) => key);
+}
+
+/** The `<placeholder>` values a taught command form is allowed to leave for the reader. */
+const TAUGHT_FORM_PLACEHOLDERS: Record<string, string> = {
+  '<stricter>': NEW_SELECTOR,
+  '<why>': NARROW_REASON,
+};
+
+/**
+ * Pull the taught `proof-or-stop verification_pin_narrow ...` command form OUT of a
+ * caller-facing message and parse its flags. Extracting from the message text (rather
+ * than re-stating the expected form here) is the point: a drift in what the tool teaches
+ * fails this suite instead of a reader's terminal.
+ */
+function extractTaughtNarrowCommand(message: string): { form: string; args: Record<string, string> } {
+  const match = new RegExp(`proof-or-stop ${NARROW_COMMAND}(?:\\s+--[^\\s\`]+)+`).exec(message);
+  assert.ok(match, `the message prints a runnable ${NARROW_COMMAND} command form`);
+  const form = match[0];
+  const args: Record<string, string> = {};
+  for (const token of form.split(/\s+/).slice(2)) {
+    const eq = token.indexOf('=');
+    assert.notEqual(eq, -1, `the taught flag ${token} carries a value`);
+    args[token.slice(2, eq)] = token.slice(eq + 1);
+  }
+  return { form, args };
+}
+
 function readRepoFile(path: string): string {
   return readFileSync(path, 'utf-8');
 }
@@ -1108,6 +1169,50 @@ const CHK003_CASES: SmokeCase[] = [
           assert.ok(cell.length > 0, `no empty cell in pre-mortem row: ${row.slice(0, 60)}`);
         }
       }
+    },
+  },
+  {
+    id: 'CHK-003/C8',
+    desc: 'the taught narrowing command form carries every required argument and runs as printed',
+    run: async () => {
+      const { env } = await recordA745Corpus();
+      try {
+        // The refusal an operator actually meets, produced by the REAL CLI against a real
+        // store — not a hand-built verdict — so the taught form is read from the same path
+        // the shell-tool hook prints verbatim.
+        const guard = runCli(env.root, 'verification_pin_guard_check', {
+          commandString:
+            `node cli.js verification_evidence_add --storyId=${env.storyId} --intentRef=INT-A745 ` +
+            `--command="${PASS_CMD}" --selector="${NEW_SELECTOR}"`,
+          json: true,
+        });
+        assert.equal(guard.code, 0, `the guard answered (stderr: ${guard.stderr.slice(0, 200)})`);
+        const verdict = JSON.parse(guard.stdout) as { verdict: string; reasons: string[] };
+        assert.equal(verdict.verdict, 'deny', 'the mismatching selector is refused');
+
+        const { form, args } = extractTaughtNarrowCommand(verdict.reasons.join('\n'));
+        // Every argument the registered schema requires must be present, or the reader who
+        // pastes this exact form is handed an argument-validation error instead of a re-pin.
+        for (const required of requiredNarrowArgs()) {
+          assert.ok(required in args, `the taught form passes --${required}, which the schema requires: ${form}`);
+        }
+        // The values it fills in must be the caller's real ones, not placeholders for data
+        // the tool already resolved.
+        assert.equal(args.storyId, env.storyId, 'the taught form carries the real story id');
+        assert.equal(args.intentRef, 'INT-A745', 'the taught form carries the refused intent ref');
+        assert.equal(args.itemId, 'CHK-001', 'the taught form carries the item that OWNS the intent');
+
+        // And it RUNS as printed: only the documented <placeholder> values are supplied.
+        const argv = Object.entries(args).map(([key, value]) => `--${key}=${TAUGHT_FORM_PLACEHOLDERS[value] ?? value}`);
+        const res = runCliArgv(env.root, [NARROW_COMMAND, ...argv]);
+        const output = `${res.stdout}${res.stderr}`;
+        assert.equal(
+          /Argument validation failed/i.test(output), false,
+          `the taught form is not refused by the schema it teaches: ${output.slice(0, 240)}`,
+        );
+        assert.equal(res.code, 0, `the taught form ran as printed (stderr: ${res.stderr.slice(0, 240)})`);
+        assert.equal(readPin(env, 1)?.selector, NEW_SELECTOR, 'running the taught form actually moved the pin');
+      } finally { cleanup(env); }
     },
   },
 ];
