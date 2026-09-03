@@ -20394,7 +20394,7 @@
       "desc": "packages/main/src/handlers/validate-concept.ts:103-121 runs git diff --unified=1000000 main...HEAD via execSync with a 50MB maxBuffer; on this repo scale the diff still exceeds that bound and the reader throws ENOBUFS, so validate --concept warns-and-skips instead of running the concept check. Re-filed under RR-939 (superseding B-5a15:F-385, bound to stale RR-921/round 2026-09-03T04:56:02.041Z) to keep a current-round binding. Chain: F-366 -> F-368 -> F-370 -> F-376 -> F-384 -> F-385 -> this. Defect confirmed still live at current HEAD; validate-concept.ts has not been touched by any commit in this review round (git log main..HEAD -- packages/main/src/handlers/validate-concept.ts shows only an earlier main-merge commit). Deferred: out of this story's diff (this story never modifies validate-concept.ts), medium, non-blocking, does not affect this story's acceptance scope.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T09:09:08.770Z",
@@ -20405,7 +20405,11 @@
         "packages/main/src/handlers/validate-concept.ts"
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "DEFERRED with evidence, not fixed. Defect: packages/main/src/handlers/validate-concept.ts warn-and-skips on ENOBUFS instead of failing, so a concept scan whose git capture overflows Node's 1MB default buffer reports a clean scan rather than an incomplete one. Same root cause as the scripts/verify-core-package-rename.mjs ENOBUFS this story DID fix (git ls-files output reached 14997 files / ~1.05MB), so the trigger is live in this repo, not hypothetical. Blast radius: concept-residue gate can under-report; it cannot produce a false BLOCK, only a false clean. Why deferred per CLAUDE.md defect-triage rule 3: severity medium, non-blocking (lifecycle_check review.findings reports PASS / no open blocking findings at Round 65), not claimed by any of B-5a15's 5 checklist items (this story is CausalEvidence DAG execution keys / CAS receipts / freshness invalidation), and it distorts no lifecycle gate into a false pass. Follow-up must: add maxBuffer to the execFileSync/spawnSync capture in validate-concept.ts as done in verify-core-package-rename.mjs, and convert the ENOBUFS branch from warn-and-skip to fail-closed, with a regression test that plants an oversized capture and asserts the scan reports incomplete rather than clean.",
+      "resolvedAt": "2026-09-03T11:02:09.442Z",
+      "resolutionType": "accepted_risk",
+      "resolveEvidenceStrength": "medium"
     },
     {
       "id": "B-5a15:F-391",
