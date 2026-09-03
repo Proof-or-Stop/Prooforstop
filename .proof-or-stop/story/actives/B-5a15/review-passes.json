@@ -14698,6 +14698,39 @@
         "scanEscalationReason": null
       },
       "_hash": "96e7821891c6a8552524bdd460ccca267941c5aeb1f9fa3d0f5d99b12a025841"
+    },
+    {
+      "id": "B-5a15:RP-318",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "WAVE 2 completeness-critic pass for RI-071: independently confirmed genuine saturation. RR-912/913/914 share materialHash 947310a6... and storyFilesHash 267503bee810... byte-identical to wave-1 RR-908/909/910; only headHash moved across pure proof-or-stop metadata auto-commits (git diff --stat on non-.proof-or-stop paths between the two heads is empty). The two source commits since RR-905 were already inside wave-1 scope. Union of readManifests across RP-312..RP-316 covers all 43 material files from git diff --name-status -M main...HEAD; none unreviewed. All wave-2 signatures valid. Zero new finding families surfaced. Saturation demonstrated; epoch may finalize.",
+      "createdAt": "2026-09-03T04:34:44.613Z",
+      "reviewRound": "2026-09-03T02:26:14.081Z",
+      "reviewRunId": "B-5a15:RR-916",
+      "envelopeId": "cd38bcc70a3e9138104c798f6064586d674c3f93200a555695ac2dfdae44e8e5",
+      "writerSessionId": "sess-e67531d65a1be8912ccf8b6e62108866",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a15/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-5a15/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/core/acceptance-discovery-adapters.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e3534e038a7dd2219a04270bd695a0782d0521ab28f2c7b31e35aa8a1b5309f1"
     }
   ]
 }
