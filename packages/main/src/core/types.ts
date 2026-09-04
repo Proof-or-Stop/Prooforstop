@@ -346,7 +346,14 @@ export interface VerificationIntentItem {
   /**
    * B-ec67: tool-executed evidence proof unit for an executable intent
    * (logic|cli|browser). Absent until the first selector-bearing evidence write
-   * pins it; immutable once set. Never present on manual|docs intents.
+   * pins it. Never present on manual|docs intents.
+   *
+   * Immutable to every evidence write, with exactly ONE audited exception (B-1482):
+   * `verification_pin_narrow` can move the `selector` — never the `command` — to a
+   * STRICTER one, at most once per recorded-receipt set, and only when receipts this
+   * tool recorded prove the new selector is absent from a failing render the current
+   * selector matched and present in every recorded passing receipt. A loosening re-pin
+   * stays refused everywhere, and each accepted movement is retained on `narrowings`.
    */
   verification?: VerificationIntentPin;
 }
