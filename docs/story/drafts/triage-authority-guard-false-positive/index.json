@@ -1,0 +1,15 @@
+{
+  "name": "triage-authority-guard-false-positive",
+  "title": "Stop the REVIEW task-context triage-authority guard from blocking a story on ordinary prose about story priority",
+  "description": "packages/main/src/core/prompt-envelope.ts classifyControlledRelationSegment pairs a TRIAGE_SEVERITY_SUBJECT term with a TRIAGE_SEVERITY_RESPONSIBILITY_OUTCOME term by same-segment proximity within a 260-character span. The subject list contains the bare word priority and the outcome list contains the bare phrase the story, so ordinary checklist prose that mentions both within one sentence is classified as unsafe Finding-triage authority. Observed on 2026-09-03 in story B-1482: the CHK-003 context sentence Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_create keyword scan elevates it, keep the elevation rather than dismissing it made review_run_start fail for EVERY reviewer lane with REVIEW Task Context contains unsafe Finding-triage authority at checklist.CHK-003.context: severity used as sole ownership or scope authority. That sentence is about the story risk-signal elevation, not about who may triage a finding. The failure blocks the whole REVIEW phase, not one lane, and there is no override on review_run_start, so a story can only proceed by rewording its own checklist. Fix: require the subject and the outcome to be in a genuine grammatical relation rather than merely co-occurring, or narrow the term lists so that priority and the story alone cannot pair, and add fixtures for the true positive it must still catch and for this false positive.",
+  "type": "bug",
+  "priority": "high",
+  "keywords": [
+    "prompt-envelope",
+    "triage authority",
+    "review_run_start",
+    "false positive",
+    "guard"
+  ],
+  "createdAt": "2026-09-03T22:43:30.610Z"
+}

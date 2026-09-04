@@ -1,0 +1,73 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-001",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/narrowing-only-evidence-repin.md, packages/main/src/core/verification.ts",
+      "findingIds": [
+        "B-1482:F-004",
+        "B-1482:F-005",
+        "B-1482:F-006",
+        "B-1482:F-007"
+      ],
+      "files": [
+        "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts",
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-09-03T22:51:52.687Z"
+    },
+    {
+      "clusterId": "CL-002",
+      "rootCause": "Multiple findings all involve packages/main/src/core/prompt-envelope.ts",
+      "findingIds": [
+        "B-1482:F-014",
+        "B-1482:F-016"
+      ],
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts",
+        "prompt-envelope.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-09-03T23:40:31.345Z"
+    },
+    {
+      "clusterId": "CL-003",
+      "rootCause": "Multiple findings all involve packages/main/src/handlers/checklist.ts, packages/main/src/tasks/narrowing-repin-smoke.ts",
+      "findingIds": [
+        "B-1482:F-009",
+        "B-1482:F-011",
+        "B-1482:F-012",
+        "B-1482:F-013",
+        "B-1482:F-015"
+      ],
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-09-03T23:51:14.030Z"
+    },
+    {
+      "clusterId": "CL-004",
+      "rootCause": "Multiple findings all involve packages/main/src/core/types.ts, packages/main/src/tasks/narrowing-repin-smoke.ts",
+      "findingIds": [
+        "B-1482:F-018",
+        "B-1482:F-020"
+      ],
+      "files": [
+        "packages/main/src/core/types.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-09-04T00:31:31.771Z"
+    }
+  ]
+}

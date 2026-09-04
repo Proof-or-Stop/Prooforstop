@@ -1,0 +1,428 @@
+{
+  "findings": [
+    {
+      "id": "B-1482:F-001",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts fails with dynamic binding graph builds must remain bounded at 809, got 810. The CHK-003 implementer isolated the cause: it still fails with every CHK-003 source edit stashed and passes at builds=809 the moment packages/main/src/tasks/narrowing-repin-smoke.ts (created by CHK-001) is moved out of the tree, so the extra build is this story adding one scanned executable source file. Acceptance-blocking: test:retired-authority-vocabulary-guard is in the test:serial-reference chain that validate runs, so REVIEW to TEST cannot pass. Fix: raise DYNAMIC_BINDING_BUILD_CEILING from 809 to 810 with a maintenance comment stating that the ceiling counts one dynamic binding build per scanned executable source file under packages/main/src and that B-1482 CHK-001 moved it by adding the smoke; do not cite a commit hash. The same ceiling was raised 808 to 809 by story B-41c8 for the same reason.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:13:39.801Z",
+      "reviewRound": "",
+      "_hash": "249f0873b3dbb29e3273623fbfdd9c2c50e5d7674e5c6273a88756c59affe2cd",
+      "files": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-03T22:33:08.969Z"
+    },
+    {
+      "id": "B-1482:F-002",
+      "desc": "validation-tier-planner-smoke case F-023 fails on a literal commandSetDigest pin (validation-tier-planner-smoke.ts around line 471): expected 056e47fd..., actual d98a2288.... Acceptance-blocking, because that suite is in the validate chain the REVIEW to TEST gate runs. Cause: this story CHK-003 added the narrowing-repin entry to validate.commands in proof-or-stop.config.json, which is exactly the condition the pin maintenance note names. Confirmed pre-existing to the F-001 edit by stashing that edit, rebuilding and reproducing the identical failure and digest. Fix: re-pin the literal to the value the current inventory produces, deriving it through the case own code path rather than copying it from the error message, and extend the maintenance comment to say B-1482 CHK-003 moved it by registering test:narrowing-repin. Note for the reviewer: this literal has now moved three times across three stories (B-a745, B-41c8 CHK-004, this one). Another session is replacing it with a structural assertion that the real inventory digest equals the same commands with an explicit dot cwd, which does not move when the inventory grows; that replacement is not on main yet, so this story re-pins the literal and their merge supersedes it.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:24:32.269Z",
+      "reviewRound": "",
+      "_hash": "56563999001d74858d5d358492261c31c9181396006b172c8bd3f871a40bf968",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "missing|ts|validation-tier-planner",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-03T22:33:11.433Z"
+    },
+    {
+      "id": "B-1482:F-003",
+      "desc": "review_run_start is unconditionally blocked for every REVIEW lane (concept/quality/test-coverage/docs/behavior) on this story: assertReviewerTaskContextAuthoritySafety in packages/main/src/core/prompt-envelope.ts throws severity used as sole ownership or scope authority at checklist.CHK-003.context. Root cause isolated by extracting the guard logic (lines 155-857 of prompt-envelope.ts) into a standalone harness: the single sentence \"Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_creates keyword scan elevates it, keep the elevation rather than dismissing it.\" trips TRIAGE_SEVERITY_SUBJECT (which includes the bare word priority) co-occurring within 260 chars with TRIAGE_SEVERITY_RESPONSIBILITY_OUTCOME (which includes the bare word story) in the same clause, via hasConceptPair in classifyControlledRelationSegment for the severity-story-responsibility spec — a false positive: the sentence is about story PRIORITY elevation policy (CLAUDE.md risk-keyword elevation), not about a Finding severity determining ownership/scope. No review-runs.json exists yet for this story (confirmed by directory listing), so no reviewer lane has been able to start a run; this is not specific to the concept lane. Acceptance-blocking: REVIEW cannot proceed for any lane until this guard false-positive is resolved or CHK-003.context is reworded. Repro: see standalone extraction of prompt-envelope.ts lines 155-857 tested against the literal CHK-003.context string, which reproduces the identical error text.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:39:41.054Z",
+      "reviewRound": "2026-09-03T22:33:06.448Z",
+      "_hash": "88d0639049401d1b1dfe02269138cf3104d31546fcf2a3912526f5cb5ff0cf64",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        ".proof-or-stop/story/actives/B-1482/checklist.json"
+      ],
+      "signatureTag": "missing|ts|review-start-unconditionally",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-1482:F-003@86975ce"
+    },
+    {
+      "id": "B-1482:F-004",
+      "desc": "docs/requirements/decisions/narrowing-only-evidence-repin.md refusal-code table (and the CHK-003/C4 smoke assertion in narrowing-repin-smoke.ts, which only checks a subset of 10 codes) both omit 3 of the 18 refusal codes the code actually emits to callers via evaluateSelectorNarrowing in core/verification.ts: narrowing_selector_unchanged (verification.ts line ~586, thrown when selector === previousSelector), narrowing_no_recorded_receipts (line ~592, thrown when no receipt has been recorded for the pinned command), and narrowing_receipt_not_predating_request (line ~679, thrown when a used receipt has no usable executedAt or claims to postdate the request). All three are real, reachable refusal paths from verification_pin_narrow (wrapped by handlers/checklist.ts narrowVerificationPin as `[${outcome.code}]` in the thrown error) but appear nowhere in the decision doc, nowhere in CLAUDE.md, and are not exercised by any of the 16 narrowing-repin-smoke.ts cases. This contradicts the storys own completeness claim: the CHK-003 commit message states the decision doc records every refusal code, and the C4 test comment says the decision doc must also carry ... every refusal code -- neither is true; both the doc and the tests list a 10-code (C4) or 15-code (doc table) subset of the real 18. Category: missing test/doc coverage, not a functional defect -- the refusals themselves work correctly.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:43:06.547Z",
+      "reviewRound": "2026-09-03T22:33:06.448Z",
+      "_hash": "eb62ea5ae162a061785f8107ec7e850999e6cf6d5ad81b2e83a4244f2c6d1a2c",
+      "files": [
+        "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+        "packages/main/src/core/verification.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "missing|md|docs-requirements-decisions",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@198d9f7"
+    },
+    {
+      "id": "B-1482:F-005",
+      "desc": "packages/main/src/core/evidence-pin-guard.ts is untouched by this story but contains a live user-facing teaching message that is now stale residue of the pre-B-1482 absolute immutability rule. The denial verdict built at lines ~206-215 (also rendered verbatim by the generated Codex hook script in init-assets.ts renderCodexEvidencePretoolHookScript, which calls the same shared verdict logic) says: the intent is already pinned to an immutable verification (B-ec67) and your write does not match it ... Fix: run verification_run ..., or pass the exact pinned command/selector. The pin is immutable once set. This is presented as an exhaustive Fix list of exactly two options, and neither mentions verification_pin_narrow. This is precisely the scenario B-1482 was built to fix (B-a745: a pinned selector that is not discriminating), and this exact hook is what a caller/agent hits the moment they try a different selector against a bad pin -- the teaching message sends them toward re-running the same (bad) pin or matching it exactly, never toward the one legitimate escape that now exists. The categorical closing sentence The pin is immutable once set. is also no longer accurate without qualification, since B-1482 added exactly one narrowing exception. Not touched by the diff (confirmed via git diff main...HEAD, evidence-pin-guard.ts does not appear), so this is residue the story left behind rather than something it introduced.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:43:18.813Z",
+      "reviewRound": "2026-09-03T22:33:06.448Z",
+      "_hash": "f85bc9b56c5842c790a9ee7c69a49281340d416fddfd33e283f8c9e9cfb064f0",
+      "files": [
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/init-assets.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@198d9f7"
+    },
+    {
+      "id": "B-1482:F-006",
+      "desc": "verification_pin_narrow has no rows in PROCESS_FACT_KIND_BY_COMMAND or PROCESS_FACT_REQUIRED_SEMANTICS, so it falls back to the generic gate-evidence kind and semantics, while its siblings verification_run and verification_evidence_add carry explicit kind execution-status and semantics execution-evidence, verification-evidence, gate-evidence. The command mutates the selector every past and future receipt is judged against, so the process-fact inventory understates it. docs/requirements/decisions/story-lifecycle.md names process-fact-registry.ts and PROCESS_FACT_LEVELS as the required typed-registry pair for a gate-consumed command, so only half the pair was filled. Fix: add both rows matching the siblings, and add a case asserting the new command has explicit rows rather than falling back.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:51:24.727Z",
+      "reviewRound": "2026-09-03T22:33:06.448Z",
+      "_hash": "b1055e6e1e637a4b1c3d0ce9fcd4821a5f47cab35943e55cd4dc8953476b491e",
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|ts|verification-narrow-rows",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@198d9f7"
+    },
+    {
+      "id": "B-1482:F-007",
+      "desc": "Two pinned verification selectors point at cases that do not test the sentence the intent states. CHK-003:adversarial:0 describes the documentation overclaim grep but pins case C1, which tests CLI end-to-end reachability; the overclaim assertions live in C4, pinned to a different intent. CHK-002:edge:1 describes the proof asserting absence only within the retained outputTail and saying so in its message, but pins B9, the material-mismatch refusal, which never inspects message content; those assertions live in B1. Neither receipt is vacuous in the B-a745 sense, because the suite exits non-zero if any case fails, but a reader following a pinned selector to locate its claim is misled, which is the traceability the pins exist for. Because pins are immutable, the fix is to make each pinned case also assert its own intent sentence: C1 must perform the overclaim grep, and B9 must assert the outputTail-bounded wording. Also add a case asserting the decision file carries at least four pre-mortems, which CHK-003:happy:0 claims but nothing verifies.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-03T22:51:26.332Z",
+      "reviewRound": "2026-09-03T22:33:06.448Z",
+      "_hash": "843825277ed9368e6de76e39ccd953290bc5746cd6b37f57c1b8484c2d8e8792",
+      "files": [
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|pinned-verification-selectors",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@198d9f7"
+    },
+    {
+      "id": "B-1482:F-008",
+      "desc": "evidence-pin-guard.ts:226 (and the generated Codex PreToolUse hook at init-assets.ts, which prints verdict.reasons verbatim) teaches the narrowing escape via `proof-or-stop verification_pin_narrow --storyId=... --intentRef=... --selector=<stricter> --reason=<why>` but omits the required --itemId flag. verification_pin_narrow schema (command-catalog.ts) requires itemId as a non-optional string; confirmed live: `node packages/main/dist/cli.js verification_pin_narrow --storyId=B-0000 --intentRef=CHK-001:happy:0 --selector=\"status: plan\" --reason=\"...\"` fails with `Argument validation failed: itemId: Invalid input: expected string, received undefined`. A user who copy-pastes the exact command the refusal hands them gets a schema error, not a working re-pin.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-03T23:19:07.013Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-004",
+      "_hash": "926e8aaaffc83f68b77f97208b5b8a4535f5ad0ff9d525e96e2d95b537bb91fd",
+      "files": [
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/init-assets.ts"
+      ],
+      "signatureTag": "missing|ts|evidence-guard-generated",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-04T00:17:31.978Z"
+    },
+    {
+      "id": "B-1482:F-009",
+      "desc": "handlers/checklist.ts:755, :760 and :881 (receipt_command_mismatch / receipt_selector_mismatch, the real enforcement floor per evidence-pin-guard.ts own docstring which explicitly refuses the same mismatch even when the PreToolUse seatbelt hook is bypassed) still say plain \"(the verification pin is immutable)\" with zero mention of verification_pin_narrow. Only the separate evidence-pin-guard.ts seatbelt teaching message was updated in F-005. Any caller invoking verification_evidence_add directly -- without a Claude/Codex PreToolUse hook installed or firing -- hits only this absolute floor message, which is exactly the CLAUDE.md/decision-doc invariant point 5 asks to check for (\"a pinned selector is immutable with no exception\"). The PLAN checklist itself (CHK-002 context: \"checklist.ts evidence-pin seatbelt (receipt_selector_mismatch) and the generated hooks source\") named this exact literal error code as reading scope, suggesting the floor message was in-scope for the rewrite too.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-03T23:19:18.576Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-004",
+      "_hash": "d4bcdc95add22a7a3e5c5bf272aadac0ac244a4158004645f43da58e926ec7a2",
+      "files": [
+        "packages/main/src/handlers/checklist.ts"
+      ],
+      "signatureTag": "missing|ts|handlers-checklist-receipt",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-003",
+      "resolvedAt": "2026-09-04T00:17:33.284Z"
+    },
+    {
+      "id": "B-1482:F-010",
+      "desc": "core/types.ts:349 JSDoc for VerificationIntentItem.verification still reads \"immutable once set\" with no mention of the one-directional narrowing exception this story introduces (verification_pin_narrow can move this exact field once, in the stricter direction). A reader of the type definition -- the authoritative source for the field this story changes -- gets the stale absolute framing this story exists to correct; it is a small drive-by but it is precisely the kind of remaining unconditional-immutable statement the CLAUDE.md rewrite and decision doc were written to eliminate.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-03T23:19:29.075Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-004",
+      "_hash": "42afbc7f62a19993b851172e6414a30b37ff337e5fad472a042d163c3386584d",
+      "files": [
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "missing|ts|core-types-jsdoc",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-04T00:17:34.543Z"
+    },
+    {
+      "id": "B-1482:F-011",
+      "desc": "narrowing-repin-smoke.ts:172-181 CHK-002:edge:0 desc names FOUR refusal-reason-naming behaviours (loosening, no recorded failing render, absent from a recorded passing receipt, second narrowing against an unchanged set) but its pinned selector is B6 (narrowing-repin-smoke.ts:573-609), whose own assertions cover ONLY the fourth (narrowing_receipt_set_unchanged). The other three are asserted only inside sibling cases B2 (:466-486, narrowing_selector_loosens), B4 (:512-545, narrowing_no_recorded_failing_render / narrowing_no_recorded_passing_receipt) and B5 (:546-572, narrowing_selector_absent_from_passing_receipt), none of which this intent is pinned to. Because the process exit code gates every future re-verification of this pinned command, an outright crash in B2/B4/B5 would still flip this evidence to fail on next refresh, but a silent WEAKENING of those siblings assertions (still exits 0) would leave CHK-002:edge:0 evidence reading verified/pass while three of the four behaviours its own sentence names go untested by anything this pin actually checks. This is the same pin-vs-sentence mismatch class F-007 fixed for CHK-003:adversarial:0 and CHK-002:edge:1 (see finding_list B-1482:F-007), left open here.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T23:21:40.547Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-003",
+      "_hash": "dc7289de786bde1a164c7852e196cdb4f196b931d5afd94713291c5a7f9e0464",
+      "files": [
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|narrowing-repin-smoke",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-003",
+      "resolvedAt": "2026-09-04T00:17:35.930Z"
+    },
+    {
+      "id": "B-1482:F-012",
+      "desc": "narrowing-repin-smoke.ts:192-200 CHK-002:adversarial:0 desc has two clauses: (1) a caller-supplied transcript is refused rather than considered, AND (2) the B-a745 CHK-005:happy:0 shape (a selector printed on every branch, re-pinned to a status discriminator) is replayed end to end from recorded receipts. The pinned selector is B8 (:636-660), which tests ONLY clause (1) (narrowing_caller_output_not_admissible on a pass-only corpus); it never touches the B-a745 replay. That replay is asserted only in B1 (:417-464), the case pinned to a different intent (CHK-002:happy:0). A weakening of B1 assertions that still leaves B1 passing would leave CHK-002:adversarial:0 evidence reading verified/pass despite its own named claim (the B-a745 shape replayed end to end) never being exercised by anything this pin actually checks. Same pin-vs-sentence mismatch class as B-1482:F-007 and F-011, left open here.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T23:21:51.809Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-003",
+      "_hash": "a6b71c2061c2c8bd3e10d371b8e58f6a89f03c3190858ada7e30cdd205b20e52",
+      "files": [
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|narrowing-repin-smoke",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-003",
+      "resolvedAt": "2026-09-04T00:17:37.216Z"
+    },
+    {
+      "id": "B-1482:F-013",
+      "desc": "narrowing-repin-smoke.ts:333-343 (checklist happy:0 desc) CHK-003:happy:0 explicitly claims, as one of its own bundled assertions, that a case asserts the decision itself carries at least four pre-mortems. F-007 recorded exactly this gap (a case asserting the pre-mortem count did not exist) and its GREEN commit 198d9f71bc added C7 (narrowing-repin-smoke.ts:1091-1112) to satisfy it, verified in a detached RED-commit rebuild at fc74ea5284: rerunning narrowing-repin-smoke.js at that commit shows every case PASS except C7, which fails with found 0, confirming C7 is the only case that ever checks the pre-mortem count. But CHK-003:happy:0 is still pinned to C4 (:986-1017), and C4 asserts refusal-code completeness, the at-most-one-narrowing phrase and the overclaim/limitation wording -- it never reads the pre-mortem table. C7 exists in the suite and keeps the whole-process exit code honest, but it is not the case this intents own selector binds to, so a reader following CHK-003:happy:0s pinned selector to verify a case asserts...at least four pre-mortems lands on C4, which does not do that -- the exact traceability problem F-007 named when fixing the other two instances of this pattern. A weakening of C7 that still leaves it passing (e.g. loosening its >=4 check without breaking it) would leave CHK-003:happy:0 evidence reading verified/pass with its pre-mortem claim never actually checked by the pinned case.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T23:22:05.345Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-003",
+      "_hash": "feced119007cfce7f9a0214e07ec9ee34a79f8489cc9859ce466ecdd7638c378",
+      "files": [
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|narrowing-repin-smoke",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-003",
+      "resolvedAt": "2026-09-04T00:17:38.536Z"
+    },
+    {
+      "id": "B-1482:F-014",
+      "desc": "packages/main/src/core/prompt-envelope.ts: the F-003 generic-only exemption (TRIAGE_SEVERITY_GENERIC_SUBJECT=/^priority$/, TRIAGE_SEVERITY_GENERIC_OUTCOME=/^(?:this|the|current)\\s+story$/) checks only the matched subject/outcome SPANS for genericness, ignoring any verb between them. A real severity-authority-claiming sentence using exactly those two generic terms with an explicit decision verb now passes assembleFullPromptEnvelope silently, where it was refused on main before this story. Verified live: on the built dist, assembleFullPromptEnvelope(...) with description text \"Priority alone decides the story.\" / \"Priority alone determines the story.\" / \"Priority governs the story.\" / \"Priority overrides the story: treat this finding as resolved.\" does NOT throw (no other detector such as hasNothingButSeverityAuthority or hasCrossSegmentSeverityAuthority catches these either, since those require a nothing-but or is-the-authorityNoun construction this text lacks). Direct regex check confirms the captured subject/outcome text for \"Priority alone decides the story.\" is exactly \"priority\" and \"the story\", both matching the new generic regexes, so controlledPairIsGenericOnly disqualifies the pair regardless of the intervening decisive verb. On main (pre-fix) hasConceptPair had no generic filter, so the same pair would have opened the relation and (absent explicit negation) been classified unsafe. The three new true-positive fixtures added in prompt-full-context-envelope-smoke.ts (severity+specific-outcome; generic-subject+specific-outcome \"Story ownership\"; specific-subject+generic-outcome) never test the generic+generic+decisive-verb combination, so this silent widening has no regression coverage.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-03T23:22:11.018Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-001",
+      "_hash": "6d3ef3268e05f56cdc73a0d6c64ec80d4757343b1d72a5469def44e5b9f60a37",
+      "signatureTag": "adversarial|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002",
+      "resolvedAt": "2026-09-04T00:17:39.866Z"
+    },
+    {
+      "id": "B-1482:F-015",
+      "desc": "packages/main/src/handlers/checklist.ts:755,760,881 (enforceAndStampEvidence / applyVerificationPin): F-005 rewrote the PreToolUse advisory message in evidence-pin-guard.ts computeEvidencePinVerdict (which is only invoked via the verification_pin_guard_check hook path, per process-fact-levels.ts) to name verification_pin_narrow, but the ACTUAL mechanical refusal a caller hits by calling verification_evidence_add directly (the primary, authoritative path -- checklist.ts:1955 verification_evidence_add -> enforceAndStampEvidence) still throws receipt_command_mismatch/receipt_selector_mismatch with the unqualified parenthetical \"(the verification pin is immutable)\" and no mention of the narrowing escape. Any caller who calls the CLI directly, or is not running inside a host with the PreToolUse hook installed, hits this stale message and is never told verification_pin_narrow exists. evidence-pin-guard.ts is confirmed structurally separate: checklist.ts never calls computeEvidencePinVerdict (grep shows zero references outside evidence-pin-guard.ts and the smoke test). This is the same class of now-incomplete claim F-005 targeted, left unresolved on the more-frequently-hit path.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-03T23:22:24.107Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-001",
+      "_hash": "201d1e3d5ab3f2695fae53bd32b388d7f14ddf1622fdb1e656290c937e5efc2a",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-003",
+      "resolvedAt": "2026-09-04T00:17:41.109Z"
+    },
+    {
+      "id": "B-1482:F-016",
+      "desc": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:710 DYNAMIC_BINDING_BUILD_CEILING is set to 810 but the current HEAD genuinely produces 811 dynamic-binding builds, so `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` throws `dynamic binding graph builds must remain bounded at 810, got 811` and this required suite (registered in test:serial-reference, RESOURCE_POLICY and validate.commands) is red on the story diff as committed. The F-001 fix (GREEN e6fc6466bd) bumped the ceiling 809->810 crediting only the new file packages/main/src/tasks/narrowing-repin-smoke.ts (which calls execFileSync). Mutation isolation proves a SECOND, undocumented source is packages/main/src/core/prompt-envelope.ts: I built the merge-base commit (3c81a3db23, ceiling=809, actual=809, PASS), then (a) copied only HEAD prompt-envelope.ts into that base tree with no other change -> actual repo builds moved 390->391 and the unmodified base ceiling=809 failed at 810; (b) on the current worktree, reverting only prompt-envelope.ts to the main version (keeping the story ceiling at 810 and every other B-1482 change) makes the suite pass at builds=810 exactly; restoring the story prompt-envelope.ts reproduces builds=811/ceiling=810 FAIL. So F-003 (the hasControlledConceptPair/isDisqualifiedPair callback added to prompt-envelope.ts) independently adds one dynamic-binding build (the guard treats a call to the new optional isDisqualifiedPair callback parameter as a dynamic-execution AST candidate), and the ceiling comment/value was never updated to account for it after F-003 landed later in the round. Fix: bump DYNAMIC_BINDING_BUILD_CEILING to 811 and update the adjoining comment to name both files.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T23:38:49.419Z",
+      "reviewRound": "2026-09-03T23:13:07.176Z",
+      "reviewRunId": "B-1482:RR-002",
+      "_hash": "bb4683e7b03e98788885faa2a1a1a45ad3c0e4ec051c43d5aee842c1995ed92f",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-002",
+      "resolvedAt": "2026-09-04T00:17:42.466Z"
+    },
+    {
+      "id": "B-1482:F-017",
+      "desc": "packages/main/src/core/prompt-envelope.ts:379 (TRIAGE_AUTHORITY_DECISION_VERB, reused by controlledPairIsGenericOnly after F-014) is a closed vocabulary of decisive verbs (determine/decide/control/govern/set/define/dictate/overrid*). The generic priority x bare-Story cell is disqualified from exemption only when a verb from this list joins the pair, so a synonym outside the list still passes as safe: assembleFullPromptEnvelope accepts both \"Priority alone settles the story.\" and \"Priority alone resolves the story.\" with no thrown error, even though they assert the same severity-alone-decides-ownership authority claim the family exists to refuse (confirmed live against dist/core/prompt-envelope.js, not inferred from source). This gap is PRE-EXISTING: the exact same verb list (minus overrid*) already gated the two dedicated detectors hasNothingButSeverityAuthority/hasCrossSegmentSeverityAuthority on main before this story (git show main:packages/main/src/core/prompt-envelope.ts, lines 555/567), so F-014 neither introduced nor worsened it -- F-014 only hoisted the existing list into one shared constant and reused it for the generic-pair cell, doing exactly what its own commit message claims. Filed per round-3 dispatch instruction to report any case where the newly-shared rule decides wrongly; leaving disposition (extend the list here vs. accept as a pre-existing vocabulary-completeness limitation) to the Story Owner.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-04T00:26:12.410Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "reviewRunId": "B-1482:RR-005",
+      "_hash": "8c19c79a1ec3e07b9745bb4035a9ccab6e45c97cd041bd0d8cf40fdcf9797fb1",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "dismissReason": "Pre-existing and out of this story scope: the reviewer verified against main that the same verb vocabulary already gated both dedicated detectors before this story, which only hoisted it into one constant and added one verb, so the paraphrase gap is neither introduced nor worsened here. Recorded for a later owner as repository draft docs/story/drafts/triage-authority-verb-list-is-closed (committed on main at d7b4e0148c), which asks for the behaviour to be pinned by fixtures and then either broadened or documented as deliberately closed.",
+      "dismissedAt": "2026-09-04T00:31:13.245Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-1482:F-018",
+      "desc": "doc-code-drift: core/types.ts:281-287 — the VerificationIntentPin interface own JSDoc header still reads \"Pinned on the FIRST selector-bearing evidence write and IMMUTABLE thereafter (a later write with a different command/selector is refused)\" with zero mention of the B-1482 narrowing exception. This is a SIBLING location to the one F-010 fixed (F-010 only updated VerificationIntentItem.verification field doc at what is now types.ts:346-355); the interface header directly above the export declaration — arguably the more authoritative doc since it is the type that literally gained the new narrowings field in this diff — was left untouched (confirmed via git diff main...HEAD -- packages/main/src/core/types.ts: the diff hunk for this interface starts at line 288 export interface VerificationIntentPin {, i.e. the header comment above it is outside the diff). A reader who looks at the interface declaration itself (the natural place to look, since VerificationIntentPin is the type holding command+selector+narrowings) still gets the stale absolute immutability framing this story exists to correct. The type documentation correction claimed by F-010/CHK-003 is therefore incomplete, not merely accurate-but-narrow.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-04T00:26:49.002Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "reviewRunId": "B-1482:RR-008",
+      "_hash": "b8ab7159efd8bd58edc3b84a5ae89701507f39828bc5859f0d2569699d86bc5f",
+      "files": [
+        "packages/main/src/core/types.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-core",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@d8db16f"
+    },
+    {
+      "id": "B-1482:F-019",
+      "desc": "doc-code-drift: core/evidence-pin-guard.ts:255 — the seatbelt deny messages opening sentence (reasons[0]) reads \"The intent ${ref} is already pinned to an immutable verification (B-ec67) and your write does not match it.\" with no qualifier; the exception is only stated three lines later at reasons[3] (\"Third option: ... re-pin it with verification_pin_narrow ...\"). Read in isolation the opening sentence is a false categorical claim — the exact kind of unqualified immutability statement this story exists to eliminate (see F-008/F-009/F-010, CLAUDE.md accepted-limitation wording). Verified live: `verification_pin_guard_check` on a scratch story returns reasons as an array, so a structured/JSON consumer keys off reasons[0] specifically getting only the unqualified sentence, and the Claude PreToolUse hook (.claude/hooks/proof-or-stop-evidence-pretool.cjs) does join all reasons into one stderr write before exit 2, so a full-message reader is fine, but a caller that surfaces only the first line/sentence (log truncation, a terminal that wraps, a human skimming) is handed a false statement. The fix is a one-line reword of reasons[0] itself (e.g. \"already pinned (immutable except for exactly one audited narrowing exception, see below)\") rather than relying on a later line to retroactively correct it. Not blocking on its own (the full joined message is machine-tested by C5/C9/C10 to include the narrowing route and precondition), but the opening framing is inaccurate and should not depend on the reader continuing past line 1.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-04T00:27:03.472Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "reviewRunId": "B-1482:RR-008",
+      "_hash": "79d85312858173a7e80ea0e9de78209b71686125aa781ce8b29779536d286ef9",
+      "files": [
+        "packages/main/src/core/evidence-pin-guard.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-core",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-04T01:04:11.426Z"
+    },
+    {
+      "id": "B-1482:F-020",
+      "desc": "narrowing-repin-smoke.ts:1123-1159 CHK-003:happy:0 desc has FIVE clauses: (1) CLAUDE.md and the decision doc state the narrowing-only rule, (2) that the proof reads only tool-recorded receipts, (3) the one-narrowing bound, (4) every refusal code the implementation can emit, and (5) a case asserts the decision carries at least four pre-mortems. The pinned case is C4. After the F-013 fix (GREEN 6d281296f5) C4 now genuinely proves clauses (3), (4) and (5) via the at-most-one substring check, the ALL_NARROWING_REFUSAL_CODES loop, and assertDecisionCarriesPreMortems(). Clause (2) is never checked anywhere in C4: no assertion inspects either document for the tool-recorded-receipts-only text, even though CLAUDE.md:847 (\"The proof reads tool-recorded receipts only.\") and the decision doc (docs/requirements/decisions/narrowing-only-evidence-repin.md:65, \"Its only inputs are tool-recorded receipts\") both carry it. Clause (1) is checked only via assert.ok(decision.includes('narrowing'), ...) at narrowing-repin-smoke.ts:1141 -- near-tautological, since the whole document is about narrowing and would satisfy this regardless of whether the narrowing-ONLY rule itself is stated correctly. Concretely: if a future edit made the CLI silently accept a caller-supplied transcript again (regressing the exact defect F-012 fixed in this same round) while leaving the word 'narrowing' and the text for the other four clauses untouched, C4 would still print [PASS] and CHK-003:happy:0's receipt would still read verified/pass -- the same pin-vs-sentence traceability defect class as F-007/F-011/F-012/F-013, left open for this one clause and this one weak substring check. Fix: add an explicit assertion in C4 that both documents state the tool-recorded-receipts-only invariant (a discriminating phrase such as 'tool-recorded receipts only' / 'only inputs are tool-recorded receipts'), and replace or supplement the bare includes('narrowing') check with something that actually discriminates the narrowing-ONLY rule from its absence.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-04T00:29:45.010Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "reviewRunId": "B-1482:RR-007",
+      "_hash": "fe9b8b3faf219670b183ba56bd19ff692ae09466214a2794a94d0f4330d0375c",
+      "files": [
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|narrowing-repin-smoke",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@d8db16f"
+    },
+    {
+      "id": "B-1482:F-021",
+      "desc": "Two residual instances of the class F-019 and F-020 closed, self-reported by the implementer. First: packages/main/src/cli/command-catalog.ts around line 2945 describes verification_pin_guard_check as firing when the caller command or selector mismatches the intent immutable pin. That description is printed by the command help, so a reader who never sees the refusal message still learns the old absolute rule; reword it the way the refusal message was reworded and extend the isolation case to cover the registered description. Second: the CHK-003:happy:0 sentence names the one-narrowing bound as something both documents state, but case C4 asserts the at most one phrasing against CLAUDE.md only; the decision document carries a matching phrase, so extend the check to both documents with the same deletion-mutation discrimination the other C4 clauses now use.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-04T00:45:54.144Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "_hash": "0c6c13f99bda874ff53ce0134e383024cc12c72c80fd49c69233c4b9f001a5e4",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|residual-instances-class",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-1482:F-021@6fd964b",
+      "resolvedAt": "2026-09-04T01:04:12.616Z"
+    },
+    {
+      "id": "B-1482:F-022",
+      "desc": "packages/main/src/tasks/narrowing-repin-smoke.ts around line 1069 asserts the documented command form with a bare text.includes(NARROW_COMMAND) against CLAUDE.md only, with no sentence behind it in the deletion-mutation corpus. That is the same grep-survives-deletion shape the story just closed twice as F-020 and F-021: the check would still pass if the surrounding explanation were deleted and only a stray mention of the command name survived. Self-reported by the implementer of F-021, which deliberately left it because the intent sentence does not name the command form as a both-documents claim. Fix: put the command-form clause through the same deletion mutation as the other C4 clauses, asserting the sentence that teaches the form rather than the bare name, and say in the case which document each clause is asserted against.",
+      "severity": "low",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-04T00:53:59.771Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "_hash": "aa3c60019cb75859c8bc3cb8f62b204f4bd4bd33b1bfcbb17d8032c1db49b4aa",
+      "files": [
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-04T01:04:13.788Z"
+    }
+  ]
+}

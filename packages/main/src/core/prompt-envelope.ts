@@ -276,6 +276,7 @@ function controlledConceptPairIsExplicitlyNegative(
   left: RegExp,
   right: RegExp,
   maxSpan = 240,
+  isDisqualifiedPair?: (leftText: string, rightText: string, relationText: string) => boolean,
 ): boolean {
   let sawPair = false;
   for (const leftRange of matchRanges(text, left)) {
@@ -283,6 +284,14 @@ function controlledConceptPairIsExplicitlyNegative(
       const start = Math.min(leftRange.start, rightRange.start);
       const end = Math.max(leftRange.end, rightRange.end);
       if (end - start > maxSpan) continue;
+      const firstRange = leftRange.start <= rightRange.start ? leftRange : rightRange;
+      const secondRange = leftRange.start <= rightRange.start ? rightRange : leftRange;
+      const relationship = text.slice(firstRange.end, secondRange.start);
+      if (isDisqualifiedPair?.(
+        text.slice(leftRange.start, leftRange.end),
+        text.slice(rightRange.start, rightRange.end),
+        relationship,
+      )) continue;
       sawPair = true;
       const prefix = text.slice(Math.max(0, start - 160), start);
       const boundary = Math.max(
@@ -295,9 +304,6 @@ function controlledConceptPairIsExplicitlyNegative(
         prefix.lastIndexOf(';'),
       );
       const localPrefix = prefix.slice(boundary + 1);
-      const firstRange = leftRange.start <= rightRange.start ? leftRange : rightRange;
-      const secondRange = leftRange.start <= rightRange.start ? rightRange : leftRange;
-      const relationship = text.slice(firstRange.end, secondRange.start);
       const relationshipBoundary = Math.max(
         relationship.lastIndexOf(' and '),
         relationship.lastIndexOf(' then '),
@@ -341,6 +347,14 @@ type ControlledTriageRelationSpec = {
   subject: RegExp;
   outcome: RegExp;
   maxSpan: number;
+  /**
+   * The weakest member of a concept list is generic on its own. It stays in
+   * the list because it is a real term next to a specific counterpart, but a
+   * pair drawn from the generic term on BOTH sides is proximity, not a
+   * relation, so it does not open a controlled triage relationship.
+   */
+  genericSubject?: RegExp;
+  genericOutcome?: RegExp;
 };
 
 const TRIAGE_SEVERITY_SUBJECT = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|defect\s+severity|criticality|priority|seriousness(?:\s+(?:rating|rank|level|score))?|(?:risk|impact|harm)\s+(?:rating|rank|level|score))\b/u;
@@ -351,8 +365,33 @@ const TRIAGE_SEVERITY_RESPONSIBILITY_OUTCOME = /\b(?:story\s+(?:scope|ownership|
 const TRIAGE_STORY_RESPONSIBILITY_OUTCOME = /\b(?:out\s+of\s+scope|non\s+applicable|nonapplicable|not\s+owned\s+by\s+(?:(?:this|the|current)\s+)?story|no\s+responsibility|nonownership|(?:another|separate|other)\s+(?:story|party)|belongs?\s+elsewhere|belongs?\s+to\s+(?:another|a\s+separate|an?\s+other)\s+story|outside\s+(?:(?:this|the|current)\s+)?story|beyond\s+(?:(?:this|the|current)\s+)?story|later\s+work|exclusion\s+from\s+(?:(?:this|the|current)\s+)?story|story\s+(?:scope|ownership|responsibility)|(?:this|the|current)\s+story|scope|ownership|owns?|owned|belongs?|responsibility|routing|repair|resolution|resolved|resolv(?:e|es|ed|ing)\s+(?:the\s+)?finding|applicability(?:\s+verdict)?)\b/u;
 const TRIAGE_ROUTING_OR_GATE_OUTCOME = /\b(?:routing|route|routes|routed|handoff|hand\s+off|handing\s+(?:the\s+)?(?:finding|issue|defect)\s+off|eligible\s+for\s+handoff|park(?:s|ed|ing)?|postpon(?:e|es|ed|ing)|transfer(?:s|red|ring)?|send(?:s|ing)?|sending|leave(?:s|d|ing)?|defer|deferral|non\s+blocking|advisory|away\s+from\s+(?:(?:this|the|current)\s+)?story|(?:finding|issue|defect|work)\s+(?:to|into|beyond)\s+(?:(?:another|separate|this|current|the)\s+)?story|(?:another|separate)\s+story|later\s+work|(?:finding|issue|defect|work)\s+elsewhere|outside\s+(?:(?:this|the|current)\s+)?story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|(?:removal|clearance)\s+of\s+(?:the\s+)?(?:review\s+)?blocker|(?:review\s+)?gate\s+relief|unblock(?:s|ed)?)\b/u;
 
+// Bare `priority` is this repository's story risk-signal vocabulary (see the
+// keyword elevation rule in the project guide), not a Finding severity, and a
+// bare Story reference names no triage outcome. Each is still a live term
+// opposite a specific counterpart -- `priority ... Story ownership` and
+// `severity ... the Story` both remain controlled -- so neither word is
+// dropped; only the cell where both sides are generic stops qualifying.
+const TRIAGE_SEVERITY_GENERIC_SUBJECT = /^priority$/u;
+const TRIAGE_SEVERITY_GENERIC_OUTCOME = /^(?:this|the|current)\s+story$/u;
+
+// The one authority-verb vocabulary in this file: the severity detectors below
+// (`hasNothingButSeverityAuthority`, `hasCrossSegmentSeverityAuthority`) and the
+// generic-cell rule above share it, so a verb can never be decisive for one
+// detector and inert for another. `overrid*` is a decision verb of the same
+// kind as `govern*`/`dictat*` -- it asserts that one axis settles the outcome --
+// so it belongs to this list rather than to a second, parallel one.
+const TRIAGE_AUTHORITY_DECISION_VERB = '(?:determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing)|overrid(?:e|es|den|ing))';
+const TRIAGE_GENERIC_PAIR_DECISIVE_RELATION = new RegExp(`\\b${TRIAGE_AUTHORITY_DECISION_VERB}\\b`, 'u');
+
 const CONTROLLED_TRIAGE_RELATION_SPECS: readonly ControlledTriageRelationSpec[] = [
-  { family: 'severity-story-responsibility', subject: TRIAGE_SEVERITY_SUBJECT, outcome: TRIAGE_SEVERITY_RESPONSIBILITY_OUTCOME, maxSpan: 260 },
+  {
+    family: 'severity-story-responsibility',
+    subject: TRIAGE_SEVERITY_SUBJECT,
+    outcome: TRIAGE_SEVERITY_RESPONSIBILITY_OUTCOME,
+    maxSpan: 260,
+    genericSubject: TRIAGE_SEVERITY_GENERIC_SUBJECT,
+    genericOutcome: TRIAGE_SEVERITY_GENERIC_OUTCOME,
+  },
   { family: 'unknown-applicability-routing', subject: TRIAGE_UNKNOWN_APPLICABILITY_SUBJECT, outcome: TRIAGE_ROUTING_OR_GATE_OUTCOME, maxSpan: 320 },
   { family: 'dismissal-story-responsibility', subject: TRIAGE_DISMISSAL_SUBJECT, outcome: TRIAGE_STORY_RESPONSIBILITY_OUTCOME, maxSpan: 280 },
   { family: 'deferral-story-responsibility', subject: TRIAGE_DEFERRAL_SUBJECT, outcome: TRIAGE_STORY_RESPONSIBILITY_OUTCOME, maxSpan: 280 },
@@ -387,11 +426,49 @@ function isStructuredUnknownApplicabilityPrerequisite(text: string): boolean {
     && /\b(?:accepts?|owns?|approves?)\s+(?:the\s+)?route$/u.test(text.slice(ownerRange.end)));
 }
 
+function controlledPairIsGenericOnly(
+  spec: ControlledTriageRelationSpec,
+  subjectText: string,
+  outcomeText: string,
+  relationText: string,
+): boolean {
+  if (spec.genericSubject === undefined || spec.genericOutcome === undefined) return false;
+  if (!spec.genericSubject.test(subjectText) || !spec.genericOutcome.test(outcomeText)) return false;
+  // Genericness alone is proximity, not exemption. A decisive authority verb
+  // standing between the two generic terms is exactly the severity-authority
+  // claim this family exists to refuse, so the cell only stays disqualified
+  // while nothing decisive joins them.
+  return !TRIAGE_GENERIC_PAIR_DECISIVE_RELATION.test(relationText);
+}
+
+/**
+ * A controlled relationship needs at least one specific term. Co-occurrence of
+ * two generic terms inside the span is not an authority assertion, so it is
+ * not enough to open the relationship.
+ */
+function hasControlledConceptPair(text: string, spec: ControlledTriageRelationSpec): boolean {
+  return matchRanges(text, spec.subject).some(subjectRange =>
+    matchRanges(text, spec.outcome).some(outcomeRange => {
+      const start = Math.min(subjectRange.start, outcomeRange.start);
+      const end = Math.max(subjectRange.end, outcomeRange.end);
+      if (end - start > spec.maxSpan) return false;
+      const firstRange = subjectRange.start <= outcomeRange.start ? subjectRange : outcomeRange;
+      const secondRange = subjectRange.start <= outcomeRange.start ? outcomeRange : subjectRange;
+      return !controlledPairIsGenericOnly(
+        spec,
+        text.slice(subjectRange.start, subjectRange.end),
+        text.slice(outcomeRange.start, outcomeRange.end),
+        text.slice(firstRange.end, secondRange.start),
+      );
+    }),
+  );
+}
+
 function classifyControlledRelationSegment(
   segment: string,
   spec: ControlledTriageRelationSpec,
 ): ControlledTriageRelationClassification {
-  if (!hasConceptPair(segment, spec.subject, spec.outcome, spec.maxSpan)) {
+  if (!hasControlledConceptPair(segment, spec)) {
     return { family: spec.family, state: 'unclassified' };
   }
   if (spec.family === 'severity-story-responsibility'
@@ -404,7 +481,13 @@ function classifyControlledRelationSegment(
   }
   return {
     family: spec.family,
-    state: controlledConceptPairIsExplicitlyNegative(segment, spec.subject, spec.outcome, spec.maxSpan)
+    state: controlledConceptPairIsExplicitlyNegative(
+      segment,
+      spec.subject,
+      spec.outcome,
+      spec.maxSpan,
+      (subjectText, outcomeText, relationText) => controlledPairIsGenericOnly(spec, subjectText, outcomeText, relationText),
+    )
       ? 'explicitly-safe'
       : 'unsafe',
   };
@@ -552,7 +635,7 @@ function hasNothingButSeverityAuthority(text: string): boolean {
   // into two harmless-looking fragments.
   const normalized = normalizeTriageAuthorityText(text);
   const severitySubject = '(?:severity(?:\\s+(?:rating|rank|level|score))?|criticality|priority|seriousness(?:\\s+(?:rating|rank|level|score))?|(?:risk|impact|harm)\\s+(?:rating|rank|level|score))';
-  const authorityDecisionVerb = '(?:determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing))';
+  const authorityDecisionVerb = TRIAGE_AUTHORITY_DECISION_VERB;
   const responsibilityObject = '(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)';
   return new RegExp(
     `\\bnothing\\s+(?:but|other\\s+than)\\s+(?:the\\s+)?${severitySubject}\\s+${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
@@ -564,7 +647,7 @@ function hasCrossSegmentSeverityAuthority(segments: readonly string[]): boolean 
   const severitySubject = '(?:severity(?:\\s+(?:rating|rank|level|score))?|criticality|priority|seriousness(?:\\s+(?:rating|rank|level|score))?|(?:risk|impact|harm)\\s+(?:rating|rank|level|score))';
   const authorityNoun = '(?:factor|criterion|basis|authority|determinant|driver|rule|test|input|consideration)';
   const responsibilityObject = '(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)';
-  const authorityDecisionVerb = '(?:determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing))';
+  const authorityDecisionVerb = TRIAGE_AUTHORITY_DECISION_VERB;
   const flattened = segments.join(' ').replace(/[:]+/gu, ' ');
   const splitAuthority = new RegExp(
     `\\b${severitySubject}\\s+(?:is|are|was|were|be|being|becomes?|remains?)\\s+the\\s+(?:[\\p{L}\\p{N}_]+\\s+){0,3}${authorityNoun}\\s+(?:(?:and|so|therefore|then)\\s+)?(?:(?:this|that|the)\\s+${authorityNoun}|it|this|that)\\s+(?:(?!(?:not|never|no|cannot|do|does|did)\\b)[\\p{L}\\p{N}_]+\\s+){0,2}${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
