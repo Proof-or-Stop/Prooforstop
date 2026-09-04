@@ -149,6 +149,32 @@
         "scanEscalationReason": null
       },
       "_hash": "e4cdba043ef20a1c2e8932e6ea8c62ae4c539405d17900913d0fa1fe8bc743a9"
+    },
+    {
+      "id": "B-1482:RP-006",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 5 re-verification after HEAD moved from post-certification metadata commits only (validate/quorum-submit/test-transition/delivery_check_set/dev-memory/merge-main-story-drafts/summary_set/verification_evidence_batch_add/review_inventory_finalize/certification_window_begin/done_required_validate) -- git diff --name-only main...HEAD still shows exactly CLAUDE.md and docs/requirements/decisions/narrowing-only-evidence-repin.md as the story doc set, and none of the 19 commits since RP-002 (2026-09-04T01:08:47.938Z) touch either file (checked via git show --stat on each). summary_get limitations section matches both documents verbatim in substance: same accepted-limitation framing for the engineered-failing-run case (operator can drive the command to fail on the same material and mint a qualifying witness because no receipt records why a run failed -- CLAUDE.md L870-882, decision doc L142-149), same outputTail-bounded-absence and same-story-material/predating-request bounds, and the referenced pre-existing triage-authority-verb-list-is-closed draft exists at docs/story/drafts/triage-authority-verb-list-is-closed/. No overclaiming found in the summary. Re-ran the short verification: verification_pin_narrow --help reads true in isolation and matches the documented form; live-ran the exact taught command against CHK-001:happy:0 and it was accepted by the schema and refused on the merits (narrowing_no_recorded_failing_render), matching the documented refusal code and the summary transcript claim. Grepped immutab(le|ility) across CLAUDE.md, the decision doc, evidence-pin-guard.ts, verification.ts and checklist.ts: every remaining occurrence is qualified by the narrowing exception or is a comment describing a different, unrelated immutable field (userSeesSnapshot / FrozenClaimSnapshot); none claims unqualified pin immutability. No open blocker.",
+      "createdAt": "2026-09-04T03:03:42.171Z",
+      "reviewRound": "2026-09-04T03:00:49.049Z",
+      "reviewRunId": "B-1482:RR-016",
+      "envelopeId": "ac5cb5ee9f56353f1994956b2e5367534b40008e8af3c02c4f63f336fc6634a5",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md#narrowing-only-re-pin-of-a-proof-selector-b-1482",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-1482/summary.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e58462c092012634b61fce2e5278ecc1d3c609ab25a26231bd114a98746ba71f"
     }
   ]
 }
