@@ -19,6 +19,8 @@ import type { ChecklistData, StoryPhase, TestEvidenceData } from './types.js';
 import type { StoryStore } from './store.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
+import { evaluateReviewVerdict } from './machine.js';
+import { readDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { evaluateDeclaredArtifactReferences } from './declared-artifact-gate.js';
 import {
   evaluateDeclaredArtifactCommitState,
@@ -431,6 +433,23 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }));
   }
 
+  // Keep done_prepare/session preflight aligned with the real TEST→DONE guard.
+  // This record's contents remain non-authoritative; its existence is the
+  // lifecycle completeness predicate enforced by machine.ts.
+  const finishDecision = readDevMemoryFinishDecision(root, storyId);
+  rows.push(doneCheckRow({
+    id: 'dev-memory-finish-decision',
+    status: finishDecision ? 'pass' : 'fail',
+    label: 'Dev-memory finish decision',
+    detail: finishDecision
+      ? `recorded: ${finishDecision.decision}`
+      : 'not recorded [missing_dev_memory_finish_decision]',
+    hint: finishDecision
+      ? 'finish decision recorded'
+      : `proof-or-stop dev_memory_finish_decision --storyId=${storyId} --decision=captured|no-reusable-lesson|defer-with-reason`,
+    source: '.proof-or-stop/dev-memory/finish-decisions/<storyId>.json',
+  }));
+
   // 3. git working tree clean (B-4b22: category-aware via dirty-gate-policy)
   // B-6666 CHK-001: read git status from the resolved gitCwd, not bare root.
   const gitStatus = readGitStatusLines(gitCwd);
@@ -814,6 +833,31 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       }
     }
   }
+
+  // Reconsume the same phase-agnostic lane verdict as the real TEST→DONE
+  // guard. Review escalation and assurance are additional predicates; neither
+  // substitutes for signature, run-binding, lane, finding, or diff-pack checks.
+  const reviewVerdict = evaluateReviewVerdict({
+    storyId,
+    store,
+    projectRoot: root,
+    gitCwd,
+  });
+  const reviewVerdictCode = reviewVerdict.code === 'review_evidence_invalid'
+    ? 'stale_closeout_review'
+    : (reviewVerdict.code ?? 'review_verdict_error');
+  rows.push(doneCheckRow({
+    id: 'review-verdict',
+    status: reviewVerdict.ok ? 'pass' : 'fail',
+    label: 'Reviewer verdict',
+    detail: reviewVerdict.ok
+      ? 'current reviewer verdict is valid'
+      : `${reviewVerdict.message ?? 'review verdict rejected'} [${reviewVerdictCode}]`,
+    hint: reviewVerdict.ok
+      ? 'reviewer evidence is current'
+      : 'Return to DEV/REVIEW and record current reviewer evidence before TEST',
+    source: 'review-runs.json + review-passes.json + findings.json',
+  }));
 
   // 6d. review escalation quorum. Ordinary documentation/decision-doc edits do
   //     not trigger this gate by themselves; the trigger is mechanical: the
