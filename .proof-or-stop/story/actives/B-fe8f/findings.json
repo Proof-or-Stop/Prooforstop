@@ -665,7 +665,7 @@
       "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1312-1317 makes the new main-bump-tolerant version proof depend on the independently moving global installation: it requires installedVersion === readSyncedVersion(storyWorktree). Verified on the current committed diff: the worktree five-point version and repo-local CLI are 0.3.274, while proof-or-stop --version became 0.3.275 after main advanced; the complete Story 3 smoke then exits nonzero with installed CLI version 0.3.275 differs from current 0.3.274. This directly defeats commit 9d44c9f980 intent to keep the long-lived Story smoke valid across unrelated main patch bumps and makes validation timing-dependent. Preserve the historical exact patch+1 and five-point worktree checks, but compare installed CLI against the appropriate main/installed binding or otherwise permit a demonstrably newer synchronized main patch without accepting an older/stale installation; add a deterministic ahead-main regression.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-04T07:50:23.169Z",
@@ -676,7 +676,11 @@
         "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 2c26dbe246e3634431ecba26cb6fa9615f2bc1cf and re-verified on the final Story file binding by mechanical receipt commit 5587bcb. The unchanged RED control still reports oldRuleRejects=true. The GREEN requires the repository-local CLI to equal the worktree version and independently binds the PATH global CLI realpath, npm-global @proof-or-stop/core package, bin target, and version to current main; its selector reports green.version_sync PASS with rootPackage, mainPackage, lockfile, runtimeConstant, localCli, and installedCli all true. Stale and mismatched global bindings remain rejected.",
+      "resolvedAt": "2026-09-04T12:55:51.755Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
