@@ -1,6 +1,6 @@
 {
   "storyId": "B-212f",
-  "checkedAt": "2026-09-04T20:46:03.930Z",
+  "checkedAt": "2026-09-04T20:52:38.501Z",
   "features": [
     {
       "feature": "done_prepare rejects missing finish decision with missing_dev_memory_finish_decision exactly as real DONE",
@@ -18,17 +18,17 @@
     },
     {
       "feature": "done_prepare/runbook inspection is proven read-only for reviewer evidence bytes and git state",
-      "covered_by": "CHK-002",
-      "status": "gap",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-212f/checklist.json"
-    },
-    {
-      "feature": "the reviewed executable parity RED is committed and registered in canonical validation",
-      "covered_by": "CHK-001",
+      "covered_by": "CHK-001,CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "the reviewed executable parity RED is committed and registered in canonical validation while both original RED assertions remain intact",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/checklist.json"
     },
     {
       "feature": "temporary candidate GREEN remains intake evidence and cannot substitute for Story verification evidence",
@@ -45,11 +45,18 @@
       "source": ".proof-or-stop/story/actives/B-212f/plan.md"
     },
     {
-      "feature": "a mechanical anti-divergence contract prevents any future DONE predicate added only in machine.ts from bypassing done_prepare",
+      "feature": "future literal machine-readable DONE blocker codes added in machine.ts cannot bypass done_prepare without an explicit registry mapping to an existing done-oracle row",
       "covered_by": "CHK-003",
-      "status": "drift",
+      "status": "covered",
       "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-212f/scope-boundary.json"
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "the generic omission contract is mutation-proven with future_done_predicate through the same inventory function used on repository sources",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/checklist.json"
     },
     {
       "feature": "the done_prepare decision document states the shared finish-decision and reviewer-verdict readiness contract",
@@ -66,14 +73,7 @@
       "source": ".proof-or-stop/story/actives/B-212f/plan.md"
     },
     {
-      "feature": "unrelated nonblocking medium/low defects retain reproduction, evidence, impact, recommendation, and a traceable later owner without expanding scope",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
-    },
-    {
-      "feature": "deferred defects are reassessed and returned to current-Story handling if severity/applicability becomes blocking",
+      "feature": "unrelated nonblocking medium/low defects retain reproduction, evidence, impact, recommendation, and a traceable later owner without expanding scope, and return if later evidence makes them blocking",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
@@ -100,6 +100,7 @@
       ".proof-or-stop/story/actives/B-212f/checklist.json",
       ".proof-or-stop/story/actives/B-212f/decision.json",
       ".proof-or-stop/story/actives/B-212f/execution-boundary.json",
+      ".proof-or-stop/story/actives/B-212f/intent-collision.json",
       ".proof-or-stop/story/actives/B-212f/original-intent-snapshot.json",
       ".proof-or-stop/story/actives/B-212f/plan.md",
       ".proof-or-stop/story/actives/B-212f/proofstory.json",
@@ -131,40 +132,13 @@
   },
   "summary": {
     "total": 13,
-    "covered": 9,
+    "covered": 11,
     "excluded": 2,
-    "gaps": 1,
+    "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
   "reviewRound": "",
-  "_hash": "0025cd678ff016de2eb127ac683b404f62637eec23d7cc1430a8e78cfd681f88",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "Should CHK-002 explicitly extend the carried test with the promised reviewer-evidence-bytes and git-state invariance assertion, or should its adversarial verification intent be narrowed?",
-      "evidence": "CHK-002 requires selector GREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged, and plan.md promises that assertion, but the reviewed test referenced by red-evidence.json contains neither that selector nor pre/post byte or git-state comparison; CHK-001 simultaneously says to materialize it without changing behavioral assertions.",
-      "sourcePointers": [
-        "CHK-001",
-        "CHK-002",
-        "plan.md#CHK-001",
-        "scope-check.json#OQ-1"
-      ],
-      "resolution": "The Story will preserve both reviewed RED parity assertions but extend the committed test with explicit before/after reviewer-evidence byte comparison and git-status equality. The revised CHK-001 exclusion and plan clarify that 'unchanged' applies to the two RED assertions, not to omission of the required read-only acceptance check.",
-      "resolvedAt": "2026-09-04T20:50:08.861Z"
-    },
-    {
-      "id": "OQ-2",
-      "q": "Is CHK-003 required to prevent omission of any future DONE predicate, or only to lock the two known predicates in this Story?",
-      "evidence": "scope-boundary.json promises that future DONE predicate additions cannot silently bypass done_prepare, but plan.md only registers and tests the two known predicates. Removing either known row will fail, while adding a third independent predicate only to machine.ts is not shown to fail any planned check. Either define a general inventory/shared-aggregate parity mechanism and mutation test, or narrow the promise to these two predicates.",
-      "sourcePointers": [
-        "CHK-003",
-        "plan.md#CHK-003",
-        "proofstory.json#AB-PROCESS-FACT",
-        "scope-check.json#OQ-2"
-      ],
-      "resolution": "The broad future-predicate promise remains in scope and is now mechanical: CHK-003 adds a registry-backed inventory mapping every literal machine-readable blocker code in machine.ts's targetPhase DONE branch to an existing done-oracle row, plus an in-memory future_done_predicate mutation that must fail when unmapped. This catches a later machine-coded DONE predicate added without a preflight mapping instead of merely pinning the two current checks.",
-      "resolvedAt": "2026-09-04T20:50:10.309Z"
-    }
-  ]
+  "_hash": "ea2870288529c996dfd378d7819eaffa72c672a081ad0239af115e36e1f4a004",
+  "openQuestions": []
 }
