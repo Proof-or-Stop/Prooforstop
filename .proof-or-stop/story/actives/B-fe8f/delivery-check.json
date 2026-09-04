@@ -1,0 +1,86 @@
+{
+  "storyId": "B-fe8f",
+  "checkedAt": "2026-09-04T15:53:57.889Z",
+  "headHash": "b5b532dac6e2cc4fe25d0e6477b612a875c1de4d",
+  "materialHash": "4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2",
+  "storyFilesHash": "1016081edd126aa4239610b0f1cb8c65bfb2a43e3634bd71bc9a776d3e1096ff",
+  "reviewRound": "2026-09-04T13:13:30.995Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".proof-or-stop/story/actives/B-fe8f/background.md#Key-Insights-and-Solution-Tradeoffs",
+      "promise": "Audit existing locks and transactions first, reproduce only genuine remaining gaps, and keep semantic identity and applicability outside this Story.",
+      "status": "verified",
+      "verifiedBy": "git diff review plus independent RED harness",
+      "evidence": "RED harness exited 0 with red.audit_summary, red.no_fabricated_race, red.primitive_scope, historicalBaselineFails=true, currentGreenPasses=true, and assertionUnchanged=true; diff remains limited to Story 3 ledger/runtime/query/lifecycle integration."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-002",
+      "promise": "Provide fenced exactly-once Finding ledger writes with collision-resistant IDs, idempotent replay, durable fsync/rename, crash recovery, stale-writer refusal, and lock compatibility.",
+      "status": "verified",
+      "verifiedBy": "source inspection and independent full GREEN smoke",
+      "evidence": "Smoke exit 0: 100 unique appends, 100 exact replays with zero rows, file and directory fsync plus atomic rename, crash halfVisible=0, staleWrites=0, and deadlocks=0."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-003",
+      "promise": "Provide exact-record CAS and signed FindingLedgerReceipt consumers, atomic assessment proposal persistence, and append-only mandatory-repair and expiry-policy records.",
+      "status": "verified",
+      "verifiedBy": "source inspection and independent full GREEN smoke",
+      "evidence": "Smoke exit 0: signedFields=complete, exact_record_cas committed, stale CAS semanticWrites=0, assessment proposal rows=1 plus receipt rows=1, replay unchanged, rejection matrix green, and manifested records append-only/idempotent/halfVisible=0."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-004",
+      "promise": "Provide content-addressed RuntimeEvidenceReceipt signing and verification through real CLI adapters with source, command, environment, toolchain, trust, realpath, artifact stability, and build-lock binding.",
+      "status": "verified",
+      "verifiedBy": "source inspection and independent full GREEN smoke",
+      "evidence": "Smoke exit 0: content-addressed blobs and signature valid; real run/verify adapters green; freshness, privacy, trust, symlink, realpath, TOCTOU, canonical build-lock, tamper, replay, and crash/retry matrices all reject unsafe states."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-005",
+      "promise": "Register separate Story 3 persistence/runtime process facts, expose a signed protected read-only query without protected paths, preserve persistence non-authority, and enforce the declared Story dependency boundary.",
+      "status": "verified",
+      "verifiedBy": "registry diff, independent process-fact verifier, and independent full GREEN smoke",
+      "evidence": "Process Fact Contract exited 0; query rows are signed with pathsExposed=0; registry non-authority mutations accepted=0 and lifecycleDelta=0; forbidden imports accepted=0; dependency gate and merged release matrix pass with zero failed-transition writes."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-006",
+      "promise": "Turn every genuine RED GREEN without weakening the assertion and prove the combined concurrency, tamper, rollback, migration, dependency, package-install, and version-binding matrix.",
+      "status": "verified",
+      "verifiedBy": "independent RED harness, full GREEN smoke, version commands, and clean package install fixture",
+      "evidence": "RED harness and GREEN smoke exited 0; final markers Finding ledger integrity, Runtime evidence integrity, and green.story3_matrix all PASS; version_sync patchIncrement=1 with local/global CLI 0.3.275 and current-main binding; clean install confirms @proof-or-stop/core plus @proof-or-stop/lab with bundled=false and registryFetch=false."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs exited 0; audit, official RED evidence, relation creation/evaluation, mutation isolation, binding refusal, and no-fabricated-race selectors all passed."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js exited 0; 100 concurrent unique appends, 100 exact replays, durable fsync/rename, crash recovery, stale fence, and lock compatibility passed."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "The same real-machine smoke verified signed receipt completeness, exact CAS, zero-write stale CAS, assessment proposal atomicity/replay/rejection, baseline bundles, mandatory repair, expiry policy, and revoke/apply serialization."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "The same real-machine smoke executed the registered runtime run/verify adapters and passed blob, source/material/command/environment/toolchain/trust, artifact stability, realpath/symlink/TOCTOU, build-lock, tamper, replay, and crash recovery checks."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "node scripts/verify-process-fact-contract.mjs exited 0; the full smoke additionally passed signed query, deterministic scorecard, no path leakage, persistence non-authority, command/phase policy, forbidden import, and lifecycle dependency matrices."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "The final full smoke exited 0 after green.red_green_relation_evaluate, version_sync, clean_pack_install, rollback_kill_switch, combined_concurrency, tamper_matrix, and dependency_scorecard_boundary; all three aggregate integrity markers passed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Six delivery promises are independently mapped to committed implementation and executable evidence. RED and GREEN commands both exit 0, adversarial and crash/concurrency paths are covered, package/version behavior is verified, and no unresolved TODO/FIXME/HACK was introduced in the Story material diff."
+  },
+  "_hash": "bececaf8664978db05c23ad6f10b2c05eaca7f13d4e85f957747ae5bf4a3decf"
+}
