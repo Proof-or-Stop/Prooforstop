@@ -1,0 +1,56 @@
+{
+  "storyId": "B-fe8f",
+  "changes": "Implemented the Story 3 finding-ledger and runtime-evidence integrity foundation: append-only fenced atomic persistence, exact CAS and idempotency receipts, signed lifecycle projection, content-addressed runtime evidence, historical re-attestation, process-fact registration, and proof-or-stop package/CLI binding.",
+  "usage": "Use the repository-local CLI for an unmerged Story, for example: node packages/main/dist/cli.js finding_ledger_query --storyId=B-fe8f. Runtime evidence uses the registered finding_runtime_evidence_run and finding_runtime_evidence_verify commands.",
+  "expectedOutcome": "The RED audit prints red.audit_summary with the historical pre-fix SHA, reports only proven contract gaps, and after implementation reports gaps=0 with no genuine contract failure.",
+  "actualTranscript": "The live command node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs exited 0, printed red.audit_summary with preFixHead 0cb578583b5139977338d1cf8f7aeed0cc7685ba, gaps=0, every RED relation check PASS, and red.genuine_contract_failure:none.",
+  "outcomeDiff": "No acceptance difference: the actual transcript matched the expected audit contract and showed no remaining genuine Story 3 gap.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Before the Story merges, the global proof-or-stop binary intentionally reflects current main and cannot expose unmerged worktree commands; use the repository-local CLI inside the Story worktree. The difference disappears after DONE merges the Story to main.",
+  "pitfalls": "The full validation suite is long and earlier attempts hit timeout or concurrency noise; the final official run passed 125/125 and was reused because materialHash and storyFilesHash stayed unchanged. Global and worktree CLIs share a version string, so verify realpath and use node packages/main/dist/cli.js for branch-local behavior.",
+  "phaseStats": {
+    "INIT": {
+      "count": 8,
+      "durationMs": 1711708
+    },
+    "INIT_CHECK": {
+      "count": 8,
+      "durationMs": 21934
+    },
+    "PLAN": {
+      "count": 18,
+      "durationMs": 26996827
+    },
+    "DEV": {
+      "count": 33,
+      "durationMs": 153022697
+    },
+    "REVIEW": {
+      "count": 23,
+      "durationMs": 104251459
+    },
+    "TEST": {
+      "count": 2,
+      "durationMs": 202562
+    }
+  },
+  "totalDurationMs": 286207783,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-04T15:43:03.331Z",
+  "updatedAt": "2026-09-04T15:43:03.331Z"
+}
