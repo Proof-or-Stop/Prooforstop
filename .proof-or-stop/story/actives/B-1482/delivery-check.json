@@ -1,0 +1,104 @@
+{
+  "storyId": "B-1482",
+  "checkedAt": "2026-09-04T02:14:29.468Z",
+  "headHash": "30c6e09f3be3b408a55f69bd8c6f418f4434b9b4",
+  "materialHash": "9057655674c70ba880305aaffd947e6fd64035e0e9788f999c7180956451f564",
+  "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+  "reviewRound": "2026-09-04T01:04:08.380Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "CLAUDE.md#verification-intent--evidence (Narrowing-only re-pin of a proof selector, B-1482)",
+      "promise": "verification_pin_narrow exists as the one audited movement of an evidence pin, re-pinning to a STRICTER selector on the SAME command only; loosening stays refused everywhere.",
+      "verifiedBy": "diff/grep + live CLI",
+      "evidence": "git diff main...HEAD adds the section verbatim to CLAUDE.md. narrowVerificationPin is implemented in packages/main/src/handlers/checklist.ts:971 and registered as the CLI verb verification_pin_narrow at packages/main/src/handlers/checklist.ts:2356. `node packages/main/dist/cli.js verification_pin_narrow --help` prints the real schema (storyId/itemId/intentRef/selector/reason). Live test: verification_pin_narrow --selector=\"status: plan\" --reason=<30+ chars> against CHK-001:happy:0 was refused with [narrowing_no_recorded_failing_render] because that intent's own pinned command has no recorded FAILING receipt -- a genuine merits-based refusal, not a schema rejection."
+    },
+    {
+      "docPath": "CLAUDE.md#verification-intent--evidence (Narrowing-only re-pin of a proof selector, B-1482)",
+      "promise": "The proof reads tool-recorded receipts only: no transcript/output/receipt parameter is accepted; a request carrying one is refused with narrowing_caller_output_not_admissible before any proof is attempted.",
+      "verifiedBy": "grep + real-machine test",
+      "evidence": "narrowing-repin-smoke.js case CHK-002/B8 'a caller-supplied transcript is refused outright rather than considered as proof' PASSED (25/25 run). verification_pin_narrow CLI schema (--help output) has no transcript/output/receipt argument at all."
+    },
+    {
+      "docPath": "CLAUDE.md#verification-intent--evidence (Narrowing-only re-pin of a proof selector, B-1482)",
+      "promise": "A recorded-receipt set admits at most one narrowing; the set's digest is re-checked FIRST, before the proof, so a second narrowing against unchanged receipts is refused even if it would be independently provable.",
+      "verifiedBy": "real-machine test",
+      "evidence": "narrowing-repin-smoke.js case CHK-002/B6 'a second narrowing against an unchanged recorded-receipt set is refused naming the bound' and CHK-003/C10 'the concurrent pin-write refusal teaches the same route rather than bare immutability' both PASSED."
+    },
+    {
+      "docPath": "CLAUDE.md#verification-intent--evidence (Narrowing-only re-pin of a proof selector, B-1482)",
+      "promise": "The full refusal-code list (narrowing_caller_output_not_admissible, narrowing_unknown_input_field, narrowing_selector_empty, narrowing_reason_too_short, intent_ref_unresolved, narrowing_intent_not_executable, narrowing_intent_not_pinned, narrowing_receipt_set_unchanged, narrowing_selector_loosens, narrowing_selector_not_discriminating, narrowing_no_recorded_failing_render, narrowing_no_recorded_passing_receipt, narrowing_selector_absent_from_passing_receipt, narrowing_receipt_selector_unknown, narrowing_receipt_material_mismatch, narrowing_selector_unchanged, narrowing_no_recorded_receipts, narrowing_receipt_not_predating_request) is real and reachable.",
+      "verifiedBy": "diff/grep + live reproduction of two codes",
+      "evidence": "packages/main/src/handlers/checklist.ts narrowVerificationPin throws each of these codes at distinct guard branches (grep confirms all 18 strings appear in the diff). Live: narrowing_no_recorded_failing_render was reproduced directly on the live CLI in this review (see above)."
+    },
+    {
+      "docPath": "CLAUDE.md#verification-intent--evidence (Narrowing-only re-pin of a proof selector, B-1482) - 'What is and is not bounded'",
+      "promise": "Documentation states plainly, in the same section a reader meets the feature, what is bounded (predating receipt, same story material, matches every passing receipt, set spent afterwards) and what is NOT bounded (an operator who can drive the pinned command to fail on the same material) -- named an accepted limitation, never described as prevented/detected/ruled out.",
+      "verifiedBy": "diff read + real-machine test",
+      "evidence": "CLAUDE.md diff carries the 'What is and is not bounded' paragraph verbatim, ending 'That is an accepted limitation, not a bound -- do not describe it as prevented, detected or ruled out.' narrowing-repin-smoke.js case CHK-003/C4 greps both CLAUDE.md and the decision doc for the overclaiming phrase 'mechanically excluded' and asserts its absence, and asserts 'accepted limitation' is present in both -- PASSED. docs/requirements/decisions/narrowing-only-evidence-repin.md PM-4 states the same residue as an accepted limitation."
+    },
+    {
+      "docPath": "plan.md CHK-003 DoneWhen (decision document)",
+      "promise": "docs/requirements/decisions/narrowing-only-evidence-repin.md exists, states the invariant/exception/bound/refusal cases/engineered-failing-run limitation, and carries at least four pre-mortems including the engineered-failing-run gap.",
+      "verifiedBy": "file read",
+      "evidence": "File exists at that path (in diff). Contains 5 pre-mortem rows (PM-1..PM-5), PM-4 is exactly the engineered-failing-run gap, stated as bounded-not-closed with an explicit accepted-limitation clause. narrowing-repin-smoke.js case CHK-003/C7 'the decision record carries at least four pre-mortems' PASSED."
+    },
+    {
+      "docPath": "plan.md CHK-003 DoneWhen / two recorded plan amendments",
+      "promise": "Amendment 1: the narrowing re-pin is reachable as a proof-or-stop command (not code-only); scope contract widened to include command-catalog.ts and command-policy.ts. Amendment 2: registration actually needed FOUR files (catalog + policy + core/config.ts phase-tools table + core/process-fact-levels.ts), not two, because the active-story phase gate intersects the policy ceiling with DEFAULT_PHASE_TOOLS and the lifecycle registry contract requires a process-fact level row.",
+      "verifiedBy": "git log + diff/grep + live CLI",
+      "evidence": "Commits 17a99b002f ('replan to register the narrowing command, CHK-003 dispatch') and 1f9574cceb ('replan to widen CHK-003 for command reachability') are present on the branch with matching commit-body reasons. All four files (packages/main/src/cli/command-catalog.ts, packages/main/src/core/command-policy.ts, packages/main/src/core/config.ts, packages/main/src/core/process-fact-levels.ts) are modified in the diff with verification_pin_narrow entries. Live: `node packages/main/dist/cli.js verification_pin_narrow --help` prints the real schema, proving the command is reachable via the CLI, not only the function."
+    },
+    {
+      "docPath": "plan.md CHK-003 Verify / checklist userSees",
+      "promise": "The suite is registered in test:serial-reference (package.json), the full-suite runner's RESOURCE_POLICY, and proof-or-stop.config.json validate.commands, copying the shape of a sibling entry.",
+      "verifiedBy": "grep (as literally instructed)",
+      "evidence": "`grep -n narrowing-repin package.json packages/main/src/tasks/full-suite-runner.ts proof-or-stop.config.json` shows all three: package.json line 18 (test:serial-reference chain) and line 53 (test:narrowing-repin script); full-suite-runner.ts line 202 registers repoRead('test:narrowing-repin') in RESOURCE_POLICY; proof-or-stop.config.json line 1624 lists the smoke .js path under validate.commands."
+    },
+    {
+      "docPath": "checklist CHK-001 userSees",
+      "promise": "node packages/main/dist/tasks/narrowing-repin-smoke.js prints one line per case and ends narrowing-repin-smoke: PASS; checklist_get --json shows each receipt carrying the selector text next to selectorMatched; a receipt written before this change still reads without it.",
+      "verifiedBy": "real-machine test + checklist_get read",
+      "evidence": "Ran the smoke live: 25 [PASS] lines then 'narrowing-repin-smoke: PASS'. checklist_get '{\"storyId\":\"B-1482\"}' shows each verificationEvidence[].receipt carrying both 'selectorMatched': true and 'selector': '<matched text>' fields side by side. CHK-001/A2 case (pre-change shape without the field) PASSED in the same run."
+    },
+    {
+      "docPath": "checklist CHK-002 userSees",
+      "promise": "A re-pin with a stricter selector is accepted and prints both pins with the reason and cited receipt ids; a looser selector is refused naming the loosening; a re-pin with no recorded failing render is refused naming the missing proof; a second narrowing against the same recorded receipts is refused naming the bound.",
+      "verifiedBy": "real-machine test",
+      "evidence": "narrowing-repin-smoke.js cases CHK-002/B1 (accepted, B-a745 shape end to end), B2 (loosening refused), B6 (unchanged-set second narrowing refused), B9/B7/B11 (missing-proof variants refused) all PASSED in the live run."
+    },
+    {
+      "docPath": "CLAUDE.md - evidence-pin seatbelt refusal text (F-005/F-015/F-019/F-021/F-022 fixes)",
+      "promise": "The receipt_selector_mismatch refusal a caller hits from verification_evidence_add teaches the narrowing route as a runnable command, states the qualifier ('immutable ... with exactly one audited narrowing exception') in its opening line rather than only three lines later, and the registered --help text for the PreToolUse guard states the same exception.",
+      "verifiedBy": "live reproduction",
+      "evidence": "Live test in this review: verification_evidence_add with a deliberately mismatched selector against CHK-001:happy:0 returned the exact taught form `proof-or-stop verification_pin_narrow --storyId=B-1482 --itemId=CHK-001 --intentRef=CHK-001:happy:0 --selector=<stricter> --reason=<why>` plus the narrowing precondition sentence, inside a receipt_selector_mismatch error whose message already states 'immutable to evidence writes, with exactly one audited narrowing exception stated below'."
+    },
+    {
+      "docPath": "story description (verification_pin_narrow taught command form)",
+      "promise": "The re-pin path is described as 'audited: a new selector is accepted only when it is provably narrowing against RECORDED evidence'.",
+      "verifiedBy": "combination of the above evidence",
+      "evidence": "Consistent with the verified narrowVerificationPin implementation and refusal codes above; no evidence of a code path admitting caller-supplied output."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "node packages/main/dist/tasks/narrowing-repin-smoke.js run live in this review: 25 case lines (A1-A3, B1-B12, C1-C10) all [PASS], final line 'narrowing-repin-smoke: PASS', exit 0. CHK-001/A1-A3 cover selector persistence, pre-change-shape tolerance, and caller-forgery rejection."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same live smoke run: CHK-002/B1-B12 (12 cases) all [PASS], covering the accepted B-a745-shape narrowing, every refusal branch (loosening, non-discriminating, missing-proof variants, caller transcript, unchanged-set repeat, material mismatch, not-predating), all PASS. Also independently reproduced narrowing_no_recorded_failing_render live against CHK-001:happy:0 via a real (non-fixture) verification_pin_narrow CLI call in this review."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "npm run test:narrowing-repin run live: same 25/25 [PASS], 'narrowing-repin-smoke: PASS'. `grep -n narrowing-repin package.json packages/main/src/tasks/full-suite-runner.ts proof-or-stop.config.json` shows all three registrations. `node packages/main/dist/cli.js verification_pin_narrow --help` shows the real registered schema. node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js run live: 'retired authority vocabulary guard PASS builds=811 ...' (matches F-016's re-pinned build ceiling of 811). node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js run live: 'prompt full-context envelope smoke: PASS'. node packages/main/dist/tasks/validation-tier-planner-smoke.js run live: ends 'validation-tier-planner-smoke: PASS' (covers F-002's re-pinned real-inventory digest). Live operator test: copying the taught verification_pin_narrow form EXACTLY as printed (literal `--selector=<stricter> --reason=<why>`) was refused by the CLI ARGUMENT SCHEMA ('reason must be >= 30 characters') because <why> is a documented fill-in-the-blank placeholder, not literal syntax -- not a merits-based refusal. Substituting real values (a real >=30-char reason, selector 'status: plan') passed the schema and reached genuine merits evaluation, correctly refused as narrowing_no_recorded_failing_render since this intent's pinned command has no recorded FAILING receipt to prove against. So: schema-level refusal on literal copy-paste, merits-level refusal on real substituted values -- both are real, distinct gates, not the same one."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "All 3 checklist items' promises are delivered and independently reproduced live, including both plan.md amendments (command registered via 4 files, not code-only). git diff main...HEAD contains no TODO/FIXME/HACK. CLAUDE.md states the engineered-failing-run gap as an accepted limitation, in the same section a reader meets the feature, and never claims it is prevented or mechanically excluded -- confirmed both by direct read and by the CHK-003/C4 overclaim-grep test passing. The story's own evidence selectors ([PASS] <caseId> ... vs [FAIL] <caseId> ...) are printed conditionally per-case, unlike the B-a745 defect (a string printed on every branch) this story exists to fix, so the story's own evidence would survive its own defect. One caveat is not a delivery gap but worth recording: the taught refusal command's literal placeholder form (<stricter>/<why>) fails the CLI's own reason-length schema if pasted verbatim rather than filled in, which I verified live; this is consistent with the documented placeholder convention and with CHK-003/C8's design (it substitutes real values before asserting the form runs), not a broken promise."
+  },
+  "_hash": "9a310e48395e86f05f385f4f8dcd8e0b89af02da6860af8911a5dce077aaade4"
+}
