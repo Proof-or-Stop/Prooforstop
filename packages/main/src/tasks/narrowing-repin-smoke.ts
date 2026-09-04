@@ -987,6 +987,33 @@ function assertDocumentationDoesNotOverclaim(): void {
   }
 }
 
+/**
+ * The pre-mortem table read. Performed by BOTH cases whose pinned intent sentence names
+ * it (B-1482 F-013): CHK-003:happy:0 claims a case asserts the decision carries at least
+ * four pre-mortems but is pinned to C4, which never read the table, so a reader following
+ * that selector landed on a case that does not check the claim. Same shape as
+ * {@link assertDocumentationDoesNotOverclaim}, which F-007 shared for the same reason.
+ */
+function assertDecisionCarriesPreMortems(): void {
+      // The decision was required to carry pre-mortems because it moves a
+      // security-adjacent invariant. Nothing verified that it did.
+      const decision = readRepoFile(DECISION_DOC);
+      const preMortems = [...decision.matchAll(/^\| PM-\d+ \|/gm)];
+      assert.ok(
+        preMortems.length >= 4,
+        `the decision record carries at least four pre-mortems (found ${preMortems.length})`,
+      );
+      // Discriminating: a pre-mortem that names no mitigation is a worry, not a
+      // pre-mortem, so each row must carry all four columns with content.
+      for (const row of decision.split('\n').filter(line => /^\| PM-\d+ \|/.test(line))) {
+        const columns = row.split('|').slice(1, -1).map(cell => cell.trim());
+        assert.equal(columns.length, 5, `pre-mortem row has id, scenario, trigger, consequence and mitigation: ${row.slice(0, 60)}`);
+        for (const cell of columns) {
+          assert.ok(cell.length > 0, `no empty cell in pre-mortem row: ${row.slice(0, 60)}`);
+        }
+      }
+}
+
 const CHK003_CASES: SmokeCase[] = [
   {
     id: 'CHK-003/C1',
@@ -1124,6 +1151,11 @@ const CHK003_CASES: SmokeCase[] = [
         claudeMd.includes('at most one') || claudeMd.includes('at most ONE'),
         'CLAUDE.md states the one-narrowing-per-recorded-receipt-set bound',
       );
+      // The last clause of this case's own intent sentence: the decision itself carries
+      // at least four pre-mortems. Asserted here, in the case that sentence is pinned to,
+      // so a weakening of C7 that still left it passing can no longer leave this evidence
+      // reading verified with its pre-mortem claim unchecked by the pinned case.
+      assertDecisionCarriesPreMortems();
     },
   },
   {
@@ -1201,23 +1233,7 @@ const CHK003_CASES: SmokeCase[] = [
     id: 'CHK-003/C7',
     desc: 'the decision record carries at least four pre-mortems',
     run: async () => {
-      // The decision was required to carry pre-mortems because it moves a
-      // security-adjacent invariant. Nothing verified that it did.
-      const decision = readRepoFile(DECISION_DOC);
-      const preMortems = [...decision.matchAll(/^\| PM-\d+ \|/gm)];
-      assert.ok(
-        preMortems.length >= 4,
-        `the decision record carries at least four pre-mortems (found ${preMortems.length})`,
-      );
-      // Discriminating: a pre-mortem that names no mitigation is a worry, not a
-      // pre-mortem, so each row must carry all four columns with content.
-      for (const row of decision.split('\n').filter(line => /^\| PM-\d+ \|/.test(line))) {
-        const columns = row.split('|').slice(1, -1).map(cell => cell.trim());
-        assert.equal(columns.length, 5, `pre-mortem row has id, scenario, trigger, consequence and mitigation: ${row.slice(0, 60)}`);
-        for (const cell of columns) {
-          assert.ok(cell.length > 0, `no empty cell in pre-mortem row: ${row.slice(0, 60)}`);
-        }
-      }
+      assertDecisionCarriesPreMortems();
     },
   },
   {
