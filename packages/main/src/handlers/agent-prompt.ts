@@ -2,11 +2,12 @@
  * agent-prompt.ts — `proof-or-stop agent_prompt --role=<name>` (B-097f CHK-002)
  *
  * Host-neutral package-registry endpoint. Role-only calls return the canonical
- * host render: a body-free `review_run_start` bootstrap for the five migrated
- * reviewers, the rollout-selected body for migrated complex roles, and the
- * package role body for ordinary roles. For migrated
- * reviewers, `review_run_start` selects and returns exactly one legacy or
- * modular body. Codex registry mode resolves the same bootstrap/body split.
+ * host render: a body-free `review_run_start` bootstrap for the five active
+ * REVIEW lanes among the six migrated reviewer definitions, the rollout-selected
+ * body for migrated complex roles, and the package role body for ordinary roles
+ * (including topology-critic). For the five active REVIEW lanes,
+ * `review_run_start` selects and returns exactly one legacy or modular body.
+ * Codex registry mode resolves the same bootstrap/body split.
  *
  * Contract: docs/requirements/decisions/lifecycle-artifact-scope.md
  *   §"Policy: host-neutral prompt content, thin host adapters (B-097f)" point 2.
@@ -18,7 +19,7 @@
  */
 
 import {
-  isModularReviewerRoleId,
+  isActiveModularReviewerRoleId,
   readPromptRegistry,
   renderPromptEntryForHost,
   type PromptRegistryEntry,
@@ -45,6 +46,8 @@ import {
 } from '../core/story-owner-lease.js';
 import { getSessionId } from '../core/owner-session.js';
 import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/prompt-budget.js';
+import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION } from '../core/prompt-role-contract-registry.js';
 
 /**
  * Resolve the registry entry for a role name. Roles are the template basenames
@@ -52,7 +55,8 @@ import { isBudgetedComplexRole, observeComplexRolePromptBudget } from '../core/p
  */
 export function findRoleEntry(role: string, templateDir?: string): PromptRegistryEntry | null {
   const snapshot = readPromptRegistry(templateDir);
-  return snapshot.agents.find(entry => entry.agentId === role) ?? null;
+  const canonicalRole = canonicalAgentRoleId(role);
+  return snapshot.agents.find(entry => entry.agentId === canonicalRole) ?? null;
 }
 
 /** List available role names (sorted) for error messages. */
@@ -101,19 +105,20 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       validateAgentPromptArgs(args);
       // Runtime re-validation (Handler 编码约定): reject blank/missing role even
       // though the Zod schema declares a min-length constraint.
-      const role = (args.role ?? '').trim();
-      if (role.length === 0) {
+      const requestedRole = (args.role ?? '').trim();
+      if (requestedRole.length === 0) {
         const available = listAvailableRoles();
         throw new Error(
           `agent_prompt: --role is required. Available roles: ${available.join(', ')}`,
         );
       }
 
+      const role = canonicalAgentRoleId(requestedRole);
       const entry = findRoleEntry(role);
       if (!entry) {
         const available = listAvailableRoles();
         throw new Error(
-          `agent_prompt: unknown role "${role}". Available roles: ${available.join(', ')}`,
+          `agent_prompt: unknown role "${requestedRole}". Available roles: ${available.join(', ')}`,
         );
       }
 
@@ -126,7 +131,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       }
       const effectivePromptEnvelope = args.experimentalModeOverride === 'full-envelope'
         ? {
-            version: 'proofbound.prompt-envelope-rollout.v1' as const,
+            version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
             roles: { ...(configuredPromptEnvelope?.roles ?? {}), [role]: 'full-envelope' as const },
           }
         : configuredPromptEnvelope;
@@ -136,7 +141,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       );
       const rolePrompt = resolvedRoleBody.body;
       if (!args.storyId || !ctx) {
-        return isModularReviewerRoleId(role)
+        return isActiveModularReviewerRoleId(role)
           ? renderPromptEntryForHost(entry, 'claude')
           : renderPromptEntryForHost(entry, 'claude', resolvedRoleBody.mode);
       }
@@ -187,7 +192,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
           agentType: role,
         });
         return canonicalJsonStringify({
-          schemaVersion: 'proofbound.agent-prompt-response.v1',
+          schemaVersion: 'proof-or-stop.agent-prompt-response.v1',
           mode: resolvedRoleBody.mode,
           roleBodyDigest: resolvedRoleBody.bodyDigest,
           legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,
@@ -258,7 +263,7 @@ export function createAgentPromptHandlers(ctx?: HandlerContext): Record<string, 
       // diagnostic/audit evidence only and cannot mint REVIEW evidence.
       if (args.format === 'json') {
         return canonicalJsonStringify({
-          schemaVersion: 'proofbound.agent-prompt-response.v1',
+        schemaVersion: 'proof-or-stop.agent-prompt-response.v1',
           mode: resolvedRoleBody.mode,
           roleBodyDigest: resolvedRoleBody.bodyDigest,
           legacyBytesRestored: resolvedRoleBody.legacyBytesRestored,

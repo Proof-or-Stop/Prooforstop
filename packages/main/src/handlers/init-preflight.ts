@@ -125,7 +125,7 @@ function initCheckRow(
 ): PrerequisiteRow {
   const id = 'init-check';
   const fix =
-    `run the two INIT reviewers (proof-or-stop-review-story-init + product-reviewer) then ` +
+    `run the two INIT reviewers (proof-or-stop-review-story-init + proof-or-stop-product-reviewer) then ` +
     `proof-or-stop init_check_set --storyId=${storyId}`;
   if (!initCheck) {
     return { id, status: 'MISSING', fix, detail: 'init-check.json is missing (no INIT reviewer has persisted yet)' };

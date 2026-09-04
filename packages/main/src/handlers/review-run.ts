@@ -1,4 +1,5 @@
 import { execFileSync } from 'child_process';
+import { writeFileSync } from 'node:fs';
 import type { HandlerContext } from './context.js';
 import { resolveStoryCommandWorkspace } from './context.js';
 import type { ReviewRun, ReviewScopeBinding } from '../core/types.js';
@@ -9,6 +10,7 @@ import {
   hashReviewPrompt,
   resolveReviewRunLane,
   signReviewRun,
+  verifyReviewRun,
   verifyCurrentReviewerDispatchBinding,
 } from '../core/review-run.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
@@ -35,10 +37,21 @@ import {
   verifyPromptEnvelopeIntegrity,
 } from '../core/prompt-envelope.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
+import { assertReviewInventoryCutoff, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
+import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
 
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
   return withReviewMetadataTicketLock(lockDir, `review_run_start for ${storyId}`, fn);
+}
+
+function holdInventoryLockForDeterministicRunPublicationStress(): void {
+  if (process.env.NODE_ENV !== 'test') return;
+  const holdMs = Number(process.env.LATTICE_INTERNAL_REVIEW_RUN_HOLD_MS ?? 0);
+  if (!Number.isFinite(holdMs) || holdMs <= 0) return;
+  const readyFile = process.env.LATTICE_INTERNAL_REVIEW_RUN_READY_FILE;
+  if (readyFile) writeFileSync(readyFile, `${process.pid}\n`, 'utf8');
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, holdMs);
 }
 
 type ResolvedReviewWorkspace = ReturnType<typeof resolveStoryCommandWorkspace>;
@@ -76,6 +89,52 @@ function resolveGitTopLevel(gitCwd: string): string | null {
 export function createReviewRunHandlers(ctx: HandlerContext) {
   const { store } = ctx;
   return {
+    review_run_list(args: {
+      storyId: string;
+      lane?: string;
+      latest?: boolean;
+      json?: boolean;
+    }): string {
+      if (!args.storyId) throw new Error('review_run_list: storyId is required');
+      store.readStory(args.storyId);
+      const lane = args.lane?.trim();
+      if (args.lane !== undefined && !lane) throw new Error('review_run_list: lane must be nonblank when provided');
+
+      // Recovery reader for a run that was durably published before a host timed
+      // out while consuming the intentionally large assembled review prompt.
+      // Return only signed, compact metadata: this reader neither mints evidence
+      // nor exposes prompt bytes that can be mistaken for a newly issued prompt.
+      const matchingRuns = store.readReviewRuns(args.storyId).runs
+        .filter(run => (!lane || run.lane === lane))
+        .sort((left, right) => right.startedAt.localeCompare(left.startedAt) || right.reviewRunId.localeCompare(left.reviewRunId));
+      const runs = (args.latest ? matchingRuns.slice(0, 1) : matchingRuns)
+        .map(run => ({
+          reviewRunId: run.reviewRunId,
+          lane: run.lane,
+          agent: run.agent,
+          reviewRound: run.reviewRound,
+          startedAt: run.startedAt,
+          headHash: run.headHash,
+          materialHash: run.materialHash,
+          storyFilesHash: run.storyFilesHash ?? null,
+          signatureValid: verifyReviewRun(run),
+        }));
+      const report = {
+        schemaVersion: 'proofbound.review_run_list.v1',
+        storyId: args.storyId,
+        lane: lane ?? null,
+        latest: args.latest === true,
+        runs,
+      };
+      if (args.json) return JSON.stringify(report);
+      return [
+        `Review runs: ${args.storyId}${lane ? ` lane=${lane}` : ''}${args.latest ? ' latest=true' : ''}`,
+        ...(runs.length === 0
+          ? ['  (none)']
+          : runs.map(run => `  ${run.reviewRunId} lane=${run.lane} started=${run.startedAt} signature=${run.signatureValid ? 'valid' : 'invalid'}`)),
+      ].join('\n');
+    },
+
     review_run_start(args: {
       storyId: string;
       agent?: string;
@@ -126,6 +185,11 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       if (args.reviewerEscalationReason !== undefined && !reviewerEscalationReason) {
         throw new Error('review_run_start: reviewerEscalationReason must be nonblank when provided');
       }
+      // The inventory lock is the linearization boundary for the complete
+      // ReviewRun publication: snapshot/precheck, monotonic RR allocation,
+      // Prompt Envelope write, and durable ReviewRun write are indivisible
+      // relative to wave/cancel/begin transitions.
+      return withReviewInventoryMutationLock(store, args.storyId, () => {
       const startedAt = new Date().toISOString();
       // B-9dcb CHK-002: thread the resolved metadataRoot into the snapshot so the
       // storyDir-aware material/story hash exclusion loads proof-or-stop.config.json
@@ -140,6 +204,11 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         workspaceMode: workspace.workspaceMode || workspace.resolutionSource || workspace.mode,
         expectedWorktreeRoot: workspace.expectedWorktreeRoot,
       }, workspace.metadataRoot || ctx.root);
+      assertReviewInventoryContextFreshLocked(ctx, args.storyId);
+      assertReviewInventoryCutoff(store, args.storyId, { materialHash, storyFilesHash });
+      // Test-only barrier proves cancel/wave checkpoints cannot linearize
+      // between the inventory precheck and durable RR publication.
+      holdInventoryLockForDeterministicRunPublicationStress();
       const workspaceBinding = buildReviewRunWorkspaceBinding({
         metadataRoot: workspace.metadataRoot || ctx.root,
         invocationCwd: workspace.cwd || process.cwd(),
@@ -204,9 +273,21 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           if (!dispatchBinding.ok) {
             throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun proof-or-stop dispatch for ${lane}`);
           }
+          const findingProjection = store.readFindings(args.storyId).findings
+            .filter(finding => (finding.createdAt ?? '') <= startedAt)
+            .map(finding => ({
+              id: finding.id,
+              createdAt: finding.createdAt ?? startedAt,
+              status: finding.status,
+              severity: finding.severity,
+              category: finding.category,
+              desc: finding.desc,
+            }))
+            .sort((left, right) => left.id.localeCompare(right.id));
           const incremental = reviewIncrementalContext(store, signedWorkspaceRoot, args.storyId, lane, {
             findingsCutoffAt: startedAt,
             passesCutoffAt: startedAt,
+            findingProjection,
           });
           const assembly = assembleConditionalReviewPromptEnvelope({
             roleContract: promptRoleContract(lane),
@@ -241,6 +322,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             changedFilesDigest: incremental.changedFilesDigest,
             impactedFilesDigest: incremental.impactedFilesDigest,
             reviewBasis: incremental.reviewBasis,
+            findingProjection,
             reviewerEscalationReason,
           });
           const envelopeData = store.readPromptEnvelopes(args.storyId);
@@ -330,6 +412,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         return assembledPrompt
           ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
           : `${summary}\n\nThe host first loads a content-addressed thin bootstrap; the bytes below are the single selected role body, not the total model input.\n\n--- BEGIN EXACT SELECTED LEGACY ROLE BODY ---\n${canonicalRolePrompt}\n--- END EXACT SELECTED LEGACY ROLE BODY ---`;
+      });
       });
     },
   };

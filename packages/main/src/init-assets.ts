@@ -8,6 +8,7 @@ import {
   ADAPTER_DIR_NAMES,
   CONFIG_FILENAMES,
   PROOF_OR_STOP_ADAPTER_DIR,
+  PROOF_OR_STOP_CONFIG_FILENAME,
   PROOF_OR_STOP_MANIFEST_FILENAME,
   PROOF_OR_STOP_STATE_DIR,
   STATE_DIR_NAMES,
@@ -135,7 +136,7 @@ export function renderProofOrStopProjectConfig(): string {
   return JSON.stringify({
     proofOrStopVersion: 1,
     assetMode: 'global-thin',
-    description: 'Global-thin Proof-or-Stop project: executable Codex adapter behavior lives in the global proofOrStop CLI; no local bin shims required.',
+    description: 'Global-thin Proof-or-Stop project: executable Codex adapter behavior lives in the global proof-or-stop CLI; no local bin shims required.',
     generatedAt: new Date().toISOString(),
   } satisfies ProofOrStopProjectConfig, null, 2) + '\n';
 }
@@ -172,7 +173,7 @@ export const PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST: CodexAdapterManifest = {
     {
       name: 'global-fallback',
       command: 'PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop',
-      useWhen: 'Only the global proofOrStop CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists.',
+      useWhen: 'Only the global proof-or-stop CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists.',
     },
   ],
   sessionEnv: {
@@ -230,7 +231,26 @@ export function renderProofOrStopCodexAdapterManifest(options: RenderCodexAdapte
   }, null, 2)}\n`;
 }
 
-const CODEX_README_PROOF_OR_STOP_TEMPLATE = `# Codex + Proof-or-Stop
+export const CODEX_ADAPTER_MANIFEST_OWNER = PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST.adapterOwner;
+/** @deprecated Legacy manifests may still be read from pre-migration installs. */
+export const LEGACY_CODEX_ADAPTER_MANIFEST_OWNER = 'lattice' as const;
+
+export function isCodexAdapterManifestOwner(value: unknown): value is 'proof-or-stop' | 'lattice' {
+  return value === CODEX_ADAPTER_MANIFEST_OWNER || value === LEGACY_CODEX_ADAPTER_MANIFEST_OWNER;
+}
+
+const CODEX_README_LATTICE_TEMPLATE = `# Codex + Proof-or-Stop
+
+Canonical paths and active entrypoints:
+
+- Project state: \`${PROOF_OR_STOP_STATE_DIR}/\` (new writes use this path).
+- Project config: \`${PROOF_OR_STOP_CONFIG_FILENAME}\` (new writes use this filename).
+- Codex adapter: \`${PROOF_OR_STOP_ADAPTER_DIR}/\`.
+- Codex adapter manifest: \`${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}\`.
+- Codex activity log: \`${PROOF_OR_STOP_STATE_DIR}/activity.jsonl\`.
+
+Existing projects may still be read through the deprecated \`.lattice/\`, \`.lattice-codex/\`,
+and \`lattice.config.json\` spellings; init writes only the canonical Proof-or-Stop paths.
 
 优先做法：
 
@@ -242,7 +262,7 @@ node bin/proof-or-stop-codex.js aux_doc_list --format=json
 原因：
 
 - \`node bin/proof-or-stop-codex.js\` 是仓库内 Codex 首选入口，会加载本地 bootstrap（main + utils）
-- wrapper 会写入 \`.proof-or-stop/activity.jsonl\`，并标记 \`source=codex\`
+- wrapper 会写入 \`${PROOF_OR_STOP_STATE_DIR}/activity.jsonl\`，并标记 \`source=codex\`
 - wrapper 会为 \`session_brief\` 这类只读恢复命令启用 activity heartbeat
 
 只有当前项目没有本地 wrapper 时，才使用全局 fallback：
@@ -261,6 +281,14 @@ fallback 说明：
 - \`${PROOF_OR_STOP_ADAPTER_DIR}/agents\` 由 \`.claude/agents\` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 \`.claude\`
 - \`${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}\` 是 Proof-or-Stop 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
 
+旧安装只读兼容 fallback（仅当环境只认识旧变量名时使用；新配置不要复制）：
+
+\`\`\`bash
+LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief
+\`\`\`
+
+该 fallback 只用于读取当前状态和记录只读 heartbeat，不作为 gate 证据；Proof-or-Stop 会优先读取同名的 \`PROOF_OR_STOP_*\` 变量。
+
 建议：
 
 - 新 session 第一条命令跑 \`node bin/proof-or-stop-codex.js session_brief\`
@@ -270,12 +298,12 @@ fallback 说明：
 - 运行 \`proof-or-stop check\` 检查 Proof-or-Stop 管理资产/模板漂移；确认后用 \`proof-or-stop check --apply\` 或 \`proof-or-stop check --upgrade\` 同步安全项
 - 初始化脚本可用 \`proof-or-stop init --verify-codex\` 做同源资产校验
 - 诊断 Codex adapter 时运行 \`node bin/proof-or-stop-codex.js doctor\`，可同时查看共享检查、health 和 worktree 状态
-- 如果 \`aux_*\` 不可用，说明当前是 core-only proof-or-stop：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
+- 如果 \`aux_*\` 不可用，说明当前是 core-only Proof-or-Stop：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
 
 边界：
 
 - 不创建 \`${PROOF_OR_STOP_ADAPTER_DIR}/settings.json\`，因为 Codex runtime 不会读取 Claude Code settings
-- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\` 和 \`.codex/hooks/proof-or-stop-scope-pretool.cjs\`，由 Proof-or-Stop init/check 管理；大小写不敏感文件系统上可能显示为 \`${PROOF_OR_STOP_ADAPTER_DIR}/hooks\` alias
+- Codex 官方 PreToolUse hook 使用小写 \`.codex/hooks.json\`，由 Proof-or-Stop init/check 管理；旧安装中的 \`lattice-scope-pretool.cjs\` 仅作为只读兼容 fallback 读取，大小写不敏感文件系统上可能显示为 \`${PROOF_OR_STOP_ADAPTER_DIR}/hooks\` alias
 - 需要观测 Codex 活动时，使用 \`${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}\` 记录的 wrapper 或带 \`PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1\` 的 fallback
 `;
 
@@ -284,16 +312,16 @@ const CODEX_README_THIN_APPENDIX = `
 
 This repository uses registry-backed Codex prompts:
 
-- \`${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}\` records \`promptMode=registry\` and the package prompt registry hash. The five migrated reviewers resolve to a body-free \`review_run_start\` bootstrap; the command returns the single selected role body.
+- \`${PROOF_OR_STOP_ADAPTER_DIR}/${PROOF_OR_STOP_MANIFEST_FILENAME}\` records \`promptMode=registry\` and the package prompt registry hash. The six migrated reviewer definitions keep modular bodies; the five active REVIEW lanes resolve to a body-free \`review_run_start\` bootstrap, while topology-critic resolves as an ordinary role body. The command returns the single selected role body for those five lanes.
 - \`${PROOF_OR_STOP_ADAPTER_DIR}/agents\` prompt copies are not required for Proof-or-Stop adapter verification in this mode.
 - Legacy full-mode repositories may still materialize \`${PROOF_OR_STOP_ADAPTER_DIR}/agents\`; both modes remain supported.
 - This is adapter hygiene only. It does not replace validation evidence, receipts, or release-readiness assurance.
 `;
 
-export type CodexAdapterBrand = 'proof-or-stop';
+export type CodexAdapterBrand = 'proof-or-stop' | 'lattice';
 
 export function renderCodexReadmeTemplate(assetMode: InitAssetMode = 'full', _brand: CodexAdapterBrand = 'proof-or-stop'): string {
-  const base = CODEX_README_PROOF_OR_STOP_TEMPLATE;
+  const base = CODEX_README_LATTICE_TEMPLATE;
   const appendix = CODEX_README_THIN_APPENDIX;
   if (assetMode === 'thin') return `${base}${appendix}`;
   return base;
@@ -679,6 +707,8 @@ function findRepoRoot(start) {
 function resolveCli(root) {
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'proof-or-stop.js'),
   ];
   for (const candidate of jsCandidates) {
@@ -830,6 +860,8 @@ function findRepoRoot(start) {
 function resolveCli(root) {
   const jsCandidates = [
     path.join(root, 'packages', 'main', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@proof-or-stop', 'core', 'dist', 'cli.js'),
+    path.join(root, 'node_modules', '@lattice', 'core', 'dist', 'cli.js'),
     path.join(root, 'bin', 'proof-or-stop.js'),
   ];
   for (const candidate of jsCandidates) {
@@ -858,6 +890,11 @@ function resolveCli(root) {
  * branch importing the old symbol must keep compiling when it merges. Never remove.
  */
 /** @deprecated Use `ProofOrStopProjectConfig`. */
+export type LatticeProjectConfig = ProofOrStopProjectConfig;
+/** @deprecated Use `renderProofOrStopProjectConfig`. */
+export const renderLatticeProjectConfig = renderProofOrStopProjectConfig;
+/** @deprecated Use `PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST`. */
+export const LATTICE_CODEX_ADAPTER_MANIFEST = PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST;
 /** @deprecated Use `renderProofOrStopBootstrapScript`. */
 /** @deprecated Use `renderProofOrStopCodexAdapterManifest`. */
 /** @deprecated Use `renderProofOrStopCodexWrapperScript`. */

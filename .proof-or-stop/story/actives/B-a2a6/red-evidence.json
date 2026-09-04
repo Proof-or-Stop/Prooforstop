@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-a2a6",
+  "records": [
+    {
+      "id": "RED-20260824022500",
+      "trigger": "REVIEW readiness preflight stalls while collecting current-round reviewer evidence",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "07012b4aad41eaa6d5c4151a7c627e87b0236951",
+      "baselineMaterialHash": "ef65d9ab0848ceb92efd28797fb4238d8e368ce81ae3c3d0d7b30864ed71a26e",
+      "observedFailure": "Running proof-or-stop story_advance --storyId=B-dc83 --phase=DEV repeatedly left the story in REVIEW for more than twenty-two minutes without a phase write while the runtime preflight reparsed the same prompt-envelope ledger for many bound reviewer runs.",
+      "failingCommand": "LATTICE_SESSION_ID=sess-41e0efe6dc132e8ecd94b353cb4fbab8 proof-or-stop story_advance --storyId=B-dc83 --phase=DEV",
+      "expectedGreenCommand": "LATTICE_SESSION_ID=sess-41e0efe6dc132e8ecd94b353cb4fbab8 proof-or-stop story_advance --storyId=B-dc83 --phase=DEV",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "regression_to_green",
+        "command": "LATTICE_SESSION_ID=sess-41e0efe6dc132e8ecd94b353cb4fbab8 proof-or-stop story_advance --storyId=B-dc83 --phase=DEV"
+      },
+      "note": "Historical red observation captured from the approved B-dc83 reproduction; green is expected only after the separate cache fix is merged.",
+      "createdAt": "2026-08-24T02:25:00.821Z"
+    }
+  ],
+  "createdAt": "2026-08-24T02:25:00.821Z",
+  "updatedAt": "2026-08-24T02:25:00.821Z"
+}

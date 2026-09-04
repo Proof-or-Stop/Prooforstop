@@ -81,7 +81,7 @@ function withInitCheckLock<T>(store: StoryStore, storyId: string, fn: () => T): 
  * init_check_set handler factory.
  *
  * Called by the proof-or-stop-review-story-init subagent (CHK-002 template); writes init-check.json.
- * The registry validates mutation authority. A registered PROOF_OR_STOP_AGENT (deprecated alias PROOF_OR_STOP_AGENT) is the
+ * The registry validates mutation authority. A registered PROOF_OR_STOP_AGENT (deprecated alias LATTICE_AGENT) is the
  * authoritative dispatched identity, so payload agent/agentId attribution
  * cannot impersonate a trusted host or a different reviewer lane.
  *
@@ -253,7 +253,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
     /**
      * init_check_repair — B-95d8 CHK-001 explicit, auditable INIT_CHECK fallback.
      *
-     * For environments that cannot spawn the proof-or-stop-review-story-init / product-reviewer
+     * For environments that cannot spawn the proof-or-stop-review-story-init / proof-or-stop-product-reviewer
      * subagents (no init reviewer available). Produces a SIGNED init-check.json that
      * `canEnterInitCheck` / `getGuardFailureReason` accept — WITHOUT weakening the gate:
      *
@@ -289,7 +289,7 @@ export function createInitCheckHandlers(ctx: HandlerContext): Record<string, (..
       if (args.acknowledge !== true) {
         throw new Error(
           'init_check_repair: refused — this fallback bypasses the independent INIT reviewer and is disabled by default. ' +
-          'Re-run with explicit acknowledgement: pass acknowledge=true to confirm you are deliberately attesting in lieu of proof-or-stop-review-story-init / product-reviewer.',
+          'Re-run with explicit acknowledgement: pass acknowledge=true to confirm you are deliberately attesting in lieu of proof-or-stop-review-story-init / proof-or-stop-product-reviewer.',
         );
       }
       const reason = (args.fallbackReason ?? '').trim();

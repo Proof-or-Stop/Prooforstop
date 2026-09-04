@@ -173,6 +173,11 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   // relevant -- they must be stubbed here too, or they surface as snapshot_missing blind spots.
   write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohortRunner = true;\n');
+  // Inventory artifact registry lists these as producer/consumer source refs, so the
+  // bounded snapshot closure requires them once that entry is live.
+  write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance_basis";\n');
+  write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch = "acceptance_basis";\n');
+  write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory = "acceptance_basis";\n');
 }
 
 function checklist(): ChecklistData {
@@ -771,6 +776,31 @@ try {
     assert.ok(genericControl.adapterResults.find(result => result.method === 'static_call_graph')?.pathRefs.includes('actual:handler:packages/main/src/consumers/c2.ts#c2'), 'PRE_REVIEW exact consumer relation emits the actual consumer endpoint');
     const c2Path = genericControl.enumeratedPathRefs.find(path => path.includes('static-call:packages/main/src/handlers/review-run.ts#emitReviewRunFact') && path.includes('consumer:packages/main/src/consumers/c2.ts#consumeReviewRun'));
     assert.ok(c2Path, 'planned bounded graph discovers its non-ProofStory handler and external C2 consumer');
+    const sameFilePath = structuredClone(genericPlannedPath);
+    sameFilePath.producer.expectedFileRef = 'packages/main/src/handlers/review-run.ts';
+    sameFilePath.producer.expectedSymbolOrFact = 'emitReviewRunFact';
+    sameFilePath.consumers[0].expectedFileRef = 'packages/main/src/handlers/review-run.ts';
+    sameFilePath.consumers[0].expectedSymbolOrFact = 'review_run_start';
+    sameFilePath.outputFactRef = 'process-fact:review_run_start';
+    const sameFileInput = { ...genericInput, plannedPathRecords: [sameFilePath] };
+    const sameFileControl = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(sameFileInput));
+    const sameFileStatic = sameFileControl.adapterResults.find(result => result.method === 'static_call_graph');
+    assert.ok(sameFileStatic?.pathRefs.includes('actual:handler:packages/main/src/handlers/review-run.ts#emitReviewRunFact'), 'same-file valid edge emits the producer endpoint');
+    const reviewRunSourceControl = bytes(genericRoot, 'packages/main/src/handlers/review-run.ts');
+    write(genericRoot, 'packages/main/src/handlers/review-run.ts', reviewRunSourceControl.replace(
+      'review_run_start() { return emitReviewRunFact(); },',
+      'review_run_start() { function emitReviewRunFact() { return false; } return emitReviewRunFact(); },',
+    ));
+    const sameNameShadow = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(sameFileInput));
+    // NOTE (B-5a15): do NOT assert sameNameShadow.status === 'partial' here. This fixture also
+    // writes packages/main/src/consumers/c2.ts (above), which imports emitReviewRunFact as a
+    // genuine CROSS-FILE consumer, so discovery legitimately still reports 'complete' even when
+    // the same-file edge is broken by the nested shadow. Asserting 'partial' over-claims and
+    // fails on the aggregate rather than on the behaviour under test. The endpoint assertion
+    // below is the real adversarial check: the shadowed helper must not emit a FALSE producer
+    // endpoint for the same-file edge.
+    assert.ok(!sameNameShadow.adapterResults.find(result => result.method === 'static_call_graph')?.pathRefs.includes('actual:handler:packages/main/src/handlers/review-run.ts#emitReviewRunFact'), 'same-name nested helper does not emit a false producer endpoint');
+    write(genericRoot, 'packages/main/src/handlers/review-run.ts', reviewRunSourceControl);
     write(genericRoot, 'packages/main/src/consumers/c2.ts', [
       "import { emitReviewRunFact as consumeReviewRun } from '../handlers/review-run.js';",
       'export const c2 = () => true;',
@@ -1075,6 +1105,7 @@ try {
       rmSync(c2File, { force: true });
       const disappearedSource = reconcileAcceptanceDiscoveryResults(runAcceptanceDiscoveryAdapters(genericInput));
       assert.equal(disappearedSource.status, 'partial', 'disappearing consumer source fails closed without throwing');
+      assert.ok(disappearedSource.blindSpots.some(item => item.includes('consumerGate but no resolvable consumer source')), 'missing consumer source preserves the consumer diagnostic');
     } finally {
       rmSync(c2File, { force: true });
       rmSync(externalConsumerRoot, { recursive: true, force: true });

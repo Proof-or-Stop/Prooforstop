@@ -287,6 +287,7 @@ function git(root: string, args: string[]): string {
     cwd: root,
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
+    maxBuffer: 16 * 1024 * 1024,
   }).trim();
 }
 
@@ -3527,6 +3528,11 @@ if (process.argv[2] === '--ledger-worker') {
     utimesSync(staleLockDir, oldTime, oldTime);
     const successor = acquireMkdirLock(staleLockDir, {
       label: 'successor holder', requireHolderToken: true, staleMs: 5, deadlineMs: 1_000,
+      // Current mkdir-lock semantics never age-steal a provably live same-host
+      // holder. This fixture runs both logical holders in one process, so use
+      // the explicit classifier seam to model the dead/stale predecessor whose
+      // token the ledger fence must reject.
+      classifyExistingLock: () => 'stale',
     });
     try {
       assert.throws(() => appendLedgerTransaction(

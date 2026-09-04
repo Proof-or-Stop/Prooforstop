@@ -1,0 +1,943 @@
+{
+  "clusters": [
+    {
+      "clusterId": "CL-001",
+      "rootCause": "Multiple findings all involve packages/main/src/handlers/verifier.ts, packages/main/src/handlers/story-aware-validation.ts",
+      "findingIds": [
+        "B-45a0:F-001",
+        "B-45a0:F-002",
+        "B-45a0:F-004",
+        "B-45a0:F-005",
+        "B-45a0:F-006",
+        "B-45a0:F-007",
+        "B-45a0:F-008",
+        "B-45a0:F-009",
+        "B-45a0:F-010",
+        "B-45a0:F-011",
+        "B-45a0:F-013",
+        "B-45a0:F-014",
+        "B-45a0:F-015",
+        "B-45a0:F-018",
+        "B-45a0:F-019",
+        "B-45a0:F-020",
+        "B-45a0:F-021",
+        "B-45a0:F-022",
+        "B-45a0:F-024",
+        "B-45a0:F-025",
+        "B-45a0:F-027",
+        "B-45a0:F-028",
+        "B-45a0:F-029",
+        "B-45a0:F-030",
+        "B-45a0:F-031",
+        "B-45a0:F-032",
+        "B-45a0:F-033",
+        "B-45a0:F-034",
+        "B-45a0:F-035",
+        "B-45a0:F-036",
+        "B-45a0:F-037",
+        "B-45a0:F-038",
+        "B-45a0:F-039",
+        "B-45a0:F-040",
+        "B-45a0:F-041",
+        "B-45a0:F-042",
+        "B-45a0:F-043",
+        "B-45a0:F-045",
+        "B-45a0:F-046",
+        "B-45a0:F-047",
+        "B-45a0:F-048",
+        "B-45a0:F-049",
+        "B-45a0:F-050",
+        "B-45a0:F-051",
+        "B-45a0:F-052",
+        "B-45a0:F-053",
+        "B-45a0:F-054",
+        "B-45a0:F-055",
+        "B-45a0:F-056",
+        "B-45a0:F-057",
+        "B-45a0:F-058",
+        "B-45a0:F-059",
+        "B-45a0:F-060",
+        "B-45a0:F-062",
+        "B-45a0:F-063",
+        "B-45a0:F-064",
+        "B-45a0:F-065",
+        "B-45a0:F-067",
+        "B-45a0:F-068",
+        "B-45a0:F-069",
+        "B-45a0:F-070",
+        "B-45a0:F-071",
+        "B-45a0:F-072",
+        "B-45a0:F-073",
+        "B-45a0:F-074",
+        "B-45a0:F-075",
+        "B-45a0:F-076",
+        "B-45a0:F-078",
+        "B-45a0:F-079",
+        "B-45a0:F-080",
+        "B-45a0:F-081",
+        "B-45a0:F-082",
+        "B-45a0:F-083",
+        "B-45a0:F-084",
+        "B-45a0:F-085",
+        "B-45a0:F-086",
+        "B-45a0:F-088",
+        "B-45a0:F-090",
+        "B-45a0:F-091",
+        "B-45a0:F-093",
+        "B-45a0:F-094",
+        "B-45a0:F-095",
+        "B-45a0:F-096",
+        "B-45a0:F-097",
+        "B-45a0:F-098",
+        "B-45a0:F-099",
+        "B-45a0:F-101",
+        "B-45a0:F-102",
+        "B-45a0:F-103",
+        "B-45a0:F-104",
+        "B-45a0:F-105",
+        "B-45a0:F-106",
+        "B-45a0:F-107",
+        "B-45a0:F-108",
+        "B-45a0:F-109",
+        "B-45a0:F-111",
+        "B-45a0:F-112",
+        "B-45a0:F-113",
+        "B-45a0:F-114",
+        "B-45a0:F-116",
+        "B-45a0:F-118",
+        "B-45a0:F-119",
+        "B-45a0:F-120",
+        "B-45a0:F-122",
+        "B-45a0:F-124",
+        "B-45a0:F-125",
+        "B-45a0:F-126",
+        "B-45a0:F-128",
+        "B-45a0:F-129",
+        "B-45a0:F-131",
+        "B-45a0:F-132",
+        "B-45a0:F-133",
+        "B-45a0:F-134",
+        "B-45a0:F-135",
+        "B-45a0:F-136",
+        "B-45a0:F-138",
+        "B-45a0:F-140",
+        "B-45a0:F-144",
+        "B-45a0:F-146",
+        "B-45a0:F-147",
+        "B-45a0:F-148",
+        "B-45a0:F-149",
+        "B-45a0:F-151",
+        "B-45a0:F-152",
+        "B-45a0:F-155",
+        "B-45a0:F-156",
+        "B-45a0:F-158",
+        "B-45a0:F-159",
+        "B-45a0:F-160",
+        "B-45a0:F-161",
+        "B-45a0:F-162",
+        "B-45a0:F-166",
+        "B-45a0:F-169",
+        "B-45a0:F-172",
+        "B-45a0:F-174",
+        "B-45a0:F-175",
+        "B-45a0:F-176",
+        "B-45a0:F-177",
+        "B-45a0:F-178",
+        "B-45a0:F-179",
+        "B-45a0:F-180",
+        "B-45a0:F-181",
+        "B-45a0:F-182",
+        "B-45a0:F-183",
+        "B-45a0:F-184",
+        "B-45a0:F-185",
+        "B-45a0:F-186",
+        "B-45a0:F-187",
+        "B-45a0:F-188",
+        "B-45a0:F-190",
+        "B-45a0:F-191",
+        "B-45a0:F-192",
+        "B-45a0:F-193",
+        "B-45a0:F-194",
+        "B-45a0:F-195",
+        "B-45a0:F-196",
+        "B-45a0:F-197",
+        "B-45a0:F-198",
+        "B-45a0:F-199",
+        "B-45a0:F-200",
+        "B-45a0:F-202",
+        "B-45a0:F-203",
+        "B-45a0:F-204",
+        "B-45a0:F-205",
+        "B-45a0:F-206",
+        "B-45a0:F-207",
+        "B-45a0:F-208",
+        "B-45a0:F-209",
+        "B-45a0:F-210",
+        "B-45a0:F-211",
+        "B-45a0:F-212",
+        "B-45a0:F-213",
+        "B-45a0:F-215",
+        "B-45a0:F-216",
+        "B-45a0:F-217",
+        "B-45a0:F-218",
+        "B-45a0:F-219",
+        "B-45a0:F-220",
+        "B-45a0:F-221",
+        "B-45a0:F-222",
+        "B-45a0:F-223",
+        "B-45a0:F-224",
+        "B-45a0:F-225",
+        "B-45a0:F-226",
+        "B-45a0:F-227",
+        "B-45a0:F-229",
+        "B-45a0:F-230",
+        "B-45a0:F-232",
+        "B-45a0:F-233",
+        "B-45a0:F-234",
+        "B-45a0:F-235",
+        "B-45a0:F-236",
+        "B-45a0:F-237",
+        "B-45a0:F-239",
+        "B-45a0:F-240",
+        "B-45a0:F-242",
+        "B-45a0:F-243",
+        "B-45a0:F-245",
+        "B-45a0:F-246",
+        "B-45a0:F-247",
+        "B-45a0:F-248",
+        "B-45a0:F-249",
+        "B-45a0:F-250",
+        "B-45a0:F-251",
+        "B-45a0:F-252",
+        "B-45a0:F-253",
+        "B-45a0:F-254",
+        "B-45a0:F-255",
+        "B-45a0:F-256",
+        "B-45a0:F-257",
+        "B-45a0:F-258",
+        "B-45a0:F-259",
+        "B-45a0:F-260",
+        "B-45a0:F-261",
+        "B-45a0:F-262",
+        "B-45a0:F-265",
+        "B-45a0:F-266",
+        "B-45a0:F-267",
+        "B-45a0:F-268",
+        "B-45a0:F-269",
+        "B-45a0:F-270",
+        "B-45a0:F-271",
+        "B-45a0:F-272",
+        "B-45a0:F-273",
+        "B-45a0:F-274",
+        "B-45a0:F-275",
+        "B-45a0:F-276",
+        "B-45a0:F-277",
+        "B-45a0:F-278",
+        "B-45a0:F-279",
+        "B-45a0:F-280",
+        "B-45a0:F-281",
+        "B-45a0:F-282",
+        "B-45a0:F-283",
+        "B-45a0:F-284",
+        "B-45a0:F-285",
+        "B-45a0:F-286",
+        "B-45a0:F-287",
+        "B-45a0:F-288",
+        "B-45a0:F-289",
+        "B-45a0:F-290",
+        "B-45a0:F-291",
+        "B-45a0:F-292",
+        "B-45a0:F-293",
+        "B-45a0:F-294",
+        "B-45a0:F-295",
+        "B-45a0:F-296",
+        "B-45a0:F-298",
+        "B-45a0:F-299",
+        "B-45a0:F-305",
+        "B-45a0:F-306",
+        "B-45a0:F-307",
+        "B-45a0:F-309",
+        "B-45a0:F-310",
+        "B-45a0:F-313",
+        "B-45a0:F-314",
+        "B-45a0:F-315",
+        "B-45a0:F-316",
+        "B-45a0:F-317",
+        "B-45a0:F-318",
+        "B-45a0:F-320",
+        "B-45a0:F-321",
+        "B-45a0:F-322",
+        "B-45a0:F-323",
+        "B-45a0:F-339",
+        "B-45a0:F-341",
+        "B-45a0:F-342",
+        "B-45a0:F-343",
+        "B-45a0:F-345",
+        "B-45a0:F-346",
+        "B-45a0:F-347",
+        "B-45a0:F-348",
+        "B-45a0:F-350",
+        "B-45a0:F-351",
+        "B-45a0:F-352",
+        "B-45a0:F-353",
+        "B-45a0:F-354",
+        "B-45a0:F-355",
+        "B-45a0:F-356",
+        "B-45a0:F-357",
+        "B-45a0:F-358",
+        "B-45a0:F-359",
+        "B-45a0:F-360",
+        "B-45a0:F-362",
+        "B-45a0:F-363",
+        "B-45a0:F-364"
+      ],
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/tasks/story-aware-validation-smoke.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "lattice.config.json",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        "scripts/run-dynamic-validation-audit.mjs",
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "packages/main/src/tasks/story-aware-validation-production-smoke.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/CLI.md",
+        "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "packages/main/src/tasks/validation-protocol-smoke.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        "packages/main/src/core/validation-types.ts",
+        "proof-or-stop.config.json",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/NAV.md",
+        "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-fault-injection.mjs",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/background.md",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        "scripts/verify-validation-catalog.mjs",
+        "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+        ".proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        "packages/main/src/handlers/phase-gates.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/core/story-change-resolver.ts",
+        "packages/main/src/core/dual-revision-impact-graph.ts",
+        "packages/main/src/core/review-incremental-context.ts",
+        "docs/guide.md",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        ".proof-or-stop/story/actives/B-45a0/topology-critic-receipt.json",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        ".proof-or-stop/story/actives/B-45a0/findings.json"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-002",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-003"
+      ],
+      "files": [
+        "packages/main/src/core/story-aware-validation.ts",
+        "story-aware-validation-smoke.ts",
+        "story-aware-validation-mutation-smoke.ts",
+        "quorum-submit-shards.ts",
+        "review-pass-shards.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-003",
+      "rootCause": "Multiple findings all involve docs/CLI.md, packages/main/src/handlers/verifier.ts",
+      "findingIds": [
+        "B-45a0:F-012",
+        "B-45a0:F-153",
+        "B-45a0:F-154",
+        "B-45a0:F-157",
+        "B-45a0:F-163"
+      ],
+      "files": [
+        "docs/CLI.md",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "packages/main/src/core/config.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-004",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-016"
+      ],
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "receipts.js",
+        "revocation-ledger.js"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-005",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-017"
+      ],
+      "files": [
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "validation-executor.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-006",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-023"
+      ],
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "story-aware-validation.ts",
+        "receiptAdmissible.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-007",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-026"
+      ],
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "/tmp/input.js",
+        "validation-executor.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-008",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-044"
+      ],
+      "files": [
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        "packages/main/src/review-pass-cases.json"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-009",
+      "rootCause": "Multiple findings all involve packages/main/src/core/process-fact-registry.ts, packages/main/src/core/process-fact-levels.ts",
+      "findingIds": [
+        "B-45a0:F-061",
+        "B-45a0:F-066"
+      ],
+      "files": [
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-010",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/dynamic-validation-operations.md",
+      "findingIds": [
+        "B-45a0:F-077",
+        "B-45a0:F-100",
+        "B-45a0:F-127",
+        "B-45a0:F-300",
+        "B-45a0:F-302",
+        "B-45a0:F-303"
+      ],
+      "files": [
+        "proof-or-stop.config.json",
+        "lattice.config.json",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/CLI.md",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "docs/requirements/decisions/dynamic-validation-current-main-characterization.md",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-011",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-087"
+      ],
+      "files": [
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-012",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/dynamic-validation-enforcement-evidence.md, packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+      "findingIds": [
+        "B-45a0:F-089",
+        "B-45a0:F-361",
+        "B-45a0:F-365",
+        "B-45a0:F-366"
+      ],
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "scripts/run-dynamic-validation-replay.mjs",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/report.json",
+        ".proof-or-stop/runtime/dynamic-validation/historical-replay/paired-performance.json"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-013",
+      "rootCause": "Multiple findings all involve packages/main/src/core/story-aware-validation.ts",
+      "findingIds": [
+        "B-45a0:F-092",
+        "B-45a0:F-115",
+        "B-45a0:F-121",
+        "B-45a0:F-130",
+        "B-45a0:F-137",
+        "B-45a0:F-142"
+      ],
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-smoke.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/core/material-path-policy.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-014",
+      "rootCause": "Multiple findings all involve .proof-or-stop/story/actives/B-45a0/checklist.json, packages/main/src/handlers/proofstory.ts",
+      "findingIds": [
+        "B-45a0:F-110",
+        "B-45a0:F-150",
+        "B-45a0:F-189",
+        "B-45a0:F-297",
+        "B-45a0:F-304"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-015",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-117"
+      ],
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "packages/main/src/handlers/story-aware-validation.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-016",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/dynamic-validation-operations.md, docs/CLI.md",
+      "findingIds": [
+        "B-45a0:F-123",
+        "B-45a0:F-139"
+      ],
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/CLI.md",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-case-adapter.mjs"
+      ],
+      "severity": "low",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-017",
+      "rootCause": "Multiple findings all involve scripts/run-dynamic-validation-replay.mjs",
+      "findingIds": [
+        "B-45a0:F-141",
+        "B-45a0:F-143"
+      ],
+      "files": [
+        "scripts/run-dynamic-validation-replay.mjs"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-018",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-145"
+      ],
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "proof-or-stop.config.json",
+        "lattice.config.json",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-019",
+      "rootCause": "Multiple findings all involve docs/CLI.md, docs/requirements/NAV.md",
+      "findingIds": [
+        "B-45a0:F-164",
+        "B-45a0:F-165",
+        "B-45a0:F-167",
+        "B-45a0:F-168",
+        "B-45a0:F-170",
+        "B-45a0:F-171",
+        "B-45a0:F-173"
+      ],
+      "files": [
+        "docs/CLI.md",
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "lattice.config.json",
+        "package.json",
+        "packages/main/package.json",
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/acceptance-basis-receipt.ts",
+        "packages/main/src/core/evidence-freshness.ts",
+        "packages/main/src/core/lifecycle-registry.ts",
+        "packages/main/src/core/material-path-policy.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/core/types.ts",
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/src/core/validation-runtime-tracer.cjs",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/handlers/rollout-check.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "scripts/verify-story-aware-validation-plan.mjs",
+        "scripts/verify-validation-catalog.mjs",
+        "scripts/verify-validation-inventory.mjs",
+        "proof-or-stop.config.json"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-020",
+      "rootCause": "Multiple findings all involve docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md, packages/main/src/core/story-aware-validation.ts",
+      "findingIds": [
+        "B-45a0:F-201",
+        "B-45a0:F-214"
+      ],
+      "files": [
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/tasks/story-aware-validation-mutation-smoke.ts"
+      ],
+      "severity": "critical",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-021",
+      "rootCause": "Multiple findings all involve packages/main/src/tasks/proofstory-pre-review-check-smoke.ts, packages/main/src/core/acceptance-discovery-adapters.ts",
+      "findingIds": [
+        "B-45a0:F-228",
+        "B-45a0:F-231",
+        "B-45a0:F-238",
+        "B-45a0:F-241",
+        "B-45a0:F-244"
+      ],
+      "files": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/dual-revision-impact-graph.ts",
+        "packages/main/src/core/story-change-resolver.ts",
+        "packages/main/src/handlers/story-aware-validation.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-022",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-263"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/evidence/live-smoke-transcript.json",
+        ".proof-or-stop/story/actives/B-45a0/closeout-write-receipts.jsonl"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-023",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-264"
+      ],
+      "files": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-024",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-301"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/review-runs.js"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-025",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-308"
+      ],
+      "files": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "proof-or-stop.config.json",
+        "lattice.config.json",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-026",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-311"
+      ],
+      "files": [
+        "packages/main/src/core/review-assurance-floor.ts",
+        "packages/main/src/handlers/review-escalation.ts",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-027",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-312"
+      ],
+      "files": [
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.js"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-028",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-319"
+      ],
+      "files": [
+        "packages/main/src/tasks/story-aware-validation-historical-replay.ts",
+        "packages/main/src/core/story-signed-workspace-resolution.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-029",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-324"
+      ],
+      "files": [
+        "AGENTS.md,.proof-or-stop/story/actives/B-45a0/background.md,.proof-or-stop/story/actives/B-45a0/plan.md,.proof-or-stop/story/actives/B-45a0/checklist.json,.proof-or-stop/story/actives/B-45a0/acceptance-basis.json,.proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json,.proof-or-stop/story/actives/B-45a0/pre-review-check.json,.proof-or-stop/story/actives/B-45a0/scope-contract.json,.proof-or-stop/story/actives/B-45a0/review-inventory-epochs.json,.proof-or-stop/story/actives/B-45a0/review-runs.json,.proof-or-stop/story/actives/B-45a0/findings.json,.proof-or-stop/story/actives/B-45a0/topology-critic-receipt.json,.proof-or-stop/runtime/dynamic-validation/historical-replay/report.json,docs/CLI.md,docs/requirements/decisions/dynamic-validation-enforcement-evidence.md,docs/requirements/decisions/dynamic-validation-operations.md,docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md,docs/requirements/decisions/lifecycle-gate-receipt-consumption.md,docs/requirements/decisions/story-files-hash-material-drift.md,docs/requirements/decisions/testing-completeness.md,packages/main/src/core/acceptance-coverage-basis.ts,packages/main/src/core/acceptance-rollout.ts,packages/main/src/core/acceptance-topology.ts,packages/main/src/core/pre-review-check.ts,packages/main/src/core/pre-review-live-proof.ts,packages/main/src/core/story-aware-validation.ts,packages/main/src/core/story-signed-workspace-resolution.ts,packages/main/src/core/validation-types.ts,packages/main/src/handlers/story-aware-validation.ts,packages/main/src/handlers/verifier.ts,packages/main/src/handlers/transition-orchestrator.ts,packages/main/src/tasks/story-aware-validation-historical-replay.ts,scripts/run-proofstory-pre-review-live-proof.mjs,docs/requirements/decisions/routine-validation-fresh-pass-reuse.md,docs/requirements/decisions/test-runner-consolidation-plan.md,docs/requirements/decisions/validation-evidence-artifact-growth.md,docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md,packages/main/src/core/validation-revocation-ledger.ts,packages/main/src/tasks/story-aware-validation-mutation-smoke.ts,packages/main/src/tasks/story-aware-validation-production-smoke.ts,packages/main/src/tasks/validation-protocol-smoke.ts,scripts/run-dynamic-validation-fault-injection.mjs,scripts/run-dynamic-validation-replay.mjs,scripts/verify-story-aware-validation-plan.mjs,scripts/verify-validation-catalog.mjs,scripts/verify-validation-inventory.mjs"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-030",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-325"
+      ],
+      "files": [
+        "AGENTS.md,.proof-or-stop/story/actives/B-45a0/background.md,.proof-or-stop/story/actives/B-45a0/plan.md,.proof-or-stop/story/actives/B-45a0/checklist.json,.proof-or-stop/story/actives/B-45a0/acceptance-basis.json,.proof-or-stop/story/actives/B-45a0/pre-review-check.json,.proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json,.proof-or-stop/story/actives/B-45a0/test-evidence.json,.proof-or-stop/story/actives/B-45a0/findings.json,.proof-or-stop/story/actives/B-45a0/review-runs.json,.proof-or-stop/story/actives/B-45a0/review-passes.json,.proof-or-stop/story/actives/B-45a0/scope-contract.json,docs/requirements/decisions/dynamic-validation-enforcement-evidence.md,docs/requirements/decisions/dynamic-validation-operations.md,docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md,docs/requirements/decisions/lifecycle-gate-receipt-consumption.md,docs/requirements/decisions/story-files-hash-material-drift.md,docs/requirements/decisions/testing-completeness.md,packages/main/src/core/acceptance-coverage-basis.ts,packages/main/src/core/acceptance-topology.ts,packages/main/src/core/acceptance-rollout.ts,packages/main/src/core/pre-review-check.ts,packages/main/src/core/pre-review-live-proof.ts,packages/main/src/core/story-aware-validation.ts,packages/main/src/core/validation-types.ts,packages/main/src/handlers/verifier.ts,packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-031",
+      "rootCause": "Multiple findings all involve AGENTS.md, .proof-or-stop/story/actives/B-45a0/background.md",
+      "findingIds": [
+        "B-45a0:F-326",
+        "B-45a0:F-327",
+        "B-45a0:F-328",
+        "B-45a0:F-329",
+        "B-45a0:F-330",
+        "B-45a0:F-331",
+        "B-45a0:F-332",
+        "B-45a0:F-333",
+        "B-45a0:F-334",
+        "B-45a0:F-335",
+        "B-45a0:F-336",
+        "B-45a0:F-337",
+        "B-45a0:F-338"
+      ],
+      "files": [
+        "AGENTS.md",
+        ".proof-or-stop/story/actives/B-45a0/background.md",
+        ".proof-or-stop/story/actives/B-45a0/plan.md",
+        ".proof-or-stop/story/actives/B-45a0/checklist.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-basis.json",
+        ".proof-or-stop/story/actives/B-45a0/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-45a0/acceptance-rollout-report.json",
+        ".proof-or-stop/story/actives/B-45a0/test-evidence.json",
+        ".proof-or-stop/story/actives/B-45a0/findings.json",
+        ".proof-or-stop/story/actives/B-45a0/review-runs.json",
+        ".proof-or-stop/story/actives/B-45a0/review-passes.json",
+        ".proof-or-stop/story/actives/B-45a0/scope-contract.json",
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/testing-completeness.md",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-rollout.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/story-aware-validation.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/src/handlers/transition-orchestrator.ts",
+        ".proof-or-stop/story/actives/B-45a0/topology-critic-receipt.json"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-032",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-340"
+      ],
+      "files": [],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-033",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-344"
+      ],
+      "files": [
+        "packages/main/src/tasks/full-suite-runner.ts",
+        "packages/main/src/tasks/full-suite-runner-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    },
+    {
+      "clusterId": "CL-034",
+      "rootCause": "<to be filled by main agent>",
+      "findingIds": [
+        "B-45a0:F-349"
+      ],
+      "files": [],
+      "severity": "high",
+      "createdAt": "2026-08-27T01:22:47.272Z"
+    }
+  ]
+}

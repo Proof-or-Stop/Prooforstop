@@ -1,0 +1,38 @@
+{
+  "storyId": "B-212f",
+  "checkedAt": "2026-09-04T16:47:57.081Z",
+  "reviewRound": "",
+  "agentId": "proof-or-stop-review-story-init@fallback",
+  "issues": [],
+  "agentResults": [
+    {
+      "agentId": "proof-or-stop-review-story-init@fallback",
+      "checkedAt": "2026-09-04T16:47:57.081Z",
+      "issues": []
+    },
+    {
+      "agentId": "product-reviewer@fallback",
+      "checkedAt": "2026-09-04T16:47:57.081Z",
+      "issues": []
+    }
+  ],
+  "fallback": {
+    "mode": "fallback",
+    "reason": "Independent INIT subagents cannot be launched under the current host policy without explicit user authorization. I manually verified the four-section background, all three checklist items, exact executable RED controls, candidate GREEN relation, explicit scope and execution boundaries, no gate weakening, no evidence fabrication, no remote push, and the required evidence-backed defect-triage rule.",
+    "evidenceRefs": [
+      "repro-probe:rp-mtn2kjzu-pap3kp",
+      "repro-review:rr-mtn2kqun-vcqatu",
+      "red-green-relation:rgr-mtn2ppnx-h2nqoj",
+      "red-green-evaluation:rgre-mtn2ptyg-asgnhf",
+      ".proof-or-stop/story/actives/B-212f/scope-boundary.json",
+      ".proof-or-stop/story/actives/B-212f/execution-boundary.json",
+      ".proof-or-stop/story/actives/B-212f/scope-freeze-check.json"
+    ],
+    "actor": "Harmonynet",
+    "session": "sess-98d02a93a118a7f4d0a06d9380ca324d",
+    "attestedAt": "2026-09-04T16:47:57.081Z",
+    "headHash": "fb6349382e8f93a03525d3a6a69f1fba69ea6dfb",
+    "materialHash": "e4090a460ce4fe5114eff3834d93aa7660e41ed053a2666d95a7d3969f1dd0e2"
+  },
+  "_hash": "efd75d832f050e923b3138f28a513a1d3c976e86f46cdd561535b20cd3c05a5d"
+}

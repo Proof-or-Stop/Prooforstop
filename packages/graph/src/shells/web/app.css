@@ -1,0 +1,2108 @@
+:root{
+  --bg:#f4f5f7; --bg2:#e8eaee; --panel:#ffffff; --edge:#d5dae2;
+  --ink:#11141a; --ink2:#454d5b; --ink3:#767f8d;
+  --acc:#3a5f96; --acc2:#5b83bd;
+  --done:#2c7d5d; --disc:#8b909a; --init:#b07f2c; --chk:#3a5f96; --test:#7355ac; --meta:#a44e3a;
+  --pass:#2c7d5d; --fail:#a8341f; --warn:#b08a2e; --int:#b07f2c;
+  /* Lifecycle phase hues.
+
+     Spread by measurement, not by eye: the previous set had INIT_CHECK and DONE
+     at a Lab dE of only 16.4 (both muted blues) and PLAN/DONE at 24.4, so a
+     filter dot and its nodes were easy to mistake for a neighbouring phase.
+     This set holds a minimum pairwise dE of 27.1, with the worst old pair now
+     at 39.9. Hues walk the wheel and lightness alternates, so adjacent phases
+     differ on two axes rather than one.
+
+     The graph nodes, the filter dots and the search-result phase labels all
+     read these same variables through the PH map in app.js -- there is one
+     palette, not two. */
+  /* Timeline scrubber rail, and the motion scale the playback viewer animates
+     on. Neutral in both themes: it reads as chrome, not as a phase colour. */
+  --rail:#8b929d;
+  /* Scrollbars. Thumb only -- the track stays transparent so a scrollable
+     region does not gain a visible gutter it did not have before. Sized and
+     coloured here so every scroll area in the page matches; see the global
+     rule near the end of this file. */
+  --sb:rgba(17,20,26,.22);        /* thumb, resting */
+  --sb-hover:rgba(17,20,26,.38);  /* thumb, pointer over the region */
+  --ease:cubic-bezier(.22,.75,.24,1);
+  --motion-fast:140ms; --motion-base:200ms; --motion-panel:280ms;
+
+  --ph-init:#9a7016;      /* ochre    */
+  --ph-check:#0f8ea8;     /* cyan     */
+  --ph-plan:#6b46d6;      /* violet   */
+  --ph-dev:#12855a;       /* green    */
+  --ph-review:#d1521f;    /* orange   */
+  --ph-test:#b8358f;      /* magenta  */
+  --ph-done:#2d5fa8;      /* blue     */
+  --ph-disc:#8b939e;      /* grey     */
+  --ph-meta:#7a1533;      /* claret   */
+  /* d3/SVG graph layer.
+
+     graph2d.js used to paint these as literal hex, so the graph -- the largest
+     thing on screen -- stayed light-mode when everything around it went dark.
+     Declared here instead and read through getComputedStyle at paint time, so
+     one palette drives the whole page. */
+  --g-link:#e6e9ed;       /* resting edge                */
+  --g-link-lit:#b6bec9;   /* edge of a focused node      */
+  --g-link-hi:#4b78d8;    /* edge of the hovered node    */
+  --g-arrow:#8b95a6;      /* arrowhead, lit              */
+  --g-arrow-off:#dfe3e8;  /* arrowhead, resting          */
+  --g-node-ring:#ffffff;  /* disc outline, resting       */
+  --g-node-hover:#3b4557; /* disc outline, hovered       */
+  --g-node-sel:#1e2634;   /* disc outline + label, selected */
+  --sh1:0 1px 2px rgba(12,15,20,.07);
+  --sh2:0 4px 12px -3px rgba(12,15,20,.14),0 14px 32px -14px rgba(12,15,20,.18);
+  --sh3:0 12px 26px -6px rgba(12,15,20,.24),0 34px 74px -24px rgba(12,15,20,.32);
+}
+/* Explicit light choice.
+
+   The light values above sit on bare :root, and the dark media query below
+   overrides them -- so with the OS in dark mode there was nothing for a "force
+   light" setting to re-assert, and the toggle could only ever go one way. This
+   restates them under the attribute selector, which beats the media query. */
+:root[data-theme="light"]{
+  --bg:#f4f5f7; --bg2:#e8eaee; --panel:#ffffff; --edge:#d5dae2;
+  --ink:#11141a; --ink2:#454d5b; --ink3:#767f8d;
+  --acc:#3a5f96; --acc2:#5b83bd;
+  --done:#2c7d5d; --disc:#8b909a; --init:#b07f2c; --chk:#3a5f96; --test:#7355ac; --meta:#a44e3a;
+  --pass:#2c7d5d; --fail:#a8341f; --warn:#b08a2e; --int:#b07f2c;
+  --ph-init:#9a7016; --ph-check:#0f8ea8; --ph-plan:#6b46d6; --ph-dev:#12855a;
+  --ph-review:#d1521f; --ph-test:#b8358f; --ph-done:#2d5fa8; --ph-disc:#8b939e;
+  --ph-meta:#7a1533;
+  --sb:rgba(17,20,26,.22); --sb-hover:rgba(17,20,26,.38);
+  --g-link:#e6e9ed; --g-link-lit:#b6bec9; --g-link-hi:#4b78d8;
+  --g-arrow:#8b95a6; --g-arrow-off:#dfe3e8;
+  --g-node-ring:#ffffff; --g-node-hover:#3b4557; --g-node-sel:#1e2634;
+  --sh1:0 1px 2px rgba(12,15,20,.07);
+  --sh2:0 4px 12px -3px rgba(12,15,20,.14),0 14px 32px -14px rgba(12,15,20,.18);
+  --sh3:0 12px 26px -6px rgba(12,15,20,.24),0 34px 74px -24px rgba(12,15,20,.32);
+}
+:root:not([data-theme="light"]){@media (prefers-color-scheme:dark){
+  --bg:#0b0e14; --bg2:#070911; --panel:#151a23; --edge:#2a313d;
+  --ink:#e9ebef; --ink2:#a7afbc; --ink3:#6f7885;
+  --acc:#7ea0d0; --acc2:#9ab5dc;
+  --done:#48b386; --disc:#697080; --init:#d1a150; --chk:#7ea0d0; --test:#a68bdb; --meta:#d67960;
+  --pass:#48b386; --fail:#dd6f59; --warn:#cfab54; --int:#d1a150;
+  --ph-init:#e0b04a; --ph-check:#3ec3e0; --ph-plan:#a48bf0; --ph-dev:#35c48a;
+  --ph-review:#f5834e; --ph-test:#ea6fc0; --ph-done:#6b9be8; --ph-disc:#8b929d;
+  --ph-meta:#e05070;
+  --sb:rgba(233,235,239,.20); --sb-hover:rgba(233,235,239,.34);
+  --g-link:#242c38; --g-link-lit:#4a5464; --g-link-hi:#6f9bea;
+  --g-arrow:#6f7885; --g-arrow-off:#2a313d;
+  --g-node-ring:#0b0e14; --g-node-hover:#9aa4b4; --g-node-sel:#e9ebef;
+  --sh1:0 1px 2px rgba(0,0,0,.5);
+  --sh2:0 4px 14px -2px rgba(0,0,0,.6),0 16px 38px -16px rgba(0,0,0,.72);
+  --sh3:0 14px 30px -6px rgba(0,0,0,.72),0 40px 84px -26px rgba(0,0,0,.86);
+}}
+:root[data-theme="dark"]{
+  --bg:#0b0e14; --bg2:#070911; --panel:#151a23; --edge:#2a313d;
+  --ink:#e9ebef; --ink2:#a7afbc; --ink3:#6f7885;
+  --acc:#7ea0d0; --acc2:#9ab5dc;
+  --done:#48b386; --disc:#697080; --init:#d1a150; --chk:#7ea0d0; --test:#a68bdb; --meta:#d67960;
+  --pass:#48b386; --fail:#dd6f59; --warn:#cfab54; --int:#d1a150;
+  --ph-init:#e0b04a; --ph-check:#3ec3e0; --ph-plan:#a48bf0; --ph-dev:#35c48a;
+  --ph-review:#f5834e; --ph-test:#ea6fc0; --ph-done:#6b9be8; --ph-disc:#8b929d;
+  --ph-meta:#e05070;
+  --sb:rgba(233,235,239,.20); --sb-hover:rgba(233,235,239,.34);
+  --g-link:#242c38; --g-link-lit:#4a5464; --g-link-hi:#6f9bea;
+  --g-arrow:#6f7885; --g-arrow-off:#2a313d;
+  --g-node-ring:#0b0e14; --g-node-hover:#9aa4b4; --g-node-sel:#e9ebef;
+  --sh1:0 1px 2px rgba(0,0,0,.5);
+  --sh2:0 4px 14px -2px rgba(0,0,0,.6),0 16px 38px -16px rgba(0,0,0,.72);
+  --sh3:0 14px 30px -6px rgba(0,0,0,.72),0 40px 84px -26px rgba(0,0,0,.86);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:radial-gradient(125% 95% at 50% 8%,var(--bg) 0%,var(--bg2) 100%);
+  color:var(--ink);font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,sans-serif;
+  font-size:14px;line-height:1.5;overflow:hidden;-webkit-font-smoothing:antialiased;
+}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace}
+#cv{position:fixed;inset:0;width:100vw;height:100vh;display:block;cursor:grab}
+#cv.drag{cursor:grabbing}
+
+.hud{position:fixed;z-index:10;pointer-events:none}
+.hud>*{pointer-events:auto}
+.top{top:0;left:0;right:0;padding:16px 20px;display:flex;justify-content:space-between;gap:16px;align-items:flex-start;transition:right .34s cubic-bezier(.22,.75,.24,1)}
+body.open .top,body.open .bot{right:min(660px,52vw)}
+h1{font-family:Newsreader,Georgia,serif;font-size:22px;font-weight:600;margin:0;letter-spacing:-.015em}
+.sub{font-size:11.5px;color:var(--ink3);margin-top:2px}
+.sub b{color:var(--ink2);font-weight:500}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:62vw}
+.pill{
+  background:var(--panel);border:1px solid var(--edge);
+  border-radius:999px;padding:5px 10px;font:inherit;font-size:11px;color:var(--ink2);
+  cursor:pointer;display:flex;align-items:center;gap:6px;
+}
+.pill:hover{border-color:var(--acc);color:var(--ink)}
+.pill:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.pill[aria-pressed="true"]{border-color:var(--acc);color:var(--ink);background:color-mix(in srgb,var(--acc) 15%,var(--panel))}
+.pill .sw{width:8px;height:8px;border-radius:2px}
+.pill .n{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink3)}
+.bot{bottom:0;left:0;right:0;padding:14px 20px;display:flex;justify-content:space-between;align-items:flex-end;gap:14px;transition:right .34s cubic-bezier(.22,.75,.24,1)}
+.tips{font-size:10.5px;color:var(--ink3);line-height:1.75}
+kbd{font-family:"IBM Plex Mono",monospace;font-size:9.5px;border:1px solid var(--edge);border-radius:2px;padding:1px 4px;color:var(--ink2);background:var(--panel)}
+.srch{background:var(--panel);border:1px solid var(--edge);border-radius:3px;
+  padding:7px 10px;color:var(--ink);font:inherit;font-size:12px;width:200px}
+.srch:focus{outline:none;border-color:var(--acc)}
+.lgnd{
+  position:fixed;left:20px;bottom:74px;z-index:10;background:var(--panel);
+  border:1px solid var(--edge);border-radius:4px;padding:10px 12px;
+  font-size:10.5px;color:var(--ink2);max-width:212px;box-shadow:var(--sh1);
+}
+.lgnd .t{font-size:9px;text-transform:uppercase;letter-spacing:.11em;color:var(--ink3);font-weight:600;margin-bottom:6px}
+.lgnd .row{display:flex;align-items:center;gap:7px;margin-top:4px}
+.lgnd .sz{display:flex;align-items:flex-end;gap:5px;margin-top:7px}
+.lgnd .sz i{background:var(--ink3);border-radius:50%;display:block}
+
+.tip{
+  position:fixed;z-index:20;pointer-events:none;display:none;
+  background:var(--panel);border:1px solid var(--edge);border-radius:4px;box-shadow:var(--sh2);
+  padding:9px 11px;max-width:300px;
+}
+.tip.on{display:block}
+.tip .i{font-family:"IBM Plex Mono",monospace;font-size:12px;font-weight:500;color:var(--ph)}
+.tip .t{font-size:11.5px;color:var(--ink2);margin-top:3px;line-height:1.4}
+.tip .m{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink3);margin-top:5px;padding-top:5px;border-top:1px solid var(--edge)}
+
+/* drawer */
+.dr{
+  position:fixed;top:0;right:0;bottom:0;width:min(660px,52vw);z-index:30;
+  background:var(--panel);
+  border-left:1px solid var(--edge);box-shadow:-22px 0 64px -22px rgba(0,0,0,.5);
+  transform:translateX(102%);transition:transform .34s cubic-bezier(.22,.75,.24,1);
+  display:flex;flex-direction:column;
+}
+.dr.on{transform:translateX(0)}
+.dh{padding:16px 18px 13px;border-bottom:1px solid var(--edge);flex:none}
+.dh .r{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+/* id + the dossier link share the top line; a generous gap keeps the id
+   instantly readable on its own */
+.sidrow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.dh .sid{font-family:"IBM Plex Mono",monospace;font-size:14px;font-weight:500;color:var(--ph)}
+.dh h3{font-family:Newsreader,Georgia,serif;font-size:16.5px;line-height:1.28;margin:6px 0 0;font-weight:500;text-wrap:balance}
+.x{background:none;border:1px solid var(--edge);border-radius:3px;color:var(--ink2);cursor:pointer;
+  width:26px;height:26px;flex:none;font-size:15px;line-height:1;font-family:inherit}
+.x:hover{border-color:var(--acc);color:var(--ink)}
+.chips{display:flex;gap:4px;flex-wrap:wrap;margin-top:9px;align-items:center}
+.chip{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;
+  border:1px solid var(--edge);border-radius:2px;padding:2px 6px;color:var(--ink2)}
+.chip.ph{color:var(--ph);border-color:var(--ph)}
+.db{padding:14px 18px 28px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:15px}
+.sec .st{font-size:9px;text-transform:uppercase;letter-spacing:.12em;font-weight:600;color:var(--ink3);margin:0 0 6px}
+.sec p{margin:0;font-size:12.5px;color:var(--ink2);line-height:1.55}
+/* evidence chain mini-map */
+#chain{width:100%;height:216px;display:block;border:1px solid var(--edge);border-radius:4px;background:var(--bg2)}
+.clg{display:flex;gap:9px;flex-wrap:wrap;margin-top:6px;font-size:9.5px;color:var(--ink3)}
+.clg span{display:flex;align-items:center;gap:4px}
+.clg i{width:7px;height:7px;border-radius:50%}
+.mt{display:grid;grid-template-columns:repeat(auto-fit,minmax(84px,1fr));gap:7px}
+.mt .m{border:1px solid var(--edge);border-radius:3px;padding:7px 8px;background:color-mix(in srgb,var(--bg2) 60%,transparent)}
+.mt .v{font-family:"IBM Plex Mono",monospace;font-size:16px;font-weight:500;font-variant-numeric:tabular-nums;line-height:1.1}
+.mt .l{font-size:9px;color:var(--ink3);margin-top:2px}
+.mt .m.g .v{color:var(--pass)} .mt .m.r .v{color:var(--fail)} .mt .m.b .v{color:var(--acc)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 12px;font-size:12px}
+.kv dt{color:var(--ink3)} .kv dd{margin:0;font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+ul.l{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:5px}
+ul.l li{font-size:12px;color:var(--ink2);line-height:1.45;padding-left:10px;position:relative}
+ul.l li::before{content:"";position:absolute;left:0;top:6px;width:3px;height:3px;border-radius:50%;background:var(--acc)}
+ul.l li.c::before{background:var(--pass)}
+.pth{font-family:"IBM Plex Mono",monospace;font-size:10.5px;word-break:break-all}
+.sv{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px}
+.sv b{font-family:"IBM Plex Mono",monospace;font-size:10px;border-radius:2px;padding:2px 6px;border:1px solid;font-weight:400}
+.sv b.c{color:var(--fail);border-color:var(--fail)}
+.sv b.h{color:var(--warn);border-color:var(--warn)}
+.sv b.m{color:var(--int);border-color:var(--int)}
+.sv b.l{color:var(--disc);border-color:var(--disc)}
+.rel{display:flex;flex-wrap:wrap;gap:4px}
+.rel button{font-family:"IBM Plex Mono",monospace;font-size:10.5px;background:transparent;
+  border:1px solid var(--edge);border-radius:2px;padding:3px 7px;color:var(--acc);cursor:pointer}
+.rel button:hover{border-color:var(--acc)}
+.rel .dir{color:var(--ink3);font-size:9.5px;margin-left:2px}
+.emp{font-size:11.5px;color:var(--ink3);font-style:italic}
+@media (max-width:760px){.dr{width:100%}.ctl{max-width:100%}.top{flex-direction:column}}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important}}
+
+/* tabs */
+/* flex-basis:100% forces the tab strip onto its own wrap line: a chip that
+   wrapped next to it used to share the line and stretch to the strip's
+   height, ballooning to twice chip size. */
+.tabs{display:flex;gap:1px;margin-top:11px;border-bottom:1px solid var(--edge);flex-wrap:wrap;overflow:visible;flex-basis:100%}
+.tabs button{
+  background:none;border:0;border-bottom:2px solid transparent;padding:6px 7px;margin-bottom:-1px;
+  font:inherit;font-size:11px;color:var(--ink3);cursor:pointer;display:flex;align-items:center;gap:4px;
+  white-space:nowrap;flex:0 0 auto;
+}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ph);font-weight:500}
+.tabs button:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.tabs .ct{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink3);
+  border:1px solid var(--edge);border-radius:999px;padding:0 5px}
+.tabs button[aria-selected="true"] .ct{border-color:var(--ph);color:var(--ph)}
+
+/* checklist / chain blocks */
+.chk{border:1px solid var(--edge);border-radius:4px;overflow:hidden;background:color-mix(in srgb,var(--bg2) 45%,transparent)}
+.chk+.chk{margin-top:9px}
+.chk>summary{padding:9px 11px;cursor:pointer;list-style:none;display:flex;gap:9px;align-items:flex-start}
+.chk>summary::-webkit-details-marker{display:none}
+.chk>summary:hover{background:color-mix(in srgb,var(--acc) 7%,transparent)}
+.chk .cid{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;color:var(--acc);flex:none}
+.chk .ctitle{font-size:12px;line-height:1.4;color:var(--ink);flex:1}
+.chk .cst{font-family:"IBM Plex Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.06em;
+  border:1px solid var(--edge);border-radius:2px;padding:1px 5px;color:var(--ink3);flex:none}
+.chk .cst.done{color:var(--pass);border-color:var(--pass)}
+.chk .body{padding:0 11px 11px;border-top:1px solid var(--edge)}
+.us{font-size:11.5px;color:var(--ink2);background:color-mix(in srgb,var(--acc) 8%,transparent);
+  border-left:2px solid var(--acc);padding:7px 9px;margin:10px 0;line-height:1.5}
+.us b{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:var(--acc);display:block;margin-bottom:3px}
+.lane{margin-top:11px}
+.lane>.lh{font-family:"IBM Plex Mono",monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink3);margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.lane>.lh i{width:6px;height:6px;border-radius:50%;background:var(--int)}
+.lane.edge>.lh i{background:var(--warn)} .lane.adversarial>.lh i{background:var(--fail)}
+.int{border-left:2px solid var(--int);padding:0 0 0 10px;margin-bottom:11px}
+.lane.edge .int{border-left-color:var(--warn)} .lane.adversarial .int{border-left-color:var(--fail)}
+.int .idesc{font-size:12px;color:var(--ink);line-height:1.5}
+.int .imeta{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink3);margin-top:3px;display:flex;gap:8px;flex-wrap:wrap}
+.int .imeta b{color:var(--ink2);font-weight:500}
+.ev{margin-top:7px;border:1px solid var(--edge);border-radius:3px;background:var(--panel);padding:7px 9px}
+.ev .eh{display:flex;gap:7px;align-items:center;flex-wrap:wrap}
+.ev .kind{font-family:"IBM Plex Mono",monospace;font-size:9.5px;text-transform:uppercase;letter-spacing:.06em;
+  border-radius:2px;padding:1px 5px;border:1px solid var(--edge);color:var(--ink2)}
+.ev .res{font-family:"IBM Plex Mono",monospace;font-size:9.5px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.ev .res.pass{color:var(--pass)} .ev .res.fail{color:var(--fail)}
+.ev .mech{font-family:"IBM Plex Mono",monospace;font-size:9px;color:var(--acc);border:1px solid var(--acc);border-radius:2px;padding:0 4px}
+.ev .att{font-family:"IBM Plex Mono",monospace;font-size:9px;color:var(--ink3);border:1px solid var(--edge);border-radius:2px;padding:0 4px}
+.cmd{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink);background:var(--bg2);
+  border-radius:2px;padding:5px 7px;margin-top:5px;word-break:break-all;line-height:1.45}
+.cmd::before{content:"$ ";color:var(--ink3)}
+.fpath{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink3);margin-top:4px;word-break:break-all}
+.enote{font-size:11px;color:var(--ink2);margin-top:5px;line-height:1.45}
+.rcpt{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink3);margin-top:5px;
+  display:flex;gap:9px;flex-wrap:wrap;padding-top:5px;border-top:1px dashed var(--edge)}
+.rcpt b{color:var(--ink2);font-weight:500}
+.rcpt .ok{color:var(--pass)} .rcpt .no{color:var(--fail)}
+pre.tail{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink2);background:var(--bg2);
+  border-radius:2px;padding:6px 8px;margin:5px 0 0;overflow-x:auto;white-space:pre-wrap;line-height:1.45;max-height:120px}
+.noev{font-size:10.5px;color:var(--ink3);font-style:italic;margin-top:6px}
+
+/* findings */
+.fnd{border:1px solid var(--edge);border-left-width:3px;border-radius:4px;padding:9px 11px;background:var(--panel)}
+.fnd+.fnd{margin-top:8px}
+.fnd.critical{border-left-color:var(--fail)} .fnd.high{border-left-color:var(--warn)}
+.fnd.medium{border-left-color:var(--int)} .fnd.low{border-left-color:var(--disc)}
+.fnd .fh{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:5px}
+.fnd .fid{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500}
+.fnd .fsev{font-family:"IBM Plex Mono",monospace;font-size:9px;text-transform:uppercase;letter-spacing:.07em;
+  border-radius:2px;padding:1px 5px;border:1px solid}
+.fnd.critical .fsev{color:var(--fail);border-color:var(--fail)}
+.fnd.high .fsev{color:var(--warn);border-color:var(--warn)}
+.fnd.medium .fsev{color:var(--int);border-color:var(--int)}
+.fnd.low .fsev{color:var(--disc);border-color:var(--disc)}
+.fnd .fst{font-family:"IBM Plex Mono",monospace;font-size:9px;color:var(--ink3)}
+.fnd .fst.open{color:var(--fail);font-weight:500}
+.fnd .fag{font-family:"IBM Plex Mono",monospace;font-size:9px;color:var(--acc);margin-left:auto}
+.fnd .fdesc{font-size:11.5px;color:var(--ink2);line-height:1.5;white-space:pre-wrap}
+.fnd .ffiles{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink3);margin-top:6px;word-break:break-all}
+.fnd .fres{font-size:11px;color:var(--ink2);margin-top:6px;padding-top:6px;border-top:1px dashed var(--edge)}
+.fnd .fres b{font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--pass);display:block;margin-bottom:2px}
+.fbar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.fbar button{font:inherit;font-size:10.5px;background:none;border:1px solid var(--edge);border-radius:999px;
+  padding:3px 9px;color:var(--ink2);cursor:pointer}
+.fbar button[aria-pressed="true"]{border-color:var(--acc);color:var(--ink);background:color-mix(in srgb,var(--acc) 14%,transparent)}
+.tl{display:flex;flex-direction:column;gap:0}
+.tl .r{display:grid;grid-template-columns:78px 1fr;gap:9px;font-size:11px;padding:4px 0;border-bottom:1px solid var(--edge)}
+.tl .r:last-child{border-bottom:0}
+.tl .r .t{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink3)}
+.tl .r .p{color:var(--ink2)} .tl .r .p b{color:var(--ink);font-weight:500}
+.gate{border:1px solid var(--edge);border-radius:3px;padding:7px 9px;background:var(--panel)}
+.gate+.gate{margin-top:6px}
+.gate .gh{display:flex;justify-content:space-between;gap:8px;font-size:11.5px}
+.gate .gm{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink3);margin-top:3px;display:flex;gap:9px;flex-wrap:wrap}
+
+.mdblk{font-size:12px;color:var(--ink2);line-height:1.55;max-height:420px;overflow-y:auto;
+  border:1px solid var(--edge);border-radius:3px;padding:9px 11px;background:var(--panel)}
+.mdblk .mdh{font-weight:600;color:var(--ink);margin:9px 0 4px;font-size:12px}
+.mdblk .mdh:first-child{margin-top:0}
+.mdblk .mdp{margin:0 0 5px}
+.mdblk .mdli{padding-left:11px;position:relative;margin-bottom:3px}
+.mdblk .mdli::before{content:"";position:absolute;left:1px;top:7px;width:3px;height:3px;border-radius:50%;background:var(--acc)}
+.mdblk pre.tail{max-height:none}
+
+/* provenance */
+.hash{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink2);word-break:break-all}
+.hash.dim{color:var(--ink3)}
+.idsep{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+@media (max-width:620px){.idsep{grid-template-columns:1fr}}
+.idcol{border:1px solid var(--edge);border-radius:3px;padding:8px 9px;background:var(--panel)}
+.idh{font-size:9px;text-transform:uppercase;letter-spacing:.11em;font-weight:600;color:var(--acc);margin-bottom:5px}
+.verdictline{font-size:11.5px;margin-top:8px;padding:6px 9px;border-radius:3px;border-left:2px solid;line-height:1.45}
+.verdictline.good{color:var(--pass);border-left-color:var(--pass);background:color-mix(in srgb,var(--pass) 10%,var(--panel))}
+.verdictline.bad{color:var(--fail);border-left-color:var(--fail);background:color-mix(in srgb,var(--fail) 10%,var(--panel))}
+.chaintbl{border:1px solid var(--edge);border-radius:3px;overflow:hidden;background:var(--panel)}
+.chrow{display:grid;grid-template-columns:26px 1.15fr 1fr 1.5fr;gap:7px;padding:5px 8px;font-size:10px;align-items:center}
+.chrow+.chrow{border-top:1px solid var(--edge)}
+.chrow.chhead{font-size:8.5px;text-transform:uppercase;letter-spacing:.09em;color:var(--ink3);font-weight:600;
+  background:color-mix(in srgb,var(--bg2) 55%,var(--panel))}
+.chrow .mono{font-family:"IBM Plex Mono",monospace;color:var(--ink2);overflow:hidden;text-overflow:ellipsis}
+
+/* lifecycle timeline */
+.seg{border-left:2px solid var(--edge);padding:0 0 0 11px;margin-bottom:13px;position:relative}
+.segh{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.segdot{width:8px;height:8px;border-radius:50%;position:absolute;left:-5px;top:5px;border:2px solid var(--panel)}
+.segp{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:600;letter-spacing:.03em}
+.sega{font-size:11px;color:var(--ink3)}
+.segback{font-size:10px;color:var(--fail);border:1px solid var(--fail);border-radius:2px;padding:0 5px}
+.segt{font-size:9.5px;color:var(--ink3);margin-left:auto}
+.segrs{font-size:11.5px;color:var(--ink2);margin-top:4px;line-height:1.45;
+  border-left:2px solid var(--warn);padding-left:8px}
+.segn{display:flex;gap:8px;flex-wrap:wrap;margin-top:5px}
+.segn span{font-family:"IBM Plex Mono",monospace;font-size:9px;color:var(--ink3);
+  border:1px solid var(--edge);border-radius:2px;padding:1px 5px}
+.segit{margin-top:7px;display:flex;flex-direction:column;gap:5px}
+.tle{display:grid;grid-template-columns:52px 14px 1fr;gap:6px;align-items:baseline;font-size:11px;color:var(--ink2)}
+.tlt{font-size:9.5px;color:var(--ink3)}
+/* Day offset on a row that crosses midnight ("+1" after 00:35:08).
+
+   `line-height:0` and the absolute-ish superscript keep it from growing the
+   row: the time cell is a fixed width and the marker has to sit inside it
+   without pushing the clock, wrapping, or changing the line box. Accent
+   coloured because it is a correction to how the row reads, not more metadata
+   -- at a glance the reader needs to see that this one is a different day. */
+.tldd{font-size:8px;line-height:0;vertical-align:super;margin-left:1px;
+  color:var(--acc);font-weight:600;letter-spacing:0}
+.tlic{color:var(--acc);text-align:center;font-size:10px}
+.tltx b{color:var(--ink);font-weight:500}
+.tlf{border:1px solid var(--edge);border-left-width:3px;border-radius:3px;padding:6px 8px;background:var(--panel)}
+.tlf.critical{border-left-color:var(--fail)} .tlf.high{border-left-color:var(--warn)}
+.tlf.medium{border-left-color:var(--int)} .tlf.low{border-left-color:var(--disc)}
+.tlfh{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.tlfh .fid{font-size:10.5px;font-weight:500;color:var(--ink)}
+.tlfd{font-size:11px;color:var(--ink2);margin-top:4px;line-height:1.45}
+.tlff{font-size:9.5px;color:var(--ink3);margin-top:3px;word-break:break-all}
+
+.tlf.jump{cursor:pointer;transition:border-color .15s,transform .15s}
+.tlf.jump:hover{border-color:var(--acc)}
+.tlf.jump:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.tlf.jump::after{content:"↗";position:absolute;right:7px;top:5px;font-size:9px;color:var(--ink3)}
+.tlf{position:relative}
+.tlf.jump:hover::after{color:var(--acc)}
+.tllink{margin-left:auto;background:none;border:1px solid var(--edge);border-radius:2px;
+  font:inherit;font-size:9px;font-family:"IBM Plex Mono",monospace;color:var(--ink3);
+  padding:1px 5px;cursor:pointer}
+.tllink:hover{border-color:var(--acc);color:var(--acc)}
+.tllink:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+@keyframes flashk{0%{box-shadow:0 0 0 2px var(--acc)}100%{box-shadow:0 0 0 2px transparent}}
+.flash{animation:flashk 1.5s ease-out}
+
+.srchwrap{position:relative;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.srch{width:300px}
+.results{
+  display:none;position:absolute;bottom:calc(100% + 7px);right:0;width:min(560px,54vw);
+  max-height:min(460px,54vh);overflow-y:auto;background:var(--panel);
+  border:1px solid var(--edge);border-radius:4px;box-shadow:var(--sh3);
+}
+.results.on{display:block}
+.rhead{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--ink3);
+  padding:7px 10px;border-bottom:1px solid var(--edge);position:sticky;top:0;
+  /* z-index is load-bearing: the header is sticky with a background, but without
+     a stacking order the rows scroll OVER it and the two texts overlap. */
+  z-index:2;background:var(--panel);font-weight:600}
+.rrow{display:grid;grid-template-columns:62px 1fr;gap:4px 8px;width:100%;text-align:left;
+  background:none;border:0;border-bottom:1px solid var(--edge);padding:7px 10px;cursor:pointer;font:inherit}
+.rrow:hover{background:color-mix(in srgb,var(--acc) 9%,var(--panel))}
+.rrow:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
+.rk{font-family:"IBM Plex Mono",monospace;font-size:8.5px;text-transform:uppercase;letter-spacing:.06em;
+  border:1px solid var(--edge);border-radius:2px;padding:1px 0;text-align:center;color:var(--ink3);align-self:start}
+.rk.finding{color:var(--fail);border-color:var(--fail)}
+.rk.story{color:var(--acc);border-color:var(--acc)}
+.rk.intent{color:var(--int);border-color:var(--int)}
+.rk.evidence{color:var(--pass);border-color:var(--pass)}
+.rid{font-size:10px;color:var(--ink);grid-column:2}
+.rsn{grid-column:2;font-size:11px;color:var(--ink2);line-height:1.4}
+.rsn mark{background:color-mix(in srgb,var(--warn) 34%,transparent);color:var(--ink);border-radius:1px;padding:0 1px}
+.chk.flash{animation:flashk 1.5s ease-out}
+
+/* ---- header layout: brand | SEARCH (hero) | filters ---- */
+.top{align-items:flex-start}
+.brandcol{flex:0 0 auto;min-width:0}
+.srchcol{flex:1 1 520px;max-width:620px;position:relative;display:flex;flex-direction:column;align-items:stretch}
+.ctl{flex:0 0 auto}
+
+.srchbox{
+  display:flex;align-items:center;gap:9px;
+  background:var(--panel);border:1.5px solid var(--edge);border-radius:7px;
+  padding:0 11px;height:42px;box-shadow:var(--sh2);
+  transition:border-color .16s,box-shadow .16s;
+}
+.srchbox:hover{border-color:var(--acc2)}
+.srchbox:focus-within{border-color:var(--acc);box-shadow:var(--sh3),0 0 0 3px color-mix(in srgb,var(--acc) 22%,transparent)}
+.srchic{width:16px;height:16px;color:var(--ink3);flex:none}
+.srchbox:focus-within .srchic{color:var(--acc)}
+/* override the old small input styling */
+.srchcol .srch{
+  flex:1;width:auto;min-width:0;background:none;border:0;padding:0;height:100%;
+  color:var(--ink);font:inherit;font-size:14px;
+}
+.srchcol .srch::placeholder{color:var(--ink3)}
+.srchcol .srch:focus{outline:none}
+.srchcol .srch::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none}
+.srchkbd{
+  font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--ink3);flex:none;
+  border:1px solid var(--edge);border-radius:3px;padding:1px 6px;background:var(--bg2);
+}
+.srchbox:focus-within .srchkbd{opacity:0}
+
+/* dropdown now opens DOWNWARD from the header */
+.srchcol .results{
+  position:absolute;top:calc(100% + 7px);bottom:auto;left:0;right:0;width:auto;
+  max-height:min(62vh,560px);
+}
+@media (max-width:1080px){
+  .top{flex-wrap:wrap}
+  .srchcol{order:3;flex:1 1 100%;max-width:none}
+  .ctl{order:2}
+}
+
+.rnone{padding:11px 12px;font-size:11.5px;color:var(--ink2);line-height:1.55}
+.rnone code{font-family:"IBM Plex Mono",monospace;font-size:10.5px;background:var(--bg2);
+  border:1px solid var(--edge);border-radius:2px;padding:1px 4px}
+.rsug{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.rsug button{font-family:"IBM Plex Mono",monospace;font-size:10.5px;background:var(--panel);
+  border:1px solid var(--edge);border-radius:3px;padding:3px 8px;color:var(--acc);cursor:pointer}
+.rsug button:hover{border-color:var(--acc)}
+.rsug button:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+
+.tabs button.empty{opacity:.34}
+.tabs button.empty:hover{opacity:.62}
+.rph{font-size:8.5px;letter-spacing:.06em;margin-left:5px;opacity:.85}
+
+.phbar{display:flex;height:9px;border-radius:3px;overflow:hidden;margin-top:9px;
+  border:1px solid var(--edge);background:var(--bg2)}
+.phbar span{display:block;height:100%}
+.phlist{display:flex;flex-direction:column;gap:2px;margin-top:8px}
+.phrow{display:grid;grid-template-columns:9px 82px 54px 34px 1fr;gap:8px;align-items:center;font-size:10.5px}
+.phdot{width:7px;height:7px;border-radius:50%}
+.phk{color:var(--ink);letter-spacing:.03em}
+.phv{color:var(--ink);font-variant-numeric:tabular-nums;text-align:right}
+.php{color:var(--ink3);font-variant-numeric:tabular-nums;text-align:right}
+.phc{color:var(--ink3)}
+
+.note2{margin-top:8px;font-size:10.5px;color:var(--ink3);line-height:1.5}
+.note2 code{font-family:"IBM Plex Mono",monospace;font-size:10px;background:var(--bg2);
+  border:1px solid var(--edge);border-radius:2px;padding:0 3px}
+
+.chip.live{color:var(--ph-review);border-color:var(--ph-review)}
+.livebar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);
+  border:1px solid var(--edge);border-left:3px solid var(--ph-review);border-radius:3px;
+  padding:8px 10px;background:var(--panel)}
+.livebar b{color:var(--ink);font-family:"IBM Plex Mono",monospace;font-size:11.5px}
+.livedot{width:8px;height:8px;border-radius:50%;flex:none}
+.livedot.hot{background:var(--pass);box-shadow:0 0 0 3px color-mix(in srgb,var(--pass) 26%,transparent)}
+.livedot.stale{background:var(--warn);box-shadow:0 0 0 3px color-mix(in srgb,var(--warn) 26%,transparent)}
+.livedot.idle{background:var(--ink3)}
+
+.tabs button[data-tab="live"]{color:var(--ph-review);font-weight:500}
+.tabs button[data-tab="live"][aria-selected="true"]{border-bottom-color:var(--ph-review)}
+
+.chip.wt{color:var(--ph-dev);border-color:var(--ph-dev);font-size:9px}
+
+.livetag{margin-left:8px;font-family:"IBM Plex Mono",monospace;font-size:9.5px;
+  border:1px solid var(--edge);border-radius:999px;padding:1px 7px;color:var(--ink3)}
+.livetag.ok{color:var(--pass);border-color:var(--pass)}
+.livetag.busy{color:var(--warn);border-color:var(--warn)}
+.livetag.err{color:var(--fail);border-color:var(--fail)}
+.loading{position:fixed;inset:0;display:grid;place-items:center;z-index:50;background:var(--bg);
+  font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink3)}
+.filetree{display:flex;flex-direction:column;gap:3px}
+.filerow{display:grid;grid-template-columns:1fr auto auto;gap:8px;align-items:center;
+  border:1px solid var(--edge);border-radius:3px;padding:5px 8px;background:var(--panel);
+  cursor:pointer;font-size:11.5px}
+.filerow:hover{border-color:var(--acc)}
+.filerow .fname{font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+.filerow .fkind{font-family:"IBM Plex Mono",monospace;font-size:9px;color:var(--ink3)}
+.filerow .fsize{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink3);font-variant-numeric:tabular-nums}
+pre.raw{font-family:"IBM Plex Mono",monospace;font-size:10.5px;line-height:1.5;color:var(--ink2);
+  background:var(--bg2);border:1px solid var(--edge);border-radius:3px;padding:9px 11px;
+  margin:6px 0 0;overflow:auto;max-height:60vh;white-space:pre-wrap;word-break:break-word}
+
+/* status tag: fixed box so it never reflows the header */
+.livetag{display:inline-block;min-width:66px;text-align:center;vertical-align:baseline}
+/* active-tab caption */
+.tabcap{font-size:10.5px;color:var(--ink3);padding:6px 0 0;line-height:1.45;min-height:15px}
+/* drawer resize grip */
+.drgrip{position:absolute;left:-3px;top:0;bottom:0;width:9px;cursor:col-resize;z-index:5;
+  touch-action:none;background:transparent}
+.drgrip::after{content:"";position:absolute;left:3px;top:0;bottom:0;width:2px;background:transparent;transition:background .15s}
+.drgrip:hover::after{background:var(--acc)}
+.dr{transition:transform .34s cubic-bezier(.22,.75,.24,1)}
+/* header/footer yield to the (possibly resized) drawer */
+body.open .top,body.open .bot{right:var(--drawerW,min(660px,52vw))}
+
+.flowwrap{display:flex;align-items:stretch;gap:0;overflow-x:auto;padding:4px 0 8px}
+.flowbox{flex:0 0 auto;min-width:118px;border:1px solid var(--edge);border-left:3px solid var(--pc);
+  border-radius:4px;padding:7px 9px;background:var(--panel)}
+.flowbox.unseen{opacity:.45;border-left-color:var(--edge);border-style:dashed}
+.flowbox.cur{box-shadow:0 0 0 2px var(--pc);border-color:var(--pc)}
+.flowbox .fp{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;color:var(--pc);letter-spacing:.03em}
+.flowbox .fm{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--ink3);margin-top:3px;white-space:nowrap}
+.flowbox .fcur{font-size:9px;color:var(--pc);margin-top:2px;font-weight:600}
+.flowarr{flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:0 6px;min-width:74px}
+.flowarr .fwd{font-family:"IBM Plex Mono",monospace;font-size:8.5px;color:var(--pass);white-space:nowrap}
+.flowarr .bwd{font-family:"IBM Plex Mono",monospace;font-size:8.5px;color:var(--fail);white-space:nowrap}
+.flowarr .line{color:var(--ink3);font-size:13px;line-height:1.1}
+
+.mermaid-host{overflow-x:auto;overflow-y:hidden;padding:8px 0;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--ink3)}
+.mermaid-host svg{max-width:none;height:auto}
+
+/* finding hover preview */
+.peek{position:fixed;z-index:60;display:none;width:min(520px,44vw);max-height:60vh;overflow:auto;
+  background:var(--panel);border:1px solid var(--edge);border-left:3px solid var(--acc);
+  border-radius:5px;box-shadow:var(--sh3);padding:11px 13px}
+.peek.on{display:block}
+.peek .pkh{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.peek .pkid{font-size:11.5px;font-weight:500;color:var(--ink)}
+.peek .pkd{font-size:12px;color:var(--ink2);line-height:1.55;white-space:pre-wrap}
+.peek .pkf{font-size:9.5px;color:var(--ink3);margin-top:6px;word-break:break-all}
+.peek .pkr{margin-top:7px;padding-top:7px;border-top:1px dashed var(--edge);font-size:11.5px;color:var(--ink2)}
+.peek .pkr b{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.09em;color:var(--pass);margin-bottom:2px}
+.peek .pkhint{margin-top:8px;font-size:9.5px;color:var(--ink3);font-style:italic}
+
+/* timeline: one shared left time column so rows align down the page */
+.segh{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.segh .segt{margin-left:0;flex:0 0 auto;width:104px;font-size:9.5px;color:var(--ink3);
+  font-variant-numeric:tabular-nums}
+.segh .segdur{font-size:9px;color:var(--ink3);border:1px solid var(--edge);border-radius:2px;padding:0 4px}
+.seg{border-left:0;padding-left:0}
+.segrs,.segn,.segit{margin-left:104px}
+/* nested rows keep the same 104px gutter, so every timestamp lines up */
+.tle{grid-template-columns:60px 14px 1fr}
+.tlf .tlfh .tlt{width:56px;flex:0 0 auto;font-variant-numeric:tabular-nums}
+
+/* title + live tag on one line */
+.titlerow{display:flex;align-items:center;gap:9px}
+.titlerow h1{margin:0}
+
+/* search row: input + collapsible filter trigger */
+.srchrow{display:flex;align-items:stretch;gap:8px}
+.srchrow .srchbox{flex:1;min-width:0}
+/* Theme toggle, beside the filter button.
+
+   Square rather than labelled: the icon says which way the switch goes, and a
+   word would compete with "Filters" next to it for the same glance. Both icons
+   are in the DOM and CSS picks the one for the CURRENT resolved theme, so the
+   button always shows the state you would move to, in all three states
+   (explicit light, explicit dark, and following the OS). */
+.themebtn{
+  flex:0 0 auto;display:grid;place-items:center;width:42px;height:42px;padding:0;
+  background:var(--panel);border:1.5px solid var(--edge);border-radius:7px;
+  color:var(--ink2);cursor:pointer;box-shadow:var(--sh2);
+  transition:border-color .16s,color .16s;
+}
+.themebtn:hover{border-color:var(--acc2);color:var(--ink)}
+.themebtn:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.themeic{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.7;
+  stroke-linecap:round;stroke-linejoin:round}
+/* Light now -> offer the moon. Dark now -> offer the sun. */
+.themebtn .moon{display:block} .themebtn .sun{display:none}
+:root:not([data-theme="light"]){@media (prefers-color-scheme:dark){
+  .themebtn .moon{display:none} .themebtn .sun{display:block}
+}}
+:root[data-theme="dark"] .themebtn .moon{display:none}
+:root[data-theme="dark"] .themebtn .sun{display:block}
+:root[data-theme="light"] .themebtn .moon{display:block}
+:root[data-theme="light"] .themebtn .sun{display:none}
+
+.filtbtn{
+  flex:0 0 auto;display:flex;align-items:center;gap:6px;height:42px;padding:0 12px;
+  background:var(--panel);border:1.5px solid var(--edge);border-radius:7px;
+  font:inherit;font-size:12.5px;color:var(--ink2);cursor:pointer;box-shadow:var(--sh2);
+  transition:border-color .16s,color .16s;
+}
+.filtbtn:hover{border-color:var(--acc2);color:var(--ink)}
+.filtbtn:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.filtbtn[aria-expanded="true"]{border-color:var(--acc);color:var(--ink)}
+.filtbtn.active{border-color:var(--acc);color:var(--ink)}
+.filtic{width:15px;height:15px;flex:none}
+.filtcount{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--acc);
+  border:1px solid var(--acc);border-radius:999px;padding:0 5px}
+.filtcount:empty{display:none}
+.filtcaret{font-size:9px;color:var(--ink3)}
+.filtbtn[aria-expanded="true"] .filtcaret{transform:rotate(180deg)}
+
+/* the dropdown panel */
+.srchcol .ctl{
+  position:absolute;top:calc(100% + 7px);right:0;z-index:12;
+  display:flex;flex-direction:column;min-width:330px;max-width:440px;
+  background:var(--panel);border:1px solid var(--edge);border-radius:5px;
+  box-shadow:var(--sh3);padding:10px 12px 12px;max-height:70vh;overflow-y:auto;
+}
+.srchcol .ctl[hidden]{display:none}
+.ctlhead{display:flex;justify-content:space-between;align-items:baseline;
+  font-size:9px;text-transform:uppercase;letter-spacing:.11em;color:var(--ink3);
+  font-weight:600;margin-bottom:7px}
+.ctlacts{display:flex;gap:8px}
+.ctllink{background:none;border:0;padding:0;font:inherit;font-size:10px;
+  color:var(--acc);cursor:pointer;text-transform:none;letter-spacing:0}
+.ctllink:hover{text-decoration:underline}
+.ctllink:focus-visible{outline:2px solid var(--acc);outline-offset:1px}
+.ctlgrid{display:flex;flex-wrap:wrap;gap:5px}
+.ctlgrid .pill{white-space:nowrap}
+@media (max-width:1080px){ .srchcol .ctl{right:auto;left:0} }
+
+/* ============================================================
+   TYPE SCALE & INFORMATION HIERARCHY
+   The panel previously rendered almost everything at 10-12px, so
+   identity, section headings, values and labels all read as one
+   flat layer. Four deliberate levels, each with its own size,
+   weight and surrounding space:
+     L1 identity    story id + title
+     L2 sections    group headings
+     L3 values      metrics and body prose
+     L4 support     labels, meta, chrome
+   ============================================================ */
+
+/* ---- L1: story identity ---- */
+.dh{padding:18px 20px 15px}
+.dh .sid{font-size:15px;letter-spacing:.02em}
+.dh h3{font-size:19px;line-height:1.3;margin-top:8px}
+.chips{margin-top:12px;gap:5px}
+.chip{font-size:10px;padding:3px 7px}
+
+/* ---- L2: section headings ---- */
+.sec>.st,.sec .st{
+  font-size:11px;letter-spacing:.1em;font-weight:600;color:var(--ink3);
+  margin:0 0 10px;
+}
+.db{gap:24px;padding:18px 20px 34px}          /* breathing room between groups */
+.tabcap{
+  padding:10px 20px 12px;border-bottom:1px solid var(--edge);
+  font-size:12px;color:var(--ink3);line-height:1.5;
+}
+
+/* ---- L3: primary values ---- */
+.mt{gap:9px}
+.mt .m{padding:11px 12px}
+.mt .v{font-size:22px;line-height:1.15}
+.mt .l{font-size:11px;margin-top:4px}
+.sec>p:not(.note2):not(.st){font-size:13.5px;line-height:1.6}
+.kv{font-size:13px;gap:6px 16px}
+.kv dd{font-size:12.5px}
+ul.l li{font-size:13px;line-height:1.55}
+.fnd .fdesc{font-size:13px;line-height:1.6}
+.int .idesc{font-size:13px;line-height:1.6}
+.enote{font-size:12.5px;line-height:1.55}
+.chk .ctitle{font-size:13px}
+.chk .cid{font-size:12px}
+.us{font-size:12.5px;padding:9px 11px;margin:12px 0}
+.cmd{font-size:11.5px;padding:7px 9px}
+pre.raw,pre.tail{font-size:11.5px;line-height:1.6}
+
+/* ---- L4: supporting labels ---- */
+.fpath,.pth,.ffiles,.tlff{font-size:11px}
+.rcpt,.gm,.segn span{font-size:10.5px}
+.sec .note2,.note2{font-size:11.5px;margin-top:10px;line-height:1.55}
+
+/* ---- tabs: clearer active state, more room ---- */
+.tabs{gap:2px;margin-top:14px}
+.tabs button{font-size:12.5px;padding:8px 10px}
+.tabs button[aria-selected="true"]{font-weight:600}
+.tabs .ct{font-size:10px;padding:1px 6px}
+
+/* ---- timeline / phase rows ---- */
+.phrow{font-size:12px;grid-template-columns:10px 96px 62px 40px 1fr;gap:10px}
+.phk{font-size:12px}
+.phv,.php{font-size:12px}
+.phc{font-size:11px}
+.segp{font-size:12.5px}
+.sega{font-size:12px}
+.segh .segt{font-size:11px;width:112px}
+.segrs,.segn,.segit{margin-left:112px}
+.tle{font-size:12px;grid-template-columns:64px 16px 1fr}
+.tlt{font-size:11px}
+.tlf .tlfh .tlt{width:60px}
+.tlf .fid{font-size:11.5px}
+.tlfd{font-size:12.5px;line-height:1.55}
+
+/* ---- findings ---- */
+.fnd{padding:11px 13px}
+.fnd .fid{font-size:12.5px}
+.fnd .fsev,.fnd .fst{font-size:10px}
+.fnd .fres{font-size:12.5px;margin-top:9px;padding-top:9px}
+
+/* ---- header chrome ---- */
+h1{font-size:24px}
+.sub{font-size:12.5px;margin-top:4px}
+.livetag{font-size:10.5px;padding:2px 9px}
+.srchcol .srch{font-size:14.5px}
+.tips{font-size:11.5px}
+kbd{font-size:10.5px}
+.lgnd{font-size:11.5px}
+.lgnd .t{font-size:10px}
+
+
+/* ---- header layout: search fixed on the LEFT, brand on the right ----
+   The drawer used to push the search box sideways every time a story opened,
+   so the input moved under the cursor. Search now owns the stable left edge;
+   only the brand block (read-only) yields to the drawer. */
+.top{align-items:flex-start;gap:20px}
+.srchcol{order:1;flex:0 1 620px;max-width:620px;margin-right:auto}
+.brandcol{order:2;flex:0 0 auto;text-align:right}
+.brandcol .titlerow{justify-content:flex-end}
+/* the drawer no longer shifts the search column */
+body.open .top{right:0}
+body.open .brandcol{opacity:0;pointer-events:none;transition:opacity .2s}
+body.open .bot{right:var(--drawerW,min(660px,52vw))}
+@media (max-width:1080px){
+  .srchcol{order:1;flex:1 1 100%;max-width:none;margin-right:0}
+  .brandcol{order:0;text-align:left}
+  .brandcol .titlerow{justify-content:flex-start}
+}
+
+
+/* ---- fewer rules: the caption scrolls with the content, and the panel
+       relies on spacing rather than stacked dividers ---- */
+.tabcap{
+  padding:0;border:0;margin:0 0 2px;
+  font-size:12px;color:var(--ink3);line-height:1.5;
+}
+.dh{border-bottom:0;padding-bottom:0}          /* header no longer draws a rule */
+.tabs{border-bottom:1px solid var(--edge)}     /* the ONE rule that earns its place */
+.db{padding-top:16px}
+
+
+/* ============================================================
+   TABS: no reflow on selection, animated indicator
+   The active tab used to switch to font-weight 600, which widens
+   the glyphs and nudges every following tab sideways. We reserve
+   the bold width up front (a hidden ::before carrying the same
+   text at the bold weight sets the box), so weight can change
+   without moving anything.
+   ============================================================ */
+.tabs{position:relative;border-bottom:1px solid var(--edge)}
+.tabs button{
+  position:relative;border-bottom:0;margin-bottom:0;
+  display:inline-flex;align-items:center;gap:5px;
+  transition:color .18s ease;
+}
+/* reserve the bold width so selection never reflows the strip */
+.tabs button > .tablabel{
+  display:inline-grid;
+}
+.tabs button > .tablabel::before{
+  content:attr(data-label);
+  font-weight:600;
+  height:0;visibility:hidden;pointer-events:none;
+  grid-area:1/1;
+}
+.tabs button > .tablabel > span{grid-area:1/1}
+
+/* the moving underline */
+.tabs .tabbar{
+  position:absolute;bottom:-1px;height:2px;background:var(--ph,var(--acc));
+  border-radius:1px;transition:left .22s cubic-bezier(.3,.8,.3,1),width .22s cubic-bezier(.3,.8,.3,1);
+  pointer-events:none;
+}
+.tabs button[aria-selected="true"]{color:var(--ink);font-weight:600}
+.tabs button:hover{color:var(--ink)}
+
+/* content fades in on switch */
+.db{animation:tabfade .18s ease}
+@keyframes tabfade{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .db{animation:none}
+  .tabs .tabbar{transition:none}
+}
+
+
+/* ---- timeline segment header: the phase dot is an inline flex item ----
+   It was absolutely positioned at left:-5px for an earlier layout that had a
+   left border and 11px padding on .seg. Once those were removed the dot floated
+   outside the box and collided with the timestamp. Make it a normal flex child
+   so the header's own gap spaces it. */
+.segdot{
+  position:static;left:auto;top:auto;
+  width:7px;height:7px;border-radius:50%;border:0;
+  flex:0 0 auto;margin:0;
+}
+.segh{gap:8px}
+.segh .segt{
+  width:112px;flex:0 0 auto;text-align:left;
+  font-variant-numeric:tabular-nums;
+}
+
+
+/* ---- live indicator: a dot, not a bordered pill ---- */
+.livetag{
+  border:0;background:none;padding:0;min-width:0;
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11px;color:var(--ink3);letter-spacing:.02em;
+}
+.livetag::before{
+  content:"";width:6px;height:6px;border-radius:50%;
+  background:var(--ink3);flex:none;
+}
+.livetag.ok{color:var(--ink3)}
+.livetag.ok::before{background:var(--pass)}
+.livetag.busy::before{background:var(--warn)}
+.livetag.err{color:var(--fail)}
+.livetag.err::before{background:var(--fail)}
+
+/* ---- collapsible cluster / long records ---- */
+details.collapsible{padding:0}
+details.collapsible>summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;gap:9px;
+  padding:9px 11px;
+}
+details.collapsible>summary::-webkit-details-marker{display:none}
+details.collapsible>summary::after{
+  content:"▾";margin-left:auto;font-size:9px;color:var(--ink3);flex:none;
+  transition:transform .18s ease;
+}
+details.collapsible[open]>summary::after{transform:rotate(180deg)}
+details.collapsible>summary:hover{background:color-mix(in srgb,var(--acc) 6%,transparent)}
+details.collapsible .cmeta{font-size:10.5px;color:var(--ink3);flex:none}
+details.collapsible .clip{
+  flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-size:12px;color:var(--ink2);
+}
+details.collapsible[open] .clip{display:none}
+details.collapsible .cbody{padding:0 11px 11px}
+
+/* ---- inline file viewer, directly under its row ---- */
+.filerow.open{border-color:var(--acc);border-bottom-left-radius:0;border-bottom-right-radius:0}
+.fileview{
+  border:1px solid var(--acc);border-top:0;
+  border-bottom-left-radius:3px;border-bottom-right-radius:3px;
+  padding:9px 10px;background:var(--bg2);margin-top:-3px;
+}
+.fileview pre.raw{margin:0;border:0;background:none;padding:0;max-height:50vh}
+
+
+/* ---- phase dots removed: they carried no information the coloured label lacks ---- */
+.segdot{display:none}
+.livedot{display:none}
+.tle .tlic{display:none}
+.tle{grid-template-columns:64px 1fr}
+
+/* ---- per-phase finding severity: the reason a phase ended ---- */
+.segsev{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.segsev span{
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  border:1px solid;border-radius:2px;padding:1px 6px;
+}
+.segsev .sv-critical{color:var(--fail);border-color:var(--fail)}
+.segsev .sv-high{color:var(--warn);border-color:var(--warn)}
+.segsev .sv-medium{color:var(--int);border-color:var(--int)}
+.segsev .sv-low{color:var(--disc);border-color:var(--disc)}
+.segsev,.segn{margin-left:112px}
+
+/* Timeline finding descriptions carry the reviewer's full prose (up to ~2.4KB).
+   Show a 2-line preview and expand in place on click, so a REVIEW segment with
+   9 findings stays scannable without hiding why it bounced. Full text stays in
+   the DOM (searchable, copyable) rather than being truncated on the wire. */
+.tlfd{overflow-wrap:anywhere;word-break:normal}
+.tlf:not(.open) .tlfd{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+.tlf.open .tlfd{display:block}
+.tlfh{min-width:0}
+.tlf{min-width:0;overflow:hidden}
+
+/* A failed detail load must never look like an empty story. */
+.loaderr{font-size:12.5px;color:var(--fail);border:1px solid var(--fail);
+  border-radius:4px;padding:9px 11px;line-height:1.5;background:var(--panel)}
+.loaderr button{margin-top:7px;font:inherit;font-size:11.5px;cursor:pointer;
+  padding:3px 10px;border:1px solid var(--fail);border-radius:3px;
+  background:transparent;color:var(--fail)}
+.loaderr button:hover{background:var(--fail);color:var(--panel)}
+
+/* ============================================================
+   Narrow panel: keep the tab strip on ONE row.
+
+   The moving underline is positioned against the whole .tabs box
+   (bottom:-1px), so once the strip wraps, row one loses its
+   indicator and row two reads as a separate sub-tab bar -- which
+   is exactly how "Timeline | Files" looked like a second level of
+   navigation it never was.
+
+   These are CONTAINER queries, not media queries: the drawer is a
+   resizable panel inside a wide window, so viewport-based rules
+   never fire for it.
+   ============================================================ */
+#dr{container-type:inline-size;container-name:panel}
+
+@container panel (max-width:820px){
+  .tabs{gap:0}
+  .tabs button{padding:8px 6px;font-size:12px}
+  .tabs .ct{font-size:9.5px;padding:1px 4px;margin-left:3px}
+}
+@container panel (max-width:680px){
+  .tabs button{padding:7px 4px;font-size:11.5px;gap:3px}
+  /* the counts repeat what the panel body already shows */
+  .tabs .ct{display:none}
+}
+@container panel (max-width:540px){
+  .tabs button{padding:6px 3px;font-size:11px;letter-spacing:-.1px}
+}
+
+/* ============================================================
+   Timeline finding rows: 2 lines of description, nothing more.
+   A REVIEW segment can hold 40+ findings, so every pixel of row
+   height multiplies. The separate "expand" label cost a whole
+   third line per row for something the row itself already
+   affords, so the clamped text becomes the click target and the
+   label collapses to a hairline cue.
+   ============================================================ */
+.tlf{padding:5px 8px}
+.tlfd{margin-top:2px}
+.tlf .tlfmore{display:none}    /* no label: the row itself is the affordance */
+/* keep it discoverable: a clamped row gets a subtle fade at the cut */
+.tlf:not(.open) .tlfd{position:relative}
+.tlf:not(.open) .tlfd::after{
+  content:"";position:absolute;right:0;bottom:0;width:3.2em;height:1.25em;
+  background:linear-gradient(to right,transparent,var(--panel) 68%);
+  pointer-events:none;
+}
+.tlf.open .tlfd::after{content:none}
+/* the whole clamped block toggles, so no extra control is needed */
+.tlf .tlfd{cursor:pointer}
+
+/* ============================================================
+   Keyboard hints stay put when the drawer opens.
+
+   `.bot` was shrunk to the drawer's edge, so its flex row re-laid
+   out and the hint strip slid left every time a story opened --
+   the same squeeze already fixed for the header (`body.open .top
+   {right:0}`), just never applied down here.
+
+   Both the legend and the hints sit at the bar's left edge (the
+   legend stacked above), so spanning the full width keeps each of
+   them clear of the panel on its own.
+   ============================================================ */
+body.open .bot{right:0}
+.bot .tips{flex:0 0 auto}                       /* never reflows */
+
+/* Graph mount: sits exactly where the built-in canvas does, behind the HUD. */
+#glhost{position:fixed;inset:0;z-index:0;display:none}
+#glhost>svg{display:block;width:100%;height:100%}
+
+/* ============================================================
+   Larger brand type and readable search results.
+   ============================================================ */
+h1{font-size:29px;letter-spacing:-.02em}
+.sub{font-size:13px;margin-top:5px}
+
+/* Search results carry the id, phase and title -- they are read, not glanced
+   at, so they were undersized at 10-11px. */
+.rid{font-size:12.5px}
+.rsn{font-size:13px;line-height:1.5}
+.rrow{padding:9px 12px;gap:5px 9px}
+.rhead{font-size:10.5px}
+.rk{font-size:9.5px}
+
+/* ============================================================
+   Motion for the two overlays that appear and disappear.
+
+   Both were binary: present or display:none, which reads as a jump on a panel
+   this large. They now slide down a few pixels while fading, and reverse on the
+   way out. Kept short (150-190ms) -- these open on every keystroke, so anything
+   slower would feel like lag rather than polish.
+   ============================================================ */
+/* display:none cannot be transitioned -- the element is simply absent, so an
+   opacity rule on it never gets a starting frame. The panel therefore stays
+   displayed and is hidden with visibility instead. `display:block !important`
+   overrides the earlier `.results{display:none}` without editing that rule,
+   which still documents the layout. */
+#results{
+  display:block !important;
+  opacity:0; transform:translateY(-6px) scale(.995);
+  transform-origin:top center;
+  visibility:hidden;
+  transition:opacity .17s ease, transform .19s cubic-bezier(.22,.9,.28,1),
+             visibility .19s;
+}
+#results.on{opacity:1; transform:none; visibility:visible}
+
+/* Rows stagger in behind the panel so the list assembles rather than blinking.
+   Only the first handful are delayed: beyond that the reader is scrolling, not
+   watching, and 80 staggered rows would take longer than the search itself. */
+#results.on .rrow{animation:rowin .22s both cubic-bezier(.22,.9,.28,1)}
+#results.on .rrow:nth-child(2){animation-delay:.02s}
+#results.on .rrow:nth-child(3){animation-delay:.04s}
+#results.on .rrow:nth-child(4){animation-delay:.06s}
+#results.on .rrow:nth-child(5){animation-delay:.08s}
+#results.on .rrow:nth-child(6){animation-delay:.10s}
+@keyframes rowin{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* The filter popover gets the same treatment, anchored to its button. */
+#ctl{
+  transition:opacity .16s ease, transform .18s cubic-bezier(.22,.9,.28,1);
+  transform-origin:top left;
+}
+#ctl[hidden]{
+  display:block !important;          /* animate instead of vanishing */
+  opacity:0; transform:translateY(-5px) scale(.985);
+  pointer-events:none; visibility:hidden;
+}
+#ctl:not([hidden]){opacity:1; transform:none; visibility:visible}
+
+@media (prefers-reduced-motion:reduce){
+  #results,#ctl{transition:none}
+  #results.on .rrow{animation:none}
+}
+
+/* Phase-flow diagram: mermaid sizes its text from a base scale that came out
+   around 10px here, well below the 13px prose beside it. Set on the rendered
+   SVG so it holds regardless of which theme variables the version honours. */
+/* Render the diagram at its NATURAL width and let the container scroll.
+
+   Raising the font alone did nothing visible: mermaid emits width="100%" plus an
+   inline max-width, so a 2088px-wide flowchart was squeezed into the 641px panel
+   at 0.307x -- which shrank 14.5px text to about 4.5px on screen. Growing the
+   font only widened the diagram and shrank the scale further. Pinning the SVG to
+   its viewBox width renders the text at its real size; the phase flow is a wide
+   horizontal chain, so scrolling it sideways is the honest presentation. */
+.mermaid-host svg{width:auto !important;max-width:none !important}
+/* Declared sizes are pre-scale: the SVG renders at ~0.62x (see the width pin in
+   app.js), so these land near 14px and 11px on screen. */
+/* Mermaid renders labels as HTML inside <foreignObject>, and the innermost <p>
+   was picking up the panel's 12.5px paragraph size -- overriding the size set on
+   the span above it, which is why raising .nodeLabel/.edgeLabel changed nothing
+   visible. Target every level, the <p> included. */
+/* Sizes are PRE-scale: the SVG renders at ~0.62x (see the width pin in app.js),
+   so 21px/19px land at about 13px/12px on screen -- the same as the body text
+   beside the diagram. */
+.mermaid-host svg .nodeLabel,
+.mermaid-host svg .nodeLabel *,
+.mermaid-host svg .label,
+.mermaid-host svg .label *{font-size:21px !important;line-height:1.35 !important}
+.mermaid-host svg .edgeLabel,
+.mermaid-host svg .edgeLabel *{font-size:19px !important;line-height:1.35 !important}
+.mermaid-host svg foreignObject p{margin:0 !important}
+.mermaid-host{scrollbar-width:thin}
+
+/* Phase-flow detail toggle */
+.flowhead{display:flex;justify-content:flex-end;gap:6px;margin:-2px 0 4px}
+.flowtog{font:inherit;font-size:11.5px;cursor:pointer;padding:4px 10px;
+  border:1px solid var(--edge);border-radius:3px;background:var(--panel);
+  color:var(--ink2);transition:background .15s,color .15s,border-color .15s}
+.flowtog:hover{color:var(--ink);border-color:var(--ink3)}
+.flowtog.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.flowtog[data-tlplay]{border-color:var(--acc);color:var(--acc)}
+.flowtog[data-tlplay]:hover{background:color-mix(in srgb,var(--acc) 14%,var(--panel));
+  color:var(--ink);border-color:var(--acc)}
+
+/* Multi-line edge labels.
+
+   Mermaid sets `white-space: nowrap` on its label wrapper and gives the
+   foreignObject a width measured for a single line, so the <br/> tags in a
+   detailed bounce label rendered as one run-on string ("held 15mno findings").
+   Allow wrapping and cap the width so each bounce reads as a small block. */
+.mermaid-host svg foreignObject .labelBkg,
+.mermaid-host svg foreignObject > div{
+  white-space:normal !important;
+  display:block !important;
+  max-width:430px !important;
+}
+/* The <p> inherits nowrap from mermaid's wrapper, which swallows the <br> that
+   is genuinely present in the DOM -- so the break existed but did not show. */
+.mermaid-host svg .edgeLabel p,
+.mermaid-host svg .nodeLabel p{margin:0 !important;text-align:left !important;
+  white-space:normal !important}
+/* No plate inline either: the label should read as annotating its line, not as
+   a floating chip. Mermaid sets the background on the group, so clear it there. */
+.mermaid-host svg .edgeLabel,
+.mermaid-host svg .edgeLabel *,
+.mermaid-host svg .edgeLabel .labelBkg{
+  background:none !important;background-color:transparent !important;
+  padding:0 !important;border-radius:0 !important;
+}
+
+/* The detailed diagram lives in the full-window viewer (.flowmodal), not
+   inline -- one labelled arrow per bounce makes a canvas ~24000px tall, which a
+   capped box inside a 640px drawer cannot present. */
+
+
+/* ============================================================
+   Full-window phase-flow viewer.
+   Inline the diagram is a panorama at whatever size fits; here it is read at
+   full size with zoom and pan, which is the only way ~90 labelled arrows are
+   navigable at all.
+   ============================================================ */
+.flowmodal{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;
+  background:color-mix(in srgb,var(--bg) 88%,#000 12%);
+  animation:fmin .16s ease}
+@keyframes fmin{from{opacity:0}to{opacity:1}}
+.fmbar{display:flex;align-items:center;gap:10px;padding:9px 14px;
+  background:var(--panel);border-bottom:1px solid var(--edge);font-size:12.5px}
+.fmbar b{font-size:13px}
+.fmsub{color:var(--ink3);font-size:11.5px}
+.fmspacer{flex:1}
+.fmbar button{font:inherit;font-size:12px;cursor:pointer;padding:4px 11px;
+  border:1px solid var(--edge);border-radius:3px;background:var(--bg);color:var(--ink2)}
+.fmbar button:hover{color:var(--ink);border-color:var(--ink3)}
+.fmbar button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.fmclose{margin-left:4px}
+/* Dragging must not select the label text. The pointer sequence used for panning
+   otherwise reads as a text selection over the SVG labels (they are real HTML in
+   foreignObject), so a pan left the diagram highlighted blue. */
+.fmview{flex:1;overflow:hidden;position:relative;cursor:grab;touch-action:none;
+  user-select:none;-webkit-user-select:none}
+.fmview.grabbing{cursor:grabbing}
+.fmcanvas{position:absolute;top:0;left:0;transform-origin:0 0;
+  font-size:12px;color:var(--ink3)}
+/* Inside the viewer the zoom does the scaling, so declare the labels at the
+   size they should read at 100% rather than pre-compensating for a fit. */
+/* The viewer opens near 0.6-0.75x so the whole chain frames, so declare larger
+   here to land at roughly 14px / 12px on screen -- readable without the reader
+   having to zoom first. */
+.fmcanvas svg .nodeLabel,.fmcanvas svg .nodeLabel *,
+.fmcanvas svg .label,.fmcanvas svg .label *{font-size:21px !important;line-height:1.35 !important}
+.fmcanvas svg .edgeLabel,.fmcanvas svg .edgeLabel *{font-size:18px !important;line-height:1.4 !important}
+/* Narrow plates. A wide label box pushes mermaid's layout apart and separates
+   the caption from the arrow it annotates. */
+.fmcanvas svg foreignObject .labelBkg,
+.fmcanvas svg foreignObject > div{white-space:normal !important;display:block !important;
+  max-width:210px !important}
+.fmcanvas svg .edgeLabel p,.fmcanvas svg .nodeLabel p{margin:0 !important;
+  white-space:normal !important;text-align:left !important}
+/* No plate behind edge labels: the filled box made each caption a floating card
+   that read as detached from its arrow. Bare text, clamped to three lines so a
+   long one cannot grow tall enough to drift away from the line it annotates. */
+/* Mermaid paints the plate on the edgeLabel GROUP itself, via the <style> block
+   it embeds in the SVG -- not on .labelBkg, which is why clearing that alone
+   left the white box in place. Clear every level. */
+.fmcanvas svg .edgeLabel,
+.fmcanvas svg .edgeLabel *,
+.fmcanvas svg .edgeLabel .labelBkg,
+.fmcanvas svg .edgeLabel foreignObject > div{
+  background:none !important;background-color:transparent !important;
+  padding:0 !important;border-radius:0 !important}
+.fmcanvas svg .edgeLabel p{
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+  overflow:hidden;max-width:190px}
+
+/* Timeline export controls, inline with the section heading. */
+.tlexp{float:right;display:inline-flex;gap:5px;margin-top:-2px}
+.tlexp button{font:inherit;font-size:11px;cursor:pointer;padding:2px 8px;
+  border:1px solid var(--edge);border-radius:3px;background:var(--panel);
+  color:var(--ink3);text-transform:none;letter-spacing:0}
+.tlexp button:hover{color:var(--ink);border-color:var(--ink3)}
+
+/* Fade labels in rather than popping them.
+
+   Clicking a story zooms 0.42 -> 2.2, which crosses the label thresholds and
+   makes ~98 ids appear within one frame. That simultaneous appearance is the
+   larger half of the "whole canvas shakes" impression -- a 1px node shift is
+   subtle, 98 new text nodes arriving at once is not. A short fade separates the
+   two events without slowing anything down. */
+#glhost svg text{transition:opacity .22s ease}
+
+/* Fade the focus change, do not switch it.
+
+   Selecting a story replaces the focus set: before the click it may be the
+   ~35 search matches, after it is the node plus its direct neighbours -- so
+   roughly 360 nodes and their edges change opacity in a SINGLE frame. That
+   simultaneous switch is the "everything suddenly changes" on click; it is not
+   the camera move, which is already eased. A short transition on the dimming
+   attributes spreads it over ~260ms so the field settles rather than snaps.
+
+   Only opacity/stroke are transitioned -- never cx/cy/r/d -- because those are
+   rewritten every frame by the drift loop, and a transition on them would fight
+   the animation and smear the node positions. */
+#glhost svg circle{transition:fill-opacity .26s ease, stroke-opacity .26s ease}
+#glhost svg path{transition:stroke .26s ease, stroke-opacity .26s ease}
+@media (prefers-reduced-motion:reduce){
+  #glhost svg circle,#glhost svg path{transition:none}
+}
+
+/* Let phase colour reach the label text.
+
+   Mermaid applies a node's `color` to the label wrapper, but the inner <p> it
+   generates carries the theme's own ink and wins on specificity -- so a
+   current-phase box came out dark-grey-on-green even though the wrapper's
+   computed colour was the correct white. Inheriting fixes every node at once,
+   including the per-phase border colours on the non-current boxes. */
+.mermaid-host svg .nodeLabel *,
+.fmcanvas svg .nodeLabel *{color:inherit !important}
+
+/* ============================================================
+   Timeline playback viewer.
+
+   A full-window player for the lifecycle: the phase flow animated one recorded
+   transition at a time, with MP4/GIF export. Ported from the standalone
+   `mermaid-animate` app; its styles used the same token names this file already
+   defines (--panel / --edge / --ink* / --acc / --rail), so the viewer inherits
+   this page's theme rather than carrying its own palette.
+
+   Layout is three bands: bar, stage, transport. The stage is the only flexible
+   one, so a long story cannot push the transport off-screen.
+   ============================================================ */
+.pbkmodal{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;
+  background:color-mix(in srgb,var(--bg) 92%,#000 8%);
+  animation:fmin .16s ease}
+.pbkbar{position:relative;z-index:10;flex:none;display:flex;align-items:center;gap:10px;padding:9px 14px;
+  background:var(--panel);border-bottom:1px solid var(--edge);font-size:12.5px}
+.pbkbar b{font-size:13px}
+.pbksub{color:var(--ink3);font-size:11.5px;font-variant-numeric:tabular-nums}
+.pbkspacer{flex:1}
+.pbkbtn{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:12px;
+  cursor:pointer;padding:5px 11px;border:1px solid var(--edge);border-radius:3px;
+  background:var(--bg);color:var(--ink2);
+  transition:border-color var(--motion-fast) ease,color var(--motion-fast) ease,
+    background var(--motion-fast) ease}
+.pbkbtn:hover:not(:disabled){color:var(--ink);border-color:var(--ink3)}
+.pbkbtn:disabled{opacity:.55;cursor:default}
+.pbkbtn.on{background:color-mix(in srgb,var(--acc) 15%,var(--panel));
+  border-color:var(--acc);color:var(--ink)}
+.pbkbtn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+.pbkprimary{background:var(--acc);border-color:var(--acc);color:var(--panel);font-weight:500}
+.pbkprimary:hover:not(:disabled){color:var(--panel);
+  background:color-mix(in srgb,var(--acc) 84%,#000);border-color:var(--acc)}
+.pbkclose{margin-left:4px}
+
+/* Export menu. Anchored under its trigger; the popover is the only absolutely
+   positioned thing in the bar, so the bar height never shifts when it opens. */
+.pbkexport{position:relative;display:inline-flex}
+/* Anchored under its own button, drawing over whatever is beneath it.
+
+   This is just what a dropdown does, and it is where I should have left it: the
+   menu is z-index 12 against the camera cluster's 4, so it has always been able
+   to overlay that cluster. I instead spent several passes sliding one element
+   or the other around to avoid the overlap -- offsetting the menu leftward,
+   pushing the cluster down the stage -- each of which fixed the collision by
+   breaking the position of the other control. A transient popover covering a
+   persistent one for as long as it is open is correct and needs no geometry. */
+.pbkmenu{position:absolute;top:calc(100% + 6px);right:0;z-index:12;min-width:236px;
+  display:flex;flex-direction:column;padding:5px;
+  background:var(--panel);border:1px solid var(--edge);border-radius:4px;box-shadow:var(--sh2)}
+/* Below the wrap breakpoint the bar becomes two rows and the Export button
+   lands near the LEFT edge, so right-anchoring a 236px popover to it put the
+   popover at x=-122. There the menu anchors left instead -- the side that
+   actually has room once the button has moved. */
+@media (max-width:820px){
+  .pbkmenu{right:auto;left:0}
+}
+/* An author `display` beats the `hidden` attribute's UA `display:none`, so the
+   flex rule above kept the menu on screen permanently -- it appeared expanded
+   before Export was ever clicked, and clicking Export only moved the camera
+   cluster. Restoring `hidden` here is what makes the toggle actually toggle. */
+.pbkmenu[hidden]{display:none}
+.pbkmenu button{display:flex;flex-direction:column;gap:2px;align-items:flex-start;
+  padding:8px 10px;border:0;border-radius:3px;background:none;color:var(--ink2);
+  font:inherit;text-align:left;cursor:pointer}
+.pbkmenu button:hover{background:var(--bg2);color:var(--ink)}
+.pbkmenu strong{font-size:12.5px;font-weight:500;color:var(--ink)}
+.pbkmenu span{font-size:11px;color:var(--ink3);font-family:"IBM Plex Mono",monospace}
+.pbkmenuempty{margin:0;padding:8px 10px;font-size:11.5px;color:var(--ink3);line-height:1.5}
+
+/* Settings drawer: one wrapping row, so it collapses gracefully on a narrow
+   window instead of forcing the bar to scroll. */
+.pbkset{flex:none;padding:11px 14px;background:var(--bg2);
+  border-bottom:1px solid var(--edge)}
+.pbksetrow{display:flex;align-items:center;flex-wrap:wrap;gap:10px 18px}
+.pbkset label{display:inline-flex;align-items:center;gap:7px;
+  font-size:11.5px;color:var(--ink3)}
+.pbkset input,.pbkset select{font:inherit;font-size:12px;padding:5px 8px;
+  border:1px solid var(--edge);border-radius:3px;background:var(--panel);color:var(--ink)}
+.pbkset input{width:76px;font-variant-numeric:tabular-nums}
+.pbkunit{color:var(--ink3);margin-left:-3px}
+.pbknote{margin:9px 0 0;font-size:11px;color:var(--ink3);line-height:1.55}
+
+/* Stage. The SVG scales through its own viewBox, so the host is a plain box
+   and the camera never touches CSS transforms. */
+/* The stage carries the diagram's own ground, a shade off the page, so the
+   phase boxes read as sitting on one surface. Matches the `plate` colour the
+   Canvas exporter paints, so the clip looks like what was on screen. */
+.pbkstage{flex:1;position:relative;overflow:hidden;min-height:0;background:#eef1f5}
+:root:not([data-theme="light"]){@media (prefers-color-scheme:dark){
+  .pbkstage{background:#091420}
+}}
+:root[data-theme="dark"] .pbkstage{background:#091420}
+.pbkhost{position:absolute;inset:0;cursor:grab;touch-action:none;
+  user-select:none;-webkit-user-select:none;
+  font-family:"IBM Plex Sans","Source Sans 3",ui-sans-serif,system-ui,sans-serif}
+.pbkhost.is-grabbing{cursor:grabbing}
+.pbkrender{position:absolute;inset:0}
+.pbkrender>svg{display:block;width:100%!important;height:100%!important;
+  max-width:none!important;background:transparent!important;overflow:hidden}
+.pbkloading{position:absolute;inset:0;display:grid;place-items:center;
+  color:var(--ink3);font-size:13px}
+/* Top-right of the canvas: zoom and camera mode belong next to the view they
+   act on, at the top edge of the stage rather than pushed down it. The export
+   popover shares this corner and simply covers this cluster while open (see
+   .pbkmenu) -- neither element moves for the other. */
+.pbkcam{position:absolute;z-index:4;right:16px;top:14px;display:flex;align-items:center;
+  gap:4px;padding:4px;border:1px solid var(--edge);border-radius:999px;
+  background:var(--panel);box-shadow:var(--sh1)}
+.pbkcam button{height:26px;min-width:28px;padding:0 10px;border:1px solid transparent;
+  border-radius:999px;background:none;color:var(--ink2);cursor:pointer;
+  font:inherit;font-size:11.5px;font-weight:500;
+  transition:border-color var(--motion-fast) ease,background var(--motion-fast) ease,
+    color var(--motion-fast) ease}
+.pbkcam button:hover{border-color:var(--acc);color:var(--ink)}
+.pbkcam button.is-active{color:var(--ink);border-color:var(--acc);
+  background:color-mix(in srgb,var(--acc) 15%,var(--panel))}
+.pbkcam .pbkmode{min-width:72px}
+.pbkcam output{min-width:46px;text-align:center;color:var(--ink3);
+  font:500 11px "IBM Plex Mono",monospace;font-variant-numeric:tabular-nums}
+
+/* Node and edge styling inside the stage.
+
+   Mermaid's own theme is overridden here rather than only in the diagram spec,
+   because the spec's themeCSS does not reach the label plates it renders as
+   HTML in foreignObject. */
+.pbkhost .node{--node-accent:#dfe9f5}
+.pbkhost .node rect,.pbkhost .node polygon,
+.pbkhost .node circle,.pbkhost .node path{stroke-width:1.5px!important}
+.pbkhost .node .text-outer-tspan:first-of-type,
+.pbkhost .node .text-outer-tspan:first-of-type tspan,
+.pbkhost .node text>tspan:first-of-type,
+.pbkhost .node text>tspan:first-of-type tspan{
+  fill:var(--node-accent)!important;font-weight:600;letter-spacing:.04em}
+.pbkhost .edgeLabel text,.pbkhost .edgeLabel tspan{
+  font-family:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace!important}
+.pbkhost .flowchart-link,.pbkhost .playback-active-edge{stroke-width:1px!important}
+.pbkhost{--pbk-label-ink:#4b5565}
+:root:not([data-theme="light"]){@media (prefers-color-scheme:dark){
+  .pbkhost{--pbk-label-ink:#ced9e5}
+}}
+:root[data-theme="dark"] .pbkhost{--pbk-label-ink:#ced9e5}
+.pbkhost .edgeLabel{color:var(--pbk-label-ink)!important;background:transparent!important}
+.pbkhost .edgeLabel .label,.pbkhost .edgeLabel .labelBkg,
+.pbkhost .edgeLabel foreignObject,.pbkhost .edgeLabel foreignObject div,
+.pbkhost .edgeLabel foreignObject span,.pbkhost .edgeLabel foreignObject p,
+.pbkhost .edgeLabel foreignObject *{background:none!important;
+  background-color:transparent!important;background-image:none!important;
+  box-shadow:none!important}
+.pbkhost .edgeLabel rect{fill:transparent!important;stroke:none!important}
+.pbkhost foreignObject,.pbkhost .label{user-select:none;-webkit-user-select:none}
+
+/* Transport. Ticks are absolutely positioned by percentage inside a rail that
+   is itself wider than the viewport on a dense story, so the strip scrolls
+   horizontally and the labels stay readable instead of overlapping. */
+.pbktl{flex:none;display:flex;align-items:center;gap:14px;height:76px;padding:0 18px;
+  border-top:1px solid var(--edge);background:var(--panel)}
+.pbkplay{flex:none;width:44px;height:34px;border:1px solid var(--acc);border-radius:999px;
+  background:var(--acc);color:var(--panel);display:grid;place-items:center;cursor:pointer;
+  transition:background var(--motion-fast) ease,border-color var(--motion-fast) ease}
+.pbkplay:hover{background:color-mix(in srgb,var(--acc) 84%,#000)}
+.pbkplay svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.9;
+  stroke-linecap:round;stroke-linejoin:round}
+.pbkclock{flex:none;min-width:112px;font:500 13.5px "IBM Plex Mono",monospace;
+  font-variant-numeric:tabular-nums;color:var(--ink)}
+.pbkclock em{color:var(--ink3);font-style:normal}
+.pbkstack{position:relative;flex:1 1 0;width:0;min-width:120px;height:56px;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;
+  scrollbar-color:var(--edge) transparent}
+.pbkrail{position:relative;min-width:100%;height:52px}
+.pbktrack{position:absolute;inset:0 14px;cursor:pointer}
+.pbkline,.pbkprog{position:absolute;top:31px;left:0;height:2px;width:100%;
+  background:var(--edge)}
+.pbkprog{width:0;background:var(--rail)}
+.pbkmark{position:absolute;z-index:2;top:0;height:52px;width:24px;padding:0;
+  transform:translateX(-50%);border:0;background:none;color:var(--rail);cursor:pointer;
+  font:500 10px "IBM Plex Mono",monospace}
+.pbkmark span{position:absolute;left:50%;top:2px;transform:translateX(-50%);
+  display:block;white-space:nowrap;text-align:center;pointer-events:none;
+  font-variant-numeric:tabular-nums}
+/* Unlabelled ticks keep their dot but hide the number: at 100 transitions the
+   numbers collide into an unreadable smear. */
+.pbkmark:not(.is-labeled) span{visibility:hidden}
+.pbkmark i{position:absolute;left:50%;top:32px;width:10px;height:10px;
+  border-radius:50%;background:currentColor;box-shadow:0 0 0 3px var(--panel);
+  transform:translate(-50%,-50%);
+  transition:transform var(--motion-fast) ease,box-shadow var(--motion-fast) ease}
+.pbkmark.is-active i{transform:translate(-50%,-50%) scale(1.1);
+  box-shadow:0 0 0 3px var(--panel),0 0 12px currentColor}
+/* The range input is the real control for keyboard and drag; it sits on top of
+   the ticks at near-zero opacity so the visible rail is ours to style. */
+.pbkscrub{position:absolute;z-index:3;left:0;right:0;top:22px;width:100%;height:20px;
+  margin:0;opacity:.001;cursor:pointer}
+.pbktrans{flex:none;width:34px;height:30px;border:1px solid var(--edge);border-radius:999px;
+  background:var(--bg);color:var(--ink2);display:grid;place-items:center;cursor:pointer;
+  transition:border-color var(--motion-fast) ease,color var(--motion-fast) ease}
+.pbktrans:hover{border-color:var(--acc);color:var(--ink)}
+.pbktrans svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.8;
+  stroke-linecap:round;stroke-linejoin:round}
+
+.pbkstatus{position:absolute;z-index:8;right:18px;bottom:92px;max-width:min(520px,72vw);
+  padding:10px 13px;border:1px solid var(--edge);border-radius:4px;
+  background:var(--panel);color:var(--ink2);box-shadow:var(--sh2);
+  font-size:12px;line-height:1.5}
+.pbkstatus.err{border-color:color-mix(in srgb,var(--fail) 45%,var(--edge));color:var(--fail)}
+
+/* The playback trigger, alongside the timeline's export buttons. */
+.tlexp button.tlplay{border-color:var(--acc);color:var(--acc)}
+.tlexp button.tlplay:hover{background:color-mix(in srgb,var(--acc) 14%,var(--panel));
+  color:var(--ink);border-color:var(--acc)}
+
+@media (max-width:820px){
+  .pbkclock{min-width:96px;font-size:12.5px}
+  .pbkbar{flex-wrap:wrap}
+}
+
+/* ============================================================
+   Scrollbars.
+
+   Every scrollable region in the page: the search results, the drawer body and
+   its long prose blocks, the file peek, the filter panel, the phase-flow strip,
+   the playback timeline. They were left at the browser default, which on macOS
+   means a light-grey overlay bar -- fine on the light theme, visibly wrong
+   against a dark panel, and heavier than anything else in this UI.
+
+   Two mechanisms, because no single one is supported everywhere: Firefox reads
+   scrollbar-width/scrollbar-color, WebKit and Chromium read the ::-webkit-
+   pseudo-elements. Declared once on a shared selector list rather than per
+   component, so a new scroll area inherits the treatment.
+
+   The track is transparent throughout. A visible track would draw a permanent
+   gutter beside content that only sometimes overflows, which reads as a border
+   in the wrong place; the thumb alone is enough to say "there is more here".
+   The thumb is a translucent tint of the page ink rather than a fixed grey, so
+   it holds the same contrast against either ground and over any content that
+   scrolls beneath it.
+   ============================================================ */
+.db, #results, .mdblk, .peek, .ctl, .raw, .pre, .flowwrap, .mermaid-host,
+.fmview, .pbkstack, .pbkset, .step-list, .filepane, .chaintbl,
+.dsrbody, .dsrlog, .dsrinspect, .dsrswarm, .dsrcklist, .dsrflist {
+  scrollbar-width:thin;
+  scrollbar-color:var(--sb) transparent;
+}
+.db::-webkit-scrollbar-track, #results::-webkit-scrollbar-track,
+.mdblk::-webkit-scrollbar-track, .peek::-webkit-scrollbar-track,
+.ctl::-webkit-scrollbar-track, .raw::-webkit-scrollbar-track,
+.pre::-webkit-scrollbar-track, .flowwrap::-webkit-scrollbar-track,
+.mermaid-host::-webkit-scrollbar-track, .fmview::-webkit-scrollbar-track,
+.pbkstack::-webkit-scrollbar-track, .pbkset::-webkit-scrollbar-track,
+.step-list::-webkit-scrollbar-track, .filepane::-webkit-scrollbar-track,
+.chaintbl::-webkit-scrollbar-track, .dsrbody::-webkit-scrollbar-track,
+.dsrlog::-webkit-scrollbar-track, .dsrinspect::-webkit-scrollbar-track,
+.dsrswarm::-webkit-scrollbar-track, .dsrcklist::-webkit-scrollbar-track, .dsrflist::-webkit-scrollbar-track {
+  background:transparent;
+}
+/* `background-clip:content-box` with a transparent border is what insets the
+   thumb: it keeps a 2px gap on every side without a track to draw it, so the
+   bar reads as floating over the content rather than filling a channel. */
+.db::-webkit-scrollbar-thumb, #results::-webkit-scrollbar-thumb,
+.mdblk::-webkit-scrollbar-thumb, .peek::-webkit-scrollbar-thumb,
+.ctl::-webkit-scrollbar-thumb, .raw::-webkit-scrollbar-thumb,
+.pre::-webkit-scrollbar-thumb, .flowwrap::-webkit-scrollbar-thumb,
+.mermaid-host::-webkit-scrollbar-thumb, .fmview::-webkit-scrollbar-thumb,
+.pbkstack::-webkit-scrollbar-thumb, .pbkset::-webkit-scrollbar-thumb,
+.step-list::-webkit-scrollbar-thumb, .filepane::-webkit-scrollbar-thumb,
+.chaintbl::-webkit-scrollbar-thumb, .dsrbody::-webkit-scrollbar-thumb,
+.dsrlog::-webkit-scrollbar-thumb, .dsrinspect::-webkit-scrollbar-thumb,
+.dsrswarm::-webkit-scrollbar-thumb, .dsrcklist::-webkit-scrollbar-thumb, .dsrflist::-webkit-scrollbar-thumb {
+  background-color:var(--sb);
+  border:2px solid transparent;
+  background-clip:content-box;
+  border-radius:999px;
+}
+/* Darken on hover over the REGION, not just the bar: at 6px of visible thumb a
+   hover target on the thumb itself is too small to aim at, and the useful
+   signal is "you are in something scrollable". */
+.db:hover::-webkit-scrollbar-thumb, #results:hover::-webkit-scrollbar-thumb,
+.mdblk:hover::-webkit-scrollbar-thumb, .peek:hover::-webkit-scrollbar-thumb,
+.ctl:hover::-webkit-scrollbar-thumb, .raw:hover::-webkit-scrollbar-thumb,
+.pre:hover::-webkit-scrollbar-thumb, .flowwrap:hover::-webkit-scrollbar-thumb,
+.mermaid-host:hover::-webkit-scrollbar-thumb, .fmview:hover::-webkit-scrollbar-thumb,
+.pbkstack:hover::-webkit-scrollbar-thumb, .pbkset:hover::-webkit-scrollbar-thumb,
+.step-list:hover::-webkit-scrollbar-thumb, .filepane:hover::-webkit-scrollbar-thumb,
+.chaintbl:hover::-webkit-scrollbar-thumb, .dsrbody:hover::-webkit-scrollbar-thumb,
+.dsrlog:hover::-webkit-scrollbar-thumb, .dsrinspect:hover::-webkit-scrollbar-thumb,
+.dsrswarm:hover::-webkit-scrollbar-thumb, .dsrcklist:hover::-webkit-scrollbar-thumb, .dsrflist:hover::-webkit-scrollbar-thumb {
+  background-color:var(--sb-hover);
+}
+.db:hover, #results:hover, .mdblk:hover, .peek:hover, .ctl:hover, .raw:hover,
+.pre:hover, .flowwrap:hover, .mermaid-host:hover, .fmview:hover,
+.pbkstack:hover, .pbkset:hover, .step-list:hover, .filepane:hover,
+.chaintbl:hover, .dsrbody:hover, .dsrlog:hover, .dsrinspect:hover,
+.dsrswarm:hover, .dsrcklist:hover, .dsrflist:hover {
+  scrollbar-color:var(--sb-hover) transparent;
+}
+/* Corner where a horizontal and vertical bar meet (the phase-flow strip and the
+   file peek can scroll both ways). Left as default it paints a light grey
+   square that is very visible on a dark panel. */
+.db::-webkit-scrollbar-corner, #results::-webkit-scrollbar-corner,
+.mdblk::-webkit-scrollbar-corner, .peek::-webkit-scrollbar-corner,
+.raw::-webkit-scrollbar-corner, .pre::-webkit-scrollbar-corner,
+.flowwrap::-webkit-scrollbar-corner, .mermaid-host::-webkit-scrollbar-corner,
+.filepane::-webkit-scrollbar-corner, .chaintbl::-webkit-scrollbar-corner,
+.dsrbody::-webkit-scrollbar-corner, .dsrlog::-webkit-scrollbar-corner {
+  background:transparent;
+}
+/* Room for the horizontal bar under the playback rail.
+
+   `scrollbar-width:thin` is browser-sized (11px in Chrome) and setting it makes
+   the ::-webkit-scrollbar height declaration inert, so the bar cannot be made
+   smaller -- the strip has to give it space instead. Measured, not guessed: the
+   strip was 56px holding a 52px rail, so the bar was overlapping the rail by
+   7px. Growing the strip keeps the rail whole and the ticks clear of the bar. */
+.pbktl .pbkstack{height:68px}
+
+/* Respect a reduced-motion preference by not animating the thumb colour. */
+@media (prefers-reduced-motion:no-preference){
+  .db::-webkit-scrollbar-thumb, #results::-webkit-scrollbar-thumb,
+  .mdblk::-webkit-scrollbar-thumb, .peek::-webkit-scrollbar-thumb,
+  .pbkstack::-webkit-scrollbar-thumb, .step-list::-webkit-scrollbar-thumb {
+    transition:background-color .16s ease;
+  }
+}
+
+/* ============================================================
+   Story Dossier -- the full-window per-story page (dossier.js).
+
+   Editorial-instrument look: Newsreader for the masthead and the big digits,
+   IBM Plex Mono for every measured label, panels on the shared token palette,
+   soft glows for anything alive. A faint engineering grid sits behind the
+   panels for depth. All colour is var(--...) so both themes work with no
+   extra declarations here; the only per-element hue arrives as a --c / --ph
+   custom property set inline by JS.
+   ============================================================ */
+.dsrmodal{position:fixed;inset:0;z-index:95;display:flex;flex-direction:column;
+  background:
+    linear-gradient(color-mix(in srgb,var(--ink) 3.5%,transparent) 1px,transparent 1px),
+    linear-gradient(90deg,color-mix(in srgb,var(--ink) 3.5%,transparent) 1px,transparent 1px),
+    radial-gradient(120% 90% at 50% 0%,var(--bg) 0%,var(--bg2) 100%);
+  background-size:56px 56px,56px 56px,100% 100%;
+  animation:fmin .18s ease}
+/* solid, no backdrop blur: a blurred fixed header recomputes on every scroll
+   frame of the body beneath it, which is most of what made the page feel slow */
+.dsrhead{position:relative;flex:none;display:flex;flex-wrap:wrap;align-items:center;
+  gap:10px 18px;padding:14px 48px 12px 22px;border-bottom:1px solid var(--edge);
+  background:var(--panel)}
+/* the close button is pinned to the corner: below ~1100px the clock row wraps
+   under the title, and a flow-positioned ✕ used to land mid-row beside it */
+.dsrhead>.dsrx{position:absolute;top:12px;right:12px}
+.dsrid{flex:none;width:52px;height:52px;border-radius:8px;display:grid;place-items:center;
+  background:var(--ph,var(--acc));color:var(--panel);
+  box-shadow:0 0 18px color-mix(in srgb,var(--ph,var(--acc)) 40%,transparent),var(--sh1)}
+.dsrid span{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:600;
+  letter-spacing:.02em}
+.dsrtitle{flex:1 1 380px;min-width:0}
+.dsrtitle h1{margin:0;font-family:"Newsreader",Georgia,serif;font-weight:600;
+  font-size:23px;line-height:1.15;letter-spacing:-.012em;text-wrap:balance;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.dsrtitle p{margin:4px 0 0;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink3)}
+.dsrcounts{flex:none;display:flex}
+.dsrcounts div{display:flex;flex-direction:column;align-items:flex-end;
+  padding:0 18px;border-left:1px solid var(--edge)}
+.dsrcounts div:first-child{border-left:0}
+.dsrcounts i{font-style:normal;font-family:"IBM Plex Mono",monospace;font-size:9px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+.dsrcounts b{font-family:"Newsreader",Georgia,serif;font-size:27px;font-weight:600;
+  line-height:1.1;font-variant-numeric:tabular-nums;color:var(--ink)}
+.dsrcounts b.bump{animation:dsrbump .8s var(--ease)}
+@keyframes dsrbump{30%{transform:scale(1.22);color:var(--acc);
+  text-shadow:0 0 14px color-mix(in srgb,var(--acc) 55%,transparent)}}
+.dsrclock{flex:none;display:flex;align-items:center;gap:10px;margin-left:6px}
+.dsrclock b{font-size:19px;font-weight:600;font-variant-numeric:tabular-nums;
+  text-shadow:0 0 12px color-mix(in srgb,var(--acc) 30%,transparent)}
+.dsrlive{display:inline-flex;align-items:center;gap:5px;font-family:"IBM Plex Mono",monospace;
+  font-size:9.5px;letter-spacing:.12em;color:var(--pass);
+  border:1px solid var(--pass);border-radius:999px;padding:3px 9px;
+  box-shadow:0 0 12px color-mix(in srgb,var(--pass) 30%,transparent),
+    inset 0 0 8px color-mix(in srgb,var(--pass) 12%,transparent)}
+/* an author display would beat the hidden attribute's UA display:none --
+   the same trap .pbkmenu[hidden] documents above */
+.dsrlive[hidden]{display:none}
+.dsrlive i{width:6px;height:6px;border-radius:50%;background:var(--pass);
+  animation:dsrblink 1.6s steps(2) infinite}
+@keyframes dsrblink{50%{opacity:.2}}
+.dsrphase{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.08em;
+  border:1px solid var(--edge);border-radius:4px;padding:3px 8px;color:var(--ink2)}
+.dsrx{flex:none;border:0;background:none;color:var(--ink3);font-size:15px;cursor:pointer;
+  padding:6px 8px;border-radius:4px}
+.dsrx:hover{color:var(--ink);background:var(--bg2)}
+.dsrfacts{flex:none;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;
+  padding:6px 20px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3);border-bottom:1px solid var(--edge);
+  background:color-mix(in srgb,var(--bg2) 80%,transparent)}
+.dsrfacts .dot{color:var(--edge)}
+
+/* replay controls, living in the header beside the clock */
+.dsrplay{flex:none;width:32px;height:32px;border-radius:50%;border:1px solid var(--acc);
+  background:var(--acc);color:var(--panel);cursor:pointer;display:grid;place-items:center;
+  transition:box-shadow var(--motion-fast) ease}
+.dsrplay svg{width:14px;height:14px}
+.dsrplay:hover{background:color-mix(in srgb,var(--acc) 84%,#000);
+  box-shadow:0 0 16px color-mix(in srgb,var(--acc) 55%,transparent)}
+.dsrclock select{font:inherit;font-size:11.5px;padding:4px 6px;border:1px solid var(--edge);
+  border-radius:4px;background:var(--panel);color:var(--ink2)}
+
+/* toasts: live updates land here, glassy and loud */
+.dsrtoasts{position:absolute;top:112px;right:20px;z-index:70;display:flex;
+  flex-direction:column;gap:8px;max-width:min(420px,70vw)}
+.dsrtoast{background:color-mix(in srgb,var(--panel) 86%,transparent);
+  backdrop-filter:blur(10px);
+  border:1px solid color-mix(in srgb,var(--acc) 55%,var(--edge));
+  border-left:3px solid var(--acc);border-radius:6px;padding:9px 12px;
+  font-family:"IBM Plex Mono",monospace;font-size:11px;line-height:1.6;color:var(--ink2);
+  box-shadow:0 0 22px color-mix(in srgb,var(--acc) 22%,transparent),var(--sh2);
+  animation:dsrtoastin .35s var(--ease)}
+.dsrtoast::before{content:"▲ update";display:block;font-size:8.5px;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--acc);margin-bottom:3px}
+.dsrtoast b{color:var(--ink)}
+.dsrtoast b.tphase{letter-spacing:.05em}
+.dsrtoast.out{opacity:0;transform:translateX(16px);transition:all .35s ease}
+@keyframes dsrtoastin{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+
+/* body grid */
+.dsrbody{flex:1;overflow-y:auto;overflow-x:auto;padding:18px 22px 48px;display:grid;
+  grid-template-columns:repeat(12,minmax(0,1fr));grid-auto-flow:row dense;
+  align-items:start;gap:16px}
+/* Density scales with the window. Narrow: one column. Middling: panels pair
+   up. Wide (>=1500px): the map keeps ~2/3 and OUTCOME / CHECKLIST / SIGNALS
+   stack beside it as an intelligence rail, so a big screen is full of story
+   rather than one chart floating in whitespace. */
+.dsrsec{grid-column:span 12}
+/* Base style for the column wrappers, OUTSIDE the wide media query: if they
+   are ever present at a narrow width (a missed resize event, an embedded
+   browser with flaky matchMedia), each spans the full row and stacks instead
+   of squeezing into one grid track and clipping off-screen. */
+.dsrcol{grid-column:1/-1;display:flex;flex-direction:column;gap:16px;min-width:0}
+/* Wide screens: dossier.js re-parents the sections into a main column and an
+   intelligence rail (#dsrColMain / #dsrColRail). The two columns flow
+   independently, so mismatched panel heights can never open holes the way a
+   row-spanning grid did. */
+/* >=1100px: the independent main-column + rail split (dossier.js re-parents
+   the sections). Panel heights vary wildly per story, so height-coupled
+   side-by-side pairs are never used at ANY width — the two columns flow on
+   their own and the map / wire-log absorbers keep their ends aligned. */
+@media (min-width:1100px){
+  .dsrbody{grid-template-columns:minmax(0,1.7fr) minmax(340px,1fr);align-items:stretch}
+  .dsrcol{grid-column:auto;display:flex;flex-direction:column;gap:16px;min-width:0}
+  .dsrcol .dsrsec{grid-column:auto}
+  /* Each column carries one elastic panel with an internal scroller, so
+     whichever column is intrinsically shorter stretches its absorber and the
+     two columns always end together: the wire log in the rail, the checklist
+     in the main column. */
+  #dsrColRail .sec-wire{flex:1;display:flex;flex-direction:column;min-height:0}
+  /* flex-basis 0 + height 0: the log's thousand rows must NOT count toward the
+     column's intrinsic height (that inflated the whole page to ~22k px); it
+     contributes min-height and then grows only into slack the rail is given */
+  #dsrColRail .sec-wire .dsrlog{flex:1 1 0;height:0;min-height:220px}
+  /* the map is the main column's absorber: extra height goes to the page's
+     hero visual (the svg scales inside, centred by its viewBox) rather than
+     to blank panel space */
+  #dsrColMain .sec-map:not(.empty){flex:1;display:flex;flex-direction:column;min-height:0}
+  #dsrColMain .sec-map .dsrmapwrap{flex:1;min-height:0;display:grid;place-items:center}
+  #dsrColMain .sec-map .dsrmapsvg{max-height:78vh}
+}
+@media (min-width:1500px){
+  .dsrbody{grid-template-columns:minmax(0,2.1fr) minmax(400px,1fr)}
+}
+.dsrsec{position:relative;background:var(--panel);border:1px solid var(--edge);
+  border-radius:8px;padding:16px 18px;box-shadow:var(--sh1);min-width:0;
+  /* off-screen sections skip layout/paint entirely — the page holds ~500 dots,
+     ~750 swarm cells and 1000+ log rows, and scrolling paid for all of it */
+  content-visibility:auto;contain-intrinsic-size:auto 420px}
+/* a hairline highlight along each panel's top edge, for a machined feel */
+.dsrsec::before{content:"";position:absolute;inset:0 0 auto 0;height:1px;
+  border-radius:8px 8px 0 0;
+  background:linear-gradient(90deg,transparent,
+    color-mix(in srgb,var(--acc) 35%,transparent) 30% 70%,transparent)}
+.dsrsechead{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.dsrsechead h2{margin:0;font-size:14px;font-weight:700;letter-spacing:.06em}
+.dsrsechead h2::before{content:"— ";color:var(--acc)}
+.dsrsechead h2 span{font-family:"IBM Plex Mono",monospace;font-size:9.5px;font-weight:400;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-left:8px}
+.dsrfoot{margin:8px 0 0;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--ink3)}
+
+/* segmented dimension switch */
+.dsrseg{display:inline-flex;border:1px solid var(--edge);border-radius:5px;overflow:hidden;
+  margin-left:auto}
+.dsrseg button{font:inherit;font-size:11px;padding:4px 11px;border:0;cursor:pointer;
+  background:var(--panel);color:var(--ink3);border-left:1px solid var(--edge);
+  transition:background var(--motion-fast) ease,color var(--motion-fast) ease}
+.dsrseg button:first-child{border-left:0}
+.dsrseg button[aria-selected="true"]{background:var(--acc);color:var(--panel)}
+.dsrseg button:hover:not([aria-selected="true"]){color:var(--ink);background:var(--bg2)}
+
+/* the map */
+.dsrmapwrap{position:relative}
+.dsrmapsvg{display:block;width:100%;height:auto;max-height:66vh;
+  will-change:transform}
+/* no dash-drift here: animating stroke-dashoffset on hull-sized circles
+   repaints their whole bounding box every frame. The page's ambient motion
+   lives in SMALL elements instead (nowdot, ants, sweep, pings). */
+.dsrhull circle{fill:var(--c);opacity:.07;stroke:var(--c);stroke-opacity:.35;
+  stroke-width:1;stroke-dasharray:3 4}
+.dsrhull rect{fill:var(--panel);stroke:var(--c);stroke-width:1}
+.dsrhull text{fill:var(--ink2);font-family:"IBM Plex Mono",monospace;font-size:10px;
+  letter-spacing:.06em}
+.dsrdot{cursor:pointer;transition:transform .7s var(--ease)}
+.dsrdot circle{fill:var(--c);stroke:var(--panel);stroke-width:1.2;
+  transform:scale(0);transform-box:fill-box;transform-origin:center;
+  transition:transform .4s var(--ease),opacity .45s ease}
+.dsrdot.on circle{transform:scale(1)}
+.dsrdot.on:hover circle{stroke:var(--ink);stroke-width:1.6;
+  filter:drop-shadow(0 0 6px color-mix(in srgb,var(--c) 70%,transparent))}
+.dsrdot.on.set circle{opacity:.3}
+.dsrdot.dis circle{fill:transparent;stroke:var(--c);stroke-width:1.6}
+/* effect rings: circles that scale out. Pings only while the story is live. */
+.dsrdot circle.ping,.dsrdot circle.burst{fill:none;stroke:var(--c);stroke-width:1.4;
+  opacity:0}
+/* open criticals ping regardless of liveness -- they are the unfinished
+   business this page exists to surface; faster while the story runs */
+.dsrdot.on:not(.set) circle.ping{animation:dsrping 3.2s steps(10) infinite}
+.dsrmodal.live .dsrdot.on:not(.set) circle.ping{animation-duration:2s}
+@keyframes dsrping{0%{opacity:.9;transform:scale(1)}70%{opacity:0;transform:scale(3.4)}100%{opacity:0}}
+.dsrdot.on circle.burst{animation:dsrburst 1.1s ease-out 4}
+@keyframes dsrburst{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(4.5)}}
+.dsrdot.fresh circle:not(.ping):not(.burst){stroke:var(--ink);stroke-width:2;
+  filter:drop-shadow(0 0 8px color-mix(in srgb,var(--c) 80%,transparent))}
+/* solid: a backdrop-blurred tooltip repositioned on every mousemove is jank */
+.dsrtip{position:absolute;z-index:5;max-width:330px;padding:8px 10px;font-size:10.5px;
+  line-height:1.45;background:var(--panel);border:1px solid var(--edge);border-radius:6px;
+  box-shadow:var(--sh2);pointer-events:none;color:var(--ink2)}
+.dsrtip b{color:var(--ink)}
+/* A story with no findings used to render a 600px blank map with one line of
+   text lost in the middle (the svg kept its viewBox height and the panel kept
+   absorbing the column). Empty, the section collapses to a short strip with a
+   faint target ring, and the intro text reads as a state, not a bug. */
+.sec-map.empty .dsrmapsvg,.sec-map.empty .dsrfoot{display:none}
+.sec-map.empty .dsrmapwrap{min-height:132px;display:grid;place-items:center}
+.dsrempty{margin:0;display:flex;align-items:center;gap:14px;padding:18px 22px;
+  font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3);
+  border:1px dashed var(--edge);border-radius:8px}
+.dsrempty::before{content:"";width:30px;height:30px;border-radius:50%;flex:none;
+  border:1.5px dashed color-mix(in srgb,var(--ink3) 70%,transparent);
+  background:radial-gradient(circle,var(--ink3) 0 2.5px,transparent 3px)}
+.dsrempty small{display:block;font-size:9px;letter-spacing:.08em;margin-top:3px;
+  text-transform:none;color:color-mix(in srgb,var(--ink3) 80%,transparent)}
+.dsrempty[hidden]{display:none}
+
+/* finding inspector, over the map's right edge */
+.dsrinspect{position:absolute;top:8px;right:8px;bottom:8px;width:min(380px,46%);
+  overflow-y:auto;background:var(--panel);border:1px solid var(--edge);border-radius:8px;
+  box-shadow:var(--sh3);padding:14px 16px}
+.dsrinspect .dsrx{position:absolute;top:6px;right:6px}
+.dsrinspect h3{margin:0 26px 8px 0;font-size:13px}
+.dsrtags{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.dsrtags b{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.08em;
+  text-transform:uppercase;color:#fff;border-radius:3px;padding:2px 7px}
+.dsrtags span{font-size:10px;color:var(--ink3)}
+.dsrdesc{margin:0;font-size:12.5px;line-height:1.6;color:var(--ink2);
+  white-space:pre-wrap;overflow-wrap:anywhere}
+.dsrres{margin:10px 0 0;padding:8px 10px;font-size:12px;line-height:1.55;
+  border-left:3px solid var(--pass);background:var(--bg2);border-radius:0 4px 4px 0;
+  color:var(--ink2);overflow-wrap:anywhere}
+.dsrres i{font-style:normal;font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--pass);display:block;margin-bottom:3px}
+.dsrfiles{margin:10px 0 0;font-size:10px;line-height:1.7;color:var(--ink3);
+  overflow-wrap:anywhere}
+.dsrgo{margin-top:12px;font:inherit;font-size:12px;padding:6px 12px;cursor:pointer;
+  border:1px solid var(--acc);border-radius:4px;background:none;color:var(--acc);
+  transition:all var(--motion-fast) ease}
+.dsrgo:hover{background:var(--acc);color:var(--panel);
+  box-shadow:0 0 14px color-mix(in srgb,var(--acc) 45%,transparent)}
+
+/* the loop */
+.dsrloop{display:block;width:100%;height:auto}
+.dsrphbox rect{fill:var(--bg2);stroke:var(--edge)}
+.dsrphbox.on rect{fill:color-mix(in srgb,var(--c) 10%,var(--panel));stroke:var(--c)}
+/* The phase the story sits in reads as RUNNING like a little monitor: faint
+   log lines roll upward inside the box, terminal-style. Stepped by one line
+   pitch so it costs ~8 paints/s, not 60. The glow is static (animating an
+   SVG filter re-rasterises every frame). */
+.dsrphbox.now rect{stroke-width:2;
+  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--c) 45%,transparent))}
+.dsrphbox .nowscreen .roll rect{fill:var(--c);opacity:.16;stroke:none;filter:none}
+.dsrphbox .nowscreen .roll{animation:dsrroll 1.8s steps(14) infinite}
+@keyframes dsrroll{to{transform:translateY(-28px)}}
+/* the label holds ~2.4s, then rolls up and out while its duplicate rolls in */
+.dsrphbox .nowscreen .troll{animation:dsrtroll 3.2s ease-in-out infinite}
+@keyframes dsrtroll{0%,74%{transform:translateY(0)}88%,100%{transform:translateY(-46px)}}
+.dsrphbox .pn{fill:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:11px;
+  letter-spacing:.06em;font-weight:600}
+.dsrphbox.on .pn{fill:var(--c)}
+.dsrphbox .pv{fill:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:9.5px}
+.dsrphbox .ph{fill:var(--edge);stroke:none}
+.dsrphbox .phf{fill:var(--c);stroke:none}
+.dsrphbox:not(.on) .phf{fill:none}
+.dsrarc path{fill:none;stroke:var(--ink3);stroke-width:1.1;opacity:.6}
+.dsrarc.back path{stroke:var(--fail);stroke-dasharray:4 4;opacity:.8}
+.dsrarc text{fill:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:10px}
+.dsrarc.back text{fill:var(--fail)}
+
+/* the swarm */
+.dsrswarm{display:flex;flex-wrap:wrap;gap:3px;max-height:200px;overflow-y:auto;
+  padding:2px}
+.dsrswarm i{width:10px;height:10px;border-radius:2px;background:var(--edge);
+  transition:background .3s ease,box-shadow .3s ease}
+.dsrswarm i.on{background:var(--c)}
+.dsrswarm i.fresh.on{outline:2px solid color-mix(in srgb,var(--ink) 70%,transparent);
+  animation:dsrblink 1s steps(2) 4}
+.dsrlegend{display:flex;flex-wrap:wrap;gap:5px 14px;margin-top:10px;font-size:9.5px;
+  letter-spacing:.05em;color:var(--ink3)}
+.dsrlegend span{display:inline-flex;align-items:center;gap:5px}
+.dsrlegend i{width:9px;height:9px;border-radius:2px}
+.dsrlegend i.tick{width:2px;height:9px;border-radius:0;background:var(--ink3)}
+
+/* pulse */
+.dsrpulse{display:block;width:100%;height:210px}
+.dsrpulse .band{opacity:.06}
+.dsrpulse .rtick{stroke:var(--ink3);stroke-width:1;opacity:.6}
+.dsrpulse .opened{fill:none;stroke:var(--ph-review);stroke-width:1.8;
+  filter:drop-shadow(0 0 3px color-mix(in srgb,var(--ph-review) 45%,transparent))}
+.dsrpulse .settled{fill:none;stroke:var(--pass);stroke-width:1.8;
+  filter:drop-shadow(0 0 3px color-mix(in srgb,var(--pass) 45%,transparent))}
+.dsrpulse .cursor{stroke:var(--ink);stroke-width:1;stroke-dasharray:2 3;opacity:.7;
+  animation:dsrants 1.4s steps(7) infinite}
+@keyframes dsrants{to{stroke-dashoffset:-10}}
+.dsrpulse .ax{fill:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:9px}
+.dsrpulse .empty{fill:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:9.5px;
+  letter-spacing:.12em}
+
+/* wire log */
+.dsrchks{margin-left:auto;display:inline-flex;gap:12px;white-space:nowrap}
+.dsrchk{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);cursor:pointer}
+.dsrchk input{accent-color:var(--acc);margin:0}
+.dsrlog{height:300px;overflow-y:auto;font-size:10.5px;line-height:1.7;
+  border:1px solid var(--edge);border-radius:6px;padding:6px 10px;
+  background:color-mix(in srgb,var(--ink) 3%,var(--bg2))}
+/* a blinking caret sits at the end of the stream while the story runs */
+.dsrmodal.live .dsrlog::after{content:"▌";color:var(--pass);
+  animation:dsrblink 1.2s steps(2) infinite}
+.dsrline{display:none;gap:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dsrline.on{display:flex;animation:dsrland .35s ease}
+@keyframes dsrland{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+.dsrline.fresh.on{animation:dsrfreshline 4s ease-out}
+@keyframes dsrfreshline{0%{background:color-mix(in srgb,var(--acc) 28%,transparent)}
+  100%{background:transparent}}
+.dsrline u{text-decoration:none;color:var(--ink3);font-variant-numeric:tabular-nums;flex:none}
+.dsrline b{flex:none;width:56px;font-weight:600;letter-spacing:.04em}
+.dsrline span{color:var(--ink2);overflow:hidden;text-overflow:ellipsis}
+.dsrrowc{color:var(--ink3);font-size:9.5px;letter-spacing:.08em;padding:2px 0}
+
+/* stats aside */
+.dsrstatsb{display:flex;flex-direction:column;gap:14px}
+.dsrstat i{font-style:normal;display:block;font-size:9px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink3);margin-bottom:6px}
+.dsrstat p{margin:4px 0 0;font-size:10px;color:var(--ink3)}
+.dsrbar{display:flex;height:10px;border-radius:3px;overflow:hidden;gap:1px}
+.dsrbar b{min-width:2px}
+.dsrhbar{display:grid;grid-template-columns:minmax(70px,auto) 1fr 30px;gap:8px;
+  align-items:center;font-size:10px;color:var(--ink2);margin:3px 0}
+.dsrhbar em{height:7px;background:var(--bg2);border-radius:2px;overflow:hidden}
+.dsrhbar em b{display:block;height:100%;background:var(--acc);border-radius:2px}
+.dsrhbar u{text-decoration:none;text-align:right;color:var(--ink3);
+  font-variant-numeric:tabular-nums}
+.dsrbig{font-family:"Newsreader",Georgia,serif;font-size:17px;font-weight:600;margin:0}
+.dsrrc{line-height:1.5;overflow-wrap:anywhere}
+
+/* The drawer-header button that opens the dossier page. It navigates (pushes
+   /story/<id>), so it must read as a LINK, not as another metadata chip:
+   filled accent, an outward arrow that moves on hover, a glow. */
+.chip.dossier{display:inline-flex;align-items:center;gap:4px;cursor:pointer;
+  background:var(--acc);border-color:var(--acc);color:var(--panel);font-weight:600;
+  padding:3px 8px;border-radius:3px;
+  /* never stretch to a taller flex line (it used to land beside the tab strip
+     and balloon to its height) */
+  align-self:center;
+  transition:box-shadow var(--motion-fast) ease,background var(--motion-fast) ease}
+.chip.dossier .arr{font-size:11px;line-height:1;
+  transition:transform var(--motion-fast) var(--ease)}
+.chip.dossier:hover{background:color-mix(in srgb,var(--acc) 84%,#000);
+  box-shadow:0 0 10px color-mix(in srgb,var(--acc) 50%,transparent)}
+.chip.dossier:hover .arr{transform:translate(2px,-2px)}
+.chip.dossier:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+
+/* graph layers stop painting while the dossier covers them; they stay in the
+   DOM so closing the dossier is instant */
+body.dsropen #cv,body.dsropen #glhost,body.dsropen .hud,
+body.dsropen .lgnd,body.dsropen #tp{visibility:hidden}
+
+/* deep-link boot cover: shown before the graph even loads, so /story/<id>
+   never flashes the graph page. Same ground as the dossier itself. */
+.dsrcover{position:fixed;inset:0;z-index:96;display:grid;place-items:center;
+  background:
+    linear-gradient(color-mix(in srgb,var(--ink) 3.5%,transparent) 1px,transparent 1px),
+    linear-gradient(90deg,color-mix(in srgb,var(--ink) 3.5%,transparent) 1px,transparent 1px),
+    radial-gradient(120% 90% at 50% 0%,var(--bg) 0%,var(--bg2) 100%);
+  background-size:56px 56px,56px 56px,100% 100%;
+  transition:opacity .25s ease}
+.dsrcover.out{opacity:0;pointer-events:none}
+.dsrcover div{display:flex;align-items:center;gap:10px;font-size:11px;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--ink3)}
+.dsrcover .mono{border:1px solid var(--edge);border-radius:4px;padding:3px 9px;
+  color:var(--ink2);background:var(--panel)}
+.dsrcover i{font-style:normal;color:var(--acc);animation:dsrblink 1s steps(2) infinite}
+
+/* checklist + outcome panels */
+.dsrcklist{display:flex;flex-direction:column;gap:3px;max-height:280px;overflow-y:auto}
+.dsrck{display:grid;grid-template-columns:10px minmax(64px,auto) 1fr auto;gap:8px;
+  align-items:center;font-size:11px;padding:4px 6px;border-radius:4px}
+.dsrck:hover{background:var(--bg2)}
+.dsrck i{width:8px;height:8px;border-radius:50%;background:var(--ink3);opacity:.45}
+.dsrck.done i{background:var(--pass);opacity:1}
+.dsrck.doing i{background:var(--warn);opacity:1;animation:dsrblink 1.2s steps(2) infinite}
+.dsrck b{font-weight:500;font-size:10px;color:var(--ink3)}
+.dsrck span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink2)}
+.dsrck u{text-decoration:none;font-size:9px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink3)}
+.dsrck.done u{color:var(--pass)}
+/* every "nothing recorded" line in the page shares this one quiet state */
+.dsrnote{margin:0;padding:12px 14px;font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink3);border:1px dashed var(--edge);
+  border-radius:6px;text-align:center}
+.dsrout{display:flex;flex-direction:column;gap:10px;font-size:12px}
+.dsrorow{display:grid;grid-template-columns:110px 1fr;gap:10px;align-items:baseline}
+.dsrorow i{font-style:normal;font-size:9px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink3)}
+.dsrorow .dim{color:var(--ink3);font-size:10px;overflow-wrap:anywhere}
+.dsrvchip{font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.08em;
+  text-transform:uppercase;color:#fff;border-radius:3px;padding:2px 7px}
+
+/* the web: this story's ego-graph, one hop upstream and downstream */
+.dsrwebsvg{display:block;width:100%;height:auto;max-height:520px}
+.dsrwebsvg .wh{fill:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:9.5px;
+  letter-spacing:.12em}
+.dsrwebsvg .wlg,.dsrwebsvg .wmore{fill:var(--ink3);
+  font-family:"IBM Plex Mono",monospace;font-size:9px;letter-spacing:.08em}
+.dsrweb-edge{fill:none;stroke:var(--edge);stroke-width:1.2;opacity:.55}
+.dsrweb-edge.dep{stroke:var(--acc);stroke-width:1.6;opacity:.8}
+.dsrweb-node{cursor:pointer}
+.dsrweb-node rect{fill:var(--panel);stroke:var(--edge);stroke-width:1;
+  transition:stroke var(--motion-fast) ease,filter var(--motion-fast) ease}
+.dsrweb-node circle{fill:var(--c)}
+.dsrweb-node text{fill:var(--ink2);font-family:"IBM Plex Mono",monospace;font-size:11px}
+.dsrweb-node:hover rect{stroke:var(--c);stroke-width:1.6;
+  filter:drop-shadow(0 0 8px color-mix(in srgb,var(--c) 45%,transparent))}
+.dsrweb-node:hover text{fill:var(--ink)}
+.dsrweb-center rect{fill:color-mix(in srgb,var(--c) 12%,var(--panel));
+  stroke:var(--c);stroke-width:2;
+  filter:drop-shadow(0 0 8px color-mix(in srgb,var(--c) 45%,transparent))}
+.dsrweb-center .cid{fill:var(--ink);font-family:"IBM Plex Mono",monospace;
+  font-size:14px;font-weight:600}
+.dsrweb-center .cph{fill:var(--c);font-family:"IBM Plex Mono",monospace;
+  font-size:9px;letter-spacing:.1em}
+
+/* origin / signals rows */
+.dsrclamp{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
+  overflow:hidden;color:var(--ink2);line-height:1.55;margin:0}
+.dsrkw{text-decoration:none;display:inline-block;font-size:9.5px;padding:1px 7px;
+  margin:1px 0;border:1px solid var(--edge);border-radius:999px;color:var(--ink3)}
+.dsrkw.warn{color:var(--warn);border-color:var(--warn)}
+
+/* findings feed: every finding, newest first */
+.dsrflist{max-height:520px;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.dsrfrow{border-radius:5px;padding:5px 8px;cursor:pointer}
+.dsrfrow:hover{background:var(--bg2)}
+.dsrfrow.fresh{animation:dsrfreshline 4s ease-out}
+.dsrfhead{display:grid;grid-template-columns:auto 10px auto auto auto 1fr;
+  gap:8px;align-items:center;font-size:11px;min-width:0}
+.dsrfhead u{text-decoration:none;color:var(--ink3);font-size:10px;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+.dsrfhead i{width:9px;height:9px;border-radius:50%}
+.dsrfhead b{font-weight:600;font-size:10.5px;color:var(--ink)}
+.dsrfhead em{font-style:normal;font-size:9.5px;color:var(--ink3)}
+.dsrfhead s{text-decoration:none;font-size:8.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink3)}
+.dsrfhead s.st-open{color:var(--ph-review)}
+.dsrfhead s.st-resolved{color:var(--pass)}
+.dsrfhead s.st-dismissed{color:var(--disc)}
+.dsrfhead span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  color:var(--ink2)}
+.dsrfbody{display:none;margin:6px 0 4px 18px;font-size:12px;line-height:1.6;
+  color:var(--ink2)}
+.dsrfrow.open .dsrfbody{display:block}
+.dsrfrow.open .dsrfhead span{white-space:normal;display:none}
+.dsrfbody p{margin:0 0 6px;white-space:pre-wrap;overflow-wrap:anywhere}
+.dsrfbody .dim{color:var(--ink3);font-size:10px}
+
+/* The ambient dossier motion (pings, ants, sweep, dots, carets) is
+   decoration; honour a reduced-motion preference by parking all of it. */
+@media (prefers-reduced-motion:reduce){
+  .dsrdot.on:not(.set) circle.ping,.dsrphbox .nowscreen .roll,
+  .dsrphbox .nowscreen .troll,.dsrpulse .cursor,.dsrlive i,.dsrck.doing i,
+  .dsrcktrack i.doing,.dsrmodal.live .dsrlog::after{animation:none}
+}
+
+/* ---- visual-first panels: tracks, seal, tiles, fork ---- */
+.dsrckviz{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.dsrckbig{font-family:"Newsreader",Georgia,serif;font-size:38px;font-weight:600;
+  line-height:1;font-variant-numeric:tabular-nums}
+.dsrckbig span{font-size:17px;color:var(--ink3);font-weight:400}
+.dsrcktrack{flex:1;min-width:180px;display:flex;gap:3px;height:16px}
+.dsrcktrack i{flex:1;min-width:4px;border-radius:3px;background:var(--edge)}
+.dsrcktrack i.done{background:var(--pass)}
+.dsrcktrack i.doing{background:var(--warn);animation:dsrblink 1.2s steps(2) infinite}
+
+.dsrmore{margin-top:10px;border-top:1px solid var(--edge);padding-top:8px}
+.dsrmore summary{cursor:pointer;font-size:9px;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--ink3);list-style:none;user-select:none}
+.dsrmore summary::-webkit-details-marker{display:none}
+.dsrmore summary::before{content:"▸ "}
+.dsrmore[open] summary::before{content:"▾ "}
+.dsrmore summary:hover{color:var(--ink)}
+.dsrmore>*:not(summary){margin-top:6px}
+
+.dsroutviz{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+.dsrseal{flex:none;width:106px;height:106px;border-radius:50%;display:flex;
+  flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  border:2px solid var(--pass);color:var(--pass);transform:rotate(-6deg);
+  outline:1px dashed color-mix(in srgb,var(--pass) 55%,transparent);outline-offset:4px}
+.dsrseal svg{width:24px;height:24px;fill:none;stroke:currentColor;
+  stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.dsrseal b{font-family:"IBM Plex Mono",monospace;font-size:10px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase}
+.dsrseal span{font-family:"IBM Plex Mono",monospace;font-size:7.5px;
+  letter-spacing:.1em;text-transform:uppercase;opacity:.75}
+.dsrseal.warn{border-color:var(--warn);color:var(--warn);
+  outline-color:color-mix(in srgb,var(--warn) 55%,transparent)}
+.dsrseal.none{border-color:var(--edge);color:var(--ink3);transform:none;
+  outline-color:var(--edge)}
+
+.dsrtiles{flex:1;min-width:0;display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:12px}
+.dsrtile{min-width:0}
+.dsrtile>b{display:block;font-family:"Newsreader",Georgia,serif;font-size:26px;
+  font-weight:600;line-height:1.1;font-variant-numeric:tabular-nums}
+.dsrtile b .dim{font-size:15px;color:var(--ink3);font-weight:400}
+.dsrtile>i{font-style:normal;display:block;font-size:8.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink3);margin-top:1px}
+.dsrtile em{font-style:normal;display:block;font-size:9px;color:var(--ink3);margin-top:4px}
+.dsrvbig{font-family:"IBM Plex Mono",monospace;font-size:13px;font-weight:600;
+  letter-spacing:.1em;text-transform:uppercase;color:#fff;background:var(--pass);
+  border-radius:4px;padding:3px 9px;display:inline-block}
+.dsrvbig.bad{background:var(--fail)}
+.dsrminibar{display:flex;height:5px;border-radius:2px;overflow:hidden;gap:1px;
+  margin-top:5px}
+.dsrminibar u{display:block;min-width:2px}
+.dsrgdots{display:flex;gap:4px;margin-top:6px}
+.dsrgdots i{width:9px;height:9px;border-radius:50%;background:var(--pass)}
+.dsrgdots i.bad{background:var(--fail)}
+.dsrcmd{font-size:9.5px;color:var(--ink3);margin:10px 0 0;overflow-wrap:anywhere}
+
+.dsrfork{position:relative;display:flex;flex-direction:column;gap:6px;
+  margin:2px 0 12px;padding-left:16px}
+.dsrfork::before{content:"";position:absolute;left:4px;top:10px;bottom:10px;
+  width:2px;border-radius:2px;background:var(--edge)}
+.dsropt{position:relative;font-size:12px;color:var(--ink3);padding:5px 11px;
+  border:1px dashed var(--edge);border-radius:6px;width:fit-content;max-width:100%;
+  overflow-wrap:anywhere}
+.dsropt::before{content:"";position:absolute;left:-12px;top:50%;width:10px;height:2px;
+  background:var(--edge)}
+.dsropt.chosen{color:var(--ink);font-weight:600;border:1px solid var(--acc);
+  background:color-mix(in srgb,var(--acc) 8%,var(--panel));
+  box-shadow:0 0 10px color-mix(in srgb,var(--acc) 18%,transparent)}
+.dsrpm{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.dsrpm i{font-style:normal;color:var(--test);font-size:11px;letter-spacing:2px}
+.dsrpm em{font-style:normal;font-size:9px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink3)}
+.dsrkws{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 4px}
+
+/* unfolded prose inside the visual panels */
+.dsrckitems{margin-top:10px;border-top:1px solid var(--edge);padding-top:6px}
+.dsrprose{margin-top:10px;border-top:1px solid var(--edge);padding-top:8px;
+  display:flex;flex-direction:column;gap:8px}
+.dsrprose .dsrorow span{color:var(--ink2);line-height:1.55}

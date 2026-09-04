@@ -795,7 +795,7 @@ assert.equal(
       doneRequiredCommands: [{ label: 'long legal suite', command: 'npm', args: ['test'], timeoutMs: 120_000 }],
     }, null, 2) + '\n', 'utf8');
     resetConfigCache();
-    const installedProofOrStop = execFileSync('/bin/sh', ['-c', 'command -v proofOrStop'], { encoding: 'utf8' }).trim();
+    const installedProofOrStop = execFileSync('/bin/sh', ['-c', 'command -v proof-or-stop'], { encoding: 'utf8' }).trim();
     const activeCliEntrypoint = realpathSync(installedProofOrStop);
     process.argv[1] = activeCliEntrypoint;
     const globalBin = join(root, 'global-bin');

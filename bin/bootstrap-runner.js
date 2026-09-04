@@ -21,6 +21,7 @@ const binDir = dirname(__filename);
 const repoRoot = dirname(binDir);
 
 const MAIN_DIST = join(repoRoot, 'packages', 'main', 'dist', 'cli-engine.js');
+const BRAND_ENV_DIST = join(repoRoot, 'packages', 'main', 'dist', 'core', 'brand-env.js');
 const UTILS_DIST = join(repoRoot, 'packages', 'utils', 'dist', 'index.js');
 const LAB_DIST = join(repoRoot, 'packages', 'lab', 'dist', 'index.js');
 
@@ -60,7 +61,7 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 // A build is "in progress" only when a LIVE holder is heartbeating `<target>.lock`. Gate on lock
 // FRESHNESS, not mere existence: a build interrupted by Ctrl-C/SIGKILL/crash skips its finally-release
 // and leaves the `.lock` dir ORPHANED. The atomic swap already left dist complete in that case, so the
-// orphan must NOT block readers — otherwise every bin/proofOrStop.js call would wait then fail until the
+// orphan must NOT block readers — otherwise every bin/proof-or-stop.js call would wait then fail until the
 // next build reclaims it. A live holder heartbeats the mtime every `update` (10s); proper-lockfile
 // treats it stale past `stale` (30s), so an orphan ages out within `stale` and we ignore it. The
 // threshold and lock target are imported from the dependency-free build-lock-target.mjs (single source
@@ -152,7 +153,11 @@ export async function runLocalBootstrap() {
         }
       } catch (error) {
         const err = error instanceof Error ? error : new Error(String(error));
-        process.env.PROOF_OR_STOP_LAB_IMPORT_ERROR = err.message;
+        // Main dist is already loaded above, so use its compiled shared helper. Keeping this
+        // dynamic avoids adding an uncompiled TypeScript or third-party dependency to the
+        // bootstrap runner's module-init import graph.
+        const { setBrandEnv } = await import(pathToFileURL(BRAND_ENV_DIST).href);
+        setBrandEnv(process.env, 'LAB_IMPORT_ERROR', err.message);
       }
     }
 

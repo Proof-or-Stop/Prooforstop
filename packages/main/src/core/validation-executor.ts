@@ -1,5 +1,6 @@
 import { execSync, spawn } from 'node:child_process';
-import { isAbsolute, resolve } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { loadConfig } from './config.js';
 import {
   classifyGitStatusRows,
@@ -56,6 +57,68 @@ const MAX_OUTPUT_CHARS = 12000;
  */
 export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000;
 
+const RUNTIME_TRACE_DIR = '.proof-or-stop/runtime/validation-traces';
+const RUNTIME_TRACER_RELATIVE_PATH = 'packages/main/src/core/validation-runtime-tracer.cjs';
+
+function runtimeTracerPath(projectRoot: string): string | undefined {
+  const candidate = resolve(projectRoot, RUNTIME_TRACER_RELATIVE_PATH);
+  return existsSync(candidate) ? candidate : undefined;
+}
+
+type RuntimeTraceFragment = {
+  readPaths?: unknown; loadedPaths?: unknown; spawnedPaths?: unknown;
+  registryKeys?: unknown; environmentKeys?: unknown; events?: unknown;
+};
+
+function stringValues(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : [];
+}
+
+/** Collect the legacy trace or every child-safe sidecar for one command. */
+function readRuntimeTraceFragments(traceFile: string): {
+  observed?: { readPaths: string[]; loadedPaths: string[]; spawnedPaths: string[]; registryKeys: string[]; environmentKeys: string[]; events: string[] };
+  files: string[];
+  malformed: boolean;
+} {
+  const base = basename(traceFile);
+  const directory = dirname(traceFile);
+  let files: string[] = [];
+  try {
+    files = readdirSync(directory)
+      .filter(name => name === base || name.startsWith(`${base}.`))
+      .map(name => join(directory, name))
+      .sort();
+  } catch {
+    return { files: [], malformed: false };
+  }
+  if (files.length === 0) return { files, malformed: false };
+  const merged = {
+    readPaths: new Set<string>(), loadedPaths: new Set<string>(), spawnedPaths: new Set<string>(),
+    registryKeys: new Set<string>(), environmentKeys: new Set<string>(), events: new Set<string>(),
+  };
+  try {
+    for (const file of files) {
+      const fragment = JSON.parse(readFileSync(file, 'utf8')) as RuntimeTraceFragment;
+      for (const value of stringValues(fragment.readPaths)) merged.readPaths.add(value);
+      for (const value of stringValues(fragment.loadedPaths)) merged.loadedPaths.add(value);
+      for (const value of stringValues(fragment.spawnedPaths)) merged.spawnedPaths.add(value);
+      for (const value of stringValues(fragment.registryKeys)) merged.registryKeys.add(value);
+      for (const value of stringValues(fragment.environmentKeys)) merged.environmentKeys.add(value);
+      for (const value of stringValues(fragment.events)) merged.events.add(value);
+    }
+  } catch {
+    return { files, malformed: true };
+  }
+  return {
+    files,
+    malformed: false,
+    observed: {
+      readPaths: [...merged.readPaths], loadedPaths: [...merged.loadedPaths], spawnedPaths: [...merged.spawnedPaths],
+      registryKeys: [...merged.registryKeys], environmentKeys: [...merged.environmentKeys], events: [...merged.events],
+    },
+  };
+}
+
 /**
  * B-cdf6 (B-META F-012): hard cap for a per-evidence pinned-command timeout override.
  *
@@ -72,7 +135,7 @@ export const DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000;
  * enforcement boundary (`handlers/checklist.ts`) both import THIS constant, so the Zod
  * bound and the runtime re-validation can never drift apart.
  */
-export const EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 7_200_000;
+export const EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 21_600_000;
 export const DEFAULT_VALIDATE_HEARTBEAT_MS = 30_000;
 /** Node clamps larger setTimeout delays to ~1ms and emits TimeoutOverflowWarning. */
 export const MAX_NODE_TIMER_DELAY_MS = 2_147_483_647;
@@ -95,6 +158,8 @@ export interface ExecuteValidationPlanOptions {
   deadlineError?: () => Error;
   /** Scheduler worker count; overrides PROOF_OR_STOP_VALIDATE_JOBS. See {@link resolveValidatePlanJobs}. */
   jobs?: number;
+  /** Refuse each child launch if the caller's preflight snapshot is no longer valid. */
+  beforeLaunch?: () => void;
 }
 
 /**
@@ -1261,6 +1326,8 @@ export function runValidationCommand(
   const timeoutMs = deadlineRemainingMs === undefined
     ? configuredTimeoutMs
     : Math.min(configuredTimeoutMs, deadlineRemainingMs);
+  const effectiveEnv = effectiveValidationCommandEnvironment(process.env, command.env, cwd);
+  const startedAt = new Date(started).toISOString();
   const commandIndex = options.commandIndex ?? 1;
   const totalCommands = options.totalCommands ?? 1;
   const heartbeatMs = options.heartbeatMs ?? resolveValidateHeartbeatMs();
@@ -1276,6 +1343,16 @@ export function runValidationCommand(
     statusGitCwd = projectRoot;
   }
   const statusBefore = readGitStatus(statusGitCwd);
+  const tracer = runtimeTracerPath(projectRoot);
+  const traceFile = tracer
+    ? join(projectRoot, RUNTIME_TRACE_DIR, `${process.pid}-${commandIndex}-${Date.now()}.json`)
+    : undefined;
+  const spawnEnv = { ...effectiveEnv };
+  if (tracer && traceFile) {
+    mkdirSync(join(projectRoot, RUNTIME_TRACE_DIR), { recursive: true });
+    spawnEnv.PROOF_OR_STOP_RUNTIME_TRACE_FILE = traceFile;
+    spawnEnv.NODE_OPTIONS = `${spawnEnv.NODE_OPTIONS || ''} --require ${tracer}`.trim();
+  }
 
   return new Promise((resolveResult) => {
     const isWindows = process.platform === 'win32';
@@ -1286,6 +1363,7 @@ export function runValidationCommand(
     let timer: NodeJS.Timeout | undefined;
     let killTimer: NodeJS.Timeout | undefined;
     let heartbeatTimer: NodeJS.Timeout | undefined;
+    const runtimeEvents: string[] = ['spawn-request'];
 
     const finish = (rawCode: number | null) => {
       if (settled) return;
@@ -1300,9 +1378,13 @@ export function runValidationCommand(
       // could even exit 0 — without this normalization those would mis-report as not-124
       // even though `timedOut` is set.
       const code = timedOut ? 124 : (rawCode ?? 1);
+      runtimeEvents.push('finish');
       const failureKind = commandFailureKind({ code, timedOut, runnerFailure });
       const statusAfter = readGitStatus(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
+      const traceFragments: ReturnType<typeof readRuntimeTraceFragments> = traceFile
+        ? readRuntimeTraceFragments(traceFile)
+        : { files: [], malformed: false };
       const result: ValidationCommandResult = {
         label: command.label,
         command: command.command,
@@ -1316,6 +1398,24 @@ export function runValidationCommand(
         timeoutMs,
         ...(failureKind ? { failureKind } : {}),
         durationMs: Date.now() - started,
+        runtimeTrace: {
+          command: command.command,
+          argv: [...command.args],
+          cwd,
+          // Keep only keys the child actually touched.  Inheriting the parent
+          // environment is not evidence of consumption and must not make an
+          // undeclared secret/config read look declared to the closure gate.
+          environmentKeys: [],
+          startedAt,
+          endedAt: new Date().toISOString(),
+          exitCode: code,
+          events: [...runtimeEvents],
+          ...(traceFragments.malformed
+            ? { unknownRuntimeInputs: ['runtime trace malformed'] }
+            : traceFragments.observed
+              ? { ...traceFragments.observed, unknownRuntimeInputs: [] }
+              : { unknownRuntimeInputs: ['runtime tracer unavailable for command'] }),
+        },
         ...(pollutionStatusLines.length > 0
           ? {
               worktreePollution: {
@@ -1335,11 +1435,12 @@ export function runValidationCommand(
         timedOut,
       }));
       resolveResult(result);
+      for (const file of traceFragments.files) rmSync(file, { force: true });
     };
 
     const child = spawn(command.command, command.args, {
       cwd,
-      env: effectiveValidationCommandEnvironment(process.env, command.env, cwd),
+      env: spawnEnv,
       shell: command.shell || isWindows,
       stdio: ['ignore', 'pipe', 'pipe'],
       // POSIX: give the child its own process group (it becomes group leader) so the
@@ -1349,6 +1450,7 @@ export function runValidationCommand(
       // re-introducing the exact hang this guards against. Not unref'd: we still await it.
       ...(isWindows ? {} : { detached: true }),
     });
+    runtimeEvents.push('spawn');
 
     emitValidationProgress(options.progress, validationProgressEvent('command_start', command, {
       commandIndex,
@@ -1426,8 +1528,9 @@ export function runValidationCommand(
 
     child.stdout?.on('data', (d: Buffer) => { output += d.toString(); });
     child.stderr?.on('data', (d: Buffer) => { output += d.toString(); });
-    child.on('close', (code) => finish(code));
+    child.on('close', (code) => { runtimeEvents.push('close'); finish(code); });
     child.on('error', (e) => {
+      runtimeEvents.push('error');
       runnerFailure = true;
       output += output ? `\n${e.message}` : e.message;
       finish(null);
@@ -1748,6 +1851,7 @@ export async function executeValidationPlan(
 
   await runScheduled<ValidationScheduleEntry, ValidationScheduleResult>(entries, jobs, async (entry) => {
     if (deadlineExceeded) return { name: entry.name, status: 'INTERRUPTED', commandIndex: entry.commandIndex };
+    options.beforeLaunch?.();
     const result = await runValidationCommand(entry.command, projectRoot, DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, {
       progress: options.progress,
       heartbeatMs: options.heartbeatMs,

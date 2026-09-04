@@ -1,0 +1,83 @@
+{
+  "principles": [
+    "Port, do not re-author: upstream content lands verbatim so the two repositories stay diffable against a known baseline.",
+    "Reuse the existing command surface rather than growing a parallel one.",
+    "Refuse an unresolvable input before taking an observable action, so a typo never looks like an empty result.",
+    "Follow the conventions already recorded in the touched files instead of introducing new local styles.",
+    "Preserve local divergence that exists for a stated reason, rather than letting an upstream port silently revert it."
+  ],
+  "drivers": [
+    "The user asked for a migration of already-authored upstream work, not a redesign.",
+    "The user asked that the CLI entry point follow this repository's conventions.",
+    "Four of the six files to patch are byte-identical to the upstream baseline, so a verbatim port is mechanically safe.",
+    "The graph handler already owns package resolution, on-demand client build, watchdog heartbeat and signal shutdown; duplicating that is pure cost.",
+    "The dossier already has a server-side route contract upstream, so no new server or HTML asset is needed."
+  ],
+  "options": [
+    {
+      "name": "A: --story flag on graph, validated before listening",
+      "pros": [
+        "One flag on the existing graph command reuses the whole startup path already in the handler.",
+        "No second long-running command, so no two commands competing for the same port.",
+        "The schema change is one optional field, matching the convention already recorded on the open flag.",
+        "Pre-listen validation reuses resolveStories, which is already on the graph library surface."
+      ],
+      "cons": [
+        "The graph command grows a second mode, so its help text has to explain both.",
+        "Validation needs a story id list that Status does not expose, so the handler resolves stories itself."
+      ]
+    },
+    {
+      "name": "B: dedicated graph_story command",
+      "pros": [
+        "A dedicated graph_story command reads more directly at the call site.",
+        "Each command's help text describes exactly one behavior."
+      ],
+      "cons": [
+        "Duplicates package resolution, on-demand build, startServer, heartbeat and signal shutdown, or forces a refactor to share them.",
+        "Two long-running commands would contend for the same default port.",
+        "Adds a catalog command for what is a change of opening URL, not a change of behavior."
+      ]
+    },
+    {
+      "name": "C: --story flag, serve unknown ids anyway",
+      "pros": [
+        "Serving an unknown id anyway is the smallest possible handler change.",
+        "The client already renders an unknown-story state."
+      ],
+      "cons": [
+        "Reintroduces exactly the defect already fixed for --root in this same handler: a typo becomes indistinguishable from an empty repository.",
+        "The failure surfaces in the browser rather than in the terminal where the command was typed."
+      ]
+    }
+  ],
+  "chosen": "A: --story flag on graph, validated before listening",
+  "rationale": "Option A, the --story flag with pre-listen validation, was chosen and confirmed by the user before implementation. The dossier already has an upstream route contract, so the only thing the CLI must change is which URL it opens; a flag expresses that, while option B, a dedicated graph_story command, would duplicate the entire long-running startup path the handler already owns and would put two commands in contention for one port. Option C, serving unknown ids anyway, was rejected on a precedent inside the very file being edited: an unresolvable --root is already refused before listening, because serving anyway made a typo indistinguishable from an empty repository, and --story has exactly that failure mode. Validation costs nothing extra because resolveStories is already exported on the graph library surface.",
+  "preMortem": [
+    {
+      "scenario": "The upstream port silently reverts the local d3 hard-failure change in scripts/build-web.mjs.",
+      "trigger": "Applying the upstream build-web.mjs diff, or copying the upstream file wholesale, over a file that carries an uncommitted local change the upstream does not have.",
+      "consequence": "A build with missing d3 would once again pass silently and serve a page that renders through a different fallback path, which no count-based check detects.",
+      "mitigation": "Do not copy build-web.mjs wholesale; make only the additive dossier.js concatenation edit, and confirm afterwards that the d3 failure branch is still present in the file."
+    },
+    {
+      "scenario": "The README port overwrites this repository's migration-specific wording.",
+      "trigger": "Applying the upstream README diff to a file that intentionally diverges from upstream in its header and its CLI section.",
+      "consequence": "The README would tell readers to run proof-or-stop-graph, a binary this repository does not ship, and would lose the section explaining how the CLI reaches the package.",
+      "mitigation": "Add only the dossier section and the endpoint-table row by hand, then grep the result for proof-or-stop-graph as a command and for the How the CLI reaches this package heading."
+    },
+    {
+      "scenario": "The --story flag is accepted by the schema but the id is never actually validated.",
+      "trigger": "Adding the Zod field and the URL change while leaving validation to a later edit, or validating only in one of the two code paths the handler exposes.",
+      "consequence": "A mistyped id would start a real server on a real port showing an unknown-story page, which is the precise defect the --root precedent exists to prevent.",
+      "mitigation": "Follow the repository's Handler encoding convention: validate at the handler entry in addition to the schema, place the check before startServer, and add a regression test that asserts a bad id exits non-zero without listening."
+    },
+    {
+      "scenario": "dossier.js is concatenated in the wrong order and window.openStoryDossier is undefined at click time.",
+      "trigger": "Inserting the script before app.js, or before playback.js, in scripts/build-web.mjs.",
+      "consequence": "The drawer button and the deep link would both fail at runtime with the page still loading and reporting correct counts, so no build-time or count-based check would catch it.",
+      "mitigation": "Concatenate dossier.js last, after playback.js, exactly as upstream does, and verify openStoryDossier appears in the built assets/app.html after the app.js body."
+    }
+  ],
+  "timestamp": "2026-09-02T08:17:49.780Z"
+}

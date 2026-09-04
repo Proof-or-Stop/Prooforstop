@@ -169,7 +169,16 @@ const buildUtilsSource = source('scripts/build-utils-with-binding.mjs');
 // Existing primitives are real baselines. These assertions deliberately prove
 // only their narrow contracts and never infer exactly-once ledger semantics.
 assert.match(findingSource, /function withMetaFindingLock<[^>]+>/, 'Finding write lock wrapper is missing');
-assert.match(findingSource, /const id = withMetaFindingLock\([\s\S]*?store\.writeFindings\(args\.storyId, data\);[\s\S]*?return fid;/, 'finding_add read/push/write is not inside its lock');
+assert.match(
+  findingSource,
+  /const writeFinding = \(\) => withMetaFindingLock\(ctx, args\.storyId, \(fence\) => \{[\s\S]*?const data = store\.readFindings\(args\.storyId\);[\s\S]*?store\.writeFindings\(args\.storyId, data\);[\s\S]*?return fid;[\s\S]*?\}\);/,
+  'finding_add read/push/write is not inside its lock',
+);
+assert.match(
+  findingSource,
+  /const id = reviewerLane[\s\S]*?withReviewInventoryMutationLock\([\s\S]*?return writeFinding\(\);[\s\S]*?: writeFinding\(\);/,
+  'reviewer finding_add does not serialize inventory admission around the locked write',
+);
 assert.match(findingSource, /storyId\.startsWith\('B-META-'\)[\s\S]*?withReentrantMainWriteLock|if \(!storyId\.startsWith\('B-META-'\)\)[\s\S]*?withReentrantMainWriteLock/, 'B-META writes do not route through the main lock');
 assert.match(mainLockSource, /PROOF_OR_STOP_MAIN_WRITE_LOCK/, 'canonical main/B-META lock path is missing');
 assert.match(mainLockSource, /acquireMkdirLock\(lockDir/, 'main write lock does not use the canonical mkdir primitive');

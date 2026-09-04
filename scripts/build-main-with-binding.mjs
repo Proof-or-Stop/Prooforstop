@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFile } from 'node:child_process';
-import { chmodSync, readdirSync, rmSync } from 'node:fs';
+import { chmodSync, cpSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -65,6 +65,18 @@ await withBuildLock(projectRoot, async () => {
     if (error.stdout) process.stdout.write(error.stdout);
     if (error.stderr) process.stderr.write(error.stderr);
     throw error;
+  }
+  // tsc emits TypeScript but does not copy the executable DYN-5 adapter/case
+  // registry assets.  Promote those source-owned assets alongside the JS
+  // output so a clean rebuild cannot leave the production shard path pointing
+  // at missing dist/tasks/*.mjs or *.json files.
+  for (const directory of ['core', 'tasks']) {
+    const sourceAssets = join(packageRoot, 'src', directory);
+    const stagingAssets = join(staging, directory);
+    for (const name of readdirSync(sourceAssets)) {
+      if (!/\.(?:m?js|cjs|json)$/.test(name)) continue;
+      cpSync(join(sourceAssets, name), join(stagingAssets, name));
+    }
   }
   // npm `bin` shims execute dist/cli.js directly. tsc emits regular 0644 files,
   // so make the staged CLI executable before the atomic promotion; otherwise a

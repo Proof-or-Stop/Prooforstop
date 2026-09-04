@@ -27,8 +27,9 @@ import {
   type CanonicalStory,
 } from './canonical-story.js';
 import { StoryStore } from './store.js';
+import { OBSERVABILITY_SNAPSHOT_SCHEMA } from './artifact-schema.js';
 
-export const OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION = 'lattice.observability_snapshot.v1' as const;
+export const OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION = OBSERVABILITY_SNAPSHOT_SCHEMA;
 
 export type ObservabilityAuthorityTier = CanonicalStory['authority']['tier'];
 export type ObservabilityAuthorityImpact = CanonicalStory['degradations'][number]['authorityImpact'];

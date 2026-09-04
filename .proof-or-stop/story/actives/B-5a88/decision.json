@@ -1,0 +1,68 @@
+{
+  "principles": [
+    "Read legacy inputs before switching canonical writes so existing evidence chains remain valid.",
+    "Centralize canonical role, schema, marker, and package facts at testable choke points to prevent string drift.",
+    "Verify every external boundary for new behavior, legacy-input compatibility, and error or one-shot behavior.",
+    "Commit only Story-scoped files and preserve other developers dirty worktrees."
+  ],
+  "drivers": [
+    "Historical artifact and signature freshness must remain compatible with already-installed projects.",
+    "Review, init, quorum, and pre-push gates must not silently fail during the naming migration.",
+    "Package and lockfile metadata, bins, and dependency references must move as one installable registry identity."
+  ],
+  "options": [
+    {
+      "name": "A: canonical-write dual-read migration",
+      "pros": [
+        "Meets the current proof-or-stop identity goals in CHK-001 through CHK-007.",
+        "Historical role, marker, schema, and approval inputs remain readable.",
+        "Central aliases and boundary tests constrain the compatibility surface."
+      ],
+      "cons": [
+        "Touches multiple gate and package boundaries and requires full regression.",
+        "Existing package or bin callers may need an explicit migration strategy."
+      ]
+    },
+    {
+      "name": "B: leave package/bin and schemas frozen",
+      "pros": [
+        "Smaller change with short-term compatibility for old installations.",
+        "Reduces lockfile and hook changes."
+      ],
+      "cons": [
+        "Directly violates CHK-003 through CHK-007 and the requested migration.",
+        "Future proof-or-stop writes would continue producing lattice identity residue.",
+        "The user-visible rename would remain incomplete."
+      ]
+    }
+  ],
+  "chosen": "A: canonical-write dual-read migration",
+  "rationale": "Option A is selected because this Story explicitly requires the remaining package, schema, marker, role, and bin residue to migrate to canonical identities; compatibility is retained only at legacy-input and historical-read boundaries.",
+  "preMortem": [
+    {
+      "scenario": "A new remote approval uses the proof-or-stop schema while the hook still accepts only the lattice schema.",
+      "trigger": "pre-push reports an invalid approval schema after release_approve_push.",
+      "consequence": "A valid main release is blocked.",
+      "mitigation": "Share schema aliases across the writer, CLI reader, and hook, and test new and legacy schemas plus one-shot consumption."
+    },
+    {
+      "scenario": "Role canonicalization changes only the registry while review_run or quorum still hard-codes the lattice prefix.",
+      "trigger": "After a new proof-or-stop reviewer run or pass is written, reviewer_list or the gate cannot see the lane.",
+      "consequence": "Review evidence is treated as missing or excluded from quorum.",
+      "mitigation": "Use one role alias and normalization helper across review-run, finding/pass, init-check, quorum, and prompt dispatch, with new and legacy input tests."
+    },
+    {
+      "scenario": "The marker writer is renamed but the reader no longer recognizes an installed lattice block.",
+      "trigger": "init --upgrade appends a duplicate managed block to an old CLAUDE.md or AGENTS.md.",
+      "consequence": "The user project contains duplicate or orphaned configuration.",
+      "mitigation": "Use a dual-read boundary test that updates an old block in place and writes only proof-or-stop markers in new files."
+    },
+    {
+      "scenario": "Root and sibling package metadata, lockfiles, or in-repository dependencies become inconsistent.",
+      "trigger": "npm install, npm pkg get name, or the global lab entrypoint fails.",
+      "consequence": "The package cannot resolve or its self-host gate silently fails.",
+      "mitigation": "Synchronize all package metadata, lockfiles, and imports, then run package identity, build, install, and pre-push detection tests."
+    }
+  ],
+  "timestamp": "2026-08-21T00:30:55.970Z"
+}

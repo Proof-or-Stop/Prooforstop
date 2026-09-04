@@ -5,8 +5,11 @@
  * 可以把自己的 handler 通过 registry.register / registerBatch 注入进来，
  * 而 main 自身完全不知道这些扩展包的存在。
  *
- * main 的 cli.ts 启动时会调用 createMainRegistry(ctx) 完成内置 handler 的注册；
+ * main 的 proof-or-stop CLI 启动时会调用 createMainRegistry(ctx) 完成内置 handler 的注册；
  * 第三方 bootstrap 脚本可以在此基础上再调用扩展包的 register 函数追加注册。
+ *
+ * npm 的 executable identity 不在这里注册：`proof-or-stop` 是唯一 active bin，
+ * 历史 `lattice` wrapper/path 兼容由各自的 filesystem/read fallback 负责。
  */
 
 import { StoryStore } from './core/store.js';
@@ -33,6 +36,7 @@ import { createTaskHandlers } from './handlers/task.js';
 import { createTruthHandlers } from './handlers/truth.js';
 import { createGapHandlers } from './handlers/gap.js';
 import { createVerifierHandlers } from './handlers/verifier.js';
+import { createGraphHandlers } from './handlers/graph.js';
 import { createFindingHandlers } from './handlers/finding.js';
 import { createEvaluateHandlers } from './handlers/evaluate.js';
 import { createWorkflowHandlers } from './handlers/workflow.js';
@@ -207,7 +211,12 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createTruthHandlers(ctx));
   registry.registerBatch(createGapHandlers(ctx));
   registry.registerBatch(createVerifierHandlers(ctx));
+  // B-3e16 CHK-003: graph is a NORMAL registered handler (like the long-running
+  // serve), not a dashboard-style standalone branch, so the command-ownership
+  // dispatchability assertion keeps covering it with no new exemption.
+  registry.registerBatch(createGraphHandlers(ctx));
   registry.registerBatch(createReviewRunHandlers(ctx));
+  registry.registerBatch(createReviewInventoryHandlers(ctx));
   registry.registerBatch(createReviewLoopHandlers(ctx));
   registry.registerBatch(createFindingHandlers(ctx));
   const findingLedgerHandlers = createFindingLedgerHandlers(ctx);
@@ -253,7 +262,6 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
 
   // B-1e1f CHK-001: PRE_CERT CertificationWindow begin/status/cancel
   registry.registerBatch(createCertificationWindowHandlers(ctx));
-  registry.registerBatch(createReviewInventoryHandlers(ctx));
 
   // B-3749 CHK-002: PLAN handoff package for test-intent agents.
   registry.registerBatch(createTestIntentHandoffHandlers(ctx));
@@ -398,9 +406,10 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createCapabilityListHandlers());
 
   // B-097f/B-235e: agent_prompt returns the canonical package-registry host
-  // render. The five migrated reviewers receive a body-free review_run_start
-  // bootstrap; ordinary roles receive their role body. review_run_start alone
-  // supplies one selected legacy/modular reviewer body.
+  // render. The six migrated reviewer definitions keep modular bodies; the five
+  // active REVIEW lanes receive a body-free review_run_start bootstrap, while
+  // topology-critic receives its ordinary role body. review_run_start alone
+  // supplies one selected legacy/modular reviewer body for those five lanes.
   registry.registerBatch(createAgentPromptHandlers(ctx));
   registry.registerBatch(createPromptMeasurementHandlers());
 

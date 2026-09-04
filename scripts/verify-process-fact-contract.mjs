@@ -23,6 +23,53 @@ const artifactFactNamePattern = /^artifact:[a-z0-9_.-]+(?:\/[a-z0-9_.-]+)*$/;
 const CODEX_AGENTS_DIR = ['.proof-or-stop-codex/agents', '.proof-or-stop-codex/agents']
   .find((rel) => existsSync(rel)) ?? '.proof-or-stop-codex/agents';
 
+// Role assets are canonical on disk after the rename. Keep the old spelling as
+// a read-only fallback so this contract can still inspect an older checkout;
+// never use the fallback to define the process-fact contract itself.
+const LEGACY_ROLE_ALIASES = Object.freeze({
+  'proof-or-stop-evaluator': ['lattice-evaluator'],
+  'proof-or-stop-evaluator-cli': ['lattice-evaluator-cli'],
+  'proof-or-stop-implementer': ['lattice-implementer'],
+  'proof-or-stop-review-behavior': ['lattice-review-behavior'],
+  'proof-or-stop-review-channel': ['lattice-review-channel'],
+  'proof-or-stop-review-concept': ['lattice-review-concept'],
+  'proof-or-stop-review-delivery': ['lattice-review-delivery'],
+  'proof-or-stop-review-docs': ['lattice-review-docs'],
+  'proof-or-stop-review-quality': ['lattice-review-quality'],
+  'proof-or-stop-review-scope-plan': ['lattice-review-scope-plan'],
+  'proof-or-stop-review-story-init': ['lattice-review-story-init'],
+  'proof-or-stop-review-test-coverage': ['lattice-review-test-coverage'],
+  'proof-or-stop-review-topology-critic': ['lattice-review-topology-critic'],
+  'proof-or-stop-product-reviewer': ['product-reviewer'],
+  'proof-or-stop-test-case-reviewer': ['test-case-reviewer'],
+  'proof-or-stop-test-intent': ['verification-intent', 'test-intent'],
+});
+const LEGACY_ROLE_TO_CANONICAL = new Map(
+  Object.entries(LEGACY_ROLE_ALIASES).flatMap(([canonical, aliases]) =>
+    aliases.map(alias => [alias, canonical])),
+);
+
+function canonicalRoleId(roleId) {
+  const name = String(roleId).replace(/\.md$/, '');
+  return LEGACY_ROLE_TO_CANONICAL.get(name) ?? name;
+}
+
+function rolePromptPath(directory, roleId) {
+  const canonical = canonicalRoleId(roleId);
+  const candidates = [
+    `${directory}/${canonical}.md`,
+    ...(LEGACY_ROLE_ALIASES[canonical] ?? []).map(alias => `${directory}/${alias}.md`),
+  ];
+  return candidates.find(relPath => existsSync(join(root, relPath))) ?? candidates[0];
+}
+
+function reviewerLaneEntry(registry, roleId) {
+  const canonical = canonicalRoleId(roleId);
+  return [canonical, ...(LEGACY_ROLE_ALIASES[canonical] ?? [])]
+    .map(name => registry.get(`reviewer-lane:${name}`))
+    .find(Boolean);
+}
+
 const promptDirs = [
   'packages/main/templates/agents',
   '.claude/agents',
@@ -93,11 +140,15 @@ const activeLifecycleDocCurrentTerms = [
 const legacyCommandDocContextPattern = /\blegacy\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|destructive/i;
 const legacyAliasDocContextPattern = /\blegacy\b|\balias\b|\bcompat\b|\bmaintenance\b|兼容|维护|旧|迁移|背景|别名|destructive/i;
 const coverageReviewerLaneName = 'proof-or-stop-review-test-coverage';
+const coverageReviewerLaneNames = [coverageReviewerLaneName, 'lattice-review-test-coverage'];
 const coverageReviewerLaneContextPattern = /reviewer|agent|lane|review\s+lane|coverage\s+reviewer|审查员|审查\s*lane|审查\s*通道|覆盖审查/i;
 const coverageReviewerCliCommandPatterns = [
-  { label: 'CLI invocation', pattern: /\bproofOrStop\s+proof-or-stop-review-test-coverage\b/i },
+  { label: 'CLI invocation', pattern: /\bproof-or-stop\s+proof-or-stop-review-test-coverage\b/i },
   { label: 'tool table row', pattern: /^\s*\|\s*`?proof-or-stop-review-test-coverage`?\s*\|/ },
   { label: 'tool bullet', pattern: /^\s*[-*]\s*`?proof-or-stop-review-test-coverage`?\s*(?:[:：-]|$)/ },
+  { label: 'CLI invocation', pattern: /\blattice\s+lattice-review-test-coverage\b/i },
+  { label: 'tool table row', pattern: /^\s*\|\s*`?lattice-review-test-coverage`?\s*\|/ },
+  { label: 'tool bullet', pattern: /^\s*[-*]\s*`?lattice-review-test-coverage`?\s*(?:[:：-]|$)/ },
 ];
 const legacyTestAutoProcessFactClaimPatterns = [
   {
@@ -144,6 +195,13 @@ const requiredProcessFactSemantics = {
   certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
   certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
   certification_window_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
+  review_inventory_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
+  review_inventory_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
+  review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence'],
+  review_inventory_wave_advance: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'blocker-state', 'gate-evidence'],
+  review_inventory_finalize: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'no-blocker-evidence', 'gate-evidence'],
+  review_inventory_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
+
   review_pass_set: ['review-pass', 'no-blocker-evidence', 'gate-evidence'],
   review_loop_start: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -214,10 +272,13 @@ const requiredRuntimeFactSemantics = {
   'runtime:review_run_atomic_persistence_gate': ['runtime-behavior', 'atomic-persistence', 'prompt-envelope', 'review-run', 'gate-evidence'],
   'runtime:proof_admissibility_gate_diagnostic': ['runtime-behavior', 'schema-contract', 'freshness-policy', 'gate-evidence'],
   'runtime:parent_roadmap_totality_claim_consumer': ['runtime-behavior', 'schema-contract', 'verification-policy', 'gate-evidence'],
+  'runtime:causal_execution_key_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'workspace-binding', 'freshness-policy', 'verification-policy', 'gate-evidence'],
+  'runtime:causal_receipt_import_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'atomic-persistence', 'freshness-policy', 'workspace-binding', 'gate-evidence'],
+  'runtime:causal_dependency_preflight_metrics_gate': ['runtime-behavior', 'execution-evidence', 'schema-contract', 'freshness-policy', 'verification-policy', 'gate-evidence'],
 };
 const requiredReviewerLanes = [
   'proof-or-stop-review-story-init',
-  'product-reviewer',
+  'proof-or-stop-product-reviewer',
   'proof-or-stop-review-scope-plan',
   'proof-or-stop-review-topology-critic',
   'proof-or-stop-review-concept',
@@ -241,6 +302,7 @@ const requiredArtifactFacts = [
   { name: 'artifact:scope-check.json', path: 'scope-check.json', signed: true, signaturePattern: /signScopeCheck/ },
   { name: 'artifact:delivery-check.json', path: 'delivery-check.json', signed: true, signaturePattern: /signDeliveryCheck\/recomputeDeliveryCheckHash/ },
   { name: 'artifact:review-runs.json', path: 'review-runs.json', signed: true, signaturePattern: /signReviewRun\/verifyReviewRun; .*ReviewRun\.storyFilesHash.*workspaceBinding\.bindingHash/ },
+  { name: 'artifact:review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true, signaturePattern: /signReviewInventoryEpoch\/verifyReviewInventoryEpoch.*signReviewInventoryReceipt\/verifyReviewInventoryReceipt.*signReviewInventoryCriticReceipt\/verifyReviewInventoryCriticReceipt/ },
   { name: 'artifact:findings.json', path: 'findings.json', signed: true, signaturePattern: /signFinding\/verifyFinding; reviewRunId-inclusive records do not fall back to legacy signatures/ },
   { name: 'artifact:review-passes.json', path: 'review-passes.json', signed: true, signaturePattern: /signReviewPass\/verifyReviewPass; envelope-bound records use the versioned envelopeId-inclusive domain.*reviewRunId-inclusive records do not fall back to legacy signatures.*writerSessionId-inclusive records bind writer session provenance/ },
   { name: 'artifact:review-loops.jsonl', path: 'review-loops.jsonl', signed: false },
@@ -402,6 +464,34 @@ const requiredRuntimeEntries = [
     line: '- runtime:story_files_hash_freshness_gate [L4] owner=core/evidence-freshness gate=REVIEW/TEST/DONE freshness gates for review runs, verification evidence, review escalation records, and the review assurance floor DONE freshness gate',
   },
   {
+    // B-5a15: causal execution admission is producer-bound signed preflight,
+    // not caller-authored identity text; keep the gate-consumer summary line
+    // stable while mechanically checking the strengthened rationale.
+    name: 'runtime:causal_execution_key_gate',
+    level: 'L4',
+    owner: 'core/causal-evidence',
+    line: '- runtime:causal_execution_key_gate [L4] owner=core/causal-evidence gate=verification_evidence_add / verification_evidence_batch_add execution and verification coverage freshness gates',
+    rationaleTokens: ['producer-bound', 'Ed25519-signed preflight', 'current lease/index/identity', 'bounded batch snapshot'],
+  },
+  {
+    // B-5a15: canonical import trusts only durable Ed25519 CAS receipts and
+    // fresh lease/index/identity checks; commit retry cannot become a rerun.
+    name: 'runtime:causal_receipt_import_gate',
+    level: 'L4',
+    owner: 'core/causal-evidence + core/store',
+    line: '- runtime:causal_receipt_import_gate [L4] owner=core/causal-evidence + core/store gate=verification evidence canonical import and verification coverage/freshness gates',
+    rationaleTokens: ['durable CAS receipt', 'registered local Ed25519 authority', 'producer-bound signed preflight facts', 'current lease/index/identity', 'bounded batch snapshot'],
+  },
+  {
+    // B-5a15: dependency admission is identity-bound and accepts signed rerun
+    // evidence only; raw rerunNodeIds remain compatibility input, not proof.
+    name: 'runtime:causal_dependency_preflight_metrics_gate',
+    level: 'L4',
+    owner: 'core/causal-evidence + core/evidence-freshness',
+    line: '- runtime:causal_dependency_preflight_metrics_gate [L4] owner=core/causal-evidence + core/evidence-freshness gate=specialized verification freshness consumer, CertificationWindow, validation preflight, and closeout metrics',
+    rationaleTokens: ['producer-bound dependency decisions', 'durable Ed25519 causal authority', 'Missing or unknown input keys fail closed', 'signed rerun evidence', 'raw rerunNodeIds', 'bounded batch snapshots'],
+  },
+  {
     // B-1731: repro-first intake is a gate-consumed runtime predicate. The
     // story-evidence-binding artifact is written by story_create_from_repro;
     // this runtime fact is the classifier + warn/enforce gate that consumes it.
@@ -526,6 +616,8 @@ const processFactCommandNamePatterns = [
   /^story_review$/,
   /^review_run_start$/,
   /^certification_window_(begin|status|cancel)$/,
+  /^review_inventory_(begin|status|critic_set|wave_advance|finalize|cancel)$/,
+
   /^review_pass_set$/,
   /^review_loop_(start|iteration_add|close)$/,
   /^finding_(add|resolve|dismiss|cluster)$/,
@@ -600,8 +692,10 @@ function read(relPath) {
   assert(existsSync(absPath), `${relPath} should exist`);
   if (!existsSync(absPath)) return '';
   let text = readFileSync(absPath, 'utf8');
-  const mutation = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION;
-  if (mutation === 'drop-acceptance-basis-prompt' && relPath.endsWith('proof-or-stop-implementer.md')) {
+  const mutation = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION
+    ?? process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
+  const roleId = canonicalRoleId(basename(relPath));
+  if (mutation === 'drop-acceptance-basis-prompt' && roleId === 'proof-or-stop-implementer') {
     // B-cc10: accept either brand so the mutation actually drops the live prompt line.
     text = text.replace(/^Acceptance-basis boundary: only `(?:proof-or-stop|proofOrStop) acceptance_basis_generate`.*$/m, '');
   }
@@ -645,7 +739,7 @@ function read(relPath) {
   if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
   }
-  if (mutation === 'drop-acceptance-topology-prompt' && relPath.endsWith('proof-or-stop-implementer.md')) {
+  if (mutation === 'drop-acceptance-topology-prompt' && roleId === 'proof-or-stop-implementer') {
     text = text.replace(/^Acceptance-topology boundary:.*$/m, '');
   }
   if (mutation === 'drop-acceptance-topology-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
@@ -657,7 +751,7 @@ function read(relPath) {
   if (mutation === 'invert-acceptance-topology-polarity' && relPath === 'packages/main/src/handlers/transition-orchestrator.ts') {
     text = text.replace('if (topology.blocking)', 'if (!topology.blocking)');
   }
-  if (mutation === 'drop-topology-critic-prompt' && relPath.endsWith('proof-or-stop-review-topology-critic.md')) {
+  if (mutation === 'drop-topology-critic-prompt' && roleId === 'proof-or-stop-review-topology-critic') {
     text = text.replace(/^- A pass is forbidden when the basis.*$/m, '');
   }
   if (mutation === 'drop-topology-critic-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
@@ -687,7 +781,16 @@ function read(relPath) {
   if (mutation === 'allow-arbitrary-pre-review-command' && relPath === 'packages/main/src/core/pre-review-check.ts') {
     text = text.replace('transcript.actual?.command !== PRE_REVIEW_LIVE_PROOF_COMMAND', "typeof transcript.actual?.command !== 'string'");
   }
-  if (mutation === 'drop-acceptance-rollout-prompt' && /\/agents\/(?:proof-or-stop-implementer|test-case-reviewer|proof-or-stop-review-(?:topology-critic|concept|quality|test-coverage|docs|delivery))\.md$/.test(relPath)) {
+  if (mutation === 'drop-acceptance-rollout-prompt' && new Set([
+    'proof-or-stop-implementer',
+    'proof-or-stop-test-case-reviewer',
+    'proof-or-stop-review-topology-critic',
+    'proof-or-stop-review-concept',
+    'proof-or-stop-review-quality',
+    'proof-or-stop-review-test-coverage',
+    'proof-or-stop-review-docs',
+    'proof-or-stop-review-delivery',
+  ]).has(roleId)) {
     text = text.replace(/acceptance_rollout_check/g, 'rollout_check_removed');
   }
   if (mutation === 'drop-acceptance-rollout-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
@@ -1436,9 +1539,9 @@ function assertProofStoryProgressiveBoundary() {
   const transitionOrchestratorText = read('packages/main/src/handlers/transition-orchestrator.ts');
   const acceptanceWriterPolicy = commandPolicyEntries.get('acceptance_basis_generate');
   const acceptancePromptPaths = [
-    'packages/main/templates/agents/proof-or-stop-implementer.md',
-    '.claude/agents/proof-or-stop-implementer.md',
-    `${CODEX_AGENTS_DIR}/proof-or-stop-implementer.md`,
+    rolePromptPath('packages/main/templates/agents', 'proof-or-stop-implementer'),
+    rolePromptPath('.claude/agents', 'proof-or-stop-implementer'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-implementer'),
   ];
   const acceptanceRequiredSemantics = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-contract'
     ? requiredProcessFactSemantics.acceptance_basis_generate.filter(item => item !== 'workspace-binding')
@@ -1512,10 +1615,14 @@ function assertProofStoryProgressiveBoundary() {
       && preReviewText.includes('proof executable provenance invalid')
       && preReviewText.includes('exactKindsAndSources')
       && preReviewText.includes('preReviewExecutableProvenanceIsCurrent')
+      && preReviewText.includes('criticReceiptDigestForPreReviewSemanticComparison')
+      && preReviewText.includes("return mode === 'enforce' ? currentDigest : signedDigest")
+      && read('packages/main/src/tasks/proofstory-pre-review-check-smoke.ts').includes('--critic-digest-renewal-contract-only')
+      && processRegistryText.includes('Non-enforcing semantic readback retains the signed artifact critic-receipt digest')
       && read('packages/main/src/core/pre-review-live-proof.ts').includes('assemblePreReviewCaseRecords')
       && read('packages/main/src/core/pre-review-live-proof.ts').includes('extra assertion IDs')
       && read('scripts/run-proofstory-pre-review-live-proof.mjs').includes("['--prefix', 'packages/main', 'run', 'build']")
-      && acceptanceDiscoveryText.includes('exportedCallableCount(parsed, endpoint.expectedSymbolOrFact)')
+      && acceptanceDiscoveryText.includes('exportedCallableCount(source, endpoint.expectedSymbolOrFact)')
       && acceptanceDiscoveryText.includes('endpointMatchesArtifactKind')
       && acceptanceDiscoveryText.includes('endpointIsRuntimeReachable')
       && acceptanceDiscoveryText.includes('producerConsumerRelation')
@@ -1551,9 +1658,20 @@ function assertProofStoryProgressiveBoundary() {
   // are thin/mirror adapters that `proof-or-stop init --upgrade` rewrites). Validate
   // the tokens in the template source, and prove the guidance does not depend
   // on the bootstrap-only modular-reviewer shims.
-  const rolloutPromptTemplates = rolloutPromptNames.map(
-    name => `packages/main/templates/agents/${name}.md`,
-  );
+  // origin/main merge: exempt RETIRED role identities from the rollout-guidance
+  // requirement. origin still ships test-case-reviewer as a live 157-line reviewer
+  // prompt; this repo deliberately reduced it (and test-intent) to a stub whose own
+  // frontmatter reads 'Legacy compatibility identity; not dispatchable for new stories'.
+  // A non-dispatchable identity can never act on acceptance-rollout guidance, so
+  // requiring the tokens in its body would force us to resurrect a role we retired on
+  // purpose -- and copying origin's body back is the one resolution that would silently
+  // undo that decision. Detected by reading the retirement marker out of the template
+  // rather than hardcoding names, so a future retirement or revival needs no edit here
+  // and a role cannot be exempted without declaring itself retired in its own prompt.
+  const RETIRED_IDENTITY_MARKER = 'Legacy compatibility identity; not dispatchable for new stories';
+  const rolloutPromptTemplates = rolloutPromptNames
+    .map(name => rolePromptPath('packages/main/templates/agents', name))
+    .filter(relPath => !read(relPath).includes(RETIRED_IDENTITY_MARKER));
   // Modular reviewer roles render as a body-free review_run_start bootstrap in
   // the host shim; their guidance must live in the template and reach them via
   // review_run_start, never via the shim.
@@ -1614,8 +1732,17 @@ function assertProofStoryProgressiveBoundary() {
       && acceptanceRolloutSmokeText.includes('--issuer-mutations')
       && acceptanceRolloutSmokeText.includes('restoration commit is missing or malformed')
       && acceptanceRolloutSmokeText.includes('restoration commit must be later than mutation commit')
-      && preReviewScenarioText.includes('Array.from({ length: 5 }')
-      && preReviewScenarioText.includes('Array.from({ length: 17 }')
+      // F-339: the registered scenario catalog includes assertion-specific
+      // package-identity/bin-alias controls in addition to the original
+      // rollout catalog. The process-fact guard must track both the catalog
+      // cardinality and the real migration operations, or a stale guard could
+      // silently accept an unrelated semantic projection.
+      && preReviewScenarioText.includes('Array.from({ length: 7 }')
+      && preReviewScenarioText.includes('Array.from({ length: 21 }')
+      && preReviewScenarioText.includes("['A-POS-6', 'positive', 'package-identity:sibling-package-graph'")
+      && preReviewScenarioText.includes("['A-POS-7', 'positive', 'bin-alias:canonical-only'")
+      && preReviewScenarioText.includes("['A-MUT-19', 'mutation', 'package-identity:mixed-graph'")
+      && preReviewScenarioText.includes("['A-MUT-21', 'mutation', 'bin-alias:removed-alias'")
       && preReviewScenarioText.includes("['A-TRANSCRIPT-1', 'transcript']")
       && preReviewScenarioText.includes('PROOF_OR_STOP_ACCEPTANCE_ROLLOUT_COHORT_FILE')
       && preReviewScenarioText.includes('scenario execution refuses to spawn the expensive registered cohort runner')
@@ -1636,15 +1763,15 @@ function assertProofStoryProgressiveBoundary() {
       && rolloutPromptTemplates.every(templatePath =>
         rolloutPromptTokens.every(token => read(templatePath).toLowerCase().includes(token)))
       && rolloutBootstrapOnlyReviewerNames.every(name =>
-        !read(`.claude/agents/${name}.md`).toLowerCase().includes('acceptance_rollout_check')
-        && !read(`${CODEX_AGENTS_DIR}/${name}.md`).toLowerCase().includes('acceptance_rollout_check')),
+        !read(rolePromptPath('.claude/agents', name)).toLowerCase().includes('acceptance_rollout_check')
+        && !read(rolePromptPath(CODEX_AGENTS_DIR, name)).toLowerCase().includes('acceptance_rollout_check')),
     'acceptance rollout contract must keep verifier-derived frozen membership, >=3 matched pairs per arm, all thresholds, signed current receipt, genuine full-3x2, real lifecycle consumer, mode-invariant rollback, and canonical template-sourced role guidance (not regenerable host shims)',
   );
   const topologyCriticText = read('packages/main/src/core/topology-critic-receipt.ts');
-  const topologyCriticPromptPaths = [
-    'packages/main/templates/agents/proof-or-stop-review-topology-critic.md',
-    '.claude/agents/proof-or-stop-review-topology-critic.md',
-    `${CODEX_AGENTS_DIR}/proof-or-stop-review-topology-critic.md`,
+  const topologyCriticTemplatePath = rolePromptPath('packages/main/templates/agents', 'proof-or-stop-review-topology-critic');
+  const topologyCriticHostPaths = [
+    rolePromptPath('.claude/agents', 'proof-or-stop-review-topology-critic'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'proof-or-stop-review-topology-critic'),
   ];
   const topologyCriticPolicy = commandPolicyEntries.get('topology_critic_receipt_set');
   assert(
@@ -1670,7 +1797,13 @@ function assertProofStoryProgressiveBoundary() {
       && topologyCriticPolicy?.status === 'supported'
       && topologyCriticPolicy.gateEvidence !== true
       && activityPolicyText.includes("'topology_critic_receipt_check'")
-      && topologyCriticPromptPaths.every(path => read(path).startsWith('---\n') && read(path).includes('- A pass is forbidden when the basis')),
+      && read(topologyCriticTemplatePath).startsWith('---\n')
+      && read(topologyCriticTemplatePath).includes('<!-- proof-or-stop:modular-role-body:v1 -->')
+      && read(topologyCriticTemplatePath).includes('- A pass is forbidden when the basis')
+      && topologyCriticHostPaths.every(path => read(path).startsWith('---\n')
+        && read(path).includes('<!-- proof-or-stop:modular-role-body:v1 -->')
+        && read(path).includes('- A pass is forbidden when the basis')
+        && !read(path).includes('review_run_start')),
     'topology critic contract must bind role prompt, production producer/read-only verifier, required registered dispatch events, signed current fields, four-dimensional independence, exact scope-plan approvals, incomplete-basis rejection, and explicitly no Wave 2A lifecycle admission gate',
   );
   assert(coreText.includes('sourceText') && coreText.includes('keyRequirementIds'), 'core/proofstory.ts: requestHash must be derived from sourceText and keyRequirementIds');
@@ -1861,9 +1994,9 @@ function assertCloseoutTrustBoundary() {
     assert(!contractText.includes('transcript-diff.md presence'), `${contractPath}: active delivery context contract must not name legacy transcript-diff.md presence`);
   }
   for (const promptPath of [
-    'packages/main/templates/agents/product-reviewer.md',
-    `${CODEX_AGENTS_DIR}/product-reviewer.md`,
-    '.claude/agents/product-reviewer.md',
+    rolePromptPath('packages/main/templates/agents', 'product-reviewer'),
+    rolePromptPath(CODEX_AGENTS_DIR, 'product-reviewer'),
+    rolePromptPath('.claude/agents', 'product-reviewer'),
   ]) {
     const promptText = read(promptPath);
     assert(promptText.includes(`docs/story/actives/<storyId>/${canonicalTranscriptPath}`), `${promptPath}: product-reviewer must consume the canonical live-smoke transcript`);
@@ -1932,11 +2065,20 @@ function assertCloseoutTrustBoundary() {
     'pinned executable source structural fingerprint drift',
     'review executable structure before updating the pinned fingerprint',
     'b2c006a5becbd456a5728bb7615cf999cb514137383bc935b128073240899d98',
-    '458d8aeaf36286e2ca0cafe968c2e9559d46e57e6920ca9581ea58ee38b77887',
+    // B-45a0 F-419: lockstep with the reviewed closeout-trust policy that
+    // permits only receipt-bound verification_evidence_refresh_stale writes.
+    '03d1d6172c00ccc8986c4b353ac99fab14738e51bee3864e2c99ae3cd6d8bdf5',
     '51af0fd5730add5aeff160f50c83b7dd70d2e5cdcfa0430e58acf4058acfb844',
-    // B-1e1f: lockstep with PINNED_EXECUTABLE_SOURCE_FINGERPRINTS closeout-trust-smoke.ts
-    // after persistSyntheticAdmittedWindowForTest (see B-cdf6:F-057 coupling note).
-    '0db66c17122a2b50330de960fa3be4ece0d77b48bd5815d21dcff60513d8871e',
+    // B-45a0 F-421: lockstep with the closeout smoke's canonical-writer and
+    // noncanonical-writer retention regression checks, and with B-1e1f's
+    // (see B-cdf6:F-057 coupling note). B-5a15 F-361: the pin move is NOT
+    // persistSyntheticAdmittedWindowForTest (already on main); it is the new canonical
+    // writer topology_critic_receipt_set plus its registry row, a
+    // deriveCertificationDomainInputHashes fixture, and an acquireOwnerLease seed.
+    // F-363: verification_evidence_refresh_stale is NOT a divergence (4 on both branches).
+    // Compat counts are PER FILE: core/closeout-trust.ts 2/2; closeout-trust-smoke.ts has
+    // createLegacyLocalOnlyDeliveryClaims 2 and ZERO isExactLegacyLocalOnlyDeliveryClaims.
+    'f667fbec3e1616859739a8c027ed925beef455616cef6e55d546d4745c750776',
     // B-cdf6 CHK-002: repinned alongside retired-authority-vocabulary-guard-smoke.ts
     // after the user-facing bin rename changed cli-engine.ts hint/error strings.
     //
@@ -1950,7 +2092,7 @@ function assertCloseoutTrustBoundary() {
     // Moved again with the guard by commit 32a083b987 (delivery-review follow-up:
     // one diagnostic string + a BRAND_ENV_PREFIX import in cli-engine.ts). This time
     // both copies were updated in the same commit, as the note above requires.
-    '7b37de7ab1f95c4803603853a7d58e05c866036dec37021deeec00e9f430e27c',
+    '699e160f4977664bebc96fc887b522f805d03128394cfab5c50ac6a6b0169271',
     // B-6693 (merged in) also moved this canonical AST, only to separate
     // direct-validate watchdog cancellation from DONE-result classification.
     // The benign runCli/initPath/import(`file://${initPath}`) call site is unchanged.
@@ -2051,15 +2193,12 @@ function assertCloseoutTrustBoundary() {
     '6025f602afdc354a31333b61b516cb29aa1b59387806d69e6981d5a9ed3969b7',
     '9d09bfd90b67cfa559095b82c8a7012871f0b4d0d38f7ec68941c4f5d0b5e772',
     "'packages/main/src/handlers/fixture-executors.ts'",
-    'efac815e5c27ce69c10c038846f53d99631617a75b97e0ee649844202f203822',
-    'a9681ef9a0d924ee214800d61f2f78838afe9f67c51cf8930938b32861cd96c6',
-    'fa0cfda7432917eed6f999f81f1e8d68b8e38046cf686953ccfd7773606d3fa3',
-    'bootstrap-runner.js and cli.ts are pinned in both exact exemption maps, making nine whole-source entries; no broad pattern exemptions are allowed',
+    '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303',
+    'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
+    'bin/bootstrap-runner.js, packages/main/src/handlers/graph.ts and packages/main/src/cli.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making eleven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
-    'a9681ef9a0d924ee214800d61f2f78838afe9f67c51cf8930938b32861cd96c6',
+    'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
     '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
-    'runDirectCli',
-    'workspaceLabSpecifier',
     'PackageAliasEdge',
     'buildPackageAliasEdgeInventory',
     'PACKAGE_ALIAS_EDGE_INVENTORY',
@@ -2643,7 +2782,7 @@ function assertCloseoutTrustBoundary() {
     'baseline project Program must construct exactly once per guard scan',
     'overlay Program builds must remain bounded at one',
     'synthetic LanguageService must construct exactly once per guard scan',
-    'synthetic LanguageService roots must remain bounded at 32',
+    'synthetic LanguageService roots must remain bounded at 36',
     'synthetic LanguageService Program requests must remain bounded at 320',
     'LanguageService getProgram must preserve object identity without a version change',
     'distinct LanguageService Program identities across controlled version changes must remain bounded at 128',
@@ -2908,6 +3047,9 @@ function assertPhaseTransitionReopenAuditContract() {
   assert(persistWrites.length === 1, `${orchestratorPath}: runStoryTransitionInner must keep EXACTLY ONE store.writeStory (the single atomic rename the reopen recovery record rides); found ${persistWrites.length}`);
   const phaseWrite = persistWrites[0];
   assert(phaseWrite && phaseWrite.arguments.length === 2 && ts.isIdentifier(phaseWrite.arguments[1]) && phaseWrite.arguments[1].text === 'story', `${orchestratorPath}: the phase write must persist the same \`story\` object the reopen recovery record is attached to`);
+  const inventoryConsumes = transitionFn?.body ? collectCallExpressionsByName(transitionFn.body, 'consumeReviewInventoryReceipt') : [];
+  assert(inventoryConsumes.length === 1 && phaseWrite && inventoryConsumes[0].end < phaseWrite.end,
+    `${orchestratorPath}: REVIEW inventory receipt must be consumed exactly once BEFORE store.writeStory publishes phase=DEV`);
   const reopenRecordBranch = transitionFn?.body
     ? findIfStatement(transitionFn.body, (n) => isIdentifierEqualsStringLiteral(n.expression, 'eventType', 'REOPEN')
         && Boolean(findMemberAssignment(n.thenStatement, 'story', 'pendingReopenAudit')))
@@ -3440,7 +3582,7 @@ function assertReopenAuditLockRejectionRationaleContract() {
 }
 
 function isReviewerPrompt(relPath, text) {
-  const name = basename(relPath);
+  const name = `${canonicalRoleId(basename(relPath))}.md`;
   return name.startsWith('proof-or-stop-review-') || requiredReviewerRunIdPromptFiles.has(name) || text.includes('review_pass_set');
 }
 
@@ -3510,11 +3652,12 @@ function commandBlocks(text, command) {
 }
 
 function requiresReviewPassProtocol(label) {
-  return reviewPassReviewerPrompts.has(basename(label)) || label.startsWith('synthetic-');
+  const name = `${canonicalRoleId(basename(label))}.md`;
+  return reviewPassReviewerPrompts.has(name) || label.startsWith('synthetic-');
 }
 
 function requiresNoFindingReviewPassProtocol(label) {
-  return basename(label) !== 'proof-or-stop-evaluator.md' && requiresReviewPassProtocol(label);
+  return canonicalRoleId(basename(label)) !== 'proof-or-stop-evaluator' && requiresReviewPassProtocol(label);
 }
 
 function hasHardCodedReviewRunIdExample(block) {
@@ -3669,7 +3812,7 @@ function promptSemanticTokens(text) {
   for (const match of text.matchAll(/\bkoala\s+([a-z_][a-z0-9_]*)\b/g)) {
     tokens.add(`cmd:${match[1]}`);
   }
-  for (const match of text.matchAll(/(?:^|[\s`"'(])((?:\.koala|\.proof-or-stop-codex|\.claude|docs|packages|bin)\/[A-Za-z0-9._/@:-]+(?:\/[A-Za-z0-9._/@:-]+)*)/g)) {
+  for (const match of text.matchAll(/(?:^|[\s`"'(])((?:\.koala|\.lattice-codex|\.proof-or-stop-codex|\.claude|docs|packages|bin)\/[A-Za-z0-9._/@:-]+(?:\/[A-Za-z0-9._/@:-]+)*)/g)) {
     tokens.add(`path:${match[1].replace(/[),.;:]+$/, '')}`);
   }
   for (const name of ['review_run_start', 'finding_add', 'review_pass_set', 'init_check_set', 'scope_check_save', 'delivery_check_set', 'verification_evidence_add', 'verification_evidence_batch_add']) {
@@ -3700,14 +3843,14 @@ async function comparePromptSemantics(promptMap) {
     .sort();
 
   for (const templateRel of templateFiles) {
-    const name = basename(templateRel);
+    const name = `${canonicalRoleId(basename(templateRel))}.md`;
     const entry = registryByFile.get(name);
     if (!entry) {
       fail(`${templateRel} is missing from the canonical prompt registry`);
       continue;
     }
     for (const mirrorDir of mirrorDirs) {
-      const mirrorRel = `${mirrorDir}/${name}`;
+      const mirrorRel = rolePromptPath(mirrorDir, name);
       if (!promptMap.has(mirrorRel)) {
         warn(`${mirrorRel} missing; no semantic drift comparison available`);
         continue;
@@ -3797,12 +3940,13 @@ function scanActiveLifecycleDocText(text, label) {
       }
     }
 
-    if (!line.includes(coverageReviewerLaneName)) continue;
+    const coverageReviewerLane = coverageReviewerLaneNames.find(name => line.includes(name));
+    if (!coverageReviewerLane) continue;
 
     const lineNo = index + 1;
     for (const { label: claimLabel, pattern } of coverageReviewerCliCommandPatterns) {
       if (pattern.test(line)) {
-        issues.push(`${label}:${lineNo} ${coverageReviewerLaneName} must not be documented as a CLI/tool command (${claimLabel})`);
+        issues.push(`${label}:${lineNo} ${coverageReviewerLane} must not be documented as a CLI/tool command (${claimLabel})`);
       }
     }
 
@@ -3810,7 +3954,7 @@ function scanActiveLifecycleDocText(text, label) {
       .slice(Math.max(0, index - 1), Math.min(lines.length, index + 2))
       .join('\n');
     if (!coverageReviewerLaneContextPattern.test(context)) {
-      issues.push(`${label}:${lineNo} ${coverageReviewerLaneName} must be described as a reviewer agent/lane`);
+      issues.push(`${label}:${lineNo} ${coverageReviewerLane} must be described as a reviewer agent/lane`);
     }
   }
 
@@ -4284,6 +4428,164 @@ function assertValidationPersistenceTransactionContract() {
     mutationIssues.some(issue => issue.includes('persistStoryValidationEvidence'))
       && mutationIssues.some(issue => issue.includes('exactly two')),
     'validation persistence contract bite must fail when executed persistence is deleted while reuse persistence remains',
+  );
+}
+
+function assertReviewInventoryRemediationContract() {
+  const transitionPath = 'packages/main/src/handlers/transition-orchestrator.ts';
+  const transitionText = read(transitionPath);
+  assert(
+    /captureEvidenceHashSnapshot[\s\S]*materialDirtyFiles\.length\s*>\s*0[\s\S]*REVIEW_INVENTORY_REMEDIATION_BLOCKED/.test(transitionText),
+    `${transitionPath}: REVIEW to DEV must reject dirty story material before consuming the finalized inventory receipt`,
+  );
+
+  const epochPath = 'packages/main/src/core/review-inventory-epoch.ts';
+  const epochText = read(epochPath);
+  assert(
+    /\['verified_family',\s*'duplicate',\s*'not_verified'\]\.includes\(row\.disposition\)/.test(epochText),
+    `${epochPath}: critic finding dispositions must be runtime-enumerated and reject unknown values`,
+  );
+
+  const dispatchPath = 'packages/main/src/handlers/story-dispatch.ts';
+  const dispatchText = read(dispatchPath);
+  assert(
+    /promptBuilder\s*===\s*'topology-critic-review'[\s\S]*targetKind:\s*'topology-critic-review'[\s\S]*reviewRound/.test(dispatchText),
+    `${dispatchPath}: topology critic dispatch must persist its dedicated target kind and current review-round binding`,
+  );
+
+  const reviewRunPath = 'packages/main/src/core/review-run.ts';
+  const reviewRunText = read(reviewRunPath);
+  assert(
+    /canonicalLane\s*===\s*'proof-or-stop-review-topology-critic'\s*\?\s*'topology-critic-review'\s*:\s*'story-review'/.test(reviewRunText),
+    `${reviewRunPath}: ReviewRun verification must consume the topology critic dispatch target kind`,
+  );
+
+  const inventoryHandlerPath = 'packages/main/src/handlers/review-inventory.ts';
+  const inventoryHandlerText = read(inventoryHandlerPath);
+  assert(
+    /review_inventory_critic_set[\s\S]*findingDispositions:\s*conservativeDispositions/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: the unique critic Next command must include executable findingDispositions`,
+  );
+  assert(
+    /REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: a complete nonzero-new wave must expose the explicit wave-advance blocker and command`,
+  );
+  assert(
+    /review_inventory_finalize:[\s\S]*REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE[\s\S]*review_inventory_wave_advance/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: finalize must fail closed on new finding families instead of checkpointing implicitly`,
+  );
+  assert(
+    /withReviewInventoryMutationLock/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: finalize and wave persistence must use the shared reviewer-evidence lock`,
+  );
+
+  const findingHandlerPath = 'packages/main/src/handlers/finding.ts';
+  const findingHandlerText = read(findingHandlerPath);
+  assert(
+    /withReviewInventoryMutationLock[\s\S]*assertReviewInventoryEvidenceWritable/.test(findingHandlerText),
+    `${findingHandlerPath}: reviewer finding/pass writes must share the inventory lock and enforce temporal evidence admission`,
+  );
+  assert(
+    /latest\.state === 'FINALIZED'[\s\S]*reviewer evidence for that round remains sealed after receipt consumption[\s\S]*REVIEW_INVENTORY_WAVE_EVIDENCE_SEALED/.test(epochText),
+    `${epochPath}: finalized review rounds and old-wave ReviewRuns must remain sealed`,
+  );
+  assert(
+    /captureReviewInventoryBaselineFindingIds[\s\S]*baselineFindingIds[\s\S]*REVIEW_INVENTORY_BASELINE_FINDINGS_CHANGED/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: begin must sign and consumers must fail-close the carried-forward verified finding baseline`,
+  );
+  assert(
+    /epoch\.state === 'FINALIZED'[\s\S]*invalidatedAt:[\s\S]*invalidationReason:[\s\S]*signReviewInventoryReceipt/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: an unconsumed FINALIZED receipt needs a signed late-evidence invalidation path`,
+  );
+  assert(
+    /initialRunSequenceBoundary[\s\S]*nextRunSequenceBoundary[\s\S]*reviewRunSequence\(run\)[\s\S]*sequence <= sequenceBoundary/.test(epochText),
+    `${epochPath}: inventory waves must use signed monotonic ReviewRun boundaries instead of millisecond ordering`,
+  );
+  assert(
+    /runEvidence\.forEach[\s\S]*row\.findings\.forEach/.test(epochText),
+    `${epochPath}: every eligible same-lane ReviewRun must contribute verified findings even when one newer terminal is selected`,
+  );
+  const scopeContractHandlerText = read('packages/main/src/handlers/scope-contract.ts');
+  assert(
+    /scope_contract_acknowledge[\s\S]*withReviewInventoryMutationLock/.test(scopeContractHandlerText)
+      || /withReviewInventoryMutationLock[\s\S]*scope_contract_acknowledge/.test(scopeContractHandlerText),
+    'packages/main/src/handlers/scope-contract.ts: scope acknowledgement must share the inventory mutation lock',
+  );
+  assert(
+    /captureReviewInventoryScope[\s\S]*scopeDigest[\s\S]*requiredLanes[\s\S]*OPEN_REVIEW_INVENTORY_SCOPE_MUTATION/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: inventory consumers must recompute frozen scope and active lanes`,
+  );
+  const checklistHandlerText = read('packages/main/src/handlers/checklist.ts');
+  assert(
+    /withChecklistLock[\s\S]*withReviewInventoryMutationLock[\s\S]*withMkdirLock/.test(checklistHandlerText),
+    'packages/main/src/handlers/checklist.ts: every checklist acceptance writer must use inventory -> checklist lock order',
+  );
+  assert(
+    /reviewInventoryAcceptanceSubjectDigest[\s\S]*verificationIntent[\s\S]*verificationEvidence[\s\S]*userSeesSnapshot/.test(epochText),
+    `${epochPath}: the frozen acceptance subject must include complete checklist review semantics`,
+  );
+  assert(
+    /proofStoryContract[\s\S]*scopeShrinkageDecision[\s\S]*reviewInventoryAcceptanceSubjectDigestForStore/.test(epochText)
+      && /currentAcceptanceSubjectDigest[\s\S]*effective ProofStory\/checklist acceptance subject changed/.test(epochText),
+    `${epochPath}: OPEN and FINALIZED consumers must bind and recompute the effective ProofStory acceptance subject`,
+  );
+  const proofStoryHandlerText = read('packages/main/src/handlers/proofstory.ts');
+  assert(
+    /scope_shrinkage_decision_set[\s\S]*withReviewInventoryMutationLock[\s\S]*withMkdirLock/.test(proofStoryHandlerText),
+    'packages/main/src/handlers/proofstory.ts: scope shrinkage must use inventory -> checklist lock order',
+  );
+  const idempotentFindingHandlerText = read('packages/main/src/handlers/finding.ts');
+  assert(
+    /sameTerminal[\s\S]*verifyReviewPass[\s\S]*idempotent retry[\s\S]*conflicting terminal pass/.test(idempotentFindingHandlerText),
+    'packages/main/src/handlers/finding.ts: review-pass terminal writes must be strongly idempotent and reject semantic conflicts',
+  );
+  const agentsDocText = read('AGENTS.md');
+  const storyLifecycleText = read('docs/requirements/decisions/story-lifecycle.md');
+  const testingInfraText = read('docs/requirements/decisions/testing-infra.md');
+  for (const [label, text] of [['AGENTS.md', agentsDocText], ['story-lifecycle.md', storyLifecycleText], ['testing-infra.md', testingInfraText]]) {
+    assert(/fresh (?:non-latest )?PASS|fresh PASS/.test(text) && /open FINDING/.test(text), `${label}: latest-run guidance must preserve the kind-aware PASS/FINDING distinction`);
+  }
+  const latestRunHintBody = reviewRunText.match(/function latestRunHint\([\s\S]*?\n\}/)?.[0] ?? '';
+  assert(
+    /resubmit finding_add/.test(latestRunHintBody) && !/review_pass_set/.test(latestRunHintBody),
+    'packages/main/src/core/review-run.ts: FINDING-only non-latest-run recovery hint must never tell a valid PASS to resubmit review_pass_set',
+  );
+  const candidateHandlerText = read('packages/main/src/handlers/candidate-spec-routing.ts');
+  assert(
+    /withReviewInventoryMutationLock[\s\S]*writeCandidateSpecSet[\s\S]*refreshReviewInventoryContextLocked/.test(candidateHandlerText),
+    'packages/main/src/handlers/candidate-spec-routing.ts: candidate reroute must atomically invalidate an OPEN epoch',
+  );
+  assert(
+    /candidateSpecSetDigest[\s\S]*corpusDigest[\s\S]*OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION/.test(inventoryHandlerText),
+    `${inventoryHandlerPath}: epoch consumers must recompute the signed candidate universe`,
+  );
+  const reviewRunHandlerText = read('packages/main/src/handlers/review-run.ts');
+  assert(
+    /withReviewInventoryMutationLock[\s\S]*assertReviewInventoryContextFreshLocked[\s\S]*withReviewMetadataTransactionLock[\s\S]*writeReviewRuns/.test(reviewRunHandlerText),
+    'packages/main/src/handlers/review-run.ts: inventory precheck and durable RR publication must be one outer critical section',
+  );
+  const promptContractsText = read('packages/main/src/core/prompt-contracts.ts');
+  const promptEnvelopeText = read('packages/main/src/core/prompt-envelope.ts');
+  assert(
+    /findingProjection[\s\S]*findingProjectionDigest/.test(promptContractsText)
+      && /prompt-finding-projection\.v1/.test(promptEnvelopeText)
+      && /findingProjection:\s*envelope\.findingProjection/.test(reviewRunText),
+    'Prompt Envelope: historical eligibility must consume an envelope-signed run-start finding projection',
+  );
+  const mkdirLockText = read('packages/main/src/core/mkdir-lock.ts');
+  assert(
+    /classifyDefaultHolder[\s\S]*process\.kill\(holder\.pid, 0\)[\s\S]*observedProcessStartTimeMs[\s\S]*return 'active'/.test(mkdirLockText),
+    'packages/main/src/core/mkdir-lock.ts: stale reclaim must preserve a live same-host process incarnation beyond mtime expiry',
+  );
+  assert(
+    /REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED[\s\S]*begin a fresh inventory epoch/.test(epochText),
+    `${epochPath}: remediation consumption must fail closed after replaying a changed live terminal/finding aggregate`,
+  );
+
+  const projectConfig = read('lattice.config.json');
+  assert(
+    /"acceptanceRolloutGateMode"\s*:\s*"enforce"/.test(projectConfig),
+    'lattice.config.json: mandatory Wave 4 acceptance authority must be mechanically enforced for this repository',
   );
 }
 
@@ -6246,7 +6548,7 @@ function assertPromptEvidenceBoundaries(promptMap) {
         `${relPath}: fresh-worker guidance must name dispatch/process-event/commit evidence as the observable boundary`,
       );
     }
-    if (text.includes('delivery-check.json') || name === 'product-reviewer.md') {
+    if (text.includes('delivery-check.json') || canonicalRoleId(name) === 'proof-or-stop-product-reviewer') {
       assert(
         text.includes('transcript/delivery evidence is required; prompt-only user-value claims are not enough'),
         `${relPath}: delivery/product guidance must reject prompt-only user-value claims`,
@@ -6663,22 +6965,23 @@ function assertProcessFactRegistryContract(cliToolNames, policyEntries, configTe
   }
 
   for (const lane of requiredReviewerLanes) {
-    const entry = registry.get(`reviewer-lane:${lane}`);
+    const entry = reviewerLaneEntry(registry, lane);
     assert(entry, `${processFactRegistryPath}: reviewer lane missing from PROCESS_FACT_REGISTRY: lane=${lane}`);
     if (!entry) continue;
     assert(entry.kind === 'reviewer-lane', `${processFactRegistryPath}: reviewer lane ${lane} must have kind reviewer-lane`);
-    assert(entry.reviewerLane === lane, `${processFactRegistryPath}: reviewer lane drift for lane=${lane}`);
+    assert(canonicalRoleId(entry.reviewerLane) === lane, `${processFactRegistryPath}: reviewer lane drift for lane=${lane}`);
     assert(entry.consumerGate, `${processFactRegistryPath}: reviewer lane ${lane} must name consumer gate`);
     assert(entry.artifact, `${processFactRegistryPath}: reviewer lane ${lane} must name produced/consumed artifact`);
   }
 
   const promptReviewerLanes = listMarkdown('packages/main/templates/agents')
-    .map(relPath => basename(relPath, '.md'))
-    .filter(name => (name.startsWith('proof-or-stop-review-') || name === 'product-reviewer')
-      && name !== 'proof-or-stop-review-channel');
+    .map(relPath => canonicalRoleId(basename(relPath, '.md')))
+    .filter((name, index, names) => (name.startsWith('proof-or-stop-review-') || name === 'proof-or-stop-product-reviewer')
+      && name !== 'proof-or-stop-review-channel'
+      && names.indexOf(name) === index);
   for (const lane of promptReviewerLanes) {
     assert(
-      registry.has(`reviewer-lane:${lane}`),
+      reviewerLaneEntry(registry, lane),
       `${processFactRegistryPath}: reviewer lane prompt missing registry fact: lane=${lane}`,
     );
   }
@@ -7314,6 +7617,22 @@ function assertParentRoadmapTotalityRuntime() {
     registryFactText.includes("'runtime:incremental_review_eligibility_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'normalization-policy', 'freshness-policy', 'review-run', 'review-pass', 'verification-policy', 'gate-evidence']"),
     'process-fact-registry: incremental review eligibility must remain a versioned gate-consumed prompt/review/normalization/freshness contract',
   );
+  const postRemediationLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:post_remediation_review_selection_gate');
+  assert(postRemediationLevel?.level === 'L4', 'post-remediation review selection must remain L4');
+  for (const token of ['domain-separated signed selection', 'current review round', 'canonical bidirectional transitive dependency closure', 'fail closed to all active lanes', 'Required host and escalation assurance remain independent and unchanged', 'any one current pass never substitute']) {
+    assert(postRemediationLevel?.rationale.includes(token), `post-remediation selection rationale missing trust boundary: ${token}`);
+  }
+  assert(postRemediationLevel?.gateConsumer.includes('storyMachine.evaluateReviewVerdict REVIEW to TEST selected-lane gate'), 'post-remediation selection must identify its REVIEW-to-TEST consumer');
+  assert(
+    registryFactText.includes("'runtime:post_remediation_review_selection_gate': ['runtime-behavior', 'signed-artifact', 'schema-contract', 'normalization-policy', 'freshness-policy', 'reviewer-lane', 'gate-evidence']"),
+    'process-fact-registry: post-remediation selection must remain a signed lane/freshness gate contract',
+  );
+  const postRemediationSource = read('packages/main/src/core/review-incremental-context.ts');
+  for (const token of ['POST_REMEDIATION_REVIEW_POLICY_VERSION', 'verifyCurrentPostRemediationReviewSelection', 'computeCanonicalDependencyClosure', 'UNTRACKED_OR_IGNORED_MATERIAL', 'UNSUPPORTED_RENAME_OR_DELETE', 'DEPENDENCY_CLOSURE_INCOMPLETE']) {
+    assert(postRemediationSource.includes(token), `post-remediation selection source missing fail-closed mechanism: ${token}`);
+  }
+  assert(read('packages/main/src/core/machine.ts').includes('computeFinalReviewRoster'), 'REVIEW gate must consume the canonical final-review roster');
+  assert(read('packages/main/src/handlers/reviewer-list.ts').includes('renderFinalReviewRoster'), 'operator status must project the canonical final-review roster');
   assert(levelText.includes('runtime:prompt_role_body_rollout_gate'), 'process-fact-levels: prompt role-body rollout gate fact missing');
   assert(
     registryFactText.includes("'runtime:prompt_role_body_rollout_gate': ['runtime-behavior', 'prompt-envelope', 'schema-contract', 'reviewer-lane', 'gate-evidence']"),
@@ -7323,6 +7642,19 @@ function assertParentRoadmapTotalityRuntime() {
   assert(roleBodyRolloutLevel?.level === 'L4', 'prompt role-body rollout must remain L4');
   for (const token of ['five active REVIEW lanes', 'content-addressed', 'byte-exact legacy role body', 'Every supported host mode binds both', 'total model input explicit', 'Compatibility and retired']) {
     assert(roleBodyRolloutLevel?.rationale.includes(token), `prompt role-body rollout rationale must preserve ${token}`);
+  }
+  const migratedReviewerContractSources = [
+    'packages/main/src/init-assets.ts',
+    'packages/main/src/registry.ts',
+    'packages/main/src/handlers/agent-prompt.ts',
+    'packages/main/src/core/process-fact-levels.ts',
+    'packages/main/src/tasks/global-agents-init-smoke.ts',
+    'docs/requirements/decisions/lifecycle-artifact-scope.md',
+  ];
+  for (const sourcePath of migratedReviewerContractSources) {
+    const source = read(sourcePath);
+    assert(/six migrated[\s*]+reviewer/i.test(source), `${sourcePath}: migrated reviewer contract must name all six definitions`);
+    assert(!/five migrated[\s*]+reviewer/i.test(source), `${sourcePath}: stale five-migrated-reviewer residue is forbidden`);
   }
   const reviewAtomicLevel = parseProcessFactLevelRegistry().find(entry => entry.name === 'runtime:review_run_atomic_persistence_gate');
   assert(reviewAtomicLevel?.level === 'L4', 'review-run atomic persistence must remain L4');
@@ -7358,6 +7690,48 @@ function assertParentRoadmapTotalityRuntime() {
   ]) {
     if (!smokeText.includes(marker)) fail(`${smokePath}: missing smoke mode marker "${marker}"`);
   }
+}
+
+// DYN-1..DYN-5 runtime facts are gate-consumed process facts, not descriptive
+// documentation.  Keep a source-level contract here so deleting the level or
+// weakening its registry semantics cannot make dynamic validation appear
+// authoritative while the production registry silently loses its evidence.
+function assertStoryAwareDynamicValidationRuntime() {
+  const levelText = read('packages/main/src/core/process-fact-levels.ts');
+  const registryText = read('packages/main/src/core/process-fact-registry.ts');
+  const facts = [
+    'runtime:story_aware_dynamic_selection_manifest',
+    'runtime:story_aware_dynamic_closure_receipt',
+    'runtime:story_aware_dynamic_shard_aggregate',
+    'runtime:story_aware_dynamic_authority_gate',
+  ];
+  const levels = parseProcessFactLevelRegistry();
+  for (const fact of facts) {
+    assert(levelText.includes(`name: '${fact}'`), `process-fact-levels: dynamic fact missing: ${fact}`);
+    assert(registryText.includes(`'${fact}':`), `process-fact-registry: dynamic fact missing: ${fact}`);
+    const level = levels.find((entry) => entry.name === fact);
+    assert(level?.level === 'L4', `process-fact-levels: dynamic fact must remain L4: ${fact}`);
+    assert(level?.gateConsumer && /dynamic|validate|TEST|authority/i.test(level.gateConsumer), `process-fact-levels: dynamic fact must name a gate consumer: ${fact}`);
+  }
+  for (const token of ['signed-artifact', 'schema-contract', 'gate-evidence']) {
+    assert(registryText.includes(`'runtime:story_aware_dynamic_selection_manifest':`) && registryText.includes(`'runtime:story_aware_dynamic_authority_gate':`), 'process-fact-registry: dynamic fact semantic map must remain present');
+    assert(registryText.includes(token), `process-fact-registry: dynamic semantic map missing ${token}`);
+  }
+  for (const fact of [
+    'runtime:story_aware_dynamic_selection_manifest',
+    'runtime:story_aware_dynamic_closure_receipt',
+    'runtime:story_aware_dynamic_shard_aggregate',
+  ]) {
+    const line = registryText.split('\n').find((candidate) => candidate.includes(`'${fact}':`)) || '';
+    assert(line.includes("'workspace-binding'"), `process-fact-registry: ${fact} must retain Git-rooted provenance binding`);
+  }
+  const signingText = read('packages/main/src/core/validation-artifact-signing.ts');
+  const validationText = read('packages/main/src/core/story-aware-validation.ts');
+  assert(signingText.includes("VALIDATION_ARTIFACT_SIGNING_KEY_ID = 'validation-artifact-v1'"), 'dynamic validation provenance must retain an explicit signing key ID');
+  assert(signingText.includes('ed25519:${VALIDATION_ARTIFACT_SIGNING_KEY_ID}:'), 'dynamic validation provenance must retain its Ed25519 signature prefix');
+  assert(signingText.includes('git-common-dir') && signingText.includes("flag: 'wx'"), 'dynamic validation provenance key must remain Git-common-metadata-rooted and creation-race-safe');
+  assert(validationText.includes('signValidationArtifact(value)') && validationText.includes('verifyValidationArtifact(value, signature)'), 'dynamic validation artifacts must delegate signing and verification to the trusted signer');
+  assert(read('packages/main/src/handlers/story-aware-validation.ts').includes('originalOracle'), 'DYN-5 aggregate must retain complete-plan oracle equivalence evidence');
 }
 
 function assertPromptMeasurementObservationBoundary() {
@@ -7527,6 +7901,12 @@ function assertProcessFactCommandInventory() {
       formatProcessFactLevelRegistryEntry(actual) === expected.line,
       `${processFactLevelRegistryPath}: ${expected.name} summary line drifted`,
     );
+    for (const token of expected.rationaleTokens || []) {
+      assert(
+        actual.rationale.includes(token),
+        `${processFactLevelRegistryPath}: ${expected.name} rationale missing causal assurance token: ${token}`,
+      );
+    }
   }
   assertReviewRunStoryFilesHashContract(registry, levelRegistry);
   assertReviewAssuranceFloorContract(registry, levelRegistry);
@@ -8011,7 +8391,11 @@ const inventory = [
     files: [
       {
         relPath: 'packages/main/src/handlers/checklist.ts',
-        patterns: ['verification_evidence_add', 'verification_evidence_batch_add', 'normalizeEvidence', 'makeEvidence', 'evidenceHashes'],
+        patterns: ['verification_evidence_add', 'verification_evidence_batch_add', 'normalizeEvidence', 'makeEvidence', 'evidenceHashes', 'hasExecutableVerifier', 'Boolean(intent.verification)', 'Boolean(callerSelector)'],
+      },
+      {
+        relPath: 'packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts',
+        patterns: ['INT-DOCS-PIN', 'selector-bearing docs check is mechanical', 'verification_run preserves mechanical docs authority'],
       },
       {
         relPath: 'packages/main/src/core/verification.ts',
@@ -8263,9 +8647,10 @@ for (const dir of promptDirs) {
 }
 for (const dir of promptDirs) {
   for (const fileName of requiredReviewerRunIdPromptFiles) {
+    const promptPath = rolePromptPath(dir, fileName);
     assert(
-      promptMap.has(`${dir}/${fileName}`),
-      `${dir}/${fileName}: reviewer-facing prompt must be included in prompt drift scan`,
+      promptMap.has(promptPath),
+      `${promptPath}: reviewer-facing prompt must be included in prompt drift scan`,
     );
   }
 }
@@ -8297,11 +8682,13 @@ assertOutOfBandReopenAuditRescueContract();
 assertReopenAuditConcurrencyResidualContract();
 assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
+assertReviewInventoryRemediationContract();
 assertProcessFactCommandInventory();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
 assertParentRoadmapIntentTotalityPlan();
 assertParentRoadmapTotalityRuntime();
+assertStoryAwareDynamicValidationRuntime();
 assertPromptMeasurementObservationBoundary();
 printProcessFactLevelRegistrySummary();
 

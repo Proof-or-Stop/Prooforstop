@@ -20,6 +20,14 @@ import {
   isExactLegacyLocalOnlyDeliveryClaims,
   type LegacyLocalOnlyDeliveryClaims,
 } from './legacy-delivery-claims-compat.js';
+import {
+  CLOSEOUT_WRITE_RECEIPT_SCHEMA,
+  CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY,
+  isCloseoutWriteReceiptSchema,
+  type CloseoutWriteReceiptSchema,
+} from './artifact-schema.js';
+
+export { CLOSEOUT_WRITE_RECEIPT_SCHEMA, CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY };
 
 export type CloseoutArtifactClass = 'scope-defining' | 'closeout-evidence';
 
@@ -38,6 +46,12 @@ export const CLOSEOUT_ARTIFACT_POLICIES = [
   { path: 'scope-contract.json', artifactClass: 'scope-defining', canonicalWriters: ['scope_contract_set', 'scope_contract_acknowledge'] },
   { path: 'milestone-ledger.json', artifactClass: 'scope-defining', canonicalWriters: ['milestone_ledger_set', 'milestone_ledger_add', 'intent_collision_set'] },
   { path: 'slice-plan.json', artifactClass: 'scope-defining', canonicalWriters: ['slice_plan_set'] },
+  { path: 'topology-critic-receipt.json', artifactClass: 'closeout-evidence', canonicalWriters: ['topology_critic_receipt_set'] },
+  // A stale-evidence refresh only re-executes already-pinned verification and
+  // replaces its evidence rows; it cannot create or change verification intent.
+  // Other checklist writers are deliberately absent because they may alter
+  // checklist status or acceptance semantics and therefore require re-review.
+  { path: 'checklist.json', artifactClass: 'closeout-evidence', canonicalWriters: ['verification_evidence_refresh_stale'] },
   { path: 'parent-ledger-rollup.json', artifactClass: 'closeout-evidence', canonicalWriters: ['parent_ledger_rollup_set'] },
   { path: 'evidence/delivery-context-pack.json', artifactClass: 'closeout-evidence', canonicalWriters: ['delivery_context_pack'] },
   { path: 'test-evidence.json', artifactClass: 'closeout-evidence', canonicalWriters: ['validate', 'test_add', 'test_story'] },
@@ -405,11 +419,10 @@ export function evaluateMetadataOnlyReviewRetention(input: MetadataOnlyReviewRet
 }
 
 export const CLOSEOUT_WRITE_RECEIPTS_PATH = 'closeout-write-receipts.jsonl';
-export const CLOSEOUT_WRITE_RECEIPT_SCHEMA = 'lattice.closeout_write_receipt.v3' as const;
 const CLOSEOUT_WRITE_RECEIPT_DOMAIN = 'lattice-closeout-write-receipt-integrity-v3';
 
 export interface CloseoutWriteReceipt {
-  schemaVersion: typeof CLOSEOUT_WRITE_RECEIPT_SCHEMA;
+  schemaVersion: CloseoutWriteReceiptSchema;
   storyId: string;
   artifactPath: string;
   writerCommand: string;
@@ -483,7 +496,7 @@ export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expect
   projectRoot?: string;
   metadataRoot?: string;
 }): { ok: boolean; reason?: string } {
-  if (!receipt || receipt.schemaVersion !== CLOSEOUT_WRITE_RECEIPT_SCHEMA) return { ok: false, reason: 'invalid receipt schema' };
+  if (!receipt || !isCloseoutWriteReceiptSchema(receipt.schemaVersion)) return { ok: false, reason: 'invalid receipt schema' };
   if (receipt.storyId !== expected.storyId || receipt.artifactPath !== expected.artifactPath) return { ok: false, reason: 'receipt story/path mismatch' };
   try { assertCanonicalCloseoutWrite(receipt.artifactPath, receipt.writerCommand); }
   catch (error) { return { ok: false, reason: String((error as Error).message) }; }
@@ -515,13 +528,34 @@ export function verifyCloseoutWriteReceipt(receipt: CloseoutWriteReceipt, expect
 }
 
 function validReceiptChain(receipts: CloseoutWriteReceipt[], storyId: string, artifactPath: string): boolean {
+  const artifactReceipts = receipts.filter((item) => item.artifactPath === artifactPath);
+  if (artifactReceipts.some((item) => !isCloseoutWriteReceiptSchema(item.schemaVersion))) return false;
+
   let previous: CloseoutWriteReceipt | null = null;
-  for (const receipt of receipts.filter((item) => item.schemaVersion === CLOSEOUT_WRITE_RECEIPT_SCHEMA && item.artifactPath === artifactPath)) {
+  let schemaVersion: CloseoutWriteReceiptSchema | null = null;
+  for (const receipt of artifactReceipts) {
     if (receipt.storyId !== storyId) return false;
-    if (receipt.sequence !== (previous?.sequence ?? 0) + 1) return false;
-    if (receipt.previousIntegrityHash !== (previous?.integrityHash ?? null)) return false;
     const { integrityHash, ...unsigned } = receipt;
     if (integrityHash !== computeCloseoutWriteReceiptIntegrity(unsigned)) return false;
+
+    if (schemaVersion === null) {
+      schemaVersion = receipt.schemaVersion;
+      if (receipt.sequence !== 1 || receipt.previousIntegrityHash !== null) return false;
+    } else if (receipt.schemaVersion !== schemaVersion) {
+      // Both exact schema aliases are supported read forms. A writer may
+      // interleave them during CLI/package migration, but each transition
+      // must either continue the existing chain or explicitly start a new
+      // epoch. Unknown schemas were rejected above, and every receipt still
+      // has to pass its own integrity check.
+      schemaVersion = receipt.schemaVersion;
+      const continuesHistoricalChain = receipt.sequence === (previous?.sequence ?? 0) + 1
+        && receipt.previousIntegrityHash === (previous?.integrityHash ?? null);
+      const startsSchemaEpoch = receipt.sequence === 1 && receipt.previousIntegrityHash === null;
+      if (!continuesHistoricalChain && !startsSchemaEpoch) return false;
+    } else {
+      if (receipt.sequence !== (previous?.sequence ?? 0) + 1) return false;
+      if (receipt.previousIntegrityHash !== (previous?.integrityHash ?? null)) return false;
+    }
     previous = receipt;
   }
   return previous !== null;
@@ -558,7 +592,7 @@ export function latestCausallyValidCloseoutReceipt(
   const allReceipts = readCloseoutWriteReceipts(storyDir);
   if (!validReceiptChain(allReceipts, storyId, artifactPath)) return null;
   const receipt = allReceipts
-    .filter((item) => item.schemaVersion === CLOSEOUT_WRITE_RECEIPT_SCHEMA && item.artifactPath === artifactPath)
+    .filter((item) => isCloseoutWriteReceiptSchema(item.schemaVersion) && item.artifactPath === artifactPath)
     .at(-1);
   if (!receipt) return null;
   if (provenance && !causallyBoundToLatestArtifactCommit(receipt, provenance, storyDir)) return null;

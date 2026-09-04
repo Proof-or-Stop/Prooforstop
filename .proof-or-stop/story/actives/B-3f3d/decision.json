@@ -1,0 +1,87 @@
+{
+  "principles": [
+    "Freeze the subject before parallel discovery so every verdict is comparable.",
+    "Completeness is demonstrated by coverage plus a clean saturation wave, never by an arbitrary review count.",
+    "One module owns epoch state, validity, transitions, signing, status projection and gate decisions.",
+    "Efficiency may remove invalidated rework but must not reduce assurance."
+  ],
+  "drivers": [
+    "Eliminate B-cdf6-style mutation-driven reviewer redispatch.",
+    "Provide operator-visible progress and recovery.",
+    "Fail closed across every authoritative mutation and transition boundary.",
+    "Reuse existing signed ReviewRun and ReviewPass facts where safe."
+  ],
+  "options": [
+    {
+      "name": "A: Signed frozen inventory epoch with bounded saturation",
+      "pros": [
+        "Directly prevents reviewed material from changing",
+        "Aggregates all verified findings before remediation",
+        "Supports falsifiable efficiency and quality checks"
+      ],
+      "cons": [
+        "Adds lifecycle commands and a new gate artifact",
+        "Requires integration across several write boundaries"
+      ]
+    },
+    {
+      "name": "B: Require N consecutive clean review rounds",
+      "pros": [
+        "Simple counter",
+        "Small implementation"
+      ],
+      "cons": [
+        "N is arbitrary and can miss uncovered lanes",
+        "Can mechanically reduce or inflate rounds without proving completeness",
+        "Does not prevent mid-review mutation"
+      ]
+    },
+    {
+      "name": "C: Run all reviewers in parallel but allow immediate fixes",
+      "pros": [
+        "Minimal workflow change",
+        "Potentially fast for isolated findings"
+      ],
+      "cons": [
+        "Recreates stale-cutoff races",
+        "Later reviewers inspect different material",
+        "Cannot support a trustworthy aggregate inventory"
+      ]
+    }
+  ],
+  "chosen": "A: Signed frozen inventory epoch with bounded saturation",
+  "rationale": "Option A addresses the causal defect: candidate mutation before discovery is complete. It uses bounded waves, required-lane terminal evidence and a completeness critic to prove saturation, while mutation barriers and lineage checks keep every verdict on one cutoff. Options B and C optimize a visible round count without establishing that review was exhaustive or comparable.",
+  "preMortem": [
+    {
+      "scenario": "A write path bypasses the OPEN barrier",
+      "trigger": "Material hash changes between receipt submissions or finalization",
+      "consequence": "Mixed-cutoff verdicts could create a false saturation receipt",
+      "mitigation": "Revalidate cutoff at every producer and consumer, mark INVALIDATED, and add bypass regression tests for handler, hook, commit and transition boundaries."
+    },
+    {
+      "scenario": "Duplicate or forged findings make a wave appear clean",
+      "trigger": "Same identity or unverified duplicate disposition is counted as terminal coverage",
+      "consequence": "A real issue is omitted from the remediation set",
+      "mitigation": "Canonical finding-family disposition, independent verification, signed lane identity and fail-closed duplicate validation."
+    },
+    {
+      "scenario": "Wave budget is exhausted while new findings continue",
+      "trigger": "Configured maximum waves reached with nonzero new verified findings",
+      "consequence": "Framework may be tempted to declare PASS for schedule reasons",
+      "mitigation": "Prohibit finalization and require explicit replan, decomposition, root-cause escalation or human adjudication."
+    },
+    {
+      "scenario": "Final review reuses the defective cutoff receipt",
+      "trigger": "Remediation creates new material but old receipt remains superficially valid",
+      "consequence": "TEST is entered without reviewing the repaired implementation",
+      "mitigation": "Receipt authorizes only one remediation DEV transition; repair invalidates it for certification and impacted lanes must provide current evidence."
+    },
+    {
+      "scenario": "Optimization silently lowers assurance",
+      "trigger": "Implementation chooses fewer lanes or hosts to meet speed threshold",
+      "consequence": "Cycle count improves while escaped-defect risk grows",
+      "mitigation": "Make lane/host counts invariant and replay all historical critical/high cases; efficiency is reported separately from gate facts."
+    }
+  ],
+  "timestamp": "2026-08-14T13:50:15.423Z"
+}

@@ -1,5 +1,16 @@
 # Codex + Proof-or-Stop
 
+Canonical paths and active entrypoints:
+
+- Project state: `.proof-or-stop/` (new writes use this path).
+- Project config: `proof-or-stop.config.json` (new writes use this filename).
+- Codex adapter: `.proof-or-stop-codex/`.
+- Codex adapter manifest: `.proof-or-stop-codex/proof-or-stop.json`.
+- Codex activity log: `.proof-or-stop/activity.jsonl`.
+
+Existing projects may still be read through the deprecated `.lattice/`, `.lattice-codex/`,
+and `lattice.config.json` spellings; init writes only the canonical Proof-or-Stop paths.
+
 优先做法：
 
 ```bash
@@ -29,6 +40,14 @@ fallback 说明：
 - `.proof-or-stop-codex/agents` 由 `.claude/agents` 的完整 prompt 集合受控生成；Claude hooks/settings/skills 仍只属于 `.claude`
 - `.proof-or-stop-codex/proof-or-stop.json` 是 Proof-or-Stop 自己读取的 Codex adapter manifest，用来说明推荐入口、session 环境变量和不生成的 runtime 资产
 
+旧安装只读兼容 fallback（仅当环境只认识旧变量名时使用；新配置不要复制）：
+
+```bash
+LATTICE_ACTIVITY_SOURCE=codex LATTICE_ACTIVITY_RECORD_READONLY=1 LATTICE_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief
+```
+
+该 fallback 只用于读取当前状态和记录只读 heartbeat，不作为 gate 证据；Proof-or-Stop 会优先读取同名的 `PROOF_OR_STOP_*` 变量。
+
 建议：
 
 - 新 session 第一条命令跑 `node bin/proof-or-stop-codex.js session_brief`
@@ -38,7 +57,7 @@ fallback 说明：
 - 运行 `proof-or-stop check` 检查 Proof-or-Stop 管理资产/模板漂移；确认后用 `proof-or-stop check --apply` 或 `proof-or-stop check --upgrade` 同步安全项
 - 初始化脚本可用 `proof-or-stop init --verify-codex` 做同源资产校验
 - 诊断 Codex adapter 时运行 `node bin/proof-or-stop-codex.js doctor`，可同时查看共享检查、health 和 worktree 状态
-- 如果 `aux_*` 不可用，说明当前是 core-only proof-or-stop：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
+- 如果 `aux_*` 不可用，说明当前是 core-only Proof-or-Stop：优先找本地 bootstrap 入口；没有的话，用 AGENTS.md 规定的 shell 搜索兜底
 
 边界：
 

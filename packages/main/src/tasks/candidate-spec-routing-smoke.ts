@@ -29,7 +29,9 @@ import {
 import { resetConfigCache } from '../core/config.js';
 import { renderDeliveryContextPackReport, type DeliveryContextPackReport } from '../handlers/delivery-context-pack.js';
 import { signReviewPass } from '../core/finding-verify.js';
-import { captureReviewRunSnapshot, signReviewRun } from '../core/review-run.js';
+import { buildReviewRunWorkspaceBinding, captureReviewRunSnapshot, collectReviewerEvidenceState, hashReviewPrompt, signReviewRun } from '../core/review-run.js';
+import { normalizeReviewerReadLog } from '../core/reviewer-read-evidence.js';
+import { resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 
 function fixtureRoot(): string {
   const root = join(tmpdir(), `candidate-routing-${process.pid}-${Date.now()}`);
@@ -187,13 +189,25 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     const reviewRunId = `${story.storyId}:RR-001`;
     const reviewAgent = 'proof-or-stop-review-quality';
     const reviewStartedAt = '2026-07-12T00:03:00.000Z';
+    const reviewPromptHash = hashReviewPrompt(resolvePromptRoleBody(reviewAgent, {
+      version: 'proofbound.prompt-envelope-rollout.v1',
+      roles: { 'lattice-review-quality': 'legacy-full-context' },
+    }).body);
+    const workspaceBinding = buildReviewRunWorkspaceBinding({
+      metadataRoot: collectorRoot,
+      invocationCwd: collectorRoot,
+      repoRoot: collectorRoot,
+      signedWorkspaceRoot: collectorRoot,
+      workspaceMode: 'metadata-git-root',
+      ...collectorSnapshot,
+    });
     const reviewRun = {
       reviewRunId, storyId: story.storyId, agent: reviewAgent, lane: reviewAgent, reviewRound: collectorRound,
-      startedAt: reviewStartedAt, ...collectorSnapshot, promptHash: '',
+      startedAt: reviewStartedAt, ...collectorSnapshot, promptHash: reviewPromptHash, workspaceBinding,
     };
     collectorStore.writeReviewRuns(story.storyId, { runs: [{
       ...reviewRun,
-      _hash: signReviewRun(story.storyId, reviewRunId, reviewAgent, reviewAgent, collectorRound, reviewStartedAt, collectorSnapshot.headHash, collectorSnapshot.materialHash, '', undefined, undefined, collectorSnapshot.storyFilesHash),
+      _hash: signReviewRun(story.storyId, reviewRunId, reviewAgent, reviewAgent, collectorRound, reviewStartedAt, collectorSnapshot.headHash, collectorSnapshot.materialHash, reviewPromptHash, undefined, workspaceBinding.bindingHash, collectorSnapshot.storyFilesHash),
     }] });
     const reviewPass = {
       id: `${story.storyId}:RP-001`,
@@ -207,11 +221,18 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
         filesTriagedByName: ['docs/requirements/decisions/noise.md'],
         scanEscalationReason: null,
       },
+      readLog: normalizeReviewerReadLog([
+        { path: 'packages/main/src/reviewer-full.ts', mode: 'full', tokenCount: 5 },
+        { path: 'docs/requirements/decisions/noise.md', mode: 'triage', tokenCount: null },
+      ]),
     };
     collectorStore.writeReviewPasses(story.storyId, { passes: [{
       ...reviewPass,
-      _hash: signReviewPass(story.storyId, reviewPass.id, reviewPass.agent, reviewPass.note, reviewPass.createdAt, collectorRound, reviewRunId, reviewPass.readManifest),
+      _hash: signReviewPass(story.storyId, reviewPass.id, reviewPass.agent, reviewPass.note, reviewPass.createdAt, collectorRound, reviewRunId, reviewPass.readManifest, reviewPass.readLog),
     }] });
+    resetConfigCache();
+    const collectorEvidence = collectReviewerEvidenceState(collectorStore, story.storyId, collectorRoot);
+    assert.equal(collectorEvidence.invalid.length, 0, JSON.stringify(collectorEvidence.invalid, null, 2));
     const collectorBoundInput = currentStoryRoutingInput({ store: collectorStore, root: collectorRoot, scanRoot: join(collectorRoot, 'packages/main') }, story.storyId);
     assert.ok(collectorBoundInput.protectedSources?.some(source => source.kind === 'reviewer-evidence' && source.path === 'packages/main/src/reviewer-full.ts'), 'handler consumes current collector-valid filesReadFully');
     assert.equal(collectorBoundInput.protectedSources?.some(source => source.path === 'docs/requirements/decisions/noise.md' && source.kind === 'reviewer-evidence'), false, 'collector triage never becomes protected authority');
@@ -260,6 +281,20 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
 
     const tampered = { ...artifact, candidateSpecSet: ['docs/requirements/decisions/noise.md'] };
     assert.equal(verifyCandidateSpecSet(tampered), false, 'tampered candidate artifact must fail verification');
+    assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: 'not-an-array' }), false, 'a persisted string candidates field must fail closed before consumers dereference it');
+    assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: { path: 'not-an-array' } }), false, 'a persisted object candidates field must fail closed before consumers dereference it');
+    for (const [label, malformedCandidates] of [
+      ['string', 'not-an-array'],
+      ['object', { path: 'not-an-array' }],
+    ] as const) {
+      const { artifactDigest: _staleArtifactDigest, ...validBase } = artifact;
+      const malformedBase = { ...validBase, candidates: malformedCandidates };
+      const signedMalformedArtifact = {
+        ...malformedBase,
+        artifactDigest: digestCandidateRoutingValue(malformedBase),
+      };
+      assert.equal(verifyCandidateSpecSet(signedMalformedArtifact), false, `a persisted ${label} candidates field with a recomputed artifactDigest must still fail structural verification`);
+    }
     const manifest = {
       filesReadFully: artifact.candidateSpecSet,
       filesTriagedByName: [],
@@ -281,6 +316,7 @@ export async function runCandidateSpecRoutingSmoke(): Promise<void> {
     assert.deepEqual(candidateReadBindingErrors({ manifest: fullyBoundManifest, artifact: fullyBound, mode: 'enforce', currentStoryInputDigest: digestCandidateRoutingValue(story) }), []);
     assert.equal(verifyCandidateSpecSet({ ...artifact, promptDigests: ['forged'] }), false, 'prompt digest tampering must invalidate artifact');
     assert.equal(verifyCandidateSpecSet({ ...artifact, candidates: artifact.candidates.map((candidate, index) => index === 0 ? { ...candidate, contentHash: 'forged' } : candidate) }), false, 'candidate content hash tampering must invalidate artifact');
+    console.log('B-8af0 artifactDigest tamper guard: PASS');
     assert.deepEqual(candidateReadBindingErrors({
       manifest: { filesReadFully: [], filesTriagedByName: [], scanEscalationReason: null },
       artifact: null,

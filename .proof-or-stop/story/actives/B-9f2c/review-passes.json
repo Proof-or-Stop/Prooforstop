@@ -1,0 +1,1471 @@
+{
+  "passes": [
+    {
+      "id": "B-9f2c:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality audit: subjective dimensions only (lint pre-verified green). No dead code, no new any-casts, no I/O isolation violations found in the hand-written diff.",
+      "createdAt": "2026-09-02T09:17:31.572Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-005",
+      "envelopeId": "69e53aa0feccda02dabe6212a14efa8a61099f860db48ca4bf8febe8b067cf26",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f5afb5592aca84349210b549b40e0e70e20f2c8d7a02d4ba14214b8efad046d"
+    },
+    {
+      "id": "B-9f2c:RP-002",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept/deletion completeness check on the full diff. No dangling references found for any deleted/renamed concept; details in readManifest and prior finding_add search.",
+      "createdAt": "2026-09-02T09:17:56.058Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-001",
+      "envelopeId": "70836f822790ec059084e342f397bfbd388efac7f332ed178a7503a810002ee5",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "packages/graph/src/shells/web/app.css"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "b17832302fd8df744df37d8b598181ff2be3e898f51c8a6aab2ae9bef140fa1d"
+    },
+    {
+      "id": "B-9f2c:RP-003",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Symbol extraction (Step 1) on commit c56c0dd8d4 yielded no exported code symbols (docs-only commit: CLAUDE.md + packages/graph/README.md); fell back to Fallback 1 full-text scan of both touched .md files plus their referenced code. Compared: (a) README Story dossier section (48 new lines) against upstream README (git show HEAD:README.md in /Users/qipan/work/repo/proof-or-stop-graph) and against the ported packages/graph/src/shells/web/dossier.js (1119 lines) + app.js + http.ts + build-web.mjs; (b) CLAUDE.md graph flag table + Story dossier paragraph (15 new lines) against packages/main/src/handlers/graph.ts and command-catalog.ts. Verified: 4s/15s /api/story poll interval (dossier.js:1037 setInterval(poll,pollLive?4000:15000)); opening sweep from T+0 + reduced-motion skip (dossier.js:280,1114); Play button + panel list (map/loop/web/checklist-outcome/findings feed/origin-decision/swarm/pulse/wire log) all present with matching behavior; neighbour click-through in 'the web' panel (app.js relationsOf/openStory wiring); client-side derivation from /api/story with no new JSON API added (http.ts route list unchanged apart from the /story/<id> shell route); CSS-custom-property theming; lane-name merging comment present verbatim in dossier.js. The port deliberately omits many upstream-only prose details (editorial masthead styling, '✦ dossier' glyph vs actual 'open dossier' button text, LIVE badge blink, monitor-style phase box animation, density-adaptive breakpoints, dot-click inspector, Space-bar-replay mention) -- confirmed these omissions do not leave any overclaiming residue: the port's shorter prose only asserts what ported code demonstrably does. CLAUDE.md --story flag row cross-checked against packages/main/src/handlers/graph.ts: assertGraphStoryExists (lines 341-366) runs before startServer is called and even before the --json branch, and does list near-miss candidates via 'did you mean:' (graphStorySuggestions). README divergence from upstream preserved: header reads 'proof-or-stop graph' not 'proof-or-stop-graph', 'How the CLI reaches this package' section intact verbatim, and the only proof-or-stop-graph occurrence in the README is the legitimate ~/.cache/proof-or-stop-graph/ cache path (not presented as a runnable command). Language convention matches existing per-file convention (CLAUDE.md addition in Chinese, README addition in English) -- not flagged as a defect per task instructions. No doc-code inconsistencies found; 0 findings registered.",
+      "createdAt": "2026-09-02T09:19:25.157Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-007",
+      "envelopeId": "915f46f7f4c80d0ecb56d799797d7c0b92c6ffc0e63bf8850b7ab1f4a6f55bad",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "CLAUDE.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/shells/web/app.body.html"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "eb36eb5939c3c2db71c1e7b398e5cf851cd0abc411ac1d30ff57cecb6245c548"
+    },
+    {
+      "id": "B-9f2c:RP-004",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed. 22/22 must intents evidenced non-tautologically; verified F-001 handling, negative controls, and AB-001 scoping independently.",
+      "createdAt": "2026-09-02T09:19:34.190Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-003",
+      "envelopeId": "e2a6eed0e21b62b5a769b9e7ec448334cb3f56c080bdcf6e3f09ed3daecb46ba",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/proofstory.json",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3c6024ff853a3918283d407cd17eb602b9e36feb2862a8d62672caf1eaf7df8b"
+    },
+    {
+      "id": "B-9f2c:RP-005",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept residue check for B-9f2c re-signature (head 1eeaa21b6e). Full diff main...HEAD reviewed, purely additive: no deleted/renamed concept, symbol, route, or config key with dangling references. See readManifest for files inspected.",
+      "createdAt": "2026-09-02T13:13:56.112Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-008",
+      "envelopeId": "6735f4b14def62ee115020a93be42909fa2cbf3834d0c5603e9b8a7f996aacda",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "packages/graph/src/shells/web/app.css",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5f3726f870990f047e05c758e4292bb11286a7769c56080f30e04b5475794ed7"
+    },
+    {
+      "id": "B-9f2c:RP-006",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Re-verification pass (prior B-9f2c:RP-003 pass invalidated only by later unrelated commits changing the file set, not by a reviewer error). Step1 symbol extraction from git diff main...HEAD yielded ~250 identifiers (dense minified dossier.js plus graph.ts additions); Step2 grep against README*.md/CLAUDE.md found the user-facing --story flag documented at CLAUDE.md:329,338,343 and packages/graph/README.md:95-108, while internal helper symbols (assertGraphStoryExists, graphStorySuggestions, GRAPH_STORY_SUGGESTION_LIMIT, resolveStories) have zero doc hits, consistent with pre-existing internal helpers (openBrowser, findRoot) also having zero doc hits -- fallback rule 2 applies, no finding required. Re-confirmed all 4 previously-verified doc claims against current HEAD (1eeaa21b): the 4s/15s poll interval text in README matches dossier.js poll() implementation; the pre-listen refusal + near-miss-candidate claims in both docs match assertGraphStoryExists/graphStorySuggestions in graph.ts (throws before startServer, using resolveStories(root).primary); README keeps 'How the CLI reaches this package' and never presents proof-or-stop-graph as a runnable binary; CLAUDE.md (Chinese) and README.md (English) each match their own file's language convention. Additionally assessed the two NEW artifacts named in this round's dispatch for factual accuracy: (1) the two B-9f2c RE-APPROVAL comment blocks in retired-authority-vocabulary-guard-smoke.ts (lines ~483-490 and ~1621-1628) claim the --story diff in graph.ts introduces no import()/require()/eval()/Function() and that the five pre-existing loader call sites are byte-identical to main -- verified independently via git diff main...HEAD -- packages/main/src/handlers/graph.ts: the added code is limited to assertGraphStoryExists, graphStorySuggestions, editDistance, a resolveStories(probe.root) call, and encodeURIComponent-based URL construction; grep for import(/require(/eval(/new Function( in the added (+) diff lines returns zero matches; the existing await import(.../createRequire( call sites are outside every diff hunk, i.e. untouched. The comments' claim is accurate, not overclaiming. (2) scope-contract.json's acknowledgement (main-agent, 2026-09-02T10:26:37Z) restates the same technical claims, which check out identically; its one non-mechanically-verifiable clause ('human re-approval ... obtained explicitly from the user') is a process attestation about an out-of-band exchange, not a doc-code consistency claim, so it is outside this reviewer's mechanical scope and is not treated as a defect. Tree verified clean of tracked-file changes (git status --short shows only framework-owned .proof-or-stop/story/actives/B-9f2c/{process-events.jsonl,prompt-envelopes.json,review-runs.json}); no negative-control artifact (e.g. removed /story route) present this round. No doc-code-drift, doc-promise-undelivered, or misleading-comment findings identified.",
+      "createdAt": "2026-09-02T13:14:32.903Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-011",
+      "envelopeId": "92a98b13a3540ba9e7b1e802946dc57821fc78a6ba2764de37ade9216c92a592",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "CLAUDE.md",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "65d69dd9feec673f444771ff97841c4373b8b04ab05830c5de998ab80cefcea6"
+    },
+    {
+      "id": "B-9f2c:RP-007",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-signature review after prior pass invalidated by 2 later commits. Focus: pin re-approval on graph.ts guard fingerprint (e3d27511 -> a8f949b8). Independently re-derived the fingerprint (own TS-printer+sha256 recompute matches pin exactly); confirmed --story diff adds zero new dynamic-code call sites vs main (byte-identical import/require/eval/Function occurrences); both pin sites updated consistently; comments accurate. Reconfirmed prior in-scope files. No findings.",
+      "createdAt": "2026-09-02T13:15:49.922Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-009",
+      "envelopeId": "c4b28f010b77ad23c2c43d9eee7e467cfc9f044435126cd40f14446e99f9861b",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/src/core/store/fn.ts",
+          "packages/graph/src/index.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e3816738f4e6afa0d2a2c35ff285a996cec992ddc67c90f9311268a7cdeb64e8"
+    },
+    {
+      "id": "B-9f2c:RP-008",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Re-review after two file-set-changing commits. All 22 must-priority verificationIntent entries across CHK-001..CHK-005 hold mechanical verificationEvidence with result=pass, receipt.exitCode=0, and matching selectors (re-confirmed by direct read of checklist.json); no entry was demoted to a non-mechanical attestation. storyFilesHash on those entries differs from current HEAD, but is unrelated whole-story-metadata drift: diffed each of the 10 distinct evidence-subject files (packages/graph/{scripts/build-web.mjs,src/io/http.ts,src/shells/web/{app.js,dossier.js},README.md}, CLAUDE.md, lattice.config.json, package.json, packages/main/dist/cli.js, packages/main/src/tasks/graph-story-flag-smoke.ts) between the evidence's bound headHash (0b7b72bb13) and current HEAD (1eeaa21b6e); none changed. The only non-.proof-or-stop file that changed in that window is packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts (the security fingerprint re-pin for handlers/graph.ts, e3d27511...->a8f949b8...), which is not a subject of any of the 22 evidence entries. That guard-file change correctly carries no new verificationIntent: it is not new feature behavior of this story, it is a repo-wide dynamic-code-loader security guard reacting to CHK-003's --story edit to graph.ts. I independently re-verified the re-approval is sound rather than trusting the acknowledgement prose: (1) ran node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js directly against current HEAD -> PASS builds=810 exit 0, mechanically proving the new fingerprint a8f949b8... matches the current file; (2) diffed packages/main/src/handlers/graph.ts between main and HEAD and confirmed the five loader call sites (createRequire x3, await import x1, plus the throw-on-old-runtime comment) are structurally identical, only shifted by the +144-line --story addition, and grep -c for eval(/new Function( is equal on both sides, so the dynamic-code surface claim in scope-contract.json's acknowledgement is not merely asserted but reproducible. Existing guard-smoke-passing is sufficient coverage for a re-pin of this kind (whole-file structural fingerprint guard, not new functional intent) -- no gap. F-001 (CHK-002:adversarial:0, resolved accepted_risk) re-checked: its text states the d3-hard-failure clause is void on this branch and the load-order clause is genuinely evidenced. Independently reconfirmed both claims: grep -n 'd3 is missing' packages/graph/scripts/build-web.mjs finds nothing on this branch, and git log --all for that file shows only B-3e16 and this story's own CHK-002 commit -- no such branch ever existed here to preserve. The load-order evidence (CHK-002:adversarial:0's actual verificationEvidence entry) is a real command with disclosed scope: its note explicitly states the d3 clause is void rather than silently claiming full intent coverage, and the load-order half is proven by a command whose selector (DOSSIER_CONCATENATED_AFTER_APP_JS_OK, exit 0) cannot pass vacuously. Resolving F-001 as accepted_risk did not drop a real coverage obligation because the obligation the intent exists to protect (load order) has a real receipt; the void clause was never coverable. Working tree verified clean (git status --short empty) before and after all read-only reproductions; no tracked file was modified, created or deleted, and no commit or stash was made during this review.",
+      "createdAt": "2026-09-02T13:18:50.314Z",
+      "reviewRound": "2026-09-02T09:12:52.423Z",
+      "reviewRunId": "B-9f2c:RR-010",
+      "envelopeId": "7ca68b60145805faee4a82b4c3c33b5a338f59e42b4d69b2170f7cd98207a87b",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7af4b99f52f2d451063e951c6816f744a09ee55001f9b0992b96ba1f731c38c9"
+    },
+    {
+      "id": "B-9f2c:RP-009",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 2 quality re-review of the single change since last pass: full-suite-runner.ts RESOURCE_POLICY gained one repoRead('test:graph-story-flag-smoke') entry (git show f4e9acdd21). Verified empirically, not by trusting the comment: read graph-story-flag-smoke.ts end to end -- every writeFileSync/mkdirSync target lives under mkdtempSync(tmpdir(),'graph-story-flag-') temp dirs, no fixed path is ever written; the only fixed path referenced (packages/main/dist/cli.js) is read-only via execFileSync. Cross-checked graph.ts:456-471: assertGraphStoryExists() runs strictly before both the --json early-return (464) and lib.startServer (498), so the comment's 'refused before any listener is created' claim holds for every code path. Confirmed the task's real-CLI section (runCli calls at lines 396/417/430/442) only ever exercises --help, --json, and an unknown --story id -- never a known id in the real serving path, so no real port is ever bound by npm test; the known-id/serving assertions run only against a self-written stub startServer (no real net.listen). repoRead is therefore the correct, non-overclaiming policy. (b) Entry placement/comment style matches the immediately preceding B-cdf6/B-49ed repoRead entries (same 'third membership authority, fails closed' rationale shape). (c) Ran npm test: it progressed past 35+s with no 'canonical inventory mismatch unknownPolicy=[test:graph-story-flag-smoke]' (which previously aborted at 858ms), confirming inventory validation now passes; killed the run afterward per instructions, tree left clean. (d) git diff HEAD~4 HEAD is empty for both packages/main/src/handlers/graph.ts and packages/main/src/cli/command-catalog.ts -- both last touched at 945de7bb98 (CHK-003), unchanged since the earlier clean review round. No findings.",
+      "createdAt": "2026-09-02T14:29:56.065Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-012",
+      "envelopeId": "d31c576814fc60a0c17e1f51377a45137c2b26fd9dcb7d4d8fc2829a3734be41",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bfe71253f440df554669a128b539074b19306e6d4b90a631ad928d7b0d19faa2"
+    },
+    {
+      "id": "B-9f2c:RP-010",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 2 concept review. Delta since RP-004 is exactly commit f4e9acdd21: one repoRead('test:graph-story-flag-smoke') RESOURCE_POLICY entry added to full-suite-runner.ts. Verified name string matches exactly across package.json script, test:serial-reference, RESOURCE_POLICY, and lattice.config.json. Directly called entriesFromSerialReference against built dist and confirmed unknownPolicy=[]; live npm test run confirmed it now progresses past prior 858ms abort point. Repo-wide grep finds only the four expected registration sites. No mass concept deletion/rename. No dangling-reference defects found; no blocker.",
+      "createdAt": "2026-09-02T14:34:34.925Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-013",
+      "envelopeId": "e79c98ba68130fcb28b0eadbb0433d282927a2406c2dffa9328a599e26b78c0d",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c74277d7187b1d782410539c20bfa69963cbbe155db5c1fe0b160b86ca36e734"
+    },
+    {
+      "id": "B-9f2c:RP-011",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-signature round: since prior pass RP-010 only one non-metadata commit landed (527de168c1), a markdown-only doc fix to graph-command-migration.md's Test-surface placement section resolving F-002; no source file changed. Verified the rewritten section factually against full-suite-runner.ts: exactly three membership authorities, entriesFromSerialReference fails closed before job scheduling, and the quoted error string matches the real throw verbatim. Re-confirmed test:graph-story-flag-smoke spelled identically across all four registration sites, no dangling references. No concept deletion/replacement this round. No blocker found.",
+      "createdAt": "2026-09-02T14:48:01.226Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-018",
+      "envelopeId": "30e5ec62f90f34d6e30952cb5199e2b6106f0dfd99fa003ebc3aef6aaccc22ee",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "27096e7a0ac332fbd57d950379c49fe86f6354d9ef4f571ecf9a9a7d9db9b627"
+    },
+    {
+      "id": "B-9f2c:RP-012",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-signature after RP-009 (zero findings) was invalidated by 3 post-signature commits touching only story metadata + a doc fix (527de168c1). No packages/graph or packages/main/src file changed. Re-confirmed prior conclusions and sanity-checked F-002/F-003 dispositions per instructions; concur, no new findings.",
+      "createdAt": "2026-09-02T14:48:17.942Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-017",
+      "envelopeId": "3b3d8be772ac1fad06c46269f6eec8a8c19c253ab01f06af645b3901331135ad",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "165234332a6ef92c2c00c5d88353f29347bab97a7abadcaee4f330703aeb15a8"
+    },
+    {
+      "id": "B-9f2c:RP-013",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-earned at head d349c71a: only doc change (F-004) since prior RR pass, no packages/ files changed, tsc clean, standing conclusions reconfirmed.",
+      "createdAt": "2026-09-02T14:58:24.033Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-021",
+      "envelopeId": "c3c4edab4e6f569a0a8bcdd2ce91cdcbc1ccf67642ba912c3c154b6a19af45da",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bde13c2fbe832ea6e4d90470e7e17dce28716d253ec84146ab194f1f5b890e61"
+    },
+    {
+      "id": "B-9f2c:RP-014",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Re-verified F-004 fix (commit 9a05f7677e) against the frozen tree at d349c71aa0: rewritten paragraph, cross-reference target section, code claims at full-suite-runner.ts, independent fan-out sweep of the file and live docs corpus, and standing CHK-004 doc claims. No further stale occurrence found; no blockers.",
+      "createdAt": "2026-09-02T14:58:58.308Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-022",
+      "envelopeId": "d9f219d3fa7cc328db8d1cd1b19aa7a0ca7961d4bf6b8ea9b75815c4a8ca11fa",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md"
+        ],
+        "scanEscalationReason": "Re-verification pass for a resolved finding: read the target decision doc in full plus the affected README section, grep-swept the file and the live docs corpus (docs/**/*.md, CLAUDE.md, README.md, AGENTS.md) for the stale phrasing, and cross-checked cited code claims directly in packages/main/src/tasks/full-suite-runner.ts."
+      },
+      "_hash": "76495336d5aca5bea76563b9517fcad109039ec0fea9f369d60ab5b9970b6d4d"
+    },
+    {
+      "id": "B-9f2c:RP-015",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-review at head d349c71a bound to RR-020, superseding RP-011 which was invalidated only by commit 9a05f7677e (F-004 doc fix) plus its finding_resolve metadata; no source code changed since RP-011. Verified via git show 9a05f7677e that the commit touches only docs/requirements/decisions/graph-command-migration.md (12 lines), correcting a second stale two-mechanism cross-reference in the same file that F-002 had already fixed elsewhere. Checked the new paragraph's factual claims against code: test:process-fact-contract is repoRead('test:process-fact-contract') at full-suite-runner.ts:180 (line number matches), and entriesFromSerialReference/validateInventory both throw a hard Error on a test:serial-reference member missing its RESOURCE_POLICY entry, confirming the abort-not-skip claim. Fan-out swept the repo for any remaining stale two-list/two-mechanism/two-authority framing tied to this topic: no live stale occurrence found; the one remaining two-list mention is correctly framed as historical narrative. Confirmed test:graph-story-flag-smoke is spelled identically across all four registration sites (task file, lattice.config.json, package.json script+serial-reference, full-suite-runner.ts RESOURCE_POLICY) with no dangling references. git status shows only framework-owned .proof-or-stop/story/actives/B-9f2c metadata touched by my own review_run_start/dispatch calls. No concept was deleted or replaced in this incremental change. No blocker.",
+      "createdAt": "2026-09-02T14:59:29.799Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-020",
+      "envelopeId": "0a7fc0e32a8b08c55785d1f2cbdb9f3669220f2d900c6c2bb7aab137d8be8b36",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5829f0ce40367f23edbf8430b852ab33119ce3fe14b1fd35432a91b904247b16"
+    },
+    {
+      "id": "B-9f2c:RP-016",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Re-earned at head 2ca5c90 (only review-process-metadata changed since frozen tree d349c71a; git diff --name-only confirms only process-events.jsonl/prompt-envelopes.json/review-passes.json/review-runs.json moved, no story files). All 22 must-priority verificationIntent entries across CHK-001..CHK-005 have valid, non-stale, mechanical (not non-mechanical-attestation) verificationEvidence with result=pass, bound to consistent headHash/materialHash/storyFilesHash. F-003's accepted_risk disposition independently re-verified: reproduced on scratch copies (tracked files untouched) that the CHK-005:adversarial:0 pinned probe (reads only lattice.config.json+package.json) still exits 0 with RESOURCE_POLICY entry for test:graph-story-flag-smoke stripped from full-suite-runner.ts -- confirmed blind spot is real. Confirmed entriesFromSerialReference (full-suite-runner.ts:216-227) throws canonical inventory mismatch unknownPolicy=[...] on a missing policy entry, confirmed test:graph-story-flag-smoke DOES have a correct entry at full-suite-runner.ts:159, confirmed npm test (full-suite-runner.js) is a doneRequiredCommands entry in lattice.config.json, confirmed verificationIntentProtectedPhases=['DEV','REVIEW','TEST','DONE'] (checklist.ts:1482) blocks the reword-intent fix path, and confirmed checklist.ts:790 produces the exact quoted [receipt_command_mismatch] pin-immutability refusal for the supplementary-evidence fix path. accepted_risk is the correct disposition; no re-blocking finding warranted. Doc-only commits (F-004 fix 9a05f7677e) touch only docs/requirements/decisions/graph-command-migration.md and story metadata; verified no checklist item's files.modify/create/test block references that doc path, so no evidence was staled by it.",
+      "createdAt": "2026-09-02T14:59:33.575Z",
+      "reviewRound": "2026-09-02T14:25:10.299Z",
+      "reviewRunId": "B-9f2c:RR-023",
+      "envelopeId": "7f4ec9dad5008ccffa3c158dd3f97f022cb22aa9b9b142cce44a6e1497de673e",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "lattice.config.json",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5aa1c17e2e2d95ba071aa30db1d32b1f71de5f0e8d673c488c735556742f2537"
+    },
+    {
+      "id": "B-9f2c:RP-017",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-confirmation pass at frozen tree b94e53243b (fresh REVIEW round required by invalidated certification window / consumed review-inventory receipt; no source change since RP-013 per review_incremental_context and direct git diff). Re-verified standing code-quality conclusions, ran npx tsc --noEmit -p packages/main (exit 0), ran the graph-story-flag-smoke task directly (PASS), and reviewed all four resolved story findings (F-001..F-004) against evidence; agree with all four dispositions, none warrants reopening.",
+      "createdAt": "2026-09-02T16:35:46.211Z",
+      "reviewRound": "2026-09-02T16:31:20.416Z",
+      "reviewRunId": "B-9f2c:RR-025",
+      "envelopeId": "5fd006d98be9978ddd4a162bae2616ad192749c558529c6701376c72c9c36c52",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "468a1167684cb820c6ef44131c61dadb67ff06bf34fdbc85258566fadf60c966"
+    },
+    {
+      "id": "B-9f2c:RP-018",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed (re-earned round after certification-window invalidation, no material change since RP-016/RR-023). Verified all 22 must-priority verificationIntent entries across CHK-001..CHK-005 have valid non-stale mechanical evidence at pinned headHash=ecead84965 (result=pass, exitCode=0, mechanical=true, no nonMechanicalReason, no demotion to attestation-only). Confirmed via git diff --stat 2ca5c90dba..b94e53243b that every commit since my prior pass RR-023 touches only .proof-or-stop/story/actives/B-9f2c/* metadata (receipts re-signed with fresh headHash/materialHash/executedAt, same commands, same result=pass) -- zero changes to any packages/graph or packages/main source/test file, so materialHash for all pinned receipts is unchanged and none are stale. Cross-checked the earlier merge 11a91fbabf (ancestor of the ecead84965 pin) against each CHK item's files block: it touched full-suite-runner.ts, command-catalog.ts, lattice.config.json and package.json, all of which are exactly what F-003/F-002/F-004 already reviewed and resolved in the prior round (commit f4e9acdd21 fixed the RESOURCE_POLICY registration referenced by F-003, predating the ecead84965 pin) -- no unreviewed overlap. Independently re-verified: grep confirms test:graph-story-flag-smoke is still registered in all three membership authorities (lattice.config.json validate.commands, package.json scripts + test:serial-reference, full-suite-runner.ts RESOURCE_POLICY) at current HEAD. Re-read F-003 (medium, accepted_risk): concur with its disposition -- the two available fixes (reword frozen verificationIntent; attach a supplementary probe on the same intentRef) are both correctly refused by design (checklist.ts:1482 frozen-intent rejection, checklist.ts:790 [receipt_command_mismatch] immutable-pin rejection), and the residual risk is independently backstopped because npm test is a doneRequiredCommands entry that fails closed at module load if the RESOURCE_POLICY entry is removed -- confirmed structurally, not just asserted, and consistent with the delivery-check.json closingSelfCheck's independent reproduction of the same finding. story test-evidence.json (validate --story=B-9f2c --json, timestamp 2026-09-02T16:15:52.810Z, result=PASS) shows verificationCoverage total=22 required=22 covered=22 missingRequired=0, corroborating the per-intent checklist read. Reference full npm test run (59/59, 609.9s, zero failures) is consistent with this. No new findings. readManifest: background.md, plan.md, checklist.json (all 5 items' verificationIntent/verificationEvidence), findings.json (F-001..F-004), review-runs.json, test-evidence.json, delivery-check.json, certification-window.json, git log/diff 2ca5c90dba..b94e53243b and git show --stat 11a91fbabf.",
+      "createdAt": "2026-09-02T16:37:19.989Z",
+      "reviewRound": "2026-09-02T16:31:20.416Z",
+      "reviewRunId": "B-9f2c:RR-027",
+      "envelopeId": "e000b31e5f8e1f4a3c5201f82db691882e1e10f0556be789b95f2094c17ca741",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/certification-window.json",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/delivery-check.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/review-runs.json",
+          ".proof-or-stop/story/actives/B-9f2c/test-evidence.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b346841a98d82d95c68df6c94960659a5ac2356ff8e95fd0dac3ce2b59a8f038"
+    },
+    {
+      "id": "B-9f2c:RP-019",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Story-level concept-deletion scan against main...HEAD (b94e53243b81b1c6012bf9532827b90e2084f5c9). No concept was deleted or renamed: git diff --diff-filter=D and --diff-filter=R against main are both empty; the entire diff is additive plus a documentation correction plus a re-approved dynamic-code fingerprint pin. Verified test:graph-story-flag-smoke spelled identically across all four registration sites and that the corrected Test-surface placement doc section names three authorities matching code. No blocker.",
+      "createdAt": "2026-09-02T16:37:21.845Z",
+      "reviewRound": "2026-09-02T16:31:20.416Z",
+      "reviewRunId": "B-9f2c:RR-024",
+      "envelopeId": "15a2cf506c95585fd168372e7dd1e752726728ef74e1fcf1645bfb677328b6b5",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/index.ts",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d5207cd7fdd16bbff677ed7320dcf9041a9f6eb28f2cc00287319261d3e97aad"
+    },
+    {
+      "id": "B-9f2c:RP-020",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Fully re-verified against frozen tree b94e532: (1) THREE membership authorities section still accurate and matches code (full-suite-runner.ts line 180/216-224 exact throw string). (2) Independent fan-out sweep: no stale two-list/two-mechanism/two-authority framing survives anywhere in live docs corpus. (3) Standing graph docs claims (README dossier section, /story/<id> route, --story flag row, cache path) all verified against code. (4) Merge of main introduced zero new contradicting doc files. Zero findings.",
+      "createdAt": "2026-09-02T16:38:25.423Z",
+      "reviewRound": "2026-09-02T16:31:20.416Z",
+      "reviewRunId": "B-9f2c:RR-026",
+      "envelopeId": "141bbb218af48bd0c432a3fe7f3db535c246843228f1276e3581b7ecaff3dda9",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/evidence-integrity-program-spec.md",
+          "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+          "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/src/core/app.ts",
+          "packages/graph/src/index.ts",
+          "packages/graph/src/io/http.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "README.md"
+        ],
+        "scanEscalationReason": "Full-text grep sweep across CLAUDE.md/README.md/AGENTS.md/docs/** for stale test-list framing (fallback 1: docs-only review scope, no code symbol diff to anchor on)."
+      },
+      "_hash": "31ea5143dc9ef81376aea7c250bf282515a1341b1b622b16f4094b2a9a692df7"
+    },
+    {
+      "id": "B-9f2c:RP-021",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-confirmation pass at frozen tree 11f9440be5 (fresh REVIEW round required by mandatory pre-DONE dev_memory_finish_decision re-staling reviewer envelopes + acceptance rollout report; story bounced TEST->DEV->REVIEW as pure bookkeeping, no source change). Verified via git diff --stat b94e53243b 11f9440be5 -- packages/ that ZERO files under packages/ changed since RP-017's bound head b94e53243b; the full diff between the two heads touches only .proof-or-stop/ metadata and dev-memory artifacts (17 files: checklist.json, index.json, review-runs.json, prompt-envelopes.json, acceptance-rollout-report.json, certification-window.json, done-required-evidence.json, test-evidence.json, scope-contract.json, dev-memory files, process-events/metrics). Re-confirmed all standing code-quality conclusions from RP-017 by direct re-read of source at the frozen head: packages/main/src/handlers/graph.ts has GraphArgs.story as optional (line ~65-77), assertGraphStoryExists (line 341-367) is called at line 459 -- BEFORE both the --json early return (line 461) and startServer (line 498) -- validating an unknown-typed story arg at handler entry per the exported-and-typed-unknown pattern documented in its own comment (mirrors the --root precedent); graphStorySuggestions (line 309-326) is a pure, deterministic function (prefix-band-first, then edit-distance, ties broken alphabetically); the opened URL is built with encodeURIComponent (line 517-523), not raw interpolation. packages/main/src/cli/command-catalog.ts line 2156 confirms story: z.string().optional() with no .default(). packages/main/src/tasks/full-suite-runner.ts line 159 confirms repoRead('test:graph-story-flag-smoke') is registered. Ran npx tsc --noEmit -p packages/main directly: exit 0, zero diagnostics. Reviewed all four resolved story findings (F-001 accepted_risk, F-002 fixed, F-003 accepted_risk, F-004 fixed) via finding_list; all four dispositions carry strong, independently-reproduced evidence (repro steps, negative controls, cited line numbers) and none warrants reopening -- this pass is a mechanical re-confirmation given zero packages/ diff since the prior sign-off, not a from-scratch re-audit. No new finding raised.",
+      "createdAt": "2026-09-02T17:30:31.735Z",
+      "reviewRound": "2026-09-02T17:27:13.311Z",
+      "reviewRunId": "B-9f2c:RR-029",
+      "envelopeId": "b405ca12d2fc8a5c769a6129e52d664f2c4c8ed10f5409936370e2388b68c95c",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "de3c67fdc7525ee05d8c8ad0d86d2c7fedc5459e997f3c520f2ac80ea736a7c0"
+    },
+    {
+      "id": "B-9f2c:RP-022",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-confirmed prior RP-019 (RR-024, head b94e532) verdict against the new frozen head 11f9440be5. git diff b94e532..11f9440 touches ONLY .proof-or-stop/ framework/dev-memory metadata (checklist.json, review-*.json, acceptance-rollout-report.json, certification-window.json, prompt-envelopes.json, dev-memory/*) -- confirmed empty diff on packages/, docs/, CLAUDE.md, lattice.config.json, package.json, README.md between those two commits. Re-ran the concept-deletion scan on git diff main...HEAD: --diff-filter=D and --diff-filter=R are both empty, so no symbol/route/config key/documented concept was removed or renamed with dangling references; the 45-file diff remains additive (dossier.js port, /story/<id> route, --story flag, graph-story-flag-smoke task, doc corrections in CLAUDE.md and graph-command-migration.md, re-approved fingerprint pin in retired-authority-vocabulary-guard-smoke.ts). Verified test:graph-story-flag-smoke is spelled identically (grep, no variants) across all four registration sites: lattice.config.json:2120, package.json test:serial-reference list and its script alias at line 56, and full-suite-runner.ts RESOURCE_POLICY line 159, plus the task file packages/main/src/tasks/graph-story-flag-smoke.ts. No blocker.",
+      "createdAt": "2026-09-02T17:30:46.673Z",
+      "reviewRound": "2026-09-02T17:27:13.311Z",
+      "reviewRunId": "B-9f2c:RR-030",
+      "envelopeId": "f57b385787ede6db4cbe586ba716987d7d34794371dbce2209b794ad5cab4940",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "02ac91dc5a4a9f97b7924fa8ab312fc59113491991a586763efe391b3310ebca"
+    },
+    {
+      "id": "B-9f2c:RP-023",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Bookkeeping-only re-verification round (dev_memory_finish_decision re-staled reviewer envelopes and the acceptance rollout report; story bounced TEST->DEV->REVIEW with no doc/code change). Verified via git diff that between RP-020's bound head (b94e532) and the current frozen tree (11f9440be5, later fast-forwarded by two concurrent-lane metadata-only auto-commits to b17e9f32) zero .md files changed and zero packages/*/src files changed -- the only diff is 17 files entirely under .proof-or-stop/ (dev-memory, checklist.json, review-passes/runs, rollout-report, scope-contract, etc.), matching the stated cause exactly. Re-confirmed the Test-surface placement section of docs/requirements/decisions/graph-command-migration.md (lines 111-140) still names the THREE membership authorities (validate.commands / test:serial-reference / RESOURCE_POLICY) and its code claims still hold: repoRead('test:process-fact-contract') is present at full-suite-runner.ts:180; entriesFromSerialReference (full-suite-runner.ts:216-226) throws the verbatim canonical inventory mismatch unknownPolicy/stalePolicy/missingScripts string; and the abort-vs-skip claim holds because this function is invoked at line 590 to construct FULL_SUITE_ENTRIES itself, so a throw aborts suite construction entirely rather than skipping one member. Re-ran the fan-out sweep for stale two-list/two-mechanism/two-membership-authority framing across CLAUDE.md, README.md, AGENTS.md and all docs/**/*.md (excluding story process/activity logs, which are not documentation): only the same single pre-existing benign hit remains at docs/evidence-integrity-program-spec.md:37 ('## 1. The two mechanisms (cover all three classes)'), which is a different topic -- M1/M2 evidence-integrity remediation mechanisms, not test-membership authorities -- and was already confirmed unrelated in a prior pass. Spot-confirmed the standing graph docs claims are still textually present at their prior locations: packages/graph/README.md Story dossier section (line 91) and How the CLI reaches this package section (line 172); CLAUDE.md --story=<id> flag table row (line 338) and Story dossier paragraph (line 343); no occurrence of proof-or-stop-graph presented as a runnable binary anywhere in the README (only the legitimate ~/.cache/proof-or-stop-graph/ cache path at line 34). Since zero .md files changed since the last fully re-verified pass (RP-020), these are guaranteed byte-identical to that prior verification; this pass is a mechanical confirmation, not a new full read. Zero findings; nothing to register.",
+      "createdAt": "2026-09-02T17:32:57.442Z",
+      "reviewRound": "2026-09-02T17:27:13.311Z",
+      "reviewRunId": "B-9f2c:RR-031",
+      "envelopeId": "73fa1e51149e2caa8859f3e0d64719fd862705629a485f50ae63c1b7845b51b6",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [
+          "docs/evidence-integrity-program-spec.md",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": "Bookkeeping-only re-verification round with no doc/code diff since the prior fully-verified pass (RP-020): confirmed via git diff (RP-020 bound head b94e532 vs current frozen head) that zero .md and zero packages/*/src files changed -- all 17 changed files are under .proof-or-stop/ (dev-memory-finish-decision re-stale artifacts). Re-read the decisions doc Test-surface placement section and the README/CLAUDE.md standing claim locations in full to reconfirm they are unchanged and code-accurate, and re-swept the full docs corpus (CLAUDE.md, README.md, AGENTS.md, docs/**/*.md) for stale two-list/two-mechanism/two-authority framing; only the same single pre-existing unrelated hit remains."
+      },
+      "_hash": "56ad3030edc73260bd883e2449e603b5b22b38647a47892e42f42faaa3b57803"
+    },
+    {
+      "id": "B-9f2c:RP-024",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed (re-earned round after dev_memory_finish_decision/rollout-report re-stale, no material change since RP-018/RR-027). Verified all 22 must-priority verificationIntent entries across CHK-001..CHK-005 have valid, non-stale, mechanical evidence at pinned headHash=11f9440be5/materialHash=ccfdb13e69 (result=pass, exitCode=0, mechanical=true, no nonMechanicalReason). This materialHash matches the receipt just written by verification_evidence_refresh_stale (commit d992948600), confirming zero stale evidence at current HEAD. Confirmed drift since RP-018 (bound to headHash=ecead84965) is genuinely metadata-only: git diff --stat ecead84965..11f9440be5 touches exactly 18 files, ALL under .proof-or-stop/story/actives/B-9f2c/* or .proof-or-stop/dev-memory/* (checklist.json evidence receipts re-signed, review-runs/review-passes/prompt-envelopes/process-events framework bookkeeping, acceptance-rollout-report.json regenerated, certification-window/scope-contract/delivery-check/index metadata) -- zero changes to any packages/graph or packages/main source/test file. Explicitly diffed checklist.json and confirmed no checklist item's 'files' block changed (only verificationEvidence receipt fields: headHash/materialHash/executedAt). Independently re-ran npm --prefix packages/graph run check standalone (outside the concurrent 4-lane validate load) and confirmed exit 0 clean pass with empty git status afterward -- the code=1 seen for this same command inside the concurrent background validate run was resource-contention noise from parallel lanes validating simultaneously, not a real regression, and does not affect this lane's verdict since done_required_validate already PASSED (root suite 59/59, 582s) as the independent fail-closed backstop. Re-read F-003 (medium, accepted_risk, CHK-005:adversarial:0 pinned-command limitation): disposition remains correct -- both available fixes (reword frozen intent; attach supplementary probe on same intentRef) are structurally refused by design, and the residual risk is independently backstopped by done_required_validate's now-PASSED root suite, which fails closed at module load if the RESOURCE_POLICY registration is ever removed. No new findings. readManifest: background.md, plan.md, checklist.json (all 5 items' verificationIntent/verificationEvidence), findings.json (F-001..F-004), review-passes.json (RP-018), git diff --stat ecead84965..11f9440be5, git diff (checklist.json only), and a standalone re-run of npm --prefix packages/graph run check.",
+      "createdAt": "2026-09-02T17:35:37.503Z",
+      "reviewRound": "2026-09-02T17:27:13.311Z",
+      "reviewRunId": "B-9f2c:RR-028",
+      "envelopeId": "d04de951d486215cce861fab1a39c209b94936cb9f22f679bc7b109b6c856ec7",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/certification-window.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/review-runs.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4273c5568a8b07be6f230f44e0ba1c33a9c5b37c163284e476f9dd347e4454c0"
+    },
+    {
+      "id": "B-9f2c:RP-025",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round re-signs commit 1a4d1be6c2 only (prior findings F-001..F-004 already resolved, no new disagreement). (a) graph-story-flag-smoke fixture: verified ensureGraphClientBuilt (handlers/graph.ts:75-131) genuinely requires BOTH app.html and d3.min.js by design; the fixture is a fully separate dist/index.js stub for the graph LIBRARY, not a real npm package, so stubbing both static asset files satisfies the precondition without exercising the network-dependent npm install/build recovery path -- not a coverup of a handler defect. (b) fingerprint re-pin a8f949b8->5c518f19: independently diffed HEAD:packages/main/src/handlers/graph.ts against main:packages/main/src/handlers/graph.ts; the only differences are this story own --story feature (GraphArgs.story, assertGraphStoryExists, graphStorySuggestions, URL build) -- zero new or altered await-import/createRequire/eval/new-Function/spawnSync call sites, occurrence counts match exactly (6 each). Re-pin claim holds. Also reconfirmed: GraphArgs.story?: string optional (graph.ts:156); assertGraphStoryExists runs before the --json branch and before startServer(; command-catalog.ts story: z.string().optional() with no .default(); npx tsc --noEmit -p packages/main exits 0; graph-story-flag-smoke.js exits 0; retired-authority-vocabulary-guard-smoke.js exits 0 (PASS builds=815). No dead code, no unsafe as any, no empty catches. git status clean except CLI-owned story metadata files.",
+      "createdAt": "2026-09-03T03:29:48.038Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-033",
+      "envelopeId": "ab01ee437c28d0831615ac12ce841f453194f46087064dff2d3706afab7f4275",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1de2b0ae234807c00adf55b9f33da5ef512e374f25bacaedea6f5d6a2998cc67"
+    },
+    {
+      "id": "B-9f2c:RP-026",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept-lane re-sign at repaired tree f371c5a41d (repair commit 1a4d1be6c2). No concept deletion/rename residue found. Full diff, dynamic-code byte-identity vs main, smoke-task naming, and both repaired tasks (exit 0 each) all verified.",
+      "createdAt": "2026-09-03T03:31:06.140Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-032",
+      "envelopeId": "92089e0e01a8587d99d3551b668bee84eac9bbdec3a44a8d2d107402e8fc50c3",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7d424dbb8d6c06a7090bf79dc02d3237b8275e314066d27776c37dda3bf3000e"
+    },
+    {
+      "id": "B-9f2c:RP-027",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Story-level docs review of full main...HEAD diff (45 files) + targeted verification of repair commit 1a4d1be6c2 comment claims. Both comment-accuracy claims verified true by direct execution (ran the guard smoke on main HEAD=3aa57145d8 with a fresh rebuild: exit 1, confirming pre-existing failure; diffed loader call sites main vs worktree graph.ts: byte-identical). Sweep for stale two-list/two-authority framing across CLAUDE.md/README.md/AGENTS.md/docs found no hits. All standing doc claims (README endpoint table, Story dossier section, How the CLI reaches this package, CLAUDE.md --story flag row + dossier paragraph, graph-command-migration.md Test-surface placement 3-authority list, three membership-authority registrations) match code. No findings.",
+      "createdAt": "2026-09-03T03:33:15.387Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-036",
+      "envelopeId": "59eee3dfc862d1b888717c50135fadeb3935831f16a9911d4f343488748187c1",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2d5c416955e022a9a6f140b98b7a96ac5871972698ddf1e52f6e6b6670f0d9b6"
+    },
+    {
+      "id": "B-9f2c:RP-028",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review PASSED at frozen tree f371c5a41d (round 2026-09-03T03:25:44.738Z). Verified the two regressions merging main (3aa57145d8) introduced were repaired in 1a4d1be6c2 and both smoke tasks now exit 0: node packages/main/dist/tasks/graph-story-flag-smoke.js prints the PASS line and exits 0; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js prints PASS and exits 0 (re-pin 5c518f19 verified against handlers/graph.ts: spawnSync import at line 52/85 and the other 4 dynamic-code call sites match the commit message claim). All 22 must-priority verificationEvidence entries across CHK-001..CHK-005 (read from checklist_get) carry mechanical=true, result=pass, receipt.exitCode=0, receipt.selectorMatched=true, and storyFilesHash=f746f43e... matching the frozen tree; headHash on each entry is 1a4d1be6c2 (the repair commit), an ancestor of f371c5a41d, with no material drift since (storyFilesHash unchanged through to HEAD). Assessed the graph-story-flag-smoke fixture fix on its merits: read handlers/graph.ts and confirmed assertGraphStoryExists (the pre-listen id-existence check) executes at line 533-536, strictly BEFORE ensureGraphClientBuilt at line 559 -- so the smokes core guarantee (unknown --story id refused before startServer/listen) is proven entirely by code paths that never reach the asset check; stubbing d3.min.js only lets the happy-path assertions (known id serves, no --story default, escaping id) proceed past a check this storys own scope did not add, and does not mask or weaken the guarantee the task exists to pin. No finding filed for this. Re-affirmed F-003 (accepted_risk): independently confirmed full-suite-runner.ts RESOURCE_POLICY has a genuine repoRead(test:graph-story-flag-smoke) third-authority entry (line 159) and entriesFromSerialReference throws unknownPolicy and aborts the whole root suite if a test:serial-reference member lacks it (line 224) -- matching the findings claim that the real defense against this regression class is independent of the under-scoped pinned probe and is itself DONE-required; the pinned CHK-005:adversarial:0 command was read directly from evidence and genuinely only checks lattice.config.json + package.json (validate.commands / test:<task> script / test:serial-reference), never full-suite-runner.ts, confirming the gap is real but the deferral is sound (medium severity, not a regression of this story acceptance scope, does not distort an otherwise-unenforced gate, fully evidenced with repro + two correctly-refused fix attempts + named follow-up). No blocker found this round.",
+      "createdAt": "2026-09-03T03:34:52.292Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-034",
+      "envelopeId": "585046d61a103833b45c9ec7ed9ed059cc397f45ec848ff008ad49d74b87ba15",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "packages/main/src/tasks/full-suite-runner.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ae7540705edb960781ad0737d3bab8a58ac318f83b4a98c067242dff585c605"
+    },
+    {
+      "id": "B-9f2c:RP-029",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Story-level concept review at head 3c16c1c47c (code content unchanged from 4912d8390a; the trailing commit is metadata-only). Verified: (1) main commit 3aa57145d8's ensureGraphClientBuilt genuinely rebuilds (npm install/npm run build) rather than refusing, throws before startServer in every failure sub-path (npm ENOENT, non-zero build exit, or still-missing app.html/d3.min.js post-build), confirmed by reading packages/main/src/handlers/graph.ts:75-124,559-571 and by live execution. (2) The rewritten packages/graph/scripts/verify-missing-assets-fail.mjs (commit dcf54ecff3) correctly asserts the new on-demand-recovery contract; I found a real gap in its first version -- the recovery branch accepted existsSync(app.html) plus an output substring, so a truncated/stub app.html with the right log lines would have passed -- but by the time I went to file it, commit 4912d8390a had already landed the exact fix (content assertions: doctype, openStoryDossier presence, min length, d3.min.js presence), explicitly attributed in its message to a test-coverage reviewer's negative control. Re-verified live: npm --prefix packages/graph run verify-missing-assets-fail exits 0 (MISSING_ASSETS_HANDLED_OK) with no listener left on the probe port, and no unaccounted tracked-file diff. (3) No concept deletion/rename with dangling references found across git diff main...HEAD; grep for prior verifier output string MISSING_ASSETS_FAIL_LOUDLY_OK only appears in a different story's (B-3e16) frozen historical evidence JSON blobs, not live code/docs. (4) test:graph-story-flag-smoke spelled identically across lattice.config.json, package.json (script + test:serial-reference), full-suite-runner.ts RESOURCE_POLICY, and the task filename graph-story-flag-smoke.ts. No blocking findings this round.",
+      "createdAt": "2026-09-03T06:15:42.714Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-045",
+      "envelopeId": "8d2bcb3e29c43629a6cb6244c6480cb44ace1e12a612a0524e9bf3513f628ac4",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          "CLAUDE.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "221ed310200c011da6838ca108e0edf6efbe6095176c0b040dac95dc7e2ad7bb"
+    },
+    {
+      "id": "B-9f2c:RP-030",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review at frozen head 6a4a254699 (RI-003 OPEN epoch). No concept deletion/rename with residual references: --diff-filter=D and --diff-filter=R both empty on main...HEAD. Dossier port (CHK-001) is purely additive; every new CSS class is consistently referenced across app.css/app.body.html/app.js with no dangling selector, and the README lane-merge claim is backed by real code at dossier.js:47. --story flag/route (CHK-002/003) are additive, no-flag path byte-identical, confirmed by graph-story-flag-smoke passing live (exit 0). F-005/F-006 verified directly in verify-missing-assets-fail.mjs: leaked pids sampled BEFORE kill, kill unconditional, existsSync sampled AFTER kill, leak still reported in both branches -- F-006 does not reintroduce F-005's original weakness (content-shape assertions retained). Old sentinel MISSING_ASSETS_FAIL_LOUDLY_OK only in a different DONE-locked story's frozen evidence, not live code/docs. test:graph-story-flag-smoke spelled identically across lattice.config.json, package.json, full-suite-runner.ts, and the task filename -- ran live, exit 0. retired-authority-vocabulary-guard-smoke.js also ran live, exit 0 (legitimate re-pin of graph.ts handler edit). No blocking findings this round.",
+      "createdAt": "2026-09-03T06:36:49.830Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-051",
+      "envelopeId": "3c2a5648f7f18807552459a280c7f42e7c8b00a4cb10a4d305bc36db7fca61e6",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c48de4916e0c5b0a40c4c8136146dfa0c4d64bcc8c768fbc6432f8fde4ba75bb"
+    },
+    {
+      "id": "B-9f2c:RP-031",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Docs-lane verdict for the F-006 follow-up commit 22eb158523, tree frozen at 6a4a254699 (inventory epoch RI-003 OPEN). verify-missing-assets-fail.mjs is a packages/graph internal npm-run-check verifier not referenced by name in any living doc (README.md, CLAUDE.md, packages/graph/README.md, docs/requirements/decisions/) -- fallback-2 applies, no drift possible from this commit alone. Verified the new comment block (lines 53-63) against code and against git show 22eb158523^:...: RACE claim confirmed (ensureGraphClientBuilt runs npm run build synchronously via spawnSync before listen, per packages/main/src/handlers/graph.ts:75-132, so the outer execFileSync 60s timeout genuinely can land mid-build); LEAK claim confirmed (parent version gated process.kill behind if(rebuilt), listeners under !rebuilt were computed but never killed); reordering is a genuine restructure not a bolt-on (34 insertions/17 deletions, kill+settle now unconditional before rebuilt sampled). Ran the script live three times on distinct ports (8919/8920/8921): all exited 0 MISSING_ASSETS_HANDLED_OK with lsof empty after each, matching the commit message's claimed verification exactly. The measurement-artifact framing in the commit message is specific, falsifiable, and credits the reviewer rather than excusing the author. Re-confirmed standing claims unchanged: graph-command-migration.md Test-surface placement THREE-authority section intact; packages/graph/README.md Story dossier section (/story/B-xxxx URL, --story flag, panel list) intact; CLAUDE.md --story flag row and dossier paragraph intact; How the CLI reaches this package section (resolveGraphPackage at graph.ts:183, no runnable binary) intact. No doc anywhere describes the old refuse-on-missing-client behavior as current. Working tree clean of tracked-file drift beyond expected story-metadata churn; no commits landed past 6a4a254699 during this pass. No blocking issue found; no finding registered.",
+      "createdAt": "2026-09-03T06:41:12.578Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-053",
+      "envelopeId": "e1c34ff3a7a0f86d31da0811efdcae27f0568d60e9fbcf69b8415a7913ba6932",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "10d43d660774a300fe414c4d8b96d568306def3c6e60c4c4b3f9877aed26ff94"
+    },
+    {
+      "id": "B-9f2c:RP-032",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review at frozen head c06f9f841a covering the F-008 unconditional-settle fix plus the full story diff. No symbol/route/config concept deleted or renamed with dangling refs; F-005/F-006/F-008 fixes are mutually coherent; smoke task name spelled identically in all four registration points; both previously-broken tasks re-run and exit 0. No blocker found.",
+      "createdAt": "2026-09-03T06:56:05.533Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-055",
+      "envelopeId": "a5a44b8ec2f0fdf352dbebbab73b2b64c11463935ff191d2ece269aa6ce1d709",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "64e237a6c9e928d867fdb520f387840838d56442ae7fe29d48ff54670fcc5d82"
+    },
+    {
+      "id": "B-9f2c:RP-033",
+      "agent": "proof-or-stop-review-docs",
+      "note": "F-008 verification against frozen tree c06f9f841a (commit 0c9253c5be is the only new commit since RP-031). Verified each factual claim in the new comment block in packages/graph/scripts/verify-missing-assets-fail.mjs against packages/main/src/handlers/graph.ts and git show 0c9253c5be^: (1) ensureGraphClientBuilt uses spawnSync (graph.ts) - synchronous, confirmed by direct read; (2) execFileSync SIGTERM reaches only the direct child, leaving a nested spawnSync grandchild orphaned to keep writing - confirmed empirically with a standalone repro (parent execFileSync with 1s timeout spawning a node child that spawnSync's a 5s sleep grandchild: parent throws SIGTERM/ETIMEDOUT at ~1s, grandchild survives and writes its file 5s later, well after the parent returned); (3) ensureGraphClientBuilt runs before lib.startServer in the handler, so a timeout mid-build kills the process before any port is bound, meaning listeners() via lsof correctly finds leaked=[] in that window, matching the comment. The stricter/faster polling claim is honestly reasoned, not overclaiming: it explicitly states the tradeoff (full 15s budget paid on a true negative) and justifies it by the asymmetric cost of false-fail vs added latency; downstream content-length/marker assertions (html.length, openStoryDossier, d3 bundle presence) independently guard against a partial-write false positive from bare fs.existsSync. No exported ts symbol-level diff in this round (0c9253c5be only touches a .mjs verifier script), so used fallback path of directly reading the touched files plus the standing docs named in the review scope. Re-confirmed all standing claims unchanged and accurate: graph-command-migration.md Test-surface placement section (three authorities, unchanged wording); packages/graph/README.md Story dossier section, /story/<id> endpoint reference, and How the CLI reaches this package section (states no start script, library not standalone tool); CLAUDE.md --story flag row and dossier paragraph present and correct. No doc anywhere describes the old refuse-on-missing-client behavior as current. No blocking issues found.",
+      "createdAt": "2026-09-03T06:56:12.781Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-058",
+      "envelopeId": "ce8d3b746932b70819f9520fd0c33f0e618924567f12db313860aedd7e13e658",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "packages/graph/package.json",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/main/package.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "620ee62ee13686a81ec7087a6c0dfe1a7d2a752ade91daf3daa73555c2bdb6b1"
+    },
+    {
+      "id": "B-9f2c:RP-034",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed at frozen tree c06f9f841a (RI-004). All 22 must-priority verificationIntent entries across CHK-001..CHK-005 hold valid, non-stale, mechanical verificationEvidence: result=pass, receipt.exitCode=0, mechanical=true, none demoted. Confirmed via checklist.json diff at commit c06f9f841a (verification_evidence_refresh_stale): every entry re-earned a fresh receipt after the F-008 fix (0c9253c5be) landed, with executedAt timestamps moving from 06:32Z to 06:48-49Z and materialHash matching current story.materialHash 3f9541ff..., meaning this is genuine re-execution, not a rubber stamp. Negative control (scratchpad harness, no tracked files touched) replayed the FINAL verify-missing-assets-fail.mjs settle-plus-content-assertion logic against three simulated timelines: (A) corrupt stub written promptly -- caught (openStoryDossier, size, d3 checks fail); (B) a real orphaned build completing a full valid page mid-poll, the F-008 target -- correctly accepted; (C) a truncated or partial file appearing via non-atomic write during the poll window, the specific risk asked about -- still caught, because the content assertions (doctype, openStoryDossier presence, 100KB floor, d3.min.js presence) are an independent second gate that runs on every path regardless of when existsSync first flips true; polling only decides when to sample, never what counts as valid. This confirms the unconditional polling settle does not weaken the stacked F-005/F-006 controls for the all-or-nothing write case my harness modeled. Found in the course of this check: finding_list shows 9 findings, not 8. F-009 (quality lane, RR-056, open, low severity, evidenceState verified) was filed after the F-008 fix commit and is still open. It identifies a finer-grained residual than my harness covers: fs.writeFileSync is not guaranteed atomic for a roughly 487KB buffer since Node's internal write loop can issue multiple write syscalls, so existsSync can in principle flip true on a torn or short write mid-writeFileSync, before openStoryDossier lands (confirmed present at byte offset 196980 of 497334 in the current built asset, about 40 percent in, not near the tail as the finding text implied). This is a real, narrower-than-F-007 residual, correctly attributed to and owned by the quality lane and is not re-filed here per instruction; it does not invalidate the 22 verificationEvidence receipts, which were captured against real command exit codes and selector matches on the current committed script, not against this theoretical torn-write scenario. F-003 (adversarial, resolved, accepted_risk) and F-007 (adversarial, resolved, accepted_risk) re-affirmed: both carry strong, independently-reproduced evidence recorded on the finding. F-003's probe blind spot was verified via a scratch-copy negative control matching the reviewer's own method; F-007's two residual limits, padded-stub forgery and present-but-stale-not-rebuilt, are architecturally distinct from what CHK-005 and CHK-002 verificationIntent claim to cover, and both are correctly deferred as low severity, non-blocking, non-gate-distorting per CLAUDE.md defect triage. No new coverage gap found in verificationIntent to verificationEvidence binding.",
+      "createdAt": "2026-09-03T06:58:04.666Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-057",
+      "envelopeId": "bf52ec0eff64fed92b5909cad79bce5b5994b09a9ea2fad24592f3e727f9eb59",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6ff8a3fed58065c774543fb19f92c8341e9d004d50a0fb8a3f997eada120f197"
+    },
+    {
+      "id": "B-9f2c:RP-035",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-review at frozen tree c06f9f841a (HEAD dc63af13f0, only metadata-only commits since). Confirmed by diff that no source file differs between c06f9f841a and current HEAD. Judged the F-009 disposition (accepted_risk deferral): the mechanism is correctly analyzed by the original finding -- verify-missing-assets-fail.mjs polls fs.existsSync(asset) alone without a post-poll stability re-check, so a torn write from an orphaned build (execFileSync 60s timeout SIGTERMs only the direct child, leaving a nested npm run build writing async) could in principle satisfy the doctype/openStoryDossier/size/d3 assertions on a boundary. Independently verified this mechanism by reading the script directly (lines 94-97 and the settle-poll above them). Independently verified the deferral rationale by reading the production backstop: ensureGraphClientBuilt (packages/main/src/handlers/graph.ts:75-129) re-checks existsSync(appHtml) && existsSync(d3Bundle) too, but that check runs AFTER a blocking spawnSync with no timeout option -- so unlike the verifier, production has no reachable orphan/torn-write trigger for the same theoretical gap. This makes the deferral stronger than claimed, not weaker: production is not actually exposed to the race the finding describes. Severity is low, the guard is internal (npm run check, not a shipped path), this is the fourth finding against the same 30-line verify-missing-assets-fail.mjs function (F-005, F-006, F-007, F-008 all preceded it and were legitimately fixed), and the two real fixes (atomic write-and-rename in build-web.mjs, or a build-input-derived digest, already named as F-007s follow-up) are both outside this storys owned files. Deferral under accepted_risk is the correct call per CLAAUDE.md defect-triage, not scope-creep avoidance. Also re-confirmed independently: packages/main/src/handlers/graph.ts -- GraphArgs.story is `story?: string` (optional); assertGraphStoryExists (line 418) runs at line 533, before both the args.json===true early-return branch and before ensureGraphClientBuilt/startServer; graphStorySuggestions results are deterministically sorted by (band, distance, id.localeCompare); the served URL uses encodeURIComponent(story), not raw interpolation. packages/main/src/cli/command-catalog.ts:2156 -- story: z.string().optional().describe(...), no .default() wrapper, matching the documented convention (open/json flags use the same pattern). npx tsc --noEmit -p packages/main exits 0. No new quality findings this round.",
+      "createdAt": "2026-09-03T07:02:09.066Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-059",
+      "envelopeId": "847f2696dce63584457027dde5bb73776f135598c82e9e6010829c0b5e91814c",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          "packages/graph/package.json",
+          "packages/graph/scripts/build-web.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bbc5cfdf2c74757e5c3806cbd5224a5b861efadca72afbbb1059b169734d1e85"
+    },
+    {
+      "id": "B-9f2c:RP-036",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Re-signature under RI-005 after RI-004 invalidation (OPEN_REVIEW_INVENTORY_SCOPE_MUTATION, unrelated to code). Confirmed via git diff 74b9aeafea -- packages/ that zero source has changed since RP-035; only .proof-or-stop/ metadata moved (scope ack, acceptance-basis regen, finding resolutions, evidence refresh). Re-verified handlers/graph.ts: GraphArgs.story is optional (no .default()); assertGraphStoryExists validation (line ~533) runs before both the --json early return (~541) and startServer (~571); graphStorySuggestions ranks deterministically (prefix band, then Levenshtein distance, then id.localeCompare tiebreak); the deep-link URL uses encodeURIComponent(story), not raw interpolation. command-catalog.ts registers story as plain z.string().optional() with the default documented in the description, matching the open/json flags convention. npx tsc --noEmit -p packages/main exits 0. Reviewed F-010 (topology critic, high, resolved/fixed): the coverage-gap half concerns packages/graph/scripts/verify-missing-assets-fail.mjs being absent from scope-contract.json despite three DEV/REVIEW repair rounds (dcf54ecff3, 4912d8390a, 22eb158523, 0c9253c5be) -- this is my own prior finding trail (F-006 fixed, F-008 fixed, F-009 accepted_risk with the spawnSync-has-no-timeout rationale I strengthened last pass, unchanged and still correct: grep confirms no timeout on the production spawnSync call). The fifth acknowledgement now recorded in scope-contract.json is candid about the lateness (\"That omission was mine and the critic was right to flag it\"), ties every edit to an externally-forced contract change (main commit 3aa57145d8 changed the handler contract this verifier asserted), and matches the acknowledged-expansion mechanism used for the other four out-of-scope paths in this story. This is a scope-contract/process gap, not a code-quality defect in the file itself, does not touch security or data integrity, and does not distort any gate outcome (the acceptance-basis/rollout staleness the critic also flagged was independently closed by regeneration). No new code-quality finding this round.",
+      "createdAt": "2026-09-03T07:27:44.738Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-064",
+      "envelopeId": "573bbf56df6ff26c947506e3c7faff72377ac9d5fda23449c92588c9313538c7",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          "CLAUDE.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0c54b3931704ffd1f96a3b4d2f2a975c421ee0a8f929bf89b09ce57484a64186"
+    },
+    {
+      "id": "B-9f2c:RP-037",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed at frozen tree 74b9aea (RI-005, RP-034 re-earned after RI-004 was invalidated by OPEN_REVIEW_INVENTORY_SCOPE_MUTATION -- main-agent sequencing error, no code change). All 22 must-priority verificationIntent entries across CHK-001..CHK-005 hold valid, non-stale, mechanical verificationEvidence: result=pass, receipt.exitCode=0, mechanical=true, selectorMatched=true, materialHash=3f9541ff... and storyFilesHash=022146876a... matching the current RI-005 cutoff on all 22 entries, none demoted to a non-mechanical attestation. Verified via git diff --stat between RP-034s frozen tree c06f9f841a and current HEAD 74b9aeafea across the union of all 13 files claimed by any checklist items files block (app.css, app.js, app.body.html, dossier.js, io/http.ts, build-web.mjs, handlers/graph.ts, command-catalog.ts, graph-story-flag-smoke.ts, README.md, CLAUDE.md, lattice.config.json, package.json): zero diff, confirming the 14 intervening commits are .proof-or-stop/ metadata only (finding_resolve, acceptance_basis_generate, scope acknowledgement, topology_critic_receipt_set, review_pass_set, certification_window_begin), not source changes. Re-ran the corrupt-stub negative control on a scratchpad-isolated re-derivation of the four stacked content assertions from verify-missing-assets-fail.mjs (doctype presence, openStoryDossier marker, 100KB size floor, d3.min.js presence): confirmed they independently catch both a corrupt stub (no doctype/marker/d3, tiny) and a torn/truncated write missing the marker, while correctly accepting a genuinely complete build -- consistent with RP-034s prior claim about the F-008 fix. Checked the split(\"/n\") escaping concern raised for this run: walked checklist.json as JSON (not text grep) searching every string leaf for split(\"/n\") or split((quote)/n(quote)) -- zero hits in any recorded pinned command or evidence entry; the only /n-adjacent grep hits were false positives on /dev/null 2>&1. Every split(...) call in recorded evidence correctly uses \\n. Confirms the prior sessions own finding: the malformed string lived only in an ad-hoc cross-check script, never in a recorded receipt, so no receipt in this story is passing for the wrong reason on that account. F-003 (adversarial, resolved, accepted_risk), F-007 (adversarial, resolved, accepted_risk) and F-009 (adversarial, resolved, accepted_risk) re-affirmed unchanged: all three remain status=resolved, evidenceState=verified, with their original strong-evidence resolutions intact; not re-filed. All 10 findings on this story (F-001..F-010) are resolved. No new coverage gap found in verificationIntent to verificationEvidence binding.",
+      "createdAt": "2026-09-03T07:28:38.922Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-062",
+      "envelopeId": "1881c42ee415a80c41e545eaabf5b56e4dd75db717d00aa6c626f98fe5c150ce",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7f65299a990f3102fef4fcba806251832ab7624f6d57820778ca90e6f4f52009"
+    },
+    {
+      "id": "B-9f2c:RP-038",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Re-signature at converged tree (RI-005). HEAD==74b9aea; only .proof-or-stop/ metadata dirty. Diff is purely additive (--story flag + dossier route + smoke task + fingerprint re-pin), no concept deletion/rename. verify-missing-assets-fail.mjs final state coherent across F-005/F-006/F-008 repairs, invariant preserved. Both previously-broken tasks exit 0.",
+      "createdAt": "2026-09-03T07:28:46.988Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-061",
+      "envelopeId": "e640a2abf2648321f6fe7bcbd464d73358357ef9d782c74042d421391c41618a",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/shells/web/app.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "packages/graph/README.md",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8ea422785ed7e1222c01d3dd54f52eac9bd1e3365fa8ffbe6c212301b08028a1"
+    },
+    {
+      "id": "B-9f2c:RP-039",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Re-verified RP-033 at frozen tree 74b9aeafea inside RI-005. No .md changed since RP-033 (only .proof-or-stop metadata dirty). Verified scope-contract fifth acknowledgement claims against git history (3aa57145d8, three repair commits vs F-005/F-006/F-008), F-010 pre-existing-diagnostics claim (byte-identical across 9b6da93f05 and current basis), and standing doc claims unchanged. No inconsistency found.",
+      "createdAt": "2026-09-03T07:29:58.903Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-063",
+      "envelopeId": "2cb065434786328bea2f94c7c76f9d9a0a3aed1f13dfb700856ae70025d772c5",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6f4e2569e47e3005cb1176bea7cf3800e4ae51301ae2039478b69a8991a18faa"
+    },
+    {
+      "id": "B-9f2c:RP-040",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent completeness review for epoch B-9f2c:RI-005 (wave 1). All four required lanes hold current-round PASS after RI-005 began. Zero material diff between RI-004 and RI-005 cutoffs outside .proof-or-stop/. Union of RI-005-round readManifests covers verify-missing-assets-fail.mjs (the only file that changed since the prior full-coverage round) in all four lanes, closing the F-010 gap. Five untouched-this-round files were each fully read multiple times in immediately preceding rounds while their content was unchanged, which is valid incremental coverage not a gap. scope-contract.json acknowledges every out-of-scope material file. finding_list: 10/10 resolved, zero open, zero suspected/disproven. No coverage gap found.",
+      "createdAt": "2026-09-03T07:34:37.720Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-065",
+      "envelopeId": "897bc02bc3fc9efe96f7c6d640241e9f8193eb3daa0a357ef69c8703797df7d9",
+      "writerSessionId": "sess-f4542e36531f6e5551a25b315e01fabb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f6926b4df677bcc8cb63121a11c5ab6fbf6a2efea670e1040aa0e8478c5b8bf3"
+    },
+    {
+      "id": "B-9f2c:RP-041",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent completeness review for epoch B-9f2c:RI-005 (wave 1), recorded with mechanical read log. All four required lanes hold current-round PASS after RI-005 began. Zero material diff between RI-004 and RI-005 cutoffs outside .proof-or-stop/. Union of RI-005-round readManifests covers verify-missing-assets-fail.mjs in all four lanes, closing the F-010 gap. Five untouched-this-round files were each fully read multiple times in immediately preceding rounds while unchanged, valid incremental coverage. scope-contract.json acknowledges every out-of-scope material file. finding_list: 10/10 resolved, zero open. No coverage gap found.",
+      "createdAt": "2026-09-03T07:36:29.752Z",
+      "reviewRound": "2026-09-03T03:25:44.738Z",
+      "reviewRunId": "B-9f2c:RR-066",
+      "envelopeId": "a644db05aba3957bd6feef6cab09cd55400bf971a8b31803441d8dd14b8eadea",
+      "writerSessionId": "sess-f4542e36531f6e5551a25b315e01fabb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "lattice.config.json",
+          "package.json",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "1ebf6b1d6a1f49c6a2bef45e63cc8e0e01f3ba78d17dc60e862c4bbda7a19218"
+      },
+      "readDiagnostics": [],
+      "_hash": "1c08c69b769dc38648ccf33e4cabe9af23aea50a5aef4c18a14fae3c1c583791"
+    },
+    {
+      "id": "B-9f2c:RP-042",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Proportionate re-signature for RI-006 after the REVIEW->DEV->REVIEW bounce that regenerated the acceptance rollout report. Confirmed with git diff 74b9aeafea 924e1926ef -- -- packages/ that zero bytes changed under packages/ since RP-036 bound head; the bounce touched only .proof-or-stop/ metadata. Re-verified all three previously-reviewed items at current head 924e1926ef: (1) handlers/graph.ts -- GraphArgs.story optional, assertGraphStoryExists runs ahead of both the --json early return and startServer, deterministic suggestion tie-break (band, edit distance, localeCompare), served URL uses encodeURIComponent(story); (2) command-catalog.ts -- graph.schema.story is z.string().optional() with no .default(); (3) npx tsc --noEmit -p packages/main exits 0. Re-read verify-missing-assets-fail.mjs end to end and confirmed F-005 content assertions, F-006 kill-before-sample, and F-008 unconditional polling settle all remain coherent together. finding_list confirms all ten findings resolved (F-007/F-009 accepted_risk deferred residuals already adjudicated), zero open findings. No new quality issues found; diff scope matches prior rounds. No blocker for the code-quality lane.",
+      "createdAt": "2026-09-03T07:47:38.319Z",
+      "reviewRound": "2026-09-03T07:43:58.222Z",
+      "reviewRunId": "B-9f2c:RR-070",
+      "envelopeId": "1704d9997d93a9a4e089612f1ff17bd68b7927825a6ddb8b0353a434ec65223c",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/dossier.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e1f8b29d1848df7819c83f3e1b72154694f259a0b6dc4a7560bedcf903d1f648"
+    },
+    {
+      "id": "B-9f2c:RP-043",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Documentation lane re-verification for RI-006 against frozen tree 924e1926ef (bounced from RP-039/RI-005: REVIEW->DEV->REVIEW to regenerate acceptance rollout report). Confirmed zero .md diff since RP-039 bound head 74b9aeafea; only .proof-or-stop/story/actives/B-9f2c/* metadata changed. Re-confirmed 5 standing claims unchanged and accurate (Test-surface placement section, README Story dossier section + endpoint row, CLAUDE.md --story flag row + dossier paragraph, How the CLI reaches this package retained with no-runnable-binary language, scope-contract.json still has exactly 5 acknowledgements with zero diff since bound head). No blocker found.",
+      "createdAt": "2026-09-03T07:48:32.766Z",
+      "reviewRound": "2026-09-03T07:43:58.222Z",
+      "reviewRunId": "B-9f2c:RR-069",
+      "envelopeId": "97600afa1c467b4114830ff4c3c456c9c76c18b15ef236a56108890673f68eba",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [
+          "packages/graph/src/index.ts",
+          "packages/graph/src/io/http.ts",
+          "packages/main/src/handlers/graph.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "65daee46f7472aa9b9230bed71f0751abbb7a868564db86d748d3537d2f3a933"
+    },
+    {
+      "id": "B-9f2c:RP-044",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept re-signature at frozen head 924e1926ef (RI-006 OPEN epoch), refreshing RP-038 after a REVIEW->DEV->REVIEW bounce that regenerated the acceptance rollout report. Verified: (1) git diff 74b9aeafea..924e1926ef confined entirely to .proof-or-stop/story/actives/B-9f2c/ metadata (acceptance-rollout-report.json, index.json, review-inventory-epochs.json, review-passes.json, review-runs.json, prompt-envelopes.json, process-events/metrics) -- zero packages/, docs/, or config source drift. (2) git diff main...HEAD concept/deletion completeness: all changes additive -- new --story flag on graph command (assertGraphStoryExists, graphStorySuggestions, editDistance, resolveStories reuse), dossier routing in app.js/dossier.js, new test:graph-story-flag-smoke task registered identically across lattice.config.json/package.json/full-suite-runner.ts RESOURCE_POLICY/task filename, and two DYNAMIC_CODE fingerprint pins on graph.ts re-approved with documented rationale matching the actual source diff. Sole sentinel rename MISSING_ASSETS_FAIL_LOUDLY_OK -> MISSING_ASSETS_HANDLED_OK is in-scope (verifier tracks main commit 3aa57145d8's refuse-before-listen -> rebuild-on-demand contract change); grepped repo-wide, old sentinel only survives in a DIFFERENT DONE-locked story's (B-3e16) frozen historical evidence JSON, not live code/docs -- no dangling reference. (3) Both previously-repaired verify tasks pass live: node packages/main/dist/tasks/graph-story-flag-smoke.js exit 0; node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js exit 0 (retired authority vocabulary guard PASS builds=815 cacheHits=2 fullAnalysis=1307 astCandidates=509 reachability=34). No blocking findings this round.",
+      "createdAt": "2026-09-03T07:49:45.800Z",
+      "reviewRound": "2026-09-03T07:43:58.222Z",
+      "reviewRunId": "B-9f2c:RR-067",
+      "envelopeId": "b35a2a068b18ba65e0930f56e0d00436ea49d6ede91a8fb0fabb6e6118ba07c4",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/graph/src/shells/web/app.js",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/README.md",
+          "packages/graph/scripts/build-web.mjs",
+          "packages/graph/src/io/http.ts",
+          "packages/graph/src/shells/web/app.body.html",
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/dossier.js"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0e1f00b4d5fee5fb2c951e0ef9a9aa2a558900cca75b56e6f3c45ad7eab6fddd"
+    },
+    {
+      "id": "B-9f2c:RP-045",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed (epoch B-9f2c:RI-006, frozen tree 924e1926ef, inherited from RP-037 bound at 74b9aeafea). All 22 must-priority verificationIntent entries across CHK-001..CHK-005 each carry exactly one valid verificationEvidence record: mechanical=true, result=pass, receipt.exitCode=0, receipt.selectorMatched=true, materialHash matching the epoch frozen cutoff -- verified by a structural script over checklist_get output, not eyeballing. git diff 74b9aeafea..924e1926ef on the files claimed by F-003/F-007/F-009 returned empty: the DEV->REVIEW bounce touched only .proof-or-stop/ metadata, confirmed via git diff --name-status against the full commit range, so no source or test file changed. Re-affirmed rather than re-filed: F-003 (CHK-005:adversarial:0 pinned probe only re-verifies two of three membership authorities, medium/accepted_risk), F-007 (padded stub can satisfy recovery-branch checks, low/accepted_risk), and F-009 (existsSync torn-read window on poll, low/accepted_risk) all remain resolved with unchanged residuals, still correctly characterized against this frozen tree. No new evidence contradicts any of the three. No blocker found.",
+      "createdAt": "2026-09-03T07:50:13.245Z",
+      "reviewRound": "2026-09-03T07:43:58.222Z",
+      "reviewRunId": "B-9f2c:RR-068",
+      "envelopeId": "170346c16cb646c66debab7cb4a4188f78367e373d2d66459d49dd26b172c23b",
+      "writerSessionId": "graph-dossier-1788336363",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/checklist.json",
+          ".proof-or-stop/story/actives/B-9f2c/index.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/background.md",
+          ".proof-or-stop/story/actives/B-9f2c/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "52e96536f01e30424ad3a5b2d0b8ad5a8fe2e4613c011633fa85b6fe21ff9a5e"
+    },
+    {
+      "id": "B-9f2c:RP-046",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent completeness-critic assessment for epoch B-9f2c:RI-006 (wave 1). Verified directly, not from prose: git diff 74b9aeafea..924e1926ef (RI-005 cutoff to RI-006 cutoff) touches zero files under packages/ and zero *.md files -- confirmed by wc -l on both filtered diffs (0/0) and by --stat, which lists only nine .proof-or-stop/story/actives/B-9f2c/* metadata files (review-inventory-epochs, review-passes, review-runs, prompt-envelopes, process-events/metrics, acceptance-rollout-report, index, dev-memory-preflight-ack). The four RI-006 lane passes (RP-042 quality, RP-043 docs, RP-044 concept, RP-045 test-coverage) all independently re-derived and stated this same empty-diff fact and are each bound to reviewRound 2026-09-03T07:43:58.222Z and frozen head 924e1926ef, matching the epoch cutoff exactly. Cross-checked full main...HEAD material footprint (47 files) against scope-contract.json's allowedModify/allowedCreate union plus its five acknowledged-expansion path lists (retired-authority-vocabulary-guard-smoke.ts, full-suite-runner.ts, graph-command-migration.md, two dev-memory paths, and verify-missing-assets-fail.mjs) plus .proof-or-stop story-metadata exemption: every changed file is covered, zero orphans. All ten findings (F-001..F-010) are resolved with strong evidence; none carry reviewRound 2026-09-03T07:43:58.222Z (RI-006's round), so the RI-006 wave's own raw finding set is empty -- findingDispositions=[] is correct, not a shortcut. F-009/F-010's claim that verify-missing-assets-fail.mjs is now acknowledged in scope-contract.json was independently confirmed by reading scope-contract.json directly (fifth acknowledgement entry present, phase=REVIEW, headHash 21b298bcb6, materialHash 3f9541ff... matching current cutoff). Cross-checked each RI-006 lane's readManifest.filesReadFully against the four acknowledged-expansion paths: quality (RP-042) and concept (RP-044) both read verify-missing-assets-fail.mjs fully; concept additionally reads full-suite-runner.ts and retired-authority-vocabulary-guard-smoke.ts fully; docs (RP-043) reads graph-command-migration.md fully. No acknowledged-expansion path lacks a full read from at least one required lane. Wave 4 acceptance-topology surfaces independently re-verified live (not from prompt claims): acceptance_basis is basisStatus=partial with 4 AT_UNMAPPED_SCOPE_REF diagnostics that are self-referential to the acceptance-topology mechanism's own process-fact wiring (paths naming acceptance_basis/acceptance_basis_generate/acceptance_topology_check/artifact:acceptance-basis.json as their own consumers), bound at materialHash 3f9541ff... matching current cutoff -- fresh, not stale. acceptance_topology_check returns authority=diagnostic_only, mode=observe, blocking=false, topologyState=legacy_missing on AB-001 -- explicitly non-blocking by the mechanism's own declared authority. pre_review_check_read returns PR_ARTIFACT_MISSING, authority=inadmissible, blocking=false -- confirmed pre_review_check is a DEV-phase-only optional campaign-tooling command (per its own --help ordering note and absence from machine.ts transition guards), never generated for this story because never required for its lifecycle path; this is not an acceptance-evidence gap. acceptance_rollout_report_read and acceptance_rollout_check both independently return ok=true, status=pass, mode=enforce, blocking=false, diagnostics=[], quorum=full-3x2, receipt=current, bound at materialHash 3f9541ff... matching current cutoff. Verified the full-3x2 claim structurally rather than trusting the label: 6 eligible pairs x 2 arms = 12 sourceRecords, each carrying an observationReceipt with checkInventory/mutationCommitSha/restorationCommitSha/controlRestored fields; host identity strings 'codex-cli' and 'claude-cli' both present verbatim in the raw JSON (not degraded to a single host); metrics show baselineReviewRounds=6, candidateReviewRounds=6, falsePassCount=0, falseBlockRate=0, mislabeled3x1Count=0, omissionDetectionRate=1, consistent with genuine 3 rounds x 2 hosts rather than a padded or relabeled 3x1. Conclusion: reviewer coverage for this epoch is genuinely complete. All four required lanes independently confirmed the zero-material-change fact for this specific bounce, all four acknowledged-expansion surfaces have at least one full read among the lane set, no changed file in main...HEAD lacks scope coverage, the raw finding set for this wave is empty, and Wave 4 acceptance-topology/rollout evidence is fresh, non-fabricated, and non-blocking where the mechanism itself declares it non-blocking.",
+      "createdAt": "2026-09-03T07:57:25.709Z",
+      "reviewRound": "2026-09-03T07:43:58.222Z",
+      "reviewRunId": "B-9f2c:RR-071",
+      "envelopeId": "4c71d2abac14059f8f869040b955b577d1343b0f6463fbf5f08a6d842e04ebcb",
+      "writerSessionId": "sess-f4542e36531f6e5551a25b315e01fabb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-rollout-report.json",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "66df3497969f35d5047de8b3687e1a91c0db238220de0126032612bf2bfd0125"
+    },
+    {
+      "id": "B-9f2c:RP-047",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent completeness-critic assessment for epoch B-9f2c:RI-006 (wave 1). Verified directly, not from prose: git diff 74b9aeafea..924e1926ef (RI-005 cutoff to RI-006 cutoff) touches zero files under packages/ and zero *.md files -- confirmed by wc -l on both filtered diffs (0/0) and by --stat, which lists only nine .proof-or-stop/story/actives/B-9f2c/* metadata files (review-inventory-epochs, review-passes, review-runs, prompt-envelopes, process-events/metrics, acceptance-rollout-report, index, dev-memory-preflight-ack). The four RI-006 lane passes (RP-042 quality, RP-043 docs, RP-044 concept, RP-045 test-coverage) all independently re-derived and stated this same empty-diff fact and are each bound to reviewRound 2026-09-03T07:43:58.222Z and frozen head 924e1926ef, matching the epoch cutoff exactly. Cross-checked full main...HEAD material footprint (47 files) against scope-contract.json's allowedModify/allowedCreate union plus its five acknowledged-expansion path lists (retired-authority-vocabulary-guard-smoke.ts, full-suite-runner.ts, graph-command-migration.md, two dev-memory paths, and verify-missing-assets-fail.mjs) plus .proof-or-stop story-metadata exemption: every changed file is covered, zero orphans. All ten findings (F-001..F-010) are resolved with strong evidence; none carry reviewRound 2026-09-03T07:43:58.222Z (RI-006's round), so the RI-006 wave's own raw finding set is empty -- findingDispositions=[] is correct, not a shortcut. F-009/F-010's claim that verify-missing-assets-fail.mjs is now acknowledged in scope-contract.json was independently confirmed by reading scope-contract.json directly (fifth acknowledgement entry present, phase=REVIEW, headHash 21b298bcb6, materialHash 3f9541ff... matching current cutoff). Cross-checked each RI-006 lane's readManifest.filesReadFully against the four acknowledged-expansion paths: quality (RP-042) and concept (RP-044) both read verify-missing-assets-fail.mjs fully; concept additionally reads full-suite-runner.ts and retired-authority-vocabulary-guard-smoke.ts fully; docs (RP-043) reads graph-command-migration.md fully. No acknowledged-expansion path lacks a full read from at least one required lane. Wave 4 acceptance-topology surfaces independently re-verified live (not from prompt claims): acceptance_basis is basisStatus=partial with 4 AT_UNMAPPED_SCOPE_REF diagnostics that are self-referential to the acceptance-topology mechanism's own process-fact wiring (paths naming acceptance_basis/acceptance_basis_generate/acceptance_topology_check/artifact:acceptance-basis.json as their own consumers), bound at materialHash 3f9541ff... matching current cutoff -- fresh, not stale. acceptance_topology_check returns authority=diagnostic_only, mode=observe, blocking=false, topologyState=legacy_missing on AB-001 -- explicitly non-blocking by the mechanism's own declared authority. pre_review_check_read returns PR_ARTIFACT_MISSING, authority=inadmissible, blocking=false -- confirmed pre_review_check is a DEV-phase-only optional campaign-tooling command (per its own --help ordering note and absence from machine.ts transition guards), never generated for this story because never required for its lifecycle path; this is not an acceptance-evidence gap. acceptance_rollout_report_read and acceptance_rollout_check both independently return ok=true, status=pass, mode=enforce, blocking=false, diagnostics=[], quorum=full-3x2, receipt=current, bound at materialHash 3f9541ff... matching current cutoff. Verified the full-3x2 claim structurally rather than trusting the label: 6 eligible pairs x 2 arms = 12 sourceRecords, each carrying an observationReceipt with checkInventory/mutationCommitSha/restorationCommitSha/controlRestored fields; host identity strings 'codex-cli' and 'claude-cli' both present verbatim in the raw JSON (not degraded to a single host); metrics show baselineReviewRounds=6, candidateReviewRounds=6, falsePassCount=0, falseBlockRate=0, mislabeled3x1Count=0, omissionDetectionRate=1, consistent with genuine 3 rounds x 2 hosts rather than a padded or relabeled 3x1. Conclusion: reviewer coverage for this epoch is genuinely complete. All four required lanes independently confirmed the zero-material-change fact for this specific bounce, all four acknowledged-expansion surfaces have at least one full read among the lane set, no changed file in main...HEAD lacks scope coverage, the raw finding set for this wave is empty, and Wave 4 acceptance-topology/rollout evidence is fresh, non-fabricated, and non-blocking where the mechanism itself declares it non-blocking.",
+      "createdAt": "2026-09-03T07:59:14.555Z",
+      "reviewRound": "2026-09-03T07:43:58.222Z",
+      "reviewRunId": "B-9f2c:RR-072",
+      "envelopeId": "891d5dd6b37c04c49c8b3141797876ec256cc3ee09f0bb190b44974750296efb",
+      "writerSessionId": "sess-f4542e36531f6e5551a25b315e01fabb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-9f2c/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-9f2c/findings.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-9f2c/review-passes.json",
+          ".proof-or-stop/story/actives/B-9f2c/scope-contract.json",
+          "packages/graph/scripts/verify-missing-assets-fail.mjs",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-rollout.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/graph-command-migration.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "1ebf6b1d6a1f49c6a2bef45e63cc8e0e01f3ba78d17dc60e862c4bbda7a19218"
+      },
+      "readDiagnostics": [],
+      "_hash": "b9c506f12fea8382ae536b7d7ce59fff3298a0c5d0bf07ab926845dd7ed866af"
+    }
+  ]
+}

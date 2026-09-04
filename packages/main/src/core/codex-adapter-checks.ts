@@ -1,10 +1,13 @@
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { accessSync, constants, existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
-import { delimiter, isAbsolute, join, relative, resolve } from 'node:path';
+import { existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
 import {
+  CODEX_ADAPTER_MANIFEST_OWNER,
+  LEGACY_CODEX_ADAPTER_MANIFEST_OWNER,
   PROOF_OR_STOP_CODEX_ADAPTER_MANIFEST,
   CODEX_PRETOOL_SCOPE_HOOK_MATCHER,
+  isCodexAdapterManifestOwner,
   listAgentPromptFiles,
   renderProofOrStopCodexAdapterManifest,
   type CodexPromptMode,
@@ -16,16 +19,18 @@ import {
   type AgentAssetResolution,
 } from './agent-asset-resolution.js';
 import { isManagedGlobalThinRoot, loadConfig } from './config.js';
-import { PROOF_OR_STOP_PRIMARY_BIN } from './proof-or-stop-brand.js';
+import { PROOF_OR_STOP_DEPRECATED_BIN, PROOF_OR_STOP_PRIMARY_BIN } from './proof-or-stop-brand.js';
 import { resolveProjectGitCwd } from './story-signed-workspace-resolution.js';
 import {
+  canonicalPromptRegistrySchemaVersion,
+  normalizePromptRegistryManifest,
   promptRegistryManifest,
   readPromptRegistry,
   renderPromptEntryForHost,
 } from './prompt-registry.js';
 import type { StoryStore } from './store.js';
 import type { ProcessEvent } from './types.js';
-import { readBrandEnv } from './brand-env.js';
+import { applyBrandEnv, readBrandEnv } from './brand-env.js';
 
 import { ADAPTER_DIR_NAMES, PROOF_OR_STOP_ADAPTER_DIR, PROOF_OR_STOP_MANIFEST_FILENAME, adapterDirCandidates, adapterManifestCandidates, PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 
@@ -435,22 +440,25 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     return null;
   }
   if (
-    parsed?.adapterOwner !== expectedIdentity.adapterOwner ||
+    !isCodexAdapterManifestOwner(parsed?.adapterOwner) ||
     parsed?.adapterKind !== expectedIdentity.adapterKind ||
     parsed?.activitySource !== expectedIdentity.activitySource
   ) {
     push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} has invalid adapter identity`, LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
+  const parsedForComparison = normalizeLegacyCodexAdapterManifest(parsed);
   if (parsed.promptMode === 'registry') {
     const expectedRegistry = promptRegistryManifest();
-    const actualRegistry = parsed.promptRegistry;
+    const actualRegistry = parsedForComparison.promptRegistry;
     if (!isRecord(actualRegistry)) {
       push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} registry mode is missing promptRegistry metadata`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
+    const normalizedActualRegistry = normalizePromptRegistryManifest(actualRegistry);
+    const actualSchemaVersion = canonicalPromptRegistrySchemaVersion(actualRegistry.schemaVersion);
     const mismatches = (['schemaVersion', 'source', 'agentCount', 'materialHash'] as const)
-      .filter(key => actualRegistry[key] !== expectedRegistry[key]);
+      .filter(key => (key === 'schemaVersion' ? actualSchemaVersion : normalizedActualRegistry?.[key]) !== expectedRegistry[key]);
     if (mismatches.length > 0) {
       push(
         checks,
@@ -464,7 +472,11 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
       return 'registry';
     }
     const expectedRegistryManifest = renderProofOrStopCodexAdapterManifest({ promptMode: 'registry' });
-    if (actual !== expectedRegistryManifest) {
+    const normalizedManifest = {
+      ...parsedForComparison,
+      promptRegistry: normalizedActualRegistry,
+    };
+    if (`${JSON.stringify(normalizedManifest, null, 2)}\n` !== expectedRegistryManifest) {
       push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop registry template`, LOCAL_INIT_VERIFY_COMMAND);
       return 'registry';
     }
@@ -475,12 +487,30 @@ function checkManifest(root: string, checks: CodexAdapterCheck[], resolution: Ag
     push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} has unsupported promptMode=${String(parsed.promptMode)}`, LOCAL_INIT_VERIFY_COMMAND);
     return null;
   }
-  if (actual !== expected) {
+  if (`${JSON.stringify(parsedForComparison, null, 2)}\n` !== expected) {
     push(checks, 'manifest', 'Codex manifest', 'fail', true, `${selection.relPath} drifted from Proof-or-Stop template`, LOCAL_INIT_VERIFY_COMMAND);
     return 'legacy-mirror';
   }
   push(checks, 'manifest', 'Codex manifest', 'pass', true, `${selection.relPath} matches Proof-or-Stop template`);
   return 'legacy-mirror';
+}
+
+function normalizeLegacyCodexAdapterManifest(parsed: Record<string, unknown>): Record<string, unknown> {
+  if (parsed.adapterOwner !== LEGACY_CODEX_ADAPTER_MANIFEST_OWNER) return parsed;
+  const normalize = (value: unknown): unknown => {
+    if (Array.isArray(value)) return value.map(normalize);
+    if (!value || typeof value !== 'object') {
+      if (typeof value !== 'string') return value;
+      if (value === LEGACY_CODEX_ADAPTER_MANIFEST_OWNER) return CODEX_ADAPTER_MANIFEST_OWNER;
+      return value
+        .replace(/\bLATTICE_ACTIVITY_/g, 'PROOF_OR_STOP_ACTIVITY_')
+        .replace(/\bLATTICE_OWNER_SESSION_ADAPTER_/g, 'PROOF_OR_STOP_OWNER_SESSION_ADAPTER_')
+        .replace(/\bLATTICE_CODEX_ENTRYPOINT\b/g, 'PROOF_OR_STOP_CODEX_ENTRYPOINT')
+        .replace(/\bglobal lattice CLI\b/g, 'global proof-or-stop CLI');
+    }
+    return Object.fromEntries(Object.entries(value).map(([key, entry]) => [key, normalize(entry)]));
+  };
+  return normalize(parsed) as Record<string, unknown>;
 }
 
 function checkAgentMirror(root: string, checks: CodexAdapterCheck[]): void {
@@ -697,15 +727,16 @@ function runHeartbeat(
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
       timeout: timeoutMs,
-      env: {
+      env: applyBrandEnv({
         ...process.env,
-        PROOF_OR_STOP_ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
-        PROOF_OR_STOP_ACTIVITY_RECORD_READONLY: '1',
-        PROOF_OR_STOP_ACTIVITY_SESSION: session,
         CODEX_THREAD_ID: id === 'local-wrapper-heartbeat' ? session : '',
         PROOF_OR_STOP_AGENT: 'main',
-        PROOF_OR_STOP_CODEX_ENTRYPOINT: expectedEntrypoint,
-      },
+      }, {
+        ACTIVITY_SOURCE: id === 'local-wrapper-heartbeat' ? 'not-codex' : 'codex',
+        ACTIVITY_RECORD_READONLY: '1',
+        ACTIVITY_SESSION: session,
+        CODEX_ENTRYPOINT: expectedEntrypoint,
+      }),
     });
   } catch (e: any) {
     // B-cdf6 (B-META F-013): a KILLED heartbeat is a distinct failure from a heartbeat
@@ -807,28 +838,21 @@ function pathContains(parent: string, child: string): boolean {
  * Locate the canonical globally installed CLI on PATH.
  */
 function resolveGlobalCliCommandPath(root: string): string | null {
-  const pathValue = process.platform === 'win32'
-    ? process.env.Path ?? process.env.PATH ?? ''
-    : process.env.PATH ?? '';
-  const extensions = process.platform === 'win32'
-    ? (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)
-    : [''];
-  const names = process.platform === 'win32'
-    ? [PROOF_OR_STOP_PRIMARY_BIN, ...extensions.map(extension => `${PROOF_OR_STOP_PRIMARY_BIN}${extension}`)]
-    : [PROOF_OR_STOP_PRIMARY_BIN];
-  for (const rawDir of pathValue.split(delimiter)) {
-    const dir = rawDir || '.';
-    const absoluteDir = isAbsolute(dir) ? dir : resolve(root, dir);
-    for (const name of names) {
-      const candidate = resolve(absoluteDir, name);
-      try {
-        if (!statSync(candidate).isFile()) continue;
-        if (process.platform !== 'win32') accessSync(candidate, constants.X_OK);
-        return candidate;
-      } catch {
-        // Continue through the inherited PATH in order; the first runnable
-        // canonical command wins without a login shell rewriting PATH.
-      }
+  for (const bin of [PROOF_OR_STOP_PRIMARY_BIN, PROOF_OR_STOP_DEPRECATED_BIN]) {
+    const command = process.platform === 'win32' ? 'where' : 'sh';
+    const args = process.platform === 'win32' ? [bin] : ['-c', `command -v ${bin}`];
+    try {
+      const out = execFileSync(command, args, {
+        cwd: root,
+        encoding: 'utf-8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+        timeout: 2_000,
+        env: process.env,
+      }).trim();
+      const found = out.split(/\r?\n/).find(Boolean);
+      if (found) return found;
+    } catch {
+      // probe: this bin name is not on PATH; try the next alias.
     }
   }
   // No canonical global CLI on PATH; heartbeat execution reports the real failure.

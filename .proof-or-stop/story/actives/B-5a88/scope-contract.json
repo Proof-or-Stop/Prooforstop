@@ -1,0 +1,1394 @@
+{
+  "storyId": "B-5a88",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/reviewer-quorum.ts",
+    "packages/main/src/core/reviewer-opt-in.ts",
+    "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/agent-asset-resolution.ts",
+    "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/handlers/reviewer-batch.ts",
+    "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/templates/agents",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "scripts/verify-codex-assets.mjs",
+    "packages/main/src/claude-md-sync.ts",
+    "packages/main/src/init-assets.ts",
+    "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/artifact-contract.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/done-required-validation.ts",
+    ".githooks/pre-push",
+    "packages/main/src/core/release-push-approval.ts",
+    "packages/main/src/handlers/workflow.ts",
+    "package.json",
+    "package-lock.json",
+    "packages/main/src/core/version-bump.ts",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/brand-env.ts",
+    "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/handlers/lattice-cli.ts",
+    "packages/utils/package.json",
+    "packages/utils/package-lock.json",
+    "packages/utils/src/index.ts",
+    "packages/utils/src/register.ts",
+    "packages/utils/src/tool-defs.ts",
+    "packages/lab/package.json",
+    "packages/lab/package-lock.json",
+    "packages/lab/src/index.ts",
+    "packages/lab/src/register.ts",
+    "packages/lab/src/tool-defs.ts",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "packages/main/src/registry.ts",
+    "packages/main/src/cli.ts",
+    "packages/main/src/cli/help-renderer.ts",
+    "scripts/verify-entrypoints.mjs",
+    "scripts/verify-lattice-residue.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/agent-role-identity.ts",
+    "packages/main/src/core/artifact-schema.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/brand-role-migration.test.mjs",
+    "packages/main/tests/prompt-role-migration.test.mjs",
+    "packages/main/tests/managed-marker-migration.test.mjs",
+    "packages/main/tests/artifact-schema-migration.test.mjs",
+    "packages/main/tests/release-push-approval-migration.test.mjs",
+    "packages/main/tests/package-identity-migration.test.mjs",
+    "packages/main/src/tasks/version-bump-smoke.ts",
+    "scripts/verify-global-lab-entrypoint.mjs",
+    "packages/main/tests/bin-alias-migration.test.mjs",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "scripts/run-proofstory-pre-review-live-proof.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Refresh scope binding after the approved CHK-013 acceptance-contract repair and expanded CHK-001..013 plan.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Canonical prompt template filenames now drive registry and host writes; these shared host assets and affected smoke assertions must follow the new names while retaining legacy alias read coverage.",
+      "timestamp": "2026-08-20T07:31:46.867Z",
+      "paths": [
+        "packages/main/src/core/global-agents.ts",
+        ".claude/agents",
+        ".proof-or-stop-codex/agents",
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+        "packages/main/src/tasks/global-agents-unit-smoke.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+        "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+        "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+        "scripts/verify-test-intent-prompt-fixture-friendly.mjs",
+        "scripts/verify-test-intent-prompt-profile.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/global-agents.ts",
+        ".claude/agents",
+        ".proof-or-stop-codex/agents",
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+        "packages/main/src/tasks/global-agents-unit-smoke.ts",
+        "packages/main/src/tasks/codex-registry-mode-smoke.ts",
+        "packages/main/src/tasks/prompt-token-cost-smoke.ts",
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/reviewer-scan-budget-guard-smoke.ts",
+        "packages/main/src/tasks/runtime-owned-agent-assets-smoke.ts",
+        "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts",
+        "scripts/verify-test-intent-prompt-fixture-friendly.mjs",
+        "scripts/verify-test-intent-prompt-profile.mjs"
+      ],
+      "affectedPathCount": 15,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical Codex verifier now validates the checked-in README and manifest as active assets; migrate their generated output while retaining legacy adapter layouts only as read-only compatibility fixtures.",
+      "timestamp": "2026-08-20T08:04:34.616Z",
+      "paths": [
+        ".proof-or-stop-codex/README.md",
+        ".proof-or-stop-codex/proof-or-stop.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop-codex/README.md",
+        ".proof-or-stop-codex/proof-or-stop.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Session-brief smoke exposes the hook as an active state-path and command compatibility choke point; canonical proof-or-stop state must be read first while legacy lattice state remains read-only compatible.",
+      "timestamp": "2026-08-20T08:13:10.994Z",
+      "paths": [
+        ".claude/hooks/session-brief-reminder.cjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/hooks/session-brief-reminder.cjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "User-authorized canonical alias ordering for proof-or-stop-test-intent; retain both legacy aliases and preserve proof-or-stop-test-case-reviewer identity.",
+      "timestamp": "2026-08-20T08:15:55.577Z",
+      "paths": [
+        "packages/main/src/core/agent-role-identity.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/agent-role-identity.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical story dispatch now emits proof-or-stop-implementer commit authors; the channel gate must accept that writer while preserving lattice-implementer read compatibility.",
+      "timestamp": "2026-08-20T08:40:54.733Z",
+      "paths": [
+        "packages/main/src/handlers/validate-channel.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/validate-channel.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical prompt role filenames and IDs change the checked-in baseline lockfiles and overlap matrix; regenerate these derived artifacts so baseline verification binds the new canonical registry while preserving legacy compatibility findings.",
+      "timestamp": "2026-08-20T08:42:42.707Z",
+      "paths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "docs/requirements/baselines/role-prompt-measurement-baseline.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "287d47dc8f894c5f015425e706f4e2a276ba98e8",
+      "materialHash": "cf2034a98665d10b7db58a943ea6fe84963df55f004a5a2c90fdcadefcf3bdb1"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical role migration changes production reviewer lane output and package inventory; these focused smoke fixtures must assert canonical output while retaining explicit legacy compatibility cases.",
+      "timestamp": "2026-08-20T09:03:56.229Z",
+      "paths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+        "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+        "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+        "packages/main/tests/red/red-w2b-wiring-contract.mjs",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "User explicitly assigned these four canonical role migration smoke files to this session for DEV edits and targeted verification.",
+      "timestamp": "2026-08-20T09:05:10.037Z",
+      "paths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+        "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/review-pass-discard-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-lens-runner-smoke.ts",
+        "packages/main/src/tasks/adversarial-review-critic-smoke.ts",
+        "packages/main/src/tasks/lifecycle-orchestrate-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Transfer the active lease so this session can apply the user-authorized targeted fixture update in the existing DEV worktree.",
+      "timestamp": "2026-08-20T09:05:28.160Z",
+      "paths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/quorum-submit-smoke.ts",
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical role migration changes production reviewer lanes, topology authority, quorum diagnostics, and migration smoke fixtures that assert the resulting identities.",
+      "timestamp": "2026-08-20T09:36:45.906Z",
+      "paths": [
+        "packages/main/src/core/adversarial-review-lens-runner.ts",
+        "packages/main/src/core/adversarial-review-critic.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/reviewer-quorum.ts",
+        "packages/main/src/handlers/reviewer-quorum.ts",
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/adversarial-review-lens-runner.ts",
+        "packages/main/src/core/adversarial-review-critic.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/reviewer-quorum.ts",
+        "packages/main/src/handlers/reviewer-quorum.ts",
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+        "packages/main/src/tasks/flow-stability-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 9,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The canonical lens lane values must be accepted by the review-run lane type and runtime registry projection.",
+      "timestamp": "2026-08-20T09:39:07.695Z",
+      "paths": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-run.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Quorum required-lane diagnostics and pass lookup must emit canonical reviewer identities while reading legacy passes.",
+      "timestamp": "2026-08-20T09:43:38.186Z",
+      "paths": [
+        "packages/main/src/handlers/quorum-submit.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/quorum-submit.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Quorum required-lane diagnostics and pass lookup must emit canonical reviewer identities while reading legacy passes.",
+      "timestamp": "2026-08-20T09:43:49.269Z",
+      "paths": [
+        "packages/main/src/handlers/quorum-submit.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/quorum-submit.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Topology receipt smoke fixtures must create canonical implementer business commits after the production role identity migration.",
+      "timestamp": "2026-08-20T09:44:53.083Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-topology-critic-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c0f92bc4eac52eb5dc332b678e3cf13a5ffda2d",
+      "materialHash": "d903508de381187a921b8a83171cfdc191dac23bb820c7575d59f7c3844fa089"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These migration verifier and prompt-registry smoke paths are necessary to validate the canonical proof-or-stop identity rollout and remain explicit review-visible scope evidence.",
+      "timestamp": "2026-08-20T13:54:03.593Z",
+      "paths": [
+        "packages/main/src/tasks/prompt-registry-smoke.ts",
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/prompt-registry-smoke.ts",
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "e133c7cc7f65890ab900bbe1519859e095aad6e2",
+      "materialHash": "e661be1797ab8b8ee8380d0a02bd928a0c02227ea0bd8284b6e6fe8a6bf6ce26"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These two compatibility fixes are required to validate the migrated global bootstrap and canonical INIT reviewer dispatch paths exposed by the current full suite; they remain explicit review-visible scope.",
+      "timestamp": "2026-08-20T14:18:15.773Z",
+      "paths": [
+        "bin/bootstrap-runner.js",
+        "packages/main/src/core/machine.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "bin/bootstrap-runner.js",
+        "packages/main/src/core/machine.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "eb6b5a121d6ddabfee77c3f5ebd528d4d2c20088",
+      "materialHash": "bd93b090d404e74938ba53cf2fbbeeb6d7a93379013c497172770dfbb1ca9f5b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Repair the production acceptance rollout verifier actor and refresh its signed evidence so the story can prove the canonical migration through the actual acceptance workflow.",
+      "timestamp": "2026-08-20T14:47:01.844Z",
+      "paths": [
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-rollout.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+      "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Refresh the coupled dynamic-code exemption pin after the authorized bootstrap-runner migration changed its exact executable fingerprint; keep the retirement guard fail-closed on future drift.",
+      "timestamp": "2026-08-20T18:08:29.115Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "152318f306aa01e5ea523851ed79c1d243ae44fc",
+      "materialHash": "2ce77f36028ddd6fc00aaf1e1bb54f0aac847bbb6ee8825ee295b7a5f7554523"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These three files contain the focused reviewer findings fixes and their required acceptance regression coverage; the implementation is necessary to close F-077, F-078, and F-079.",
+      "timestamp": "2026-08-20T19:19:04.316Z",
+      "paths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/handlers/reviewer-list.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/codex-adapter-checks.ts",
+        "packages/main/src/handlers/reviewer-list.ts",
+        "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "e181596ade3ffd9f4753334d7f0aa99a67e30e4e",
+      "materialHash": "1a4d3b5fda97ff519d324a411f8be923612536aa5ed1ad8f2782ecea6c21a6d6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These story-create guidance and focused regression files are the minimal implementation and verification surface required to close F-080, which identified legacy reviewer IDs in active story creation guidance.",
+      "timestamp": "2026-08-20T19:44:58.481Z",
+      "paths": [
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+        "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/story-create.ts",
+        "packages/main/tests/b90d6-init-dispatch-guidance.test.mjs",
+        "packages/main/tests/f080-story-create-canonical-reviewer-guidance.test.mjs"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "49da8e41cd43f9ca9cc5ffb233cd77d51d73d64e",
+      "materialHash": "b40406773e9238d2f14ac0581f249445e9868f69ecf6be76c1bcc4535cf068bd"
+    },
+    {
+      "actor": "proof-or-stop-implementer",
+      "reason": "Canonical reviewer migration requires lane schemas, active recovery guidance, prompt budget normalization, mutation guard readers, and focused boundary coverage.",
+      "timestamp": "2026-08-20T20:21:10.019Z",
+      "paths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/core/prompt-budget.ts",
+        "packages/main/src/handlers/init-preflight.ts",
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/guard-utils.ts",
+        "packages/main/src/core/prompt-budget.ts",
+        "packages/main/src/handlers/init-preflight.ts",
+        "packages/main/src/handlers/story-query.ts",
+        "packages/main/tests/f081-f085-canonical-role-boundaries.test.mjs"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "49da8e41cd43f9ca9cc5ffb233cd77d51d73d64e",
+      "materialHash": "b40406773e9238d2f14ac0581f249445e9868f69ecf6be76c1bcc4535cf068bd"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This verifier contract was updated to enforce the canonical proof-or-stop runtime identity migration and is required by the story checks.",
+      "timestamp": "2026-08-20T22:15:44.757Z",
+      "paths": [
+        "scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-runtime-fact-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "824901a95e5bd548b0a2600180bab8cc20c434e0",
+      "materialHash": "6d9e3e87b1b5567817c717e30661ad067ffd3ea6fd3196cfc474793b4e365d70"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These source, documentation, and smoke-test changes are required together to complete the canonical proof-or-stop identity migration and its contract coverage.",
+      "timestamp": "2026-08-20T22:17:03.684Z",
+      "paths": [
+        "README.md",
+        "docs/CLI.md",
+        "packages/main/src/cli/ownership-gate.ts",
+        "packages/main/src/core/delivery-check-hash.ts",
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/core/runtime-fact-registry.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/tasks/command-ownership-contract.ts",
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+        "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "README.md",
+        "docs/CLI.md",
+        "packages/main/src/cli/ownership-gate.ts",
+        "packages/main/src/core/delivery-check-hash.ts",
+        "packages/main/src/core/lifecycle-readiness.ts",
+        "packages/main/src/core/runtime-fact-registry.ts",
+        "packages/main/src/handlers/session.ts",
+        "packages/main/src/handlers/story-review.ts",
+        "packages/main/src/handlers/validate-concept.ts",
+        "packages/main/src/tasks/command-ownership-contract.ts",
+        "packages/main/src/tasks/concept-gate-scope-smoke.ts",
+        "packages/main/src/tasks/delivery-check-freshness-smoke.ts",
+        "packages/main/src/tasks/init-check-required-agents-smoke.ts",
+        "packages/main/src/tasks/live-smoke-transcript-smoke.ts"
+      ],
+      "affectedPathCount": 14,
+      "phase": "DEV",
+      "headHash": "e0c8c531b367b0ecb183e052697df7ddd11d1201",
+      "materialHash": "6d9e3e87b1b5567817c717e30661ad067ffd3ea6fd3196cfc474793b4e365d70"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These four changed files are necessary acceptance-verifier and canonical-role emission choke points for B-5a88; the current final diff extends the already reviewed migration scope.",
+      "timestamp": "2026-08-20T23:44:14.942Z",
+      "paths": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/handlers/dev-memory.ts",
+        "packages/main/src/handlers/evaluate.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/lattice-parallel-wave.ts",
+        "packages/main/src/handlers/dev-memory.ts",
+        "packages/main/src/handlers/evaluate.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "73c5bc144ce8027e6fedc15d6cbcaa452d9f89cd",
+      "materialHash": "3d97c9e77ea180d64d31a0b408befcfb468eec7be61d882546e89fdd91ab5695"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This smoke test must be updated with canonical proof-or-stop reviewer lane outputs introduced by this Story; leaving legacy expectations causes validation to fail.",
+      "timestamp": "2026-08-21T01:15:44.635Z",
+      "paths": [
+        "packages/main/src/tasks/adversarial-review-round-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/adversarial-review-round-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c424cab02e610dd2dfb11348f0daa2b21bfcda4e",
+      "materialHash": "f44d06fc3d91f34970325f6e0687dd893c3d91b520e93af1a1b5550d422675d6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These files contain active reviewer-role guidance and canonical lane comments directly required to resolve F-100; the edits are documentation-only and preserve runtime compatibility behavior.",
+      "timestamp": "2026-08-21T01:32:14.441Z",
+      "paths": [
+        "CLAUDE.md",
+        "packages/main/src/core/adversarial-review-round.ts",
+        "packages/main/src/core/adversarial-review-verifier.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "CLAUDE.md",
+        "packages/main/src/core/adversarial-review-round.ts",
+        "packages/main/src/core/adversarial-review-verifier.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "11411bc5ffa0eaca9a91547658ffa99b715364a8",
+      "materialHash": "bcbad0369ccfdeba0af660e2a96a2c60b2c9a5f6eb99383107cdb10158121ec9"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This documentation is the authoritative host_run lane usage guide and must be updated to canonical proof-or-stop reviewer IDs for F-101; legacy aliases remain explicitly labeled.",
+      "timestamp": "2026-08-21T01:43:25.093Z",
+      "paths": [
+        "docs/host-run-usage.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/host-run-usage.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "aae4afb0004466eae18d1bc51bc7b103089aec19",
+      "materialHash": "132005af8d5402d8c3f8ae2a1db0e66a4e5b1ff7c1406377a7c044f2dad182e2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Canonical global-thin manifest and its focused smoke are required to verify the F-107 identity migration.",
+      "timestamp": "2026-08-21T02:35:25.334Z",
+      "paths": [
+        ".proof-or-stop/proof-or-stop.json",
+        "packages/main/src/tasks/thin-init-assets-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/proof-or-stop.json",
+        "packages/main/src/tasks/thin-init-assets-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "ad67d923cf8ae7eb6d423c7b3ee9400f8a33ce9f",
+      "materialHash": "3953e9236797f4c3774c00d69b6b5fe7191190ad1a64875a4c4dee44790fadf6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These paths are the minimal decision-document, producer, admissibility, and focused regression surfaces required to resolve Round 20 findings F-117 through F-120 while preserving explicit legacy compatibility boundaries.",
+      "timestamp": "2026-08-21T04:26:04.260Z",
+      "paths": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/brand-rename-mapping.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/src/core/auto-commit-metadata.ts",
+        "packages/main/src/core/proof-admissibility.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts",
+        "packages/main/src/tasks/proof-admissibility-smoke.ts"
+      ],
+      "affectedPathCount": 6,
+      "phase": "DEV",
+      "headHash": "671432c290632e20a028c14083684a5b94e5ce62",
+      "materialHash": "778463f4917f222c10038bbe3bfa34c7f62d5bdd3a4db9fbe895b9996a2bda7c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-129 requires canonical test-intent handoff output and an executable regression for the production guidance boundary.",
+      "timestamp": "2026-08-21T05:16:29.889Z",
+      "paths": [
+        "packages/main/src/handlers/testintent-handoff.ts",
+        "scripts/verify-testintent-handoff.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/testintent-handoff.ts",
+        "scripts/verify-testintent-handoff.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "2babd6edc52cc77da90fe03b6d022b7c04093232",
+      "materialHash": "17293903fe227d4e75cbaa58d0e325b0cfdab51e1c278e9bbb016a43898974b1",
+      "anchors": [
+        "canonical_test_intent_handoff"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-136 requires updating the existing handoff smoke to assert canonical verificationIntent guidance emitted by the production handler.",
+      "timestamp": "2026-08-21T05:43:09.530Z",
+      "paths": [
+        "packages/main/src/tasks/testintent-handoff-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/testintent-handoff-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "a1be4b601fba558e0245b92c9dd5c0f569898265",
+      "materialHash": "0ec06165ed1019029b855585bb797f5b77d9e96a7aeb58ce9326a467e2c4539c",
+      "anchors": [
+        "canonical_test_intent_handoff"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These paths are required to validate the migrated verificationIntent prompt contract, keep the clean-checkout profile verifier buildable, and preserve lab confirmation boundaries exposed by the Round 24 review findings.",
+      "timestamp": "2026-08-21T08:02:26.513Z",
+      "paths": [
+        "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts",
+        "scripts/verify-test-intent-prompt-profile.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/lab/src/profiles/test-intent-prompt-quality-v1.ts",
+        "scripts/verify-test-intent-prompt-profile.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c02d8d9ca9988d17b83a701ccbb124bce7fb55eb",
+      "materialHash": "dda982279ee9eb8a91ae95427d96a5c8e3c404635e46364756556cf7faf91a02"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CHK-002 marker migration updates this smoke test so generated thin shims reject the canonical proof-or-stop marker slice; this test change is required to verify the story contract.",
+      "timestamp": "2026-08-21T15:06:26.580Z",
+      "paths": [
+        "packages/main/src/tasks/global-agents-init-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/global-agents-init-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "1a2ff87b81ba8911cef796f85670d6b2ea96c26d",
+      "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+      "anchors": [
+        "CHK_002",
+        "proof_or_stop_marker_migration"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These legacy template files are intentionally retired as part of the canonical proof-or-stop agent-template migration; the replacement templates are tracked in the same migration scope and historical aliases remain readable only where the decision requires.",
+      "timestamp": "2026-08-21T15:28:26.086Z",
+      "paths": [
+        "packages/main/templates/agents/implementation-reviewer.md",
+        "packages/main/templates/agents/lattice-evaluator-cli.md",
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-behavior.md",
+        "packages/main/templates/agents/lattice-review-channel.md",
+        "packages/main/templates/agents/lattice-review-concept.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-docs.md",
+        "packages/main/templates/agents/lattice-review-quality.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md",
+        "packages/main/templates/agents/lattice-review-test-coverage.md",
+        "packages/main/templates/agents/lattice-review-topology-critic.md",
+        "packages/main/templates/agents/product-reviewer.md",
+        "packages/main/templates/agents/test-case-reviewer.md",
+        "packages/main/templates/agents/test-intent.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/templates/agents/implementation-reviewer.md",
+        "packages/main/templates/agents/lattice-evaluator-cli.md",
+        "packages/main/templates/agents/lattice-evaluator.md",
+        "packages/main/templates/agents/lattice-implementer.md",
+        "packages/main/templates/agents/lattice-review-behavior.md",
+        "packages/main/templates/agents/lattice-review-channel.md",
+        "packages/main/templates/agents/lattice-review-concept.md",
+        "packages/main/templates/agents/lattice-review-delivery.md",
+        "packages/main/templates/agents/lattice-review-docs.md",
+        "packages/main/templates/agents/lattice-review-quality.md",
+        "packages/main/templates/agents/lattice-review-scope-plan.md",
+        "packages/main/templates/agents/lattice-review-story-init.md",
+        "packages/main/templates/agents/lattice-review-test-coverage.md",
+        "packages/main/templates/agents/lattice-review-topology-critic.md",
+        "packages/main/templates/agents/product-reviewer.md",
+        "packages/main/templates/agents/test-case-reviewer.md",
+        "packages/main/templates/agents/test-intent.md"
+      ],
+      "affectedPathCount": 17,
+      "phase": "DEV",
+      "headHash": "e8bc57083f382add17d96a45e727e7b0f751b862",
+      "materialHash": "35f3b5acf39d68c848de6a1e70db64d07a0042b6743ba865424c2c083228b8d6",
+      "anchors": [
+        "agent_template_rename",
+        "legacy_template_retirement"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These seven production prompt/schema and focused migration smoke files are the necessary implementation and regression surface for the reviewed B-5a88 rename fixes.",
+      "timestamp": "2026-08-21T19:40:38.973Z",
+      "paths": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/review-run-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/validation-types.ts",
+        "packages/main/src/tasks/lattice-cli-migration-smoke.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts",
+        "packages/main/src/tasks/review-run-smoke.ts"
+      ],
+      "affectedPathCount": 7,
+      "phase": "DEV",
+      "headHash": "dce25ebde139358a2a42c9c6ce567c5d0eb086d5",
+      "materialHash": "c425b49ca9fe6971b2bbda60e4b2144529d88bf1c2e5d5abf8e7d8c8c31266e5"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This migration contract verifier is the direct executable regression for the supersession citation finding and is required to prove the repaired identity migration gate.",
+      "timestamp": "2026-08-21T20:00:05.596Z",
+      "paths": [
+        "scripts/verify-migration-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-migration-contract.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2ffa7abafce569ddc08f362c19a0757dfa551d19",
+      "materialHash": "901a2ddfe07ac8bdbfa87eea4b26d77f8f610eeef9d20c65a4ebd1a4a978d128"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These four review-inventory paths are necessary for the current Story review inventory finalization and certification-window evidence; the merged implementation and smoke preserve the canonical reviewer identity migration contract.",
+      "timestamp": "2026-08-21T23:05:36.329Z",
+      "paths": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "dd0de4e361653487e4a020ff00390d9590c2b6d6",
+      "materialHash": "83313a2237456066d5ad1f830603586cd4640a51aabd24e8ce59e6afb3936f32",
+      "anchors": [
+        "review_inventory_certification",
+        "canonical_reviewer_identity_migration"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These two verifier and packaging paths are part of the story-wide proof-or-stop identity migration and are required to keep generated review guidance and shipped desktop metadata canonical.",
+      "timestamp": "2026-08-22T05:26:15.097Z",
+      "paths": [
+        "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+        "scripts/package-desktop.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/story-review-ergonomics-smoke.ts",
+        "scripts/package-desktop.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "793d02e629a46124110a3c3c0b470ad8d95526d3",
+      "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This existing flow-stability regression assertion must track the canonical reviewer output introduced by this story, otherwise the required root full-suite validation fails on a stale expected string.",
+      "timestamp": "2026-08-22T07:25:39.942Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b26ab4e4796164ea63ac96211aa73e95d0c47a2e",
+      "materialHash": "a883261785bc024d6209525b43bc89374a323206a9318a57c96e49180c7ea0be",
+      "anchors": [
+        "flowStabilitySmoke"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-349/F-356/F-357/F-358 remediation requires these active producers, protocol config, package surfaces, and focused tests; the original scope omitted them, so this explicit expansion is limited to the reviewed migration paths and excludes frozen historical files.",
+      "timestamp": "2026-08-23T19:57:17.687Z",
+      "paths": [
+        "packages/lab/src/core/config.ts",
+        "packages/lab/src/core/diff.ts",
+        "packages/lab/src/core/patch-policy.ts",
+        "packages/lab/src/core/profile.ts",
+        "packages/lab/src/core/sandbox.ts",
+        "packages/lab/src/core/scoring.ts",
+        "packages/lab/src/core/storage.ts",
+        "packages/lab/src/handlers/lab.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/observability-snapshot.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/prompt-measurement.ts",
+        "packages/main/src/core/proof-admissibility-binding.ts",
+        "packages/main/src/core/usage-sweep.ts",
+        "packages/main/src/handlers/done-closure.ts",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/quorum-prune.ts",
+        "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+        "packages/main/tests/lab-brand-migration.test.mjs",
+        "proof-or-stop.config.json",
+        "scripts/verify-implementation-reviewer.mjs",
+        "scripts/verify-lab-foundation.mjs",
+        "scripts/verify-lab-scoring-core.mjs",
+        "scripts/verify-product-reviewer.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/lab/src/core/config.ts",
+        "packages/lab/src/core/diff.ts",
+        "packages/lab/src/core/patch-policy.ts",
+        "packages/lab/src/core/profile.ts",
+        "packages/lab/src/core/sandbox.ts",
+        "packages/lab/src/core/scoring.ts",
+        "packages/lab/src/core/storage.ts",
+        "packages/lab/src/handlers/lab.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/observability-snapshot.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/pre-review-live-proof.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/prompt-measurement.ts",
+        "packages/main/src/core/proof-admissibility-binding.ts",
+        "packages/main/src/core/usage-sweep.ts",
+        "packages/main/src/handlers/done-closure.ts",
+        "packages/main/src/handlers/done-prepare.ts",
+        "packages/main/src/handlers/quorum-prune.ts",
+        "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+        "packages/main/tests/lab-brand-migration.test.mjs",
+        "proof-or-stop.config.json",
+        "scripts/verify-implementation-reviewer.mjs",
+        "scripts/verify-lab-foundation.mjs",
+        "scripts/verify-lab-scoring-core.mjs",
+        "scripts/verify-product-reviewer.mjs"
+      ],
+      "affectedPathCount": 26,
+      "phase": "DEV",
+      "headHash": "1e6b84ec4753de4eed2b0a1b62efa99bc0c90555",
+      "materialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These active runtime, smoke, package, changelog, and verifier surfaces are the minimum files required to resolve the six verified migration finding families without changing unrelated behavior.",
+      "timestamp": "2026-08-24T01:02:35.721Z",
+      "paths": [
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+        "packages/main/src/core/stale-detector.ts",
+        "bin/bootstrap-runner.js",
+        "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+        "packages/lab/package.json",
+        "packages/utils/package.json",
+        "CHANGELOG.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/context.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/core/usage-burn-alert.ts",
+        "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/tasks/lattice-only-absence-smoke.ts",
+        "packages/main/src/core/stale-detector.ts",
+        "bin/bootstrap-runner.js",
+        "packages/main/src/tasks/test-suite-utils-autobuild-smoke.ts",
+        "packages/lab/package.json",
+        "packages/utils/package.json",
+        "CHANGELOG.md",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/handlers/context.ts",
+        "packages/main/src/handlers/worktree.ts",
+        "packages/main/src/core/usage-burn-alert.ts",
+        "packages/main/src/tasks/story-metadata-protection-smoke.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 15,
+      "phase": "DEV",
+      "headHash": "32f75230ab40607a86043c02160754a93006357d",
+      "materialHash": "b54b7b5c7f26b83d5b49f9746fbde422f265b724f2dd120605dd12c3011d0a06"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The retired-authority smoke owns the pinned closeout-trust AST fingerprint and must be updated in lockstep so validation can distinguish a current compatibility module from transitive residue.",
+      "timestamp": "2026-08-24T01:13:41.739Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "65ca677b014222806de09e4d012b4ba7291f1181",
+      "materialHash": "60da37ca508e4b4d82139915c33df40724d4f265a4cd89a8658bed2bbf6cf4a4"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These two runnable smoke assertions must follow the canonical proof-or-stop diagnostics emitted by the already reviewed context and machine producers; retaining retired lattice expectations makes the focused validation suite fail.",
+      "timestamp": "2026-08-24T01:40:03.995Z",
+      "paths": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/worktree-authority-smoke.ts",
+        "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "02cad3b50cf238f7fe90cc32207db587a8f6a8d7",
+      "materialHash": "721492cfe7c5b95c5dd3a3be37aa973cebf4c84922b6bf2e6ff7c2a8326b9252"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This source change is necessary to preserve audit coverage for historical lattice command tokens while removing the deprecated npm bin alias.",
+      "timestamp": "2026-08-24T10:16:22.121Z",
+      "paths": [
+        "packages/main/src/core/audit-scan.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/audit-scan.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "3c2badf1f8908d2481e2f6e09550de614393d40f",
+      "materialHash": "87d7fb165a4db7a745701ba5c25f10815a14c63d09b993cab79a94120548c94b",
+      "anchors": [
+        "audit_scan.historical_lattice_token_coverage",
+        "deprecated_bin_alias_removal"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This Story-owned smoke test verifies the acceptance-topology gate regression and is required to validate the implementation.",
+      "timestamp": "2026-08-24T15:09:54.649Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-gate-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "621ba544b6fd68f55ea76a864b248122a9fe9295",
+      "materialHash": "cd63b3cd4d7da068127baaf20fac5d9fde983e0c8946c24e30a9ab3c3c9959b0",
+      "anchors": [
+        "acceptance_topology_gate"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These four smoke fixtures assert the proof binding schema migration; updating them is required to prove canonical writers while preserving the legacy reader compatibility fix.",
+      "timestamp": "2026-08-24T17:51:52.229Z",
+      "paths": [
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/observability-snapshot-smoke.ts",
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-prepare-auto-closeout-smoke.ts",
+        "packages/main/src/tasks/done-prepare-closure-heartbeat-smoke.ts",
+        "packages/main/src/tasks/observability-snapshot-smoke.ts",
+        "packages/main/src/tasks/review-assurance-surfacing-smoke.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "d27c32a7edabd05dafd3ff197e652e5f0c709a64",
+      "materialHash": "55b311774a7b8c5270b0e9790ddb6a8d6443436d1f89fd77ad9a510aa5ac0621"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The smoke harness setup is part of the canonical remote-push approval migration, and this one-line ignore fix is required to exercise the proof-or-stop path without a repository-root false positive.",
+      "timestamp": "2026-08-25T00:23:54.738Z",
+      "paths": [
+        "packages/main/src/tasks/remote-push-approval-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/remote-push-approval-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4ab7dea7bb262435fa7a327c34ca7131dde3fdc1",
+      "materialHash": "f962e500306944d9d155c5dd74d1ecbfeffa3f0564fe7fd9ed1f0d8d69b23ca1",
+      "anchors": [
+        "CHK_004",
+        "remote_push_approval_schema_migration"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This smoke path is the focused acceptance surface for F-417 and is required to verify that active reviewer launch hints use canonical proof-or-stop IDs while legacy-read compatibility remains intentional.",
+      "timestamp": "2026-08-25T01:17:02.663Z",
+      "paths": [
+        "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/experience-layer-review-dispatch-hint-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "df88996383444895aecdbf3642def62477e2aadb",
+      "materialHash": "d96aec0b146949b24b00ba9ce83385097b7f445de885617793aa7d1909b926a2",
+      "anchors": [
+        "F_417",
+        "experience_layer_review_dispatch_hint"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-420 verified these active done-prepare writers still emitted deprecated lattice schemas; canonicalizing their writes is required by this Story migration and its review findings.",
+      "timestamp": "2026-08-25T05:22:58.670Z",
+      "paths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/core/done-prepare-validation-reuse.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/done-prepare-generated-metadata.ts",
+        "packages/main/src/core/done-prepare-validation-reuse.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c9256d3d09748b59722361a3faf966601c19a721",
+      "materialHash": "bbc09ade337af7793defc58408e9f7485311b786d8b08975048dae168e7b7752",
+      "anchors": [
+        "donePrepareGeneratedMetadataSchema",
+        "donePrepareValidationReuseSchema"
+      ]
+    },
+    {
+      "actor": "main",
+      "reason": "These five paths are direct Story B-5a88 implementation or contract surfaces: the decision and canonical verification-intent template define the role migration, the alias-sunset helper and test implement its machine gate, and process-fact-levels registers the gate-consumed fact. They are reviewed together and do not expand into unrelated product behavior.",
+      "timestamp": "2026-08-25T13:10:34.048Z",
+      "paths": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "packages/main/src/core/legacy-role-alias-sunset.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/templates/agents/proof-or-stop-verification-intent.md",
+        "packages/main/tests/legacy-role-alias-sunset.test.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+        "packages/main/src/core/legacy-role-alias-sunset.ts",
+        "packages/main/src/core/process-fact-levels.ts",
+        "packages/main/templates/agents/proof-or-stop-verification-intent.md",
+        "packages/main/tests/legacy-role-alias-sunset.test.mjs"
+      ],
+      "affectedPathCount": 5,
+      "phase": "DEV",
+      "headHash": "798a8d18b7b0b9eea3188a23877e35252500acf8",
+      "materialHash": "4b94aa8e89265d0e0f01a4be569f15caf09a907e53a4600fd1458cf5728e7072"
+    },
+    {
+      "actor": "main",
+      "reason": "These four migration support files are already part of B-5a88's committed implementation diff but are not represented in the legacy checklist file declarations; preserve the existing reviewer-visible acknowledgement while refreshing the verifier binding.",
+      "timestamp": "2026-08-26T05:59:44.723Z",
+      "paths": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/cli/lab-entrypoint.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/managed-markers.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-init.ts",
+        "packages/main/src/cli/lab-entrypoint.ts",
+        "packages/main/src/core/acceptance-discovery-adapters.ts",
+        "packages/main/src/core/managed-markers.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "0ef1b1d74a6167cc01134417b8db7e310d6ca681",
+      "materialHash": "52ba0d013c98cc3d0709267916a53ec7d1f37d6369a57b378b0338abec396146",
+      "anchors": [
+        "acceptance_discovery",
+        "managed_markers"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Both are minimal and required to unblock B-5a88's own DEV to REVIEW scope gate and its CHK-003/CHK-012 DONE-required pinned test. (1) packages/main/src/core/finding-verify.ts: the B-cc10 state-dir migration orphaned the entire historical B-META gap-log provenance chain, so classifySharedLifecycleMetadata reported those shared paths as untrusted and the scope gate refused this story's merge-imported B-META change with invalid_binding_shape. Two read-only compatibility fixes: committedArtifactDigest now probes stateDirCandidates canonical-first instead of the canonical literal alone, and the per-receipt loop accepts either state-dir spelling for the signed artifactPath/ledgerPath fields, which pre-migration receipts cannot rewrite without invalidating their own HMAC. No weakening: resolved bytes must still digest to the recorded preArtifactDigest and the HMAC/sequence/digest checks are unchanged; new writes still emit only the canonical spelling. artifact-schema-migration.test.mjs already asserted this either-spelling tolerance, so this aligns the verifier with its stated contract. Verified: verifyGapLogArtifactBinding now returns valid_official_gap_log_binding, gap_log works again repo-wide after refusing every write all session, and the pinned test passes. (2) B-5a88-FOLLOWUP-STORIES.md: durable traceable record of three defects deliberately NOT fixed here, each with repro steps, evidence, blast radius and recommended handling, following the repo's existing B-3f3d-FOLLOWUP-STORIES.md precedent.",
+      "timestamp": "2026-08-31T11:20:58.415Z",
+      "paths": [
+        "B-5a88-FOLLOWUP-STORIES.md",
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "B-5a88-FOLLOWUP-STORIES.md",
+        "packages/main/src/core/finding-verify.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "1eb607b8c33f72f7c93f33fe2b3aaa4e7e83741b",
+      "materialHash": "61c31d7289c0623541334bbd406ba4e78198b44ff05d40dd02972897f2b590e5"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Both files carry the fix for a real regression THIS story introduced, so they are in-scope repair rather than scope expansion. CHK-007 correctly narrowed PROOF_OR_STOP_BIN_NAMES to the canonical pair so retired lattice names are never advertised in usage text, but two PARSER call sites reused that same list to strip a redundant bin token pasted as argv[0], so 'lattice host runtime list' regressed to 'Unknown command: lattice'. That regression was caught by cli-surface-smoke, a configured validate command, and both call sites' own comments state they forgive a pasted bin token under EITHER name, so the narrowing contradicted their documented contract. Fix adds an exported STRIPPABLE_BIN_TOKENS (canonical union retired) in cli/alias-normalizer.ts consumed only by those two parser sites, mirroring the established BIN_TOKEN_ALTERNATION union in core/audit-scan.ts. Parse-tolerating a token does not advertise it: resolveUsageBin still gates strictly on PROOF_OR_STOP_BIN_NAMES, bin-alias-migration.test.mjs (CHK-007's own test) passes, verify-lattice-residue npm-bin passes, and cli.js help emits zero lattice bin forms. cli-engine.ts additionally drops the dead PROOF_OR_STOP_BIN_NAMES import that the fix left behind (finding F-502, filed by the concept lane and now resolved). All three reviewer lanes reviewed these exact files this round; concept and quality each independently verified the advertising path is untouched.",
+      "timestamp": "2026-08-31T13:44:04.013Z",
+      "paths": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli-engine.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "3ed2ae95128c792f57beef0e84b88252396a0ca1",
+      "materialHash": "25e0f0d20105007001c8eb4ccaef93a92c8676e7ad08d325a90e9bce06c8d718"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Shared dev-memory experience log, written by the framework's own dev_memory_capture command whose output the DONE gate requires: story_advance DONE refuses with [missing_dev_memory_finish_decision] until a finish decision exists, and this story honestly recorded decision=captured rather than taking the no-reusable-lesson exit, because the convergence produced two genuinely reusable lessons. Entry 12f5957 (failure-mode) records that a DONE-required receipt written by a separate process self-invalidates through its own metadata auto-commit, so only done_prepare's single-process write-and-consume converges; it also lists the three hypotheses that were disproven by test so the next reader does not repeat them. Entry d9398e6 (tool-quirk) records that the CertificationWindow needs a FINALIZED UNCONSUMED review-inventory receipt while story_advance --phase=DEV consumes it, which is why three receipts were spent before the pattern was seen. Content is append-only lesson text with no product-runtime effect; the file is a cross-story shared log, not B-5a88-owned source, so it falls outside the story's declared path set by construction rather than by scope creep.",
+      "timestamp": "2026-08-31T17:28:21.667Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "7dfe114e46ca677852bb9a1187e75c37bd59bdb4",
+      "materialHash": "2fac880039ac361d91f02df17766115d341f02ac3c1a2f6198a5bfcf82f70f87"
+    }
+  ],
+  "createdAt": "2026-08-20T05:20:00.402Z",
+  "updatedAt": "2026-08-31T17:28:21.667Z",
+  "fileRules": [],
+  "protectedAnchors": [],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/agent-dispatch-registry.ts": "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/reviewer-quorum.ts": "packages/main/src/core/reviewer-quorum.ts",
+    "packages/main/src/core/reviewer-opt-in.ts": "packages/main/src/core/reviewer-opt-in.ts",
+    "packages/main/src/core/init-check-gate.ts": "packages/main/src/core/init-check-gate.ts",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/agent-asset-resolution.ts": "packages/main/src/core/agent-asset-resolution.ts",
+    "packages/main/src/handlers/agent-prompt.ts": "packages/main/src/handlers/agent-prompt.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/init-check.ts": "packages/main/src/handlers/init-check.ts",
+    "packages/main/src/handlers/reviewer-batch.ts": "packages/main/src/handlers/reviewer-batch.ts",
+    "packages/main/src/handlers/review-preflight.ts": "packages/main/src/handlers/review-preflight.ts",
+    "packages/main/src/handlers/transition-effects.ts": "packages/main/src/handlers/transition-effects.ts",
+    "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/templates/agents": "packages/main/templates/agents/",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "scripts/verify-codex-assets.mjs": "scripts/verify-codex-assets.mjs",
+    "packages/main/src/claude-md-sync.ts": "packages/main/src/claude-md-sync.ts",
+    "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
+    "packages/main/src/core/managed-assets.ts": "packages/main/src/core/managed-assets.ts",
+    "packages/main/src/core/artifact-contract.ts": "packages/main/src/core/artifact-contract.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/core/done-required-validation.ts": "packages/main/src/core/done-required-validation.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/delivery-check.ts": "packages/main/src/handlers/delivery-check.ts",
+    "packages/main/src/handlers/done-required-validation.ts": "packages/main/src/handlers/done-required-validation.ts",
+    ".githooks/pre-push": ".githooks/pre-push",
+    "packages/main/src/core/release-push-approval.ts": "packages/main/src/core/release-push-approval.ts",
+    "packages/main/src/handlers/workflow.ts": "packages/main/src/handlers/workflow.ts",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/src/core/version-bump.ts": "packages/main/src/core/version-bump.ts",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/brand-env.ts": "packages/main/src/core/brand-env.ts",
+    "packages/main/src/core/runtime-environment-checks.ts": "packages/main/src/core/runtime-environment-checks.ts",
+    "packages/main/src/handlers/lattice-cli.ts": "packages/main/src/handlers/lattice-cli.ts",
+    "packages/utils/package.json": "packages/utils/package.json",
+    "packages/utils/package-lock.json": "packages/utils/package-lock.json",
+    "packages/utils/src/index.ts": "packages/utils/src/index.ts",
+    "packages/utils/src/register.ts": "packages/utils/src/register.ts",
+    "packages/utils/src/tool-defs.ts": "packages/utils/src/tool-defs.ts",
+    "packages/lab/package.json": "packages/lab/package.json",
+    "packages/lab/package-lock.json": "packages/lab/package-lock.json",
+    "packages/lab/src/index.ts": "packages/lab/src/index.ts",
+    "packages/lab/src/register.ts": "packages/lab/src/register.ts",
+    "packages/lab/src/tool-defs.ts": "packages/lab/src/tool-defs.ts",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/cli.ts": "packages/main/src/cli.ts",
+    "packages/main/src/cli/help-renderer.ts": "packages/main/src/cli/help-renderer.ts",
+    "scripts/verify-entrypoints.mjs": "scripts/verify-entrypoints.mjs",
+    "scripts/verify-lattice-residue.mjs": "scripts/verify-lattice-residue.mjs",
+    "packages/main/src/core/agent-role-identity.ts": "packages/main/src/core/agent-role-identity.ts",
+    "packages/main/src/core/artifact-schema.ts": "packages/main/src/core/artifact-schema.ts",
+    "packages/main/tests/brand-role-migration.test.mjs": "packages/main/tests/brand-role-migration.test.mjs",
+    "packages/main/tests/prompt-role-migration.test.mjs": "packages/main/tests/prompt-role-migration.test.mjs",
+    "packages/main/tests/managed-marker-migration.test.mjs": "packages/main/tests/managed-marker-migration.test.mjs",
+    "packages/main/tests/artifact-schema-migration.test.mjs": "packages/main/tests/artifact-schema-migration.test.mjs",
+    "packages/main/tests/release-push-approval-migration.test.mjs": "packages/main/tests/release-push-approval-migration.test.mjs",
+    "packages/main/tests/package-identity-migration.test.mjs": "packages/main/tests/package-identity-migration.test.mjs",
+    "packages/main/src/tasks/version-bump-smoke.ts": "packages/main/src/tasks/version-bump-smoke.ts",
+    "scripts/verify-global-lab-entrypoint.mjs": "scripts/verify-global-lab-entrypoint.mjs",
+    "packages/main/tests/bin-alias-migration.test.mjs": "packages/main/tests/bin-alias-migration.test.mjs",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "scripts/run-proofstory-pre-review-live-proof.mjs": "scripts/run-proofstory-pre-review-live-proof.mjs",
+    "packages/main/src/cli-init.ts": "packages/main/src/cli-init.ts",
+    "packages/main/src/cli/lab-entrypoint.ts": "packages/main/src/cli/lab-entrypoint.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/core/managed-markers.ts": "packages/main/src/core/managed-markers.ts",
+    "B-5a88-FOLLOWUP-STORIES.md": "B-5a88-FOLLOWUP-STORIES.md",
+    "packages/main/src/core/finding-verify.ts": "packages/main/src/core/finding-verify.ts",
+    "packages/main/src/cli-engine.ts": "packages/main/src/cli-engine.ts",
+    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl"
+  }
+}

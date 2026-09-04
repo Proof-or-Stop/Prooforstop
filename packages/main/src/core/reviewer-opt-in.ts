@@ -14,6 +14,8 @@
  */
 
 import type { StoryInfo } from './types.js';
+import { AGENT_DISPATCH_REGISTRY, resolveAgentDispatchType } from './agent-dispatch-registry.js';
+import { agentRoleIdsEqual, canonicalAgentRoleId } from './agent-role-identity.js';
 
 export type Channel = 'quick' | 'normal';
 
@@ -24,6 +26,68 @@ export interface OptInReviewer {
   reason: string;
   /** whether force-mounted via --force-reviewer */
   forced?: boolean;
+}
+
+/**
+ * Resolve reviewer identities through the dispatch registry.  The short-name
+ * table is only an input compatibility surface; reviewer authority comes from
+ * the explicit registry reviewerLane field, never from a prefix lookalike.
+ */
+const REVIEWER_SHORT_NAMES: Readonly<Record<string, string>> = Object.freeze({
+  behavior: 'proof-or-stop-review-behavior',
+  channel: 'proof-or-stop-review-channel',
+  concept: 'proof-or-stop-review-concept',
+  delivery: 'proof-or-stop-review-delivery',
+  docs: 'proof-or-stop-review-docs',
+  quality: 'proof-or-stop-review-quality',
+  'scope-plan': 'proof-or-stop-review-scope-plan',
+  'story-init': 'proof-or-stop-review-story-init',
+  'test-coverage': 'proof-or-stop-review-test-coverage',
+  'topology-critic': 'proof-or-stop-review-topology-critic',
+});
+
+function reviewerEntryFor(value: string) {
+  const raw = value.trim();
+  if (!raw) return undefined;
+  const canonical = canonicalAgentRoleId(raw).split('@', 1)[0];
+  const shortName = REVIEWER_SHORT_NAMES[raw.toLowerCase()]
+    ?? REVIEWER_SHORT_NAMES[canonical.toLowerCase()];
+  const candidates = [raw, canonical, shortName].filter((candidate): candidate is string => !!candidate);
+  return AGENT_DISPATCH_REGISTRY.find((entry) => {
+    if (!entry.reviewerLane) return false;
+    const accepted = [entry.canonicalName, entry.reviewerLane, ...entry.aliases];
+    return candidates.some((candidate) => accepted.includes(candidate));
+  });
+}
+
+/** Canonical registered lane for new output; unknown lookalikes return null. */
+export function canonicalReviewerLane(value: string): string | null {
+  return reviewerEntryFor(value)?.reviewerLane ?? null;
+}
+
+/** Canonical dispatch type for a registry-accepted role. */
+export function canonicalAgentDispatchType(value?: string): string {
+  return resolveAgentDispatchType(value).canonicalType;
+}
+
+/** Canonical and historical registered forms for read-side lookup. */
+export function reviewerRoleReadIds(value: string): readonly string[] {
+  const canonical = canonicalReviewerLane(value);
+  if (!canonical) return [value.trim()];
+  const entry = reviewerEntryFor(canonical);
+  return Object.freeze([
+    canonical,
+    ...(entry?.aliases ?? []),
+  ]);
+}
+
+/** Match only registered reviewer identities; arbitrary prefix matches fail. */
+export function reviewerIdentitiesEqual(left: string | undefined, right: string | undefined): boolean {
+  if (!left || !right) return false;
+  const leftLane = canonicalReviewerLane(left);
+  const rightLane = canonicalReviewerLane(right);
+  if (!leftLane || !rightLane) return false;
+  return agentRoleIdsEqual(leftLane, rightLane);
 }
 
 /** Signal → list of trigger categories for +behavior (supports both English and the currently-used Chinese categories) */

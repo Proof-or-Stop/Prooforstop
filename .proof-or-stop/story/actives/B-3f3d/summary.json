@@ -1,0 +1,56 @@
+{
+  "storyId": "B-3f3d",
+  "changes": "REVIEW inventory freeze: OPEN epoch binds cutoff hashes and required lanes; saturation plus topology-critic; persistFinalizedReviewInventory writes inventory-completeness-only receipts (authorizesTest=false); certification_window_begin consumes those via consumeReviewInventoryCompletenessReceipt while REVIEW→DEV still uses consumeReviewInventoryReceipt. Incremental first-pass cap 512; topology-critic is a modular body not a five-lane REVIEW bootstrap; flow-stability discovery stubs and .proof-or-stop gitignore in concurrent incremental-context fixture.",
+  "usage": "In REVIEW: review_inventory_begin, saturate required lanes plus topology critic, review_inventory_finalize. Remediation DEV consumes the wave receipt once. After final review passes and 3x2, story_advance TEST. Then review_inventory_finalize (completeness if no OPEN), certification_window_begin, done_required_validate exactly once, done_prepare --mergeMain --refreshStale, story_advance DONE. Use node packages/main/dist/cli.js in the story worktree.",
+  "expectedOutcome": "Operator can freeze one REVIEW candidate, complete all required review lanes and a completeness critic until a zero-new-verified-finding saturation wave, enter one aggregated remediation DEV, run fresh final review without reducing quality assurance, then admit PRE_CERT and finish the story locally DONE.",
+  "actualTranscript": "Worktree CLI: two-wave inventory (RI-050) then remediation DEV; later completeness receipts RIE-059 consumed by certification_window_begin (CW-006 ADMITTED). Five current-round review passes RP-409..413, local 3x2, TEST 112/112, done_required_validate PASS (npm test 58/58), done_prepare PASS. finding_list open blocking empty; F-134 accepted_risk naming residue. 18 bugs fixed, 0 open.",
+  "outcomeDiff": "No difference versus the original snapshot: freeze, saturate, one remediation DEV, fresh final review, and local DONE are all delivered. PRE_CERT completeness is a prerequisite receipt, not TEST authority.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "F-134 leftover comments still say PRE_CERT completeness receipt; gates do not treat completeness as PRE_CERT. Some follow-up items remain documented in B-3f3d-FOLLOWUP-STORIES.md and are not this story's DONE scope.",
+  "pitfalls": "Do not consume completeness receipts with consumeReviewInventoryReceipt (REVIEW→DEV); certification_window_begin must use consumeReviewInventoryCompletenessReceipt. persistBlockedCertificationWindow reuses BLOCKED windows only when blockerCode and blockerDetail both match. After TEST entry do not retry done_required_validate or validate at unchanged material (unchangedSuiteExecutions). Topology-critic is modular-body, not a five-lane review_run_start bootstrap. Use the worktree CLI.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 384171
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 47423
+    },
+    "PLAN": {
+      "count": 3,
+      "durationMs": 2674862
+    },
+    "DEV": {
+      "count": 33,
+      "durationMs": 130443032
+    },
+    "REVIEW": {
+      "count": 31,
+      "durationMs": 358178730
+    },
+    "TEST": {
+      "count": 8,
+      "durationMs": 8305647
+    }
+  },
+  "totalDurationMs": 500034691,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 18,
+    "fixed": 18,
+    "open": 0
+  },
+  "createdAt": "2026-08-19T14:44:54.140Z",
+  "updatedAt": "2026-08-20T08:36:05.731Z"
+}

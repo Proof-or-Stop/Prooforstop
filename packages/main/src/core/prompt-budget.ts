@@ -5,6 +5,8 @@
  * correctness-critical full Task Context dispatch. Story 7 owns observe -> warn and a
  * later, evidence-gated enforce decision.
  */
+import { canonicalAgentRoleId } from './agent-role-identity.js';
+
 export const COMPLEX_ROLE_PROMPT_BUDGETS = Object.freeze({
   roleContractBytes: 12_000,
   // B-4043: raised from 10_000 — the implementer prompt now carries the
@@ -25,7 +27,7 @@ export type BudgetedComplexRoleId = typeof BUDGETED_COMPLEX_ROLE_IDS[number];
 export type PromptBudgetMode = 'observe';
 
 export interface PromptBudgetObservation {
-  schemaVersion: 'proofbound.prompt-budget-observation.v1';
+  schemaVersion: 'proof-or-stop.prompt-budget-observation.v1';
   roleId: string;
   contextMode: 'full' | 'incremental';
   mode: PromptBudgetMode;
@@ -40,7 +42,7 @@ export interface PromptBudgetObservation {
 }
 
 export function isBudgetedComplexRole(roleId: string): roleId is BudgetedComplexRoleId {
-  return (BUDGETED_COMPLEX_ROLE_IDS as readonly string[]).includes(roleId);
+  return (BUDGETED_COMPLEX_ROLE_IDS as readonly string[]).includes(canonicalAgentRoleId(roleId));
 }
 
 export function observeComplexRolePromptBudget(args: {
@@ -53,9 +55,10 @@ export function observeComplexRolePromptBudget(args: {
     ? COMPLEX_ROLE_PROMPT_BUDGETS.incrementalBytes
     : COMPLEX_ROLE_PROMPT_BUDGETS.fullBytes;
   const withinBudget = Number.isSafeInteger(args.bytes) && args.bytes <= limitBytes;
+  const roleId = canonicalAgentRoleId(args.roleId);
   return {
-    schemaVersion: 'proofbound.prompt-budget-observation.v1',
-    roleId: args.roleId,
+    schemaVersion: 'proof-or-stop.prompt-budget-observation.v1',
+    roleId,
     contextMode: args.contextMode,
     mode: 'observe',
     bytes: args.bytes,

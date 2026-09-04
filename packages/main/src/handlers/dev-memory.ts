@@ -234,7 +234,7 @@ export function createDevMemoryHandlers(ctx: HandlerContext) {
     if (!isCanonicalStoryId(storyId)) {
       throw new Error(
         `dev_memory_preflight_ack: invalid storyId ${JSON.stringify(args.storyId)}; ` +
-        'must be a canonical, path-safe Proofbound story id',
+        'must be a canonical, path-safe Proof-or-Stop story id',
       );
     }
     const reason = args.reason?.trim();

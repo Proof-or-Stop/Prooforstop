@@ -93,10 +93,7 @@ proof-or-stop session_brief   # recover project state
 proof-or-stop validate        # run the gates
 ```
 
-> `proof-or-stop` is the only supported CLI command name. Active packages, state paths,
-> environment variables, and Agent role IDs use the Proof-or-Stop identity. Historical
-> signature salts and immutable evidence retain their original bytes so persisted proof
-> remains verifiable; they are not active aliases.
+> `proof-or-stop` is the CLI command name. The deprecated `lattice` npm alias and wrapper files were removed; use `proof-or-stop` for new scripts and recovery commands. Some persisted state paths (`.lattice/`), `LATTICE_*` environment variables, and signature salts remain readable for compatibility, while new agent role IDs use the `proof-or-stop-*` form.
 
 ## Paper
 

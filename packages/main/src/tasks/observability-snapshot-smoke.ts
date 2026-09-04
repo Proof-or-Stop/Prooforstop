@@ -24,9 +24,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
   buildObservabilitySnapshot,
-  OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION,
   type ProofOrStopObservabilitySnapshot,
 } from '../core/observability-snapshot.js';
+import { OBSERVABILITY_SNAPSHOT_SCHEMA } from '../core/artifact-schema.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 import {
@@ -163,8 +163,7 @@ function makeProjectionResult(): LocalAssuranceStoryProjection {
 }
 
 function assertReadOnlyLocalAssurance(snapshot: ProofOrStopObservabilitySnapshot): void {
-  assert.equal(snapshot.schemaVersion, OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION);
-  assert.equal(snapshot.schemaVersion, 'lattice.observability_snapshot.v1');
+  assert.equal(snapshot.schemaVersion, OBSERVABILITY_SNAPSHOT_SCHEMA);
   assert.equal(snapshot.readOnly, true);
   assert.equal(snapshot.localAssurance.admissibilityStatus, 'local-only');
   assert.equal(snapshot.localAssurance.assuranceLevel, 'local-observation');
@@ -319,8 +318,12 @@ try {
   // was a mechanical identity-migration rewrite that never matched the renderer
   // (the constant is 'lattice.observability_snapshot.v1', a historical signing
   // token), so this smoke failed on every direct run while no npm script named it.
-  const schemaVersionPattern = OBSERVABILITY_SNAPSHOT_SCHEMA_VERSION.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const schemaVersionPattern = OBSERVABILITY_SNAPSHOT_SCHEMA.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   assert.match(textResult, new RegExp(`Proof-or-Stop observability snapshot \\(${schemaVersionPattern}\\)`));
+  assert.ok(
+    textResult.startsWith(`Proof-or-Stop observability snapshot (${OBSERVABILITY_SNAPSHOT_SCHEMA})`),
+    'text output uses the canonical observability snapshot schema',
+  );
   assert.match(textResult, /admissibilityStatus: local-only/);
   assert.match(textResult, /assuranceLevel: local-observation/);
   assert.match(textResult, /evidenceScope: read-only-observability/);

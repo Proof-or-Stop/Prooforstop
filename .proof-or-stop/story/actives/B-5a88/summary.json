@@ -1,0 +1,56 @@
+{
+  "storyId": "B-5a88",
+  "changes": "Renamed the remaining lattice identities to proof-or-stop forms across all 13 checklist items: canonical agent role IDs, managed-block markers, artifact schemas, the remote-push-approval schema, root and sibling npm package identities, the npm bin alias, host-verdict and review-assurance role identities, delivery-check and floor role identities, machine-defined legacy alias sunset, the gate-artifact schema and freshness matrix, archived story signature readability, and Wave 4 acceptance gates bound to executable current-head verification. Every rename retains scoped legacy-read compatibility: dual-read managed markers, artifact readers that still accept lattice.* schemas, legacy role aliases that resolve to canonical lanes, and a read-both state-dir resolver. Two additional repairs landed: a finding-verify.ts read-both fix restoring the B-META gap-log provenance chain after the B-cc10 state-dir migration, and a STRIPPABLE_BIN_TOKENS parse-tolerance split so retired bin tokens still parse while never appearing in usage text.",
+  "usage": "Use the existing proof-or-stop CLI and reviewer workflow unchanged; retired lattice spellings continue to resolve on read paths. Run proof-or-stop validate --story=B-5a88 --json before DONE.",
+  "expectedOutcome": "Users see proof-or-stop naming consistently across the CLI, packages, managed markers, artifact schemas, and review evidence, while every retired lattice spelling still resolves on scoped legacy-read paths so in-flight stories and existing installations keep working.",
+  "actualTranscript": "Implementation and validation completed: 116 of 116 configured validate commands pass with allPass=true, all 39 must verificationIntent records carry mechanical receipts with exitCode 0 and selectorMatched true and zero waivers, the root npm test suite passes 58 of 58, acceptance topology reports Structural pass yes, the acceptance rollout receipt is current with a full-3x2 quorum, delivery-check is signed by proof-or-stop-review-delivery, and a real 3-round by 2-host review quorum is recorded. All three reviewer lanes plus the topology critic passed with zero open findings in the current review round.",
+  "outcomeDiff": "The delivered outcome matches the expected outcome on both halves of the original intent: the identity migration is complete across all 13 items, and scoped legacy-read compatibility is preserved and test-covered through dual-read markers, lattice.* schema acceptance, legacy role alias resolution, and read-both state-dir resolution.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "All 13 checklist items are complete with mechanical evidence. Three additional observations found during review belong to other code owners and are tracked as their own work items in B-5a88-FOLLOWUP-STORIES.md: validate-gate provider discriminants still emit lattice-* strings in 41 places across 9 files, an isCanonicalAgentRoleId export currently has no consumers, and an owner-gate test fixture is sensitive to an ambient session variable. B-META-framework-audit:F-038 separately tracks volatile host-launcher env keys and GITHUB_NPM_TOKEN reaching persisted evidence digests.",
+  "pitfalls": "Every DONE-gate artifact binds to storyFilesHash and nearly every producing command auto-commits, so earning them one at a time invalidates the ones already earned; record dev_memory_finish_decision first, then earn all evidence with no intervening commit of your own. The certification window needs a FINALIZED UNCONSUMED inventory receipt, and story_advance --phase=DEV consumes it. The 116-command validate suite runs longer than the flat 900s story_advance watchdog, so earn a standalone PASS under a raised watchdog and let the gate reuse it.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 2180523
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 11936
+    },
+    "PLAN": {
+      "count": 16,
+      "durationMs": 10440077
+    },
+    "DEV": {
+      "count": 87,
+      "durationMs": 130584445
+    },
+    "REVIEW": {
+      "count": 72,
+      "durationMs": 824835804
+    },
+    "TEST": {
+      "count": 12,
+      "durationMs": 37478315
+    }
+  },
+  "totalDurationMs": 1005531674,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 1,
+    "fixed": 1,
+    "open": 0
+  },
+  "createdAt": "2026-08-26T15:05:28.260Z",
+  "updatedAt": "2026-08-31T19:31:37.071Z"
+}

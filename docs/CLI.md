@@ -908,6 +908,41 @@ That exemption does not apply to any other command—including help, version, in
 
 The `commands[]` in `validate --json` is a validation receipt: structured commands are recorded in argv form by default; string configurations that contain shell semantics such as `cd`, `&&`, pipes, or redirects are recorded with `shell=true`, indicating a deliberate shell receipt. A required command failing causes validate to fail; an `optional:true` failure only warns. `doctor`'s Validation scan is advisory only: it shows the validate file, configured commands, fallback discovery, and the no-validator warning, to help you decide whether to add an explicit `validate.command(s)`.
 
+Story-aware dynamic validation is selected with `proof-or-stop validate --story=B-xxxx --dynamic-mode=<mode> --json` (the `--story` flag is required for story authority). The supported modes are:
+
+* `off`: run the configured complete validation plan with no dynamic selection.
+* `observe`: compute and persist the signed selection manifest, then run the unchanged complete plan as the sole authority. It records the observe/full-plan oracle comparison and never launches a competing selected plan.
+* `shadow`: execute the dynamic Wave-0/selected path and compare it with the complete-plan oracle; the complete result remains authoritative and dynamic receipts are not TEST/DONE authority.
+* `enforce-low-risk`: may grant dynamic TEST authority only for eligible local/docs Stories after the current baseline, closure/runtime trace, receipt, scope, pinned-command, shard, revocation, and periodic-full prerequisites all pass. Otherwise it fails closed to the complete-plan fallback.
+
+Without `--story`, a non-`off` mode is a bounded diagnostic preview only: no validation commands are executed, `commandExecutions` is zero, and the result explicitly says to supply `--story`. Dynamic artifacts live under the runtime artifact directory and are not process evidence; a complete plan or an independently configured DONE-required command remains authoritative whenever dynamic evidence is missing, stale, unverified, revoked, or out of scope.
+
+For a command to participate in `shadow` or `enforce-low-risk`, its
+`validate.commands[]` entry must preserve the catalog policy fields
+`assurance`, `riskTier`, `closurePolicy`, `fullBaselineReusePolicy`,
+`cpuWeight`, and `expectedP50Ms`. DYN-5 entries additionally declare an
+in-root `caseRegistryPath`, `env.PROOF_OR_STOP_VALIDATION_SHARD_ADAPTER` (deprecated `env.LATTICE_VALIDATION_SHARD_ADAPTER` still read as fallback), and the
+allowed `declaredEnvironmentKeys`. Registry rows contain executable case
+`runner` objects and may declare a success marker (the adapter derives a
+deterministic default from the case id when omitted); the registered adapter executes every
+requested case in an isolated shard and writes case evidence bound by its
+content digest, then emits a signed `ValidationShardReceipt` for the shard.
+Echoing
+`PROOF_OR_STOP_CASES` or `PROOF_OR_STOP_SENTINEL` without a case-body marker is
+rejected.
+
+Inspect a Story's selection, receipts, revocations, shards and cleanup records
+under `.proof-or-stop/runtime/dynamic-validation/<story-id>/`. A missing or
+expired canonical baseline, an undeclared runtime read/module/spawn/environment
+key, a stale or revoked receipt, a scope/unmapped change, or a registry/adapter
+failure all fail closed to the complete plan. Observe preserves existing
+receipts and appends revocations; it never replaces the receipt cache with an
+empty report. The full operator contract, triage table, rollback procedure and
+current-main characterization are in
+[`dynamic-validation-operations.md`](requirements/decisions/dynamic-validation-operations.md)
+and
+[`story-aware-dynamic-validation-current-main-characterization.md`](requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md).
+
 `proof-or-stop validate` (including no-story and `--channel` / `--concept` / `--lint` modes), `proof-or-stop done_required_validate`, and derived host-verdict binding share one workspace validation capacity lease keyed by the resolved workspace's repository git-common-dir, not by a metadata wrapper root. When a signed/configured Git workspace is expected, including an explicit no-story `gitRoot`, failure to resolve that identity stops before callback entry instead of silently minting a split lock; genuinely non-Git projects retain their project-root identity. A second official validation prints `waiting for workspace validation capacity` with holder and heartbeat details on the progress/stderr side channel, then runs automatically after the holder releases. Story-scoped runs acquire this workspace lease before the existing per-story evidence lock. In-process reentrancy is bound to each acquisition's never-reused token, for both locks: a detached async context from a released owner cannot borrow a later holder's matching path. Unknown, malformed, or merely old capacity metadata is not reclaimed; reclaim requires mechanical local-dead or holder/heartbeat identity-mismatch evidence. A candidate is prepared with complete identity before its atomic queue publication; stale recovery atomically quarantines only the classified UUID ticket and never recursively deletes the shared capacity root, so a killed pre-publication process cannot block the queue and a replacement holder cannot be removed through an ABA path swap. Owner release and queued-waiter abort/deadline cleanup retry exact-ticket isolation. Persistent failure makes a best-effort released-marker write: when it succeeds, a successor can mechanically recover after filesystem repair; when it also fails, the ticket remains fail-closed until repair. A successful callback reports the release failure. If the callback or wait already failed, that original error remains primary and the secondary cleanup failure is not separately surfaced. Direct `proof-or-stop validate` enters the structured watchdog only to propagate abort/deadline into the capacity wait and clean its waiter ticket; it retains its existing result classification and exit contract. `structuredDoneResult` and the DONE-result classifier remain exclusive to `done_prepare` / `done_required_validate` and are not a `validate` result contract. Derived host-verdict binding has no public abort/deadline arguments; adding caller-controlled cancellation there remains outside this interface contract, so its CLI host timeout is still the outer cancellation boundary.
 
 The checked-in regression contract includes a genuine exact-12 child-process stale/ABA cohort (distinct from the exact-12 in-process Promise cohort) and proves `maxConcurrency=1`, zero critical-section overlap, zero child errors, and zero queue-artifact leaks. This is a test/evidence contract, not a runtime concurrency guarantee for users. Its terminal and managed verification-pin contract is exactly `validate-execution-lock workspace capacity contract passed: 15 assertion groups` for the focused lane and `validate-execution-lock smoke passed: 26 assertion groups` for the full lane.
@@ -1064,7 +1099,7 @@ npm --prefix packages/utils run build
 npm --prefix packages/lab run build
 ```
 
-A globally installed `proof-or-stop` (canonical package: `@proof-or-stop/core`) also automatically enables `proof-or-stop lab ...` when `@proof-or-stop/lab` is resolvable; if lab is not installed, the ordinary core commands still work and only `proof-or-stop lab ...` prompts to install/build lab.
+A globally installed `proof-or-stop` (canonical package: `@proof-or-stop/core`) automatically enables `proof-or-stop lab ...` when `@proof-or-stop/lab` is resolvable; if lab is not installed, the ordinary core commands still work and only `proof-or-stop lab ...` prompts to install/build lab.
 
 Before releasing `0.3.5`, it is recommended to run:
 

@@ -640,6 +640,31 @@ check('FIX-B/adversarial: deleted exec-bit-only script and renamed-away shebang 
   assert.ok(renamedNew && renamedNew.materialCode === true, 'the rename NEW path classifies material too');
 });
 
+check('F-059: >1MiB non-executable shebang scripts stay material on current, deleted, and renamed sides', () => {
+  const root = initRepo();
+  const largeScript = `#!/bin/sh\n${'# padding\n'.repeat(140_000)}`;
+  writeFile(root, 'scripts/deleted-large', largeScript);
+  writeFile(root, 'scripts/renamed-large', largeScript);
+  commitAll(root, 'large old-tree scripts');
+  git(root, ['checkout', '-q', '-b', 'feature']);
+  rmSync(join(root, 'scripts/deleted-large'));
+  git(root, ['mv', 'scripts/renamed-large', 'scripts/renamed-large-new']);
+  writeFile(root, 'scripts/current-large', largeScript);
+  commitAll(root, 'large script changes');
+
+  const snap = buildMaterialClassificationSnapshot(root);
+  const byPath = new Map(snap.files.map((file) => [file.path, file]));
+  for (const path of [
+    'scripts/deleted-large',
+    'scripts/renamed-large',
+    'scripts/renamed-large-new',
+    'scripts/current-large',
+  ]) {
+    assert.equal(byPath.get(path)?.materialCode, true, `${path} must remain conservatively material`);
+    assert.equal(byPath.get(path)?.reason, 'extensionless shebang/executable script');
+  }
+});
+
 check('FIX-C/adversarial: declared paths reuse the snapshot VERBATIM; off-diff bin/ executables carry working-tree hints into the REAL repro consumer', () => {
   const root = initRepo();
   writeFile(root, 'src/base.ts', 'export const base = 1;\n');

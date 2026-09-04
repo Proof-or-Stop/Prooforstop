@@ -4,14 +4,12 @@ import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, existsSync
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { execFileSync } from 'child_process';
-// B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
-// read a path that no longer exists (ENOENT) or scan zero files.
-function adapterDirName(base) {
-  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.proof-or-stop-codex';
-}
+import { ADAPTER_DIR_NAMES } from '../packages/main/dist/core/brand-paths.js';
+import { legacyAgentRoleIds } from '../packages/main/dist/core/agent-role-identity.js';
 
 
 const root = process.cwd();
+const PRODUCT_REVIEWER_ROLE = 'proof-or-stop-product-reviewer';
 
 function assert(condition, message) {
   if (!condition) throw new Error(message);
@@ -32,6 +30,17 @@ function extractJsonObject(text) {
   return JSON.parse(text.slice(start));
 }
 
+function resolveSupportedAgentPath(baseDir, roleId) {
+  const basenames = [roleId, ...legacyAgentRoleIds(roleId)];
+  for (const relativeDir of baseDir) {
+    for (const basename of basenames) {
+      const path = join(root, relativeDir, 'agents', `${basename}.md`);
+      if (existsSync(path)) return path;
+    }
+  }
+  return join(root, baseDir[0], 'agents', `${roleId}.md`);
+}
+
 function createTempProject() {
   const dir = mkdtempSync(join(tmpdir(), 'proof-or-stop-product-reviewer-'));
   mkdirSync(join(dir, 'docs', 'story', 'actives'), { recursive: true });
@@ -49,28 +58,28 @@ function createTempProject() {
 
 function makeBackground(label) {
   return [
-    '## 触发事件',
+    '## Trigger Event',
     `2026-05-01 B-0000 ${label} verifier needs a realistic story_create input so this smoke tests product-reviewer behavior instead of the background gate.`,
-    '## 关键洞察',
+    '## Key Insights',
     'The current CLI treats background as source context, and verifier fixtures must model that contract with enough standalone detail for reviewers.',
-    '## 方案取舍',
+    '## Solution Tradeoffs',
     'Keep the temporary project minimal, but provide a full four-section background so the smoke remains focused on product review warnings.',
-    '## 对话纹理',
+    '## Conversational Texture',
     'The user-facing concern is that engineering success can still leave an abstract outcome, so this verifier preserves that exact review scenario.',
   ].join('\n\n');
 }
 
 const agentPaths = [
-  join(root, '.claude', 'agents', 'product-reviewer.md'),
-  join(root, adapterDirName(root), 'agents', 'product-reviewer.md'),
+  resolveSupportedAgentPath(['.claude'], PRODUCT_REVIEWER_ROLE),
+  resolveSupportedAgentPath(ADAPTER_DIR_NAMES, PRODUCT_REVIEWER_ROLE),
 ];
 for (const path of agentPaths) {
   assert(existsSync(path), `missing product-reviewer agent: ${path}`);
   const text = readFileSync(path, 'utf8');
-  assert(text.includes('用户视角') || text.includes('user-facing transcript'), `${path} missing user-value scope`);
-  assert(text.includes('不修改代码') || text.includes('不改代码'), `${path} missing non-edit boundary`);
+  assert(text.includes('user-facing transcript') || text.includes('what the user actually sees'), `${path} missing user-value scope`);
+  assert(text.includes('Not modifying code') || text.includes('not modifying code') || text.includes('不修改代码'), `${path} missing non-edit boundary`);
   assert(text.includes('init_check_set') && text.includes('pass') && text.includes('fail'), `${path} missing INIT review recording requirement`);
-  assert(text.includes('"agentId":"product-reviewer"') || text.includes('agentId":"product-reviewer') || text.includes('agentId` 必须精确是 `product-reviewer`'), `${path} missing exact product-reviewer agentId requirement`);
+  assert(text.includes('agentId":"proof-or-stop-product-reviewer') || text.includes('agentId` must be exactly `proof-or-stop-product-reviewer`'), `${path} missing exact product-reviewer agentId requirement`);
 }
 
 const temp = createTempProject();
@@ -89,11 +98,11 @@ try {
 
   const dispatchRaw = run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'dispatch', JSON.stringify({
     storyId,
-    agentType: 'product-reviewer',
+    agentType: PRODUCT_REVIEWER_ROLE,
   })]);
-  assert(dispatchRaw.includes('你是 product-reviewer'), 'product-reviewer dispatch should identify the reviewer role');
-  assert(dispatchRaw.includes('"agentId":"product-reviewer"') || dispatchRaw.includes('\\"agentId\\":\\"product-reviewer\\"'), 'product-reviewer dispatch should include exact agentId command');
-  assert(dispatchRaw.includes('不要传 "proof-or-stop-review-story-init"') || dispatchRaw.includes('不要传 \\"proof-or-stop-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
+  assert(dispatchRaw.includes('proof-or-stop-product-reviewer'), 'product-reviewer dispatch should identify the canonical reviewer role');
+  assert(dispatchRaw.includes('"agentId":"proof-or-stop-product-reviewer"') || dispatchRaw.includes('\\"agentId\\":\\"proof-or-stop-product-reviewer\\"'), 'product-reviewer dispatch should include exact canonical agentId command');
+  assert(dispatchRaw.includes('Do not pass "proof-or-stop-review-story-init"') || dispatchRaw.includes('Do not pass \\"proof-or-stop-review-story-init\\"'), 'product-reviewer dispatch should warn against wrong init reviewer agentId');
 
   run([join(root, 'packages/main/dist/cli.js'), '--root', temp, 'understanding_set', JSON.stringify({
     storyId,
@@ -109,9 +118,9 @@ try {
     storyId,
     itemId: 'CHK-001',
     verificationIntent: {
-      happy: [{ desc: '正常场景 → 有产品验收提醒', type: 'cli_blackbox' }],
-      edge: [{ desc: '抽象 outcome → 给出 advisory', type: 'cli_blackbox' }],
-      adversarial: [{ desc: '工程完成但用户仍会问然后呢 → 暴露问题', type: 'cli_blackbox' }],
+      happy: [{ desc: 'Normal scenario -> product acceptance reminder', type: 'cli_blackbox' }],
+      edge: [{ desc: 'Abstract outcome -> emit advisory', type: 'cli_blackbox' }],
+      adversarial: [{ desc: 'Engineering complete but user still asks what comes next -> expose gap', type: 'cli_blackbox' }],
     },
     agent: 'test-intent',
   })]);
@@ -120,8 +129,8 @@ try {
   const review = extractJsonObject(reviewRaw);
   assert(review.summary && typeof review.summary.issueCount === 'number', 'story_review should return structured summary');
 
-  const advanceSource = readFileSync(join(root, 'packages/main/src/handlers/story-advance.ts'), 'utf8');
-  assert(advanceSource.includes('用户价值验收') && advanceSource.includes('然后呢'), 'DONE hint missing user-value advisory');
+  const dispatchSource = readFileSync(join(root, 'packages/main/src/handlers/story-dispatch.ts'), 'utf8');
+  assert(dispatchSource.includes('user value perspective') && dispatchSource.includes('what comes next'), 'product reviewer user-value guidance missing');
 } finally {
   rmSync(temp, { recursive: true, force: true });
 }

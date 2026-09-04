@@ -1,0 +1,73 @@
+{
+  "principles": [
+    "One causal-evidence boundary owns execution-key derivation, CAS receipt persistence, selector-specific fan-out, and metrics.",
+    "Reuse is admissible only for an exact execution-key match with a valid immutable receipt; legacy evidence without the new identity remains strict and non-reusable.",
+    "Freshness invalidation is dependency-domain based but never weaker than current materialHash/DONE-required policy.",
+    "Preflight is fail-closed and runs before any expensive child process."
+  ],
+  "drivers": [
+    "Reduce repeated command cost in multi-intent verification while preserving each selector verdict.",
+    "Survive canonical metadata/Git commit failure without losing a completed command receipt or re-running it.",
+    "Avoid false-fresh evidence after related story-owned changes and avoid unrelated specialized reruns.",
+    "Make savings and correctness visible in structured and operator-facing output."
+  ],
+  "options": [
+    {
+      "name": "Shared causal-evidence service",
+      "pros": [
+        "One implementation can serve single and batch evidence paths, stale refresh, and certification consumers.",
+        "Keeps receipt/key/metric semantics out of individual handlers."
+      ],
+      "cons": [
+        "Requires explicit compatibility adapters for existing VerificationExecutionReceipt and legacy evidence."
+      ]
+    },
+    {
+      "name": "Patch each handler independently",
+      "pros": [
+        "Smaller first diff in each file."
+      ],
+      "cons": [
+        "Duplicates identity and retry rules and makes divergence likely across add, batch, refresh, and validation."
+      ]
+    },
+    {
+      "name": "Relax existing freshness globally",
+      "pros": [
+        "Could reduce reruns quickly."
+      ],
+      "cons": [
+        "Violates the strict DONE-required policy and can admit false-fresh evidence."
+      ]
+    }
+  ],
+  "chosen": "Shared causal-evidence service",
+  "rationale": "A shared core service is the only option that can enforce one exact execution identity and one receipt-first transaction across single/batch execution while preserving selector-specific verdicts and existing strict gates. Existing handlers become thin adapters; global freshness relaxation is explicitly rejected.",
+  "preMortem": [
+    {
+      "scenario": "Two intents with the same command but different selectors incorrectly share a PASS.",
+      "trigger": "Fan-out copies receipt success without evaluating the receiving intent selector.",
+      "consequence": "A selector-specific verification gap becomes covered evidence.",
+      "mitigation": "Store captured output digest/tail in the receipt and evaluate every intent selector independently before writing its evidence row; test a mismatching fan-out selector."
+    },
+    {
+      "scenario": "Canonical checklist import fails after a command has completed.",
+      "trigger": "Import/commit is coupled to execution or receipt persistence overwrites the existing receipt.",
+      "consequence": "A retry reruns an expensive command or produces a new receipt hash.",
+      "mitigation": "Persist and verify the immutable receipt first, then retry only an idempotent canonical import transaction keyed by the same execution key and receipt hash."
+    },
+    {
+      "scenario": "An unrelated main merge invalidates or reruns specialized evidence incorrectly.",
+      "trigger": "Dependency domains are inferred from a coarse whole-tree hash or a missing domain declaration is treated as fresh.",
+      "consequence": "Either wasted reruns or false-fresh evidence after related changes.",
+      "mitigation": "Shadow-compare declarative domains, keep strict materialHash fallback, and have CertificationWindow consume only explicit affected-node decisions."
+    },
+    {
+      "scenario": "Preflight reports readiness after a writer/index/evidence target check races or is not performed.",
+      "trigger": "Preflight is implemented as advisory logging after children start.",
+      "consequence": "A long run cannot persist its result and leaves partial evidence.",
+      "mitigation": "Run all preflight checks before scheduling children and record zero command executions on failure."
+    }
+  ],
+  "timestamp": "2026-08-20T08:34:52.514Z"
+}

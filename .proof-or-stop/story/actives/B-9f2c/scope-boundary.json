@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-9f2c",
+  "mode": "feature",
+  "allowed": [
+    "Add an optional --story=<id> flag to the graph command: GraphArgs and the handler in packages/main/src/handlers/graph.ts, and the schema plus longHelp in packages/main/src/cli/command-catalog.ts",
+    "Add packages/graph/src/shells/web/dossier.js as a new client source file",
+    "Add regression tests covering the new --story argument handling",
+    "Apply the upstream dossier diffs to packages/graph/src/shells/web/app.css, app.js and app.body.html",
+    "Concatenate dossier.js into the built page in packages/graph/scripts/build-web.mjs, preserving the existing local d3 hard-failure change",
+    "Port upstream proof-or-stop-graph commits 4c3bde0, 7ecad9a, a0b14da and 1536588 (everything after the already-migrated baseline 10b5921) into packages/graph",
+    "Serve the /story/<id> route from packages/graph/src/io/http.ts using the existing app.html shell",
+    "Update packages/graph/README.md and the Story graph section of the root CLAUDE.md to document the dossier page and the --story flag",
+    "Validate an unknown --story id before the server starts listening, using resolveStories from the graph library surface"
+  ],
+  "excluded": [
+    "Adding a separate long-running graph_story command: the user chose the --story flag instead",
+    "Changing any graph behavior that predates the 10b5921 migration baseline",
+    "Changing packages/main/src/handlers/graph.ts behavior beyond the --story flag, including the existing on-demand client build",
+    "Committing or reverting the unrelated pre-existing dirty files in the working tree",
+    "Migrating upstream commits at or before 10b5921, which are already present in this repository",
+    "Modifying story lifecycle, gate, review or DONE semantics",
+    "Redesigning or restyling the dossier page: it is ported as authored upstream, not re-authored here"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "User request 2026-09-02: migrate the new story-detail (dossier) functionality from the upstream proof-or-stop-graph repository into this one, and add a command-line way to open the story detail page following this repository's existing conventions. The CLI shape (a --story flag on the existing graph command) and the unknown-id behavior (refuse before the server listens) were both put to the user as explicit choices and confirmed before this boundary was recorded.",
+  "createdAt": "2026-09-02T08:14:37.090Z",
+  "updatedAt": "2026-09-02T08:14:37.090Z",
+  "_hash": "d92e631ceaec129709def0ba203835e5ce03be43c1789c19003a142a5eed70b8"
+}
