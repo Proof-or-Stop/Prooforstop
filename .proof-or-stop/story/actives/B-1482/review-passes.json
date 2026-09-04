@@ -201,6 +201,43 @@
         "scanEscalationReason": null
       },
       "_hash": "47133a004b9d63dd17bf4d3433dc0c8ef41f5551c1e79807f5e531061b856edb"
+    },
+    {
+      "id": "B-1482:RP-008",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 5 mechanical re-confirmation only, no source re-review needed: git diff --name-only main...HEAD and git log/diff between RR-012 headHash 8722d50 (bound to my round-4 pass RP-004) and current headHash 2c4721b show only story metadata (.proof-or-stop/story/actives/B-1482/*), dev-memory (.proof-or-stop/dev-memory/*), and two unrelated new docs/story/drafts/* entries changed -- zero files under packages/main/src or docs/requirements/decisions changed since RP-004. storyFilesHash is unchanged (1ce8a7e7...) across RR-012/RR-013/RR-014, confirming no story-owned material drift; the round-5 dispatch exists only because the certification-chain metadata commits moved HEAD after RP-004 was recorded, invalidating that pass envelope binding, not because of a new defect. Re-ran the mechanical checks fresh on rebuilt dist: npx tsc --noEmit -p packages/main clean (exit 0, no output); node packages/main/dist/tasks/narrowing-repin-smoke.js prints 25 PASS lines (A1-A3, B1-B12, C1-C10) and ends narrowing-repin-smoke: PASS; prompt-full-context-envelope-smoke prints \"prompt full-context envelope smoke: PASS\"; retired-authority-vocabulary-guard-smoke prints \"retired authority vocabulary guard PASS builds=811 cacheHits=2 fullAnalysis=1294 astCandidates=503 reachability=34\"; validation-tier-planner-smoke ends \"validation-tier-planner-smoke: PASS\" with its own size-bound check passing (default stdout projection: 2519 chars, bound 11000). No open blocking finding from this lane.",
+      "createdAt": "2026-09-04T03:04:40.139Z",
+      "reviewRound": "2026-09-04T03:00:49.049Z",
+      "reviewRunId": "B-1482:RR-014",
+      "envelopeId": "a8aeae8ff1d99ed9b30703168d574d347f852c5963a705caeee10f0e4635ce52",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8cd97274f1559563c9c98fceae40ff84f2b759aeb44e738bb1f1314632692bf0"
     }
   ]
 }
