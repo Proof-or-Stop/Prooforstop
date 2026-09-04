@@ -239,7 +239,7 @@
       "desc": "narrowing-repin-smoke.ts:333-343 (checklist happy:0 desc) CHK-003:happy:0 explicitly claims, as one of its own bundled assertions, that a case asserts the decision itself carries at least four pre-mortems. F-007 recorded exactly this gap (a case asserting the pre-mortem count did not exist) and its GREEN commit 198d9f71bc added C7 (narrowing-repin-smoke.ts:1091-1112) to satisfy it, verified in a detached RED-commit rebuild at fc74ea5284: rerunning narrowing-repin-smoke.js at that commit shows every case PASS except C7, which fails with found 0, confirming C7 is the only case that ever checks the pre-mortem count. But CHK-003:happy:0 is still pinned to C4 (:986-1017), and C4 asserts refusal-code completeness, the at-most-one-narrowing phrase and the overclaim/limitation wording -- it never reads the pre-mortem table. C7 exists in the suite and keeps the whole-process exit code honest, but it is not the case this intents own selector binds to, so a reader following CHK-003:happy:0s pinned selector to verify a case asserts...at least four pre-mortems lands on C4, which does not do that -- the exact traceability problem F-007 named when fixing the other two instances of this pattern. A weakening of C7 that still leaves it passing (e.g. loosening its >=4 check without breaking it) would leave CHK-003:happy:0 evidence reading verified/pass with its pre-mortem claim never actually checked by the pinned case.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-03T23:22:05.345Z",
@@ -251,7 +251,8 @@
       ],
       "signatureTag": "edge|ts|narrowing-repin-smoke",
       "signatureTagSource": "auto",
-      "clusterId": "CL-003"
+      "clusterId": "CL-003",
+      "resolvedAt": "2026-09-04T00:17:38.536Z"
     },
     {
       "id": "B-1482:F-014",
