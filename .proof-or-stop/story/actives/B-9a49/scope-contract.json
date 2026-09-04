@@ -1,0 +1,240 @@
+{
+  "storyId": "B-9a49",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-envelope.ts",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "packages/main/templates/agents/proof-or-stop-implementer.md",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/package-lock.json",
+    "packages/main/src/core/proof-or-stop-brand.ts",
+    ".claude/agents/proof-or-stop-implementer.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+    "packages/main/templates/agents/proof-or-stop-review-channel.md",
+    ".claude/agents/proof-or-stop-review-channel.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-review-channel.md",
+    "packages/main/src/core/acceptance-coverage-basis.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-runtime-fact-contract.mjs",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts"
+  ],
+  "explicitExcludes": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "packages/main/src/handlers",
+    "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/acceptance-topology.ts"
+  ],
+  "scopeChangeReason": "Controlled PLAN rebaseline: make the English proposal and REVIEW prompt-envelope guard first-class Agent-side implementation paths; preserve the separately reviewed acceptance-basis repair; explicitly protect and exclude the Dynamic Finding authority document and all runtime schema, handler, predicate, process-fact, and topology surfaces. This supersedes the authority-migration interpretation recorded in scope-ack:3 without deleting history.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "This file is the exact current-Story acceptance blocker exposed by REVIEW-to-TEST validate (804 dynamic binding builds exceeded the brittle 800 ceiling); the bounded 808/850 canonical fix already present on main is required to restore truthful validation without changing product scope.",
+      "timestamp": "2026-09-01T09:39:47.665Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "66e299169f09576c89a2f08bc372c6a6ce67002d",
+      "materialHash": "8665c4f532a6756c1cff8bc3ebc193e1b75fed7bb1a75c86029b5293e527a240"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This English proposal is an explicit user-requested deliverable and the missing-document critical REVIEW blocker F-024; tracking it is necessary to make the Agent-side contract open-source, reviewable, and consistent with Dynamic Finding authority without changing runtime scope.",
+      "timestamp": "2026-09-01T10:25:08.372Z",
+      "paths": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "af9bcbadd680bb20100499ba9a0aee757cabd521",
+      "materialHash": "4f22df9a2ed47bf591efcd66bec84a392f2244a1be508454b3ec1bbae82a8fc0"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The Dynamic Finding decision document is the exact documentation-only authority migration accepted by SEP-B-9a49-001. prompt-envelope.ts is the smallest REVIEW-only Agent-envelope enforcement point required by verified blocker F-025 and the dedicated full Task Context RED/GREEN intent; it rejects contradictory Story/checklist/verificationIntent authority text before digesting and does not change Finding runtime schema, handlers, predicates, process facts, or lifecycle gates.",
+      "timestamp": "2026-09-01T11:47:09.498Z",
+      "paths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "a7cf6d7d95bcfff0c23f14d9f80cf9071cdd3ca5",
+      "materialHash": "52b4489c2aa881737dc0c422ee1b7f0f75f33f763d8f5bf58d38ae263af6858a",
+      "anchors": [
+        "FindingApplicabilityAssessment.verdict",
+        "FindingDeferralDisposition",
+        "assertReviewTaskContextAuthority",
+        "buildPromptEnvelope"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required compatibility fallout from merging the approved canonical proof-or-stop role namespace and atomically migrating this in-flight Story from the retired .lattice state directory; these paths preserve the already-reviewed Agent behavior and Story evidence without expanding Dynamic Finding runtime scope.",
+      "timestamp": "2026-09-02T01:37:15.247Z",
+      "paths": [
+        ".claude/agents/proof-or-stop-implementer.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+        "packages/main/templates/agents/proof-or-stop-implementer.md",
+        ".lattice/story/actives/B-9a49/background.md",
+        ".lattice/story/actives/B-9a49/checklist.json",
+        ".lattice/story/actives/B-9a49/execution-boundary.json",
+        ".lattice/story/actives/B-9a49/index.json",
+        ".lattice/story/actives/B-9a49/init-check.json",
+        ".lattice/story/actives/B-9a49/process-events.jsonl",
+        ".lattice/story/actives/B-9a49/scope-boundary.json",
+        ".lattice/story/actives/B-9a49/scope-freeze-check.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".claude/agents/proof-or-stop-implementer.md",
+        ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+        "packages/main/templates/agents/proof-or-stop-implementer.md",
+        ".lattice/story/actives/B-9a49/background.md",
+        ".lattice/story/actives/B-9a49/checklist.json",
+        ".lattice/story/actives/B-9a49/execution-boundary.json",
+        ".lattice/story/actives/B-9a49/index.json",
+        ".lattice/story/actives/B-9a49/init-check.json",
+        ".lattice/story/actives/B-9a49/process-events.jsonl",
+        ".lattice/story/actives/B-9a49/scope-boundary.json",
+        ".lattice/story/actives/B-9a49/scope-freeze-check.json"
+      ],
+      "affectedPathCount": 11,
+      "phase": "DEV",
+      "headHash": "bbbe1da1fbe3f438d627eb637544a13f6c6fd3ad",
+      "materialHash": "e05894a0652072f25a151aaa38e662ff4ebd498b08f9a94653aa29e589aec5d3"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Supersedes scope-ack:3 without deleting history: the controlled replan rejects any Dynamic Finding authority migration. This authority path is protected and explicitly excluded, remains unchanged, and is used only as the consistency reference for the Agent-side proposal and prompt-envelope behavior.",
+      "timestamp": "2026-09-02T02:56:53.437Z",
+      "paths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9f927fb6fa226c758f609aa7dd555d482090f866",
+      "materialHash": "fd65db937a1d49d5f56dbdf1b7e5a582697349144da525f7b5e33182b0fbb9a7"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required tracked completion-memory artifact generated by the official dev_memory capture flow; it records the bounded closeout lesson and does not expand product or prompt scope.",
+      "timestamp": "2026-09-03T16:54:11.851Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b6302e219dcc5a4742f771ab0defb4f444c0e4ad",
+      "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37"
+    }
+  ],
+  "createdAt": "2026-08-31T14:19:20.690Z",
+  "updatedAt": "2026-09-03T16:54:11.851Z",
+  "fileRules": [],
+  "protectedAnchors": [],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
+    "AGENTS.md": "AGENTS.md",
+    "packages/main/templates/agents/lattice-implementer.md": "packages/main/templates/agents/lattice-implementer.md",
+    "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/prompt-contract-measurement-smoke.ts": "packages/main/src/tasks/prompt-contract-measurement-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "scripts/verify-runtime-fact-contract.mjs": "scripts/verify-runtime-fact-contract.mjs",
+    "packages/main/src/core/advisory.ts": "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/handlers": "packages/main/src/handlers",
+    ".claude/agents/lattice-implementer.md": ".claude/agents/lattice-implementer.md",
+    ".proof-or-stop-codex/agents/lattice-implementer.md": ".proof-or-stop-codex/agents/lattice-implementer.md",
+    "packages/main/templates/agents/lattice-review-channel.md": "packages/main/templates/agents/lattice-review-channel.md",
+    ".claude/agents/lattice-review-channel.md": ".claude/agents/lattice-review-channel.md",
+    ".proof-or-stop-codex/agents/lattice-review-channel.md": ".proof-or-stop-codex/agents/lattice-review-channel.md",
+    "CLAUDE.md": "CLAUDE.md",
+    "packages/main/src/core/acceptance-topology.ts": "packages/main/src/core/acceptance-topology.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md": "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    ".claude/agents/proof-or-stop-implementer.md": ".claude/agents/proof-or-stop-implementer.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-implementer.md": ".proof-or-stop-codex/agents/proof-or-stop-implementer.md",
+    "packages/main/templates/agents/proof-or-stop-implementer.md": "packages/main/templates/agents/proof-or-stop-implementer.md",
+    ".lattice/story/actives/B-9a49/background.md": ".lattice/story/actives/B-9a49/background.md",
+    ".lattice/story/actives/B-9a49/checklist.json": ".lattice/story/actives/B-9a49/checklist.json",
+    ".lattice/story/actives/B-9a49/execution-boundary.json": ".lattice/story/actives/B-9a49/execution-boundary.json",
+    ".lattice/story/actives/B-9a49/index.json": ".lattice/story/actives/B-9a49/index.json",
+    ".lattice/story/actives/B-9a49/init-check.json": ".lattice/story/actives/B-9a49/init-check.json",
+    ".lattice/story/actives/B-9a49/process-events.jsonl": ".lattice/story/actives/B-9a49/process-events.jsonl",
+    ".lattice/story/actives/B-9a49/scope-boundary.json": ".lattice/story/actives/B-9a49/scope-boundary.json",
+    ".lattice/story/actives/B-9a49/scope-freeze-check.json": ".lattice/story/actives/B-9a49/scope-freeze-check.json",
+    "packages/main/src/core/proof-or-stop-brand.ts": "packages/main/src/core/proof-or-stop-brand.ts",
+    "packages/main/templates/agents/proof-or-stop-review-channel.md": "packages/main/templates/agents/proof-or-stop-review-channel.md",
+    ".claude/agents/proof-or-stop-review-channel.md": ".claude/agents/proof-or-stop-review-channel.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-review-channel.md": ".proof-or-stop-codex/agents/proof-or-stop-review-channel.md",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl"
+  }
+}

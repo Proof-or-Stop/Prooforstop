@@ -80,6 +80,34 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
  * one, i.e. the drift is brand-only with no semantic edit.
  *
+ * B-9a49: re-approved the proof-or-stop-implementer body after adding its bounded
+ * out-of-item Finding handoff rule, and the five active modular REVIEW bodies
+ * after appending the canonical Finding triage contract in both rollout modes.
+ * The reviewer source templates and their frozen legacy reconstruction hashes
+ * did not move; only selected assembled bodies and their derived identities do.
+ * REVIEW follow-up: re-approved the same five active reviewer assembled
+ * bodies after the reviewed contract gained its explicit current/future
+ * compatibility boundary and verdict-specific minimum proof requirements.
+ * Focused semantic validation, including contradictory-permission mutation
+ * probes, passed before these content addresses were updated.
+ * F-010/F-011/F-012 follow-up: re-approved the same five reviewer bodies
+ * after making history correction explicitly compatibility-aware and expanding
+ * the fail-closed semantic mutation inventory. The source templates and frozen
+ * legacy reconstruction inputs remain unchanged; only the appended canonical
+ * contract and its derived body/host-render identities move.
+ * F-022/F-023/F-024 follow-up: re-approved the five assembled reviewer bodies
+ * after the canonical contract adopted the current-witness verdict and the
+ * future signed defer-with-proof disposition boundary. The source templates and
+ * frozen legacy reconstructions remain unchanged. Focused RED/GREEN mutations
+ * reject obsolete and inverse semantics even after deliberate digest repinning.
+ * F-040/F-041 follow-up: the five reviewer bodies preserve the independent
+ * claimed-lineage floor, the downstream closure-only mandatory-repair floor,
+ * and the exact lineage-release verdict allowlist after the identity cutover.
+ * F-042/F-046/F-047 follow-up: re-approved the same five assembled reviewer
+ * bodies after the Agent projection restored complete repair closure as the
+ * other claimed-lineage release, kept downstream mandatory repair closure-only,
+ * and documented the current Owner-only dismissal effect without changing the
+ * protected Dynamic Finding runtime.
  * B-022e F-056 re-approved only proof-or-stop-review-story-init after replacing
  * its live direct StoryStore reads/writes with background_get, story_get,
  * checklist_get, and init_check_set. The CLI-only surface invariant below binds

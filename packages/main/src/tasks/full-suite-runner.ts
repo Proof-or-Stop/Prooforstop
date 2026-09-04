@@ -218,6 +218,17 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // runner-owned temp roots -- the aliased-import audit fixture lives in a temp dir,
   // never in the live handlers directory -- so repoRead is correct.
   repoRead('test:single-owner-extraction'),
+  // B-dc2e CHK-001: the validation protocol suite (validation executor, verifier
+  // discovery, managed-asset check/apply, runtime footprint, doctor, evidence
+  // freshness gates, plus the tasks/ inventory sweep). It was an orphan before
+  // B-dc2e: no npm script, no chain membership, no policy row, no
+  // validate.commands entry. Same three-authority rule as above: this row is
+  // mandatory or the whole suite fails closed as unknownPolicy. The suite reads
+  // the repository (root and main package.json, proof-or-stop.config.json,
+  // smoke-manifest.json, this file, packages/main/src) and spawns the CLI only
+  // inside its own runner-owned temp roots; it holds no exclusive path, port or
+  // lock, so repoRead is correct.
+  repoRead('test:validation-protocol'),
 ].map((entry) => [entry.name, entry]));
 
 export let FULL_SUITE_ENTRIES: FullSuiteEntry[] = Object.values(RESOURCE_POLICY);

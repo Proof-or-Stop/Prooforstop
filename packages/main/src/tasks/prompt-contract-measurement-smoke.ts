@@ -381,10 +381,47 @@ validateDispatchUsageObservation({
 });
 
 const packageRoleIds = readPromptRegistry().agents.map(entry => entry.agentId).sort();
-assert.equal(PROMPT_ROLE_CONTRACTS.length, 18);
+const roleById = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
+const defectTriageReviewerRoleIds = [
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-test-coverage',
+] as const;
+const rolesDeclaringDefectTriageCheck = PROMPT_ROLE_CONTRACTS
+  .filter(contract => contract.requiredCheckIds.includes('defect-triage-and-routing-check'))
+  .map(contract => contract.roleId)
+  .sort();
+assert.deepEqual(
+  rolesDeclaringDefectTriageCheck,
+  [...defectTriageReviewerRoleIds].sort(),
+  'only the five active modular REVIEW lanes declare the defect-triage-and-routing check',
+);
+for (const roleId of defectTriageReviewerRoleIds) {
+  assert.equal(
+    roleById.get(roleId)?.requiredCheckIds.includes('defect-triage-and-routing-check'),
+    true,
+    `${roleId} must declare defect-triage-and-routing-check`,
+  );
+}
+for (const contract of PROMPT_ROLE_CONTRACTS.filter(
+  contract => !defectTriageReviewerRoleIds.includes(contract.roleId as typeof defectTriageReviewerRoleIds[number]),
+)) {
+  assert.equal(
+    contract.requiredCheckIds.includes('defect-triage-and-routing-check'),
+    false,
+    `${contract.roleId} must not inherit the REVIEW-only defect triage check`,
+  );
+}
+// requiredCheckIds are declarative prompt metadata. Membership here is not
+// evidence that a check ran, is not lifecycle gate evidence, and does not
+// change Dynamic Finding schema, blocking, freshness, supersession, severity,
+// or applicability semantics.
+assert.equal(PROMPT_ROLE_CONTRACTS.length, 17);
 assert.deepEqual(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId).sort(), packageRoleIds);
-assert.equal(new Set(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId)).size, 18);
-assert.equal(PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'active').length, 14);
+assert.equal(new Set(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId)).size, 17);
+assert.equal(PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'active').length, 13);
 assert.deepEqual(
   PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'compatibility').map(contract => contract.roleId).sort(),
   ['proof-or-stop-implementation-reviewer', 'proof-or-stop-test-case-reviewer', 'proof-or-stop-test-intent'],
@@ -396,12 +433,11 @@ assert.deepEqual(
 for (const contract of PROMPT_ROLE_CONTRACTS.filter(contract => contract.status !== 'active')) {
   assert.equal(contract.defaultDispatch, false);
 }
-const roleById = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
-assert.equal(roleById.get('proof-or-stop-product-reviewer')?.status, 'active');
-assert.equal(roleById.get('proof-or-stop-implementation-reviewer')?.replacementAgentType, 'proof-or-stop-review-quality');
-assert.match(roleById.get('proof-or-stop-implementation-reviewer')?.migrationHint ?? '', /proof-or-stop-review-behavior/);
-assert.equal(roleById.get('proof-or-stop-test-intent')?.replacementAgentType, 'proof-or-stop-verification-intent');
-assert.equal(roleById.get('proof-or-stop-test-case-reviewer')?.replacementAgentType, 'proof-or-stop-review-test-coverage');
+assert.equal(roleById.get('product-reviewer')?.status, 'active');
+assert.equal(roleById.get('implementation-reviewer')?.replacementAgentType, 'proof-or-stop-review-quality');
+assert.match(roleById.get('implementation-reviewer')?.migrationHint ?? '', /proof-or-stop-review-behavior/);
+assert.equal(roleById.get('test-intent')?.replacementAgentType, 'verification-intent');
+assert.equal(roleById.get('test-case-reviewer')?.replacementAgentType, 'verification-intent');
 assert.equal(Object.isFrozen(PROMPT_ROLE_CONTRACTS), true);
 for (const contract of PROMPT_ROLE_CONTRACTS) {
   assert.equal(Object.isFrozen(contract), true, `${contract.roleId} row must be frozen`);
@@ -456,7 +492,7 @@ const mutationChildOutput = execFileSync(process.execPath, ['--input-type=module
 
   const report = generatePromptMeasurementReport();
   if (
-    report.aggregate.activeRoleCount !== 14 ||
+    report.aggregate.activeRoleCount !== 13 ||
     report.aggregate.compatibilityRoleCount !== 3 ||
     report.aggregate.retiredRoleCount !== 1
   ) throw new Error('report partition changed');
@@ -566,10 +602,10 @@ rejects(
 const reportA = generatePromptMeasurementReport();
 const reportB = generatePromptMeasurementReport();
 assert.equal(canonicalPromptMeasurementReportJson(reportA), canonicalPromptMeasurementReportJson(reportB));
-assert.equal(reportA.records.length, 18);
+assert.equal(reportA.records.length, 17);
 assert.deepEqual(reportA.records.map(record => record.roleId).sort(), packageRoleIds);
-assert.equal(reportA.aggregate.roleCount, 18);
-assert.equal(reportA.aggregate.activeRoleCount, 14);
+assert.equal(reportA.aggregate.roleCount, 17);
+assert.equal(reportA.aggregate.activeRoleCount, 13);
 assert.equal(reportA.aggregate.compatibilityRoleCount, 3);
 assert.equal(reportA.aggregate.retiredRoleCount, 1);
 assert.equal(reportA.aggregate.bytes, reportA.records.reduce((sum, record) => sum + record.bytes, 0));
@@ -586,7 +622,7 @@ verifyPromptMeasurementReport(reportA);
 rejects(() => verifyPromptMeasurementReport({
   ...reportA,
   records: reportA.records.slice(1),
-}), /18 records/);
+}), /17 records/);
 rejects(() => verifyPromptMeasurementReport({
   ...reportA,
   records: reportA.records.map((record, index) => index === 0 ? { ...record, bytes: record.bytes + 1 } : record),
@@ -597,7 +633,7 @@ const jsonReport = handlers.prompt_measurement_report({ format: 'json' });
 assert.equal(canonicalJsonStringify(jsonReport), canonicalJsonStringify(reportA));
 const textReport = handlers.prompt_measurement_report({ format: 'text' });
 assert.equal(textReport, renderPromptMeasurementReportText(reportA));
-assert.equal(textReport.split('\n').filter(line => packageRoleIds.some(id => line.startsWith(`${id}:`))).length, 18);
+assert.equal(textReport.split('\n').filter(line => packageRoleIds.some(id => line.startsWith(`${id}:`))).length, 17);
 assert.match(textReport, /knownDispatch=unavailable/);
 assert.match(textReport, /providerProcessed=unavailable/);
 assert.match(textReport, /L0 observational only/);

@@ -182,6 +182,12 @@ import type { HandlerContext } from '../handlers/context.js';
 import { MAIN_TOOLS } from '../cli/command-catalog.js';
 import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
 import { getCommandPolicy } from '../core/command-policy.js';
+import {
+  describeRedGreenViolations,
+  evaluateRedGreenCommitOrder,
+  isStoryQualifiedRedGreenId,
+  parseRedGreenSubject,
+} from '../core/red-green-commit-guard.js';
 import { resetConfigCache } from '../core/config.js';
 import { StoryStore } from '../core/store.js';
 
@@ -190,14 +196,62 @@ const ROOT = '/repo';
 
 let failures = 0;
 
+// ---------------------------------------------------------------------------
+// B-dc2e F-003: the DEFAULT output of this smoke is bounded and self-checked.
+// The verification executor keeps only the first 12000 chars of a pinned
+// command's stdout before matching a selector, and plan.md promises every smoke
+// stays under DEFAULT_STDOUT_BOUND_CHARS with real headroom. By default a section
+// prints ONE summary line for its passed cases; VALIDATION_TIER_PLANNER_VERBOSE=1
+// prints every `ok` line. A FAIL always prints by name. The CHK-006 section keeps
+// its per-case lines: two of them and its [PASS] line are pinned selectors.
+// Every write to this process's stdout is counted (console.log goes through
+// process.stdout.write; no child inherits stdout), so the last case measures the
+// real output and projects the default rendering when VERBOSE is set.
+// ---------------------------------------------------------------------------
+const DEFAULT_STDOUT_BOUND_CHARS = 11_000;
+const VERBOSE = process.env.VALIDATION_TIER_PLANNER_VERBOSE === '1';
+let capturedStdoutChars = 0;
+/** Chars written only because VERBOSE is set; subtracted to project the default rendering. */
+let verboseOnlyChars = 0;
+{
+  const originalWrite = process.stdout.write;
+  process.stdout.write = function (this: NodeJS.WriteStream, chunk: any, ...rest: any[]): boolean {
+    capturedStdoutChars += typeof chunk === 'string' ? chunk.length : Buffer.from(chunk).toString('utf-8').length;
+    return (originalWrite as any).call(this, chunk, ...rest);
+  } as typeof process.stdout.write;
+}
+
 /** Case names that actually RAN and PASSED, so the CHK-006 coverage registry cannot cite a case that does not exist. */
 const passedCases = new Set<string>();
+/** The name of the most recently run case, so the bound case can prove it is the last one. */
+let lastCaseName = '';
+
+/** The section being run; a `perCase` section prints every ok line by default, the others one summary line. */
+let section: { name: string; perCase: boolean; passed: number } | null = null;
+let sectionCount = 0;
+
+function flushSection(): void {
+  if (section && !section.perCase) console.log(`  ok  ${section.passed} case${section.passed === 1 ? '' : 's'} passed`);
+  section = null;
+}
+
+/** Start a section. Checklist items are DERIVED from these calls' `CHK-nnn` prefixes (see declaredChecklistItems). */
+function beginSection(name: string, options: { perCase?: boolean } = {}): void {
+  flushSection();
+  section = { name, perCase: options.perCase === true, passed: 0 };
+  console.log(`${sectionCount === 0 ? '' : '\n'}${MARKER}: running ${name}`);
+  sectionCount += 1;
+}
 
 function testCase(name: string, run: () => void): void {
+  lastCaseName = name;
   try {
     run();
     passedCases.add(name);
-    console.log(`  ok  ${name}`);
+    if (section) section.passed += 1;
+    const line = `  ok  ${name}`;
+    if (!section || section.perCase) console.log(line);
+    else if (VERBOSE) { verboseOnlyChars += line.length + 1; console.log(line); }
   } catch (error) {
     failures += 1;
     console.log(`  FAIL ${name}: ${error instanceof Error ? error.message : String(error)}`);
@@ -244,7 +298,7 @@ function projectRootWithConfig(commandEntry: Record<string, unknown>): string {
   return projectRootWithCommands([commandEntry]);
 }
 
-console.log(`${MARKER}: running CHK-001 stable command identity cases`);
+beginSection('CHK-001 stable command identity cases');
 
 // ---------------------------------------------------------------------------
 // (1) A declared id survives verbatim; an undeclared one becomes a `prov-` id.
@@ -402,8 +456,10 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
 // case still guards what it was written for: no declared cwd and no
 // absolute-cwd warning. History: B-a745 pinned eba363ed...; B-41c8 CHK-004
 // (the item that registered single-owner-extraction-smoke in validate.commands)
-// added that entry, moving it to 791165cf... (B-41c8 F-006). Name the story and
-// item here, never a commit hash: a branch rewrite orphans the hash and a later
+// added that entry, moving it to 791165cf... (B-41c8 F-006). B-dc2e CHK-001
+// (the item that registered validation-protocol-smoke in validate.commands)
+// added that entry, moving it to 056e47fd.... Name the story and item here,
+// never a commit hash: a branch rewrite orphans the hash and a later
 // `git show` of it reports a bad object (B-41c8 F-012).
 testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is unchanged and carries no absolute-cwd warning', () => {
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
@@ -793,7 +849,7 @@ testCase('the optional id leaves the routine identity digest byte-identical, whi
 // pin must not silently bind a command that would execute differently.
 // ===========================================================================
 
-console.log(`${MARKER}: running CHK-002 legacy pin resolver cases`);
+beginSection('CHK-002 legacy pin resolver cases');
 
 const PIN_ENVIRONMENT = { PATH: '/usr/bin:/bin' } as NodeJS.ProcessEnv;
 
@@ -1140,7 +1196,7 @@ function seedOf(input: StoryRelevanceInput, kind: string, value: string) {
   return input.seeds.find((seed) => seed.kind === kind && seed.value === value);
 }
 
-console.log(`${MARKER}: running CHK-003 Story input collector cases`);
+beginSection('CHK-003 Story input collector cases');
 
 // ---------------------------------------------------------------------------
 // (17) POSITIVE — every input kind in the spec's table is collected, and every
@@ -1909,7 +1965,7 @@ testCase('the collector re-validates a schema-bypassing caller input', () => {
 // and an empty selection is never a pass.
 // ---------------------------------------------------------------------------
 
-console.log(`\n${MARKER}: running CHK-004 tier planner and widening matrix cases`);
+beginSection('CHK-004 tier planner and widening matrix cases');
 
 const SOURCE_KINDS: RoutineValidationSourceKind[] = ['configured', 'fallback', 'validate-file', 'no-validator'];
 
@@ -2466,7 +2522,7 @@ testCase('the planner core rejects a schema-bypassing tier and a malformed input
 // product review rejected.
 // ---------------------------------------------------------------------------
 
-console.log(`\n${MARKER}: running CHK-005 validation_plan CLI cases`);
+beginSection('CHK-005 validation_plan CLI cases');
 
 const PLAN_CLI_STORY_ID = 'B-a745';
 
@@ -3370,7 +3426,7 @@ testCase('F-010: on a configured wrapper-root layout validation_plan reads the s
 // not have.
 // ---------------------------------------------------------------------------
 
-console.log(`\n${MARKER}: running B-a745 F-022 incomplete hash snapshot cases`);
+beginSection('B-a745 F-022 incomplete hash snapshot cases');
 
 type EvidenceDigestName = 'headHash' | 'materialHash' | 'storyFilesHash';
 const EVIDENCE_DIGEST_NAMES: EvidenceDigestName[] = ['headHash', 'materialHash', 'storyFilesHash'];
@@ -3587,7 +3643,7 @@ function gitOutputIn(cwd: string, args: string[]): string | null {
 //       run and passed in this process.
 // ---------------------------------------------------------------------------
 
-console.log(`\n${MARKER}: running CHK-006 cross-cutting acceptance guards`);
+beginSection('CHK-006 cross-cutting acceptance guards', { perCase: true });
 
 function gitOutput(args: string[]): string | null {
   try {
@@ -3602,7 +3658,7 @@ function declaredChecklistItems(repoRoot: string): string[] {
   const source = readFileSync(join(repoRoot, 'packages/main/src/tasks/validation-tier-planner-smoke.ts'), 'utf-8');
   const found = new Set<string>();
   for (const line of source.split('\n')) {
-    const match = /^console\.log\(`[^`]*running (CHK-\d{3})/.exec(line);
+    const match = /^beginSection\('(CHK-\d{3})/.exec(line);
     if (match) found.add(match[1]!);
   }
   return [...found].sort();
@@ -3619,7 +3675,10 @@ testCase('a RED fixture commit precedes the implementing commit for every item t
   // history, so fall back to a subject-filtered whole-history scan rather than
   // passing vacuously on an empty range.
   const rangeSubjects = (gitOutput(['log', '--format=%s', 'main..HEAD']) ?? '').split('\n').filter(Boolean);
-  const subjects = rangeSubjects.some((subject) => /^(RED|GREEN)\(CHK-\d{3}\):/.test(subject))
+  // A later story's branch legitimately reuses CHK-nnn ids for ITS items, so
+  // the range is used only while it carries a GREEN for every item declared here.
+  const rangeCoversDeclared = items.every((item) => rangeSubjects.some((subject) => subject.startsWith(`GREEN(${item}):`)));
+  const subjects = rangeCoversDeclared
     ? rangeSubjects
     : (gitOutput(['log', '-E', '--format=%s', '--grep=^(RED|GREEN)\\(CHK-[0-9]{3}\\):']) ?? '').split('\n').filter(Boolean);
   assert.ok(subjects.length > 0, 'no RED/GREEN commit subjects were readable; the ordering claim cannot be proven');
@@ -3636,6 +3695,385 @@ testCase('a RED fixture commit precedes the implementing commit for every item t
       `${item}: the RED fixture commit must PRECEDE the implementing commit (red@${firstRed}, green@${firstGreen}); squashing them is what this guard forbids`,
     );
   }
+});
+
+// ---------------------------------------------------------------------------
+// (44) RED-BEFORE-GREEN FOR FINDING FIXES (B-dc2e CHK-003, load-bearing) — the
+//      guard above derives CHK ids from this suite's section headers, so a
+//      `GREEN(F-nnn):` finding-fix commit with its RED squashed away was never
+//      inspected (B-a745 F-012). The ordering rule now lives in the PURE helper
+//      `core/red-green-commit-guard.ts` (no git I/O) over an oldest-first list of
+//      {subject, body}; this smoke does the git reading and feeds it. A GREEN
+//      with no RED is accepted only when its body carries the documented marker
+//      line `No-RED: <reason>` with a reason of at least 30 characters, so a
+//      comment-only or registration-only fix states WHY no fixture could fail.
+//      A RED that sits on main before the branch point (excluded from the range)
+//      satisfies a branch GREEN only when BOTH are story-qualified with the
+//      same id, `RED(B-xxxx:F-nnn)` / `GREEN(B-xxxx:F-nnn)` (F-006 + F-008).
+// ---------------------------------------------------------------------------
+
+/** Oldest-first {subject, body} pairs for a git log argument list; git I/O stays here, never in the helper. */
+function readRedGreenCommits(cwd: string | null, logArgs: string[]): Array<{ subject: string; body: string }> {
+  const args = ['log', '--reverse', '--format=%s%x00%b%x1e', ...logArgs];
+  const raw = (cwd ? gitOutputIn(cwd, args) : gitOutput(args)) ?? '';
+  return raw.split('\x1e')
+    .map((record) => record.replace(/^\n/, ''))
+    .filter((record) => record.length > 0)
+    .map((record) => {
+      const [subject = '', body = ''] = record.split('\x00');
+      return { subject: subject.trim(), body };
+    });
+}
+
+const NO_RED_REASON = 'comment-only wording fix with no behaviour change, no fixture can fail';
+
+testCase('guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes', () => {
+  // (a) a GREEN(F-nnn) with no RED anywhere before it.
+  const bare = evaluateRedGreenCommitOrder([
+    { subject: 'RED(CHK-001): a fixture fails', body: '' },
+    { subject: 'GREEN(CHK-001): the fix', body: '' },
+    { subject: 'GREEN(F-004): reword a gloss', body: '' },
+  ]);
+  assert.equal(bare.ok, false, 'a GREEN(F-nnn) with no preceding RED must fail');
+  assert.deepEqual(bare.violatingIds, ['F-004']);
+  assert.match(describeRedGreenViolations(bare), /F-004/);
+
+  // (b) the RED squashed into the GREEN: only the GREEN subject survives and the
+  //     old RED subject is just a body line, which must NOT count as a RED.
+  const squashed = evaluateRedGreenCommitOrder([
+    { subject: 'GREEN(F-007): the fix', body: 'RED(F-007): the fixture fails before the fix\n\nsquashed\n' },
+  ]);
+  assert.equal(squashed.ok, false, 'a body line that looks like a RED subject is not a RED commit');
+  assert.deepEqual(squashed.violatingIds, ['F-007']);
+
+  // (c) the marker without a reason, and with a reason that is too short.
+  const bareMarker = evaluateRedGreenCommitOrder([
+    { subject: 'GREEN(F-011): fix a stale comment', body: 'No-RED:\n' },
+  ]);
+  assert.equal(bareMarker.ok, false, 'No-RED without a reason must fail');
+  assert.deepEqual(bareMarker.violatingIds, ['F-011']);
+  const shortMarker = evaluateRedGreenCommitOrder([
+    { subject: 'GREEN(F-011): fix a stale comment', body: 'No-RED: comment only\n' },
+  ]);
+  assert.equal(shortMarker.ok, false, 'a No-RED reason shorter than 30 characters must fail');
+  assert.deepEqual(shortMarker.violatingIds, ['F-011']);
+
+  // (d) the marker with a real reason, on a GREEN that has no RED.
+  const reasoned = evaluateRedGreenCommitOrder([
+    { subject: 'GREEN(F-011): fix a stale comment', body: `Reword the comment.\n\nNo-RED: ${NO_RED_REASON}\n` },
+  ]);
+  assert.equal(reasoned.ok, true, `a reasoned No-RED marker must pass: ${describeRedGreenViolations(reasoned)}`);
+  assert.deepEqual(reasoned.violatingIds, []);
+
+  // A RED earlier in history but not adjacent still satisfies a later GREEN.
+  const distant = evaluateRedGreenCommitOrder([
+    { subject: 'RED(F-009): the fixture fails', body: '' },
+    { subject: 'RED(CHK-002): another fixture', body: '' },
+    { subject: 'GREEN(CHK-002): another fix', body: '' },
+    { subject: 'GREEN(F-009): the fix', body: '' },
+  ]);
+  assert.equal(distant.ok, true, describeRedGreenViolations(distant));
+  assert.equal(parseRedGreenSubject('chore: unrelated'), null, 'a non RED/GREEN subject is ignored');
+});
+
+testCase('a temp repository with RED(F-007) squashed into its GREEN fails naming F-007', () => {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-red-green-squash-'));
+  temporaryRoots.push(root);
+  writeFixtureFile(root, 'README.md', '# red-green squash fixture\n');
+  fixtureGit(root, ['init', '-q']);
+  fixtureGit(root, ['checkout', '-q', '-B', 'main']);
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'base']);
+  fixtureGit(root, ['checkout', '-q', '-b', 'story/B-fixture']);
+  writeFixtureFile(root, 'fixture.test.txt', 'expect: fails\n');
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'RED(F-007): the fixture fails before the fix']);
+  writeFixtureFile(root, 'fix.txt', 'fixed\n');
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'GREEN(F-007): the fix']);
+
+  // Before the squash the pair is ordered and the guard passes.
+  const ordered = evaluateRedGreenCommitOrder(readRedGreenCommits(root, ['main..HEAD']));
+  assert.equal(ordered.ok, true, `ordered RED then GREEN must pass: ${describeRedGreenViolations(ordered)}`);
+
+  // Squash: one commit survives under the GREEN subject, the RED subject is a body line.
+  fixtureGit(root, ['reset', '-q', '--soft', 'main']);
+  fixtureGit(root, ['commit', '-q', '-m', 'GREEN(F-007): the fix', '-m', 'RED(F-007): the fixture fails before the fix\n\nsquashed']);
+  const commits = readRedGreenCommits(root, ['main..HEAD']);
+  assert.equal(commits.length, 1, 'the squash must leave exactly one commit on the story branch');
+  const result = evaluateRedGreenCommitOrder(commits);
+  assert.equal(result.ok, false, 'the squashed pair must fail the guard');
+  assert.deepEqual(result.violatingIds, ['F-007']);
+  assert.match(describeRedGreenViolations(result), /F-007/, 'the failure text must name the finding id');
+});
+
+/**
+ * B-dc2e F-006: ids with a RED subject BEFORE the branch point, i.e. reachable
+ * from the merge-base of main and HEAD. `main..HEAD` excludes those commits, so
+ * a GREEN on the branch whose RED already sits on main must not be a false
+ * green_without_red. Git I/O stays here; the helper receives a plain set.
+ *
+ * STORY-QUALIFIED ONLY (B-dc2e F-008): only `RED(B-xxxx:CHK-nnn):` and
+ * `RED(B-xxxx:F-nnn):` subjects are collected, stored as the qualified id. Ids
+ * restart at CHK-001 / F-001 in every story, so a bare RED(CHK-001) reachable
+ * from the merge-base belongs to whichever merged story wrote it, and
+ * `git merge main` (required before DONE) moves the merge-base and would flip a
+ * bare GREEN's verdict. A bare GREEN with no RED in range therefore still fails
+ * unless it carries the reasoned No-RED marker; the helper enforces the same
+ * qualified-only rule on its side, so a bare id could not slip through here.
+ */
+function priorRedIds(cwd: string | null): ReadonlySet<string> {
+  // F-007: both calls are STRICT. The old `gitOutput` bare catch turned a git failure
+  // (ENOBUFS on this repository's ~1.39 MB subject history, a missing `main`, a
+  // directory that is no repository) into null and therefore an EMPTY prior set,
+  // which the guard could not tell from "no RED before the branch point".
+  const base = gitOutputStrict(cwd, ['merge-base', 'main', 'HEAD']).trim();
+  // Only the qualified RED subjects are asked for, and the read is bounded far above
+  // the default 1 MB maxBuffer so history growth cannot overflow it.
+  const subjects = gitOutputStrict(cwd, ['log', '--format=%s', '-E', `--grep=${PRIOR_RED_SUBJECT_GREP}`, base]);
+  const ids = new Set<string>();
+  for (const subject of subjects.split('\n')) {
+    const parsed = parseRedGreenSubject(subject.trim());
+    if (parsed?.phase === 'RED' && isStoryQualifiedRedGreenId(parsed.id)) ids.add(parsed.id);
+  }
+  return ids;
+}
+
+/** Extended-regex `git log --grep` for story-qualified RED subjects; the collector asks git for only these. */
+const PRIOR_RED_SUBJECT_GREP = '^RED\\(B-[0-9a-f]{4}:(CHK|F)-[0-9]{3}\\):';
+/** Explicit stdout bound for the prior-RED reads: the default is 1 MB and this repository already exceeds it (F-007). */
+const PRIOR_RED_GIT_MAX_BUFFER = 64 * 1024 * 1024;
+
+/**
+ * Git read that RAISES on failure (non-zero exit, spawn error, ENOBUFS) with the
+ * git stderr in the message, so a failed read is never mistaken for an empty
+ * result. `gitOutput` / `gitOutputIn` keep their null-on-failure contract for
+ * callers that treat absence as a legitimate answer.
+ */
+function gitOutputStrict(cwd: string | null, args: string[]): string {
+  try {
+    return execFileSync('git', args, {
+      ...(cwd ? { cwd } : {}),
+      encoding: 'utf-8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+      maxBuffer: PRIOR_RED_GIT_MAX_BUFFER,
+    });
+  } catch (error) {
+    const failure = error as { code?: unknown; status?: unknown; stderr?: unknown; message?: unknown };
+    const stderr = typeof failure.stderr === 'string' ? failure.stderr.trim() : '';
+    const code = failure.code ?? failure.status ?? 'unknown';
+    throw new Error(
+      `git ${args.join(' ')} failed${cwd ? ` in ${cwd}` : ''} (code ${String(code)}): `
+      + `${stderr || (typeof failure.message === 'string' ? failure.message : String(error))}`,
+    );
+  }
+}
+
+/** The branch range `main..HEAD` through the helper, with the branch point's RED ids, as the smoke's own guard consumes it. */
+function evaluateBranchRedGreen(cwd: string | null) {
+  return evaluateRedGreenCommitOrder(readRedGreenCommits(cwd, ['main..HEAD']), { priorRedIds: priorRedIds(cwd) });
+}
+
+testCase('prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail', () => {
+  // The helper stays pure: the caller hands it the STORY-QUALIFIED ids that have a RED
+  // subject in the branch point's history. Ids restart at CHK-001 / F-001 in every
+  // story, so a bare id in the prior set would let an unrelated merged story's RED
+  // satisfy this branch's GREEN (B-dc2e F-008): only an equal qualified id counts.
+  const evaluate = evaluateRedGreenCommitOrder;
+  const qualifiedPrior = new Set(['B-dc2e:CHK-001']);
+  const inRange = [{ subject: 'GREEN(B-dc2e:CHK-001): the fix on the story branch', body: '' }];
+  assert.equal(evaluate(inRange).ok, false, 'the range alone genuinely lacks the RED, so without the prior set it still fails');
+  // (b) qualified GREEN with the SAME story's qualified RED before the range: accepted.
+  const satisfied = evaluate(inRange, { priorRedIds: qualifiedPrior });
+  assert.equal(satisfied.ok, true, `a GREEN whose qualified id has a RED before the branch point must pass: ${describeRedGreenViolations(satisfied)}`);
+  assert.deepEqual(satisfied.violatingIds, []);
+  assert.deepEqual(satisfied.priorRedAccepted, [{ index: 0, id: 'B-dc2e:CHK-001' }], 'the result names the GREEN satisfied by a RED before the range');
+  assert.match(describeRedGreenViolations(satisfied), /1 satisfied by a RED before the range/);
+  // (a) an UNQUALIFIED GREEN(CHK-001) is never satisfied by an unrelated bare RED(CHK-001) in the prior set.
+  const bareCollision = evaluate([{ subject: 'GREEN(CHK-001): fabricated, never observed a failing CHK-001 fixture', body: '' }], { priorRedIds: new Set(['CHK-001']) });
+  assert.equal(bareCollision.ok, false, 'a bare GREEN(CHK-001) must not be satisfied by any bare RED(CHK-001) before the range: ids restart per story');
+  assert.deepEqual(bareCollision.violatingIds, ['CHK-001']);
+  assert.deepEqual(bareCollision.priorRedAccepted, []);
+  // (c) a qualified GREEN is not satisfied by ANOTHER story's qualified RED with the same item number.
+  const otherStory = evaluate(inRange, { priorRedIds: new Set(['B-0ther:CHK-001', 'B-1234:CHK-001']) });
+  assert.equal(otherStory.ok, false, 'GREEN(B-dc2e:CHK-001) must not be satisfied by RED(B-1234:CHK-001) from another story');
+  assert.deepEqual(otherStory.violatingIds, ['B-dc2e:CHK-001']);
+  // A bare GREEN is not rescued by a qualified RED of the same number either.
+  const bareGreen = evaluate([{ subject: 'GREEN(CHK-001): bare', body: '' }], { priorRedIds: qualifiedPrior });
+  assert.equal(bareGreen.ok, false, 'a bare GREEN(CHK-001) cannot borrow RED(B-dc2e:CHK-001) from the prior set');
+  // An id with no RED anywhere is still a violation, prior set or not.
+  const other = evaluate([{ subject: 'GREEN(B-dc2e:CHK-002): no RED anywhere', body: '' }], { priorRedIds: qualifiedPrior });
+  assert.equal(other.ok, false, 'a GREEN whose id is not in the prior set and has no RED in range must still fail');
+  assert.deepEqual(other.violatingIds, ['B-dc2e:CHK-002']);
+  // The No-RED marker rule is unchanged: a bare marker fails even when a prior set is supplied.
+  const bareMarker = evaluate([{ subject: 'GREEN(F-011): fix a stale comment', body: 'No-RED:\n' }], { priorRedIds: qualifiedPrior });
+  assert.equal(bareMarker.ok, false, 'No-RED without a reason must still fail');
+  assert.deepEqual(bareMarker.violatingIds, ['F-011']);
+});
+
+/** A temp repository on `main` with one base commit; returns its root (cleaned up with the other temporary roots). */
+function redGreenFixtureRepo(prefix: string): string {
+  const root = mkdtempSync(join(tmpdir(), prefix));
+  temporaryRoots.push(root);
+  writeFixtureFile(root, 'README.md', '# red-green fixture\n');
+  fixtureGit(root, ['init', '-q']);
+  fixtureGit(root, ['checkout', '-q', '-B', 'main']);
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'base']);
+  return root;
+}
+
+function redGreenFixtureCommit(root: string, relPath: string, subject: string): void {
+  writeFixtureFile(root, relPath, `${subject}\n`);
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', subject]);
+}
+
+testCase('a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing', () => {
+  const root = redGreenFixtureRepo('proof-or-stop-red-green-prior-');
+  // main carries the story's OWN qualified RED and an unrelated merged story's bare RED(CHK-001).
+  redGreenFixtureCommit(root, 'fixture.test.txt', 'RED(B-dc2e:CHK-001): the fixture fails, committed on main');
+  redGreenFixtureCommit(root, 'unrelated.test.txt', 'RED(CHK-001): an unrelated merged story fixture fails');
+  redGreenFixtureCommit(root, 'unrelated-other.test.txt', 'RED(B-1234:CHK-002): another story fixture fails');
+  fixtureGit(root, ['checkout', '-q', '-b', 'story/B-dc2e']);
+  redGreenFixtureCommit(root, 'fix.txt', 'GREEN(B-dc2e:CHK-001): the fix on the story branch');
+
+  const rangeOnly = readRedGreenCommits(root, ['main..HEAD']);
+  assert.deepEqual(rangeOnly.map((commit) => commit.subject), ['GREEN(B-dc2e:CHK-001): the fix on the story branch'], 'main..HEAD excludes the RED that sits on main');
+  assert.deepEqual([...priorRedIds(root)].sort(), ['B-1234:CHK-002', 'B-dc2e:CHK-001'], 'the prior set carries only STORY-QUALIFIED RED ids; the bare RED(CHK-001) is not collected');
+  const accepted = evaluateBranchRedGreen(root);
+  assert.equal(accepted.ok, true, `the branch GREEN must be satisfied by the same story's RED before the branch point: ${describeRedGreenViolations(accepted)}`);
+  assert.deepEqual(accepted.priorRedAccepted, [{ index: 0, id: 'B-dc2e:CHK-001' }]);
+
+  // (a) a bare GREEN(CHK-001) on the branch is NOT satisfied by main's bare RED(CHK-001).
+  redGreenFixtureCommit(root, 'bare.txt', 'GREEN(CHK-001): fabricated, never observed a failing CHK-001 fixture');
+  const bare = evaluateBranchRedGreen(root);
+  assert.equal(bare.ok, false, 'a bare GREEN(CHK-001) must fail even though an unrelated bare RED(CHK-001) is reachable from the merge-base');
+  assert.deepEqual(bare.violatingIds, ['CHK-001']);
+  // (c) a qualified GREEN is not satisfied by another story's RED of the same number.
+  redGreenFixtureCommit(root, 'other-story.txt', 'GREEN(B-dc2e:CHK-002): borrows RED(B-1234:CHK-002)');
+  const otherStory = evaluateBranchRedGreen(root);
+  assert.equal(otherStory.ok, false, 'GREEN(B-dc2e:CHK-002) must not be satisfied by RED(B-1234:CHK-002)');
+  assert.deepEqual(otherStory.violatingIds, ['CHK-001', 'B-dc2e:CHK-002']);
+  // Control: a branch GREEN with no RED anywhere in history still fails, naming itself.
+  redGreenFixtureCommit(root, 'other.txt', 'GREEN(B-dc2e:CHK-003): no RED anywhere');
+  const control = evaluateBranchRedGreen(root);
+  assert.equal(control.ok, false, 'a GREEN with no RED anywhere must still fail');
+  assert.deepEqual(control.violatingIds, ['CHK-001', 'B-dc2e:CHK-002', 'B-dc2e:CHK-003']);
+});
+
+testCase('merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified', () => {
+  // (d) `git merge main` is required before DONE, and it MOVES merge-base(main, HEAD).
+  // A RED that lands on main after the branch point is invisible before the merge and
+  // must not rescue a GREEN; after the merge it counts only for the same story.
+  const root = redGreenFixtureRepo('proof-or-stop-red-green-merge-base-');
+  fixtureGit(root, ['checkout', '-q', '-b', 'story/B-dc2e']);
+  redGreenFixtureCommit(root, 'fix-1.txt', 'GREEN(B-dc2e:CHK-001): the fix, RED still only on main');
+  redGreenFixtureCommit(root, 'fix-2.txt', 'GREEN(B-dc2e:F-001): the fix, another story RED on main');
+  redGreenFixtureCommit(root, 'fix-3.txt', 'GREEN(CHK-002): bare fix, bare RED on main');
+  fixtureGit(root, ['checkout', '-q', 'main']);
+  redGreenFixtureCommit(root, 'main-red-1.txt', 'RED(B-dc2e:CHK-001): the fixture fails, landed on main after the branch point');
+  redGreenFixtureCommit(root, 'main-red-2.txt', 'RED(B-1234:F-001): another story fixture fails');
+  redGreenFixtureCommit(root, 'main-red-3.txt', 'RED(CHK-002): a bare fixture fails');
+  fixtureGit(root, ['checkout', '-q', 'story/B-dc2e']);
+
+  assert.deepEqual([...priorRedIds(root)], [], 'before the merge none of main\'s new REDs is reachable from the merge-base');
+  const before = evaluateBranchRedGreen(root);
+  assert.equal(before.ok, false, 'before git merge main every branch GREEN lacks its RED');
+  assert.deepEqual(before.violatingIds, ['B-dc2e:CHK-001', 'B-dc2e:F-001', 'CHK-002']);
+
+  fixtureGit(root, ['merge', '-q', '--no-edit', '--no-ff', 'main']);
+  assert.deepEqual([...priorRedIds(root)].sort(), ['B-1234:F-001', 'B-dc2e:CHK-001'], 'after the merge only the qualified REDs are collected; the bare RED(CHK-002) is not');
+  const after = evaluateBranchRedGreen(root);
+  assert.equal(after.ok, false, 'after the merge only the same-story qualified GREEN is satisfied');
+  assert.deepEqual(after.priorRedAccepted, [{ index: 0, id: 'B-dc2e:CHK-001' }], 'GREEN(B-dc2e:CHK-001) is satisfied by the same story\'s RED that the merge made reachable');
+  assert.deepEqual(after.violatingIds, ['B-dc2e:F-001', 'CHK-002'], 'another story\'s RED(B-1234:F-001) and the bare RED(CHK-002) rescue nothing');
+});
+
+// B-dc2e F-007: priorRedIds() read the WHOLE subject history below the merge-base
+// through execFileSync's default 1 MB maxBuffer; this repository's subjects are
+// already ~1.39 MB, so the call threw ENOBUFS, the bare catch turned it into null,
+// and the prior set was silently EMPTY in the very repository the F-006 fix ships
+// in. The cases below pin: no throw and agreement with an independent bounded
+// query on this real repository, a > 1 MB matching-subject history in a temp
+// repository, and a LOUD failure (never an empty set) when git itself fails.
+
+/** The independent query in the cases below spells the pattern out on purpose rather than importing the collector's constant. */
+const QUALIFIED_RED_SUBJECT_GREP = '^RED\\(B-[0-9a-f]{4}:(CHK|F)-[0-9]{3}\\):';
+
+testCase('priorRedIds on this real repository does not throw and matches an independent bounded git query', () => {
+  const base = (gitOutput(['merge-base', 'main', 'HEAD']) ?? '').trim();
+  assert.ok(base, 'this case needs a real merge-base between main and HEAD');
+  const independent = execFileSync(
+    'git',
+    ['log', '--format=%s', '-E', `--grep=${QUALIFIED_RED_SUBJECT_GREP}`, base],
+    { encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 256 * 1024 * 1024 },
+  ).split('\n').map((line) => parseRedGreenSubject(line.trim())).filter((parsed) => parsed?.phase === 'RED').map((parsed) => parsed!.id);
+  let collected: ReadonlySet<string> | null = null;
+  assert.doesNotThrow(() => { collected = priorRedIds(null); }, 'priorRedIds must not throw on the real repository');
+  assert.deepEqual([...collected!].sort(), [...new Set(independent)].sort(), 'the prior set must equal the qualified RED ids reachable from the merge-base, never a silently empty set');
+});
+
+testCase('priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)', () => {
+  const root = redGreenFixtureRepo('proof-or-stop-red-green-big-history-');
+  const padding = 'x'.repeat(100_000);
+  const expected: string[] = [];
+  for (let index = 1; index <= 12; index += 1) {
+    const id = `B-f0f7:F-${String(index).padStart(3, '0')}`;
+    expected.push(id);
+    writeFixtureFile(root, `fixture-${index}.txt`, `${id}\n`);
+    writeFixtureFile(root, 'message.txt', `RED(${id}): ${padding}\n`);
+    fixtureGit(root, ['add', 'fixture-' + index + '.txt']);
+    fixtureGit(root, ['commit', '-q', '-F', 'message.txt']);
+  }
+  for (let index = 1; index <= 4; index += 1) {
+    writeFixtureFile(root, `noise-${index}.txt`, `${index}\n`);
+    writeFixtureFile(root, 'message.txt', `chore: unrelated ${padding}\n`);
+    fixtureGit(root, ['add', 'noise-' + index + '.txt']);
+    fixtureGit(root, ['commit', '-q', '-F', 'message.txt']);
+  }
+  fixtureGit(root, ['checkout', '-q', '-b', 'story/B-f0f7']);
+  redGreenFixtureCommit(root, 'fix.txt', 'GREEN(B-f0f7:F-001): the fix on the story branch');
+  const matching = execFileSync(
+    'git',
+    ['log', '--format=%s', '-E', `--grep=${QUALIFIED_RED_SUBJECT_GREP}`, 'main'],
+    { cwd: root, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'ignore'], maxBuffer: 256 * 1024 * 1024 },
+  );
+  assert.ok(matching.length > 1024 * 1024, `the matching subjects alone must exceed 1 MB to exercise the buffer (got ${matching.length} bytes)`);
+  assert.deepEqual([...priorRedIds(root)].sort(), expected.sort(), 'every qualified RED below the merge-base must be collected despite the > 1 MB subject volume');
+  const accepted = evaluateBranchRedGreen(root);
+  assert.equal(accepted.ok, true, `the branch GREEN must be satisfied through the large history: ${describeRedGreenViolations(accepted)}`);
+});
+
+testCase('priorRedIds raises when the git call fails instead of returning an empty set', () => {
+  // A repository with no `main` branch: merge-base fails. Silence here would turn
+  // every GREEN into a false green_without_red (or, with the old whole-history read,
+  // hide a buffer overflow); the smoke must fail loudly naming git.
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-red-green-git-failure-'));
+  temporaryRoots.push(root);
+  writeFixtureFile(root, 'README.md', '# no main branch\n');
+  fixtureGit(root, ['init', '-q']);
+  fixtureGit(root, ['checkout', '-q', '-B', 'trunk']);
+  fixtureGit(root, ['add', '-A']);
+  fixtureGit(root, ['commit', '-q', '-m', 'base']);
+  assert.throws(() => priorRedIds(root), /git/, 'a failing git call must raise, never degrade to an empty prior set');
+  const notARepo = mkdtempSync(join(tmpdir(), 'proof-or-stop-red-green-not-a-repo-'));
+  temporaryRoots.push(notARepo);
+  assert.throws(() => priorRedIds(notARepo), /git/, 'a directory that is not a repository must raise as well');
+});
+
+testCase('main..HEAD passes the RED-before-GREEN helper', () => {
+  const range = readRedGreenCommits(null, ['main..HEAD']);
+  // Once merged the range is empty; fall back to the subject-filtered whole
+  // history rather than passing vacuously.
+  const usingRange = range.some((commit) => parseRedGreenSubject(commit.subject) !== null);
+  const commits = usingRange
+    ? range
+    : readRedGreenCommits(null, ['-E', '--grep=^(RED|GREEN)\\(']);
+  assert.ok(commits.length > 0, 'no RED/GREEN commits were readable; the ordering claim cannot be proven');
+  const result = usingRange ? evaluateBranchRedGreen(null) : evaluateRedGreenCommitOrder(commits);
+  assert.equal(result.ok, true, describeRedGreenViolations(result));
+  console.log('[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason');
 });
 
 // ---------------------------------------------------------------------------
@@ -3956,6 +4394,39 @@ testCase('every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that a
   }
   assert.deepEqual(missing, [], missing.join('\n'));
 });
+
+// ---------------------------------------------------------------------------
+// (45) DEFAULT OUTPUT BOUND (B-dc2e F-003) — plan.md promises every smoke's
+//      default output stays under 11000 chars, and the verification executor
+//      keeps only the first 12000 chars of stdout before matching a pinned
+//      selector. This case measures the real default rendering of THIS run and
+//      fails on growth. It must stay the last case: its projection covers
+//      exactly the lines printed after it.
+// ---------------------------------------------------------------------------
+const DEFAULT_STDOUT_BOUND_CASE_NAME = 'bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars';
+
+testCase(DEFAULT_STDOUT_BOUND_CASE_NAME, () => {
+  const summaryLine = (projected: number): string => `default stdout projection: ${projected} chars (bound ${DEFAULT_STDOUT_BOUND_CHARS})`;
+  // Everything the default rendering has written so far, plus exactly the lines still to
+  // come when every case passes: the summary line below, this case's ok line, the PASS line.
+  const tail = `  ok  ${DEFAULT_STDOUT_BOUND_CASE_NAME}\n\n${MARKER}: PASS\n`;
+  const base = capturedStdoutChars - verboseOnlyChars + tail.length;
+  // The summary line is part of the output; its length depends only on the digit count of the projection.
+  let projected = base + summaryLine(base).length + 1;
+  projected = base + summaryLine(projected).length + 1;
+  assert.ok(
+    projected < DEFAULT_STDOUT_BOUND_CHARS,
+    `default stdout is ${projected} chars, not under ${DEFAULT_STDOUT_BOUND_CHARS}: keep collapsed sections collapsed and CHK-006 case names short, `
+    + 'or print new detail only under VALIDATION_TIER_PLANNER_VERBOSE=1',
+  );
+  console.log(summaryLine(projected));
+});
+
+if (lastCaseName !== DEFAULT_STDOUT_BOUND_CASE_NAME) {
+  failures += 1;
+  console.log(`  FAIL the default stdout bound case must stay the last case (add new cases before it); the last case was "${lastCaseName}"`);
+}
+flushSection();
 
 for (const root of temporaryRoots) {
   rmSync(root, { recursive: true, force: true });
