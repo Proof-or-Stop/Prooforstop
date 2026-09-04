@@ -1383,6 +1383,41 @@
       },
       "readDiagnostics": [],
       "_hash": "4e439ac79a76455299b68412364aa1f37ef61e6745825f180b7d880415f535fd"
+    },
+    {
+      "id": "B-fe8f:RP-041",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Full-context Round 23 re-attestation requested after SAFE_INCREMENTAL eligibilityDigest/reviewBasisDigest recomputation failure. RR-078 is contextMode=full with selectionReason=REVIEWER_REQUESTED_FULL. Review of the complete Story diff and current bindings found no blocker: implementation bytes are unchanged after peer reviewer metadata, evidence_plan reports all 71 fresh, repository-local finding_list reports exactly 32 resolved and zero open, and the F-030/F-031/F-032 version-binding control again passes with current-main binding and stale/mismatch rejection.",
+      "createdAt": "2026-09-04T13:18:43.596Z",
+      "reviewRound": "2026-09-04T13:13:30.995Z",
+      "reviewRunId": "B-fe8f:RR-078",
+      "envelopeId": "47205bea58b4bc283d85941f1c3550bceaedca5b549718e1f5591b90a4932d64",
+      "writerSessionId": "sess-20dab17d570fa6fab39023d863a73537",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "29cae687401131a46ad0dfb505c9b83b965ce5f66b2601223e6329103e7bfbbd"
     }
   ]
 }
