@@ -98,6 +98,31 @@
         "scanEscalationReason": null
       },
       "_hash": "b167eaa0de0993b9939df0d3657a54e40390ca5592d7327341cc5a08306bca1e"
+    },
+    {
+      "id": "B-1482:RP-004",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round-4 quality re-review of the five commits since my round-3 pass (F-018..F-022). Independently mutation-proved two on live temp-restored files: deleting the loosening-refused sentence and collapsing the runnable command invocation each made CHK-003/C4 fail naming the exact clause, then restored via git checkout. tsc/lint clean; narrowing-repin-smoke 25/25, prompt-full-context-envelope-smoke, retired-authority-vocabulary-guard-smoke (builds=811), validation-tier-planner-smoke all PASS. No dead code/loose typing/duplicated constants newly introduced. No open blocking finding.",
+      "createdAt": "2026-09-04T01:13:28.631Z",
+      "reviewRound": "2026-09-04T01:04:08.380Z",
+      "reviewRunId": "B-1482:RR-012",
+      "envelopeId": "8c13457e74e750de5bc562f6851d9298bb0ccb6978e208fe6a95ae6e454e9a52",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7ad3f22be0c6fa526931bc218dfad56fef9dbc034380a80b6a6cb2475f2a990c"
     }
   ]
 }
