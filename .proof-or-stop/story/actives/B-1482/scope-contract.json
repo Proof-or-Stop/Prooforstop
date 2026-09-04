@@ -94,10 +94,26 @@
       "phase": "DEV",
       "headHash": "0b3267647e1e36a37aae8d0ba30a534020d1042b",
       "materialHash": "e5f4fec796159725a07c036f106bce2632e35e0756cb3c7c1b06e8302621c9ed"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-1482:F-008: the refusal message taught a command form missing the required itemId, so copy-pasting the tool own instruction failed with a schema error. Printing a runnable form needs the owning checklist item, which this handler resolves and passes to the verdict builder.",
+      "timestamp": "2026-09-04T00:17:22.393Z",
+      "paths": [
+        "packages/main/src/handlers/evidence-pin-guard.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/evidence-pin-guard.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "644407a3bde9ccd0258229dc3ddc57a108e1410d",
+      "materialHash": "12338347f43249e28b261c125e48a21bb054fb5a1dc77e67ddf5272c92daddc3"
     }
   ],
   "createdAt": "2026-09-03T20:59:27.439Z",
-  "updatedAt": "2026-09-03T23:13:01.397Z",
+  "updatedAt": "2026-09-04T00:17:22.393Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -118,6 +134,7 @@
     "packages/main/src/core/evidence-pin-guard.ts": "packages/main/src/core/evidence-pin-guard.ts",
     "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
     "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
-    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/handlers/evidence-pin-guard.ts": "packages/main/src/handlers/evidence-pin-guard.ts"
   }
 }
