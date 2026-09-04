@@ -140,7 +140,7 @@
       "desc": "evidence-pin-guard.ts:226 (and the generated Codex PreToolUse hook at init-assets.ts, which prints verdict.reasons verbatim) teaches the narrowing escape via `proof-or-stop verification_pin_narrow --storyId=... --intentRef=... --selector=<stricter> --reason=<why>` but omits the required --itemId flag. verification_pin_narrow schema (command-catalog.ts) requires itemId as a non-optional string; confirmed live: `node packages/main/dist/cli.js verification_pin_narrow --storyId=B-0000 --intentRef=CHK-001:happy:0 --selector=\"status: plan\" --reason=\"...\"` fails with `Argument validation failed: itemId: Invalid input: expected string, received undefined`. A user who copy-pastes the exact command the refusal hands them gets a schema error, not a working re-pin.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-03T23:19:07.013Z",
@@ -152,7 +152,8 @@
         "packages/main/src/init-assets.ts"
       ],
       "signatureTag": "missing|ts|evidence-guard-generated",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-04T00:17:31.978Z"
     },
     {
       "id": "B-1482:F-009",
