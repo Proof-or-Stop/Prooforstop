@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import {
+  accessSync,
+  constants,
   existsSync,
   mkdtempSync,
   mkdirSync,
@@ -10,12 +12,13 @@ import {
   readFileSync,
   renameSync,
   rmSync,
+  statSync,
   symlinkSync,
   utimesSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
 import {
@@ -112,6 +115,7 @@ import {
   assertPlanDevDependenciesDone,
   runStoryTransition,
 } from '../handlers/transition-orchestrator.js';
+import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import { readSyncedVersion } from '../core/version-bump.js';
 import { adapterSessionEnv } from './adapter-session-env.js';
 
@@ -1272,6 +1276,98 @@ function assertRedGreenRelation(repositoryRoot: string): void {
   console.log('green.red_historical_anchor_verifier: PASS exactBaselineCheckout=true expectedFailure=ERR_MODULE_NOT_FOUND currentGreenImport=true arbitraryCwdAccepted=false');
 }
 
+function assertInstalledVersionMatchesBinding(
+  observedVersion: string | undefined,
+  boundVersion: string,
+): asserts observedVersion is string {
+  assert.equal(
+    observedVersion,
+    boundVersion,
+    `installed CLI version ${observedVersion ?? 'missing'} differs from its bound package version ${boundVersion}`,
+  );
+}
+
+function resolveCommandOnPath(command: string, cwd: string): string {
+  const pathValue = process.platform === 'win32'
+    ? process.env.Path ?? process.env.PATH ?? ''
+    : process.env.PATH ?? '';
+  const extensions = process.platform === 'win32'
+    ? (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD').split(';').filter(Boolean)
+    : [''];
+  for (const rawDir of pathValue.split(delimiter)) {
+    const dir = rawDir || '.';
+    for (const extension of extensions) {
+      const candidate = resolve(cwd, dir, `${command}${extension}`);
+      try {
+        if (!statSync(candidate).isFile()) continue;
+        if (process.platform !== 'win32') accessSync(candidate, constants.X_OK);
+        return realpathSync(candidate);
+      } catch {
+        // Continue in PATH order until the same runnable command spawn uses.
+      }
+    }
+  }
+  throw new Error(`${command} is not a runnable command on PATH`);
+}
+
+function assertInstalledCliBinding(repositoryRoot: string, installedVersion: string | undefined): string {
+  const mainRoot = resolveMainRepoRoot(repositoryRoot);
+  const mainVersion = readSyncedVersion(mainRoot);
+  const globalNpmRoot = execFileSync('npm', ['root', '-g'], {
+    cwd: repositoryRoot,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim();
+  const globalCorePath = join(globalNpmRoot, '@proof-or-stop', 'core');
+  const globalCoreRoot = realpathSync(globalCorePath);
+  const mainCoreRoot = realpathSync(join(mainRoot, 'packages', 'main'));
+  assert.equal(globalCoreRoot, mainCoreRoot, 'installed @proof-or-stop/core must resolve to the current main core binding');
+  const globalPackage = JSON.parse(readFileSync(join(globalCorePath, 'package.json'), 'utf8')) as {
+    name?: string;
+    version?: string;
+    bin?: string | Record<string, string>;
+  };
+  assert.equal(globalPackage.name, '@proof-or-stop/core');
+  assert.equal(globalPackage.version, mainVersion, 'installed core package version must equal its current main binding');
+  const binRelative = typeof globalPackage.bin === 'string'
+    ? globalPackage.bin
+    : globalPackage.bin?.['proof-or-stop'];
+  assert.equal(typeof binRelative, 'string', 'installed core package must declare the proof-or-stop bin');
+  const boundEntrypoint = realpathSync(join(globalCoreRoot, binRelative!));
+  assert.equal(
+    resolveCommandOnPath('proof-or-stop', repositoryRoot),
+    boundEntrypoint,
+    'proof-or-stop on PATH must resolve to the installed core binding entrypoint',
+  );
+  assertInstalledVersionMatchesBinding(installedVersion, mainVersion);
+  return mainVersion;
+}
+
+function assertVersionBindingNegativeControl(): void {
+  const behindWorktreeVersion: string = '1.2.3';
+  const currentMainBindingVersion: string = '1.2.4';
+  assert.equal(
+    currentMainBindingVersion === behindWorktreeVersion,
+    false,
+    'RED control: the retired installed-equals-worktree rule must reject a legitimate newer main binding',
+  );
+  assert.doesNotThrow(() => assertInstalledVersionMatchesBinding(
+    currentMainBindingVersion,
+    currentMainBindingVersion,
+  ));
+  assert.throws(
+    () => assertInstalledVersionMatchesBinding(behindWorktreeVersion, currentMainBindingVersion),
+    /differs from its bound package version/,
+    'an installed CLI older than its binding must be rejected',
+  );
+  assert.throws(
+    () => assertInstalledVersionMatchesBinding('1.2.5', currentMainBindingVersion),
+    /differs from its bound package version/,
+    'any installed CLI mismatch against its binding must be rejected',
+  );
+  console.log('red.version_binding_behind_worktree: PASS oldRuleRejects=true ownBindingAccepts=true staleInstalledRejects=true mismatchRejects=true');
+}
+
 function assertVersionSync(repositoryRoot: string): void {
   const versionCommitCandidates = git(repositoryRoot, [
     'log',
@@ -1314,8 +1410,10 @@ function assertVersionSync(repositoryRoot: string): void {
   });
   assert.equal(installed.status, 0, `installed CLI version failed: ${installed.stderr}`);
   const installedVersion = /Proof-or-Stop (\d+\.\d+\.\d+)/.exec(installed.stdout)?.[1];
-  assert.equal(installedVersion, current, `installed CLI version ${installedVersion ?? installed.stdout.trim()} differs from current ${current}`);
-  console.log('green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true installedState=current');
+  assertVersionBindingNegativeControl();
+  const installedBindingVersion = assertInstalledCliBinding(repositoryRoot, installedVersion);
+  const installedState = installedBindingVersion === current ? 'worktree-current' : 'main-bound';
+  console.log(`green.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true installedState=${installedState} installedBinding=current-main`);
 }
 
 function assertCleanPackInstall(repositoryRoot: string): void {
@@ -2479,6 +2577,8 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
 
 if (process.argv[2] === '--ledger-worker') {
   appendUnderLock(JSON.parse(process.argv[3] ?? '{}') as WorkerSpec);
+} else if (process.argv[2] === '--version-sync-only') {
+  assertVersionSync(git(process.cwd(), ['rev-parse', '--show-toplevel']));
 } else {
   const scratch = mkdtempSync(join(tmpdir(), 'finding-ledger-smoke-'));
   try {
