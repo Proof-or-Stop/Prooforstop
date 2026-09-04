@@ -1018,6 +1018,15 @@ const DOCUMENTED_CLAIM_SENTENCES: ReadonlyArray<{ claim: string; sentences: Reco
       'CLAUDE.md': 'The proof reads tool-recorded receipts only.',
     },
   },
+  {
+    // B-1482 F-021: CHK-003:happy:0 names the one-narrowing bound as something BOTH
+    // documents state, so both are held to it under the same deletion mutation.
+    claim: 'the one-narrowing bound',
+    sentences: {
+      'decision doc': 'A set of recorded receipts admits AT MOST ONE narrowing.',
+      'CLAUDE.md': 'a recorded-receipt set admits at most one narrowing.',
+    },
+  },
 ];
 
 /**
@@ -1286,6 +1295,22 @@ const CHK003_CASES: SmokeCase[] = [
       // write and the intent it is refused for.
       assert.match(opening, /would be refused/, 'the opening line still states the write is refused');
       assert.ok(opening.includes('CHK-001:happy:0'), 'the opening line still names the intent it refuses');
+
+      // B-1482 F-021: the refusal message is not the only place a reader learns this
+      // rule. The registered description of the command that produces the refusal is
+      // printed by `verification_pin_guard_check --help`, so a reader who never triggers
+      // a denial learns the rule ONLY from it. It is held to the same isolation rule.
+      const guard = MAIN_TOOLS.find(t => t.name === 'verification_pin_guard_check');
+      assert.ok(guard, 'verification_pin_guard_check is registered in the command catalog');
+      const registered = guard.description;
+      assert.ok(
+        !/immutab/i.test(registered) || /(exception|narrowing)/i.test(registered),
+        `the registered description must not claim immutability without qualifying it in the same text: ${registered}`,
+      );
+      // Not repairable by deleting information: it must still state what the command
+      // does and what it is judged against.
+      assert.match(registered, /denies/, 'the registered description still states the command denies');
+      assert.match(registered, /pin/, 'the registered description still names the pin it judges against');
 
       // The generated shell-tool hook must not carry a SECOND copy of this copy: it
       // renders whatever the shared verdict returns, so it cannot go stale on its own.
