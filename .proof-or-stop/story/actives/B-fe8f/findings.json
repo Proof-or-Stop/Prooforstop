@@ -642,7 +642,7 @@
       "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1312-1317 — current Round 19 acceptance blocker: commit 9d44c9f980 replaces the old 0.3.273 hard pin with `installedVersion === readSyncedVersion(repositoryRoot)`, but that still makes the Story smoke non-replayable whenever the long-lived Story worktree is behind an unrelated main/global CLI patch. Fresh execution of `node packages/main/dist/tasks/finding-ledger-runtime-smoke.js` on the current committed Story exited 1 after all preceding ledger/runtime/adversarial selectors, with `AssertionError: installed CLI version 0.3.275 differs from current 0.3.274`. The 71 evidence rows are structurally marked fresh/mechanical, yet all 58 rows backed by this command now lack a currently passing mechanical reproduction. Preserve proof that B-fe8f itself bumped exactly once and that each tested artifact reports its own authoritative version, but do not require a global installed CLI from newer main to equal an intentionally behind Story checkout; add a committed negative/control regression for the behind-main/global-ahead topology and refresh the affected receipts.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-04T07:49:57.654Z",
@@ -654,7 +654,11 @@
         ".proof-or-stop/story/actives/B-fe8f/checklist.json"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 2c26dbe246e3634431ecba26cb6fa9615f2bc1cf and re-verified on the final Story file binding by mechanical receipt commit 5587bcb. The unchanged RED control still reports oldRuleRejects=true. The GREEN requires the repository-local CLI to equal the worktree version and independently binds the PATH global CLI realpath, npm-global @proof-or-stop/core package, bin target, and version to current main; its selector reports green.version_sync PASS with rootPackage, mainPackage, lockfile, runtimeConstant, localCli, and installedCli all true. Stale and mismatched global bindings remain rejected.",
+      "resolvedAt": "2026-09-04T12:55:50.449Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-032",
