@@ -158,12 +158,13 @@
       "q": "Is CHK-003 required to prevent omission of any future DONE predicate, or only to lock the two known predicates in this Story?",
       "evidence": "scope-boundary.json promises that future DONE predicate additions cannot silently bypass done_prepare, but plan.md only registers and tests the two known predicates. Removing either known row will fail, while adding a third independent predicate only to machine.ts is not shown to fail any planned check. Either define a general inventory/shared-aggregate parity mechanism and mutation test, or narrow the promise to these two predicates.",
       "sourcePointers": [
-        ".proof-or-stop/story/actives/B-212f/scope-boundary.json",
-        ".proof-or-stop/story/actives/B-212f/plan.md",
-        "packages/main/src/core/machine.ts",
-        "packages/main/src/core/done-oracle.ts",
-        "scripts/verify-process-fact-contract.mjs"
-      ]
+        "CHK-003",
+        "plan.md#CHK-003",
+        "proofstory.json#AB-PROCESS-FACT",
+        "scope-check.json#OQ-2"
+      ],
+      "resolution": "The broad future-predicate promise remains in scope and is now mechanical: CHK-003 adds a registry-backed inventory mapping every literal machine-readable blocker code in machine.ts's targetPhase DONE branch to an existing done-oracle row, plus an in-memory future_done_predicate mutation that must fail when unmapped. This catches a later machine-coded DONE predicate added without a preflight mapping instead of merely pinning the two current checks.",
+      "resolvedAt": "2026-09-04T20:50:10.309Z"
     }
   ]
 }
