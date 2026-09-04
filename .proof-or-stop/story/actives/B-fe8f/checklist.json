@@ -261,19 +261,20 @@
           "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
           "result": "pass",
           "note": "verification_run executed the pinned verifier for CHK-001:adversarial:1",
-          "headHash": "9d44c9f98066bd72e1394ccf25c040749f790326",
-          "materialHash": "4ccb15e53e103ea57b05ce9cad24221b9c7e1ea77885e55a348f06aa50c4cbbe",
-          "storyFilesHash": "3d2b5a3e2c72a821d99a54eb4c5f1223d93cd2191e6273285862b21b78fad8fa",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
             "outputDigest": "654a878599b491fe2134269da29ca7d99779c645b592dc9f69b60292212e215a",
             "outputTail": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS historicalBaselineFails=true currentGreenPasses=true currentCorruptedRelationRejected=true assertionUnchanged=true legacyPinnedNegativeControl=\"red.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\"\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n",
             "selectorMatched": true,
-            "executedAt": "2026-09-03T22:40:08.184Z",
+            "selector": "red.reproducibility_guard: PASS",
+            "executedAt": "2026-09-04T10:24:10.377Z",
             "timeoutMs": 180000
           },
-          "timestamp": "2026-09-04T00:49:00.504Z"
+          "headHash": "9adcfa8a0da6f1de5cef613dd038b94902ea05dd",
+          "materialHash": "4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2",
+          "storyFilesHash": "1016081edd126aa4239610b0f1cb8c65bfb2a43e3634bd71bc9a776d3e1096ff",
+          "timestamp": "2026-09-04T10:24:10.683Z"
         },
         {
           "intentRef": "CHK-001:adversarial:2",
