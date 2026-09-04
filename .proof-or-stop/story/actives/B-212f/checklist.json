@@ -216,9 +216,16 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-04T21:04:23.172Z",
-      "endTime": null
+      "endTime": "2026-09-04T21:17:08.514Z",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "52dbfce77407fe2644a500a5ded8c954504525ab65710a9ff4eaf69a24ed3d2a",
+        "storyFilesHash": "4ae2fcae560bde8d30aa9607f58034f8500a0f90edb7818b4377b335a7f5365e",
+        "headHash": "0bc957dad0ddf368be2b753b6e8235f632236ff6",
+        "attestedAt": "2026-09-04T21:17:08.805Z",
+        "materialHash": "74bbe9329c9d40136bfdee5d8ac35474d9166c7d069b8b9a01c753fbcde8b584"
+      }
     }
   ],
   "auditLog": [
@@ -266,6 +273,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin the generic process-fact parity inventory, mutation proof, flow-stability guard, and decision-document synchronization required by the resolved scope review."
+    },
+    {
+      "timestamp": "2026-09-04T21:17:08.514Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer commit 0bc957dad0 adds the two L4 facts, seven-code inventory, source-first verifier and future_done_predicate mutation, flow-stability assertions, and decision-doc contract. Owner reran process-fact verifier and parity test successfully. The implementer repaired its introduced snapshot_missing acceptance blocker in-scope before commit; no deferred defects remain."
     }
   ]
 }
