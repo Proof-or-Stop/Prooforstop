@@ -1329,6 +1329,53 @@ const CHK003_CASES: SmokeCase[] = [
       } finally { cleanup(env); }
     },
   },
+  {
+    id: 'CHK-003/C10',
+    desc: 'the concurrent pin-write refusal teaches the same route rather than bare immutability',
+    run: async () => {
+      const env = makeEnv([{ ref: 'INT-RACE', type: 'cli' }]);
+      try {
+        // The pin-application refusal fires when another writer pinned the intent between
+        // the pre-lock read and the locked write. In one process the only honest way to
+        // reach it is to let the PINNED COMMAND ITSELF do the racing write while it runs.
+        const checklistPath = env.store.storyFilePath(env.storyId, 'checklist.json');
+        const racing =
+          `node -e "const fs=require('fs');const p='${checklistPath}';` +
+          `const c=JSON.parse(fs.readFileSync(p,'utf8'));` +
+          `c.items[0].verificationIntent.happy[0].verification={command:'a concurrent writer pinned this',selector:'${SELECTOR}'};` +
+          `fs.writeFileSync(p,JSON.stringify(c));console.log('${SELECTOR}')"`;
+        let message = '';
+        try {
+          await env.handlers.verification_evidence_add({
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-RACE', kind: 'integration_test',
+            command: racing, selector: SELECTOR, result: 'pass', note: 'a first write racing a concurrent pin',
+          });
+        } catch (e) {
+          message = e instanceof Error ? e.message : String(e);
+        }
+        assert.match(message, /receipt_command_mismatch/, `the concurrent pin write was refused: ${message}`);
+        assert.ok(
+          message.includes(NARROW_COMMAND),
+          `the concurrent-pin refusal names ${NARROW_COMMAND}: ${message}`,
+        );
+        assert.match(message, /recorded FAILING receipt/, 'the concurrent-pin refusal states the precondition');
+        assert.match(message, /(LOOSER|loosening)/, 'the concurrent-pin refusal keeps loosening refused');
+        assert.equal(
+          /the verification pin is immutable\)/.test(message), false,
+          `the concurrent-pin refusal no longer claims immutability without exception: ${message}`,
+        );
+
+        // Every refusal on this path comes from the shared renderer, so the direct-caller
+        // floor cannot keep a second, stale copy of the categorical claim anywhere.
+        const floor = readRepoFile(join(MAIN_SRC, 'handlers', 'checklist.ts'));
+        assert.ok(floor.includes('receipt_selector_mismatch'), 'the enforcement floor source was located');
+        assert.deepEqual(
+          floor.split('\n').filter(line => line.includes('the verification pin is immutable')), [],
+          'no refusal in the enforcement floor still claims the pin is immutable without exception',
+        );
+      } finally { cleanup(env); }
+    },
+  },
 ];
 
 // ── runner ────────────────────────────────────────────────────────────────────
