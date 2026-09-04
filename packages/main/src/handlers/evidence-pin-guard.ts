@@ -17,6 +17,7 @@ import type { ChecklistData, VerificationIntentPin } from '../core/types.js';
 import {
   parseEvidenceCommand,
   resolvePinFromChecklist,
+  resolveIntentOwnerItemId,
   computeEvidencePinVerdict,
   type EvidencePinGuardResult,
 } from '../core/evidence-pin-guard.js';
@@ -85,13 +86,18 @@ export function createEvidencePinGuardHandlers(ctx: HandlerContext): Record<stri
           return allowNoDecision('Not a proof-or-stop verification evidence-write command — proceeding (no-decision).');
         }
 
-        // 3. Resolve the pin via the store (fail-open on any read/resolution gap).
+        // 3. Resolve the pin via the store (fail-open on any read/resolution gap). The
+        //    owning checklist item is resolved from the same load, because the narrowing
+        //    command the refusal teaches requires --itemId and a custom intent id encodes
+        //    no item (B-1482 F-008).
         let pin: VerificationIntentPin | null = null;
+        let ownerItemId: string | undefined;
         if (parsed.storyId && parsed.intentRef) {
           try {
             store.readStory(parsed.storyId); // ensure the story exists
             const checklist: ChecklistData = store.readChecklist(parsed.storyId);
             pin = resolvePinFromChecklist(checklist, parsed.intentRef);
+            ownerItemId = resolveIntentOwnerItemId(checklist, parsed.intentRef);
           } catch {
             // PROBE: cannot resolve the pin → fail-open, let the handler floor decide.
             return computeEvidencePinVerdict(parsed, null);
@@ -99,7 +105,7 @@ export function createEvidencePinGuardHandlers(ctx: HandlerContext): Record<stri
         }
 
         // 4. Pure verdict (deny only on an explicit provided-value mismatch).
-        return computeEvidencePinVerdict(parsed, pin);
+        return computeEvidencePinVerdict(parsed, pin, ownerItemId !== undefined ? { itemId: ownerItemId } : undefined);
       }
 
       if (args.json) return JSON.stringify(result, null, 2);

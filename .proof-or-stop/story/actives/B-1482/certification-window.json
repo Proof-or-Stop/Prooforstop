@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-1482:CW-001",
+      "storyId": "B-1482",
+      "state": "RUNNING",
+      "createdAt": "2026-09-04T02:18:04.108Z",
+      "updatedAt": "2026-09-04T02:18:06.209Z",
+      "frozen": {
+        "headHash": "f8d42f6a30abbfd603518d33ba71d16f1c192bd9",
+        "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+        "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+        "expectedMainSha": "eda3a988769e19de189ab4c920b8d1ee9f7b58e6",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-1482:RIE-001",
+        "receiptId": "B-1482:RIE-001:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-1482:PRECERT-001",
+      "_hash": "44be3c890669ebc6d50ed78f700000d07d87b00e60abc94bbc713de905f02bea"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-1482:PRECERT-001",
+      "windowId": "B-1482:CW-001",
+      "storyId": "B-1482",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "f8d42f6a30abbfd603518d33ba71d16f1c192bd9",
+        "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+        "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+        "expectedMainSha": "eda3a988769e19de189ab4c920b8d1ee9f7b58e6",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-1482:RIE-001",
+      "inventoryReceiptId": "B-1482:RIE-001:RCP-001",
+      "createdAt": "2026-09-04T02:18:04.108Z",
+      "_hash": "8fae352d6c170c8323892999970bcb45157730840707f4fd9da99f9b1604c869"
+    }
+  ]
+}
