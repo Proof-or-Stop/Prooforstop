@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-212f",
+  "id": "IC-B-212f-independent-review",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Implement a narrow parity fix for the two reviewed divergences: done_prepare must consume the same existing finish-decision and reviewer-verdict predicates as real DONE, emit missing_dev_memory_finish_decision for an absent finish decision and stale_closeout_review with diff_pack_changed for stale reviewer diffPackHash, remain read-only, and keep all DONE freshness and evidence rules fail-closed. Carry the already reviewed executable RED and candidate GREEN into the Story by committing the unchanged behavior test and rerunning RED-to-GREEN in the Story worktree; candidate GREEN is intake evidence only. Add the required process-fact registry/verifier, flow-stability, configuration registration, and decision-document coverage. During execution, repair critical/high, safety, data-integrity, destructive-compatibility, acceptance-blocking, or lifecycle-gate-truth defects in this Story; evidence-route unrelated nonblocking medium/low defects with reproduction, impact, recommendation, and traceable ownership, returning them to this Story if later evidence makes them blocking. Do not weaken DONE, mutate or fabricate reviewer evidence, repair B-c86f, broaden into unrelated cleanup, or push remotely.",
+  "acceptedInterpretationHash": "sha256:92b6f4b7d0a678897c1471136ed8a765dac89cf33e2cfbd122656efb0513e754",
+  "notes": "Independent collision review compared the original intent snapshot, background, understanding, decision, plan, all three checklist items and verification intents, ProofStory acceptance bindings, scope contract, and RED evidence. The bound RED was rerun against current main and failed only the two done_prepare parity assertions while both real-DONE controls passed; the isolated candidate rerun passed the unchanged test. No intent conflict, omitted requested outcome, or improper scope expansion was found.",
+  "createdAt": "2026-09-04T20:43:43.160Z",
+  "updatedAt": "2026-09-04T20:43:43.160Z"
+}

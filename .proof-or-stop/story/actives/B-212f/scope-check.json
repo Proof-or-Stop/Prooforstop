@@ -1,0 +1,166 @@
+{
+  "storyId": "B-212f",
+  "checkedAt": "2026-09-04T20:46:03.930Z",
+  "features": [
+    {
+      "feature": "done_prepare rejects missing finish decision with missing_dev_memory_finish_decision exactly as real DONE",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/checklist.json"
+    },
+    {
+      "feature": "done_prepare rejects stale reviewer diffPackHash with stale_closeout_review and diff_pack_changed exactly as real DONE",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/checklist.json"
+    },
+    {
+      "feature": "done_prepare/runbook inspection is proven read-only for reviewer evidence bytes and git state",
+      "covered_by": "CHK-002",
+      "status": "gap",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/checklist.json"
+    },
+    {
+      "feature": "the reviewed executable parity RED is committed and registered in canonical validation",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "temporary candidate GREEN remains intake evidence and cannot substitute for Story verification evidence",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/red-evidence.json"
+    },
+    {
+      "feature": "the two known finish-decision and reviewer-verdict consumers are registered as L4 process facts and contract-verified",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "a mechanical anti-divergence contract prevents any future DONE predicate added only in machine.ts from bypassing done_prepare",
+      "covered_by": "CHK-003",
+      "status": "drift",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/scope-boundary.json"
+    },
+    {
+      "feature": "the done_prepare decision document states the shared finish-decision and reviewer-verdict readiness contract",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/checklist.json"
+    },
+    {
+      "feature": "critical/high, protected-surface, acceptance-blocking, or lifecycle-gate-truth defects are repaired in the current Story",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "unrelated nonblocking medium/low defects retain reproduction, evidence, impact, recommendation, and a traceable later owner without expanding scope",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "deferred defects are reassessed and returned to current-Story handling if severity/applicability becomes blocking",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "DONE, reviewer freshness, signature, scope-binding, and delivery gates are not weakened and reviewer evidence is never fabricated or rebound",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly prohibited by scope-boundary.json and CHK-002 exclusions.",
+      "source": ".proof-or-stop/story/actives/B-212f/scope-boundary.json"
+    },
+    {
+      "feature": "unrelated refactors, B-c86f work, runtime-artifact work, global-green cleanup, and remote push stay out of scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly prohibited by scope-boundary.json and scope-contract.json.",
+      "source": ".proof-or-stop/story/actives/B-212f/scope-contract.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".proof-or-stop/story/actives/B-212f/background.md",
+      ".proof-or-stop/story/actives/B-212f/checklist.json",
+      ".proof-or-stop/story/actives/B-212f/decision.json",
+      ".proof-or-stop/story/actives/B-212f/execution-boundary.json",
+      ".proof-or-stop/story/actives/B-212f/original-intent-snapshot.json",
+      ".proof-or-stop/story/actives/B-212f/plan.md",
+      ".proof-or-stop/story/actives/B-212f/proofstory.json",
+      ".proof-or-stop/story/actives/B-212f/red-evidence.json",
+      ".proof-or-stop/story/actives/B-212f/scope-boundary.json",
+      ".proof-or-stop/story/actives/B-212f/scope-contract.json",
+      ".proof-or-stop/story/actives/B-212f/understanding.json",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+      "packages/main/src/core/done-oracle.ts",
+      "packages/main/src/core/process-fact-registry.ts",
+      "packages/main/src/tasks/flow-stability-smoke.ts",
+      "proof-or-stop.config.json",
+      "scripts/verify-process-fact-contract.mjs"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null,
+    "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+    "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+  },
+  "summary": {
+    "total": 13,
+    "covered": 9,
+    "excluded": 2,
+    "gaps": 1,
+    "orphanSuspect": 0,
+    "drift": 1
+  },
+  "reviewRound": "",
+  "_hash": "0025cd678ff016de2eb127ac683b404f62637eec23d7cc1430a8e78cfd681f88",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "Should CHK-002 explicitly extend the carried test with the promised reviewer-evidence-bytes and git-state invariance assertion, or should its adversarial verification intent be narrowed?",
+      "evidence": "CHK-002 requires selector GREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged, and plan.md promises that assertion, but the reviewed test referenced by red-evidence.json contains neither that selector nor pre/post byte or git-state comparison; CHK-001 simultaneously says to materialize it without changing behavioral assertions.",
+      "sourcePointers": [
+        ".proof-or-stop/story/actives/B-212f/checklist.json",
+        ".proof-or-stop/story/actives/B-212f/plan.md",
+        ".proof-or-stop/story/actives/B-212f/red-evidence.json"
+      ]
+    },
+    {
+      "id": "OQ-2",
+      "q": "Is CHK-003 required to prevent omission of any future DONE predicate, or only to lock the two known predicates in this Story?",
+      "evidence": "scope-boundary.json promises that future DONE predicate additions cannot silently bypass done_prepare, but plan.md only registers and tests the two known predicates. Removing either known row will fail, while adding a third independent predicate only to machine.ts is not shown to fail any planned check. Either define a general inventory/shared-aggregate parity mechanism and mutation test, or narrow the promise to these two predicates.",
+      "sourcePointers": [
+        ".proof-or-stop/story/actives/B-212f/scope-boundary.json",
+        ".proof-or-stop/story/actives/B-212f/plan.md",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ]
+    }
+  ]
+}
