@@ -175,6 +175,32 @@
         "scanEscalationReason": null
       },
       "_hash": "e58462c092012634b61fce2e5278ecc1d3c609ab25a26231bd114a98746ba71f"
+    },
+    {
+      "id": "B-1482:RP-007",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 5 mechanical re-certification, no new defect. git diff --name-only main...HEAD and git log since RP-005 (2026-09-04T01:14:41.956Z) show zero source-file change: everything committed since is confined to .proof-or-stop/story/actives/B-1482/* metadata, .proof-or-stop/dev-memory/*, and two unrelated docs/story/drafts/* backlog captures (both predate RP-005, from round-3 triage). All CLAUDE.md / decision.md / package.json / packages/main/src/** edits landed before RP-005s reviewRound (2026-09-04T01:04:08.380Z). Re-checked evidence freshness against current HEAD rather than assuming: ran verification_evidence_refresh_stale --dryRun -> No stale verification evidence for B-1482. Read all 11 verificationEvidence receipts in checklist_get (CHK-001 A1/A2/A3, CHK-002 B1/B6/B9/B8, CHK-003 C4/C3/C1/C2): every one has mechanical:true, receipt.selectorMatched:true, receipt.selector byte-identical to the pinned verificationIntent[*].verification.selector, and that selector text present as an exact whole line inside receipt.outputTail. Every receipts materialHash (6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b) and storyFilesHash (1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5) match the current Task Context materialHash/storyFilesHash exactly; only headHash differs, consistent with CLAUDE.mds headHash-only-drift-is-usually-unrelated-metadata-movement guidance and confirmed non-blocking by the refresh-stale tool. Rebuilt packages/main and re-ran npm run test:narrowing-repin live at current HEAD 2c4721b: 25 [PASS] lines + narrowing-repin-smoke: PASS, and diffed the live output against the recorded receipt.outputTail (which itself embeds the identical 25-line block) -- byte-for-byte match on all 25 lines including every one of the 11 pinned selectors. No open blocking finding; recording pass.",
+      "createdAt": "2026-09-04T03:04:37.856Z",
+      "reviewRound": "2026-09-04T03:00:49.049Z",
+      "reviewRunId": "B-1482:RR-015",
+      "envelopeId": "b47db73f0062164563aecf22d40528e3322b174b9fe8d0852cdf2e41612d6097",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-1482/review-passes.json",
+          "CLAUDE.md#verification-intent--evidence",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-1482/background.md",
+          ".proof-or-stop/story/actives/B-1482/checklist.json",
+          ".proof-or-stop/story/actives/B-1482/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "47133a004b9d63dd17bf4d3433dc0c8ef41f5551c1e79807f5e531061b856edb"
     }
   ]
 }
