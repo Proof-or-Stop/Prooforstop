@@ -8,7 +8,7 @@ import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHas
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
-import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, isExecutableIntentType, makeEvidence, NARROWING_TAIL_BOUNDED_NOTE, VERIFICATION_LANES } from '../core/verification.js';
+import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, isExecutableIntentType, makeEvidence, NARROWING_TAIL_BOUNDED_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { configuredValidationCommands } from './verifier.js';
 import { createHash } from 'crypto';
@@ -485,6 +485,12 @@ function boundedOutputTail(output: string): string {
 
 /** Common shape of a single evidence write for the shared enforcement helper. */
 interface EvidenceWriteInput {
+  /**
+   * B-1482 F-009: carried purely so a refusal can print a runnable narrowing command.
+   * Optional because the stale-refresh path re-executes the pin itself and never
+   * authors a mismatch; the rendered form falls back to a visible placeholder there.
+   */
+  storyId?: string;
   intentRef: string;
   kind: VerificationEvidence['kind'];
   command?: string;
@@ -745,6 +751,15 @@ async function enforceAndStampEvidence(
   let pinSelector: string;
   let pinToSet: EnforceAndStampResult['pin'];
   if (existingPin) {
+    // B-1482 F-009/F-015: the mechanical floor a DIRECT caller hits (no PreToolUse hook
+    // installed or firing) must teach the same route the advisory seatbelt teaches, from
+    // the same shared renderer — otherwise the primary path keeps handing out the
+    // categorical "immutable" claim this story falsified.
+    const narrowForm = renderVerificationPinNarrowCommand({
+      ...(input.storyId !== undefined ? { storyId: input.storyId } : {}),
+      itemId: item.id,
+      intentRef: input.intentRef,
+    });
     if (!callerCommand) {
       throw new Error(
         `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got <none> (executable intent ${input.intentRef} is pinned; the command must be provided and match) [receipt_command_mismatch]`,
@@ -752,12 +767,16 @@ async function enforceAndStampEvidence(
     }
     if (callerCommand !== existingPin.command) {
       throw new Error(
-        `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got ${callerCommand} (the verification pin is immutable) [receipt_command_mismatch]`,
+        `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got ${callerCommand} ` +
+        `(an evidence write never moves the pin, and the one audited movement — \`${narrowForm}\` — re-points the ` +
+        `SELECTOR only, never the pinned command. ${VERIFICATION_PIN_NARROWING_PRECONDITION}) [receipt_command_mismatch]`,
       );
     }
     if (callerSelector && callerSelector !== existingPin.selector) {
       throw new Error(
-        `verification evidence refused: receipt-selector-mismatch: expected ${existingPin.selector}, got ${callerSelector} (the verification pin is immutable) [receipt_selector_mismatch]`,
+        `verification evidence refused: receipt-selector-mismatch: expected ${existingPin.selector}, got ${callerSelector} ` +
+        `(an evidence write never moves the pin; the one audited movement is \`${narrowForm}\`. ` +
+        `${VERIFICATION_PIN_NARROWING_PRECONDITION}) [receipt_selector_mismatch]`,
       );
     }
     pinCommand = existingPin.command;
@@ -1998,6 +2017,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const stamp = await enforceAndStampEvidence(
         preItem,
         {
+          storyId: args.storyId,
           intentRef: args.intentRef, kind, command: args.command, selector: args.selector,
           result: args.result, nonMechanicalReason: args.nonMechanicalReason,
           ...(args.commandTimeoutMs !== undefined ? { commandTimeoutMs: args.commandTimeoutMs } : {}),
@@ -2128,6 +2148,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         stamps.push(await enforceAndStampEvidence(
           item,
           {
+            storyId: args.storyId,
             intentRef: entry.intentRef, kind: normalizedKinds[i], command: entry.command,
             selector: entry.selector, result: entry.result, nonMechanicalReason: entry.nonMechanicalReason,
             ...(entry.commandTimeoutMs !== undefined ? { commandTimeoutMs: entry.commandTimeoutMs } : {}),
@@ -2261,7 +2282,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // misleading selector-absent refusal.
       const stamp = await enforceAndStampEvidence(
         preItem,
-        { intentRef: args.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
+        { storyId: args.storyId, intentRef: args.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
         {
           runCommand: (command, cwd, timeoutMs) => {
             const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
