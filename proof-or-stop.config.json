@@ -1032,6 +1032,21 @@
         ]
       },
       {
+        "label": "B-212f CHK-001: done_prepare and DONE reject missing finish decisions and stale reviewer diff-pack bindings with matching diagnostics without mutating reviewer evidence",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-b49d4-harness-registration.mjs"
