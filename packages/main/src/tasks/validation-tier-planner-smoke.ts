@@ -468,7 +468,11 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   assert.ok(commands.length > 0);
   assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
   const real = buildValidationCommandInventory({ commands });
-  // origin/main merge: moved to f23779fb... because validate.commands really did change,
+  // origin/main merge 2 (B-9a49): moved again to d30d7b92... because origin added one
+  // more validate.commands entry, taking the union from 126 to 127. Verified before
+  // repinning that NO origin-only entry was dropped this time (the check that caught the
+  // previous merge losing two). Earlier note retained below.
+  // origin/main merge 1: moved to f23779fb... because validate.commands really did change,
   // as the maintenance note above requires me to state. Our main carried 124 entries and
   // origin 122, diverging BOTH ways: ours had cli-surface-smoke,
   // command-ownership-contract, verify-orphan-surface and `npm --prefix packages/graph
@@ -479,7 +483,7 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   // pinned_command_missing, and one of the dropped suites is this very file. Restored
   // both, giving the 126-entry union, and repinned to what that union produces through
   // the same configuredValidationCommands -> buildValidationCommandInventory path.
-  assert.equal(real.commandSetDigest, 'f23779fb66c7ac953feb7387f1db36eb618e14961841e5721ec0a4972809e76c', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  assert.equal(real.commandSetDigest, 'd30d7b922cadb759de1d0e7dac962af75d6fc6e11b2146dbb91ffe60beb5a185', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
 });
