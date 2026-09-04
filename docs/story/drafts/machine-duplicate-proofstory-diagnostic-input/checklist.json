@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Establish one owner for the ProofStory diagnostic input builder and make machine.ts use it",
+      "context": "core/machine.ts may not import from handlers, so the shared builder likely belongs in core beside story-workspace.ts, with handlers/phase-gates.ts becoming a caller. Move the literal-text assertion in scripts/verify-process-fact-contract.mjs with it, as B-77e6 did for candidate-spec-routing.ts, and keep it as strict about the property.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove the two guards cannot disagree, with a case driving the DEV re-entry guard from both checkouts",
+      "context": "A story whose main-checkout copy and worktree copy disagree is the case where two strategies give two answers. Model on the cross-checkout cases in packages/main/src/tasks/single-owner-extraction-smoke.ts.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Decide whether the audit fixture's scan scope should include core, and record why",
+      "context": "The fixture scans packages/main/src/handlers/*.ts only, which is why this duplicate registered as nothing. Widening to core makes the instrument honest but would flag pure modules that cannot resolve a workspace, so it needs the same justified-exemption discipline B-77e6 introduced.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
