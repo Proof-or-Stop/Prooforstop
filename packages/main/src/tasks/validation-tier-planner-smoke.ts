@@ -459,8 +459,9 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
 // added that entry, moving it to 791165cf... (B-41c8 F-006). B-dc2e CHK-001
 // (the item that registered validation-protocol-smoke in validate.commands)
 // added that entry, moving it to 056e47fd.... B-fe8f CHK-001 registered the
-// Finding ledger/runtime integrity RED guard, moving it to 69ad07c2.... Name
-// the story and item here,
+// Finding ledger/runtime integrity RED guard, while B-1482 CHK-003 registered
+// test:narrowing-repin. The combined inventory retains both entries and moves
+// the digest to 5da99a65.... Name the story and item here,
 // never a commit hash: a branch rewrite orphans the hash and a later
 // `git show` of it reports a bad object (B-41c8 F-012).
 testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is unchanged and carries no absolute-cwd warning', () => {
@@ -470,7 +471,7 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   assert.ok(commands.length > 0);
   assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
   const real = buildValidationCommandInventory({ commands });
-  assert.equal(real.commandSetDigest, '69ad07c222c4f12c4636bf17c49163f00fd944d5c4350633a64739d55d7d26c6', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  assert.equal(real.commandSetDigest, '5da99a658b79a4c68e884abcdd65d2b853384bc0e8ecd1712547769a690a1fe6', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
 });

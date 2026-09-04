@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-1482",
+  "sourceText": "Build the narrowing-only evidence re-pin story (E) after the single-owner extraction and test-and-guard stories, and carry it to DONE.",
+  "normalizedOutcome": "Every verification receipt records the selector it was judged against and checklist_get exposes it; a pinned selector can be replaced only when receipts the tool itself recorded prove the new selector strictly narrower, with both pins, both receipts, a reason and the cited receipt ids retained; loosening, a missing recorded failing render, and a second narrowing against unchanged receipts are each refused with their own message.",
+  "acceptanceClaim": "node packages/main/dist/tasks/narrowing-repin-smoke.js ends with narrowing-repin-smoke: PASS, covering the persisted selector, the accepted narrowing proved from recorded receipts, each refusal case, the rejection of caller-supplied transcripts, and the replay of the B-a745 CHK-005:happy:0 shape, with a RED commit preceding every implementation commit.",
+  "keyRequirementIds": [
+    "REQ-001",
+    "REQ-002",
+    "REQ-003"
+  ],
+  "requestHash": "sha256:2fed324ecb1ccace6013281849b1fa2c12943ddc29a350f0aaa7bb737a2b25f8",
+  "createdAt": "2026-09-03T21:00:12.411Z",
+  "updatedAt": "2026-09-03T21:00:12.411Z"
+}

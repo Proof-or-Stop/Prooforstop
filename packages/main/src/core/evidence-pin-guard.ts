@@ -20,9 +20,22 @@
  */
 
 import type { ChecklistData, VerificationIntentPin } from './types.js';
-import { collectVerificationIntents } from './verification.js';
+import {
+  collectVerificationIntents,
+  renderVerificationPinNarrowCommand,
+  VERIFICATION_PIN_NARROW_COMMAND,
+  VERIFICATION_PIN_NARROWING_PRECONDITION,
+} from './verification.js';
 
 // ── Verdict ──
+
+/**
+ * B-1482: the one audited movement an evidence pin admits. Named here so the teaching
+ * message cannot keep offering a two-option Fix list after the third option shipped.
+ * The command name and its runnable form both come from ONE place (core/verification),
+ * shared with the enforcement floor, so the two messages cannot drift apart.
+ */
+const NARROWING_COMMAND = VERIFICATION_PIN_NARROW_COMMAND;
 
 export type EvidencePinVerdict = 'allow' | 'deny';
 
@@ -149,6 +162,24 @@ export function resolvePinFromChecklist(
   return null;
 }
 
+/**
+ * Resolve WHICH checklist item owns `intentRef`. B-1482 F-008: the taught narrowing
+ * command needs `--itemId`, and a custom intent id encodes no item, so the owner is
+ * resolved from the same loaded checklist the pin came from instead of being guessed.
+ */
+export function resolveIntentOwnerItemId(
+  checklist: ChecklistData,
+  intentRef: string,
+): string | undefined {
+  if (!checklist || !Array.isArray(checklist.items)) return undefined;
+  for (const item of checklist.items) {
+    for (const collected of collectVerificationIntents(item)) {
+      if (collected.ref === intentRef) return item.id;
+    }
+  }
+  return undefined;
+}
+
 // ── Verdict computation (pure) ──
 
 /**
@@ -163,6 +194,12 @@ export function resolvePinFromChecklist(
 export function computeEvidencePinVerdict(
   parsed: ParsedEvidenceInvocation,
   pin: VerificationIntentPin | null,
+  /**
+   * B-1482 F-008: the checklist item that owns the intent, when the caller resolving the
+   * pin also resolved the owner. Used only to fill `--itemId` into the taught narrowing
+   * form; absent, the form falls back to the ref-derived item or a `<placeholder>`.
+   */
+  owner?: { itemId?: string },
 ): EvidencePinGuardResult {
   const base = {
     matched: true,
@@ -204,13 +241,31 @@ export function computeEvidencePinVerdict(
 
   const ref = parsed.intentRef ?? '<intentRef>';
   const story = parsed.storyId ?? '<storyId>';
+  // Rendered from the shared single source, so every argument the registered schema
+  // requires is present and the reader can paste the line as printed (B-1482 F-008).
+  const narrowForm = renderVerificationPinNarrowCommand({
+    ...(parsed.storyId !== undefined ? { storyId: parsed.storyId } : {}),
+    ...(owner?.itemId !== undefined ? { itemId: owner.itemId } : {}),
+    ...(parsed.intentRef !== undefined ? { intentRef: parsed.intentRef } : {}),
+  });
   return {
     verdict: 'deny',
     ...base,
     reasons: [
-      `evidence-pin seatbelt: this verification_evidence_add would be refused. The intent ${ref} is already pinned to an immutable verification (B-ec67) and your write does not match it.`,
+      // B-1482 F-019: reasons is an array, so a structured caller reads reasons[0] alone,
+      // and a truncated log or a skimming reader stops there too. The opening line
+      // therefore carries the qualifier itself instead of leaving a categorical claim
+      // for the third option below to correct three lines later.
+      `evidence-pin seatbelt: this verification_evidence_add would be refused. The intent ${ref} is already pinned (B-ec67) — immutable to evidence writes, with exactly one audited narrowing exception stated below — and your write does not match it.`,
       ...mismatches,
-      `Fix: run \`proof-or-stop verification_run --storyId=${story} --intentRef=${ref}\` (it re-uses the pinned command), or pass the exact pinned command/selector. The pin is immutable once set.`,
+      `Fix: run \`proof-or-stop verification_run --storyId=${story} --intentRef=${ref}\` (it re-uses the pinned command), or pass the exact pinned command/selector.`,
+      // B-1482: the pin is no longer immutable WITHOUT exception — exactly one movement
+      // exists. Naming it here matters because this refusal is what a caller hits the
+      // moment they try a different selector against a pin that is not discriminating,
+      // which is the very defect the narrowing was built for. The precondition is stated
+      // with it, so the reader is not sent to a command that will refuse them for a
+      // reason they were never told.
+      `Third option: if the pinned selector is not discriminating — it matched a run that genuinely FAILED — re-pin it with \`${narrowForm}\`. ${VERIFICATION_PIN_NARROWING_PRECONDITION}`,
     ],
   };
 }

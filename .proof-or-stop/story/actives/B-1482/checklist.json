@@ -4,25 +4,471 @@
       "id": "CHK-001",
       "title": "Persist the selector text on every verification receipt and expose it in checklist_get",
       "context": "VerificationExecutionReceipt currently stores selectorMatched without the selector; add the selector text (and the command tuple digest) so a receipt is auditable on its own. RED: a receipt written today cannot answer which selector matched.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-09-03T21:16:00.169Z",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent--evidence"
+      ],
+      "userSees": "`node packages/main/dist/tasks/narrowing-repin-smoke.js` prints one line per case and ends `narrowing-repin-smoke: PASS`; `checklist_get --storyId=<id> --json` shows each receipt carrying the selector text it was judged against next to selectorMatched, and a receipt written before this change still reads without it.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A receipt written after the change records the selector text it was matched against, and checklist_get exposes it.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+              "selector": "[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A receipt written before this change (no selector field) still loads and renders; nothing assumes the field is present.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+              "selector": "[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The selector field lives inside the tool-owned receipt: an attempt to supply it through verification_evidence_add is ignored, proven by a case that passes a forged selector and asserts the stored value is the executed one.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+              "selector": "[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "aa3ae9a494ac8d4614da15cdb6eb5011b8206da2014f42b37494df2d2e0fd726",
+        "storyFilesHash": "18126e34030afb005ac91a1c6ff37a385e24150b7179c7af8cc96dc4eb9a3e69",
+        "headHash": "e565b8e54740875a646f070d770f60e58aa24dff",
+        "attestedAt": "2026-09-03T21:16:00.597Z",
+        "materialHash": "8883108aa3f27d949733d79a3530637bed2b281caad6de6e9501ab73a828415c"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+          "result": "pass",
+          "note": "A receipt written through the real evidence path records the selector it was judged against and checklist_get exposes it.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "17e1b208d54b624a954a1503e60d483dbb8668c4765808d85bd029af4a80592e",
+            "outputTail": "[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it",
+            "executedAt": "2026-09-04T02:16:12.504Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "3bd5a942204787cb8eb4661236de145602f7fabf",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:16:31.958Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+          "result": "pass",
+          "note": "A receipt in the pre-change shape (no selector field) still loads and renders; the field is optional and absence means unknown, never re-derived from the current pin.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "17e1b208d54b624a954a1503e60d483dbb8668c4765808d85bd029af4a80592e",
+            "outputTail": "[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one",
+            "executedAt": "2026-09-04T02:16:22.124Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "3bd5a942204787cb8eb4661236de145602f7fabf",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:16:31.958Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+          "result": "pass",
+          "note": "The field lives in the tool-owned receipt block that every caller-facing schema strips, so a forged selector passed through verification_evidence_add is ignored.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "17e1b208d54b624a954a1503e60d483dbb8668c4765808d85bd029af4a80592e",
+            "outputTail": "[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one",
+            "executedAt": "2026-09-04T02:16:31.757Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "3bd5a942204787cb8eb4661236de145602f7fabf",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:16:31.958Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
       "title": "Add a narrowing-only re-pin that accepts a new selector only when recorded receipts prove it stricter, bounded to one re-pin per recorded-receipt set, keeping both pins and receipts visible with a reason",
       "context": "checklist.ts evidence-pin seatbelt (receipt_selector_mismatch) and the generated hook's source. Narrowing proof uses ONLY tool-recorded receipts: the new selector must be absent from the outputTail of at least one recorded receipt of the pinned command that the old selector matched while the run was failing, and must match every recorded passing receipt; no caller-supplied transcript is accepted as input. RED cases, each must fail before the fix: (a) the exact B-a745 CHK-005:happy:0 case ('finalAuthority: no' -> 'status: plan') is accepted, citing the recorded stop-render receipt; (b) the reverse direction is refused; (c) a selector present in both plan and stop renders is refused as vacuous; (d) a re-pin that supplies a transcript instead of citing recorded receipts is refused outright; (e) a second re-pin on the same intent with no new recorded receipt is refused, so repeated narrowing cannot home in on one hand-picked run; (f) a re-pin with no recorded failing render is refused rather than accepted on a reason; (g) an ENGINEERED failing receipt -- a genuine tool-executed run of the pinned command deliberately driven to fail (for example against a scratch config) so that a chosen selector is absent from it -- must not be sufficient on its own: the design must require that the failing receipt used as proof predates the re-pin request, was recorded on the same story material as the receipts it is compared against, and that the new selector additionally matches every recorded passing receipt; the PLAN decision must state explicitly what further bound (for example reviewer co-attestation of the re-pin, or restricting admissible selectors to the renderer's declared status discriminators) closes the residual engineered-receipt gap, or state that it cannot be closed mechanically and record that as an accepted limitation.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-09-03T21:38:45.691Z",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent--evidence"
+      ],
+      "userSees": "A re-pin with a stricter selector is accepted and prints both pins with the reason and the receipt ids the proof used; a re-pin with a looser selector is refused naming the loosening; a re-pin with no recorded failing render is refused naming the missing proof; a second narrowing against the same recorded receipts is refused naming the bound.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/verification.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A narrowing re-pin is accepted when the new selector is absent from the outputTail of at least one recorded receipt of the same pinned command that the old selector matched on a failing run, and matches every recorded passing receipt; both pins, both receipts, the reason and the cited receipt ids remain visible.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+              "selector": "[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Refusal cases each name their reason: a loosening selector, no recorded failing render, a selector absent from a recorded passing receipt, and a second narrowing against an unchanged recorded-receipt set.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+              "selector": "[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound"
+            }
+          },
+          {
+            "desc": "The proof asserts absence only within the retained outputTail and says so in its message, since outputTail is bounded.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+              "selector": "[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A caller-supplied transcript or output is not an input: a case passes one and asserts it is rejected rather than considered, and the B-a745 CHK-005:happy:0 shape (a selector printed on every branch, re-pinned to a status discriminator) is replayed end to end from recorded receipts.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+              "selector": "[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "861a513ba41230326651b30e64ec15f77599701eeae373894bf35d472659b3a9",
+        "storyFilesHash": "5e124eb037f1e0df1a7854726583ee9d8f0a2c32d18fc4a31cfb83ff4c4e89c4",
+        "headHash": "70a8ec2cafbb1f49b820851090e00eb50c7b67d8",
+        "attestedAt": "2026-09-03T21:38:45.984Z",
+        "materialHash": "34eb3d25867e67044e0103fb0e248ccb4425e74036b688121adf770700187353"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+          "result": "pass",
+          "note": "The accepted narrowing replays the motivating case: a selector printed on every branch, a recorded failing receipt whose retained tail lacks the status discriminator, and the re-pin accepted with both pins, the reason and the cited receipt ids retained.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "17e1b208d54b624a954a1503e60d483dbb8668c4765808d85bd029af4a80592e",
+            "outputTail": "[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts",
+            "executedAt": "2026-09-04T02:16:43.061Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "c0a599ead5b28eb3b4e53ab194fc45ca83744132",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:17:14.135Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+          "result": "pass",
+          "note": "Each refusal has its own case and message: B2 loosening, B3 not discriminating, B4 a missing side of the proof, B5 absent from a recorded passing receipt, B6 the one-narrowing bound, B7 a receipt with no recorded selector.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "17e1b208d54b624a954a1503e60d483dbb8668c4765808d85bd029af4a80592e",
+            "outputTail": "[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound",
+            "executedAt": "2026-09-04T02:16:53.408Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "c0a599ead5b28eb3b4e53ab194fc45ca83744132",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:17:14.135Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+          "result": "pass",
+          "note": "After F-007 the pinned case B9 itself asserts that absence is stated as bounded to the retained outputTail, alongside its material-mismatch refusal.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "17e1b208d54b624a954a1503e60d483dbb8668c4765808d85bd029af4a80592e",
+            "outputTail": "[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing",
+            "executedAt": "2026-09-04T02:17:03.627Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "c0a599ead5b28eb3b4e53ab194fc45ca83744132",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:17:14.135Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+          "result": "pass",
+          "note": "A caller-supplied transcript is not an input at all: it is refused on request shape before any proof is attempted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "17e1b208d54b624a954a1503e60d483dbb8668c4765808d85bd029af4a80592e",
+            "outputTail": "[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof",
+            "executedAt": "2026-09-04T02:17:13.921Z",
+            "timeoutMs": 180000
+          },
+          "headHash": "c0a599ead5b28eb3b4e53ab194fc45ca83744132",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:17:14.135Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
       "title": "Record the decision with pre-mortems and update the Verification Intent / Evidence section of CLAUDE.md",
       "context": "decision_set with at least four pre-mortems: evidence-shopping via repeated narrowing (blocked by the one-re-pin-per-recorded-receipt-set bound), a forged failing transcript (impossible because transcripts are not an input), a receipt whose old selector never matched anything (refused for lack of a recorded failing render), and an ENGINEERED failing receipt from a genuine run driven to fail on purpose (the residual gap; the decision must name the bound that closes it or record it as an accepted limitation). CLAUDE.md's Verification Intent / Evidence section documents the new command form, the recorded-receipt-only proof, and the invariant that loosening is impossible. Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_create's keyword scan elevates it, keep the elevation rather than dismissing it.",
-      "status": "pending",
+      "status": "done",
       "startTime": null,
-      "endTime": null
+      "endTime": "2026-09-03T22:12:42.340Z",
+      "relatedDocs": [
+        "CLAUDE.md#verification-intent--evidence",
+        "docs/dev/test-coverage.md"
+      ],
+      "userSees": "`npm run test:narrowing-repin` ends `narrowing-repin-smoke: PASS`; `grep -n narrowing-repin package.json packages/main/src/tasks/full-suite-runner.ts proof-or-stop.config.json` shows the suite in test:serial-reference, RESOURCE_POLICY and validate.commands; CLAUDE.md's Verification Intent / Evidence section states the narrowing-only rule, the one-narrowing bound, the refusal cases and the engineered-failing-run limitation.",
+      "files": {
+        "modify": [
+          "CLAUDE.md",
+          "package.json",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "proof-or-stop.config.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "create": [
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "CLAUDE.md and the decision document state the narrowing-only rule, that the proof reads only tool-recorded receipts, the one-narrowing bound and every refusal code the implementation can emit, and a case asserts the decision itself carries at least four pre-mortems.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:narrowing-repin",
+              "selector": "[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The suite is registered in test:serial-reference, RESOURCE_POLICY and validate.commands, verified by a case that reads those real files.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:narrowing-repin",
+              "selector": "[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands"
+            }
+          },
+          {
+            "desc": "A reason shorter than the minimum is refused both through the registered command schema and on a schema-bypassing internal call, per the Handler Encoding Conventions.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:narrowing-repin",
+              "selector": "[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The engineered-failing-run gap is stated as an accepted limitation and no text claims it is mechanically excluded; the case that proves the end-to-end CLI acceptance also greps the documentation for the overclaiming phrasing and asserts its absence.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:narrowing-repin",
+              "selector": "[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "50ae8b6fe98fad960c07fd513bd09a923c4bc981e615e4b724df81f32b27e521",
+        "storyFilesHash": "9ead7f6c7004fbee994764d40ed7ccb280d879f6b0523347de66bdd63e101283",
+        "headHash": "9e3f2013c6aa65b45fec18869f41f7acadb50ed5",
+        "attestedAt": "2026-09-03T22:12:42.726Z",
+        "materialHash": "3210ec5d9ad792ff933f3a794791b91aba8b988079fe9312d73bf24acdb0bb74"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "npm run test:narrowing-repin",
+          "result": "pass",
+          "note": "CLAUDE.md and docs/requirements/decisions/narrowing-only-evidence-repin.md state the narrowing-only rule, its recorded-receipt-only inputs, the one-narrowing bound and every refusal code; the decision carries five pre-mortems.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b36cd56f89301161425da968dea0378d552fc44aa743515a83a76ce49c0007d7",
+            "outputTail": "\n> proof-or-stop@0.3.274 test:narrowing-repin\n> node packages/main/dist/tasks/narrowing-repin-smoke.js\n\n[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded",
+            "executedAt": "2026-09-04T02:17:25.027Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "12162d4e7d701552a51dab046f196cb7db905551",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:18:01.048Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "npm run test:narrowing-repin",
+          "result": "pass",
+          "note": "The case reads the real package.json, full-suite-runner.ts and proof-or-stop.config.json rather than fixtures.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b36cd56f89301161425da968dea0378d552fc44aa743515a83a76ce49c0007d7",
+            "outputTail": "\n> proof-or-stop@0.3.274 test:narrowing-repin\n> node packages/main/dist/tasks/narrowing-repin-smoke.js\n\n[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands",
+            "executedAt": "2026-09-04T02:17:36.429Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "12162d4e7d701552a51dab046f196cb7db905551",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:18:01.048Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "npm run test:narrowing-repin",
+          "result": "pass",
+          "note": "The accepted narrowing is driven through the registered verification_pin_narrow command, and after F-007 the same case also performs the documentation overclaim grep its intent describes.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b36cd56f89301161425da968dea0378d552fc44aa743515a83a76ce49c0007d7",
+            "outputTail": "\n> proof-or-stop@0.3.274 test:narrowing-repin\n> node packages/main/dist/tasks/narrowing-repin-smoke.js\n\n[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function",
+            "executedAt": "2026-09-04T02:17:47.762Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "12162d4e7d701552a51dab046f196cb7db905551",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:18:01.048Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "command": "npm run test:narrowing-repin",
+          "result": "pass",
+          "note": "C2 refuses a short reason through the registered command and again on a schema-bypassing internal call, plus a whitespace-only variant, per the Handler Encoding Conventions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b36cd56f89301161425da968dea0378d552fc44aa743515a83a76ce49c0007d7",
+            "outputTail": "\n> proof-or-stop@0.3.274 test:narrowing-repin\n> node packages/main/dist/tasks/narrowing-repin-smoke.js\n\n[PASS] CHK-001/A1 receipt records the executed selector text and checklist_get exposes it\n[PASS] CHK-001/A2 a pre-change receipt without the field still loads, renders and covers alongside a new one\n[PASS] CHK-001/A3 a caller-forged receipt selector is ignored; the stored selector is the executed one\n[PASS] CHK-002/B1 B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts\n[PASS] CHK-002/B2 a loosening re-pin is refused naming the recorded receipt that proves it is broader\n[PASS] CHK-002/B3 a selector present in the recorded FAILING render too is refused as not discriminating\n[PASS] CHK-002/B4 a corpus missing either side of the proof is refused naming the missing side\n[PASS] CHK-002/B5 a candidate absent from a recorded PASSING receipt is refused naming that receipt\n[PASS] CHK-002/B6 a second narrowing against an unchanged recorded-receipt set is refused naming the bound\n[PASS] CHK-002/B7 a receipt with no recorded selector cannot serve as the failing proof\n[PASS] CHK-002/B8 a caller-supplied transcript is refused outright rather than considered as proof\n[PASS] CHK-002/B9 a failing receipt recorded on different story material cannot prove the narrowing\n[PASS] CHK-002/B10 a re-pin to the selector already pinned is refused as unchanged\n[PASS] CHK-002/B11 a pinned command with no recorded receipt has nothing to prove a narrowing against\n[PASS] CHK-002/B12 receipts that do not predate the request cannot prove the narrowing\n[PASS] CHK-003/C1 the B-a745 shape is accepted end to end through the real CLI, not only the function\n[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call\n[PASS] CHK-003/C3 the suite is registered in all three real inventories: npm scripts, RESOURCE_POLICY, validate.commands\n[PASS] CHK-003/C4 the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded\n[PASS] CHK-003/C5 the evidence-pin refusal teaches the narrowing command and no longer claims immutability without exception\n[PASS] CHK-003/C6 the command carries explicit process-fact kind and semantics rows, not the generic fallback\n[PASS] CHK-003/C7 the decision record carries at least four pre-mortems\n[PASS] CHK-003/C8 the taught narrowing command form carries every required argument and runs as printed\n[PASS] CHK-003/C9 the enforcement floor, not only the seatbelt, teaches the narrowing command\n[PASS] CHK-003/C10 the concurrent pin-write refusal teaches the same route rather than bare immutability\nnarrowing-repin-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "[PASS] CHK-003/C2 a too-short reason is refused at the CLI schema AND on the schema-bypassing call",
+            "executedAt": "2026-09-04T02:18:00.824Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "12162d4e7d701552a51dab046f196cb7db905551",
+          "materialHash": "6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b",
+          "storyFilesHash": "1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5",
+          "timestamp": "2026-09-04T02:18:01.048Z"
+        }
+      ]
     }
   ]
 }

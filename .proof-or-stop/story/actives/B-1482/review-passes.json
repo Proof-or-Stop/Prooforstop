@@ -1,0 +1,273 @@
+{
+  "passes": [
+    {
+      "id": "B-1482:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 3 re-review of the two wave-2 fixes touching my domain: (1) TRIAGE_AUTHORITY_DECISION_VERB is genuinely single-sourced (prompt-envelope.ts:383) and consumed identically by hasNothingButSeverityAuthority, hasCrossSegmentSeverityAuthority and the new controlledPairIsGenericOnly decisive-relation check; adding overrid* widens all three call sites together, and it makes detection STRICTER (catches more real authority claims through the generic-pair cell) not looser -- confirmed by mutation: removing the decisive-relation exception re-opens the F-014 false-negative and fails prompt-full-context-envelope-smoke on the overrides fixture. (2) The optional-argument threading (computeEvidencePinVerdict owner arg <- resolveIntentOwnerItemId; EvidenceWriteInput.storyId; applyVerificationPin storyId param) is minimal, and the stale-refresh path (staleReexecCandidate) genuinely omits storyId and only prints the <storyId> placeholder in a mismatch branch that path never reaches (its input always carries the pin's own command/selector) -- honest, never a wrong id. (3) The three extracted helpers in narrowing-repin-smoke.ts (assertLooseningRefused/assertMissingProofSideRefused/assertAbsentFromPassingReceiptRefused/assertA745ShapeReplayedEndToEnd/assertDecisionCarriesPreMortems) are byte-identical body moves out of B2/B4/B5/B1/C7 with the sibling call sites unchanged, plus a new call from the pinned case (B6/B8/C4) -- siblings prove exactly what they proved before, pinned cases now cover their own intent sentence. (4) No dead code, as any, non-null assertions or empty catches introduced in prompt-envelope.ts, verification.ts, evidence-pin-guard.ts (core+handler) or checklist.ts; no I/O added to the pure core modules (createHash is a pure hash, no duplicate import). Verified: npx tsc --noEmit -p packages/main clean; narrowing-repin-smoke, prompt-full-context-envelope-smoke, retired-authority-vocabulary-guard-smoke (builds=811, matches F-016's fix) and validation-tier-planner-smoke all PASS on the built dist. Mutation-proved on temp copies (restored via git checkout after each): reverting the decisive-relation exception in controlledPairIsGenericOnly re-opens the widening (prompt-full-context-envelope-smoke fails the overrides/decides/determines/governs fixtures); removing --itemId from renderVerificationPinNarrowCommand fails narrowing-repin-smoke C8 (and cascades to C9); reverting the selector-mismatch message in enforceAndStampEvidence to the bare immutable parenthetical fails C9 and C10. No open findings from this lane.",
+      "createdAt": "2026-09-04T00:28:13.718Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "reviewRunId": "B-1482:RR-006",
+      "envelopeId": "9a9657417a997c4070cedcba16183655125f7ff6e1f809a4933369edf36adcf3",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9fb558c6dd0d86b361814c025cd6348b1b76fbcc8a734d7faf3a0bc642909e85"
+    },
+    {
+      "id": "B-1482:RP-002",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 4 re-verification of F-018/F-019 fixes and unfiled F-021/F-022 follow-ups: docs read start-to-finish, live copy-paste test repeated, refusal codes matched bidirectionally, no open disagreement, accepted limitation confirmed in CLAUDE.md itself.",
+      "createdAt": "2026-09-04T01:08:47.938Z",
+      "reviewRound": "2026-09-04T01:04:08.380Z",
+      "reviewRunId": "B-1482:RR-011",
+      "envelopeId": "936ce49def71f41d722807f6bea9f18f9e4e24d30ee4688634c978ae66518888",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md#narrowing-only-re-pin-of-a-proof-selector-b-1482",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "916d4f2dc19d4094e4f3dd0063c1085535ea6824cba24be8e7437ae85c4b7848"
+    },
+    {
+      "id": "B-1482:RP-003",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 4: verified F-018..F-022 fixes against diff, judged F-017 dismissal correct, swept clean for pin-immutability residue.",
+      "createdAt": "2026-09-04T01:13:23.184Z",
+      "reviewRound": "2026-09-04T01:04:08.380Z",
+      "reviewRunId": "B-1482:RR-009",
+      "envelopeId": "6e9ee18d9708e64427609b3303ce80c925f55583b340048c485b44fac2cf9688",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "docs/story/drafts/triage-authority-verb-list-is-closed/background.md",
+          "docs/story/drafts/triage-authority-verb-list-is-closed/checklist.json",
+          "docs/story/drafts/triage-authority-verb-list-is-closed/index.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b167eaa0de0993b9939df0d3657a54e40390ca5592d7327341cc5a08306bca1e"
+    },
+    {
+      "id": "B-1482:RP-004",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round-4 quality re-review of the five commits since my round-3 pass (F-018..F-022). Independently mutation-proved two on live temp-restored files: deleting the loosening-refused sentence and collapsing the runnable command invocation each made CHK-003/C4 fail naming the exact clause, then restored via git checkout. tsc/lint clean; narrowing-repin-smoke 25/25, prompt-full-context-envelope-smoke, retired-authority-vocabulary-guard-smoke (builds=811), validation-tier-planner-smoke all PASS. No dead code/loose typing/duplicated constants newly introduced. No open blocking finding.",
+      "createdAt": "2026-09-04T01:13:28.631Z",
+      "reviewRound": "2026-09-04T01:04:08.380Z",
+      "reviewRunId": "B-1482:RR-012",
+      "envelopeId": "8c13457e74e750de5bc562f6851d9298bb0ccb6978e208fe6a95ae6e454e9a52",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7ad3f22be0c6fa526931bc218dfad56fef9dbc034380a80b6a6cb2475f2a990c"
+    },
+    {
+      "id": "B-1482:RP-005",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 4 re-audit of all 11 intent sentences vs pinned cases: every clause of A1/A2/A3 (CHK-001), B1/B6/B9/B8 (CHK-002), C4/C3/C1/C2 (CHK-003) is exercised by an assertion that fails on violation, including the shared-helper calls inside B6/B8/C1/C4 that closed F-011/F-012/F-013-style gaps. Deletion-mutation corpus verified honest: all 4 quoted claim sentences occur exactly once per document (8/8 sentence x doc pairs); replaying assertDocumentationClaims against each single-sentence-deleted copy fails as required (8/8). Rebuilt the two newest REDs (F-021 d34a908f32, F-022 dc9876a609) in isolated detached temp worktrees from clean builds: both reproduce their documented RED failure exactly. All 11 verificationEvidence receipts are mechanical:true, selectorMatched:true, carry a selector byte-identical to the pinned verification.selector, and that selector is an exact whole printed line inside outputTail. Re-ran the live smoke suite at current HEAD; its 25 [PASS] lines + verdict are byte-identical to a recorded receipt outputTail, confirming freshness despite headHash drift from later metadata-only commits. No pinned selector can print while its sentence is violated: the harness only emits a case line after that case runs to completion without throwing, and every clause of every pinned sentence is covered by an assertion that throws on violation. No open finding; recording pass.",
+      "createdAt": "2026-09-04T01:14:41.956Z",
+      "reviewRound": "2026-09-04T01:04:08.380Z",
+      "reviewRunId": "B-1482:RR-010",
+      "envelopeId": "627e6c5b789af4d605832ef37abbc89ef6dccb09d740e1ddbe42b2a30e1c59e3",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md#verification-intent--evidence-narrowing-only-re-pin",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-1482/background.md",
+          ".proof-or-stop/story/actives/B-1482/checklist.json",
+          ".proof-or-stop/story/actives/B-1482/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e4cdba043ef20a1c2e8932e6ea8c62ae4c539405d17900913d0fa1fe8bc743a9"
+    },
+    {
+      "id": "B-1482:RP-006",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 5 re-verification after HEAD moved from post-certification metadata commits only (validate/quorum-submit/test-transition/delivery_check_set/dev-memory/merge-main-story-drafts/summary_set/verification_evidence_batch_add/review_inventory_finalize/certification_window_begin/done_required_validate) -- git diff --name-only main...HEAD still shows exactly CLAUDE.md and docs/requirements/decisions/narrowing-only-evidence-repin.md as the story doc set, and none of the 19 commits since RP-002 (2026-09-04T01:08:47.938Z) touch either file (checked via git show --stat on each). summary_get limitations section matches both documents verbatim in substance: same accepted-limitation framing for the engineered-failing-run case (operator can drive the command to fail on the same material and mint a qualifying witness because no receipt records why a run failed -- CLAUDE.md L870-882, decision doc L142-149), same outputTail-bounded-absence and same-story-material/predating-request bounds, and the referenced pre-existing triage-authority-verb-list-is-closed draft exists at docs/story/drafts/triage-authority-verb-list-is-closed/. No overclaiming found in the summary. Re-ran the short verification: verification_pin_narrow --help reads true in isolation and matches the documented form; live-ran the exact taught command against CHK-001:happy:0 and it was accepted by the schema and refused on the merits (narrowing_no_recorded_failing_render), matching the documented refusal code and the summary transcript claim. Grepped immutab(le|ility) across CLAUDE.md, the decision doc, evidence-pin-guard.ts, verification.ts and checklist.ts: every remaining occurrence is qualified by the narrowing exception or is a comment describing a different, unrelated immutable field (userSeesSnapshot / FrozenClaimSnapshot); none claims unqualified pin immutability. No open blocker.",
+      "createdAt": "2026-09-04T03:03:42.171Z",
+      "reviewRound": "2026-09-04T03:00:49.049Z",
+      "reviewRunId": "B-1482:RR-016",
+      "envelopeId": "ac5cb5ee9f56353f1994956b2e5367534b40008e8af3c02c4f63f336fc6634a5",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md#narrowing-only-re-pin-of-a-proof-selector-b-1482",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-1482/summary.json",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e58462c092012634b61fce2e5278ecc1d3c609ab25a26231bd114a98746ba71f"
+    },
+    {
+      "id": "B-1482:RP-007",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 5 mechanical re-certification, no new defect. git diff --name-only main...HEAD and git log since RP-005 (2026-09-04T01:14:41.956Z) show zero source-file change: everything committed since is confined to .proof-or-stop/story/actives/B-1482/* metadata, .proof-or-stop/dev-memory/*, and two unrelated docs/story/drafts/* backlog captures (both predate RP-005, from round-3 triage). All CLAUDE.md / decision.md / package.json / packages/main/src/** edits landed before RP-005s reviewRound (2026-09-04T01:04:08.380Z). Re-checked evidence freshness against current HEAD rather than assuming: ran verification_evidence_refresh_stale --dryRun -> No stale verification evidence for B-1482. Read all 11 verificationEvidence receipts in checklist_get (CHK-001 A1/A2/A3, CHK-002 B1/B6/B9/B8, CHK-003 C4/C3/C1/C2): every one has mechanical:true, receipt.selectorMatched:true, receipt.selector byte-identical to the pinned verificationIntent[*].verification.selector, and that selector text present as an exact whole line inside receipt.outputTail. Every receipts materialHash (6416c74c3439f829e51cfb21f46257d05181dd2d8aa1e48f113fc982267e8b5b) and storyFilesHash (1ce8a7e77fbf4f2ab10dbe1e6ccacfb3572c445ab2bc691a96d038cc88305fd5) match the current Task Context materialHash/storyFilesHash exactly; only headHash differs, consistent with CLAUDE.mds headHash-only-drift-is-usually-unrelated-metadata-movement guidance and confirmed non-blocking by the refresh-stale tool. Rebuilt packages/main and re-ran npm run test:narrowing-repin live at current HEAD 2c4721b: 25 [PASS] lines + narrowing-repin-smoke: PASS, and diffed the live output against the recorded receipt.outputTail (which itself embeds the identical 25-line block) -- byte-for-byte match on all 25 lines including every one of the 11 pinned selectors. No open blocking finding; recording pass.",
+      "createdAt": "2026-09-04T03:04:37.856Z",
+      "reviewRound": "2026-09-04T03:00:49.049Z",
+      "reviewRunId": "B-1482:RR-015",
+      "envelopeId": "b47db73f0062164563aecf22d40528e3322b174b9fe8d0852cdf2e41612d6097",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-1482/review-passes.json",
+          "CLAUDE.md#verification-intent--evidence",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-1482/background.md",
+          ".proof-or-stop/story/actives/B-1482/checklist.json",
+          ".proof-or-stop/story/actives/B-1482/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "47133a004b9d63dd17bf4d3433dc0c8ef41f5551c1e79807f5e531061b856edb"
+    },
+    {
+      "id": "B-1482:RP-008",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 5 mechanical re-confirmation only, no source re-review needed: git diff --name-only main...HEAD and git log/diff between RR-012 headHash 8722d50 (bound to my round-4 pass RP-004) and current headHash 2c4721b show only story metadata (.proof-or-stop/story/actives/B-1482/*), dev-memory (.proof-or-stop/dev-memory/*), and two unrelated new docs/story/drafts/* entries changed -- zero files under packages/main/src or docs/requirements/decisions changed since RP-004. storyFilesHash is unchanged (1ce8a7e7...) across RR-012/RR-013/RR-014, confirming no story-owned material drift; the round-5 dispatch exists only because the certification-chain metadata commits moved HEAD after RP-004 was recorded, invalidating that pass envelope binding, not because of a new defect. Re-ran the mechanical checks fresh on rebuilt dist: npx tsc --noEmit -p packages/main clean (exit 0, no output); node packages/main/dist/tasks/narrowing-repin-smoke.js prints 25 PASS lines (A1-A3, B1-B12, C1-C10) and ends narrowing-repin-smoke: PASS; prompt-full-context-envelope-smoke prints \"prompt full-context envelope smoke: PASS\"; retired-authority-vocabulary-guard-smoke prints \"retired authority vocabulary guard PASS builds=811 cacheHits=2 fullAnalysis=1294 astCandidates=503 reachability=34\"; validation-tier-planner-smoke ends \"validation-tier-planner-smoke: PASS\" with its own size-bound check passing (default stdout projection: 2519 chars, bound 11000). No open blocking finding from this lane.",
+      "createdAt": "2026-09-04T03:04:40.139Z",
+      "reviewRound": "2026-09-04T03:00:49.049Z",
+      "reviewRunId": "B-1482:RR-014",
+      "envelopeId": "a8aeae8ff1d99ed9b30703168d574d347f852c5963a705caeee10f0e4635ce52",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8cd97274f1559563c9c98fceae40ff84f2b759aeb44e738bb1f1314632692bf0"
+    },
+    {
+      "id": "B-1482:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Mechanical re-review (round 5, procedural cause not a new defect): confirmed via git diff --stat 8722d50d..2c4721b (the headHash bound to my round-4 pass RP-003/RR-009 -> current head) that the ONLY changes since RP-003 are story metadata (.proof-or-stop/story/actives/B-1482/*), dev-memory records (.proof-or-stop/dev-memory/*), and two unrelated docs/story/drafts/* files created by other stories; zero packages/main/src changes, zero CLAUDE.md/decision-doc changes. Re-swept for unqualified pin-immutability residue across evidence-pin-guard.ts, verification.ts, types.ts, checklist.ts, command-catalog.ts, CLAUDE.md and the decision doc: every immutable/immutability mention is qualified with the narrowing exception, none regressed to an unqualified claim. Cross-checked all 17 narrowing_* refusal codes plus intent_ref_unresolved thrown in checklist.ts/verification.ts against both CLAUDE.md's refusal-code list and the decision doc's refusal table: every reachable code is documented and every documented code exists in code, both directions. Confirmed the engineered-failing-run limitation is still stated as bounded-not-closed / accepted-limitation / never-described-as-prevented in both CLAUDE.md and the decision doc (PM-4). Ran node packages/main/dist/tasks/narrowing-repin-smoke.js: all 25 cases (A1-A3, B1-B12, C1-C10) PASS. No open blocking findings on the story. No new findings this round.",
+      "createdAt": "2026-09-04T03:05:42.158Z",
+      "reviewRound": "2026-09-04T03:00:49.049Z",
+      "reviewRunId": "B-1482:RR-013",
+      "envelopeId": "887382a770e29ba8c38e1225463097b1c56fe9d035448fbef2a9fe2131e84d6e",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-1482/review-passes.json",
+          ".proof-or-stop/story/actives/B-1482/review-runs.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a8ca93b374ff00cba99801d6e5acbcea2563878fb7287b74a3b12bff1c317cb4"
+    }
+  ]
+}

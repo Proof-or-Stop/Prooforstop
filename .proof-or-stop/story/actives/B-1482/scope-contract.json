@@ -1,0 +1,140 @@
+{
+  "storyId": "B-1482",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/verification.ts",
+    "CLAUDE.md",
+    "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/tasks/narrowing-repin-smoke.ts",
+    "docs/requirements/decisions/narrowing-only-evidence-repin.md"
+  ],
+  "allowedTest": [
+    "packages/main/src/tasks/narrowing-repin-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-1482:F-001: the guard pins a repository-wide count of scanned executable source files and this story added one (the narrowing-repin smoke), so the pinned ceiling must move from 809 to 810 with a maintenance comment. No other change to that file.",
+      "timestamp": "2026-09-03T22:13:41.409Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2da5e2496d7f5e7677b0bf4cf1db45340f72f8d4",
+      "materialHash": "3210ec5d9ad792ff933f3a794791b91aba8b988079fe9312d73bf24acdb0bb74"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-1482:F-002: CHK-003 registered test:narrowing-repin in validate.commands, which moves the real-inventory commandSetDigest that case F-023 pins literally. Re-pin the literal and extend its maintenance comment; no other change to that file.",
+      "timestamp": "2026-09-03T22:24:33.528Z",
+      "paths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "39e6a23544a3a7d43b5f116723eeab50dd234ff1",
+      "materialHash": "75d0f4ff4b2c672bbe1861f855185ee9c4de724df42dab2f801950efbb594352"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Round-1 review findings that block or contradict this story: F-003 the triage-authority guard false positive in prompt-envelope.ts blocks review_run_start for every lane on this story, so it is acceptance-blocking and must be fixed here; F-005 the evidence-pin-guard message and the generated hook copy in init-assets.ts still say the pin is immutable once set with no mention of the new command, which is now false; and the process-fact registry rows for verification_pin_narrow complete the typed-registry pair the lifecycle decision requires.",
+      "timestamp": "2026-09-03T22:51:28.034Z",
+      "paths": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/evidence-pin-guard.ts",
+        "packages/main/src/init-assets.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "edac859e4d0bbac2c3e6d042edfcb65693edcef0",
+      "materialHash": "077fa45e95b1df5b90fe00b47fd3e3e8c088abdae0f2ca31b963c1fbad112d11"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-1482:F-003: the triage-authority guard fix in prompt-envelope.ts needed its fixtures in that guard existing test home, which is this smoke. It carries the RED fixtures (the blocking sentence and the full CHK-003 context in the safe corpus) and three true-positive fixtures proving neither the priority nor the story term was disarmed.",
+      "timestamp": "2026-09-03T23:13:01.397Z",
+      "paths": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "0b3267647e1e36a37aae8d0ba30a534020d1042b",
+      "materialHash": "e5f4fec796159725a07c036f106bce2632e35e0756cb3c7c1b06e8302621c9ed"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Finding B-1482:F-008: the refusal message taught a command form missing the required itemId, so copy-pasting the tool own instruction failed with a schema error. Printing a runnable form needs the owning checklist item, which this handler resolves and passes to the verdict builder.",
+      "timestamp": "2026-09-04T00:17:22.393Z",
+      "paths": [
+        "packages/main/src/handlers/evidence-pin-guard.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/evidence-pin-guard.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "644407a3bde9ccd0258229dc3ddc57a108e1410d",
+      "materialHash": "12338347f43249e28b261c125e48a21bb054fb5a1dc77e67ddf5272c92daddc3"
+    }
+  ],
+  "createdAt": "2026-09-03T20:59:27.439Z",
+  "updatedAt": "2026-09-04T00:17:22.393Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/verification.ts": "packages/main/src/core/verification.ts",
+    "CLAUDE.md": "CLAUDE.md",
+    "package.json": "package.json",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/tasks/narrowing-repin-smoke.ts": "packages/main/src/tasks/narrowing-repin-smoke.ts",
+    "docs/requirements/decisions/narrowing-only-evidence-repin.md": "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/core/evidence-pin-guard.ts": "packages/main/src/core/evidence-pin-guard.ts",
+    "packages/main/src/init-assets.ts": "packages/main/src/init-assets.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/handlers/evidence-pin-guard.ts": "packages/main/src/handlers/evidence-pin-guard.ts"
+  }
+}

@@ -282,12 +282,64 @@ export function formatVerificationEvidenceVerdict(verdict: VerificationEvidenceV
  * B-ec67: the tool-executed proof unit pinned onto an executable verification
  * intent. `command` is the executable+argv string the evidence writer runs;
  * `selector` is the string that MUST appear in captured output to prove the
- * intent. Pinned on the FIRST selector-bearing evidence write and IMMUTABLE
- * thereafter (a later write with a different command/selector is refused).
+ * intent. Pinned on the FIRST selector-bearing evidence write, and every later
+ * evidence write carrying a different command/selector is refused.
+ *
+ * B-1482: the pin is NOT immutable without exception. Once set it can still move,
+ * but in the TIGHTENING direction only and only through `verification_pin_narrow`:
+ * the `selector` only, never the `command`, at most once per recorded-receipt set,
+ * and only when receipts this tool recorded prove the new selector is absent from a
+ * failing render the current selector matched and present in every recorded passing
+ * receipt. A loosening re-pin stays refused everywhere, and each accepted movement
+ * is retained on `narrowings`.
  */
 export interface VerificationIntentPin {
   command: string;
   selector: string;
+  /**
+   * B-1482: append-only log of the NARROWING-ONLY re-pins this intent has taken.
+   * Absent until the first narrowing. Each record retains the old pin, the new pin,
+   * the caller-supplied reason and the ids of the tool-recorded receipts the proof
+   * used, so a reader can re-check the proof against the same receipts.
+   *
+   * Written ONLY by the narrowing entry point after a proof drawn from recorded
+   * receipts; the caller-facing pin schema does not accept it, so it can never be
+   * injected. Loosening remains impossible: a re-pin that is not provably stricter
+   * on recorded receipts is refused and never produces a record.
+   */
+  narrowings?: VerificationPinNarrowingRecord[];
+}
+
+/**
+ * B-1482: one accepted narrowing re-pin, retained on the pin it changed.
+ *
+ * `receiptSetDigest` identifies the exact set of recorded receipts the proof read.
+ * A set admits at most ONE narrowing: a later request whose corpus digests to the
+ * same value is refused, so repeated narrowing cannot home in on one hand-picked
+ * run without new recorded evidence.
+ */
+export interface VerificationPinNarrowingRecord {
+  /** The pin as it stood BEFORE this narrowing. */
+  previousSelector: string;
+  /** The pin as it stands AFTER it, identical to the owning pin's current selector. */
+  selector: string;
+  /** Caller-supplied justification. Never evidence on its own — the proof is the receipts. */
+  reason: string;
+  /** The pinned command whose recorded receipts the proof was drawn from (unchanged by a narrowing). */
+  command: string;
+  /** Digest of the recorded-receipt set the proof read; bounds this set to one narrowing. */
+  receiptSetDigest: string;
+  /** Recorded receipts the OLD selector matched on a FAILING run where the new selector is absent. */
+  failingReceiptIds: string[];
+  /** Recorded PASSING receipts the new selector matches; all of them must, or the re-pin is refused. */
+  passingReceiptIds: string[];
+  /** Shared recorded material binding of every receipt the proof used. */
+  materialKey: string;
+  narrowedAt: string;
+  /** Git/material binding of the narrowing REQUEST itself (not of the receipts). */
+  headHash?: string;
+  materialHash?: string;
+  storyFilesHash?: string;
 }
 
 export interface VerificationIntentItem {
@@ -302,7 +354,14 @@ export interface VerificationIntentItem {
   /**
    * B-ec67: tool-executed evidence proof unit for an executable intent
    * (logic|cli|browser). Absent until the first selector-bearing evidence write
-   * pins it; immutable once set. Never present on manual|docs intents.
+   * pins it. Never present on manual|docs intents.
+   *
+   * Immutable to every evidence write, with exactly ONE audited exception (B-1482):
+   * `verification_pin_narrow` can move the `selector` — never the `command` — to a
+   * STRICTER one, at most once per recorded-receipt set, and only when receipts this
+   * tool recorded prove the new selector is absent from a failing render the current
+   * selector matched and present in every recorded passing receipt. A loosening re-pin
+   * stays refused everywhere, and each accepted movement is retained on `narrowings`.
    */
   verification?: VerificationIntentPin;
 }
@@ -980,6 +1039,22 @@ export interface VerificationExecutionReceipt {
   outputTail: string;
   /** Whether the pinned selector string appeared in the captured output. */
   selectorMatched: boolean;
+  /**
+   * B-1482: the pinned selector text this run was ACTUALLY judged against, stamped
+   * beside {@link selectorMatched} so the receipt answers "which selector?" on its own
+   * — without re-reading the (mutable-by-re-pin) intent pin. Auditing whether a receipt
+   * was discriminating at all, and proving one selector is strictly narrower than
+   * another, both need the selector recorded ON the receipt at execution time.
+   *
+   * Like the timeout block below this lives inside the TOOL-OWNED receipt, which every
+   * caller-facing schema strips, so a caller can never inject a selector the command
+   * was not judged by.
+   *
+   * Optional because receipts written BEFORE B-1482 genuinely lack it; absent means
+   * "unknown, not re-derivable", never "no selector". Never back-fill it from the
+   * current pin — a later re-pin would silently rewrite history.
+   */
+  selector?: string;
   /** ISO timestamp when the command was executed. */
   executedAt: string;
   /**

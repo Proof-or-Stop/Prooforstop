@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce the false positive as a failing fixture, then narrow the pairing rule so ordinary priority prose passes while real triage-authority text is still caught",
+      "context": "RED: a fixture feeding the B-1482 CHK-003 sentence through classifyControlledTriageRelations expects no violation and fails today; a second fixture with genuine severity-as-authority text (for example a context that tells a reviewer that high severity alone decides who owns a finding) must still be caught. GREEN: require a grammatical relation rather than 260-character co-occurrence, or narrow the term lists. Both fixtures committed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

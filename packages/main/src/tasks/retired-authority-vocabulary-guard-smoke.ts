@@ -703,10 +703,17 @@ const typeProgramInstrumentation = {
 // packages/main/src/tasks/single-owner-extraction-smoke.ts (CHK-001 introduced
 // the fixture, which calls execFileSync); the story's core/story-workspace.ts
 // (CHK-003) has no candidate, is prefilter-skipped, and did not move it.
-// B-fe8f adds the Finding Ledger and Runtime Evidence Integrity sources; after
-// merging B-41c8, their five candidate-bearing files move the measured ceiling
-// from 809 to 814.
-const DYNAMIC_BINDING_BUILD_CEILING = 814;
+// B-1482 moved it from 809 to 811, by one for each of TWO files, not one:
+// (a) CHK-001 added packages/main/src/tasks/narrowing-repin-smoke.ts, which
+// calls execFileSync; (b) the F-003 fix in packages/main/src/core/
+// prompt-envelope.ts introduced the optional isDisqualifiedPair callback
+// parameter, and a call through that parameter is itself a dynamic-execution
+// AST candidate, so that previously prefilter-skipped file now reaches full
+// dynamic analysis too. Every other file B-1482 touches under the scanned
+// directories was already counted, so the ceiling moved by exactly two.
+// B-fe8f adds five further candidate-bearing Finding Ledger and Runtime
+// Evidence Integrity sources, so the merged inventory moves from 811 to 816.
+const DYNAMIC_BINDING_BUILD_CEILING = 816;
 const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-1482",
+  "records": [
+    {
+      "id": "RED-20260903210015",
+      "trigger": "B-a745 F-002: a mechanical receipt matched its selector on a failing run because the selector prints on every branch, and the stricter selector was refused as an immutable pin change, leaving a known-false receipt in place.",
+      "acceptanceTargetRef": "sha256:2fed324ecb1ccace6013281849b1fa2c12943ddc29a350f0aaa7bb737a2b25f8",
+      "baselineHeadHash": "04acb1b2ccec2fe89443b8033c47eeba7cb8bad8",
+      "baselineMaterialHash": "e87d8aaff7561aad19772253cfad068c9e92d09c91986d8f75f18d0b693e471b",
+      "observedFailure": "On the baseline, packages/main/dist/tasks/narrowing-repin-smoke.js does not exist so the acceptance command fails with a module-not-found error; VerificationExecutionReceipt records no selector text, and handlers/checklist.ts refuses any selector change with receipt_selector_mismatch regardless of direction, so a narrowing re-pin is impossible.",
+      "failingCommand": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/narrowing-repin-smoke.js",
+      "greenRelation": {
+        "targetRef": "sha256:2fed324ecb1ccace6013281849b1fa2c12943ddc29a350f0aaa7bb737a2b25f8",
+        "relation": "same_acceptance",
+        "command": "node packages/main/dist/tasks/narrowing-repin-smoke.js"
+      },
+      "note": "Per-item RED commits carry the finer-grained red evidence.",
+      "createdAt": "2026-09-03T21:00:15.568Z"
+    }
+  ],
+  "createdAt": "2026-09-03T21:00:15.568Z",
+  "updatedAt": "2026-09-03T21:00:15.568Z"
+}

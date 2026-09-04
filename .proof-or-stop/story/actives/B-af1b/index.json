@@ -1,0 +1,37 @@
+{
+  "storyId": "B-af1b",
+  "name": "host-guards-block-attribution-and-cjk",
+  "title": "Make both host PreToolUse guards block attribution trailers and non-English commits from one shared predicate",
+  "description": "Two generated PreToolUse guards, one per host (.claude/hooks for the Claude host, .codex/hooks for the Codex host), must block rather than warn: (1) a new attribution guard that exits 2 when a git commit command carries an AI-host attribution trailer (Co-Authored-By naming a host or the noreply@anthropic.com address, a Claude-Session or Codex-Session line, or the Generated with footer); (2) the existing english-only-guard converted from warn-only to exit 2 on CJK in guarded commands, and added to the Codex roster where getCodexHooks() currently registers no English guard at all. Both hosts share one predicate source kept byte-equivalent by a keep-in-sync test, and the host-neutral git-level .githooks/commit-msg stays as the fallback for commits no PreToolUse hook can see (CLI auto-commits, human commits). Every checklist item carries an explicit RED (a check that fails on main today) and GREEN (the same check passing after the fix), and red_evidence_create binds each RED before its fix lands. Motivation: the user rule that no AI-host attribution enters git history was re-broken by every new session because the harness re-injects the trailer instruction; only a mechanical guard that travels with the clone (host hook files are tracked in git, core.hooksPath is not) can hold it.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "createdAt": "2026-09-04T07:29:24.117Z",
+  "startedAt": "2026-09-04T07:29:24.117Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-04T07:29:24.983Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-eba14120403d0281f747f314dd189b69",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-04T07:38:36.643Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-eba14120403d0281f747f314dd189b69",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-af1b",
+    "branch": "story/B-af1b",
+    "createdAt": "2026-09-04T07:38:31.659Z"
+  }
+}

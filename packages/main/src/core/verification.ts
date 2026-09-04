@@ -17,6 +17,7 @@ import { evaluateActorTrustEvidence, type ActorTrustIssue, type ActorTrustOption
 import { evaluateFactProvenanceEvidence, type FactProvenanceIssue, type FactProvenanceOptions } from './fact-provenance.js';
 import { isAcceptanceMatrixDerivedEvidence } from './acceptance-topology.js';
 import { isWithdrawnChecklistStatus } from './checklist-status.js';
+import { createHash } from 'crypto';
 
 export const VERIFICATION_LANES: readonly VerificationLane[] = ['happy', 'edge', 'adversarial'];
 export type DeferredGateEvidenceMode = 'covered' | 'missing';
@@ -410,5 +411,346 @@ export function makeEvidence(args: Omit<VerificationEvidence, 'timestamp' | 'hea
     timestamp: new Date().toISOString(),
     ...(args.headHash ? { headHash: args.headHash } : {}),
     ...(args.materialHash ? { materialHash: args.materialHash } : {}),
+  };
+}
+
+// ── B-1482: narrowing-only re-pin, proved from tool-recorded receipts ─────────
+
+/**
+ * B-1482. The evidence pin is immutable for one reason: a caller who can re-point a
+ * selector can shop for a greener result. That forbids two different re-pins at once —
+ * LOOSENING (must stay forbidden) and TIGHTENING, which today leaves a known-false
+ * receipt pinned for the life of the story (B-a745 F-002: a selector printed on every
+ * branch matched a FAILING run).
+ *
+ * This module decides the tightening case, and only from evidence the tool itself
+ * recorded. It takes recorded receipts and two selector strings; it never takes a
+ * transcript, an output, or a claim. Every uncertainty refuses.
+ *
+ * A narrowing is accepted only when, over receipts of the SAME pinned command:
+ *   1. no recorded receipt shows the new selector matching where the old did not
+ *      (that would make it BROADER, not narrower);
+ *   2. at least one recorded FAILING receipt, judged by the old selector and matched
+ *      by it, does NOT contain the new selector in its retained tail; and
+ *   3. every recorded PASSING receipt DOES contain the new selector.
+ * Receipts on both sides must share one recorded material binding, and each must
+ * predate the request.
+ *
+ * Bounded absence: (2) is asserted within each receipt's retained `outputTail`, which
+ * is a bounded tail of the run, NOT the whole run. A caller-facing acceptance must say
+ * so; see {@link NARROWING_TAIL_BOUNDED_NOTE}.
+ */
+export const NARROWING_TAIL_BOUNDED_NOTE =
+  'Absence of the new selector was asserted WITHIN each cited receipt retained outputTail, ' +
+  'which is a bounded tail of the captured output and not the whole recorded run.';
+
+/** The one audited movement an evidence pin admits (B-1482). */
+export const VERIFICATION_PIN_NARROW_COMMAND = 'verification_pin_narrow';
+
+/**
+ * The precondition every caller-facing message that names the narrowing MUST carry with
+ * it. Naming the command without it sends the reader to a command that will refuse them
+ * for a reason they were never told.
+ */
+export const VERIFICATION_PIN_NARROWING_PRECONDITION =
+  'It moves the pin to a STRICTER selector on the same pinned command, and only when a recorded ' +
+  'FAILING receipt of that command, which the current selector matched, lacks the new selector in ' +
+  'its retained output; a LOOSER selector and a different pinned command stay refused everywhere.';
+
+/**
+ * An intentRef is either a custom intent id (which encodes nothing) or the
+ * `<itemId>:<lane>:<index>` form minted by {@link intentRef}. Only the latter tells a
+ * message which checklist item owns the intent.
+ */
+function itemIdFromIntentRef(ref: string | undefined): string | undefined {
+  if (!ref) return undefined;
+  const match = /^(.+):(?:happy|edge|adversarial):\d+$/.exec(ref);
+  return match ? match[1] : undefined;
+}
+
+/**
+ * Render the RUNNABLE form of the narrowing command for a caller-facing message.
+ *
+ * B-1482 F-008: the refusal used to teach a form without `--itemId`, which the registered
+ * schema requires, so pasting the tool's own instruction produced an argument-validation
+ * error rather than a re-pin. Every required argument is emitted here, from ONE place, so
+ * the seatbelt message and the enforcement floor cannot drift apart. Values the caller
+ * must choose stay as `<placeholder>` tokens; values the tool already knows are filled in.
+ */
+export function renderVerificationPinNarrowCommand(args: {
+  storyId?: string;
+  itemId?: string;
+  intentRef?: string;
+}): string {
+  const itemId = args.itemId ?? itemIdFromIntentRef(args.intentRef) ?? '<itemId>';
+  return [
+    `proof-or-stop ${VERIFICATION_PIN_NARROW_COMMAND}`,
+    `--storyId=${args.storyId ?? '<storyId>'}`,
+    `--itemId=${itemId}`,
+    `--intentRef=${args.intentRef ?? '<intentRef>'}`,
+    '--selector=<stricter>',
+    '--reason=<why>',
+  ].join(' ');
+}
+
+/** One tool-recorded receipt, projected into what the narrowing proof is allowed to read. */
+export interface RecordedPinnedReceipt {
+  receiptId: string;
+  itemId: string;
+  intentRef: string;
+  command: string;
+  /** The selector this run was judged against. `undefined` = pre-B-1482, UNKNOWN and not re-derivable. */
+  selector?: string;
+  selectorMatched: boolean;
+  exitCode: number;
+  /** Bounded tail of the captured output — see {@link NARROWING_TAIL_BOUNDED_NOTE}. */
+  outputTail: string;
+  outputDigest: string;
+  executedAt: string;
+  /** Recorded material binding of the evidence row that owns the receipt. */
+  materialKey: string;
+}
+
+/** Stable, content-derived id for a recorded receipt. Deterministic from stored fields only. */
+export function recordedPinnedReceiptId(
+  itemId: string,
+  intentRef: string,
+  receipt: { executedAt?: string; outputDigest?: string },
+): string {
+  return `${itemId}:${intentRef}@${receipt.executedAt ?? 'unknown'}#${(receipt.outputDigest ?? '').slice(0, 12)}`;
+}
+
+/**
+ * The recorded material binding of an evidence row. `storyFilesHash` is the
+ * drift-authoritative field for story-owned material; `materialHash` is kept in the key
+ * so a row recorded before story-file hashing still carries SOME binding rather than an
+ * empty one (an empty key is treated as unknown and refuses).
+ */
+export function recordedReceiptMaterialKey(
+  row: { storyFilesHash?: string; materialHash?: string },
+): string {
+  return `${row.storyFilesHash ?? ''}|${row.materialHash ?? ''}`;
+}
+
+/** True when a material key carries no binding at all. */
+export function isUnboundMaterialKey(key: string): boolean {
+  return key.split('|').every(part => part.trim().length === 0);
+}
+
+/**
+ * Every receipt the tool recorded for one pinned command, across the whole checklist.
+ *
+ * Grouping is by the recorded command string — the command the receipt was actually
+ * earned by, stamped on the evidence row by the write path. No separate command digest
+ * is introduced: the pinned command is the exact executable+argv string, so string
+ * equality already identifies the tuple, and a second identity field could only drift
+ * from it.
+ */
+export function collectRecordedPinnedReceipts(cl: ChecklistData, command: string): RecordedPinnedReceipt[] {
+  const wanted = command.trim();
+  const receipts: RecordedPinnedReceipt[] = [];
+  for (const item of cl.items ?? []) {
+    for (const row of item.verificationEvidence ?? []) {
+      const receipt = row.receipt;
+      if (!receipt) continue;
+      if ((row.command ?? '').trim() !== wanted) continue;
+      receipts.push({
+        receiptId: recordedPinnedReceiptId(item.id, row.intentRef, receipt),
+        itemId: item.id,
+        intentRef: row.intentRef,
+        command: wanted,
+        ...(receipt.selector !== undefined ? { selector: receipt.selector } : {}),
+        selectorMatched: receipt.selectorMatched === true,
+        exitCode: receipt.exitCode,
+        outputTail: receipt.outputTail ?? '',
+        outputDigest: receipt.outputDigest ?? '',
+        executedAt: receipt.executedAt ?? '',
+        materialKey: recordedReceiptMaterialKey(row),
+      });
+    }
+  }
+  receipts.sort((a, b) => a.receiptId.localeCompare(b.receiptId));
+  return receipts;
+}
+
+/**
+ * Identity of a recorded-receipt SET. Changes when any receipt is added, removed or
+ * re-earned, and is stable otherwise — which is exactly what bounds a set to one
+ * narrowing. Order-independent, so it does not depend on how the checklist is laid out.
+ */
+export function computeRecordedReceiptSetDigest(receipts: readonly RecordedPinnedReceipt[]): string {
+  const canonical = receipts
+    .map(r => [r.receiptId, r.selector ?? '', String(r.selectorMatched), String(r.exitCode), r.outputDigest, r.materialKey].join('|'))
+    .sort()
+    .join('\n');
+  return createHash('sha256').update(canonical).digest('hex');
+}
+
+/**
+ * Every refusal code `evaluateSelectorNarrowing` can hand back to a caller, as a RUNTIME
+ * list rather than a type alone. B-1482 F-004: the decision record and CLAUDE.md both
+ * present their refusal tables as complete, and a type union cannot be enumerated at
+ * runtime, so three reachable codes were documented nowhere and exercised by nothing.
+ * The documentation case iterates THIS list, so a code added here without a documented
+ * row fails the suite instead of silently widening the gap again.
+ */
+export const SELECTOR_NARROWING_REFUSAL_CODES = [
+  'narrowing_selector_unchanged',
+  'narrowing_no_recorded_receipts',
+  'narrowing_selector_loosens',
+  'narrowing_no_recorded_failing_render',
+  'narrowing_receipt_selector_unknown',
+  'narrowing_selector_not_discriminating',
+  'narrowing_no_recorded_passing_receipt',
+  'narrowing_selector_absent_from_passing_receipt',
+  'narrowing_receipt_material_mismatch',
+  'narrowing_receipt_not_predating_request',
+] as const;
+
+export type SelectorNarrowingRefusalCode = typeof SELECTOR_NARROWING_REFUSAL_CODES[number];
+
+export interface SelectorNarrowingProof {
+  command: string;
+  previousSelector: string;
+  selector: string;
+  receiptSetDigest: string;
+  failingReceiptIds: string[];
+  passingReceiptIds: string[];
+  materialKey: string;
+}
+
+export type SelectorNarrowingOutcome =
+  | { ok: true; proof: SelectorNarrowingProof }
+  | { ok: false; code: SelectorNarrowingRefusalCode; message: string };
+
+function refuseNarrowing(code: SelectorNarrowingRefusalCode, message: string): SelectorNarrowingOutcome {
+  return { ok: false, code, message };
+}
+
+/**
+ * Decide ONE narrowing request. Pure: recorded receipts in, verdict out. Every branch
+ * that cannot complete the proof refuses with its own code and its own message — a
+ * single shared "not proven" refusal would send the operator guessing, which is the
+ * failure mode B-cdf6 / B-META F-012 records for the selector/timeout collision.
+ */
+export function evaluateSelectorNarrowing(input: {
+  command: string;
+  previousSelector: string;
+  selector: string;
+  receipts: readonly RecordedPinnedReceipt[];
+  requestedAt: string;
+}): SelectorNarrowingOutcome {
+  const { command, previousSelector, selector, receipts } = input;
+  if (selector === previousSelector) {
+    return refuseNarrowing(
+      'narrowing_selector_unchanged',
+      `the requested selector is identical to the pinned one (${JSON.stringify(selector)}); a re-pin must change the selector`,
+    );
+  }
+  if (receipts.length === 0) {
+    return refuseNarrowing(
+      'narrowing_no_recorded_receipts',
+      `no receipt has been recorded for the pinned command ${command}; a narrowing is proved only from receipts the tool recorded, so there is nothing here to prove it against`,
+    );
+  }
+
+  // 1. DIRECTION. A recorded receipt where the new selector matches but the old did not
+  //    is proof that the new selector is BROADER over recorded evidence. Checked first so
+  //    a loosening request is named as loosening, instead of falling through to a
+  //    missing-proof refusal that would read like a paperwork problem.
+  const broader = receipts.find(r => r.outputTail.includes(selector) && !r.outputTail.includes(previousSelector));
+  if (broader) {
+    return refuseNarrowing(
+      'narrowing_selector_loosens',
+      `recorded receipt ${broader.receiptId} matches the requested selector ${JSON.stringify(selector)} but NOT the pinned selector ${JSON.stringify(previousSelector)}, so the request LOOSENS the check; only tightening re-pins are admissible`,
+    );
+  }
+
+  // 2. A recorded FAILING render the OLD selector matched, whose retained tail lacks the
+  //    new selector. That render is the only thing that shows the pinned selector was not
+  //    discriminating and the requested one is.
+  const failing = receipts.filter(r => r.exitCode !== 0);
+  if (failing.length === 0) {
+    return refuseNarrowing(
+      'narrowing_no_recorded_failing_render',
+      `no recorded receipt of ${command} FAILED, so no recorded render shows the pinned selector matching a failing run; a reason is not a substitute for that render`,
+    );
+  }
+  const judgedByPin = failing.filter(r => r.selector === previousSelector && r.selectorMatched);
+  if (judgedByPin.length === 0) {
+    const unknown = failing.filter(r => r.selector === undefined);
+    if (unknown.length > 0) {
+      return refuseNarrowing(
+        'narrowing_receipt_selector_unknown',
+        `the only recorded failing receipts of ${command} (${unknown.map(r => r.receiptId).join(', ')}) record NO selector; an absent selector means unknown and is not re-derivable from the current pin, so such a receipt can never serve as the failing proof`,
+      );
+    }
+    return refuseNarrowing(
+      'narrowing_no_recorded_failing_render',
+      `no recorded FAILING receipt of ${command} was judged by the pinned selector ${JSON.stringify(previousSelector)} and matched by it, so nothing recorded shows this pin passing a failing run`,
+    );
+  }
+  const witnesses = judgedByPin.filter(r => !r.outputTail.includes(selector));
+  if (witnesses.length === 0) {
+    return refuseNarrowing(
+      'narrowing_selector_not_discriminating',
+      `every recorded failing receipt the pinned selector matched (${judgedByPin.map(r => r.receiptId).join(', ')}) ALSO contains ${JSON.stringify(selector)} in its retained tail, so the requested selector separates nothing the pin does not already separate`,
+    );
+  }
+
+  // 3. The requested selector must not start failing a run that genuinely passed.
+  const passing = receipts.filter(r => r.exitCode === 0);
+  if (passing.length === 0) {
+    return refuseNarrowing(
+      'narrowing_no_recorded_passing_receipt',
+      `no recorded receipt of ${command} PASSED, so "matches every recorded passing receipt" would hold vacuously; record a passing run before narrowing`,
+    );
+  }
+  const absent = passing.filter(r => !r.outputTail.includes(selector));
+  if (absent.length > 0) {
+    return refuseNarrowing(
+      'narrowing_selector_absent_from_passing_receipt',
+      `recorded PASSING receipt(s) ${absent.map(r => r.receiptId).join(', ')} do not contain ${JSON.stringify(selector)} in their retained tail, so the re-pin would start failing a run that genuinely passed`,
+    );
+  }
+
+  // 4. Both sides must be comparable: one recorded material binding, and every receipt
+  //    recorded BEFORE the request. This is what stops a failing receipt earned against
+  //    unrelated material from being weighed against passing receipts from this story
+  //    material. It BOUNDS, but does not close, the engineered-failing-run case: a
+  //    genuine run of the pinned command deliberately driven to fail on this same
+  //    material still qualifies as a witness.
+  const used = [...witnesses, ...passing];
+  const materialKeys = new Set(used.map(r => r.materialKey));
+  const witnessKey = witnesses[0].materialKey;
+  if (isUnboundMaterialKey(witnessKey) || materialKeys.size > 1) {
+    return refuseNarrowing(
+      'narrowing_receipt_material_mismatch',
+      `the receipts on the two sides of the proof do not share one recorded material binding (${[...materialKeys].map(k => (isUnboundMaterialKey(k) ? '<unrecorded>' : k)).join(' vs ')}); a failing receipt is admissible only against receipts recorded on the same story material`,
+    );
+  }
+  const requestedAtMs = Date.parse(input.requestedAt);
+  const notPredating = used.filter(r => {
+    const ms = Date.parse(r.executedAt);
+    return Number.isNaN(ms) || (Number.isFinite(requestedAtMs) && ms > requestedAtMs);
+  });
+  if (notPredating.length > 0) {
+    return refuseNarrowing(
+      'narrowing_receipt_not_predating_request',
+      `recorded receipt(s) ${notPredating.map(r => r.receiptId).join(', ')} carry no usable execution time or claim to have run AFTER this request; only receipts recorded before the request can prove it`,
+    );
+  }
+
+  return {
+    ok: true,
+    proof: {
+      command,
+      previousSelector,
+      selector,
+      receiptSetDigest: computeRecordedReceiptSetDigest(receipts),
+      failingReceiptIds: witnesses.map(r => r.receiptId),
+      passingReceiptIds: passing.map(r => r.receiptId),
+      materialKey: witnessKey,
+    },
   };
 }

@@ -520,6 +520,13 @@ Behavior:
     note: z.string().optional().describe('Why this run covers the intent; a descriptive default is recorded when omitted or shorter than 5 characters.'),
     cwd: z.string().optional().describe('Working directory for the pinned command; defaults to the resolved story git root (relative paths resolve against it).'),
   }},
+  { name: 'verification_pin_narrow', description: 'B-1482: NARROWING-ONLY re-pin of an executable intent\'s proof selector. The pinned COMMAND never changes and a broader selector is always refused; the proof is drawn ONLY from receipts this tool recorded for that pinned command (no transcript, output or receipt is an input), and a recorded-receipt set admits at most ONE narrowing', schema: {
+    storyId: z.string().describe('Story ID'),
+    itemId: z.string().describe('Checklist item ID owning the intent.'),
+    intentRef: z.string().describe('For example CHK-001:happy:0 or a custom intent ID. Must already carry a verification pin.'),
+    selector: z.string().min(1, 'selector must be a non-empty string').describe('The NEW, stricter selector. Accepted only when recorded receipts prove it stricter: absent from at least one recorded FAILING render the current selector matched, and present in EVERY recorded passing receipt.'),
+    reason: z.string().min(30, 'reason must be \u2265 30 characters').describe('Attributable justification for why the pinned selector is not discriminating. Retained on the narrowing record; never itself the proof.'),
+  }},
   { name: 'verification_evidence_refresh_stale', description: 'Refresh HEAD/material hashes for stale verificationEvidence: a pinned verifier is RE-EXECUTED (a real pass keeps its mechanical receipt); without a passing re-run a command-backed result:pass is demoted in place to a non-mechanical attestation with an audit reason, so it can never silently keep covering an executable intent — re-run and re-record via verification_evidence_add to re-earn a mechanical receipt', schema: {
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
@@ -2970,7 +2977,7 @@ Behavior:
     cwd: z.string().optional().describe('Working directory for resolving relative paths (defaults to project root)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
-  { name: 'verification_pin_guard_check', description: 'B-1507: fail-open PreToolUse evidence-pin seatbelt for shell-tool hooks. Parses a proof-or-stop verification_evidence_add / verification_run command string and denies (exit 2 in the hook) when the caller command/selector mismatches the intent’s immutable pin; allows in every ambiguous case (the enforceAndStampEvidence handler is the real floor)', schema: {
+  { name: 'verification_pin_guard_check', description: 'B-1507: fail-open PreToolUse evidence-pin seatbelt for shell-tool hooks. Parses a proof-or-stop verification_evidence_add / verification_run command string and denies (exit 2 in the hook) when the caller command/selector mismatches the intent’s pin, which is immutable to evidence writes with exactly one audited narrowing exception (verification_pin_narrow); allows in every ambiguous case (the enforceAndStampEvidence handler is the real floor)', schema: {
     provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
     toolName: z.string().optional().describe('Name of the shell tool being invoked (e.g. Bash on Claude, the Codex shell tool)'),
     toolInputJson: z.string().optional().describe('JSON-encoded shell tool input; the command string is read from its .command field when commandString is absent'),

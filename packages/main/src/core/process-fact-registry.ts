@@ -143,6 +143,10 @@ export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   verification_evidence_batch_add: 'execution-status',
   verification_evidence_refresh_stale: 'execution-status',
   verification_run: 'execution-status',
+  // B-1482: the narrowing-only re-pin rewrites the selector every past and future
+  // receipt of the pinned command is judged against, so it states the same kind of
+  // fact as the sibling writers rather than the generic L4 gate-evidence fallback.
+  verification_pin_narrow: 'execution-status',
   review_run_start: 'review-run',
   certification_window_begin: 'gate-evidence',
   certification_window_status: 'gate-evidence',
@@ -175,6 +179,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_pin_narrow: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
   finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
   finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
