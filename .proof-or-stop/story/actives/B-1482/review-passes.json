@@ -1,0 +1,41 @@
+{
+  "passes": [
+    {
+      "id": "B-1482:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round 3 re-review of the two wave-2 fixes touching my domain: (1) TRIAGE_AUTHORITY_DECISION_VERB is genuinely single-sourced (prompt-envelope.ts:383) and consumed identically by hasNothingButSeverityAuthority, hasCrossSegmentSeverityAuthority and the new controlledPairIsGenericOnly decisive-relation check; adding overrid* widens all three call sites together, and it makes detection STRICTER (catches more real authority claims through the generic-pair cell) not looser -- confirmed by mutation: removing the decisive-relation exception re-opens the F-014 false-negative and fails prompt-full-context-envelope-smoke on the overrides fixture. (2) The optional-argument threading (computeEvidencePinVerdict owner arg <- resolveIntentOwnerItemId; EvidenceWriteInput.storyId; applyVerificationPin storyId param) is minimal, and the stale-refresh path (staleReexecCandidate) genuinely omits storyId and only prints the <storyId> placeholder in a mismatch branch that path never reaches (its input always carries the pin's own command/selector) -- honest, never a wrong id. (3) The three extracted helpers in narrowing-repin-smoke.ts (assertLooseningRefused/assertMissingProofSideRefused/assertAbsentFromPassingReceiptRefused/assertA745ShapeReplayedEndToEnd/assertDecisionCarriesPreMortems) are byte-identical body moves out of B2/B4/B5/B1/C7 with the sibling call sites unchanged, plus a new call from the pinned case (B6/B8/C4) -- siblings prove exactly what they proved before, pinned cases now cover their own intent sentence. (4) No dead code, as any, non-null assertions or empty catches introduced in prompt-envelope.ts, verification.ts, evidence-pin-guard.ts (core+handler) or checklist.ts; no I/O added to the pure core modules (createHash is a pure hash, no duplicate import). Verified: npx tsc --noEmit -p packages/main clean; narrowing-repin-smoke, prompt-full-context-envelope-smoke, retired-authority-vocabulary-guard-smoke (builds=811, matches F-016's fix) and validation-tier-planner-smoke all PASS on the built dist. Mutation-proved on temp copies (restored via git checkout after each): reverting the decisive-relation exception in controlledPairIsGenericOnly re-opens the widening (prompt-full-context-envelope-smoke fails the overrides/decides/determines/governs fixtures); removing --itemId from renderVerificationPinNarrowCommand fails narrowing-repin-smoke C8 (and cascades to C9); reverting the selector-mismatch message in enforceAndStampEvidence to the bare immutable parenthetical fails C9 and C10. No open findings from this lane.",
+      "createdAt": "2026-09-04T00:28:13.718Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "reviewRunId": "B-1482:RR-006",
+      "envelopeId": "9a9657417a997c4070cedcba16183655125f7ff6e1f809a4933369edf36adcf3",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts",
+          "packages/main/src/tasks/full-suite-runner.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9fb558c6dd0d86b361814c025cd6348b1b76fbcc8a734d7faf3a0bc642909e85"
+    }
+  ]
+}
