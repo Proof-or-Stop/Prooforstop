@@ -632,6 +632,25 @@
       "_hash": "5217b46a3bad4b1e3771b80bbbfe613a779fc97a00df53848aced8d85a4998bf",
       "signatureTag": "edge|unknown|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-031",
+      "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1312-1317 — current Round 19 acceptance blocker: commit 9d44c9f980 replaces the old 0.3.273 hard pin with `installedVersion === readSyncedVersion(repositoryRoot)`, but that still makes the Story smoke non-replayable whenever the long-lived Story worktree is behind an unrelated main/global CLI patch. Fresh execution of `node packages/main/dist/tasks/finding-ledger-runtime-smoke.js` on the current committed Story exited 1 after all preceding ledger/runtime/adversarial selectors, with `AssertionError: installed CLI version 0.3.275 differs from current 0.3.274`. The 71 evidence rows are structurally marked fresh/mechanical, yet all 58 rows backed by this command now lack a currently passing mechanical reproduction. Preserve proof that B-fe8f itself bumped exactly once and that each tested artifact reports its own authoritative version, but do not require a global installed CLI from newer main to equal an intentionally behind Story checkout; add a committed negative/control regression for the behind-main/global-ahead topology and refresh the affected receipts.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-04T07:49:57.654Z",
+      "reviewRound": "2026-09-04T07:45:25.427Z",
+      "reviewRunId": "B-fe8f:RR-069",
+      "_hash": "2b2ed512958efc0c26e0042e7ded40c2f0ef1dff3a6d01b64f347c3feff7a9be",
+      "files": [
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+        ".proof-or-stop/story/actives/B-fe8f/checklist.json"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
