@@ -1,0 +1,16 @@
+{
+  "name": "build-emits-non-executable-cli",
+  "title": "The main build emits dist/cli.js without the executable bit, breaking the shared global CLI for every session",
+  "description": "A real rebuild of packages/main emits dist/cli.js at mode 644, because tsc does not carry an executable mode even though src/cli.ts has a shebang. The global install symlinks into this repository, so the lost bit breaks proof-or-stop for every session and worktree on the machine at once. The content-hash fast path in the build script makes rebuilds rare, which is the only reason this is intermittent. The build binding hashes path and content only, with no mode, so a broken dist still verifies and the fast path keeps skipping the rebuild that would repair it. Fix belongs inside the build's locked critical section, after the staging swap and before writeBuildBinding, driven by the package bin map; whether to make the binding mode-aware as well is a separate decision.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "build",
+    "cli",
+    "executable",
+    "chmod",
+    "build-binding",
+    "global-install"
+  ],
+  "createdAt": "2026-09-04T03:53:07.934Z"
+}

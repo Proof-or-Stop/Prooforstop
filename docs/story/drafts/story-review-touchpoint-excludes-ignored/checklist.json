@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Decide whether the coverage check should honour excludes or whether the message should stop offering it",
+      "context": "packages/main/src/handlers/story-review.ts around line 525. Honouring excludes preserves the stronger record but risks becoming a way to silence the check with an unjustified path, so an exclusion likely needs a reason and needs to be visible to the PLAN scope reviewer. Correcting the message alone is cheaper but leaves authors deleting touchpoints, which is how the record was lost in the observed case. A third option is an annotated touchpoint, since normalizeTouchpointPath already tolerates a path followed by a parenthesised reason.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Implement the chosen behaviour so that the emitted message and the code agree",
+      "context": "Whichever way it is decided, the invariant to restore is that every remedy the blocker names actually clears it. The observed failure is not a wrong gate outcome but a wrong instruction, and it costs record fidelity every time an author follows it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a case pinning the message to the remedies the code accepts",
+      "context": "The case should fail if a remedy is named in the blocker text but not honoured by the check, so the two cannot drift apart again. Cover both a touchpoint listed in files and, if excludes is honoured, one listed there.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

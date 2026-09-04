@@ -1,0 +1,11 @@
+## Trigger Event
+On 2026-09-02, while recording CHK-004 and CHK-005 evidence for B-8d60 in .worktrees/B-8d60, verification_evidence_add refused node scripts/verify-process-fact-contract.mjs (selector "Process fact contract verified") three times and node packages/main/dist/cli.js validate (selector "✓ Project validation commands passed") once with [receipt_selector_absent], although running each command directly and piping through tail showed the selector as the last line. A node -e wrapper that spawnSync-runs the same command and prints one compact final line was accepted with selectorMatched=true. Logged as B-META finding F-037 through the re-anchored gap_log chain.
+
+## Key Insights
+checklist.ts:771 computes selectorMatched = run.output.includes(pinSelector); run.output is produced at validation-executor.ts:1313 as trimOutput(stripAnsi(output)); trimOutput (validation-executor.ts:199-203) returns output.slice(0, MAX_OUTPUT_CHARS) with MAX_OUTPUT_CHARS = 12000 (line 40), a head window. process-fact-contract prints 55116 bytes and full validate prints 231766 bytes, so their final summary lines are outside the retained window. Short-output commands (the gap-log smoke, whose selectors sit inside the first 12000 characters) pin normally, which is why the defect looked intermittent. The existing B-cdf6 work already separated timeouts from wrong selectors; truncation is the remaining case where the refusal text misattributes the cause.
+
+## Solution Tradeoffs
+Option one, raise MAX_OUTPUT_CHARS: cheap but only moves the cliff and inflates every stored receipt. Option two, match against the full output and store a bounded tail (or head plus tail) window: fixes the false refusal without growing receipts, at the cost of one extra pass over the buffer. Option three, require operators to wrap long commands: what happened in B-8d60; it hides the real command from the pin and from reviewers. Option two is recommended; the refusal text improvement is independent and cheap.
+
+## Conversational Texture
+The user expects medium defects to be retained with reproduction, evidence, impact and a follow-up owner rather than worked around silently. B-8d60 used the wrapper form for CHK-004 edge evidence and states that in its evidence note; this draft is the follow-up that removes the need for the wrapper.

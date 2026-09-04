@@ -1,0 +1,16 @@
+{
+  "name": "plan-artifacts-have-no-correction-channel",
+  "title": "A PLAN artifact falsified during DEV cannot be corrected, only contradicted from a file it never references",
+  "description": "plan_set and understanding_set are PLAN-only by command policy and checklist title and context freeze at INIT_CHECK, which is the right anti-tampering control. But when a PLAN claim is proven wrong during DEV there is no way to attach a signed correction to the frozen artifact: the truth can go into a finding, which the artifact does not reference, or a commit message, which its readers never see. B-77e6 hit this when its stated acceptance bar was falsified by evidence; the concept lane then found that understanding.json read alone still says the opposite of what shipped. The project instructions describe plan.md as soft-frozen with a commit-message route, but the tool refuses that route. Proposed: an append-only, finding-citing corrections annotation allowed in DEV and REVIEW, rendered inline by plan_get and understanding_get.",
+  "type": "feature",
+  "priority": "medium",
+  "keywords": [
+    "plan",
+    "understanding",
+    "freeze",
+    "correction",
+    "record-fidelity",
+    "command-policy"
+  ],
+  "createdAt": "2026-09-04T13:53:16.436Z"
+}

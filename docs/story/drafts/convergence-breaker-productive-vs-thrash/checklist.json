@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Record the raw counters alongside the delta in the breaker trip reason and persisted state",
+      "context": "packages/main/src/core/convergence-breaker.ts line 261 onward builds the reason as advance-count ${advanceDelta}>${maxAdvance}, so two trips at different raw counts produce the same string once auto-recovery has re-baselined. A reader subtracting advanceBaseline from advanceCount gets headroom that the retained reason appears to contradict. This is worth doing independently of any classification change.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Decide whether advances forced by external drift should count against the advance budget, and record why",
+      "context": "The reported case was main moving underneath a story across four re-merges, each costing an evidence refresh and a fresh reviewer receipt, with no finding attached. A signal keyed only on closed findings scores this as thrash. Options: exclude such advances from the budget, report them as a third outcome without excluding them, or leave the brake as a deliberate hard backstop. Any exclusion is a surface a story could be steered into, so state the reasoning.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Guard the experience-log reader against a directory-shaped path",
+      "context": "packages/main/src/core/dev-memory.ts line 237: readEntries guards with existsSync then calls readFileSync with no try/catch; the try/catch present wraps only the per-line JSON.parse. A commit that adds a path under the experience log turns it into a directory, which passes the existence guard and throws EISDIR uncaught into freshness-pack construction, crashing session and DONE closure on an otherwise evidence-neutral commit. Reproducible standalone by pointing readEntries at a directory.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

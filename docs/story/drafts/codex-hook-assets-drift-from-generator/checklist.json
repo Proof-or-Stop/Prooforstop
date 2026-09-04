@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Regenerate every tracked Codex hook asset from the current generator in one commit and record the diff as evidence",
+      "context": "RED: node packages/main/dist/cli.js init --upgrade followed by git diff --exit-code .codex/ is non-empty on main today (scope and evidence hooks rewritten, hooks.json statusMessage still Proofbound). GREEN: after the commit the same sequence leaves an empty diff. Restore the paths init --upgrade also touches by design (.claude/agents shims, CLAUDE.md managed block, .gitignore) rather than committing them.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Add a smoke that asserts byte-equality between the generator output and every tracked Codex hook asset",
+      "context": "Render renderCodexHooksJson, renderCodexPretoolScopeHookScript, renderCodexEvidencePretoolHookScript and the attribution and english guards added by B-af1b, compare each to the committed file by sha256, and fail on any mismatch; register it in package.json scripts and proof-or-stop.config.json validate.commands so the DONE gate depends on it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Extend the residue verifier brand-prose check to JSON host assets so a stale brand string in hooks.json is caught",
+      "context": "scripts/verify-proof-or-stop-residue.mjs scans .md prose and executables; .codex/hooks.json is neither, which is why Proofbound survived. Add JSON host assets under .codex/ and .claude/ to the scan roots with the same deprecated-brand token list.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

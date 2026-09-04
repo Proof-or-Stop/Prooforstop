@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Restore deterministic coverage of the reasoned-downgrade branch in dev_memory_preflight_ack",
+      "context": "Either a narrow injectable failure seam on buildPreflightPack, used only by tests, or an extracted pure helper. Production callers must pass no seam and get the real behaviour, the same pattern runtime-environment-checks uses for its probes.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove the seam cannot weaken production and the branch records what it claims",
+      "context": "Test that every production call site passes no override; test that a forced throw plus --reason yields a downgraded acknowledgement carrying that reason; test that without --reason the gate still fails. Do not reintroduce a throwing filesystem shape, since the readers are meant to stay fail-closed.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
