@@ -1,0 +1,29 @@
+{
+  "task": "Make done_prepare reject the same missing finish-decision and stale reviewer-verdict states that the real TEST-to-DONE gate already rejects.",
+  "outcome": "When the operator runs done_prepare for a TEST Story, the terminal reports missing_dev_memory_finish_decision if the finish decision is absent and stale_closeout_review with diff_pack_changed if a reviewer pass has a stale diffPackHash; after valid evidence is restored, the committed parity test prints GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes.",
+  "facts": [
+    "The reviewed RED runs done_prepare/buildDoneClosureRunbook and the real DONE guard on equivalent fixtures.",
+    "The real DONE guard already uses readDevMemoryFinishDecision and evaluateReviewVerdict.",
+    "Current done_prepare omits both predicate results, so it can recommend DONE immediately before DONE fails closed.",
+    "Candidate GREEN proves feasibility but is intake evidence only and must be rerun in this Story.",
+    "Source inspection confirms machine.ts does not import done-oracle.ts, so done-oracle can reuse the exported reviewer verdict without introducing a machine-to-oracle cycle."
+  ],
+  "constraints": [
+    "Preserve every existing DONE predicate and fail-closed reviewer freshness behavior.",
+    "Do not refresh, re-sign, rebind, fabricate, or mutate review evidence.",
+    "Register the executable RED in proof-or-stop.config.json and update process-fact enforcement.",
+    "Repair scope only for major, acceptance-blocking, or gate-truth defects; evidence-route unrelated nonblocking medium/low defects.",
+    "Do not push remotely."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+    "scripts/verify-process-fact-contract.mjs",
+    "proof-or-stop.config.json",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+  ],
+  "timestamp": "2026-09-04T20:33:31.986Z"
+}

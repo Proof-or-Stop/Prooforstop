@@ -1,0 +1,71 @@
+{
+  "principles": [
+    "One lifecycle fact must have one executable predicate and every readiness surface must consume it.",
+    "Preflight must fail closed with the same stable machine-readable code as DONE.",
+    "Readiness inspection must remain read-only and must never repair reviewer evidence.",
+    "The fix and its tests must remain narrowly bound to the proven mismatch."
+  ],
+  "drivers": [
+    "The existing real DONE predicates are already exported or directly reusable.",
+    "The reviewed behavior test proves two concrete divergence paths without relying on source-text assertions.",
+    "Process-fact policy requires registry and verifier coverage whenever gate evidence consumption changes."
+  ],
+  "options": [
+    {
+      "name": "Reuse existing predicates in done-oracle",
+      "pros": [
+        "Smallest behavioral change",
+        "Keeps reviewer semantics sourced from evaluateReviewVerdict",
+        "Preserves done_prepare runbook architecture"
+      ],
+      "cons": [
+        "Adds explicit core dependencies to done-oracle and requires careful error-code mapping"
+      ]
+    },
+    {
+      "name": "Duplicate finish and reviewer checks in done_prepare",
+      "pros": [
+        "Localized edit in the preflight handler",
+        "Avoids adding imports to done-oracle"
+      ],
+      "cons": [
+        "Creates a second implementation that can drift again",
+        "Violates the same-source process-fact requirement"
+      ]
+    },
+    {
+      "name": "Extract a new aggregate DONE predicate module",
+      "pros": [
+        "Could centralize more DONE logic over time",
+        "Can produce one aggregate verdict API"
+      ],
+      "cons": [
+        "Substantially expands scope beyond the two proven predicates",
+        "Raises regression risk and requires broader lifecycle refactoring"
+      ]
+    }
+  ],
+  "chosen": "Reuse existing predicates in done-oracle",
+  "rationale": "Directly reuse readDevMemoryFinishDecision and evaluateReviewVerdict while building the shared DONE checklist. This is the smallest design that removes semantic duplication, gives done_prepare the real verdict, preserves its read-only behavior, and leaves unrelated DONE predicates unchanged.",
+  "preMortem": [
+    {
+      "scenario": "The new review row maps every reviewer failure to stale_closeout_review.",
+      "trigger": "A missing round or blocking finding is evaluated.",
+      "consequence": "done_prepare emits the wrong recovery code and diverges from DONE again.",
+      "mitigation": "Map only review_evidence_invalid to stale_closeout_review and preserve every other evaluateReviewVerdict code verbatim; test the stale hash case exactly."
+    },
+    {
+      "scenario": "done_prepare changes reviewer evidence while checking freshness.",
+      "trigger": "The stale diffPackHash fixture is evaluated.",
+      "consequence": "Preflight fabricates freshness or changes git state.",
+      "mitigation": "Keep buildDoneChecklist read-only and assert reviewer evidence bytes plus git status are unchanged."
+    },
+    {
+      "scenario": "The behavior test exists but is omitted from validation.",
+      "trigger": "A future refactor removes one row while ordinary tests still pass.",
+      "consequence": "The original mismatch regresses unnoticed.",
+      "mitigation": "Register the executable test in proof-or-stop.config.json and add process-fact verifier and flow-stability checks."
+    }
+  ],
+  "timestamp": "2026-09-04T20:33:49.319Z"
+}

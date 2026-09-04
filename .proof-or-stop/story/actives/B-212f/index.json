@@ -4,7 +4,7 @@
   "title": "Make done_prepare enforce the real DONE finish-decision and reviewer-verdict predicates",
   "description": "Fix the confirmed done_prepare/DONE predicate-parity defect exposed by B-aa5f. The Story must commit the already-designed executable RED that proves real DONE rejects a missing dev_memory_finish_decision and a stale reviewer scopeBinding.diffPackHash while done_prepare currently omits both blocker rows; then implement a shared or mechanically parity-guarded predicate path so the unchanged test becomes GREEN with matching missing_dev_memory_finish_decision and stale_closeout_review codes. The temporary GREEN candidate is design evidence only, not delivery evidence. During development, classify every new defect before changing scope: repair current-Story critical/high, security, data-integrity, destructive-compatibility, acceptance-blocking, or lifecycle-truth defects immediately; record reproducible medium/low non-blockers with evidence, impact, recommendation, and a traceable later owner through finding/gap/backlog without expanding scope; reassess and bring a deferred defect back when later evidence raises severity or makes it block acceptance, REVIEW, TEST, or DONE.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -36,6 +36,15 @@
       "branch": "main",
       "user": "Harmonynet",
       "sessionId": "sess-98d02a93a118a7f4d0a06d9380ca324d",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-04T20:31:50.546Z",
+      "branch": "story/B-212f",
+      "user": "Harmonynet",
+      "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
       "agent": "main"
     }
   ],
