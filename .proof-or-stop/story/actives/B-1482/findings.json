@@ -382,6 +382,24 @@
       "signatureTag": "edge|ts|narrowing-repin-smoke",
       "signatureTagSource": "auto",
       "clusterId": "CL-004"
+    },
+    {
+      "id": "B-1482:F-021",
+      "desc": "Two residual instances of the class F-019 and F-020 closed, self-reported by the implementer. First: packages/main/src/cli/command-catalog.ts around line 2945 describes verification_pin_guard_check as firing when the caller command or selector mismatches the intent immutable pin. That description is printed by the command help, so a reader who never sees the refusal message still learns the old absolute rule; reword it the way the refusal message was reworded and extend the isolation case to cover the registered description. Second: the CHK-003:happy:0 sentence names the one-narrowing bound as something both documents state, but case C4 asserts the at most one phrasing against CLAUDE.md only; the decision document carries a matching phrase, so extend the check to both documents with the same deletion-mutation discrimination the other C4 clauses now use.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-04T00:45:54.144Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "_hash": "0c6c13f99bda874ff53ce0134e383024cc12c72c80fd49c69233c4b9f001a5e4",
+      "files": [
+        "packages/main/src/cli/command-catalog.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|residual-instances-class",
+      "signatureTagSource": "auto"
     }
   ]
 }
