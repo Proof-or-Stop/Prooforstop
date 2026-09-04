@@ -411,7 +411,7 @@
       "desc": "packages/main/src/tasks/narrowing-repin-smoke.ts around line 1069 asserts the documented command form with a bare text.includes(NARROW_COMMAND) against CLAUDE.md only, with no sentence behind it in the deletion-mutation corpus. That is the same grep-survives-deletion shape the story just closed twice as F-020 and F-021: the check would still pass if the surrounding explanation were deleted and only a stray mention of the command name survived. Self-reported by the implementer of F-021, which deliberately left it because the intent sentence does not name the command form as a both-documents claim. Fix: put the command-form clause through the same deletion mutation as the other C4 clauses, asserting the sentence that teaches the form rather than the bare name, and say in the case which document each clause is asserted against.",
       "severity": "low",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-04T00:53:59.771Z",
@@ -421,7 +421,8 @@
         "packages/main/src/tasks/narrowing-repin-smoke.ts"
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-04T01:04:13.788Z"
     }
   ]
 }
