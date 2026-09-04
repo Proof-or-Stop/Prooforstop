@@ -132,8 +132,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-04T20:58:40.830Z",
       "endTime": null
     },
     {
@@ -232,6 +232,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementer commit 414e02135b registers the executable test; owner rerun reproduced exactly two parity failures while both real-DONE controls and the read-only evidence/git-state control passed."
+    },
+    {
+      "timestamp": "2026-09-04T20:58:40.830Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin the minimal production fix by adding the real finish-decision and reviewer-verdict predicates to the shared done-oracle checklist."
     }
   ]
 }
