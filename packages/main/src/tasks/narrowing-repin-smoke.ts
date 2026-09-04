@@ -499,11 +499,15 @@ async function assertAbsentFromPassingReceiptRefused(): Promise<void> {
       } finally { cleanup(env); }
 }
 
-const CHK002_CASES: SmokeCase[] = [
-  {
-    id: 'CHK-002/B1',
-    desc: 'B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts',
-    run: async () => {
+/**
+ * The B-a745 CHK-005:happy:0 shape replayed end to end from recorded receipts: a banner
+ * printed on every branch, re-pinned to the status discriminator, accepted only on the
+ * tool's own receipts and with both pins, both receipts, the reason and the cited receipt
+ * ids left visible. B-1482 F-012: CHK-002:adversarial:0 names this replay as one of its
+ * two clauses but is pinned to B8, which only ever tested the transcript refusal, so the
+ * replay is performed by BOTH cases rather than by B1 alone.
+ */
+async function assertA745ShapeReplayedEndToEnd(): Promise<void> {
       const { env, command } = await recordA745Corpus();
       try {
         const failing = readEvidence(env, 'INT-A745');
@@ -547,6 +551,14 @@ const CHK002_CASES: SmokeCase[] = [
           'the receipt is NOT back-filled with the new selector');
         assert.equal(after?.receipt?.outputTail, failing.receipt.outputTail, 'the receipts on both sides survive intact');
       } finally { cleanup(env); }
+}
+
+const CHK002_CASES: SmokeCase[] = [
+  {
+    id: 'CHK-002/B1',
+    desc: 'B-a745 shape end to end: re-pin to the status discriminator accepted on recorded receipts',
+    run: async () => {
+      await assertA745ShapeReplayedEndToEnd();
     },
   },
   {
@@ -688,6 +700,12 @@ const CHK002_CASES: SmokeCase[] = [
         assert.equal(readPin(env, 0)?.selector, OLD_SELECTOR, 'the pin is unchanged after the refusal');
         assert.equal(readNarrowings(env, 0).length, 0, 'no narrowing was retained');
       } finally { cleanup(env); }
+
+      // B-1482 F-012: the second clause of this case's own intent sentence. It is
+      // performed here, in the case that sentence is pinned to, so a weakening of B1 that
+      // still left B1 passing can no longer leave this evidence reading verified while the
+      // replay it claims goes unexercised by anything the pin actually checks.
+      await assertA745ShapeReplayedEndToEnd();
     },
   },
   {
