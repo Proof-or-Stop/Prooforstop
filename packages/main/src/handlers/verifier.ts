@@ -792,7 +792,7 @@ function buildStoryRoutineIdentity(args: {
   }
 }
 
-function evaluateStoryRoutineReuse(args: {
+export function evaluateStoryRoutineReuse(args: {
   ctx: HandlerContext;
   storyId: string;
   gitCwd: string;

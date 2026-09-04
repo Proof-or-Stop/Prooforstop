@@ -41,8 +41,9 @@
  *                        must NOT fall through to the head comparison.
  *
  * Not driven here (recorded for the audit checklist): handlers/verifier.ts
- * evaluateStoryRoutineReuse (not exported) and handlers/session.ts DONE
- * pre-check (wrapped in a catch-all that swallows the whole block).
+ * evaluateStoryRoutineReuse (exported; driven with a captured ctx.log by
+ * tasks/evidence-hash-snapshot-classifier-smoke.ts) and handlers/session.ts
+ * DONE pre-check (wrapped in a catch-all that swallows the whole block).
  *
  * Run from the repository root:
  *   node packages/main/tests/red/red-partial-hash-snapshot-binding.mjs

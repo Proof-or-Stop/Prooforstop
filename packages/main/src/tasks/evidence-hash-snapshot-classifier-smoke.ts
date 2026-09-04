@@ -29,9 +29,10 @@
  *                                                                      reuse on any missing digest
  *                                                                      (material-hash-changed-or-missing,
  *                                                                      story-files-hash-changed-or-missing,
- *                                                                      missing-head-lineage); the log line carries the
- *                                                                      classifier detail. Driven via the exported core
- *                                                                      function with the unborn snapshot.
+ *                                                                      missing-head-lineage); the `ctx.log` line carries
+ *                                                                      the classifier detail. Driven via the exported
+ *                                                                      production function on the unborn repo with a
+ *                                                                      captured `ctx.log`; the disclosure is asserted.
  *   core/lifecycle-readiness.ts buildStoryReadiness   FAIL-CLOSED for  target=DONE -> head_hash_unavailable and
  *     Report                                          DONE, DISCLOSED  material_hash_unavailable are blocked/blocking
  *                                                     (advisory) for   and carry the classifier detail; target=REVIEW /
@@ -86,6 +87,7 @@ import { buildDoneChecklist, renderDoneChecklist } from '../core/done-oracle.js'
 import { buildStoryReadinessReport, type LifecycleReadinessTarget } from '../core/lifecycle-readiness.js';
 import { evaluateRoutineValidationReuse } from '../core/validation-evidence-reuse.js';
 import { runDoneOracleGate } from '../handlers/phase-gates.js';
+import { evaluateStoryRoutineReuse } from '../handlers/verifier.js';
 import { createSessionHandlers } from '../handlers/session.js';
 import { createTestHandlers } from '../handlers/test.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -431,28 +433,33 @@ try {
   });
 
   // ── handlers/verifier.ts evaluateStoryRoutineReuse — TOLERABLE ────────────
-  testCase('verifier (TOLERABLE): evaluateRoutineValidationReuse refuses reuse on the unborn snapshot naming the missing digests', () => {
+  // B-83aa-xhr-r18 (cross-host MAJOR): drive the REAL production function
+  // (exported unchanged; the three `validate` call sites use the same symbol)
+  // with the unborn fixture and a captured `ctx.log`, so removing the
+  // classifier call or the partial-binding disclosure from verifier.ts turns
+  // this case red instead of leaving it vacuously green.
+  testCase('verifier (TOLERABLE): evaluateStoryRoutineReuse on the unborn repo refuses reuse and logs the classifier detail naming the missing digests', () => {
     const evidence = unbornStore.readTestEvidence(STORY_ID);
     assert.ok(evidence, 'fixture evidence must exist');
     const identity = { digest: 'sha256:current', commands: [] } as unknown as RoutineValidationIdentity;
     const coverage = { missingRequired: 0 } as unknown as RoutineReuseArgs['currentCoverage'];
-    const evaluation = evaluateRoutineValidationReuse({
-      root: unborn,
-      gitCwd: unborn,
-      evidence,
-      currentIdentity: identity,
-      currentCoverage: coverage,
-      currentMaterialHash: unbornSnapshot.materialHash,
-      currentStoryFilesHash: unbornSnapshot.storyFilesHash,
-      clean: false,
-      headBefore: unbornSnapshot.headHash,
-      headAfter: unbornSnapshot.headHash,
-    });
+    const logs: string[] = [];
+    const ctx: HandlerContext = { store: unbornStore, root: unborn, scanRoot: unborn, log: (msg) => { logs.push(msg); } };
+    const evaluation = evaluateStoryRoutineReuse({ ctx, storyId: STORY_ID, gitCwd: unborn, identity, coverage });
     assert.equal(evaluation.reusable, false);
     assert.equal(evaluation.lineage, 'rejected');
-    for (const reason of ['material-hash-changed-or-missing', 'story-files-hash-changed-or-missing', 'missing-head-lineage', 'head-changed-during-reuse-evaluation']) {
+    for (const reason of ['material-hash-changed-or-missing', 'story-files-hash-changed-or-missing', 'missing-head-lineage']) {
       assert.ok(evaluation.refusalReasons.includes(reason), `refusal must include ${reason}: ${evaluation.refusalReasons.join(',')}`);
     }
+    // The expected detail is derived from the shared classifier on the same
+    // fixture snapshot the production path captures, never hard-coded.
+    const expectedDetail = classifyEvidenceHashSnapshot(captureEvidenceHashSnapshot({ gitCwd: unborn, metadataRoot: unborn })).detail;
+    assert.equal(expectedDetail, unbornClassification.detail, 'the production capture must classify like the fixture snapshot');
+    const disclosure = logs.filter((line) => line.includes(expectedDetail));
+    assert.equal(disclosure.length, 1, `exactly one captured log line must carry the classifier detail:\n${logs.join('\n')}`);
+    assert.ok(disclosure[0]!.startsWith('routine validation reuse binding is partial (reuse will be refused): '), disclosure[0]);
+    assert.ok(/headHash/.test(disclosure[0]!) && /materialHash/.test(disclosure[0]!) && /storyFilesHash/.test(disclosure[0]!), disclosure[0]);
+    assert.ok(logs.some((line) => line.startsWith('routine validation reuse refused: refusalReasons=') && line.includes('currentIdentityDigest=sha256:current')), `the refusal log line must follow the disclosure:\n${logs.join('\n')}`);
   });
 
   // ── core/lifecycle-readiness.ts buildStoryReadinessReport ─────────────────
