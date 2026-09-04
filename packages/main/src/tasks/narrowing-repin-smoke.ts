@@ -1027,6 +1027,25 @@ const DOCUMENTED_CLAIM_SENTENCES: ReadonlyArray<{ claim: string; sentences: Reco
       'CLAUDE.md': 'a recorded-receipt set admits at most one narrowing.',
     },
   },
+  {
+    // B-1482 F-022: the runnable form itself, as each document prints it. The bare
+    // command NAME survives its deletion -- both documents also name the command in the
+    // prose sentence stating the one allowed movement -- so the form has to be quoted
+    // here for the mutation to reach it at all.
+    claim: 'the runnable command form',
+    sentences: {
+      'decision doc':
+        `proof-or-stop verification_pin_narrow '{ "storyId":"B-xxxx", "itemId":"CHK-001", ` +
+        `"intentRef":"CHK-001:happy:0", "selector":"status: plan", "reason":"the pinned selector ` +
+        `is printed on every branch, so it matched a failing run; re-pin to the status ` +
+        `discriminator" }'`,
+      'CLAUDE.md':
+        `proof-or-stop verification_pin_narrow '{"storyId":"B-xxxx","itemId":"CHK-001",` +
+        `"intentRef":"CHK-001:happy:0","selector":"status: plan","reason":"the pinned selector ` +
+        `is printed on every branch, so it matched a failing run; re-pin to the status ` +
+        `discriminator"}'`,
+    },
+  },
 ];
 
 /**
