@@ -4,7 +4,7 @@
   "title": "Change the verification evidence gate so a pin can be re-recorded only when the new selector is provably stricter, and persist the selector on every receipt",
   "description": "B-ec67 made verification evidence pins immutable, including the proof selector: checklist.ts rejects a changed command or selector with receipt_command_mismatch / receipt_selector_mismatch, and the persisted VerificationExecutionReceipt stores exitCode, outputDigest, outputTail, selectorMatched and executedAt but not the selector text. Immutability exists to stop evidence-shopping, and that must stay. But story B-a745 (DONE 2026-09-02) hit the other edge: its acceptance receipt CHK-005:happy:0 was pinned to the selector 'finalAuthority: no', which the renderer prints on every branch including failures, so the receipt recorded result pass while its own outputTail showed status: stop (finding B-a745:F-002). The pin could not be corrected in place; verification_evidence_add refused the stricter selector 'status: plan'; the only remedy was a committed fixture proving the discrimination elsewhere, and the receipt itself still would not catch a regression. This story is high-risk on its merits because it edits an evidence gate that DONE consumes: it adds a re-pin path that can only make a check stricter and is audited: a new selector is accepted only when it is provably narrowing against RECORDED evidence -- it must be absent from the outputTail of at least one recorded receipt of the same pinned command that the old selector matched while the run was in fact failing, and it must still match every recorded passing receipt -- so no caller-supplied transcript is ever an input; both pins and both receipts stay visible; the supersede carries a reason and cites the recorded receipt ids it narrowed against; a selector may be re-pinned at most once per set of recorded receipts, so repeated narrowing requires a new recorded receipt that the current selector wrongly matched; and the selector text is persisted on every receipt so a vacuous selector is auditable from the record. Loosening remains refused, and with no recorded failing render the re-pin is refused rather than accepted on a reason alone.",
   "type": "feature",
-  "phase": "REVIEW",
+  "phase": "DEV",
   "priority": "high",
   "keywords": [
     "verification-evidence",
@@ -156,6 +156,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-09-04T00:17:29.017Z",
+      "branch": "story/B-1482",
+      "user": "Harmonynet",
+      "sessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-04T00:31:29.000Z",
       "branch": "story/B-1482",
       "user": "Harmonynet",
       "sessionId": "sess-295ee905ce444ed5da492ee21a195ba0",

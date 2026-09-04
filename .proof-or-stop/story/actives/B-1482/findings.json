@@ -310,7 +310,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:379 (TRIAGE_AUTHORITY_DECISION_VERB, reused by controlledPairIsGenericOnly after F-014) is a closed vocabulary of decisive verbs (determine/decide/control/govern/set/define/dictate/overrid*). The generic priority x bare-Story cell is disqualified from exemption only when a verb from this list joins the pair, so a synonym outside the list still passes as safe: assembleFullPromptEnvelope accepts both \"Priority alone settles the story.\" and \"Priority alone resolves the story.\" with no thrown error, even though they assert the same severity-alone-decides-ownership authority claim the family exists to refuse (confirmed live against dist/core/prompt-envelope.js, not inferred from source). This gap is PRE-EXISTING: the exact same verb list (minus overrid*) already gated the two dedicated detectors hasNothingButSeverityAuthority/hasCrossSegmentSeverityAuthority on main before this story (git show main:packages/main/src/core/prompt-envelope.ts, lines 555/567), so F-014 neither introduced nor worsened it -- F-014 only hoisted the existing list into one shared constant and reused it for the generic-pair cell, doing exactly what its own commit message claims. Filed per round-3 dispatch instruction to report any case where the newly-shared rule decides wrongly; leaving disposition (extend the list here vs. accept as a pre-existing vocabulary-completeness limitation) to the Story Owner.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-04T00:26:12.410Z",
@@ -321,7 +321,11 @@
         "packages/main/src/core/prompt-envelope.ts"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "dismissReason": "Pre-existing and out of this story scope: the reviewer verified against main that the same verb vocabulary already gated both dedicated detectors before this story, which only hoisted it into one constant and added one verb, so the paraphrase gap is neither introduced nor worsened here. Recorded for a later owner as repository draft docs/story/drafts/triage-authority-verb-list-is-closed (committed on main at d7b4e0148c), which asks for the behaviour to be pinned by fixtures and then either broadened or documented as deliberately closed.",
+      "dismissedAt": "2026-09-04T00:31:13.245Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "strong"
     },
     {
       "id": "B-1482:F-018",
@@ -339,7 +343,8 @@
         "packages/main/src/core/types.ts"
       ],
       "signatureTag": "missing|ts|code-drift-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004"
     },
     {
       "id": "B-1482:F-019",
@@ -375,7 +380,8 @@
         "packages/main/src/tasks/narrowing-repin-smoke.ts"
       ],
       "signatureTag": "edge|ts|narrowing-repin-smoke",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "clusterId": "CL-004"
     }
   ]
 }

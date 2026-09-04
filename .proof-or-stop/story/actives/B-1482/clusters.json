@@ -54,6 +54,20 @@
       ],
       "severity": "medium",
       "createdAt": "2026-09-03T23:51:14.030Z"
+    },
+    {
+      "clusterId": "CL-004",
+      "rootCause": "Multiple findings all involve packages/main/src/core/types.ts, packages/main/src/tasks/narrowing-repin-smoke.ts",
+      "findingIds": [
+        "B-1482:F-018",
+        "B-1482:F-020"
+      ],
+      "files": [
+        "packages/main/src/core/types.ts",
+        "packages/main/src/tasks/narrowing-repin-smoke.ts"
+      ],
+      "severity": "medium",
+      "createdAt": "2026-09-04T00:31:31.771Z"
     }
   ]
 }
