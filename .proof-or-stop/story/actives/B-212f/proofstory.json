@@ -30,6 +30,7 @@
       "requires": "scope-clarification"
     }
   ],
+  "originalIntentRequestHash": "sha256:8deadc58381098cf759750042d842ea644d1b5916452ac30f0a13cdbdbc05199",
   "acceptanceBindings": [
     {
       "id": "AB-PARITY-TEST",
@@ -67,41 +68,16 @@
       "verificationIntentRefs": [
         "CHK-003:happy:0",
         "CHK-003:edge:0",
-        "CHK-003:adversarial:0"
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1"
       ],
       "milestoneIds": [],
-      "acceptanceClaim": "Registry, verifier, flow-stability coverage, and decision documentation mechanically prevent the preflight/DONE mismatch from recurring.",
-      "note": "Covers the two-layer process-fact contract and bounded defect triage."
+      "acceptanceClaim": "Registry, verifier, flow-stability coverage, and decision documentation mechanically prevent current or future machine-coded DONE predicates from being absent from the preflight oracle.",
+      "note": "Covers the two-layer process-fact contract, generic omission mutation proof, and bounded defect triage."
     }
   ],
-  "diagnosticGaps": [
-    {
-      "code": "missing_original_intent_snapshot",
-      "severity": "warn",
-      "artifact": "original-intent-snapshot.json",
-      "message": "Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim."
-    },
-    {
-      "code": "missing_intent_collision",
-      "severity": "warn",
-      "artifact": "intent-collision.json",
-      "message": "Intent collision is triggered but no pass decision with acceptedInterpretation is present.",
-      "triggeredBy": [
-        "collision_required_high_assurance",
-        "collision_required_standard"
-      ]
-    },
-    {
-      "code": "missing_red_evidence",
-      "severity": "warn",
-      "artifact": "red-evidence.json",
-      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
-      "triggeredBy": [
-        "red_evidence_required"
-      ]
-    }
-  ],
-  "note": "Three acceptance bindings cover the executable parity proof, the shared DONE predicates, and the mechanical process-fact guard; no candidate GREEN is treated as delivered evidence.",
+  "diagnosticGaps": [],
+  "note": "Independent scope review OQ-1/OQ-2 are answered by explicit read-only fixture checks and a generic machine-DONE-code to oracle-row inventory with mutation proof.",
   "createdAt": "2026-09-04T20:34:25.284Z",
-  "updatedAt": "2026-09-04T20:34:25.284Z"
+  "updatedAt": "2026-09-04T20:49:55.898Z"
 }

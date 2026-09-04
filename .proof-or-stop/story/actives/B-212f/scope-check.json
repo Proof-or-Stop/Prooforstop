@@ -145,10 +145,13 @@
       "q": "Should CHK-002 explicitly extend the carried test with the promised reviewer-evidence-bytes and git-state invariance assertion, or should its adversarial verification intent be narrowed?",
       "evidence": "CHK-002 requires selector GREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged, and plan.md promises that assertion, but the reviewed test referenced by red-evidence.json contains neither that selector nor pre/post byte or git-state comparison; CHK-001 simultaneously says to materialize it without changing behavioral assertions.",
       "sourcePointers": [
-        ".proof-or-stop/story/actives/B-212f/checklist.json",
-        ".proof-or-stop/story/actives/B-212f/plan.md",
-        ".proof-or-stop/story/actives/B-212f/red-evidence.json"
-      ]
+        "CHK-001",
+        "CHK-002",
+        "plan.md#CHK-001",
+        "scope-check.json#OQ-1"
+      ],
+      "resolution": "The Story will preserve both reviewed RED parity assertions but extend the committed test with explicit before/after reviewer-evidence byte comparison and git-status equality. The revised CHK-001 exclusion and plan clarify that 'unchanged' applies to the two RED assertions, not to omission of the required read-only acceptance check.",
+      "resolvedAt": "2026-09-04T20:50:08.861Z"
     },
     {
       "id": "OQ-2",
