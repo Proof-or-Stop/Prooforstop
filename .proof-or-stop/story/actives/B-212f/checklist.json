@@ -216,8 +216,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-04T21:04:23.172Z",
       "endTime": null
     }
   ],
@@ -257,6 +257,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementer commit 7e18814556 reuses the real finish-decision and reviewer-verdict predicates; owner rerun produced all five GREEN outputs including evidence/git-state immutability."
+    },
+    {
+      "timestamp": "2026-09-04T21:04:23.172Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin the generic process-fact parity inventory, mutation proof, flow-stability guard, and decision-document synchronization required by the resolved scope review."
     }
   ]
 }
