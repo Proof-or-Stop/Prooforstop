@@ -651,6 +651,24 @@
       ],
       "signatureTag": "edge|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-032",
+      "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1312-1317 makes the new main-bump-tolerant version proof depend on the independently moving global installation: it requires installedVersion === readSyncedVersion(storyWorktree). Verified on the current committed diff: the worktree five-point version and repo-local CLI are 0.3.274, while proof-or-stop --version became 0.3.275 after main advanced; the complete Story 3 smoke then exits nonzero with installed CLI version 0.3.275 differs from current 0.3.274. This directly defeats commit 9d44c9f980 intent to keep the long-lived Story smoke valid across unrelated main patch bumps and makes validation timing-dependent. Preserve the historical exact patch+1 and five-point worktree checks, but compare installed CLI against the appropriate main/installed binding or otherwise permit a demonstrably newer synchronized main patch without accepting an older/stale installation; add a deterministic ahead-main regression.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-04T07:50:23.169Z",
+      "reviewRound": "2026-09-04T07:45:25.427Z",
+      "reviewRunId": "B-fe8f:RR-068",
+      "_hash": "375dd95dc3e29fc970e04ff0ffede058480e6a8241e45c532670255e4d815706",
+      "files": [
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
