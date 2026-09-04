@@ -138,7 +138,7 @@
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
-      "userSees": "node scripts/verify-process-fact-contract.mjs exits 0, flow-stability smoke passes, and the done_prepare decision document states that its final readiness result consumes the same finish-decision and reviewer-verdict predicates as DONE",
+      "userSees": "The contract command prints \"DONE/preflight predicate inventory parity passed\" and \"Process-fact contract verification passed\", while the flow suite prints \"flow stability smoke passed\".",
       "excludes": [
         "Do not broaden the Story to repair unrelated medium/low findings.",
         "Do not dismiss or defer a finding through prose alone.",
@@ -183,12 +183,21 @@
         ],
         "adversarial": [
           {
-            "desc": "A future change that removes either finish-decision or reviewer-verdict consumption from done_prepare fails a committed mechanical contract instead of allowing a false PASS.",
+            "desc": "Removing either finish-decision or reviewer-verdict consumption from done_prepare fails the committed executable parity regression.",
             "type": "logic",
             "priority": "must",
             "verification": {
               "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
               "selector": "GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes"
+            }
+          },
+          {
+            "desc": "The process-fact verifier inventories every literal machine-readable blocker code in machine.ts's targetPhase DONE branch, requires a registered mapping to a done-oracle row, and proves by an in-memory future_done_predicate mutation that an unregistered future predicate fails the contract.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs",
+              "selector": "DONE/preflight predicate inventory parity passed"
             }
           }
         ]
