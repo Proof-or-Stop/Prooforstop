@@ -385,6 +385,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'grill_get',     // 全局：读取 PLAN grill planning context；不会写证据
     'summary_set',   // 全局：DONE 前强制落总结，proof-or-stop short-path story 也需要
     'verification_evidence_add', 'verification_evidence_batch_add', 'verification_evidence_refresh_stale', 'verification_run', // verification evidence is metadata, allowed across phases for reviewer/test handoff (verification_run executes the pinned verifier + writes the receipt)
+    'verification_pin_narrow', // B-1482: narrowing-only re-pin of an executable intent's proof selector. Named explicitly rather than folded into a wildcard: the active-story phase gate INTERSECTS the command-policy ceiling with this table, so a command absent here is refused in EVERY phase, and choosing a name that happens to fall inside an existing wildcard bucket would dodge that gate by naming. It sits beside the sibling evidence writers above because it carries the same allowedPhases:'all' storyScopedMutating policy
     'verification_context_pack_create', 'verification_context_pack_expand', // read-only verifier context packets
     'recover_evidence', // B-a2f1 CHK-003: single-shot stale-evidence recovery, safe in any phase (refuses on non-metadata dirt)
     'artifact_declare', // B-cf60: per-story declared product artifact registration, safe in any phase

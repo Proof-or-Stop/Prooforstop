@@ -1,0 +1,14 @@
+{
+  "name": "triage-authority-verb-list-is-closed",
+  "title": "Catch authority-claim paraphrases the closed triage verb list misses, or state its closedness where a reader will act on it",
+  "description": "packages/main/src/core/prompt-envelope.ts gates three checks on one shared regex of decisive verbs (decides, determines, governs, dictates, overrides and their inflections). Synonyms that assert the same authority relation are not in the list, so a sentence such as Priority alone settles the story or Priority alone resolves the story passes all three checks while Priority alone decides the story is caught. Confirmed on 2026-09-04 by driving assembleFullPromptEnvelope from the built dist with each phrasing. The limitation predates story B-1482 and was not introduced or worsened by it: the same vocabulary already gated hasNothingButSeverityAuthority and hasCrossSegmentSeverityAuthority before that story hoisted it into one constant, and B-1482 only added overrides to it. Two honest routes, and the story should pick one rather than leaving the gap silent: broaden the relation test beyond a fixed verb list, for example by treating an adverb of exclusivity next to any verb between the two terms as decisive; or keep the list closed and say so where a maintainer will see it, so nobody reads the guard as complete. Either way the fixture set should carry the paraphrases as expected-caught or expected-missed, so the behaviour is pinned rather than incidental.",
+  "type": "chore",
+  "priority": "medium",
+  "keywords": [
+    "prompt-envelope",
+    "triage authority",
+    "verb list",
+    "false negative"
+  ],
+  "createdAt": "2026-09-04T00:30:53.783Z"
+}

@@ -6,9 +6,9 @@ import { assertCwdInWorktree } from './context.js';
 import { execSync } from 'child_process';
 import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane } from '../core/types.js';
+import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
-import { buildVerificationCoverage, collectVerificationIntents, detectEvidenceRowContradiction, isExecutableIntentType, makeEvidence, VERIFICATION_LANES } from '../core/verification.js';
+import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_TAIL_BOUNDED_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { configuredValidationCommands } from './verifier.js';
 import { createHash } from 'crypto';
@@ -754,6 +754,17 @@ function resolveEvidenceCommandTimeout(
  * only inside the persisted receipt, so an operator (and a reviewer reading a transcript)
  * sees at the moment of the write that this receipt was NOT earned under the default.
  */
+/**
+ * B-1482: render the selector the receipt was judged against. Returns '' for a receipt
+ * written before B-1482, which genuinely has no recorded selector — the renderer must
+ * not assume the field, and must not substitute the current pin for it.
+ */
+function renderReceiptSelectorNote(receipt: VerificationExecutionReceipt | undefined): string {
+  const selector = receipt?.selector;
+  if (!selector) return '';
+  return ` selector=${JSON.stringify(selector)}`;
+}
+
 function renderTimeoutOverrideNote(receipt: VerificationExecutionReceipt | undefined): string {
   const override = receipt?.timeoutOverride;
   if (!override) return '';
@@ -773,6 +784,12 @@ function boundedOutputTail(output: string): string {
 
 /** Common shape of a single evidence write for the shared enforcement helper. */
 interface EvidenceWriteInput {
+  /**
+   * B-1482 F-009: carried purely so a refusal can print a runnable narrowing command.
+   * Optional because the stale-refresh path re-executes the pin itself and never
+   * authors a mismatch; the rendered form falls back to a visible placeholder there.
+   */
+  storyId?: string;
   intentRef: string;
   kind: VerificationEvidence['kind'];
   command?: string;
@@ -957,7 +974,7 @@ type SingleCommandRunner = (command: string, cwd: string, timeoutMs?: number) =>
  *        receipt-command-mismatch); selector likewise immutable.
  *        EXECUTE the pinned command; refuse when pass is claimed but exit != 0, or the
  *        pinned selector is absent from output. Derive result FROM the receipt.
- *        Stamp the receipt {exitCode,outputDigest,outputTail,selectorMatched,executedAt}.
+ *        Stamp the receipt {exitCode,outputDigest,outputTail,selectorMatched,selector,executedAt}.
  *   d. Executable + audited escape (nonMechanicalReason ≥ 30) → record non-mechanical,
  *        attributable, no execution (still demoted by the coverage gate).
  *   e. Executable + no selector + no pin + no escape → REFUSED (B-ec67 F-006): a NEW
@@ -1069,6 +1086,15 @@ async function enforceAndStampEvidence(
   let pinSelector: string;
   let pinToSet: EnforceAndStampResult['pin'];
   if (existingPin) {
+    // B-1482 F-009/F-015: the mechanical floor a DIRECT caller hits (no PreToolUse hook
+    // installed or firing) must teach the same route the advisory seatbelt teaches, from
+    // the same shared renderer — otherwise the primary path keeps handing out the
+    // categorical "immutable" claim this story falsified.
+    const narrowForm = renderVerificationPinNarrowCommand({
+      ...(input.storyId !== undefined ? { storyId: input.storyId } : {}),
+      itemId: item.id,
+      intentRef: input.intentRef,
+    });
     if (!callerCommand) {
       throw new Error(
         `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got <none> (executable intent ${input.intentRef} is pinned; the command must be provided and match) [receipt_command_mismatch]`,
@@ -1076,12 +1102,16 @@ async function enforceAndStampEvidence(
     }
     if (callerCommand !== existingPin.command) {
       throw new Error(
-        `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got ${callerCommand} (the verification pin is immutable) [receipt_command_mismatch]`,
+        `verification evidence refused: receipt-command-mismatch: expected ${existingPin.command}, got ${callerCommand} ` +
+        `(an evidence write never moves the pin, and the one audited movement — \`${narrowForm}\` — re-points the ` +
+        `SELECTOR only, never the pinned command. ${VERIFICATION_PIN_NARROWING_PRECONDITION}) [receipt_command_mismatch]`,
       );
     }
     if (callerSelector && callerSelector !== existingPin.selector) {
       throw new Error(
-        `verification evidence refused: receipt-selector-mismatch: expected ${existingPin.selector}, got ${callerSelector} (the verification pin is immutable) [receipt_selector_mismatch]`,
+        `verification evidence refused: receipt-selector-mismatch: expected ${existingPin.selector}, got ${callerSelector} ` +
+        `(an evidence write never moves the pin; the one audited movement is \`${narrowForm}\`. ` +
+        `${VERIFICATION_PIN_NARROWING_PRECONDITION}) [receipt_selector_mismatch]`,
       );
     }
     pinCommand = existingPin.command;
@@ -1201,7 +1231,12 @@ async function enforceAndStampEvidence(
     outputDigest: receipt.outputDigest,
     outputTail: receipt.outputTail,
     selectorMatched,
-    executedAt: receipt.executedAt,
+    // B-1482: stamp the selector text beside the match verdict, so the receipt records
+    // WHAT it was judged against and not merely THAT something matched. Taken from the
+    // pin actually executed above (never from the caller — this block is inside the
+    // tool-owned receipt that every caller-facing schema strips).
+    selector: pinSelector,
+    executedAt: new Date().toISOString(),
     // B-cdf6 (B-META F-012): always stamp the armed ceiling, and — only when the caller
     // RAISED it — an attributable override block, so a reviewer reading the receipt can
     // see this pass was earned under a raised budget rather than the default. Lives in
@@ -1243,6 +1278,8 @@ async function enforceAndStampEvidence(
 function applyVerificationPin(
   item: ChecklistItem,
   pin: { lane: VerificationLane; index: number; verification: VerificationIntentPin },
+  /** Story id, carried only so the refusal below can print a runnable narrowing form. */
+  storyId?: string,
 ): void {
   const laneIntents = item.verificationIntent?.[pin.lane];
   const intent = laneIntents?.[pin.index];
@@ -1253,13 +1290,189 @@ function applyVerificationPin(
   }
   if (intent.verification) {
     if (intent.verification.command !== pin.verification.command || intent.verification.selector !== pin.verification.selector) {
+      // B-1482 F-015: the last refusal on the direct-caller path that still handed out
+      // the categorical claim. It teaches the same route, from the same renderer, as the
+      // floor above — a caller who meets this one lost a race, not an argument.
+      const narrowForm = renderVerificationPinNarrowCommand({
+        ...(storyId !== undefined ? { storyId } : {}),
+        itemId: item.id,
+        intentRef: intentRef(item.id, pin.lane, pin.index, intent),
+      });
       throw new Error(
-        `verification evidence refused: receipt-command-mismatch: expected ${intent.verification.command}, got ${pin.verification.command} (the verification pin is immutable) [receipt_command_mismatch]`,
+        `verification evidence refused: receipt-command-mismatch: expected ${intent.verification.command}, ` +
+        `got ${pin.verification.command} (a concurrent writer pinned this intent first, and an evidence write ` +
+        `never moves a pin; the one audited movement — \`${narrowForm}\` — re-points the SELECTOR only, never ` +
+        `the pinned command. ${VERIFICATION_PIN_NARROWING_PRECONDITION}) [receipt_command_mismatch]`,
       );
     }
     return;
   }
   intent.verification = { command: pin.verification.command, selector: pin.verification.selector };
+}
+
+// ── B-1482: narrowing-only re-pin entry point ────────────────────────────────
+
+/** Minimum length of the caller-supplied reason, matching the other audited escapes. */
+const MIN_NARROWING_REASON = 30;
+
+/** Exactly the fields a narrowing request may carry. Anything else is refused. */
+const NARROWING_REQUEST_FIELDS = new Set(['storyId', 'itemId', 'intentRef', 'selector', 'reason']);
+
+/**
+ * Field names a caller might reach for to hand the tool an output, a transcript or a
+ * receipt. None of them is an input: the proof reads recorded receipts only. They are
+ * named explicitly so the refusal can say WHY rather than "unknown field".
+ */
+const NARROWING_INADMISSIBLE_OUTPUT_FIELDS = new Set([
+  'transcript', 'transcripts', 'output', 'outputs', 'outputTail', 'tail',
+  'stdout', 'stderr', 'log', 'logs', 'receipt', 'receipts', 'evidence', 'proof', 'run', 'runs',
+]);
+
+export interface VerificationPinNarrowingRequest {
+  storyId: string;
+  itemId: string;
+  intentRef: string;
+  /** The NEW, stricter selector. Accepted only when recorded receipts prove it stricter. */
+  selector: string;
+  /** Caller-supplied justification, retained on the record. Never a substitute for the proof. */
+  reason: string;
+}
+
+/**
+ * B-1482 — the ONLY way an evidence pin's selector may change, and it may change in
+ * one direction only.
+ *
+ * Inputs are the story, the intent, the requested selector and a reason. There is no
+ * transcript parameter, no output parameter and no receipt parameter, because a
+ * caller-supplied rendering of a run could be fabricated; the proof is drawn entirely
+ * from receipts this tool recorded (see `evaluateSelectorNarrowing`). A request that
+ * carries such a field is refused before any proof is attempted, so it can never be
+ * "considered and then ignored".
+ *
+ * The pinned COMMAND never changes here. Narrowing a selector answers "this pin matched
+ * a failing run"; changing the command would be a different pin altogether and stays
+ * refused by the existing immutability check.
+ *
+ * The bound: a recorded-receipt SET admits at most one narrowing. The set's digest is
+ * retained on the accepted record and re-checked FIRST on every later request, so a
+ * chain of narrowings cannot walk a pin down onto one hand-picked run without new
+ * recorded evidence in between. Because a narrowing also requires a failing render
+ * judged by the CURRENT pin, the new evidence that unlocks a second narrowing has to be
+ * a genuine failing run that the narrowed selector still matched.
+ */
+export function narrowVerificationPin(ctx: HandlerContext, args: VerificationPinNarrowingRequest): string {
+  const { store, root } = ctx;
+  const raw = args as unknown as Record<string, unknown>;
+  const offeredOutput = Object.keys(raw ?? {}).filter(key => NARROWING_INADMISSIBLE_OUTPUT_FIELDS.has(key));
+  if (offeredOutput.length > 0) {
+    throw new Error(
+      `verification pin narrowing refused: ${offeredOutput.join(', ')} is not an input. A narrowing is proved ONLY from ` +
+      `receipts this tool recorded for the pinned command; a caller-supplied transcript, output or receipt could be ` +
+      `fabricated, so it is refused outright rather than weighed. [narrowing_caller_output_not_admissible]`,
+    );
+  }
+  const unknownFields = Object.keys(raw ?? {}).filter(key => !NARROWING_REQUEST_FIELDS.has(key));
+  if (unknownFields.length > 0) {
+    throw new Error(
+      `verification pin narrowing refused: unknown request field(s) ${unknownFields.join(', ')}; a narrowing request ` +
+      `carries only ${[...NARROWING_REQUEST_FIELDS].join(', ')} [narrowing_unknown_input_field]`,
+    );
+  }
+  const requestedSelector = (args.selector ?? '').trim();
+  if (!requestedSelector) {
+    throw new Error('verification pin narrowing refused: selector must be a non-empty string [narrowing_selector_empty]');
+  }
+  const reason = (args.reason ?? '').trim();
+  if (reason.length < MIN_NARROWING_REASON) {
+    throw new Error(
+      `verification pin narrowing refused: reason must be at least ${MIN_NARROWING_REASON} characters explaining why the ` +
+      `pinned selector is not discriminating; the reason is retained for audit and is never itself the proof ` +
+      `[narrowing_reason_too_short]`,
+    );
+  }
+
+  const gitCwd = resolveGitCwd({ store, storyId: args.storyId, metadataRoot: root, projectRoot: root });
+  return withChecklistLock(ctx, args.storyId, () => {
+    const cl = store.readChecklist(args.storyId);
+    const item = cl.items.find(i => i.id === args.itemId);
+    if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
+    const resolved = resolveIntentForRef(item, args.intentRef);
+    if (!resolved) {
+      throw new Error(
+        `verification pin narrowing refused: intentRef ${args.intentRef} does not resolve to a verificationIntent on ${item.id} [intent_ref_unresolved]`,
+      );
+    }
+    const { intent } = resolved;
+    if (!isExecutableIntentType(intent.type)) {
+      throw new Error(
+        `verification pin narrowing refused: intent ${args.intentRef} is type ${intent.type}, which is attestation-only and carries no pin [narrowing_intent_not_executable]`,
+      );
+    }
+    const pin = intent.verification;
+    if (!pin) {
+      throw new Error(
+        `verification pin narrowing refused: intent ${args.intentRef} has no verification pin yet; the first selector-bearing evidence write pins it [narrowing_intent_not_pinned]`,
+      );
+    }
+
+    const receipts = collectRecordedPinnedReceipts(cl, pin.command);
+    const receiptSetDigest = computeRecordedReceiptSetDigest(receipts);
+    const priorNarrowings = pin.narrowings ?? [];
+    // The bound is checked BEFORE the proof, and deliberately so: a second narrowing
+    // against unchanged receipts must be refused even when it WOULD be provable against
+    // exactly those receipts. That is the whole point — repeated narrowing on one
+    // recorded-receipt set is how a pin could be walked down onto a hand-picked run.
+    const spent = priorNarrowings.find(record => record.receiptSetDigest === receiptSetDigest);
+    if (spent) {
+      throw new Error(
+        `verification pin narrowing refused: this recorded-receipt set (${receiptSetDigest.slice(0, 12)}, ${receipts.length} receipt(s)) ` +
+        `has already been narrowed once — ${JSON.stringify(spent.previousSelector)} to ${JSON.stringify(spent.selector)} at ${spent.narrowedAt}. ` +
+        `A set of recorded receipts admits at most ONE narrowing; record new evidence (a failing render the CURRENT pin matched) ` +
+        `before narrowing again. [narrowing_receipt_set_unchanged]`,
+      );
+    }
+
+    const requestedAt = new Date().toISOString();
+    const outcome = evaluateSelectorNarrowing({
+      command: pin.command,
+      previousSelector: pin.selector,
+      selector: requestedSelector,
+      receipts,
+      requestedAt,
+    });
+    if (!outcome.ok) {
+      throw new Error(`verification pin narrowing refused: ${outcome.message} [${outcome.code}]`);
+    }
+
+    const hashes = evidenceHashes(gitCwd, root);
+    const record: VerificationPinNarrowingRecord = {
+      previousSelector: pin.selector,
+      selector: outcome.proof.selector,
+      reason,
+      command: pin.command,
+      receiptSetDigest: outcome.proof.receiptSetDigest,
+      failingReceiptIds: outcome.proof.failingReceiptIds,
+      passingReceiptIds: outcome.proof.passingReceiptIds,
+      materialKey: outcome.proof.materialKey,
+      narrowedAt: requestedAt,
+      ...hashes,
+    };
+    intent.verification = {
+      command: pin.command,
+      selector: outcome.proof.selector,
+      narrowings: [...priorNarrowings, record],
+    };
+    store.writeChecklist(args.storyId, cl);
+    const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_pin_narrow');
+    return (
+      `Verification pin NARROWED for ${item.id} → ${args.intentRef}: selector ${JSON.stringify(record.previousSelector)} → ` +
+      `${JSON.stringify(record.selector)} (pinned command unchanged: ${pin.command}). Reason: ${reason}. ` +
+      `Proved from tool-recorded receipts only — failing render(s) the old selector matched: ${record.failingReceiptIds.join(', ')}; ` +
+      `passing receipt(s) the new selector matches: ${record.passingReceiptIds.join(', ')}; ` +
+      `recorded-receipt set ${record.receiptSetDigest.slice(0, 12)} (${receipts.length} receipt(s)), now spent — this set admits no further narrowing. ` +
+      `${NARROWING_TAIL_BOUNDED_NOTE}${commitHint}`
+    );
+  });
 }
 
 /**
@@ -2456,6 +2669,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const stamp = await enforceAndStampEvidence(
         preItem,
         {
+          storyId: args.storyId,
           intentRef: args.intentRef, kind, command: args.command, selector: args.selector,
           result: args.result, nonMechanicalReason: args.nonMechanicalReason,
           ...(args.commandTimeoutMs !== undefined ? { commandTimeoutMs: args.commandTimeoutMs } : {}),
@@ -2482,7 +2696,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === args.itemId);
         if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
-        if (stamp.pin) applyVerificationPin(item, stamp.pin);
+        if (stamp.pin) applyVerificationPin(item, stamp.pin, args.storyId);
         const hashes = evidenceHashes(gitCwd, root);
         const command = stamp.evidencePatch.command ?? (args.command ? args.command.trim() : undefined);
         const result = stamp.evidencePatch.result ?? args.result;
@@ -2521,7 +2735,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         );
         const aliasNote = kind !== args.kind ? `, alias ${args.kind}` : '';
         const receiptNote = evidence.receipt
-          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderTimeoutOverrideNote(evidence.receipt)}`
+          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderReceiptSelectorNote(evidence.receipt)}${renderTimeoutOverrideNote(evidence.receipt)}`
           : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
         return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote}${receiptNote})${commitHint}`;
@@ -2600,6 +2814,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         stamps.push(await enforceAndStampEvidence(
           item,
           {
+            storyId: args.storyId,
             intentRef: entry.intentRef, kind: normalizedKinds[i], command: entry.command,
             selector: entry.selector, result: entry.result, nonMechanicalReason: entry.nonMechanicalReason,
             ...(entry.commandTimeoutMs !== undefined ? { commandTimeoutMs: entry.commandTimeoutMs } : {}),
@@ -2627,7 +2842,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           const stamp = stamps[i];
           const item = cl.items.find(it => it.id === entry.itemId);
           if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
-          if (stamp.pin) applyVerificationPin(item, stamp.pin);
+          if (stamp.pin) applyVerificationPin(item, stamp.pin, args.storyId);
           const command = stamp.evidencePatch.command ?? (entry.command ? entry.command.trim() : undefined);
           const result = stamp.evidencePatch.result ?? entry.result;
           const evidence = makeEvidence({
@@ -2751,7 +2966,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // misleading selector-absent refusal.
       const stamp = await enforceAndStampEvidence(
         preItem,
-        { intentRef: args.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
+        { storyId: args.storyId, intentRef: args.intentRef, kind, command: pin.command, selector: pin.selector, result: 'pass' },
         {
           runCommand: (command, cwd, timeoutMs) => {
             const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
@@ -2773,7 +2988,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === itemId);
         if (!item) throw new Error(`Checklist item ${itemId} not found`);
-        if (stamp.pin) applyVerificationPin(item, stamp.pin); // defensive: pin already existed
+        if (stamp.pin) applyVerificationPin(item, stamp.pin, args.storyId); // defensive: pin already existed
         const hashes = evidenceHashes(gitCwd, root);
         const note = (args.note && args.note.trim().length >= 5)
           ? args.note.trim()
@@ -2802,7 +3017,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           causalBatch,
         );
         const receiptNote = evidence.receipt
-          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}`
+          ? `, receipt exit=${evidence.receipt.exitCode} selectorMatched=${evidence.receipt.selectorMatched}${renderReceiptSelectorNote(evidence.receipt)}`
           : '';
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_run');
         return `Verification run recorded for ${itemId} → ${args.intentRef} (${kind}, ran pinned command${receiptNote})${commitHint}`;
@@ -2810,7 +3025,24 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     },
 
     /**
-     * B-1507 CHK-002: the stale-evidence refresh now RE-EXECUTES pinned rows
+     * B-1482 CHK-003: the narrowing-only re-pin, reachable as the `verification_pin_narrow`
+     * command. A re-pin an operator cannot run delivers none of this story's value, so the
+     * entry point is bound here rather than left as a code-only export.
+     *
+     * This method is a NAME BINDING ONLY: every check lives in `narrowVerificationPin`
+     * (inadmissible caller output, unknown fields, empty selector, the 30-character reason
+     * floor, the one-narrowing-per-recorded-receipt-set bound, and the recorded-receipt
+     * proof itself). Per the Handler Encoding Conventions the CLI schema's `min(1)` /
+     * `min(30)` constraints are only the FIRST line: the function re-checks both at runtime
+     * after trimming, so an internal fn caller, an old JSON payload or any other path that
+     * never touches Zod is refused identically.
+     */
+    verification_pin_narrow(args: VerificationPinNarrowingRequest): string {
+      return narrowVerificationPin(ctx, args);
+    },
+
+    /**
+     * B-1507 CHK-002: the stale-evidence refresh now RE-EXECUTES pinned executable rows
      * instead of demoting them. For every stale row whose intent carries an immutable
      * `verification:{command,selector}` (a mechanical receipt or any pinned
      * intent), the PINNED command is re-run OUTSIDE the checklist lock through the SAME

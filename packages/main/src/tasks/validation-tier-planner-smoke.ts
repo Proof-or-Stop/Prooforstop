@@ -458,7 +458,9 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
 // (the item that registered single-owner-extraction-smoke in validate.commands)
 // added that entry, moving it to 791165cf... (B-41c8 F-006). B-dc2e CHK-001
 // (the item that registered validation-protocol-smoke in validate.commands)
-// added that entry, moving it to 056e47fd.... Name the story and item here,
+// added that entry, moving it to 056e47fd.... B-1482 CHK-003 (the item that
+// registered test:narrowing-repin in validate.commands) added that entry,
+// moving it to d98a2288.... Name the story and item here,
 // never a commit hash: a branch rewrite orphans the hash and a later
 // `git show` of it reports a bad object (B-41c8 F-012).
 testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is unchanged and carries no absolute-cwd warning', () => {
@@ -468,6 +470,9 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   assert.ok(commands.length > 0);
   assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
   const real = buildValidationCommandInventory({ commands });
+  // origin/main merge 3 (B-1482): moved again to 511e1906... because origin added one
+  // more validate.commands entry; the union is now 128. Verified before repinning that
+  // NO origin-only entry was dropped. Earlier notes retained below.
   // origin/main merge 2 (B-9a49): moved again to d30d7b92... because origin added one
   // more validate.commands entry, taking the union from 126 to 127. Verified before
   // repinning that NO origin-only entry was dropped this time (the check that caught the
@@ -483,7 +488,7 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   // pinned_command_missing, and one of the dropped suites is this very file. Restored
   // both, giving the 126-entry union, and repinned to what that union produces through
   // the same configuredValidationCommands -> buildValidationCommandInventory path.
-  assert.equal(real.commandSetDigest, 'd30d7b922cadb759de1d0e7dac962af75d6fc6e11b2146dbb91ffe60beb5a185', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  assert.equal(real.commandSetDigest, '511e19067cbd9cdc45ef05813957167d0494044365fe690af13adbaf373bafb1', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
 });

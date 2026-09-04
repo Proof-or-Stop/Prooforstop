@@ -229,6 +229,14 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // inside its own runner-owned temp roots; it holds no exclusive path, port or
   // lock, so repoRead is correct.
   repoRead('test:validation-protocol'),
+  // B-1482 CHK-003: the narrowing-only evidence re-pin suite. Same three-authority rule as
+  // above: membership comes from the root test:serial-reference chain, and a member with no
+  // policy row here fails the WHOLE suite closed as unknownPolicy rather than being skipped.
+  // The suite reads the repository (root package.json, proof-or-stop.config.json, this file,
+  // CLAUDE.md, the decision document) and otherwise works inside its own runner-owned temp
+  // git repos, spawning the CLI only against those temp roots; it holds no exclusive path,
+  // port or lock, so repoRead is correct.
+  repoRead('test:narrowing-repin'),
 ].map((entry) => [entry.name, entry]));
 
 export let FULL_SUITE_ENTRIES: FullSuiteEntry[] = Object.values(RESOURCE_POLICY);

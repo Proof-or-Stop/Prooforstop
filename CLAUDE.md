@@ -902,6 +902,59 @@ proof-or-stop verification_evidence_add '{"storyId":"B-xxx","itemId":"CHK-001","
 
 `DEV→REVIEW` 会阻塞缺失 must evidence/waiver 的 intent；`proof-or-stop validate --story=B-xxx --json` 会输出 verification coverage，并写入 TEST evidence 供 DONE gate 展示。
 
+#### Narrowing-only re-pin of a proof selector (B-1482)
+
+The pin an executable intent carries (`verification:{command, selector}`) is
+immutable, and **loosening it stays refused everywhere** — no phase, caller, flag,
+waiver or reason accepts a selector that matches strictly more runs, and the pinned
+command never changes. Exactly one movement is allowed: a re-pin to a STRICTER
+selector on the SAME command, via `verification_pin_narrow`.
+
+```bash
+proof-or-stop verification_pin_narrow '{"storyId":"B-xxxx","itemId":"CHK-001","intentRef":"CHK-001:happy:0","selector":"status: plan","reason":"the pinned selector is printed on every branch, so it matched a failing run; re-pin to the status discriminator"}'
+```
+
+It exists for the B-a745 class: a selector pinned to a string the command prints on
+every branch matches runs that genuinely failed, so the receipt records a
+passing-shaped match for a failing run.
+
+**The proof reads tool-recorded receipts only.** There is no transcript, output or
+receipt parameter; a request carrying one is refused before any proof is attempted
+(`narrowing_caller_output_not_admissible`), so an offered rendering can never be
+considered and then ignored. The caller supplies only the story, item, intentRef,
+candidate selector and a reason of at least 30 characters — the reason is retained
+for attribution and is never itself the proof. A narrowing is accepted only when
+recorded receipts show the candidate ABSENT from the retained (bounded) `outputTail`
+of at least one recorded FAILING render the current selector matched, PRESENT in
+EVERY recorded passing receipt, and recorded on the same story material.
+
+**Bound: a recorded-receipt set admits at most one narrowing.** The set's digest is
+retained on the accepted record and re-checked FIRST, before the proof — so a second
+narrowing against unchanged receipts is refused even when it would be provable
+against exactly those receipts. Unlocking another one requires new recorded
+evidence: a genuine failing run the already-narrowed selector still matched.
+
+Refusal codes: `narrowing_caller_output_not_admissible`,
+`narrowing_unknown_input_field`, `narrowing_selector_empty`,
+`narrowing_reason_too_short`, `intent_ref_unresolved`,
+`narrowing_intent_not_executable`, `narrowing_intent_not_pinned`,
+`narrowing_receipt_set_unchanged`, `narrowing_selector_loosens`,
+`narrowing_selector_not_discriminating`, `narrowing_no_recorded_failing_render`,
+`narrowing_no_recorded_passing_receipt`,
+`narrowing_selector_absent_from_passing_receipt`,
+`narrowing_receipt_selector_unknown`, `narrowing_receipt_material_mismatch`,
+`narrowing_selector_unchanged`, `narrowing_no_recorded_receipts`,
+`narrowing_receipt_not_predating_request`.
+
+**What is and is not bounded.** Mechanically enforced: the witness must be a genuine
+tool-recorded receipt of the same pinned command, judged and matched by the current
+pin, recorded on the same story material as the compared passing receipts, and
+predating the request; the candidate must also match every recorded passing receipt;
+and the set is spent afterwards. Not bounded: an operator who can drive that command
+to fail on the same material, because no receipt records why a run failed. That is
+an **accepted limitation**, not a bound — do not describe it as prevented, detected
+or ruled out. Full record: `docs/requirements/decisions/narrowing-only-evidence-repin.md`.
+
 #### pinned command 超时：独立报错 + 有界受审计的 timeout override（B-cdf6 / B-META F-012）
 
 executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned command 并按实际 exit + selector 命中派生 `result`。该执行有一道 **wall-clock 上限**：`DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS = 270_000`（`core/validation-executor.ts`）。
