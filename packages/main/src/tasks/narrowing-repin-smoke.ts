@@ -1035,9 +1035,30 @@ function assertDocumentationClaims(label: DocLabel, text: string): void {
     text.includes('no receipt records why a run failed'),
     `${label} states WHY the gap is not bounded`,
   );
-  if (label === 'decision doc') {
-    assert.ok(text.includes('narrowing'), 'the decision doc states the narrowing-only exception');
-  }
+  // Clause (1) of CHK-003:happy:0. Not `includes('narrowing')`: a document about
+  // narrowing satisfies that whether or not the RULE is stated. Both halves of the rule
+  // are required -- that loosening stays refused, and that the one movement allowed is a
+  // stricter selector on the same pinned command -- so deleting either sentence fails.
+  assert.match(
+    text, /loosening[^.]{0,20}stays refused everywhere/i,
+    `${label} states that loosening stays refused everywhere`,
+  );
+  assert.match(
+    text, /movement is allowed[^.]*re-pin to a STRICTER selector on the SAME/i,
+    `${label} states the one allowed movement is a stricter selector on the same pinned command`,
+  );
+  // Clause (2). The refusal-code list below already carries
+  // narrowing_caller_output_not_admissible, so the code alone proves nothing about the
+  // prose: the rule itself must be stated, and the absence of a transcript/output/receipt
+  // parameter with it.
+  assert.match(
+    text, /(the proof reads tool-recorded receipts only|its only inputs are tool-recorded receipts)/i,
+    `${label} states the proof reads only tool-recorded receipts`,
+  );
+  assert.match(
+    text, /there is no transcript[^.]*parameter/i,
+    `${label} states there is no transcript, output or receipt parameter`,
+  );
   // Both documents present their tables as COMPLETE, so completeness is asserted
   // against the codes the implementation can actually emit, not against a
   // hand-copied subset that drifts the moment a branch is added.
