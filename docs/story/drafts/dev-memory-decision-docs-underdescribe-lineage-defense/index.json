@@ -1,0 +1,9 @@
+{
+  "name": "dev-memory-decision-docs-underdescribe-lineage-defense",
+  "title": "The dev-memory decision documents describe the lineage defense as symlink-only while the code also refuses gitlinks, unknown modes and directory-shaped record leaves",
+  "description": "docs/requirements/decisions/dev-memory.md and docs/requirements/decisions/done-prepare-automation-execution-plan.md were corrected during B-c86f to say the material-hash exclusion covers strict descendants of the dev-memory root and that writers refuse a symlinked root or component. Two later B-c86f rounds widened the code past that wording: isTrustedValidationLineagePath in packages/main/src/core/validation-lineage.ts now trusts only plain committed git file modes (an allowlist, so gitlink 160000 and any unknown mode fail closed, not only symlink 120000), and isBelowDevMemoryRecordLeaf plus the regular-file check in findDevMemoryPathContainmentViolation (packages/main/src/core/dev-memory.ts) untrust and refuse a record filename used as a directory, which previously made the reader throw EISDIR into freshness-pack construction. The machine-checked L4 rationale for runtime:routine_validation_fresh_pass_reuse_gate names the allowlist, but neither decision document mentions the allowlist or the directory-shaped-leaf rule, and both still frame the defense around symlinks. The documents under-claim, so nothing they promise is false; the gap is that a reader of the decisions would not learn the actual boundary. Found by the delivery lane on B-c86f and deferred because it is documentation only and the story had already spent its review budget. Fix by adding one paragraph to each document stating the plain-file allowlist and the directory-shaped-leaf rule in the same terms the code and the red test use, and cross-referencing the rationale so the three sources agree.",
+  "type": "chore",
+  "priority": "low",
+  "keywords": [],
+  "createdAt": "2026-09-04T08:38:14.227Z"
+}

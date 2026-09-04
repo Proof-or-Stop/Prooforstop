@@ -1,0 +1,14 @@
+{
+  "name": "readme-build-command-prompt-sync-smoke-red-on-main",
+  "title": "Restore the CLI build command to README so session-brief-prompt-sync-smoke is green on main",
+  "description": "session-brief-prompt-sync-smoke asserts README.md contains npm --prefix packages/main run build; README no longer carries that line, so the smoke is red on main and on every story branch. Restore the line in the section the smoke reads (with the dist exec-bit note beside it) and confirm the smoke passes. Origin: B-af1b finding F-004 (low), deferred under the defect triage rule.",
+  "type": "chore",
+  "priority": "low",
+  "keywords": [
+    "README",
+    "session-brief-prompt-sync-smoke",
+    "build",
+    "docs-drift"
+  ],
+  "createdAt": "2026-09-04T09:41:04.506Z"
+}
