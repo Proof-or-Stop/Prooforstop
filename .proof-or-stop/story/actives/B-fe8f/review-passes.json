@@ -1265,6 +1265,34 @@
       },
       "readDiagnostics": [],
       "_hash": "fb949f7d2ad4e009eba1f9de4e6acc269e8b6ee79cbc2cf645353b33bac049e0"
+    },
+    {
+      "id": "B-fe8f:RP-038",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 23 test-coverage review passed. The main merge changed only Story metadata and four docs/story/drafts groups; current materialHash 4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2 and storyFilesHash 1016081edd126aa4239610b0f1cb8c65bfb2a43e3634bd71bc9a776d3e1096ff are unchanged. evidence_plan reports 71 fresh, zero missing/rerun/refresh-only; direct checklist inspection finds 71/71 tool-owned mechanical PASS receipts with successful selector matches. Repository-local finding_list projects all 32 findings resolved, including F-030/F-031/F-032. Fresh RED relation execution exits 0 with historicalBaselineFails=true, currentGreenPasses=true, currentCorruptedRelationRejected=true, assertionUnchanged=true, and both regression negative controls remain committed. Fresh version-sync-only execution exits 0 with oldRuleRejects, ownBindingAccepts, staleInstalledRejects, mismatchRejects and current main/global binding all true. No blocker found.",
+      "createdAt": "2026-09-04T13:16:57.060Z",
+      "reviewRound": "2026-09-04T13:13:30.995Z",
+      "reviewRunId": "B-fe8f:RR-073",
+      "envelopeId": "c339c00d67071987f8ccd67222e2128b5f54cca0a67b1946ab8e11485e1455b6",
+      "writerSessionId": "sess-60dca796ce9134eb0a3c85af5049d05d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "scanEscalationReason": "Focused Round 23 re-attestation consumed the unchanged Story material binding, all 71 receipt records, repository-local finding projection, the committed F-030/F-031/F-032 version-binding regression, and fresh RED/version-sync negative-control output."
+      },
+      "_hash": "5e710f5d58f5a4ba57da5a7718e0b76db001be39e59badd5dac141f40987f304"
     }
   ]
 }
