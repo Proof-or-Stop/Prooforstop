@@ -128,11 +128,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-implementer',
-    templateHash: '00b0181fafb0f6f5c93f0d945063d3b0732fa695ea88cae1c63e2b8767353829',
+    templateHash: '820853ba6390ac8db9cfd6d784a2e06424eb5c5da168d4874e3d12213fa35435',
   },
   {
     role: 'proof-or-stop-review-behavior',
-    templateHash: 'a52510668fbdb3275df55635bc1e5d1babdb938ea4b021a6f57ed7c3a985cdec',
+    templateHash: 'a1f019e3f4bbe6952c7eef6a26a5d15f070ab364f6b9b49cad19642525303d54',
   },
   {
     role: 'proof-or-stop-review-channel',
@@ -142,7 +142,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: 'b2699f1f18877711c1167adc4fbe55ba71a756c07d451f749576c8d744fa6fd4',
+    templateHash: '642296478639ba90557b65df65782f4a81f6c3bea6219b9c1d7289dd6d62d5a1',
   },
   {
     role: 'proof-or-stop-review-delivery',
@@ -150,11 +150,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-docs',
-    templateHash: 'bf145604d69f4f8390889a709e407f64cc9240745e368abc98f4b09016f37728',
+    templateHash: '86c4c91c613a89da9a46b751d0fe3911500a81746527d9384ed95fcbb56fd7cf',
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: 'ec5c7375386c5c0ae04db878a426dee0efe3858e159cd280b863ea768ef42c67',
+    templateHash: 'e2cafec3242837c489faf74b808ea0474f082dd93f4ae8b01d20f225c3d4751f',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
@@ -177,11 +177,11 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: '995717ea7e03b31de502d0289acd48caeac6240ca6ff42b966d81f9d1c2a86ca',
+    templateHash: '35f9ae8dc5c1182b79630d4b1391b28c4a8617bf6339daeaab08a272876749f9',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: '2300cde0d2c95e9ec8af14bf96ee7d9e58f962bdbd0bc7704279e457fac90224',
+    templateHash: '9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99',
   },
   {
     role: 'proof-or-stop-product-reviewer',
