@@ -304,6 +304,24 @@
       "signatureTagSource": "auto",
       "clusterId": "CL-002",
       "resolvedAt": "2026-09-04T00:17:42.466Z"
+    },
+    {
+      "id": "B-1482:F-017",
+      "desc": "packages/main/src/core/prompt-envelope.ts:379 (TRIAGE_AUTHORITY_DECISION_VERB, reused by controlledPairIsGenericOnly after F-014) is a closed vocabulary of decisive verbs (determine/decide/control/govern/set/define/dictate/overrid*). The generic priority x bare-Story cell is disqualified from exemption only when a verb from this list joins the pair, so a synonym outside the list still passes as safe: assembleFullPromptEnvelope accepts both \"Priority alone settles the story.\" and \"Priority alone resolves the story.\" with no thrown error, even though they assert the same severity-alone-decides-ownership authority claim the family exists to refuse (confirmed live against dist/core/prompt-envelope.js, not inferred from source). This gap is PRE-EXISTING: the exact same verb list (minus overrid*) already gated the two dedicated detectors hasNothingButSeverityAuthority/hasCrossSegmentSeverityAuthority on main before this story (git show main:packages/main/src/core/prompt-envelope.ts, lines 555/567), so F-014 neither introduced nor worsened it -- F-014 only hoisted the existing list into one shared constant and reused it for the generic-pair cell, doing exactly what its own commit message claims. Filed per round-3 dispatch instruction to report any case where the newly-shared rule decides wrongly; leaving disposition (extend the list here vs. accept as a pre-existing vocabulary-completeness limitation) to the Story Owner.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-04T00:26:12.410Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "reviewRunId": "B-1482:RR-005",
+      "_hash": "8c19c79a1ec3e07b9745bb4035a9ccab6e45c97cd041bd0d8cf40fdcf9797fb1",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
