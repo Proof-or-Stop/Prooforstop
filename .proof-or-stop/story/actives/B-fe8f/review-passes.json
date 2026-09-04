@@ -1062,6 +1062,34 @@
         "scanEscalationReason": null
       },
       "_hash": "cfabcec0c567d8ed49dfb82750dc730c934172a193360e98afe97858b9708d95"
+    },
+    {
+      "id": "B-fe8f:RP-033",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 22 test-coverage review passed. All 71 must intents have current tool-owned mechanical PASS receipts bound to materialHash 4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2 and storyFilesHash 1016081edd126aa4239610b0f1cb8c65bfb2a43e3634bd71bc9a776d3e1096ff; evidence_plan reports fresh=71 with zero missing/rerun/refresh-only, no waiver/nonmechanical/failure, and no open blocking finding. Fresh RED exited 0 with historical failure/current GREEN/corrupted-relation rejection/unchanged assertion. Fresh complete Story3 smoke exited 0 across concurrency, idempotency, CAS, crash/fence, runtime/query/registry tamper, F-027/F-028/F-029 and real corpus migration. F-031 is directly covered by red.version_binding_behind_worktree oldRuleRejects/ownBindingAccepts/staleInstalledRejects/mismatchRejects plus real PATH/npm-global/bin/main realpath binding; green.version_sync and clean core+lab install passed, followed by all three final verdicts.",
+      "createdAt": "2026-09-04T13:01:56.017Z",
+      "reviewRound": "2026-09-04T12:54:48.205Z",
+      "reviewRunId": "B-fe8f:RR-072",
+      "envelopeId": "ff445bd8fbc5149cde16cff1e766b9ddc31235eeed5dddde2cb7df328f1599fc",
+      "writerSessionId": "sess-60dca796ce9134eb0a3c85af5049d05d",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/partial-done-recovery.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "scanEscalationReason": "Focused current-round audit covered the committed F-031 regression fix, version binding helpers and negative control, all 71 receipt bindings, RED/GREEN linkage, and complete Story3 adversarial/concurrency integration output."
+      },
+      "_hash": "85f6f1f6d71cb9ac3d6447e08b8733b23f6cc70b82392b2e6b9b74479b9dcbd8"
     }
   ]
 }
