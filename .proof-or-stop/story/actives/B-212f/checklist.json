@@ -2,8 +2,196 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Implement fix for reproduced failure",
-      "context": "Probe: rp-mtn2kjzu-pap3kp, Review: rr-mtn2kqun-vcqatu",
+      "title": "Commit the reviewed executable done_prepare/DONE parity RED and register it",
+      "context": "Candidate probe rp-mtn2kjzu-pap3kp and red review rr-mtn2kqun-vcqatu bind the exact executable design; red/green relation rgr-mtn2ppnx-h2nqoj and passing evaluation rgre-mtn2ptyg-asgnhf bind the same command to current-main RED and isolated-candidate GREEN. Before implementation, the test exits 1 because the real DONE guard rejects missing dev_memory_finish_decision and stale scopeBinding.diffPackHash while buildDoneClosureRunbook has neither blocker row. The already-run GREEN candidate proves the unchanged test can pass after the parity fix, but DEV must commit this test and rerun it in the Story worktree.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md#command-contract",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md#target-capability"
+      ],
+      "userSees": "Running node packages/main/tests/red/red-done-prepare-done-parity.mjs after the fix prints: GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes",
+      "excludes": [
+        "Do not replace the test with static source-string assertions.",
+        "Do not treat candidate or temporary-clone GREEN output as Story verification evidence.",
+        "Do not add an unregistered orphan smoke script."
+      ],
+      "files": {
+        "modify": [
+          "proof-or-stop.config.json"
+        ],
+        "create": [
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The committed behavior test drives the done_prepare closure runbook and real DONE guard on identical state and ends with the exact GREEN parity summary.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The stale-review fixture changes the live diff pack without changing HEAD/materialHash and proves diff_pack_changed specifically, rather than using a generic malformed pass.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN control: real DONE rejects the stale lane diffPackHash"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The current-main baseline remains a genuine RED: both real-DONE controls pass while both done_prepare parity assertions fail because the rows are absent; candidate evidence cannot be substituted for post-fix evidence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make done_prepare consume the real DONE finish-decision and reviewer-verdict predicates",
+      "context": "The production path is done_prepare -> buildDoneClosureRunbook -> buildDoneChecklist, while machine.ts independently enforces readDevMemoryFinishDecision and evaluateReviewVerdict. Implement the smallest shared or mechanically parity-guarded path so done_prepare blocks before recommending DONE. Stale evidence is reported, never refreshed, re-signed, rebound, or fabricated. The temporary candidate that added dev-memory-finish-decision and review-verdict rows is feasibility evidence, not the required final design.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md#execution-flow",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md#output-contract"
+      ],
+      "userSees": "done_prepare reports missing_dev_memory_finish_decision before suggesting DONE, and reports stale_closeout_review with diff_pack_changed when the real DONE gate would reject the same reviewer pass",
+      "excludes": [
+        "Do not change which finish-decision values satisfy DONE.",
+        "Do not weaken or bypass evaluateReviewVerdict.",
+        "Do not change B-c86f dev-memory path classification.",
+        "Do not automatically create reviewer passes or mutate reviewer evidence."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With every other fixture condition held constant, a missing finish decision makes both real DONE and the done_prepare runbook fail with missing_dev_memory_finish_decision.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN parity: done_prepare oracle rejects the missing finish decision with the same code"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A signed reviewer pass whose live scope diff changes while HEAD/materialHash stay fixed makes both surfaces fail with diff_pack_changed mapped to stale_closeout_review.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The done_prepare/runbook path remains read-only and never rewrites or re-endorses the stale reviewer pass while surfacing the blocker.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged"
+            }
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Mechanically guard DONE/preflight parity and document bounded defect triage",
+      "context": "DONE gate evidence and reviewer-pass behavior are process facts, so update the process-fact registry and verifier together with a same-source/parity regression. During all DEV/REVIEW/TEST work, classify new defects before changing scope: current repair is mandatory for critical/high, safety/data-integrity/destructive-compatibility, acceptance-blocking, or lifecycle-gate-truth defects; medium/low nonblockers require reproducible evidence, impact, recommended treatment, and a traceable finding/gap/backlog owner, and must return to the current Story if later evidence upgrades severity or applicability.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "userSees": "node scripts/verify-process-fact-contract.mjs exits 0, flow-stability smoke passes, and the done_prepare decision document states that its final readiness result consumes the same finish-decision and reviewer-verdict predicates as DONE",
+      "excludes": [
+        "Do not broaden the Story to repair unrelated medium/low findings.",
+        "Do not dismiss or defer a finding through prose alone.",
+        "Do not duplicate every DONE gate implementation in a second oracle without a mechanical parity guard.",
+        "Do not change unrelated lifecycle policy."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The process-fact contract registers done_prepare consumption of finish-decision presence and the phase-agnostic reviewer verdict, and its verifier passes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs",
+              "selector": "Process-fact contract verification passed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The existing shared DONE-oracle flow-stability suite remains green after adding the two blocker rows and guards the done_prepare/runbook consumer path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:flow-stability-smoke",
+              "selector": "flow stability smoke passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A future change that removes either finish-decision or reviewer-verdict consumption from done_prepare fails a committed mechanical contract instead of allowing a false PASS.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes"
+            }
+          }
+        ]
+      },
       "status": "pending",
       "startTime": null,
       "endTime": null
