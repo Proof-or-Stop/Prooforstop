@@ -1215,6 +1215,55 @@ const CHK003_CASES: SmokeCase[] = [
       } finally { cleanup(env); }
     },
   },
+  {
+    id: 'CHK-003/C9',
+    desc: 'the enforcement floor, not only the seatbelt, teaches the narrowing command',
+    run: async () => {
+      const { env, command } = await recordA745Corpus();
+      try {
+        // The floor is what a caller reaches by invoking the command directly, with no
+        // PreToolUse hook installed or firing: the seatbelt is advisory, this refusal is
+        // the mechanical one. Both mismatch shapes are exercised, since a caller can get
+        // the command wrong as easily as the selector.
+        for (const [label, write] of [
+          ['selector', { command, selector: NEW_SELECTOR }],
+          ['command', { command: PASS_CMD, selector: OLD_SELECTOR }],
+        ] as const) {
+          let message = '';
+          try {
+            await env.handlers.verification_evidence_add({
+              storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745', kind: 'integration_test',
+              result: 'pass', note: `direct caller with a mismatching ${label}`, ...write,
+            });
+          } catch (e) {
+            message = e instanceof Error ? e.message : String(e);
+          }
+          assert.ok(message.length > 0, `the ${label} mismatch was refused by the floor`);
+          assert.ok(
+            message.includes(NARROW_COMMAND),
+            `the ${label} floor refusal names ${NARROW_COMMAND}: ${message}`,
+          );
+          // Naming the command is not enough: the same precondition the seatbelt states
+          // must travel with it, or the reader is sent to a command that will refuse them.
+          assert.match(message, /recorded FAILING receipt/, `the ${label} floor refusal states the precondition`);
+          assert.match(message, /(LOOSER|loosening)/, `the ${label} floor refusal keeps loosening refused`);
+          // Unqualified immutability is the exact claim this story falsified.
+          assert.equal(
+            /the verification pin is immutable\)/.test(message), false,
+            `the ${label} floor refusal no longer claims immutability without exception: ${message}`,
+          );
+          // The taught form is the shared runnable one, with the real intent filled in.
+          const { args } = extractTaughtNarrowCommand(message);
+          for (const required of requiredNarrowArgs()) {
+            assert.ok(required in args, `the ${label} floor refusal passes --${required}`);
+          }
+          assert.equal(args.itemId, 'CHK-001', 'the floor refusal names the owning checklist item');
+          assert.equal(args.intentRef, 'INT-A745', 'the floor refusal names the refused intent');
+        }
+        assert.equal(readPin(env, 1)?.selector, OLD_SELECTOR, 'the pin is unchanged after the refusals');
+      } finally { cleanup(env); }
+    },
+  },
 ];
 
 // ── runner ────────────────────────────────────────────────────────────────────
