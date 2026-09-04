@@ -1125,6 +1125,69 @@
       },
       "readDiagnostics": [],
       "_hash": "a415d2e46dca00cec1e17acc677d20f0016dcd45cbcef97cec9dc6772e051aa0"
+    },
+    {
+      "id": "B-fe8f:RP-035",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 22 concept PASS on committed HEAD 9c74e8243a. The complete Story 3 smoke exited 0 through green.story3_matrix, all 71/71 verification records are mechanical pass receipts with selectorMatched=true and one storyFilesHash, and F-030/F-031/F-032 are truthfully closed by 2c26dbe246 plus the refreshed receipts: local CLI equals the worktree version while PATH, npm-global @proof-or-stop/core realpath, package version and bin target bind independently to current main; deterministic controls reject the retired worktree-equality rule and stale/mismatched installed versions. The current Story reader projects all historical findings terminal and the signed ledger query passes; the pre-merge global reader's legacy open projection is an expected old-consumer view, not lost data. Story 3 remains persistence/runtime-evidence only, with no semantic applicability or identity authority, and @proof-or-stop/core/@proof-or-stop/lab pairing is canonical. No blocking finding.",
+      "createdAt": "2026-09-04T13:05:23.802Z",
+      "reviewRound": "2026-09-04T12:54:48.205Z",
+      "reviewRunId": "B-fe8f:RR-070",
+      "envelopeId": "26e881c130aeda35cd2f00ef93d8b35c9a8a2e79959727afd9ca50e632a250ff",
+      "writerSessionId": "sess-32eb388f0cb9dc83c9e61f2b46dfdaaa",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/finding-runtime-evidence.ts"
+        ],
+        "filesTriagedByName": [
+          "bin/bootstrap-runner.js",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/lab/package-lock.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/finding-runtime-evidence.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/mkdir-lock.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-evidence-receipt.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "packages/utils/package-lock.json",
+          "proof-or-stop.config.json",
+          "scripts/build-lock.mjs",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "74a41e025145302fee7c9112fdbb1a2e2d6c969697b3dd77559ed19263c6c226"
     }
   ]
 }
