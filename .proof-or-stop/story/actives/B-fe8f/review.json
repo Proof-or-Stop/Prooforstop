@@ -375,6 +375,60 @@
         }
       ],
       "_hash": "944389e8e30e7bfc20d7ca68f47ddc8520c4647e3464d7d9fa406c053c45f67f"
+    },
+    {
+      "timestamp": "2026-09-04T00:58:36.232Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when RED: audit current primitives and reproduce only remaining Story 3 contract failures + Implement Story 3A fenced exactly-once Finding ledger writes are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-fe8f\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "aaebd4da899af1aa64e554f3f2f410c586e90bdce51437b42451e34468cbbe75"
+    },
+    {
+      "timestamp": "2026-09-04T07:03:14.742Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when RED: audit current primitives and reproduce only remaining Story 3 contract failures + Implement Story 3A fenced exactly-once Finding ledger writes are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-fe8f\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "1484b5576837c94328458a63a89d04a41bf9d87dc8b956853a252c2252e15564"
+    },
+    {
+      "timestamp": "2026-09-04T07:37:26.007Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "6 checklist items; please check for missing combined scenarios (e.g., what happens when RED: audit current primitives and reproduce only remaining Story 3 contract failures + Implement Story 3A fenced exactly-once Finding ledger writes are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 2 high-risk signal(s): Security/Credentials, Data Migration/Destructive. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-fe8f\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "85886f521f34337c3e0152d8b04af043b98a179cd7e0b876fc8e0d69110a4cfc"
     }
   ]
 }
