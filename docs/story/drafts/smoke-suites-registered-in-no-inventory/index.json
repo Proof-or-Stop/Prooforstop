@@ -1,0 +1,15 @@
+{
+  "name": "smoke-suites-registered-in-no-inventory",
+  "title": "A test suite can fall out of every inventory and fail indefinitely with no signal",
+  "description": "evidence-plan-smoke and candidate-spec-routing-smoke both fail against the main checkout's own build, and both are absent from test:serial-reference, the full-suite runner's RESOURCE_POLICY and the config's validate commands. npm test builds its entry list from the serial reference, so a suite named in none of the three is executed by no gate and can stay red forever. The defect is the missing signal rather than the two failures: nothing reports that a suite file is reachable from no inventory. Note that a naive name-matching sweep over the tasks directory misclassifies in both directions and must not be trusted or quoted.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "test-inventory",
+    "full-suite-runner",
+    "serial-reference",
+    "orphan-suite",
+    "registration"
+  ],
+  "createdAt": "2026-09-04T04:41:25.719Z"
+}

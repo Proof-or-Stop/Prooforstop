@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Match the selector against the untruncated captured output and keep the stored receipt bounded separately",
+      "context": "Compute selectorMatched from the full stripAnsi(output) before trimOutput; store outputTail as the LAST bounded window (or head plus tail) so the receipt stays small while the summary line remains visible. Keep the stripped-ANSI comparison and the exit-code rule unchanged.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Say in the refusal whether the output was truncated before matching",
+      "context": "checklist.ts:808 refusal text should state captured/total bytes and whether the selector fell outside the retained window, so [receipt_selector_absent] never masquerades as a wrong selector (same discipline B-cdf6 applied to timeouts).",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Regression: a command printing the selector after 12000 characters is accepted, and a command that never prints it is still refused",
+      "context": "Add cases to the evidence receipt smoke (tool-executed-evidence-receipt-smoke or verification-run-and-guard-smoke) with a node -e script that emits 20000 filler characters then the selector.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

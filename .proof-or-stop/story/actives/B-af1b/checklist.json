@@ -1,0 +1,121 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Convert the Claude-host english-only-guard from warn-only to a blocking guard that exits 2 on CJK in guarded commands",
+      "context": "RED (fails on main today): the probe from repro rp-mtmmuqiq-c9umc3 spawns .claude/hooks/english-only-guard.cjs with a Bash payload whose git commit message contains CJK and asserts exit 2; the hook prints its warn line and exits 0, so the probe exits 1. GREEN: the same probe exits 0 and prints GREEN: hook blocked the CJK commit. Also flip packages/main/src/tasks/english-only-guards-smoke.ts tests 6a and 6a-prime from asserting exit 0 to asserting exit 2 with the reason on stderr; keep 6b (English-only exits 0), 6b-prime (unguarded command exits 0) and 6c (malformed or empty stdin exits 0, fail-open) unchanged; rewrite the header comments in the hook and in the smoke that currently promise warn-only. The block reason must tell the agent to rewrite the message in English.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "userSees": "Running the probe prints GREEN: hook blocked the CJK commit and exits 0. A CJK git commit issued through the Bash tool is refused and stderr shows english-only: blocked, rewrite the commit message in English.",
+      "files": {
+        "modify": [
+          ".claude/hooks/english-only-guard.cjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Register a blocking English-only guard on the Codex host roster and emit it from init",
+      "context": "RED (fails on main today): getCodexHooks() in packages/main/src/init-assets.ts registers no English guard and .codex/hooks/english-only-guard.cjs does not exist, so a smoke asserting both fails and a CJK commit through the Codex shell tool is never inspected. GREEN: add renderCodexEnglishOnlyGuardHookScript() in init-assets.ts with the same shape as renderCodexEvidencePretoolHookScript (matcher CODEX_PRETOOL_EVIDENCE_HOOK_MATCHER, that is shell|local_shell|exec_command); register it in getCodexHooks() and in the managed-asset codex-hooks kind in packages/main/src/core/managed-assets.ts so init and init --upgrade emit it and doctor reports drift; spawning the emitted file with a CJK commit payload exits 2, an English payload exits 0, malformed stdin exits 0. Regenerate the tracked .codex/hooks.json and .codex/hooks file through the generator, never by hand. Extend the english-only-guards smoke to assert the roster entry and the emitted file.",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-af1b/background.md"
+      ],
+      "userSees": "proof-or-stop init --upgrade writes .codex/hooks/english-only-guard.cjs and adds a PreToolUse entry to .codex/hooks.json; the smoke prints PASS for the Codex roster entry and for the exit 2 block.",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/core/managed-assets.ts",
+          ".codex/hooks.json"
+        ],
+        "create": [
+          ".codex/hooks/english-only-guard.cjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/english-only-guards-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a blocking attribution-trailer guard as a PreToolUse hook on both hosts",
+      "context": "RED (fails on main today): neither .claude/hooks/attribution-guard.cjs nor .codex/hooks/attribution-guard.cjs exists and neither getClaudeHooks() nor getCodexHooks() registers one; a smoke that spawns the hook with a payload whose git commit -m message carries Co-Authored-By: <host> <noreply@anthropic.com> and asserts exit 2 fails with ENOENT. GREEN: for any git commit command whose command string carries an attribution trailer (Co-Authored-By naming a host or the noreply@anthropic.com address, a Claude-Session: or Codex-Session: line, or the Generated with [Claude Code] footer) the hook exits 2 with a stderr reason that quotes the offending line and tells the agent to remove the trailer; a clean git commit exits 0; a non-commit command containing the same words exits 0 because only git commit is guarded; malformed or empty stdin exits 0, fail-open like the sibling hooks. The Claude source lives in .claude/hooks/ because that directory is the hookTemplateDir source; the Codex file is rendered by a new renderCodexAttributionGuardHookScript in init-assets.ts; both are registered on the Bash and shell matchers and in managed-assets. Documented limitation: PreToolUse sees only the command string, so a git commit -F <file> body is not inspected and .githooks/commit-msg remains the fallback for it.",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-af1b/background.md"
+      ],
+      "userSees": "A git commit carrying Co-Authored-By: Claude ... issued through the Bash tool is refused; stderr shows attribution-guard: blocked, remove the attribution trailer, followed by the offending line.",
+      "files": {
+        "modify": [
+          "packages/main/src/init-assets.ts",
+          "packages/main/src/core/managed-assets.ts",
+          ".claude/settings.json",
+          ".codex/hooks.json"
+        ],
+        "create": [
+          ".claude/hooks/attribution-guard.cjs",
+          ".codex/hooks/attribution-guard.cjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/attribution-guard-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Hold the trailer predicate to one source across both host hooks and the git commit-msg hook with a shared fixture conformance test",
+      "context": "RED (fails on main today): no packages/main/src/core/attribution-detect.ts exists and no test runs one fixture set through all three implementations, so the three pattern lists can diverge silently; this already happened once, when the first .githooks/commit-msg deleted prose lines and emptied trailer-only messages. GREEN: add core/attribution-detect.ts exporting the trailer line patterns as readonly data plus a pure detectAttributionTrailer(text) function; the two host hooks stay self-contained (no dist import, the same constraint english-only-guard documents) and each carries a byte-equal mirror of the pattern list; a keep-in-sync assertion in the new smoke compares every hook mirror to the core export, the same technique as the CJK_RANGES keep-in-sync test; a conformance table of at least twelve cases (trailer at end, trailer mid-body, a prose line quoting the footer that must survive, path spellings such as .claude/ and CLAUDE.md that must not match, Codex-Session, mixed case, a message that is only a trailer) is run against the Claude hook, the Codex hook and .githooks/commit-msg, and all three agree on every case.",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-af1b/background.md"
+      ],
+      "userSees": "npm run test:attribution-guard prints one PASS line per conformance case for each of the three implementations and ends with keep-in-sync: OK.",
+      "files": {
+        "modify": [
+          ".githooks/commit-msg"
+        ],
+        "create": [
+          "packages/main/src/core/attribution-detect.ts",
+          "packages/main/src/tasks/attribution-guard-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/attribution-guard-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Register the new smoke in the DONE-required suite and prove a fresh init emits every new guard",
+      "context": "RED (fails on main today): a fresh proof-or-stop init into a temporary project emits no attribution guard on either host and no Codex English guard, and no npm test script runs attribution-guard-smoke, so the DONE-required validate suite passes without exercising anything this story adds. GREEN: packages/main/package.json scripts and the validate command registry (RESOURCE_POLICY and validate.commands; see the B-49ed notes on registering proofs) include the new smoke; an init smoke asserts that a temp-project init emits .claude/hooks/attribution-guard.cjs, .codex/hooks/attribution-guard.cjs and .codex/hooks/english-only-guard.cjs together with their settings.json and hooks.json entries; proof-or-stop init --upgrade on this repository re-emits them with zero drift and proof-or-stop doctor reports no stale managed hook; any test that pins the hook roster (pretool-scope-hook-smoke, session-brief-prompt-sync-smoke, verify-proof-or-stop-prompt-baseline) is updated; proof-or-stop validate is green.",
+      "relatedDocs": [
+        ".proof-or-stop/story/actives/B-af1b/background.md"
+      ],
+      "userSees": "proof-or-stop validate ends green with attribution-guard-smoke listed among the executed suites, and proof-or-stop doctor prints no stale managed hook.",
+      "files": {
+        "modify": [
+          "packages/main/package.json",
+          "packages/main/src/tasks/pretool-scope-hook-smoke.ts",
+          "packages/main/src/tasks/session-brief-prompt-sync-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/attribution-guard-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

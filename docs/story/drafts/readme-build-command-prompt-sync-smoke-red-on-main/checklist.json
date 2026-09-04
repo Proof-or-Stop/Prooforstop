@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Restore the build command line to the README section session-brief-prompt-sync-smoke reads and confirm the smoke passes",
+      "context": "RED: node packages/main/dist/tasks/session-brief-prompt-sync-smoke.js on main fails with an assertion naming README.md and the missing npm --prefix packages/main run build line. GREEN: after the README edit the same command prints its final PASS line and exits 0. Place the line next to a note that a fresh build emits dist/cli.js without the exec bit until docs/story/drafts/build-emits-non-executable-cli lands.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

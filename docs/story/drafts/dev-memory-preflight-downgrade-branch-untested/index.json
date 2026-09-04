@@ -1,0 +1,9 @@
+{
+  "name": "dev-memory-preflight-downgrade-branch-untested",
+  "title": "The reasoned-downgrade branch of dev_memory_preflight_ack lost its only test once the memory subsystem stopped throwing on any filesystem shape",
+  "description": "packages/main/src/handlers/dev-memory.ts (around lines 255 to 266) carries a defensive branch: when building the preflight pack throws, dev_memory_preflight_ack accepts a --reason and records a downgraded acknowledgement instead of failing the DEV gate outright. Until B-c86f the lifecycle smoke exercised that branch by making experience.jsonl a directory, which made readEntries throw EISDIR. B-c86f made every dev-memory reader fail closed on non-regular leaves and read errors, so no filesystem shape under the dev-memory root can make buildPreflightPack or buildMemoryFreshnessPack throw any more, and the smoke sections that injected the throw were rewritten to assert the fail-closed contract instead. The downgrade branch is still reachable on an unanticipated I/O fault, so it is a legitimate backstop rather than dead code, but it is no longer exercised by any deterministic test and buildPreflightPack has no injection seam that a test could use to force a throw. Filed by the quality lane on B-c86f as F-009 (medium) and deferred: the handler is a protected file in that story's scope contract and the remedy is a new seam, which is design surface the story should not widen while closing. Fix by giving buildPreflightPack a narrow injectable failure seam, or by extracting the branch into a pure helper that a unit test can drive, then prove the branch records the downgrade with the reason and that the seam is unreachable from production callers.",
+  "type": "chore",
+  "priority": "medium",
+  "keywords": [],
+  "createdAt": "2026-09-04T08:23:09.070Z"
+}
