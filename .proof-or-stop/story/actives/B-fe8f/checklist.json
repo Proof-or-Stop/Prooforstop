@@ -1946,9 +1946,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T11:47:58.939Z",
-      "endTime": "2026-09-01T13:11:59.498Z",
+      "endTime": "2026-09-04T08:10:06.192Z",
       "userSees": "The final verification prints \"Finding ledger integrity: PASS\", \"Runtime evidence integrity: PASS\", and \"green.story3_matrix: PASS\".",
       "excludes": [
         "No Story 2 identity/lineage behavior.",
@@ -2946,6 +2946,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Repair current-review high blockers F-030/F-031/F-032 at their single version-proof root cause; preserve the historical exact patch-bump proof and add a behind-main/global-ahead negative/control regression without changing Story scope.",
+      "agent": "main"
+    },
+    {
+      "timestamp": "2026-09-04T08:10:06.192Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer commit 2c26dbe246 preserves the exact B-fe8f patch proof, binds Story-local and current-main/global versions independently, adds deterministic old-rule/stale/mismatch controls, and passes build, focused version proof, full Story 3 smoke, process/runtime contracts, and retired-authority guard.",
       "agent": "main"
     }
   ]
