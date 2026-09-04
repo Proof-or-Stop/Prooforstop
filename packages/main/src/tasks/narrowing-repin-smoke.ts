@@ -1188,6 +1188,22 @@ const CHK003_CASES: SmokeCase[] = [
         'the refusal no longer claims the pin is immutable once set, without exception',
       );
 
+      // B-1482 F-019: the joined message is not what every consumer reads. reasons is an
+      // array, so a JSON caller keys off reasons[0]; a truncated log, a wrapped terminal
+      // or a human skimming stops at the first line too. That line is therefore asserted
+      // IN ISOLATION: read alone it must not make the categorical claim a later line
+      // silently corrects.
+      const opening = verdict.reasons[0] ?? '';
+      assert.ok(opening.length > 0, 'the refusal opens with a reason line');
+      assert.ok(
+        !/immutab/i.test(opening) || /(exception|narrowing)/i.test(opening),
+        `the opening line must not claim immutability without qualifying it in the same line: ${opening}`,
+      );
+      // Not repairable by deleting information: the opening must still name the refused
+      // write and the intent it is refused for.
+      assert.match(opening, /would be refused/, 'the opening line still states the write is refused');
+      assert.ok(opening.includes('CHK-001:happy:0'), 'the opening line still names the intent it refuses');
+
       // The generated shell-tool hook must not carry a SECOND copy of this copy: it
       // renders whatever the shared verdict returns, so it cannot go stale on its own.
       const hook = renderCodexEvidencePretoolHookScript();
