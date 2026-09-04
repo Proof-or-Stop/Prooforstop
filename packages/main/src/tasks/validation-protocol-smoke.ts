@@ -117,6 +117,13 @@ const SWEEP_KEPT_UNREGISTERED: Readonly<Record<string, string>> = {
   'test-fixture-gen': 'legacy @task-annotation fixture generator over extract.ts with no importer and no pins; deferred to the same dead-code story as its siblings so the pipeline is removed as one unit',
   'metadata-cross-check': 'loaded at runtime by the logic fixture packages/main/tests/fixtures/metadata-cross-check.json (dynamic import in its execute block) under the configured fixturesDir; not an inventory member by design',
   'story6-acceptance-transcript': 'one-off Story 6 acceptance transcript generator cited by docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md; run by hand, not a smoke',
+  // origin/main merge: four of our task files are unknown to origin's sweep because they
+  // exist only on this side. Classified with their real reasons rather than left
+  // unclassified or force-registered into an inventory they do not belong in.
+  'quorum-submit-shards': 'pure re-export shim: its whole body forwards VALIDATION_SHARD_RECEIPT_SCHEMA, aggregateShards, aggregateValidationShards, buildValidationShards, createValidationShardReceipt and verifyValidationShardReceipt from core/story-aware-validation.js. 14 lines, no test body, and grep finds no importer under packages/main/src, so registering it in an inventory would run nothing; removal belongs to a dedicated dead-code story alongside its sibling',
+  'review-pass-shards': 'pure re-export shim identical in shape to quorum-submit-shards, forwarding the same six validation-shard symbols from core/story-aware-validation.js with no importer; same dead-code story',
+  'story-aware-validation-historical-replay': 'Section 19.1 replay harness (890 lines, #!/usr/bin/env bun) that reconstructs real Story base/head pairs from the Story index and feeds their actual git diffs through the dynamic planner; --execute runs the paired complete/portable campaign that takes hours. Run by hand for a campaign, never as a smoke -- registering it would put a multi-hour bun script in the suite',
+  'story-aware-validation-historical-replay-artifact-verify': 'the 12-line bun companion that verifies the artifact the replay harness above writes (verifyHistoricalReplayArtifact). It is already referenced by this very file as the harness pair, and it is meaningless without a campaign artifact to check, so it follows the harness rather than joining an inventory',
 };
 /** Files this story deleted on purpose; each must be absent. */
 const SWEEP_RECORDED_DELETIONS: Readonly<Record<string, string>> = {};
