@@ -36,6 +36,35 @@
         "scanEscalationReason": null
       },
       "_hash": "9fb558c6dd0d86b361814c025cd6348b1b76fbcc8a734d7faf3a0bc642909e85"
+    },
+    {
+      "id": "B-1482:RP-002",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Round 4 re-verification of F-018/F-019 fixes and unfiled F-021/F-022 follow-ups: docs read start-to-finish, live copy-paste test repeated, refusal codes matched bidirectionally, no open disagreement, accepted limitation confirmed in CLAUDE.md itself.",
+      "createdAt": "2026-09-04T01:08:47.938Z",
+      "reviewRound": "2026-09-04T01:04:08.380Z",
+      "reviewRunId": "B-1482:RR-011",
+      "envelopeId": "936ce49def71f41d722807f6bea9f18f9e4e24d30ee4688634c978ae66518888",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md#narrowing-only-re-pin-of-a-proof-selector-b-1482",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "916d4f2dc19d4094e4f3dd0063c1085535ea6824cba24be8e7437ae85c4b7848"
     }
   ]
 }
