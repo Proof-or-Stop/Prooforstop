@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-212f",
+  "sourceText": "用户要求先证明 done_prepare 与真正 DONE 门禁不一致，写可执行 RED 和 GREEN；随后批准把这些证据带入新 Story，直接执行修复，并要求重大或验收阻断缺陷当场修、非阻断 medium/low 缺陷必须有证据地记录和延期、禁止为追求全绿无边界扩 scope。",
+  "normalizedOutcome": "done_prepare and the real DONE transition reject the same missing finish-decision and stale reviewer diffPackHash states with the same stable blocker codes, with executable regression coverage and no mutation of reviewer evidence.",
+  "acceptanceClaim": "The unchanged committed parity test observes missing_dev_memory_finish_decision and stale_closeout_review/diff_pack_changed from both surfaces, and the registered process-fact checks pass.",
+  "keyRequirementIds": [
+    "REQ-DONE-PARITY",
+    "REQ-TRACEABLE-DEFECT-TRIAGE"
+  ],
+  "requestHash": "sha256:8deadc58381098cf759750042d842ea644d1b5916452ac30f0a13cdbdbc05199",
+  "createdAt": "2026-09-04T20:34:56.520Z",
+  "updatedAt": "2026-09-04T20:34:56.520Z"
+}
