@@ -2,30 +2,32 @@
   "storyId": "B-e256",
   "mode": "shadow",
   "allowedModify": [
-    "scripts/promote-dist.mjs",
-    "scripts/build-main-with-binding.mjs",
-    "scripts/build-utils-with-binding.mjs",
+    "packages/main/package.json",
     "packages/main/src/core/runtime-environment-checks.ts",
     "packages/main/src/handlers/doctor.ts",
-    "packages/main/tests/global-core-realpath.test.mjs",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/tests/global-core-realpath.test.mjs",
     "proof-or-stop.config.json",
-    "packages/main/package.json"
+    "scripts/build-main-with-binding.mjs",
+    "scripts/build-utils-with-binding.mjs",
+    "scripts/promote-dist.mjs"
   ],
   "allowedCreate": [
     "packages/main/tests/red/red-global-cli-exec-bit.mjs"
   ],
   "allowedTest": [
-    "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts",
     "packages/main/tests/global-core-realpath.test.mjs",
-    "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+    "packages/main/tests/red/red-global-cli-exec-bit.mjs"
   ],
   "protectedFiles": [
     "scripts/build-lock.mjs",
     "scripts/build-lock-target.mjs"
   ],
   "explicitExcludes": [],
-  "scopeChangeReason": "Reconciliation after review rounds. validation-tier-planner-smoke.ts is declared because registering the new red test red-global-cli-exec-bit.mjs in proof-or-stop.config.json changes the real validate.commands inventory that the F-023 fixture case pins; the fixture was made cwd-neutral rather than re-pinned to a literal digest. No other file changed outside the original contract.",
+  "scopeChangeReason": "Carries B-83aa's fix to validate-progress-heartbeat-smoke.ts, a byte-identical copy of the file from its commit 92a12ee0ad, so this story's REVIEW to TEST gate can pass. That registered smoke failed this story's gate twice and B-83aa's four times under fork-heavy load while passing alone; B-83aa diagnosed the cause (the child CLI's own setup consumed its budget so no descendant ever started) and owns the fix and lands it on main first; the identical copy merges cleanly when main catches up. No other change rides with it.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -45,7 +47,7 @@
     }
   ],
   "createdAt": "2026-09-02T15:27:28.092Z",
-  "updatedAt": "2026-09-04T07:53:05.049Z",
+  "updatedAt": "2026-09-04T15:48:36.644Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -61,6 +63,7 @@
     "scripts/build-lock.mjs": "scripts/build-lock.mjs",
     "scripts/build-lock-target.mjs": "scripts/build-lock-target.mjs",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
-    "packages/main/src/core/version-bump.ts": "packages/main/src/core/version-bump.ts"
+    "packages/main/src/core/version-bump.ts": "packages/main/src/core/version-bump.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
   }
 }
