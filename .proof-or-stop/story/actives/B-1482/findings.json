@@ -332,7 +332,7 @@
       "desc": "doc-code-drift: core/types.ts:281-287 — the VerificationIntentPin interface own JSDoc header still reads \"Pinned on the FIRST selector-bearing evidence write and IMMUTABLE thereafter (a later write with a different command/selector is refused)\" with zero mention of the B-1482 narrowing exception. This is a SIBLING location to the one F-010 fixed (F-010 only updated VerificationIntentItem.verification field doc at what is now types.ts:346-355); the interface header directly above the export declaration — arguably the more authoritative doc since it is the type that literally gained the new narrowings field in this diff — was left untouched (confirmed via git diff main...HEAD -- packages/main/src/core/types.ts: the diff hunk for this interface starts at line 288 export interface VerificationIntentPin {, i.e. the header comment above it is outside the diff). A reader who looks at the interface declaration itself (the natural place to look, since VerificationIntentPin is the type holding command+selector+narrowings) still gets the stale absolute immutability framing this story exists to correct. The type documentation correction claimed by F-010/CHK-003 is therefore incomplete, not merely accurate-but-narrow.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-04T00:26:49.002Z",
@@ -344,7 +344,8 @@
       ],
       "signatureTag": "missing|ts|code-drift-core",
       "signatureTagSource": "auto",
-      "clusterId": "CL-004"
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@d8db16f"
     },
     {
       "id": "B-1482:F-019",
@@ -369,7 +370,7 @@
       "desc": "narrowing-repin-smoke.ts:1123-1159 CHK-003:happy:0 desc has FIVE clauses: (1) CLAUDE.md and the decision doc state the narrowing-only rule, (2) that the proof reads only tool-recorded receipts, (3) the one-narrowing bound, (4) every refusal code the implementation can emit, and (5) a case asserts the decision carries at least four pre-mortems. The pinned case is C4. After the F-013 fix (GREEN 6d281296f5) C4 now genuinely proves clauses (3), (4) and (5) via the at-most-one substring check, the ALL_NARROWING_REFUSAL_CODES loop, and assertDecisionCarriesPreMortems(). Clause (2) is never checked anywhere in C4: no assertion inspects either document for the tool-recorded-receipts-only text, even though CLAUDE.md:847 (\"The proof reads tool-recorded receipts only.\") and the decision doc (docs/requirements/decisions/narrowing-only-evidence-repin.md:65, \"Its only inputs are tool-recorded receipts\") both carry it. Clause (1) is checked only via assert.ok(decision.includes('narrowing'), ...) at narrowing-repin-smoke.ts:1141 -- near-tautological, since the whole document is about narrowing and would satisfy this regardless of whether the narrowing-ONLY rule itself is stated correctly. Concretely: if a future edit made the CLI silently accept a caller-supplied transcript again (regressing the exact defect F-012 fixed in this same round) while leaving the word 'narrowing' and the text for the other four clauses untouched, C4 would still print [PASS] and CHK-003:happy:0's receipt would still read verified/pass -- the same pin-vs-sentence traceability defect class as F-007/F-011/F-012/F-013, left open for this one clause and this one weak substring check. Fix: add an explicit assertion in C4 that both documents state the tool-recorded-receipts-only invariant (a discriminating phrase such as 'tool-recorded receipts only' / 'only inputs are tool-recorded receipts'), and replace or supplement the bare includes('narrowing') check with something that actually discriminates the narrowing-ONLY rule from its absence.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-04T00:29:45.010Z",
@@ -381,7 +382,8 @@
       ],
       "signatureTag": "edge|ts|narrowing-repin-smoke",
       "signatureTagSource": "auto",
-      "clusterId": "CL-004"
+      "clusterId": "CL-004",
+      "resolvedBy": "CL-004@d8db16f"
     },
     {
       "id": "B-1482:F-021",
