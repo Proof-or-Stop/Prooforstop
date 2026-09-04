@@ -65,6 +65,39 @@
         "scanEscalationReason": null
       },
       "_hash": "916d4f2dc19d4094e4f3dd0063c1085535ea6824cba24be8e7437ae85c4b7848"
+    },
+    {
+      "id": "B-1482:RP-003",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round 4: verified F-018..F-022 fixes against diff, judged F-017 dismissal correct, swept clean for pin-immutability residue.",
+      "createdAt": "2026-09-04T01:13:23.184Z",
+      "reviewRound": "2026-09-04T01:04:08.380Z",
+      "reviewRunId": "B-1482:RR-009",
+      "envelopeId": "6e9ee18d9708e64427609b3303ce80c925f55583b340048c485b44fac2cf9688",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "docs/story/drafts/triage-authority-verb-list-is-closed/background.md",
+          "docs/story/drafts/triage-authority-verb-list-is-closed/checklist.json",
+          "docs/story/drafts/triage-authority-verb-list-is-closed/index.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "b167eaa0de0993b9939df0d3657a54e40390ca5592d7327341cc5a08306bca1e"
     }
   ]
 }
