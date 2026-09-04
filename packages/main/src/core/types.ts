@@ -282,8 +282,16 @@ export function formatVerificationEvidenceVerdict(verdict: VerificationEvidenceV
  * B-ec67: the tool-executed proof unit pinned onto an executable verification
  * intent. `command` is the executable+argv string the evidence writer runs;
  * `selector` is the string that MUST appear in captured output to prove the
- * intent. Pinned on the FIRST selector-bearing evidence write and IMMUTABLE
- * thereafter (a later write with a different command/selector is refused).
+ * intent. Pinned on the FIRST selector-bearing evidence write, and every later
+ * evidence write carrying a different command/selector is refused.
+ *
+ * B-1482: the pin is NOT immutable without exception. Once set it can still move,
+ * but in the TIGHTENING direction only and only through `verification_pin_narrow`:
+ * the `selector` only, never the `command`, at most once per recorded-receipt set,
+ * and only when receipts this tool recorded prove the new selector is absent from a
+ * failing render the current selector matched and present in every recorded passing
+ * receipt. A loosening re-pin stays refused everywhere, and each accepted movement
+ * is retained on `narrowings`.
  */
 export interface VerificationIntentPin {
   command: string;
