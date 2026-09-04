@@ -1448,7 +1448,12 @@ try {
     mkdirSync(join(wrapperRoot, 'bin'), { recursive: true });
     const proofOrStopWrapperPath = join(wrapperRoot, 'bin', 'proof-or-stop.js');
     const codexWrapperPath = join(wrapperRoot, 'bin', 'proof-or-stop-codex.js');
-    writeFileSync(proofOrStopWrapperPath, renderProofOrStopBootstrapScript(packageRoot));
+    // renderProofOrStopBootstrapScript takes the PACKAGE root and appends
+    // 'dist/cli-engine.js' itself. `packageRoot` here is already packages/main/dist (see
+    // its definition above), so passing it produced a dead `dist/dist/cli-engine.js`
+    // candidate -- harmless while the wrapper ran inside the repo, fatal in a temp
+    // wrapper root where the other two candidates cannot resolve either.
+    writeFileSync(proofOrStopWrapperPath, renderProofOrStopBootstrapScript(dirname(packageRoot)));
     writeFileSync(codexWrapperPath, renderProofOrStopCodexWrapperScript());
     const proofOrStopWrapper = readFileSync(proofOrStopWrapperPath, 'utf-8');
     const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
