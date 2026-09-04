@@ -1,0 +1,56 @@
+{
+  "storyId": "B-1482",
+  "changes": "packages/main/src/core/types.ts: VerificationExecutionReceipt records the selector text the run was judged against, inside the tool-owned block every caller-facing schema strips, so it cannot be forged; the field is optional and absent means unknown, never re-derived from the current pin. Both pin type-doc sites now state the tightening exception instead of unqualified immutability. packages/main/src/core/verification.ts: evaluateSelectorNarrowing, collectRecordedPinnedReceipts and computeRecordedReceiptSetDigest form a pure proof that reads only recorded receipts, with ten refusal codes; the command form and its precondition are single-sourced here. packages/main/src/handlers/checklist.ts: narrowVerificationPin accepts a re-pin only when the new selector is absent from the retained outputTail of at least one recorded receipt of the same pinned command that the old selector matched on a failing run, and matches every recorded passing receipt, on the same story material, predating the request; both pins, both receipts, the reason and the cited receipt ids are retained; a recorded-receipt set admits at most one narrowing; eight further refusal codes; the enforcement floor and the concurrent-write path now teach the route instead of claiming immutability. Registered as the command verification_pin_narrow across cli/command-catalog.ts, core/command-policy.ts, core/config.ts and core/process-fact-levels.ts, with typed rows in core/process-fact-registry.ts. core/evidence-pin-guard.ts teaches a runnable command form whose first line is true read alone. core/prompt-envelope.ts: the triage-authority guard no longer false-positives on ordinary prose about story priority, and disqualifies that pair only when no decisive relation joins the terms, using one shared verb list that also makes the two dedicated detectors stricter. packages/main/src/tasks/narrowing-repin-smoke.ts (new, 25 cases) plus fixtures in prompt-full-context-envelope-smoke.ts; docs/requirements/decisions/narrowing-only-evidence-repin.md (new) and a section of CLAUDE.md.",
+  "usage": "proof-or-stop verification_pin_narrow --storyId=B-xxxx --itemId=CHK-nnn --intentRef=CHK-nnn:happy:0 --selector=<stricter selector> --reason=<at least thirty characters>. The refusal you meet when a selector no longer matches prints that exact form with your own ids filled in. npm run test:narrowing-repin runs the suite.",
+  "expectedOutcome": "A receipt can be audited on its own because it records the selector it was judged against, and a selector that was pinned to a line the renderer prints on every branch can be corrected to a discriminating one when the tool's own receipts prove the correction strictly narrower, while loosening stays refused everywhere.",
+  "actualTranscript": "narrowing-repin-smoke: PASS, 25 cases; npm run test:narrowing-repin the same; prompt-full-context-envelope-smoke PASS; retired authority vocabulary guard PASS builds=811; validation-tier-planner-smoke PASS. The delivery reviewer copied the command form from the live refusal and ran it: accepted by the schema and refused on the merits with narrowing_no_recorded_failing_render. Four REVIEW rounds, 22 findings, 21 resolved and 1 dismissed with a repository draft; four local lanes and three independent cross-host reviews all PASS.",
+  "outcomeDiff": "No difference between expected and actual.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "The engineered-failing-run case is an accepted limitation, not a bound: the witness must be a genuine tool-recorded receipt of the same pinned command, judged and matched by the current pin, recorded on the same story material and predating the request, and the candidate must match every recorded passing receipt, but an operator who can drive that command to fail on the same material can still mint a qualifying witness, because no receipt records why a run failed. Absence is asserted only within the retained outputTail, not the whole run. Narrowing is available only inside an unchanged-material window. The triage guard's decisive-verb list stays closed, so paraphrases such as settles bypass the generic-pair rule; that is pre-existing and recorded as draft triage-authority-verb-list-is-closed.",
+  "pitfalls": "A framework guard read this story's own checklist prose as unsafe triage authority and blocked review_run_start for every lane, so round 1 produced four unsigned reviews; the checklist context is frozen outside INIT, so the fix belonged in the guard, and the lanes were re-run signed. Narrowing that guard by disqualifying a term pair on proximity alone reopened the hole it protects, which a reviewer caught by driving the real entry point rather than reading the diff. Three separate findings came from one shape: a documentation check built on a substring survives deleting the sentence it claims to verify, including one that survived because a pre-mortem row repeated the phrase with different punctuation. Two pinned selectors named sentences their own case did not prove, which the pins being immutable meant fixing by making the case prove its sentence. Registering a command needs four files, not two: the catalog and policy are not enough, because the phase gate intersects the policy ceiling with the phase-tools table and a policy entry without a process-fact row fails the lifecycle registry contract. Two repository-wide pinned counts, a build ceiling and an inventory digest, moved because this story added one scanned file and one validate command.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 112795543
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 77789
+    },
+    "PLAN": {
+      "count": 4,
+      "durationMs": 1065133
+    },
+    "DEV": {
+      "count": 7,
+      "durationMs": 10638316
+    },
+    "REVIEW": {
+      "count": 4,
+      "durationMs": 6818984
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 600562
+    }
+  },
+  "totalDurationMs": 131997296,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-04T02:15:43.395Z",
+  "updatedAt": "2026-09-04T02:15:43.395Z"
+}
