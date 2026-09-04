@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Commit the reviewed executable done_prepare/DONE parity RED and register it",
       "context": "Candidate probe rp-mtn2kjzu-pap3kp and red review rr-mtn2kqun-vcqatu bind the exact executable design; red/green relation rgr-mtn2ppnx-h2nqoj and passing evaluation rgre-mtn2ptyg-asgnhf bind the same command to current-main RED and isolated-candidate GREEN. Before implementation, the test exits 1 because the real DONE guard rejects missing dev_memory_finish_decision and stale scopeBinding.diffPackHash while buildDoneClosureRunbook has neither blocker row. The already-run GREEN candidate proves the unchanged test can pass after the parity fix, but DEV must commit this test and rerun it in the Story worktree.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-04T20:53:57.577Z",
-      "endTime": null,
+      "endTime": "2026-09-04T20:58:39.582Z",
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md#command-contract",
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md#target-capability"
@@ -63,6 +63,13 @@
             }
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "2d5cf2e2003a5653a675cdcb163ee28d2cb1241f1c0ced1735ce59326a77ebde",
+        "storyFilesHash": "e3fec69858fc9a08ecf097d3ef58056f09de51f27dcc72bbf4615c61ca4230eb",
+        "headHash": "414e02135bdae86f899b3c574bf348970b07bcc1",
+        "attestedAt": "2026-09-04T20:58:39.824Z",
+        "materialHash": "7e3c95c5e8b697114daa3daca78aa5505f2ab0736387fee0a39996daedc6eb7d"
       }
     },
     {
@@ -216,6 +223,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin DEV by materializing the reviewed RED, adding the scope-review-required read-only controls, and registering the exact command before any production change."
+    },
+    {
+      "timestamp": "2026-09-04T20:58:39.582Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer commit 414e02135b registers the executable test; owner rerun reproduced exactly two parity failures while both real-DONE controls and the read-only evidence/git-state control passed."
     }
   ]
 }
