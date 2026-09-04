@@ -1,0 +1,16 @@
+{
+  "name": "codex-hook-assets-drift-from-generator",
+  "title": "Regenerate the tracked Codex hook assets from the generator and pin byte-equality with a smoke",
+  "description": "The committed .codex/hooks/*.cjs sibling hooks and .codex/hooks.json disagree with what init-assets.ts and managed-assets.ts generate today (duplicated ROOT_MARKERS, deprecated alias fallbacks, Proofbound statusMessage strings). Regenerate them fully on main, and add a smoke that renders the generator output and asserts byte-equality with the committed files so a merge-only regeneration can never leave silent drift again. Origin: B-af1b finding F-002 (low), deferred under the defect triage rule.",
+  "type": "chore",
+  "priority": "medium",
+  "keywords": [
+    "codex",
+    "managed-assets",
+    "init-assets",
+    "hooks.json",
+    "drift",
+    "generator"
+  ],
+  "createdAt": "2026-09-04T08:27:26.316Z"
+}
