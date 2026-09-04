@@ -617,6 +617,21 @@
       "resolvedReason": "Fixed by proof-or-stop-implementer commit cdd27da952210d8c13d56cb639927673112deaf5 and independently verified in concept review run B-fe8f:RR-060. The owner mutation first appends current-trust exact-signed legacy lifecycle receipt bindings without rewriting historical bytes, then persists the terminal transition. The complete Story 3 smoke exited 0: pre-migration legacy projection remained open, valid re-attestation restored terminal state with immutableBytes=true and replayRows=0, wrong receipt/hash/story/key/chain/partial/duplicate bindings were rejected, post-upgrade omission remained open, and the real B-fe8f corpus migrated from open projection to terminal.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-030",
+      "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1312-1317 — version-proof false failure after 9d44c9f980: assertVersionSync says later Stories may advance the repository patch, but still requires the globally installed CLI version to equal readSyncedVersion(repositoryRoot) from this behind Story worktree. On the current committed review state the worktree/local CLI is 0.3.274, global/main CLI is 0.3.275, and `node packages/main/dist/tasks/finding-ledger-runtime-smoke.js` exits 1 with `installed CLI version 0.3.275 differs from current 0.3.274` after all preceding Story 3 matrices pass. This makes the accepted version proof non-convergent under the normal later-main-bump condition it claims to support; retain the Git-derived proof that B-fe8f made exactly one patch bump, but do not require a behind worktree and the independently advancing installed main CLI to be identical.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-04T07:49:29.909Z",
+      "reviewRound": "2026-09-04T07:45:25.427Z",
+      "reviewRunId": "B-fe8f:RR-067",
+      "_hash": "5217b46a3bad4b1e3771b80bbbfe613a779fc97a00df53848aced8d85a4998bf",
+      "signatureTag": "edge|unknown|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
