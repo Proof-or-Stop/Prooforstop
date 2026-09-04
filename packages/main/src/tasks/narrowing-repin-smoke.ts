@@ -987,6 +987,72 @@ function assertDocumentationDoesNotOverclaim(): void {
   }
 }
 
+type DocLabel = 'decision doc' | 'CLAUDE.md';
+
+/** Whitespace-normalised, so a claim the document wraps across lines is still one string. */
+function squashWhitespace(text: string): string {
+  return text.replace(/\s+/g, ' ');
+}
+
+/**
+ * The literal sentence each document carries a claim of CHK-003:happy:0 in, quoted from
+ * the document itself. They are the mutation corpus: C4 re-runs its whole documentation
+ * check set against a copy of the document with one of these deleted, and that run MUST
+ * fail. Quoting the sentence independently of the checks is what makes the mutation a
+ * proof rather than a restatement of whatever the checks happen to grep for (B-1482
+ * F-020: `includes('narrowing')` survives the deletion of the narrowing-ONLY rule, and
+ * nothing at all read the recorded-receipts-only rule).
+ */
+const DOCUMENTED_CLAIM_SENTENCES: ReadonlyArray<{ claim: string; sentences: Record<DocLabel, string> }> = [
+  {
+    claim: 'the narrowing-only rule',
+    sentences: {
+      'decision doc': 'Loosening stays refused everywhere.',
+      'CLAUDE.md': 'loosening it stays refused everywhere',
+    },
+  },
+  {
+    claim: 'that the proof reads only tool-recorded receipts',
+    sentences: {
+      'decision doc': 'Its only inputs are tool-recorded receipts',
+      'CLAUDE.md': 'The proof reads tool-recorded receipts only.',
+    },
+  },
+];
+
+/**
+ * Every documentation claim C4 checks, for ONE document. Extracted so the same check set
+ * can be run against a MUTATED copy of the document: a claim whose check survives the
+ * deletion of the sentence that states it is not being checked at all.
+ */
+function assertDocumentationClaims(label: DocLabel, text: string): void {
+  assert.equal(
+    text.toLowerCase().includes(OVERCLAIM), false,
+    `${label} must NOT claim the engineered-failing-run case is "${OVERCLAIM}"`,
+  );
+  assert.ok(text.includes('accepted limitation'), `${label} records the gap as an accepted limitation`);
+  assert.ok(
+    text.includes('no receipt records why a run failed'),
+    `${label} states WHY the gap is not bounded`,
+  );
+  if (label === 'decision doc') {
+    assert.ok(text.includes('narrowing'), 'the decision doc states the narrowing-only exception');
+  }
+  // Both documents present their tables as COMPLETE, so completeness is asserted
+  // against the codes the implementation can actually emit, not against a
+  // hand-copied subset that drifts the moment a branch is added.
+  for (const code of ALL_NARROWING_REFUSAL_CODES) {
+    assert.ok(text.includes(code), `${label} lists the refusal code ${code}`);
+  }
+  if (label === 'CLAUDE.md') {
+    assert.ok(text.includes(NARROW_COMMAND), 'CLAUDE.md documents the command form');
+    assert.ok(
+      text.includes('at most one') || text.includes('at most ONE'),
+      'CLAUDE.md states the one-narrowing-per-recorded-receipt-set bound',
+    );
+  }
+}
+
 /**
  * The pre-mortem table read. Performed by BOTH cases whose pinned intent sentence names
  * it (B-1482 F-013): CHK-003:happy:0 claims a case asserts the decision carries at least
@@ -1123,34 +1189,30 @@ const CHK003_CASES: SmokeCase[] = [
     id: 'CHK-003/C4',
     desc: 'the documentation states the engineered-failing-run gap as an accepted limitation, never as excluded',
     run: async () => {
-      const decision = readRepoFile(DECISION_DOC);
-      const claudeMd = readRepoFile(CLAUDE_MD);
-      for (const [label, text] of [['decision doc', decision], ['CLAUDE.md', claudeMd]] as const) {
-        assert.equal(
-          text.toLowerCase().includes(OVERCLAIM), false,
-          `${label} must NOT claim the engineered-failing-run case is "${OVERCLAIM}"`,
-        );
-        assert.ok(text.includes('accepted limitation'), `${label} records the gap as an accepted limitation`);
-        assert.ok(
-          text.includes('no receipt records why a run failed'),
-          `${label} states WHY the gap is not bounded`,
-        );
+      const documents: ReadonlyArray<[DocLabel, string]> = [
+        ['decision doc', squashWhitespace(readRepoFile(DECISION_DOC))],
+        ['CLAUDE.md', squashWhitespace(readRepoFile(CLAUDE_MD))],
+      ];
+      // Every claim, against the documents as they stand.
+      for (const [label, text] of documents) {
+        assertDocumentationClaims(label, text);
       }
-      // The decision doc must also carry the invariant, the bound and every refusal code,
-      // so it is the record the PLAN scope review found missing rather than a summary.
-      assert.ok(decision.includes('narrowing'), 'the decision doc states the narrowing-only exception');
-      // Both documents present their tables as COMPLETE, so completeness is asserted
-      // against the codes the implementation can actually emit, not against a
-      // hand-copied subset that drifts the moment a branch is added.
-      for (const code of ALL_NARROWING_REFUSAL_CODES) {
-        assert.ok(decision.includes(code), `the decision doc lists the refusal code ${code}`);
-        assert.ok(claudeMd.includes(code), `CLAUDE.md lists the refusal code ${code}`);
+      // B-1482 F-020: and the same check set against a copy of the document with ONE
+      // quoted sentence deleted, which must fail. A claim whose check survives that
+      // deletion is not being checked -- the defect this case carried for the
+      // narrowing-ONLY rule (a document about narrowing satisfies includes('narrowing')
+      // whether or not the rule is stated) and for the recorded-receipts-only rule
+      // (nothing read it at all).
+      for (const [label, text] of documents) {
+        for (const { claim, sentences } of DOCUMENTED_CLAIM_SENTENCES) {
+          const sentence = sentences[label];
+          assert.ok(text.includes(sentence), `${label} carries the sentence stating ${claim}: "${sentence}"`);
+          assert.throws(
+            () => assertDocumentationClaims(label, text.replace(sentence, '')),
+            `${label}: the checks must FAIL once the sentence stating ${claim} is deleted`,
+          );
+        }
       }
-      assert.ok(claudeMd.includes(NARROW_COMMAND), 'CLAUDE.md documents the command form');
-      assert.ok(
-        claudeMd.includes('at most one') || claudeMd.includes('at most ONE'),
-        'CLAUDE.md states the one-narrowing-per-recorded-receipt-set bound',
-      );
       // The last clause of this case's own intent sentence: the decision itself carries
       // at least four pre-mortems. Asserted here, in the case that sentence is pinned to,
       // so a weakening of C7 that still left it passing can no longer leave this evidence
