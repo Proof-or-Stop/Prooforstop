@@ -413,6 +413,92 @@ async function recordA745Corpus(): Promise<{ env: Env; command: string; modePath
   return { env, command, modePath };
 }
 
+/**
+ * The three refusals CHK-002:edge:0 names ALONGSIDE the second-narrowing bound. B-1482
+ * F-011: that sentence is pinned to B6, whose own assertions only ever covered the
+ * bound, so a reader following the pinned selector landed on a case that does not test
+ * three of the four behaviours the sentence claims. Each refusal is performed here and
+ * called by BOTH the sibling case that owns it and by B6, the way F-007 shared the
+ * documentation grep. The siblings are unchanged in what they prove.
+ */
+async function assertLooseningRefused(): Promise<void> {
+      const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' }]);
+      try {
+        seedRecordedReceipts(env, PASS_CMD, NEW_SELECTOR, [
+          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: NEW_SELECTOR },
+          { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: NEW_SELECTOR, selectorMatched: false },
+        ]);
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
+            selector: OLD_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_selector_loosens/,
+          'B2 loosening',
+        );
+        assert.equal(readPin(env, 1)?.selector, NEW_SELECTOR, 'the pin is unchanged after the refusal');
+        assert.equal(readNarrowings(env, 1).length, 0, 'no narrowing was retained');
+      } finally { cleanup(env); }
+}
+
+/** B4's refusal, shared with B6 — see {@link assertLooseningRefused}. */
+async function assertMissingProofSideRefused(): Promise<void> {
+      const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-OTHER', type: 'cli' }]);
+      try {
+        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
+          { intentRef: 'INT-OTHER', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
+        ]);
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PASS',
+            selector: NEW_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_no_recorded_failing_render/,
+          'B4 no failing render',
+        );
+        // The mirror image: a failing render with no recorded PASSING receipt is refused too,
+        // so "matches every passing receipt" can never hold vacuously.
+        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+          { intentRef: 'INT-PASS', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR },
+        ]);
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PASS',
+            selector: NEW_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_no_recorded_passing_receipt/,
+          'B4 no passing receipt',
+        );
+        assert.equal(readPin(env, 0)?.selector, OLD_SELECTOR, 'the pin is unchanged after both refusals');
+      } finally { cleanup(env); }
+}
+
+/** B5's refusal, shared with B6 — see {@link assertLooseningRefused}. */
+async function assertAbsentFromPassingReceiptRefused(): Promise<void> {
+      const env = makeEnv([
+        { ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-PASS2', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' },
+      ]);
+      try {
+        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
+          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
+          // A second known-good run that never printed the candidate: narrowing to it would
+          // start failing a run that genuinely passed.
+          { intentRef: 'INT-PASS2', exitCode: 0, tail: `${OLD_SELECTOR}\n${PLAN_ONLY_EXTRA}\n`, selector: OLD_SELECTOR },
+          { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR },
+        ]);
+        await expectRejection(
+          narrow(env, {
+            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
+            selector: NEW_SELECTOR, reason: NARROW_REASON,
+          }),
+          /narrowing_selector_absent_from_passing_receipt/,
+          'B5 absent from a passing receipt',
+        );
+        assert.equal(readPin(env, 2)?.selector, OLD_SELECTOR, 'the pin is unchanged after the refusal');
+      } finally { cleanup(env); }
+}
+
 const CHK002_CASES: SmokeCase[] = [
   {
     id: 'CHK-002/B1',
@@ -467,23 +553,7 @@ const CHK002_CASES: SmokeCase[] = [
     id: 'CHK-002/B2',
     desc: 'a loosening re-pin is refused naming the recorded receipt that proves it is broader',
     run: async () => {
-      const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' }]);
-      try {
-        seedRecordedReceipts(env, PASS_CMD, NEW_SELECTOR, [
-          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: NEW_SELECTOR },
-          { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: NEW_SELECTOR, selectorMatched: false },
-        ]);
-        await expectRejection(
-          narrow(env, {
-            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
-            selector: OLD_SELECTOR, reason: NARROW_REASON,
-          }),
-          /narrowing_selector_loosens/,
-          'B2 loosening',
-        );
-        assert.equal(readPin(env, 1)?.selector, NEW_SELECTOR, 'the pin is unchanged after the refusal');
-        assert.equal(readNarrowings(env, 1).length, 0, 'no narrowing was retained');
-      } finally { cleanup(env); }
+      await assertLooseningRefused();
     },
   },
   {
@@ -513,62 +583,14 @@ const CHK002_CASES: SmokeCase[] = [
     id: 'CHK-002/B4',
     desc: 'a corpus missing either side of the proof is refused naming the missing side',
     run: async () => {
-      const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-OTHER', type: 'cli' }]);
-      try {
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
-          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
-          { intentRef: 'INT-OTHER', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
-        ]);
-        await expectRejection(
-          narrow(env, {
-            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PASS',
-            selector: NEW_SELECTOR, reason: NARROW_REASON,
-          }),
-          /narrowing_no_recorded_failing_render/,
-          'B4 no failing render',
-        );
-        // The mirror image: a failing render with no recorded PASSING receipt is refused too,
-        // so "matches every passing receipt" can never hold vacuously.
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
-          { intentRef: 'INT-PASS', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR },
-        ]);
-        await expectRejection(
-          narrow(env, {
-            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PASS',
-            selector: NEW_SELECTOR, reason: NARROW_REASON,
-          }),
-          /narrowing_no_recorded_passing_receipt/,
-          'B4 no passing receipt',
-        );
-        assert.equal(readPin(env, 0)?.selector, OLD_SELECTOR, 'the pin is unchanged after both refusals');
-      } finally { cleanup(env); }
+      await assertMissingProofSideRefused();
     },
   },
   {
     id: 'CHK-002/B5',
     desc: 'a candidate absent from a recorded PASSING receipt is refused naming that receipt',
     run: async () => {
-      const env = makeEnv([
-        { ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-PASS2', type: 'cli' }, { ref: 'INT-FAIL', type: 'cli' },
-      ]);
-      try {
-        seedRecordedReceipts(env, PASS_CMD, OLD_SELECTOR, [
-          { intentRef: 'INT-PASS', exitCode: 0, tail: PASS_TAIL, selector: OLD_SELECTOR },
-          // A second known-good run that never printed the candidate: narrowing to it would
-          // start failing a run that genuinely passed.
-          { intentRef: 'INT-PASS2', exitCode: 0, tail: `${OLD_SELECTOR}\n${PLAN_ONLY_EXTRA}\n`, selector: OLD_SELECTOR },
-          { intentRef: 'INT-FAIL', exitCode: 1, tail: FAIL_TAIL, selector: OLD_SELECTOR },
-        ]);
-        await expectRejection(
-          narrow(env, {
-            storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL',
-            selector: NEW_SELECTOR, reason: NARROW_REASON,
-          }),
-          /narrowing_selector_absent_from_passing_receipt/,
-          'B5 absent from a passing receipt',
-        );
-        assert.equal(readPin(env, 2)?.selector, OLD_SELECTOR, 'the pin is unchanged after the refusal');
-      } finally { cleanup(env); }
+      await assertAbsentFromPassingReceiptRefused();
     },
   },
   {
@@ -605,6 +627,15 @@ const CHK002_CASES: SmokeCase[] = [
           /receipt_selector_absent/,
           'B6 corpus growth',
         );
+
+        // B-1482 F-011: this case's own intent sentence names three MORE refusals than the
+        // bound above. They are performed here, in the case that sentence is pinned to, so
+        // a silent weakening of B2/B4/B5 that still left those siblings passing can no
+        // longer leave this evidence reading verified with three of its four named
+        // behaviours untested by anything the pin actually checks.
+        await assertLooseningRefused();
+        await assertMissingProofSideRefused();
+        await assertAbsentFromPassingReceiptRefused();
       } finally { cleanup(env); }
     },
   },
