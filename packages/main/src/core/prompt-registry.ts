@@ -169,7 +169,11 @@ const LEGACY_COMPLEX_TEMPLATE_SHA256: Readonly<Record<string, string>> = Object.
   // This digest is what that combination reconstructs.
   'lattice-review-story-init': 'a03b6bac5a6b5e8e270b6e92dc7cbd373ec4e2c8e50f532335cf10143d12dd9c',
   'lattice-review-scope-plan': '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
-  'lattice-implementer': '00b0181fafb0f6f5c93f0d945063d3b0732fa695ea88cae1c63e2b8767353829',
+  // origin/main merge 2 (B-9a49): repinned because origin edited this template and our
+  // side keeps two deliberate deltas from it -- our managed-marker spelling (other pins
+  // depend on it) and our clearer 'the relevant reviewer lane' wording where origin says
+  // 'proof-or-stop-reviewer'. Same 150 lines, no other difference.
+  'lattice-implementer': '820853ba6390ac8db9cfd6d784a2e06424eb5c5da168d4874e3d12213fa35435',
   'lattice-review-delivery': '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
   'lattice-evaluator': 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
 });
