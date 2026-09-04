@@ -276,7 +276,7 @@
       "desc": "packages/main/src/handlers/checklist.ts:755,760,881 (enforceAndStampEvidence / applyVerificationPin): F-005 rewrote the PreToolUse advisory message in evidence-pin-guard.ts computeEvidencePinVerdict (which is only invoked via the verification_pin_guard_check hook path, per process-fact-levels.ts) to name verification_pin_narrow, but the ACTUAL mechanical refusal a caller hits by calling verification_evidence_add directly (the primary, authoritative path -- checklist.ts:1955 verification_evidence_add -> enforceAndStampEvidence) still throws receipt_command_mismatch/receipt_selector_mismatch with the unqualified parenthetical \"(the verification pin is immutable)\" and no mention of the narrowing escape. Any caller who calls the CLI directly, or is not running inside a host with the PreToolUse hook installed, hits this stale message and is never told verification_pin_narrow exists. evidence-pin-guard.ts is confirmed structurally separate: checklist.ts never calls computeEvidencePinVerdict (grep shows zero references outside evidence-pin-guard.ts and the smoke test). This is the same class of now-incomplete claim F-005 targeted, left unresolved on the more-frequently-hit path.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-03T23:22:24.107Z",
@@ -285,7 +285,8 @@
       "_hash": "201d1e3d5ab3f2695fae53bd32b388d7f14ddf1622fdb1e656290c937e5efc2a",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
-      "clusterId": "CL-003"
+      "clusterId": "CL-003",
+      "resolvedAt": "2026-09-04T00:17:41.109Z"
     },
     {
       "id": "B-1482:F-016",
