@@ -2942,7 +2942,7 @@ Behavior:
     cwd: z.string().optional().describe('Working directory for resolving relative paths (defaults to project root)'),
     json: z.boolean().optional().describe('Output structured JSON'),
   }},
-  { name: 'verification_pin_guard_check', description: 'B-1507: fail-open PreToolUse evidence-pin seatbelt for shell-tool hooks. Parses a proof-or-stop verification_evidence_add / verification_run command string and denies (exit 2 in the hook) when the caller command/selector mismatches the intent’s immutable pin; allows in every ambiguous case (the enforceAndStampEvidence handler is the real floor)', schema: {
+  { name: 'verification_pin_guard_check', description: 'B-1507: fail-open PreToolUse evidence-pin seatbelt for shell-tool hooks. Parses a proof-or-stop verification_evidence_add / verification_run command string and denies (exit 2 in the hook) when the caller command/selector mismatches the intent’s pin, which is immutable to evidence writes with exactly one audited narrowing exception (verification_pin_narrow); allows in every ambiguous case (the enforceAndStampEvidence handler is the real floor)', schema: {
     provider: z.string().optional().describe('Agent provider (informational; used to log who triggered the check)'),
     toolName: z.string().optional().describe('Name of the shell tool being invoked (e.g. Bash on Claude, the Codex shell tool)'),
     toolInputJson: z.string().optional().describe('JSON-encoded shell tool input; the command string is read from its .command field when commandString is absent'),

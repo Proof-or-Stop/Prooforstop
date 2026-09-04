@@ -1074,12 +1074,22 @@ function assertDocumentationClaims(label: DocLabel, text: string): void {
   for (const code of ALL_NARROWING_REFUSAL_CODES) {
     assert.ok(text.includes(code), `${label} lists the refusal code ${code}`);
   }
+  // Clause (3), the one-narrowing bound. CHK-003:happy:0 names it for BOTH documents,
+  // so both are checked (B-1482 F-021). Not `includes('at most one')`: the decision doc
+  // states the bound a second time in its PM-1 pre-mortem row, so that grep survives the
+  // deletion of the rule's own sentence. Asserted as the sentence form instead -- the set
+  // admits at most one narrowing, full stop -- plus the ordering half both documents
+  // state, which the PM-1 row does not carry.
+  assert.match(
+    text, /admits AT MOST ONE narrowing\./i,
+    `${label} states that a recorded-receipt set admits at most one narrowing`,
+  );
+  assert.match(
+    text, /re-checked FIRST[^.]*before the proof/i,
+    `${label} states the digest is re-checked FIRST, before the proof`,
+  );
   if (label === 'CLAUDE.md') {
     assert.ok(text.includes(NARROW_COMMAND), 'CLAUDE.md documents the command form');
-    assert.ok(
-      text.includes('at most one') || text.includes('at most ONE'),
-      'CLAUDE.md states the one-narrowing-per-recorded-receipt-set bound',
-    );
   }
 }
 
