@@ -1990,8 +1990,20 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const indexed = usable.every(({ causalReceipt: receipt, causalPreflight }) => {
         if (!receipt || !causalPreflight) return false;
         try {
-          if (store.readCausalEvidenceReceipt(storyId, receipt.executionKey)?.receiptHash !== receipt.receiptHash) return false;
-        } catch { // PROBE: a missing/tampered CAS index must block canonical import.
+          const stored = store.readCausalEvidenceReceipt(storyId, receipt.executionKey);
+          // The CAS index is authoritative only for receipts the writer actually
+          // stores. executeCausalEvidence (core/causal-evidence.ts) deliberately
+          // skips `reusable: false` receipts -- a non-PASS result is an execution
+          // outcome, not a reusable CAS value -- so demanding an index entry for
+          // one refuses every legitimately failing render as if it were tampered.
+          // Absence is therefore only evidence of tampering when the receipt is
+          // reusable; a present entry must still match byte for byte either way.
+          if (stored) {
+            if (stored.receiptHash !== receipt.receiptHash) return false;
+          } else if (receipt.reusable) {
+            return false;
+          }
+        } catch { // A missing/tampered CAS index must block canonical import.
           return false;
         }
         const input = causalPreflight.input;
