@@ -252,7 +252,11 @@ export function computeEvidencePinVerdict(
     verdict: 'deny',
     ...base,
     reasons: [
-      `evidence-pin seatbelt: this verification_evidence_add would be refused. The intent ${ref} is already pinned to an immutable verification (B-ec67) and your write does not match it.`,
+      // B-1482 F-019: reasons is an array, so a structured caller reads reasons[0] alone,
+      // and a truncated log or a skimming reader stops there too. The opening line
+      // therefore carries the qualifier itself instead of leaving a categorical claim
+      // for the third option below to correct three lines later.
+      `evidence-pin seatbelt: this verification_evidence_add would be refused. The intent ${ref} is already pinned (B-ec67) — immutable to evidence writes, with exactly one audited narrowing exception stated below — and your write does not match it.`,
       ...mismatches,
       `Fix: run \`proof-or-stop verification_run --storyId=${story} --intentRef=${ref}\` (it re-uses the pinned command), or pass the exact pinned command/selector.`,
       // B-1482: the pin is no longer immutable WITHOUT exception — exactly one movement
