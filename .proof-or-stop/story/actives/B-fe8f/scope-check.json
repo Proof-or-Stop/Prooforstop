@@ -1,379 +1,502 @@
 {
   "storyId": "B-fe8f",
-  "checkedAt": "2026-09-02T00:52:50.051Z",
+  "checkedAt": "2026-09-04T00:57:52.186Z",
   "features": [
     {
-      "feature": "Every Finding-system mutation is durable and has application-level exactly-once effect under the supported writer model.",
-      "covered_by": "CHK-002 + CHK-003 + CHK-004 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Executed mutable runtime artifacts are cryptographically bound to source material and command before later consumption.",
-      "covered_by": "CHK-004 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Story 3 owns P6 and the runtime half of P4, only mitigates persistence/runtime portions of P1, and makes no claim to reduce genuine repair work.",
-      "covered_by": "CHK-001 + CHK-004 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Audit and reuse per-Story, main/B-META, process-event, build, and Store transaction primitives instead of creating an uncoordinated lock tree.",
-      "covered_by": "CHK-001 + CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Deliver one Story in internal order 3A ledger integrity before 3B runtime integrity, with later authority unable to bypass that order.",
-      "covered_by": "CHK-002 -> CHK-003 -> CHK-004 -> CHK-005 -> CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/plan.md"
-    },
-    {
-      "feature": "The shared transaction primitive supports Finding, candidate-route, assessment-proposal/final-assessment, mandatory-repair, expiry-policy, deferral, supersession, route, baseline-set, material re-attestation, manifest, and receipt records.",
-      "covered_by": "CHK-002 + CHK-003 + CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "A schema-neutral fenced transaction can append a standalone record or compare exact referenced bytes/current-chain state and atomically commit multiple records without interpreting their semantics.",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Record IDs are collision-resistant, append-only, and independent of mutable array length.",
+      "feature": "Deliver fenced exactly-once Finding ledger writes as the first Dynamic Finding implementation dependency",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "description"
     },
     {
-      "feature": "Idempotency-key replay returns the original semantic and receipt IDs with zero additional rows.",
-      "covered_by": "CHK-002 + CHK-003 + CHK-004",
+      "feature": "Deliver signed runtime-evidence freshness on the ledger foundation",
+      "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "description"
     },
     {
-      "feature": "Exact-record CAS binds expected record IDs/hashes, observed chain head, predicate digest, and prior ledger digest; every mismatch writes zero semantic rows.",
-      "covered_by": "CHK-003",
+      "feature": "RED audits and characterizes current locks, store transactions, and receipts before claiming a defect",
+      "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "description"
     },
     {
-      "feature": "Successful local-FS publication completes temp write, file fsync, atomic rename, directory fsync, and installed-digest verification before success is returned.",
+      "feature": "RED records executable failures only for remaining non-conforming contracts and preserves already-correct behavior as a passing baseline",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "GREEN proves accepted ledger/runtime-evidence migrations, adversarial cases, and non-authority boundaries",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Shared atomic append/transaction primitive covers every Finding-system record family without granting semantic authority",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/decision.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Crash/kill/partial-temp recovery is deterministic and a successor fence prevents a paused stale writer from publishing rows or receipts.",
-      "covered_by": "CHK-002 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "Unsupported multi-host/NFS, corruption, stale epoch, or insufficient writer capability assumptions fail closed before semantic mutation.",
-      "covered_by": "CHK-002 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "Canonical Story/B-META lock roots compose with Finding, process-event, and build writers without nested-lock deadlock.",
-      "covered_by": "CHK-001 + CHK-002 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "One hundred concurrent unique Finding appends produce exactly 100 unique durable rows.",
-      "covered_by": "CHK-002 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Concurrent/replayed/crashed legacy identity first reads converge on one immutable tuple/hash and record ID without rewriting legacy Finding bytes.",
-      "covered_by": "CHK-002 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "Concurrent mixed record-type transactions lose no rows and preserve all record references, including material re-attestations.",
-      "covered_by": "CHK-002 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "FindingLedgerReceipt carries and signs the complete accepted epoch, capability, operation, CAS, digest, replay, fence, trust, hash, and signature contract and never recursively receipts itself.",
+      "feature": "Schema-neutral locked transaction/CAS can validate exact record ID, hash, and current-chain bytes and conditionally commit multiple records",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "append_assessment_proposal atomically persists one immutable exact-union proposal plus one receipt, and its shared verifier rejects wrong authority/signature, altered union, missing lookup, stale/expired proposal, and proposal/final divergence.",
-      "covered_by": "CHK-003",
+      "feature": "Unique ledger record allocation is independent of mutable array length",
+      "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Mandatory-repair classify/close and expiry-policy records are append-only, unique, idempotent, and never half-visible with referenced manifests.",
-      "covered_by": "CHK-003",
+      "feature": "Idempotency keys, expected-prior digest/CAS, durable commit receipts, replay results, and explicit conflicts are supported",
+      "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Standalone receipt and initial receipt-plus-four-baseline bundles are complete-or-absent, exact-byte receipted, idempotent, and retain signed non-gate authority markers.",
-      "covered_by": "CHK-003 + CHK-005",
+      "feature": "Crash/interruption recovery and stale-lock diagnostics preserve deterministic ledger state",
+      "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "A later CandidateRoute CAS can consume an exact standalone receipt while any conflict leaves the receipt byte-identical and writes no route.",
-      "covered_by": "CHK-003",
+      "feature": "Fenced writer contract covers canonical shared local filesystem, crash/kill/retry/stale locks/partial temp writes, fsync and atomic rename, while unsupported multi-host/NFS or corruption assumptions refuse",
+      "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "A later Story 1 exact receipt/baseline CAS can atomically commit deferral plus manifest/action or neither, with idempotent same-ID retry.",
-      "covered_by": "CHK-003 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Concurrent revoke/supersede versus apply has a deterministic serialized winner and no commit can bind a non-latest receipt.",
-      "covered_by": "CHK-003 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "RuntimeEvidenceReceipt has a production signer/verifier and build/execution adapter, not merely a test helper.",
+      "feature": "RuntimeEvidenceReceipt signer, verifier, and build/execution adapter are provided",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Real registered finding_runtime_evidence_run and finding_runtime_evidence_verify CLI handlers execute, persist, reload, and verify through the production adapter.",
+      "feature": "Runtime receipts bind artifact digest, source HEAD, environment, command, output, timing, and exit status",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Runtime receipts bind source HEAD/material, build policy/command, execution command, outputs, allowlisted/redacted environment, artifact manifest, toolchain, producer, key, algorithm, trust root, and freshness policy through immutable content-addressed blobs.",
+      "feature": "Runtime evidence uses content-addressed command/output/environment/artifact-manifest blobs with canonicalization, realpath, toolchain, key trust, rotation, revocation, and freshness checks",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Build-in-progress is refused and artifact identity/digest/realpath/build state must remain stable before, during, and after execution.",
+      "feature": "Build-in-progress is refused and post-run artifact stability is checked",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Runtime verification rejects source/command/environment/toolchain/output/artifact/trust/blob/signature/realpath/TOCTOU tamper with deterministic reason codes and leaks no secrets or protected paths.",
-      "covered_by": "CHK-004 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "append_runtime_receipt uses the Story 3 ledger exactly once: replay and crash/retry return original runtime-record and ledger-receipt IDs without half-visible or duplicate rows.",
-      "covered_by": "CHK-004",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "Process facts distinguish atomic persistence authority from gate-eligible runtime evidence and never promote stored candidate/route/baseline/history/receipt bytes into semantic lifecycle authority.",
+      "feature": "Atomic persistence and gate-eligible runtime evidence are registered as distinct process facts",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "finding_ledger_query exposes signed deterministic complete ledger/CAS/idempotency/runtime-scorecard/migration inputs with no protected storage paths.",
+      "feature": "Ledger/CAS/idempotency/runtime scorecard inputs are exposed through a signed deterministic read-only query without protected paths",
       "covered_by": "CHK-005",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Registry, command-policy, phase-allowlist, direct-consumer, authority-marker, incomplete-row, and path-leakage mutations fail mechanically.",
-      "covered_by": "CHK-005 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "Story 3 builds with no import from Story 2 or Story 1, while 3B may consume only 3A schema-neutral APIs.",
-      "covered_by": "CHK-005 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "The actual Story dependency DAG is enforced: B-03b7 depends on B-fe8f and B-e6d9 depends on both B-fe8f and B-03b7; failed early advances write no transition.",
-      "covered_by": "CHK-005 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/index.json"
-    },
-    {
-      "feature": "Public query scorecard inputs are deterministic, complete, signed, reject tamper/incompleteness, and are consumed without protected-storage parsing.",
-      "covered_by": "CHK-005 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "RED first audits current primitives, preserves already-correct behavior, and creates failures only for genuine current contract gaps rather than replaying an assumed historical race.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "Every genuine RED is recorded through official red_evidence_create and a digest-bound immutable red_green_relation that proves pre-fix failure and later unchanged-assertion GREEN.",
-      "covered_by": "CHK-001 + CHK-006",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
-    },
-    {
-      "feature": "The RED commit modifies no production files and contains only the executable characterization artifact plus CLI-owned evidence.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/plan.md"
-    },
-    {
-      "feature": "Final GREEN covers concurrency, CAS, runtime, tamper, registry, query, dependency, rollback, migration, and preserves characterized existing behavior without weakening RED.",
+      "feature": "One hundred concurrent unique Finding appends produce exactly one hundred unique durable rows",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Rollback/kill-switch and schema-epoch migration preserve committed readable history, reject unsupported epochs, and cause no data loss or legacy byte rewrite.",
+      "feature": "Concurrent/replayed/crashed legacy identity first reads converge on one immutable receipted binding and reject collision or changed legacy bytes",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Because this Story changes CLI/runtime behavior, patch version increments exactly once across root package, main package, lockfile, packages/main/src/core/lattice-brand.ts LATTICE_CLI_VERSION, local CLI, and installed CLI.",
+      "feature": "Concurrent mixed record-family writes lose no rows and preserve referential integrity",
       "covered_by": "CHK-006",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Detector classification and detector precision implementation are outside Story 3.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Owned by Story 2/detector work; Story 3 remains schema-neutral persistence/runtime evidence.",
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Canonical defect judgment, identity inference, and historical recall/index behavior are outside Story 3.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Owned by Finding Identity and Historical Lineage (B-03b7).",
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Applicability verdicts, deferral eligibility, and lifecycle blocker enforcement are outside Story 3.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Owned by Dynamic Finding Applicability (B-e6d9); Story 3 persists exact bytes only.",
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Target-owner routing judgment and route semantic signer/verifier are outside Story 3.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Owned by B-03b7; a persisted route receipt alone remains non-gate.",
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "Expiry-policy judgment and material-drift related/unrelated interpretation are outside Story 3.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Story 3 stores and exact-byte receipts these records but never decides their semantics.",
-      "source": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
-    },
-    {
-      "feature": "The accepted F-013 clean-install expansion is limited to canonical @proof-or-stop/lab packaging/bootstrap paths already acknowledged by scope-ack:4; it does not authorize any further brand or package rename.",
-      "covered_by": "scope-ack:4 + CHK-006",
+      "feature": "Assessment proposal append atomically persists one immutable proposal and one non-recursive ledger receipt and rejects invalid proposal authority or payload",
+      "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/scope-contract.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     },
     {
-      "feature": "Story 3 does not replace review convergence/stall handling or claim persistence/runtime evidence proves semantic acceptance or reduces genuine defect repair.",
-      "covered_by": null,
-      "status": "excluded",
-      "excluded_by": "Persistence proves exact durable bytes and runtime receipts prove executed bytes only; convergence and semantic acceptance remain separately owned.",
-      "source": ".lattice/story/actives/B-fe8f/background.md"
-    },
-    {
-      "feature": "CHK-001:happy:2 uses the existing pinned RED command and red.production_unchanged: PASS selector through type=logic so the must intent can receive a mechanical exitCode=0/selectorMatched=true receipt; no product or implementation scope changes.",
-      "covered_by": "CHK-001:happy:2",
+      "feature": "Mandatory-repair and expiry-policy records remain append-only, unique, idempotent, and never half-visible with manifest references",
+      "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".lattice/story/actives/B-fe8f/checklist.json"
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Story 2 may atomically persist a standalone receipt or an initial finding-route receipt plus all four baseline entries, with complete-or-none crash recovery and zero gate authority",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Persisted progress-baseline authority markers remain byte-exact non-gate facts and mutation/profile impersonation cannot promote them",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "A later candidate-route transaction exact-CAS checks its receipt and writes only the route, leaving a standalone receipt intact on refusal",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "A later Story 1 callback may exact-CAS a receipt and baseline set and atomically write deferral plus manifest/action without Story 3 interpreting their semantics",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Concurrent route receipt revocation/supersession versus deferral apply has a deterministic serial winner and cannot commit against a non-latest receipt",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Replaying all one hundred idempotency keys returns the same IDs with zero new rows",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Two stale expected-digest writers receive explicit conflict and cannot silently overwrite each other",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Process kill between prepare and commit recovers deterministically with no half-visible row",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Artifact mutation before, during, or after execution invalidates or refuses a runtime receipt",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Receipt tamper, wrong source HEAD, changed command, changed artifact bytes, and changed environment are rejected",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Partial receipt/baseline persistence, wrong baseline ID/hash, missing baseline kinds, byte mutation, and malformed re-attestation persistence fail without half-visible authority",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "The canonical ledger transaction composes with existing Finding and B-META paths without nested-lock deadlock",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Dependency checks enforce 3A imports neither 3B nor Story 2/1, 3B imports only 3A, and schema-neutral callbacks remain usable",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Registry, command-policy, and phase-allowlist mutation checks reject gate bypass and advisory/receipt promotion",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Scorecard query fixtures return exact deterministic atomicity/CAS/runtime rows and reject missing, tampered, incomplete, or protected-path data",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Legacy Finding bytes remain readable and first-read identity migration appends a signed binding instead of rewriting history",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Story 3 completes 3A ledger integrity before 3B runtime integrity and before downstream authoritative Story 2/Story 1 use",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Detector classification is not implemented in Story 3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No Story 2 identity/lineage behavior.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Canonical defect identity or semantic duplicate judgment is not implemented in Story 3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No canonicalDefectId or semantic duplicate policy.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Applicability verdicts are not implemented in Story 3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No applicability or route authorization decision.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Target-authority and routing semantics are not interpreted or signed by Story 3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The schema-neutral handler does not interpret route profiles, assessment verdicts or gate meaning.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Expiry-policy eligibility judgment is not implemented in Story 3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No Story 1 applicability, deferral or lifecycle gate enforcement.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Historical recall and lineage behavior are not implemented in Story 3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No Story 2 identity/lineage behavior.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Lifecycle gate enforcement is not implemented by Story 3 persistence rows",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No L4 authority for standalone candidate, route, baseline, historical or ledger receipt rows.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Lab package rename is outside Story 3",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No Story 1 applicability, deferral or lifecycle gate enforcement.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Runtime and ledger receipts do not prove semantic correctness, applicability, or acceptance",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The receipt proves executed bytes and freshness only, not semantic correctness or applicability.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
+    },
+    {
+      "feature": "Story 3 does not claim to solve review convergence or reduce genuine defect repair work",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "No Story 1 applicability, deferral or lifecycle gate enforcement.",
+      "source": "decisions:decisions/dynamic-finding-system-execution-plan.md"
     }
   ],
   "readManifest": {
     "filesReadFully": [
-      ".lattice/story/actives/B-fe8f/background.md",
-      ".lattice/story/actives/B-fe8f/checklist.json",
-      ".lattice/story/actives/B-fe8f/decision.json",
-      ".lattice/story/actives/B-fe8f/plan.md",
-      ".lattice/story/actives/B-fe8f/understanding.json",
       "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
     ],
-    "filesTriagedByName": [],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/closeout-convergence-and-burn-alert-root-cause.md",
+      "docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/plan-init-reopen.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "docs/requirements/decisions/verification-context-pack.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 50,
-    "covered": 44,
-    "excluded": 6,
+    "total": 49,
+    "covered": 39,
+    "excluded": 10,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-09-01T23:24:22.129Z",
-  "_hash": "9acf3c8c38179cdfce62504563f2b327a35b01a12523500875e4875ff7b3aaf6",
+  "reviewRound": "2026-09-04T00:49:49.115Z",
+  "_hash": "4e4d553c4b26914a130d7bbb48e4ef3602e15581d0020972857fb4d204544047",
   "openQuestions": []
 }
