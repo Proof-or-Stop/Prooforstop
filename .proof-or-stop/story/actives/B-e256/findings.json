@@ -79,6 +79,21 @@
       "signatureTag": "missing|unknown|packages-main-core",
       "signatureTagSource": "auto",
       "resolvedBy": "B-e256:F-004@47382c6"
+    },
+    {
+      "id": "B-e256:F-005",
+      "desc": "packages/main/src/core/version-bump.ts:210 (commit 47382c6681) is modified (export added to findBrandExport) outside the story scope-contract allowedModify list (scope_contract_check reports OUT_OF_SCOPE warn, mode=shadow) and there is no scope_question_resolve / acknowledgement recorded anywhere in the story artifacts (scope-contract.json, checklist.json, scope-check.json) naming this file. The change itself is small and sound (adds an `export` keyword plus a doc comment, no behavior change to version-bump.ts, verified byte-identical logic via mutation test), but it is an unacknowledged scope expansion that the CLAUDE.md scope-contract process requires to be declared/acknowledged rather than silently landed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-04T07:52:11.281Z",
+      "reviewRound": "2026-09-04T07:42:24.091Z",
+      "reviewRunId": "B-e256:RR-022",
+      "_hash": "69fe513037789732a327bd1063b71a16b20b38c43e76e4da4cae969d3961bf78",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
