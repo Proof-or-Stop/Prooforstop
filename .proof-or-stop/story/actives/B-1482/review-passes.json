@@ -238,6 +238,36 @@
         "scanEscalationReason": null
       },
       "_hash": "8cd97274f1559563c9c98fceae40ff84f2b759aeb44e738bb1f1314632692bf0"
+    },
+    {
+      "id": "B-1482:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Mechanical re-review (round 5, procedural cause not a new defect): confirmed via git diff --stat 8722d50d..2c4721b (the headHash bound to my round-4 pass RP-003/RR-009 -> current head) that the ONLY changes since RP-003 are story metadata (.proof-or-stop/story/actives/B-1482/*), dev-memory records (.proof-or-stop/dev-memory/*), and two unrelated docs/story/drafts/* files created by other stories; zero packages/main/src changes, zero CLAUDE.md/decision-doc changes. Re-swept for unqualified pin-immutability residue across evidence-pin-guard.ts, verification.ts, types.ts, checklist.ts, command-catalog.ts, CLAUDE.md and the decision doc: every immutable/immutability mention is qualified with the narrowing exception, none regressed to an unqualified claim. Cross-checked all 17 narrowing_* refusal codes plus intent_ref_unresolved thrown in checklist.ts/verification.ts against both CLAUDE.md's refusal-code list and the decision doc's refusal table: every reachable code is documented and every documented code exists in code, both directions. Confirmed the engineered-failing-run limitation is still stated as bounded-not-closed / accepted-limitation / never-described-as-prevented in both CLAUDE.md and the decision doc (PM-4). Ran node packages/main/dist/tasks/narrowing-repin-smoke.js: all 25 cases (A1-A3, B1-B12, C1-C10) PASS. No open blocking findings on the story. No new findings this round.",
+      "createdAt": "2026-09-04T03:05:42.158Z",
+      "reviewRound": "2026-09-04T03:00:49.049Z",
+      "reviewRunId": "B-1482:RR-013",
+      "envelopeId": "887382a770e29ba8c38e1225463097b1c56fe9d035448fbef2a9fe2131e84d6e",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-1482/review-passes.json",
+          ".proof-or-stop/story/actives/B-1482/review-runs.json",
+          "CLAUDE.md",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-pin-guard.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/core/verification.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/evidence-pin-guard.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a8ca93b374ff00cba99801d6e5acbcea2563878fb7287b74a3b12bff1c317cb4"
     }
   ]
 }
