@@ -1,0 +1,9 @@
+{
+  "name": "story-resume-unreachable-behind-stale-lease",
+  "title": "A frozen story whose owner lease is stale cannot reach story_resume: the takeover the lease gate demands is what the freeze gate blocks",
+  "description": "story_resume is the only command that clears a convergence-breaker freeze and it is owner-gated (storyScopedMutating). When the frozen story's owner lease is stale, a human running story_resume from a fresh terminal is refused by the lease gate and told to rerun with --takeover. But enforceConvergenceBreakerGate in packages/main/src/core/convergence-breaker.ts hard-blocks every takeover-carrying command while a story is frozen, by design, so the retried story_resume --takeover is refused by the freeze it exists to clear. The human is sent in a circle by two correct-looking error messages. Observed 2026-09-04 on B-83aa, B-e256 and B-c86f: all three were frozen with leases held by finished reviewer sessions hours old. The first attempt (no takeover) failed on the lease; the second (with takeover) failed on the freeze. It only resolved because the lease transfer happened to be applied before the freeze check threw, so a third attempt without the flag succeeded; that ordering is incidental and not a supported path. Fix by letting story_resume, and only story_resume, acquire a stale lease without carrying a takeover flag, or by exempting story_resume from the takeover-carrying rule while keeping the block for every other command; and add a regression test that freezes a story, expires its lease, and proves a single story_resume --ack --reason succeeds from a new session.",
+  "type": "bug",
+  "priority": "high",
+  "keywords": [],
+  "createdAt": "2026-09-04T07:46:29.981Z"
+}
