@@ -7,6 +7,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
+  isModularComplexRoleId,
+  isActiveModularReviewerRoleId,
   isModularReviewerRoleId,
   readPromptRegistry,
   renderCodexPromptContent,
@@ -41,7 +43,7 @@ const requiredSourcePaths = [
   '.claude/agents',
   // B-cc10 F-055: canonical first; a renamed root silently yields zero files.
   '.proof-or-stop-codex/agents',
-  '.proof-or-stop-codex/agents',
+
   'packages/main/src/core/prompt-registry.ts',
   'packages/main/src/core/managed-assets.ts',
   'packages/main/src/handlers/story-query.ts',
@@ -72,9 +74,12 @@ const compactQueryGuidancePhrases = [
   `proof-or-stop story_get '{"storyId":"B-xxxx"}'`,
   `proof-or-stop checklist_get '{"storyId":"B-xxxx"}'`,
 ];
+const LEGACY_LOAD_BEARING_PROMPT_SLICE = LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE
+  .replace('<!-- proof-or-stop:start -->', '<!-- lattice:start -->')
+  .replace('<!-- proof-or-stop:end -->', '<!-- lattice:end -->');
 
 const modularReviewerSafetyPhrases = [
-  'proofbound:modular-role-body:v1',
+  'proof-or-stop:modular-role-body:v1',
   'review_run_start',
   'review_pass_set',
   'finding_add',
@@ -93,9 +98,10 @@ function readRepo(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
 }
 
-function extractProofOrStopBlock(content: string): string {
-  const match = content.match(/<!-- proofOrStop:start -->[\s\S]*?<!-- proofOrStop:end -->/);
-  assert.ok(match, 'expected proof-or-stop managed block');
+function extractLatticeBlock(content: string): string {
+  const match = content.match(/<!-- proof-or-stop:start -->[\s\S]*?<!-- proof-or-stop:end -->/)
+    ?? content.match(/<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/);
+  assert.ok(match, 'expected lattice managed block');
   return match[0];
 }
 
@@ -141,11 +147,20 @@ function assertPromptReductions(): void {
       for (const phrase of modularReviewerSafetyPhrases) {
         assert.ok(content.includes(phrase), `${file} keeps modular reviewer safety phrase: ${phrase}`);
       }
+    } else if (isModularComplexRoleId(roleId)) {
+      // Complex roles are assembled from the package registry. Their package
+      // templates carry the role body marker; the load-bearing runtime slice is
+      // injected only by the host renderer.
+      assert.match(content, /<!-- proof-or-stop:modular-role-body:v1 -->/, `${file} keeps the modular role-body marker`);
+      assert.doesNotMatch(content, /<!-- lattice:start -->[\s\S]*?<!-- lattice:end -->/, `${file} does not inline the host runtime slice`);
     } else {
+      const expectedLoadBearingSlice = file === 'proof-or-stop-review-channel.md'
+        ? LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE
+        : LEGACY_LOAD_BEARING_PROMPT_SLICE;
       assert.equal(
-        extractProofOrStopBlock(content),
-        LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE,
-        `${file} uses canonical load-bearing prompt slice`,
+        extractLatticeBlock(content),
+        expectedLoadBearingSlice,
+        `${file} uses the expected load-bearing prompt slice`,
       );
       for (const phrase of requiredPromptPhrases) {
         assert.ok(content.includes(phrase), `${file} keeps prompt-safety phrase: ${phrase}`);
@@ -198,9 +213,13 @@ function assertMirrorsMatch(): void {
       : renderCodexPromptContent(packageContent);
     assert.equal(claudeContent, expectedClaude, `.claude asset matches canonical host input for ${file}`);
     assert.equal(codexContent, expectedCodex, `.proof-or-stop-codex asset matches canonical host input for ${file}`);
-    if (isModularReviewerRoleId(roleId)) {
+    if (isActiveModularReviewerRoleId(roleId)) {
       assert.match(claudeContent, /review_run_start/, `.claude bootstrap selects ${file} at runtime`);
       assert.match(codexContent, /review_run_start/, `.proof-or-stop-codex bootstrap selects ${file} at runtime`);
+    } else if (isModularComplexRoleId(roleId)) {
+      // Complex roles are assembled from the package registry and receive the
+      // runtime slice from the host renderer; they do not carry compact query
+      // guidance in their package or mirrored role body.
     } else {
       assertCompactQueryGuidance(packageContent, `package template ${file}`);
       assertCompactQueryGuidance(claudeContent, `.claude mirror ${file}`);
@@ -286,7 +305,7 @@ function assertSlimOutputCompatibility(): void {
   const slimChecklist = checklistHandlers.checklist_get({ storyId, slim: true });
   assert.ok(jsonBytes(slimChecklist) < jsonBytes(defaultChecklist), 'slim checklist_get is smaller than default');
   assert.deepEqual(checklistHandlers.checklist_get({ storyId, slim: true, fields: ['counts'] }), {
-    counts: { total: 2, done: 1, inProgress: 0, pending: 1 },
+    counts: { total: 2, done: 1, inProgress: 0, pending: 1, withdrawn: 0 },
   });
 
   const defaultStory = storyHandlers.story_get({ storyId });

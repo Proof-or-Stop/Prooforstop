@@ -38,6 +38,7 @@ import { summarizeChecklist } from './checklist.js';
 import { isDeliveredChecklistStatus, isWithdrawnChecklistStatus } from '../core/checklist-status.js';
 import { wantsFullOutput, truncateOneLine } from '../cli/output-verbosity.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 
 // B-7c05 CHK-004: phases treated as terminal for the brief story_list default.
 // Brief lists only NON-terminal (actionable) stories one-line each; the omitted
@@ -211,7 +212,8 @@ function storyUpdateActorFrom(args: { agent?: string; actor?: string }): string 
 }
 
 function isInitReviewerStoryUpdateActor(actor: string): boolean {
-  return INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS.has(actor.trim());
+  return Array.from(INIT_REVIEWER_STORY_SCOPE_MUTATION_BLOCKED_AGENTS)
+    .some(blockedAgent => agentRoleIdsEqual(actor, blockedAgent));
 }
 
 function storyLevelScopeMutations(args: {

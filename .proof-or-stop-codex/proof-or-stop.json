@@ -11,7 +11,7 @@
     {
       "name": "global-fallback",
       "command": "PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop",
-      "useWhen": "Only the global proofOrStop CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists."
+      "useWhen": "Only the global proof-or-stop CLI is available for read-only heartbeats; do not use it as current-worktree gate/status evidence when a local wrapper or core CLI exists."
     }
   ],
   "sessionEnv": {

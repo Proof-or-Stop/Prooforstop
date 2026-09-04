@@ -104,6 +104,55 @@ export interface EnglishAuthoringTextSource {
   fieldForLine?: (line: number) => string;
 }
 
+/**
+ * Project every author-controlled string leaf of one checklist payload into
+ * the shared English-authoring predicate. The persisted-artifact gate scans
+ * the complete checklist.json, so writer admission must cover nested values
+ * too (for example relatedDocs, excludes, files, and verificationIntent prose)
+ * instead of maintaining a smaller hand-written field list.
+ *
+ * Runtime identity and lifecycle fields are deliberately absent: callers pass
+ * only the author-controlled subset they are about to persist.
+ */
+export function checklistEnglishAuthoringFields(
+  item: unknown,
+  itemRef: string,
+): EnglishAuthoringTextSource[] {
+  const fields: EnglishAuthoringTextSource[] = [];
+
+  const visit = (value: unknown, field: string): void => {
+    if (typeof value === 'string') {
+      fields.push({ field, text: value });
+      return;
+    }
+    if (Array.isArray(value)) {
+      value.forEach((entry, index) => visit(entry, `${field}[${index + 1}]`));
+      return;
+    }
+    if (!value || typeof value !== 'object') return;
+    for (const [key, entry] of Object.entries(value as Record<string, unknown>)) {
+      visit(entry, `${field}.${key}`);
+    }
+  };
+
+  if (!item || typeof item !== 'object') return fields;
+  const authored = item as Record<string, unknown>;
+  for (const key of [
+    'title',
+    'context',
+    'relatedDocs',
+    'userSees',
+    'excludes',
+    'files',
+    'verificationIntent',
+    'verificationEvidence',
+    'reason',
+  ]) {
+    visit(authored[key], `${itemRef}.${key}`);
+  }
+  return fields;
+}
+
 // Field / record separators are emitted BY git via %x1f (Unit Separator) and
 // %x1e (Record Separator) inside the --pretty format string. The argv we pass
 // holds the ASCII escape spec ("%x1f"/"%x1e"), not raw control bytes, so

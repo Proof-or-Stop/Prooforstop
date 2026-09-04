@@ -17,8 +17,10 @@ import { normalizeRelPath } from '../core/proof-or-stop-paths.js';
 import { evaluateReviewEscalation } from '../core/review-escalation.js';
 import { isCanonicalStoryId } from '../core/lifecycle-registry.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
+import { canonicalReviewerLane } from '../core/reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { computeActiveReviewers } from './reviewer-list.js';
+import { readGitBlobAt } from '../core/git-blob-reader.js';
 
 const REFUSAL = 'quorum_submit refuses: no current reviewer pass evidence for the required lanes — run the review lanes (review_run_start + review_pass_set) first; quorum_submit will not fabricate a floor quorum without a real review.';
 
@@ -82,7 +84,8 @@ function normalizeIdentity(value: unknown): string {
 }
 
 function toLane(name: string): string {
-  return name.startsWith('proof-or-stop-review-') ? name : `proof-or-stop-review-${name}`;
+  return canonicalReviewerLane(name)
+    ?? (name.startsWith('proof-or-stop-review-') ? name : `proof-or-stop-review-${name}`);
 }
 
 function parseRounds(value: unknown): number {
@@ -149,7 +152,7 @@ function assertCurrentReviewerPasses(ctx: HandlerContext, storyId: string, proje
   const requiredLanes = requiredReviewerLanes(ctx, storyId, projectRoot);
   const state = collectReviewerEvidenceState(ctx.store, storyId, projectRoot);
   const validPasses = state.valid.filter(evidence => evidence.kind === 'pass');
-  const passByLane = new Map(validPasses.map(evidence => [evidence.agent, evidence]));
+  const passByLane = new Map(validPasses.map(evidence => [canonicalReviewerLane(evidence.agent) ?? evidence.agent, evidence]));
   const missing = requiredLanes.filter(lane => !passByLane.has(lane));
   if (missing.length > 0 || state.invalid.length > 0) {
     const details = [
@@ -286,23 +289,20 @@ function committedHostVerdictEvents(
   // read from the same commit the transaction is about to build on.
   ref = 'HEAD',
 ): Array<Record<string, unknown>> {
-  try {
-    const content = execFileSync('git', ['show', `${ref}:${storyRel}/process-events.jsonl`], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return content.split('\n').filter(Boolean).flatMap((line) => {
-      try {
-        const event = JSON.parse(line) as Record<string, unknown>;
-        return event.type === 'host_verdict' ? [event] : [];
-      } catch {
-        return [];
-      }
-    });
-  } catch {
-    return [];
+  const path = `${storyRel}/process-events.jsonl`;
+  const read = readGitBlobAt(gitCwd, ref, path);
+  if (read.status === 'missing') return [];
+  if (read.status === 'error') {
+    throw new Error(`quorum_submit refuses: committed process-events could not be read (${read.reason})`);
   }
+  return read.content.toString('utf8').split('\n').filter(Boolean).flatMap((line) => {
+    try {
+      const event = JSON.parse(line) as Record<string, unknown>;
+      return event.type === 'host_verdict' ? [event] : [];
+    } catch {
+      return [];
+    }
+  });
 }
 
 function rollbackQuorumOutputs(args: {

@@ -17,6 +17,7 @@
 
 import { strict as assert } from 'node:assert';
 import { execFileSync, spawn } from 'node:child_process';
+import { createHmac } from 'node:crypto';
 import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -90,6 +91,20 @@ function runGapLogExpectFail(root: string, args: Record<string, unknown>): strin
 
 function readMetaFindings(root: string): FindingData {
   return new StoryStore(root).readFindings(META_STORY_ID);
+}
+
+function seedLargeCommittedLegacyMetaHistory(root: string): string {
+  runGapLog(root, VALID);
+  const store = new StoryStore(root);
+  const data = store.readFindings(META_STORY_ID) as FindingData & { historyPadding?: string };
+  data.historyPadding = 'x'.repeat(1_400_000);
+  store.writeFindings(META_STORY_ID, data);
+  rmSync(join(root, GAP_LOG_PROVENANCE_LEDGER_PATH), { force: true });
+  git(root, ['add', '.lattice/story/actives']);
+  git(root, ['-c', 'user.email=smoke@example.test', '-c', 'user.name=Proofbound Smoke', 'commit', '-m', 'seed large legacy B-META history']);
+  const artifact = join(root, GAP_LOG_ARTIFACT_PATH);
+  assert.ok(readFileSync(artifact).length > 1024 * 1024, 'large legacy B-META artifact exceeds the default child-process buffer');
+  return artifact;
 }
 
 /**
@@ -411,6 +426,68 @@ function assertNoWorktreeRequired(): void {
       'gap_log must succeed from a plain main project with no worktree');
     console.log('✓ gap-log-7: gap_log runs with no story worktree');
   } finally { rmSync(root, { recursive: true, force: true }); }
+}
+
+function assertLargeLegacyHistoryIsFailClosedAndExtendable(): void {
+  {
+    const root = createMainProject('lattice-gaplog-large-extension-');
+    try {
+      seedLargeCommittedLegacyMetaHistory(root);
+      const store = new StoryStore(root);
+      const appended = appendGapFinding(store, {
+        category: 'missing',
+        severity: 'medium',
+        desc: 'large committed legacy history remains safely extendable',
+        evidenceState: 'suspected',
+        uncertaintyReason: 'focused primitive regression for bounded committed artifact verification',
+      }, META_STORY_ID, { projectRoot: root });
+      assert.equal(appended.bindingStatus, 'valid', 'appendGapFinding extends valid >1MiB committed history');
+      const data = readMetaFindings(root);
+      assert.equal(
+        verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root).trusted,
+        true,
+        'the just-appended >1MiB legacy history verifies immediately through the committed reader',
+      );
+      const mutated: FindingData = { ...data, findings: data.findings.slice(0, -1) };
+      assert.equal(
+        verifyGapLogArtifactBinding(mutated, GAP_LOG_ARTIFACT_PATH, root, root).trusted,
+        false,
+        'content mutation remains untrusted',
+      );
+
+      const ledgerPath = join(root, GAP_LOG_PROVENANCE_LEDGER_PATH);
+      const receipt = JSON.parse(readFileSync(ledgerPath, 'utf8').trim());
+      const { integrityHash: _oldHash, ...unsigned } = receipt;
+      unsigned.parentHead = '0'.repeat(40);
+      const key = readFileSync(join(root, '.git', 'lattice-gap-log-provenance.key'));
+      const authenticReadErrorReceipt = {
+        ...unsigned,
+        integrityHash: createHmac('sha256', key).update(JSON.stringify(unsigned)).digest('hex'),
+      };
+      writeFileSync(ledgerPath, `${JSON.stringify(authenticReadErrorReceipt)}\n`);
+      assert.equal(
+        verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, root, root).trusted,
+        false,
+        'an authentic receipt whose committed tree cannot be read must fail closed',
+      );
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+  {
+    const root = createMainProject('lattice-gaplog-large-missing-worktree-');
+    try {
+      const artifact = seedLargeCommittedLegacyMetaHistory(root);
+      const beforeHead = git(root, ['rev-parse', 'HEAD']);
+      rmSync(artifact);
+      const out = runGapLogExpectFail(root, { ...VALID, evidence: 'missing worktree artifact must not become fresh genesis' });
+      assert.match(
+        out,
+        /committed B-META history could not be read|history is not extendable|require exact committed HEAD history/i,
+      );
+      assert.equal(existsSync(artifact), false, 'failed large-history genesis check writes no replacement artifact');
+      assert.equal(git(root, ['rev-parse', 'HEAD']), beforeHead, 'failed large-history genesis check writes no commit');
+    } finally { rmSync(root, { recursive: true, force: true }); }
+  }
+  console.log('✓ gap-log large committed history: valid extension passes; missing worktree fails closed');
 }
 
 // ── 8: identical gap twice -> one canonical finding (B-f60c CHK-003 in-lock dedup) ──
@@ -944,6 +1021,7 @@ function assertWrapperRootAuthorityParity(): void {
   assertBlankEvidenceRejected();
   assertContainerBootstrap();
   assertNoWorktreeRequired();
+  assertLargeLegacyHistoryIsFailClosedAndExtendable();
   assertIdenticalGapDeduped();
   assertDifferentGapsNotFalselyMerged();
   assertResolvedGapCanBeReLogged();

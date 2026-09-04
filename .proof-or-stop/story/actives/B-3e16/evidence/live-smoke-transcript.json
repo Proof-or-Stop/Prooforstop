@@ -1,0 +1,20 @@
+{
+  "storyId": "B-3e16",
+  "expected": "npm run build at the repo root prints the graph build output including 'assets: app.html' and 'assets: d3.min.js', and packages/graph/dist/index.js exists afterwards",
+  "actual": {
+    "command": "npm run build",
+    "exitCode": 0,
+    "stdout": "\n> lattice@0.3.269 build\n> npm --prefix packages/main run build && npm --prefix packages/utils run build && npm --prefix packages/graph run build && node scripts/verify-full-suite-build-binding.mjs\n\n\n> @proof-or-stop/core@0.3.269 build\n> node ../../scripts/build-main-with-binding.mjs\n\n\n> @lattice/utils@0.3.65 build\n> node ../../scripts/build-utils-with-binding.mjs\n\n\n> @proof-or-stop/graph@0.1.0 build\n> tsc && node scripts/build-web.mjs\n\nassets: app.html (391KB)\nassets: d3.min.js\nassets: mermaid.min.js\nassets: gsap.min.js\nassets: mediabunny.min.mjs\nassets: gifenc.esm.js\nassets: gif-palette.js\nassets: gif-encoder.worker.js\nfull-suite-build-binding: PASS (0fc9569e1af1:c962bf3e5957)\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-08-29T08:17:48.530Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "48a3da9600c539f9ea9c2135d36f20dc8acd394d",
+  "materialHash": "715e737dfdcac359f73bac5895d88ad73067adfc8aec7d0b26e1bfefdf7cc2ac"
+}

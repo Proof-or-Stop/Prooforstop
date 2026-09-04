@@ -3,7 +3,7 @@ name: proof-or-stop-evaluator
 model: sonnet
 tools: Read, Bash
 ---
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 ## 0. Project Context
 The Proof-or-Stop framework conventions above (auto-injected by build) define the system architecture and concepts.
 
@@ -101,6 +101,6 @@ You must output the following JSON (wrapped in ```json):
 - If the console has error-level logs, functionality is capped at 3
 - Each checklist item must be operated on at least once to verify; do not only read the DOM
 
-## PROOF_OR_STOP_REVIEWER_READONLY
+## LATTICE_REVIEWER_READONLY
 
-A regular gate/evaluator reviewer (this role) is not an advisory read-only reviewer, and **must not** set `PROOF_OR_STOP_REVIEWER_READONLY=1` on its own process. Only when an owner session launches a separate external advisory reviewer (Claude/Codex/Gemini independent process) should `PROOF_OR_STOP_REVIEWER_READONLY=1` be set on that **launched process**; the advisory reviewer's output is read-only text/JSON and does not constitute gate evidence.
+A regular gate/evaluator reviewer (this role) is not an advisory read-only reviewer, and **must not** set `LATTICE_REVIEWER_READONLY=1` on its own process. Only when an owner session launches a separate external advisory reviewer (Claude/Codex/Gemini independent process) should `LATTICE_REVIEWER_READONLY=1` be set on that **launched process**; the advisory reviewer's output is read-only text/JSON and does not constitute gate evidence.

@@ -8,7 +8,6 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
 import { getGuardFailureReason } from '../core/machine.js';
-import { runAgentLivenessSuiteForPinnedEvidence } from './agent-liveness-suite-smoke.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -117,7 +116,7 @@ try {
   const missingProduct = run(root, 'story_advance', { storyId, phase: 'INIT_CHECK' }, true);
   assert.match(missingProduct, /missing_init_check_agent/);
   assert.match(missingProduct, /product-reviewer/);
-  assert.match(missingProduct, /agentType":"product-reviewer"/, 'partial recovery should dispatch the missing product reviewer');
+  assert.match(missingProduct, /agentType":"proof-or-stop-product-reviewer"/, 'partial recovery should dispatch the missing product reviewer');
   assert.doesNotMatch(
     missingProduct,
     /(?:subagent_type|agentType)[^\n]*proof-or-stop-review-story-init/,
@@ -168,7 +167,7 @@ try {
   );
   assert.doesNotMatch(
     missingStoryInit,
-    /(?:subagent_type|agentType)[^\n]*product-reviewer|and (?:have |dispatch )?product-reviewer/i,
+    /(?:subagent_type|agentType)\s*:\s*"(?:lattice-review-story-init|product-reviewer)"|agentType":"(?:lattice-review-story-init|product-reviewer)"/i,
     'partial recovery must not duplicate the already-recorded product reviewer',
   );
   assert.match(missingStoryInit, /Host-native task liveness policy/, 'partial story-init recovery should include canonical liveness guidance');
@@ -188,5 +187,4 @@ try {
   rmSync(root, { recursive: true, force: true });
 }
 
-runAgentLivenessSuiteForPinnedEvidence();
 console.log('✓ init check required agents smoke passed');

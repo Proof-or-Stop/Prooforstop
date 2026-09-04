@@ -1,7 +1,7 @@
 /**
- * Commands genuinely owned by @proof-or-stop/utils. Commands already present
- * in the core catalog are intentionally absent: strict extension admission
- * rejects any extraTools/core collision before registration.
+ * Auxiliary tool CLI registry provided by @proof-or-stop/utils.
+ * Passed to the main package's runCli by a bootstrap script and merged with
+ * the main package's own mainToolDefs.
  */
 import { z } from 'zod';
 import type { ToolDef } from '@proof-or-stop/core/extension-api';

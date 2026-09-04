@@ -54,9 +54,10 @@ import { createHash } from 'crypto';
 import { existsSync, readFileSync } from 'fs';
 import { StoryStore } from './store.js';
 import type { InitCheckData, InitCheckIssue } from './types.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 
 export const INIT_CHECK_SALT = 'lattice-init-check-integrity-v1';
-export const REQUIRED_INIT_CHECK_AGENTS = ['proof-or-stop-review-story-init', 'product-reviewer'] as const;
+export const REQUIRED_INIT_CHECK_AGENTS = ['proof-or-stop-review-story-init', 'proof-or-stop-product-reviewer'] as const;
 
 /**
  * B-95d8 CHK-001: suffix appended to required-agent ids when init-check.json is
@@ -87,12 +88,13 @@ export function initCheckAttestationMode(data: InitCheckData): 'independent' | '
 }
 
 export function normalizeAgentId(agentId: string | undefined): string {
-  return (agentId || '').trim();
+  return canonicalAgentRoleId(agentId || '');
 }
 
 export function initCheckAgentMatches(agentId: string | undefined, required: string): boolean {
   const normalized = normalizeAgentId(agentId);
-  return normalized === required || normalized.startsWith(`${required}@`);
+  const canonicalRequired = canonicalAgentRoleId(required);
+  return normalized === canonicalRequired || normalized.startsWith(`${canonicalRequired}@`);
 }
 
 /**

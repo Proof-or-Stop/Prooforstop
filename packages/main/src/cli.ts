@@ -11,6 +11,7 @@
 
 import { z } from 'zod';
 import { runCli } from './cli-engine.js';
+import { loadCanonicalLabEntrypoint } from './cli/lab-entrypoint.js';
 
 const _isDirectRun = !import.meta.url.includes('?');
 

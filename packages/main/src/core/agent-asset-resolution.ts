@@ -10,6 +10,9 @@ import {
   type PromptRegistryEntry,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
+import { legacyAgentRoleIds } from './agent-role-identity.js';
+import { isCodexAdapterManifestOwner } from '../init-assets.js';
+import { AGENT_ASSET_RESOLUTION_SCHEMA } from './artifact-schema.js';
 
 export type AgentAssetResolutionMode = 'runtime-owned' | 'pinned-runtime' | 'full-asset' | 'debug-override';
 export type AgentAssetStatus = 'absent' | 'matches-runtime' | 'stale' | 'override';
@@ -29,7 +32,7 @@ export interface AgentAssetResolutionBoundary {
 }
 
 export interface AgentAssetResolution {
-  schemaVersion: 'lattice.agent_asset_resolution.v1';
+  schemaVersion: typeof AGENT_ASSET_RESOLUTION_SCHEMA;
   projectRoot: string;
   runtimeCliPath: string;
   runtimePackageRoot: string;
@@ -149,7 +152,11 @@ function expectedByFile(registry: PromptRegistrySnapshot, host: PromptHost): Map
   const result = new Map<string, { entry: PromptRegistryEntry; content: string; hash: string }>();
   for (const entry of registry.agents) {
     const content = renderPromptEntryForHost(entry, host);
-    result.set(entry.file, { entry, content, hash: sha256(content) });
+    const expected = { entry, content, hash: sha256(content) };
+    result.set(entry.file, expected);
+    for (const legacyRole of legacyAgentRoleIds(entry.agentId)) {
+      result.set(`${legacyRole}.md`, expected);
+    }
   }
   return result;
 }
@@ -244,7 +251,7 @@ export function resolveAgentAssetResolution(projectRoot: string): AgentAssetReso
   }
 
   return {
-    schemaVersion: 'lattice.agent_asset_resolution.v1',
+    schemaVersion: AGENT_ASSET_RESOLUTION_SCHEMA,
     projectRoot: root,
     runtimeCliPath: join(runtimePackageRoot, 'dist', 'cli.js'),
     runtimePackageRoot,

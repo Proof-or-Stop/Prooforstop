@@ -1,5 +1,7 @@
 import {
   PROMPT_CONTRACT_ALGORITHMS,
+  PROMPT_MEASUREMENT_SCHEMA,
+  RUNTIME_CONTRACT_SCHEMA,
   canonicalJsonStringify,
   domainSeparatedDigest,
   estimatePromptTokens,
@@ -24,7 +26,7 @@ import {
 } from './prompt-role-contract-registry.js';
 import { readPromptRegistry } from './prompt-registry.js';
 
-export const PROMPT_MEASUREMENT_REPORT_SCHEMA_VERSION = 'proofbound.prompt-measurement-report.v1';
+export const PROMPT_MEASUREMENT_REPORT_SCHEMA_VERSION = 'proof-or-stop.prompt-measurement-report.v1';
 export const PROMPT_MEASUREMENT_BASELINE_PATH = 'docs/requirements/baselines/role-prompt-measurement-baseline.json';
 
 const KNOWN_DISPATCH_UNAVAILABLE_REASON =
@@ -40,16 +42,16 @@ const BASELINE_PROMPT_ENVELOPE_ROLLOUT = Object.freeze({
 });
 
 const runtimeSemanticValue = {
-  schemaVersion: 'proofbound.agent-runtime.v1' as const,
-  lifecycleVersion: 'proofbound.lifecycle.init-to-done.v2',
-  ownershipVersion: 'proofbound.story-owner-boundaries.v1',
-  evidenceVersion: 'proofbound.signed-process-facts.v1',
+  schemaVersion: RUNTIME_CONTRACT_SCHEMA,
+  lifecycleVersion: 'proof-or-stop.lifecycle.init-to-done.v2',
+  ownershipVersion: 'proof-or-stop.story-owner-boundaries.v1',
+  evidenceVersion: 'proof-or-stop.signed-process-facts.v1',
 };
 
 const runtimeCompactText = [
   'Lifecycle: INIT -> INIT_CHECK -> PLAN -> DEV -> REVIEW -> TEST -> DONE.',
   'Only the Story owner/implementer writes implementation; independent reviewers write signed findings or passes.',
-  'Story and fixture facts use ProofOrStop CLI paths; gate evidence is structured and fail-closed.',
+  'Story and fixture facts use Proof-or-Stop CLI paths; gate evidence is structured and fail-closed.',
   'Never fabricate host, human, provider, receipt, or Authority evidence.',
 ].join('\n');
 
@@ -115,7 +117,7 @@ export function generatePromptMeasurementReport(): PromptMeasurementReport {
     combinedPrompts.push(text);
     const estimatedTokens = estimatePromptTokens(text);
     const record: PromptMeasurementRecord = {
-      schemaVersion: 'proofbound.prompt-measurement.v1',
+      schemaVersion: PROMPT_MEASUREMENT_SCHEMA,
       roleId: entry.agentId,
       runtimeContractVersion: BASELINE_RUNTIME_CONTRACT.schemaVersion,
       runtimeSemanticDigest: BASELINE_RUNTIME_CONTRACT.semanticDigest,
@@ -141,8 +143,8 @@ export function generatePromptMeasurementReport(): PromptMeasurementReport {
     return record;
   });
 
-  if (new Set(records.map(record => record.roleId)).size !== 17 || records.length !== 17) {
-    throw new Error(`prompt measurement requires exactly 17 unique roles, got ${records.length}`);
+  if (new Set(records.map(record => record.roleId)).size !== 18 || records.length !== 18) {
+    throw new Error(`prompt measurement requires exactly 18 unique roles, got ${records.length}`);
   }
 
   const aggregateEstimatedTokens = records.reduce((sum, record) => sum + record.estimatedTokens, 0);
@@ -192,7 +194,7 @@ export function verifyPromptMeasurementReport(value: unknown): asserts value is 
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('prompt measurement report must be an object');
   const report = value as PromptMeasurementReport;
   if (report.schemaVersion !== PROMPT_MEASUREMENT_REPORT_SCHEMA_VERSION) throw new Error('unsupported prompt measurement report schema');
-  if (!Array.isArray(report.records) || report.records.length !== 17) throw new Error('prompt measurement report must contain 17 records');
+  if (!Array.isArray(report.records) || report.records.length !== 18) throw new Error('prompt measurement report must contain 18 records');
   for (const record of report.records) validatePromptMeasurementRecord(record);
   const recomputed = generatePromptMeasurementReport();
   if (canonicalJsonStringify(report) !== canonicalJsonStringify(recomputed)) {

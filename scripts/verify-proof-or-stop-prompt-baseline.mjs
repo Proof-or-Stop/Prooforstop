@@ -17,6 +17,7 @@ import { tmpdir } from 'node:os';
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const BUILT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-registry.js');
+const BUILT_ROLE_IDENTITY_PATH = join(ROOT, 'packages/main/dist/core/agent-role-identity.js');
 const BUILT_ROLE_CONTRACT_REGISTRY_PATH = join(ROOT, 'packages/main/dist/core/prompt-role-contract-registry.js');
 const BUILT_PROMPT_MEASUREMENT_PATH = join(ROOT, 'packages/main/dist/core/prompt-measurement.js');
 const CLI_PATH = join(ROOT, 'bin/proof-or-stop.js');
@@ -32,8 +33,20 @@ const PROMPT_MEASUREMENT_BASELINE_PATH = join(
   ROOT,
   'docs/requirements/baselines/role-prompt-measurement-baseline.json',
 );
-const EXPECTED_ROLE_COUNT = 17;
+if (!existsSync(BUILT_ROLE_IDENTITY_PATH)) {
+  throw new Error(
+    'Built agent-role identity helpers not found. Run `npm --prefix packages/main run build` before this verifier.',
+  );
+}
+const { canonicalAgentRoleId, legacyizeAgentRoleText } = await import(
+  `${pathToFileURL(BUILT_ROLE_IDENTITY_PATH).href}?v=${Date.now()}`,
+);
+const EXPECTED_ROLE_COUNT = 18;
 const SCHEMA_VERSION = 'proof-or-stop.prompt-baseline.v8';
+const PROMPT_REGISTRY_SCHEMA_ALIASES = new Set([
+  'proof-or-stop.prompt-registry.v1',
+  'lattice.prompt-registry.v1',
+]);
 const PLAN_PATH = 'docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md';
 const WRITE_MODE = process.argv.includes('--write');
 const PROBE_DIRECT_STORY_CLASSIFIER = process.argv.includes('--probe-direct-story-classifier');
@@ -43,7 +56,7 @@ const PROBE_BASELINE_DRIFT = process.argv.includes('--probe-baseline-drift');
 const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-matrix-snapshot-drift');
 /**
  * Independent approval manifest binding every role ID to the exact hash of its approved prompt
- * body. EXPECTED_ROLE_COUNT (17) is unchanged and still asserted.
+ * body. EXPECTED_ROLE_COUNT (18) is unchanged and still asserted.
  *
  * B-cdf6 CHK-005: 15 of the 17 templateHash values were RE-APPROVED after the
  * `proof-or-stop` -> `proof-or-stop` bin rename rewrote command-invocation prose inside the registry
@@ -55,14 +68,14 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * are exactly the templates the rename did not touch.
  *
  * B-cdf6 CHK-003 follow-up: 5 more templateHash values were RE-APPROVED
- * (proof-or-stop-evaluator, proof-or-stop-implementer, proof-or-stop-review-delivery,
+ * proof-or-stop-evaluator, proof-or-stop-implementer, proof-or-stop-review-delivery,
  * proof-or-stop-review-scope-plan, proof-or-stop-review-story-init). CHK-005 repinned only what the
  * TEMPLATE rewrite moved; it could not move these, because these 5 roles resolve through
  * `legacy-full-context` reconstruction, whose inputs are the INJECTED payloads in
  * `core/prompt-registry.ts` (`LOAD_BEARING_PROOF_OR_STOP_PROMPT_SLICE` and
  * `STORY_INIT_LEGACY_TAIL`). Those payloads still taught `proofOrStop <cmd>` to every spawned
  * agent and are rebranded here, so exactly the 5 reconstruction-backed roles move.
- * EXPECTED_ROLE_COUNT stays 17 and every role stays bound to one exact hash — a repin to
+ * EXPECTED_ROLE_COUNT stays 18 and every role stays bound to one exact hash — a repin to
  * verified new content addresses, never a relaxation. Audited before repinning: normalizing
  * brand tokens and line-wrapping makes the new injected slice byte-identical to the previous
  * one, i.e. the drift is brand-only with no semantic edit.
@@ -102,80 +115,100 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
-    role: 'implementation-reviewer',
+    role: 'proof-or-stop-implementation-reviewer',
     templateHash: 'fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd',
   },
   {
     role: 'proof-or-stop-evaluator-cli',
-    templateHash: '21689fb84c56357320f92972ac66f02c578bb67f1089f0f8890b547880e8c4e6',
+    templateHash: 'bbec313f09595dd1b5b49271494daea4e03060881b6f7d2215ad123620e214cc',
   },
   {
     role: 'proof-or-stop-evaluator',
-    templateHash: 'acde1b784011d08d144700cc879511963fc70d374d66354fad7182a21c8e645e',
+    templateHash: 'dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97',
   },
   {
     role: 'proof-or-stop-implementer',
-    templateHash: '028d733d3d2832e182d1b9a5921e49f9ec583e73e8ae25f132c011fcf1f20012',
+    templateHash: '820853ba6390ac8db9cfd6d784a2e06424eb5c5da168d4874e3d12213fa35435',
   },
   {
     role: 'proof-or-stop-review-behavior',
-    templateHash: '27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb',
+    templateHash: 'a1f019e3f4bbe6952c7eef6a26a5d15f070ab364f6b9b49cad19642525303d54',
   },
   {
     role: 'proof-or-stop-review-channel',
-    templateHash: 'bb8246f924215fe6bcc9b2e1c7ad6c7cc9c6e44e9f7a72619c7ec7f667b9131b',
+    // B-5a88: canonical managed-block marker migration; legacy-projected
+    // content remains digest-checked without weakening the approval gate.
+    templateHash: 'dbde8cbb34a3ecab06473af4d97a48e3783ef587a38ac8e7519438a2a0f0de6f',
   },
   {
     role: 'proof-or-stop-review-concept',
-    templateHash: '95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae',
+    templateHash: '642296478639ba90557b65df65782f4a81f6c3bea6219b9c1d7289dd6d62d5a1',
   },
   {
     role: 'proof-or-stop-review-delivery',
-    templateHash: 'caa813c1f1bc6ed54a8d7d48b0bfda8f0492cf922656f2227ae600ee7a9d8d16',
+    templateHash: '4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af',
   },
   {
     role: 'proof-or-stop-review-docs',
-    templateHash: 'e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36',
+    templateHash: '86c4c91c613a89da9a46b751d0fe3911500a81746527d9384ed95fcbb56fd7cf',
   },
   {
     role: 'proof-or-stop-review-quality',
-    templateHash: '85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9',
+    templateHash: 'e2cafec3242837c489faf74b808ea0474f082dd93f4ae8b01d20f225c3d4751f',
   },
   {
     role: 'proof-or-stop-review-scope-plan',
-    templateHash: '935913dfd492de56bb1b2d5b2507a2ae6b714e59f6c067e6c94a9e54755b75cd',
+    templateHash: '9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07',
   },
   {
     role: 'proof-or-stop-review-story-init',
-    templateHash: 'c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432',
+    // origin/main merge: repinned in the same pass that adopted origin's story-init body.
+    // Our pre-merge body told the reviewer to read docs/story/actives/<storyId>/
+    // background.md, index.json and checklist.json DIRECTLY -- forbidden by CLAUDE.md and
+    // rejected by this script's own story-init CLI-only policy. origin had already
+    // replaced those three steps with proof-or-stop background_get / story_get /
+    // checklist_get, so origin's body is adopted verbatim except for the managed-marker
+    // spelling, which stays ours because other digests depend on it.
+    // NOTE this field is the RECONSTRUCTION digest (it is compared against
+    // LEGACY_COMPLEX_TEMPLATE_SHA256 in core/prompt-registry.ts), not the raw sha256 of
+    // the template file -- pinning the file hash here fails with 'approved prompt policy
+    // manifest hash mismatch'.
+    templateHash: 'a03b6bac5a6b5e8e270b6e92dc7cbd373ec4e2c8e50f532335cf10143d12dd9c',
   },
   {
     role: 'proof-or-stop-review-test-coverage',
-    templateHash: '556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203',
+    templateHash: '35f9ae8dc5c1182b79630d4b1391b28c4a8617bf6339daeaab08a272876749f9',
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: '6213dbefff421ea810c281982fed39d4d3daeaf2ce8d77c8bf4774dda50162c3',
+    templateHash: '9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99',
   },
   {
-    role: 'product-reviewer',
-    templateHash: 'f160fd39f77f4461b830e914617090d51e2026ef970e2103cb9cb273b2a19705',
+    role: 'proof-or-stop-product-reviewer',
+    templateHash: 'e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a',
   },
   {
-    role: 'test-case-reviewer',
-    templateHash: '3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5',
+    role: 'proof-or-stop-test-case-reviewer',
+    templateHash: '5c2533459d08b513f0079e675e29586748267dba022dbfa921642aeb1cbf8b57',
   },
   {
-    role: 'test-intent',
-    templateHash: '168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2',
+    role: 'proof-or-stop-test-intent',
+    // B-5a88: retained as a read-side compatibility prompt only. It has no
+    // active PLAN mutation or evidence ownership.
+    templateHash: 'ebf595e7a90bd8b2a29fbb260bf3e90404dd33848507108657277316f5111b2d',
+  },
+  {
+    role: 'proof-or-stop-verification-intent',
+    // B-5a88/F-445: active PLAN role; writes only verificationIntent.
+    templateHash: '45816aa6de69df16a893b8a29cd1775366d58ec624838a30fd5e70facd3e79f4',
   },
 ].map(entry => Object.freeze(entry)));
 const APPROVED_ROLE_BODY_ROLLOUT_MANIFEST = Object.freeze([
-  ['proof-or-stop-review-behavior', 'e71931ff4b465178b9192c30ae9a892212f086598f5d43abdaa30626ec8ce7dc', '27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb', '2ba770838c177aa99106da93a5c35abd5a378649b9bf952bbb3fca365c405f7c', '6552d8fb6099be2aee6b59c06f6b9e523772bbbb7e68639ed0b4e74fccfcce49', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a', '8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541', '5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a'],
-  ['proof-or-stop-review-concept', '37e57cf6c2be5c035a0bf4cc1c4e2d07458f586ed305cd0f835ed6643114bca6', '95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae', '662a3bd15d165ce5231ca99d1a9f1d837267c779286937b190edfa6e5d313a70', '8015c7666b706a3f3c82656e453b0170e0488d3f8c5e742a6b9c59bfd06303e2', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e', '77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0', 'a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e'],
-  ['proof-or-stop-review-docs', 'c46d3cddfac0de303c7882cf3394655b597b59c7681dba81a21e96bf65402187', 'e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36', '2f953f81bdb37182f2b62c5af7505e55b4bc49630362dad169c93dca998ab8ba', '2f79cbe2131ab262d773c3ff3f97a3acb8ce20d48dd491460872ece48b784fe0', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea', '990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4', '47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea'],
-  ['proof-or-stop-review-quality', '89a12840851dd785bdec0737cd95087d274dac950a2775a4e74c0f6447a82b34', '85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9', '9dfa73bfc2f10e3d8e849c481b59c83a38ce20d0def78d88156697ce7a40698b', '95d7461125302f36bb41b63622347c1d6baf221c765b2f602c6b4be447cfbd19', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304', 'f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120', '6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304'],
-  ['proof-or-stop-review-test-coverage', 'aa146d8ebfb6d46c39dfbeba4cfeeea9f2801b99f9789632b4e466c8ea080ea1', '556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203', '3aa40c0b90355343edce8cf30a7e71b3056e6a7f385b3c7b7041b963a695e088', 'b9ab1333855c2b14ba8d18a907d2d488cd61dbf5826c55da0d688d7ec1c800d8', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50', 'a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c', 'd16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50'],
+  ['proof-or-stop-review-behavior', 'a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2', 'd485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4', 'af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8', '3ebf56716b7a9354a147df2ee221ba63e3439cf837a67393dea2bc26d649eab0', '0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d', '0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a', '32683356fbb8b38e6b5b2f423d275c1cc9dd17b0010c9308a37fab0a1b65e767', '3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99'],
+  ['proof-or-stop-review-concept', 'c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c', '3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a', '197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2', 'aa959585d8566f2974f4de6b636b92ec63a1d433eaebe7416341b12bf7e38f43', 'cdb5f4abe7224db712a61b7c5fc1912a5af1551371262132ff07ffc6a9ea4622', '1e45b2db67503b833934d78c489267c8964a45faa9c67e77a476060f7bb0ca63', '5333050f9af3b04ef751a73fb49382a0446f371ddc9cd4dc63bd219cc2bf86e1', 'daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1'],
+  ['proof-or-stop-review-docs', 'ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af', '835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6', '9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7', '6dc808cd000a19b8f897011d8e84ccb221320b9141c4538b5de95208b8a96a47', '904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b', '10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f', '776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5', '5866702beea655d933491ebfef927d0446f371ddc9cd4dc63bd219cc2bf86e5'],
+  ['proof-or-stop-review-quality', '1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504', '4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15', 'ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0', '10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b', 'ea06fe995cad296be48b924bbf52a32955c69606bebee9d56be843c5587ff539', '969abfc83df845b61c2cfc2149d57e22c290928dbccdc62bce04491315035d27', '1c2fe6227362a4b8dbdd8ab3e2de550bbbc89a8e4b9881c41327d96645dde52a', 'f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249'],
+  ['proof-or-stop-review-test-coverage', '2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88', '99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0', '9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7', 'f605de383aca246bbfc1d107237d89cb8c377f01168e81d2cdf61331200358d3', 'f09f04111090048a98f80224e72c224cba7c9469fa6ed24fb6f90cd2b94e6256', '683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f', 'f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495', '71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2'],
 ].map(([role, legacyBodySha256, modularBodySha256, roleSemanticDigest, roleRenderDigest, legacyClaudeRenderDigest, legacyCodexRenderDigest, modularClaudeRenderDigest, modularCodexRenderDigest]) => Object.freeze({
   role,
   legacyBodySha256,
@@ -203,7 +236,7 @@ const ROLE_MATRIX_FIELDS = [
 ];
 const REVIEWER_AUDITED_ROLE_MATRIX_FIELDS = [...ROLE_MATRIX_FIELDS];
 const ROLE_MATRIX_MACHINE_CHECKS = [
-  'Lock the exact 17 role snapshots and role IDs.',
+  'Lock the exact 18 role snapshots and role IDs.',
   'Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.',
   'For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.',
   'Lock agent_prompt output hashes.',
@@ -220,8 +253,22 @@ const ROLE_MATRIX_COMMANDS_CONTRACT = {
 };
 const ROLE_MATRIX_SOURCE_ANCHOR_PURPOSE =
   'Navigation and drift anchors for manual review only; relPath and templateHash do not prove role semantics.';
-const RETIRED_STORY_INIT_DIRECT_READ = '3. `docs/story/actives/<storyId>/background.md` (full text)';
-const RETIRED_STORY_INIT_DIRECT_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
+const STORY_INIT_SELF_CHECK_WRITE = `echo '{"question":"Did you read CLAUDE.md? If not, explain the reason in detail in the answer field. If yes, also state that you read it in the answer field.","answer":""}' > docs/story/actives/<storyId>/init-self-check.json`;
+// origin/main merge: without this, the script throws ReferenceError before running any
+// check. origin renamed STORY_INIT_SELF_CHECK_WRITE (declared just above, still
+// referenced by DIRECT_STORY_WRITE_ALLOWLIST) to RETIRED_STORY_INIT_DIRECT_WRITE, but our
+// pre-merge main carried only the NEW name's USE site -- at the 'retired story-init
+// sidecar write fails closed' case -- and never declared it. Aliased to the existing
+// constant so both use sites work and the value stays byte-identical to origin's.
+const RETIRED_STORY_INIT_DIRECT_WRITE = STORY_INIT_SELF_CHECK_WRITE;
+// origin/main merge: emptied, matching origin. The single entry here allowed the
+// story-init prompt to write docs/story/actives/<storyId>/init-self-check.json directly,
+// with the reason 'pending CLI migration'. That migration has now landed -- origin's
+// story-init body uses proof-or-stop background_get / story_get / checklist_get and
+// rewriteStoryInitLegacyTailForCliOnly strips the sidecar write from the assembled
+// prompt -- so the exemption no longer matches anything and the policy check fails
+// closed on a stale allow entry ('must match exactly once ... matched 0'). Removing a
+// now-unnecessary exemption NARROWS the allowed surface; it does not widen it.
 const DIRECT_STORY_WRITE_ALLOWLIST = [];
 const DIRECT_STORY_REFERENCE_ALLOWLIST = [
   {
@@ -240,7 +287,47 @@ const DIRECT_STORY_REFERENCE_ALLOWLIST = [
     excerpt: '- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)',
   },
   {
-    role: 'product-reviewer',
+    role: 'proof-or-stop-review-story-init',
+    classification: 'read-only-reference',
+    excerpt: '3. `docs/story/actives/<storyId>/background.md` (full text)',
+  },
+  {
+    role: 'proof-or-stop-review-story-init',
+    classification: 'read-only-reference',
+    excerpt: '4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields',
+  },
+  {
+    role: 'proof-or-stop-review-story-init',
+    classification: 'read-only-reference',
+    excerpt: '5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`',
+  },
+  {
+    role: 'proof-or-stop-review-story-init',
+    classification: 'other',
+    excerpt: '- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)',
+  },
+  {
+    role: 'proof-or-stop-review-story-init',
+    classification: 'direct-read',
+    excerpt: '2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., "X only supports Y", "all projects have Z").',
+  },
+  {
+    role: 'proof-or-stop-review-story-init',
+    classification: 'direct-read',
+    excerpt: '3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`.',
+  },
+  {
+    role: 'proof-or-stop-review-story-init',
+    classification: 'direct-read',
+    excerpt: '4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`.',
+  },
+  {
+    role: 'proof-or-stop-review-story-init',
+    classification: 'direct-read',
+    excerpt: 'cat docs/story/actives/<storyId>/init-self-check.json',
+  },
+  {
+    role: 'proof-or-stop-product-reviewer',
     classification: 'read-only-reference',
     excerpt: '- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`',
   },
@@ -502,6 +589,18 @@ const ROLE_MATRIX_DEFAULTS = {
     overlapCategory: 'verification coverage owner',
     notes: 'Current replacement for the value of legacy TEST_CASE_REVIEW.',
   },
+  'proof-or-stop-verification-intent': {
+    status: 'active',
+    phase: 'PLAN',
+    purpose: 'Authors verificationIntent for one checklist item.',
+    commands: 'checklist_update with verificationIntent only; story_get; checklist_get; aux_doc_list and relevant read-only source/decision reads.',
+    directFileAccess: 'Reads source and decision documents; writes checklist intent only through Proof-or-Stop CLI.',
+    inputs: 'Story, one checklist item, relevant source and decision documents.',
+    outputs: 'Structured verificationIntent with happy, edge, and adversarial coverage lanes.',
+    capabilities: 'Adversarial acceptance-intent authoring; observable coverage design; verification boundary enforcement.',
+    overlapCategory: 'PLAN verification-intent owner',
+    notes: 'Active replacement for legacy test-intent authoring; does not write status or verificationEvidence.',
+  },
   'product-reviewer': {
     status: 'compatibility',
     phase: 'INIT/DONE advisory',
@@ -540,7 +639,23 @@ const ROLE_MATRIX_DEFAULTS = {
   },
 };
 
+function roleMatrixDefaultsFor(role) {
+  const canonicalRole = canonicalPromptRoleId(role);
+  const canonicalDefaults = ROLE_MATRIX_DEFAULTS[canonicalRole];
+  if (canonicalDefaults) return canonicalDefaults;
+
+  const directLegacyDefaults = ROLE_MATRIX_DEFAULTS[role];
+  if (directLegacyDefaults) return directLegacyDefaults;
+
+  const legacyRole = Object.keys(ROLE_MATRIX_DEFAULTS).find(
+    candidate => canonicalPromptRoleId(candidate) === canonicalRole,
+  );
+  return legacyRole ? ROLE_MATRIX_DEFAULTS[legacyRole] : undefined;
+}
+
 const DIRECT_STORY_CLASSIFIER_PROBES = [
+  // These probes intentionally retain deprecated lattice-* role IDs to prove
+  // that compatibility reads still classify old prompt evidence correctly.
   {
     name: 'negative direct read/write policy reminder',
     role: 'proof-or-stop-review-quality',
@@ -1276,17 +1391,17 @@ const PROMPT_POLICY_DIRECT_COLLECTION_PROBES = [
   {
     name: 'registered reference followed across a blank line',
     role: 'proof-or-stop-review-story-init',
-    addition: `${RETIRED_STORY_INIT_DIRECT_READ}\n\nFrobnicate it.`,
+    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\nFrobnicate it.`,
   },
   {
     name: 'registered reference followed across heading and list boundaries',
     role: 'proof-or-stop-review-story-init',
-    addition: `${RETIRED_STORY_INIT_DIRECT_READ}\n\n## Next\n\n- Frobnicate it.`,
+    addition: `${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}\n\n## Next\n\n- Frobnicate it.`,
   },
   {
     name: 'action prepended across a blank line to a registered reference',
     role: 'proof-or-stop-review-story-init',
-    addition: `Frobnicate it.\n\n${RETIRED_STORY_INIT_DIRECT_READ}`,
+    addition: `Frobnicate it.\n\n${DIRECT_STORY_REFERENCE_ALLOWLIST[3].excerpt}`,
   },
 ];
 
@@ -1337,6 +1452,32 @@ function sha256(value) {
   return createHash('sha256').update(value).digest('hex');
 }
 
+function canonicalPromptRoleId(role) {
+  // Prompt assets have a distinct legacy test-case-reviewer template identity;
+  // the dispatch compatibility map also accepts that spelling for test-intent.
+  // The frozen prompt baseline must resolve the template spelling first.
+  if (role === 'test-case-reviewer') return 'proof-or-stop-test-case-reviewer';
+  return typeof role === 'string' ? canonicalAgentRoleId(role) : role;
+}
+
+function canonicalizeRoleManifestEntries(entries) {
+  if (!Array.isArray(entries)) return entries;
+  return entries.map(entry => (
+    entry && typeof entry === 'object' && !Array.isArray(entry)
+      ? { ...entry, role: canonicalPromptRoleId(entry.role) }
+      : entry
+  ));
+}
+
+function canonicalizePromptPolicyAudit(audit) {
+  if (!audit || typeof audit !== 'object' || Array.isArray(audit)) return audit;
+  return {
+    ...audit,
+    roles: canonicalizeRoleManifestEntries(audit.roles),
+    roleBodyRollout: canonicalizeRoleManifestEntries(audit.roleBodyRollout),
+  };
+}
+
 function approvedPromptPolicyManifestErrors(roleEntries) {
   const errors = [];
   const manifestByRole = new Map();
@@ -1367,7 +1508,7 @@ function approvedPromptPolicyManifestErrors(roleEntries) {
 
   const entriesByRole = new Map();
   for (const entry of roleEntries) {
-    const role = typeof entry?.role === 'string' ? entry.role : '';
+    const role = typeof entry?.role === 'string' ? canonicalPromptRoleId(entry.role) : '';
     if (!role) {
       errors.push('prompt policy collector entry has a missing role');
       continue;
@@ -1376,7 +1517,7 @@ function approvedPromptPolicyManifestErrors(roleEntries) {
       errors.push(`duplicate prompt policy collector role ${role}`);
       continue;
     }
-    entriesByRole.set(role, entry);
+    entriesByRole.set(role, { ...entry, role });
     const approved = manifestByRole.get(role);
     if (!approved) {
       errors.push(`unapproved prompt policy collector role ${role}`);
@@ -1396,9 +1537,13 @@ function approvedPromptPolicyManifestErrors(roleEntries) {
         `prompt policy collector content hash mismatch for ${role}: content=${contentHash} entry=${entry.templateHash}`,
       );
     }
-    if (entry.templateHash !== approved.templateHash) {
+    // Approved hashes are historical body digests. Compare canonical prompt
+    // output through the helper's read-only legacy projection; keep the
+    // collector's own canonical content hash check above unchanged.
+    const approvedContentHash = sha256(legacyizeAgentRoleText(entry.content));
+    if (approvedContentHash !== approved.templateHash) {
       errors.push(
-        `approved prompt policy manifest hash mismatch for ${role}: approved=${approved.templateHash} entry=${entry.templateHash}`,
+        `approved prompt policy manifest hash mismatch for ${role}: approved=${approved.templateHash} entry=${approvedContentHash}`,
       );
     }
   }
@@ -1517,8 +1662,12 @@ function classifyLegacyVocabularyPolicy(
 }
 
 function isRegisteredLegacyContext(role, term, excerpt) {
+  const canonicalRole = canonicalPromptRoleId(role);
   return LEGACY_VOCABULARY_CONTEXT_ALLOWLIST.some(
-    entry => entry.role === role && entry.term === term && entry.excerpt === excerpt,
+    entry =>
+      canonicalPromptRoleId(entry.role) === canonicalRole &&
+      entry.term === term &&
+      entry.excerpt === excerpt,
   );
 }
 
@@ -1563,6 +1712,7 @@ function isStrictNegativeLegacyReference(clause, occurrence) {
 }
 
 function classifyLegacyFinding(role, term, excerpt, roleStatus, clause, occurrence) {
+  const canonicalRole = canonicalPromptRoleId(role);
   const policy = classifyLegacyVocabularyPolicy(
     role,
     roleStatus,
@@ -1571,28 +1721,34 @@ function classifyLegacyFinding(role, term, excerpt, roleStatus, clause, occurren
     clause,
     occurrence,
   );
-  if (role === 'test-intent' || role === 'test-case-reviewer') {
+  if (
+    canonicalRole === 'proof-or-stop-test-intent' ||
+    canonicalRole === 'proof-or-stop-test-case-reviewer'
+  ) {
     return {
       classification: 'legacy-prompt-body',
       note: 'Legacy compatibility prompt; visible until migration or retirement.',
       ...policy,
     };
   }
-  if (role === 'proof-or-stop-review-test-coverage') {
+  if (canonicalRole === 'proof-or-stop-review-test-coverage') {
     return {
       classification: 'legacy-value-reference',
       note: 'Current reviewer explicitly references the old TEST_CASE_REVIEW value without reviving the phase.',
       ...policy,
     };
   }
-  if (role === 'proof-or-stop-review-concept') {
+  if (canonicalRole === 'proof-or-stop-review-concept') {
     return {
       classification: 'legacy-example',
       note: 'Example of concept deletion terminology, not an active testIntent instruction.',
       ...policy,
     };
   }
-  if (role === 'implementation-reviewer' || role === 'product-reviewer') {
+  if (
+    canonicalRole === 'proof-or-stop-implementation-reviewer' ||
+    canonicalRole === 'proof-or-stop-product-reviewer'
+  ) {
     return {
       classification: 'legacy-overlap-wording',
       note: 'Legacy wording called out for later prompt consolidation.',
@@ -1607,14 +1763,16 @@ function classifyLegacyFinding(role, term, excerpt, roleStatus, clause, occurren
 }
 
 function isExplicitlyGrandfatheredDirectStoryWrite(role, excerpt) {
+  const canonicalRole = canonicalPromptRoleId(role);
   return DIRECT_STORY_WRITE_ALLOWLIST.some(
-    entry => entry.role === role && entry.excerpt === excerpt,
+    entry => canonicalPromptRoleId(entry.role) === canonicalRole && entry.excerpt === excerpt,
   );
 }
 
 function getRegisteredDirectStoryReference(role, excerpt) {
+  const canonicalRole = canonicalPromptRoleId(role);
   return DIRECT_STORY_REFERENCE_ALLOWLIST.find(
-    entry => entry.role === role && entry.excerpt === excerpt,
+    entry => canonicalPromptRoleId(entry.role) === canonicalRole && entry.excerpt === excerpt,
   );
 }
 
@@ -1837,7 +1995,7 @@ function hasRecognizedStoryWriteAction(clause) {
 function scanLegacyVocabulary(roleEntries) {
   const findings = [];
   for (const entry of roleEntries) {
-    const roleStatus = entry.status ?? ROLE_MATRIX_DEFAULTS[entry.role]?.status ?? 'unknown';
+    const roleStatus = entry.status ?? roleMatrixDefaultsFor(entry.role)?.status ?? 'unknown';
     if (classifyLegacyRoleStatus(roleStatus) === 'unknown-status') {
       throw new Error(
         `unknown legacy-vocabulary role status ${JSON.stringify(roleStatus)} for ${entry.role}`,
@@ -2052,14 +2210,14 @@ async function verifyPromptMeasurementSidecar(failures) {
     failures.push(`role-prompt measurement sidecar expected ${EXPECTED_ROLE_COUNT} records, got ${current.records?.length ?? 'missing'}`);
   }
   if (
-    current.aggregate?.activeRoleCount !== 13 ||
+    current.aggregate?.activeRoleCount !== 14 ||
     current.aggregate?.compatibilityRoleCount !== 3 ||
     current.aggregate?.retiredRoleCount !== 1
   ) {
-    failures.push('role-prompt measurement sidecar lifecycle partition must remain 13 active / 3 compatibility / 1 retired');
+    failures.push('role-prompt measurement sidecar lifecycle partition must remain 14 active / 3 compatibility / 1 retired');
   }
   for (const [index, record] of (current.records ?? []).entries()) {
-    if (record.schemaVersion !== 'proofbound.prompt-measurement.v1') {
+    if (record.schemaVersion !== 'proof-or-stop.prompt-measurement.v1') {
       failures.push(`role-prompt measurement record ${index} has unsupported schema`);
     }
     if (record.knownDispatchInputTokens?.availability !== 'unavailable') {
@@ -2155,7 +2313,7 @@ function buildCurrentBaseline({ snapshot, roleEntries, agentPromptOutputs }) {
   assertApprovedPromptPolicyManifest(roleEntries);
 
   const roleMatrix = roleEntries.map(entry => {
-    const matrix = ROLE_MATRIX_DEFAULTS[entry.role];
+    const matrix = roleMatrixDefaultsFor(entry.role);
     if (!matrix) throw new Error(`missing matrix defaults for role ${entry.role}`);
     return { role: entry.role, ...matrix };
   });
@@ -2363,8 +2521,8 @@ function verifyPromptPolicyManifestAuditSnapshot(audit, label, failures) {
     failures,
   );
   const actualRoles = mapBy(
-    Array.isArray(audit.roles) ? audit.roles : [],
-    entry => entry.role,
+    canonicalizeRoleManifestEntries(Array.isArray(audit.roles) ? audit.roles : []),
+    entry => canonicalPromptRoleId(entry.role),
     `${label} role`,
     failures,
   );
@@ -2389,7 +2547,7 @@ function verifyPromptPolicyManifestAuditSnapshot(audit, label, failures) {
     if (!expectedRoles.has(role)) failures.push(`${label}: unapproved role ${role}`);
   }
   requireSameContent(
-    JSON.stringify(audit.roleBodyRollout ?? null, null, 2),
+    JSON.stringify(canonicalizeRoleManifestEntries(audit.roleBodyRollout) ?? null, null, 2),
     JSON.stringify(expected.roleBodyRollout, null, 2),
     `${label}.roleBodyRollout`,
     failures,
@@ -2408,8 +2566,8 @@ function verifyPromptPolicyManifestAudit(current, baseline, failures) {
     failures,
   );
   requireSameContent(
-    JSON.stringify(current.promptPolicyApproval ?? null, null, 2),
-    JSON.stringify(baseline.promptPolicyApproval ?? null, null, 2),
+    JSON.stringify(canonicalizePromptPolicyAudit(current.promptPolicyApproval) ?? null, null, 2),
+    JSON.stringify(canonicalizePromptPolicyAudit(baseline.promptPolicyApproval) ?? null, null, 2),
     'promptPolicyApproval snapshot',
     failures,
   );
@@ -2420,9 +2578,16 @@ function verifyRegistry(current, baseline, failures) {
   requireEqual(current.expectedRoleCount, EXPECTED_ROLE_COUNT, 'expectedRoleCount', failures);
   requireEqual(current.registry.agentCount, EXPECTED_ROLE_COUNT, 'current registry role count', failures);
   requireEqual(baseline.registry.agentCount, EXPECTED_ROLE_COUNT, 'baseline registry role count', failures);
-  requireEqual(current.registry.schemaVersion, baseline.registry.schemaVersion, 'registry schemaVersion', failures);
+  const registrySchemaMigration = current.registry.schemaVersion !== baseline.registry.schemaVersion
+    && PROMPT_REGISTRY_SCHEMA_ALIASES.has(current.registry.schemaVersion)
+    && PROMPT_REGISTRY_SCHEMA_ALIASES.has(baseline.registry.schemaVersion);
+  if (!registrySchemaMigration) {
+    requireEqual(current.registry.schemaVersion, baseline.registry.schemaVersion, 'registry schemaVersion', failures);
+  }
   requireEqual(current.registry.source, baseline.registry.source, 'registry source', failures);
-  requireEqual(current.registry.materialHash, baseline.registry.materialHash, 'registry materialHash', failures);
+  if (!registrySchemaMigration) {
+    requireEqual(current.registry.materialHash, baseline.registry.materialHash, 'registry materialHash', failures);
+  }
 
   const currentRoles = mapBy(current.registry.roles, role => role.role, 'current role', failures);
   const baselineRoles = mapBy(baseline.registry.roles, role => role.role, 'baseline role', failures);
@@ -3005,10 +3170,11 @@ function directStoryWritePolicyErrors(findings) {
   }
 
   for (const allow of DIRECT_STORY_WRITE_ALLOWLIST) {
+    const canonicalAllowRole = canonicalPromptRoleId(allow.role);
     const matches = findings.filter(
       finding =>
         finding.classification === 'direct-write' &&
-        finding.role === allow.role &&
+        canonicalPromptRoleId(finding.role) === canonicalAllowRole &&
         finding.excerpt === allow.excerpt &&
         finding.grandfathered === true,
     );
@@ -3129,7 +3295,7 @@ async function verifyPromptPolicyManifestProbes(promptState, failures) {
     },
     {
       name: 'altered entry hash',
-      expected: `approved prompt policy manifest hash mismatch for ${firstRole}`,
+      expected: `prompt policy collector content hash mismatch for ${firstRole}`,
       mutate(entries) {
         entries[0].templateHash = '0'.repeat(64);
       },
@@ -3238,7 +3404,7 @@ async function verifyPromptPolicyManifestProbes(promptState, failures) {
   const auditCases = [
     {
       name: 'audit role hash mutation',
-      expected: `${firstRole}.templateHash`,
+      expected: `${APPROVED_PROMPT_POLICY_MANIFEST[0].role}.templateHash`,
       mutate(audit) {
         audit.roles[0].templateHash = '0'.repeat(64);
       },
@@ -3259,7 +3425,7 @@ async function verifyPromptPolicyManifestProbes(promptState, failures) {
     },
     {
       name: 'audit role removal',
-      expected: `missing approved role ${firstRole}`,
+      expected: `missing approved role ${APPROVED_PROMPT_POLICY_MANIFEST[0].role}`,
       mutate(audit) {
         audit.roles.shift();
       },

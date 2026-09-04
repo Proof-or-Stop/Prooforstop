@@ -4,7 +4,7 @@ description: REVIEW review: functional correctness (userSees vs actual behavior 
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 ## Closing Self-Check (Mandatory after completing first-stage checks)
 
 After completing all checks below, additionally ask yourself: **Does this diff contain any "promised but not delivered" parts?** Newly added `proof-or-stop <cmd>` examples in CLAUDE.md / README, handler schema fields, ENV variables, behavior paragraphs—all must be cross-referenced against the code to verify a corresponding implementation exists. If you find "promised but not delivered" → **critical finding** (category=`missing`, prefix desc with `doc-promise-undelivered:`).

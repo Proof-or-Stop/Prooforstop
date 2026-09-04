@@ -1,0 +1,45 @@
+{
+  "storyId": "B-0b50",
+  "checkedAt": "2026-08-30T19:33:21.043Z",
+  "headHash": "abd3d8ec88f10f3664182507f41b8187563c20f9",
+  "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+  "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98",
+  "reviewRound": "2026-08-30T18:58:39.043Z",
+  "agentId": "",
+  "docsPromises": [
+    {
+      "docPath": "docs/story/actives/B-0b50/checklist.json#CHK-001.userSees + docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "User sees Next: proof-or-stop review_inventory_finalize --storyId=B-xxxx after done_prepare reports missing PRE_CERT inventory, instead of being sent back to done_required_validate.",
+      "verifiedBy": "diff/grep + live re-run at current HEAD",
+      "evidence": "Re-verified at current HEAD abd3d8ec88f10f3664182507f41b8187563c20f9 (materialHash 9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2, matching checklist.json verificationEvidence). packages/main/src/handlers/done-prepare.ts adds safeDoneRequiredRecoveryCommand(storyId, text, fallback): parses a Next: proof-or-stop ... line via regex, rejects shell metacharacters, and only passes it through if it exact-matches a 9-entry allowlist keyed by storyId (including review_inventory_finalize, done_prepare plus mergeMain, finding_list, validate, certification_window_begin/status, done_required_validate, story_advance REVIEW). Both blocked() call sites in runDonePrepare (the executed-but-refused branch and the parseValidateOutput branch) now call safeDoneRequiredRecoveryCommand(storyId, message, command) instead of hardcoding the caller-specific fallback as next. Re-ran node packages/main/dist/tasks/certification-window-smoke.js myself after a fresh npm --prefix packages/main run build: exitCode=0, stdout contains certification-window-smoke: PASS (occurs once, immediately after the choke-path adversarial assertions for safeDoneRequiredRecoveryCommand covering: propagation of review_inventory_finalize, rejection of a wrong-storyId Next line, rejection of a malformed/empty-storyId Next line, rejection of a shell-metacharacter-injected Next line, retention of caller fallback when Next is absent, and passthrough of a non-inventory allowlisted command)."
+    },
+    {
+      "docPath": "docs/story/actives/B-0b50/checklist.json#CHK-002.userSees + docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+      "promise": "User sees the blocked certification output point directly to Next: proof-or-stop review_inventory_finalize --storyId=B-xxxx while the story remains in TEST and no DEV or REVIEW transition is requested.",
+      "verifiedBy": "diff/grep + live re-run at current HEAD",
+      "evidence": "Re-verified at current HEAD abd3d8ec88f10f3664182507f41b8187563c20f9. packages/main/src/core/certification-window.ts adds a probe-failed blocker code and probeFinalizedUnconsumedReviewInventory(); refuseHeavyCertificationUnlessAdmitted() now, when no window exists, probes the review-inventory admit API and on a clean empty/absent probe sets nextCommand to review_inventory_finalize via nextCommandForBlocker(the not-finalized blocker); the old unconditional heavyCertificationStatusNext() fallback (which always pointed at certification_window_status, sending the user in a loop) was deleted from this path. A genuine probe exception (apis present but throwing) is distinguished as a probe-failed case, routed to certification_window_status instead, so a real infra failure is never mislabeled as ordinary missing-inventory. No DEV/REVIEW transition is requested anywhere in this path -- the story remains gated purely on review_inventory_finalize. This story's own DONE run exercised exactly this live, repeatedly: its certification window was invalidated and reported the not-finalized blocker multiple times (review inventory epochs RIE-007, RIE-008, RIE-009 and certification windows CW-004, CW-005, CW-006 per this story's own process-events.jsonl / review-inventory-epochs.json / certification-window.json), and each time the CLI routed straight to review_inventory_finalize --storyId=B-0b50, which succeeded from TEST with zero DEV/REVIEW bounces. Re-ran node packages/main/dist/tasks/certification-window-smoke.js myself: exitCode=0, PASS; the smoke asserts the ADMITTED-window happy path still yields Next: done_required_validate (added assertion), the missing-inventory choke path yields Next: review_inventory_finalize (updated from the old certification_window_status expectation), and the new probe-failure branch yields Next: certification_window_status distinctly from the missing-inventory branch."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Personally re-ran (as the delivery reviewer, not copying the prior run) node packages/main/dist/tasks/certification-window-smoke.js at current HEAD abd3d8ec88f10f3664182507f41b8187563c20f9 after a fresh npm --prefix packages/main run build (build succeeded, no errors): exitCode=0, stdout contains certification-window-smoke: PASS. Working tree is clean apart from this story's own process-events.jsonl. Covers safeDoneRequiredRecoveryCommand happy (propagates review_inventory_finalize), edge (retains caller fallback when Next absent or command not on allowlist), and adversarial (rejects wrong-storyId, malformed/empty line, shell metacharacters) paths with explicit assert.equal calls."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Personally re-ran node packages/main/dist/tasks/certification-window-smoke.js at current HEAD abd3d8ec88f10f3664182507f41b8187563c20f9: exitCode=0, PASS. Covers missing-inventory to review_inventory_finalize (new expectation replacing the old certification_window_status loop), ADMITTED window to done_required_validate unchanged, INVALIDATED window to story_advance REVIEW unchanged, and the new probe-failed case to certification_window_status distinct from the missing-inventory Next command so a genuine probe exception is never silently treated as ordinary missing inventory."
+    },
+    {
+      "featureId": "scope-acknowledged-host-launcher-env-strip",
+      "transcript": "Not a checklist item; recorded via scope_contract_acknowledge (scope-contract.json acknowledgements[0], headHash f11a1da0560229e95ff81b58e804f4db9cf3c884, materialHash 32633da45e00d9b642ae29c19dd1c33801fb328effa87bf2a8ede234c8afe0a9) rather than a CHK id, so there is no featureId to bind evidence to under the current delivery-check schema. Personally re-ran node packages/main/dist/tasks/done-required-validation-smoke.js at current HEAD abd3d8ec88f10f3664182507f41b8187563c20f9: exitCode=0, printed done-required-validation smoke passed. The smoke file imports HOST_LAUNCHER_SESSION_ENV_KEYS (not a hand-copied literal, per its own F-012 comment) and asserts each of the 8 host-launcher/terminal-multiplexer keys is digest-neutral (owner-session vs other-session effectiveEnvironmentDigest identical when only that key differs), and separately confirms VALIDATION_TRANSPORT_ENV_KEY_LIST (the digest-pinned list) is unchanged, so existing receipts are not invalidated by this strip.",
+      "waiverReason": "Acknowledged scope expansion (validation-command-environment.ts and done-required-validation-smoke.ts) has no corresponding checklist item id -- it was added via scope_contract_acknowledge (enforce-mode scope-contract.json), not a PLAN checklist entry, so featureId cannot bind to a CHK-xxx per the delivery-check schema; evidence is reported above as a personally-executed re-run instead of a waiver of substance."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independently re-verified at current HEAD and material (not copied from the prior stale delivery-check): both CHK-001 and CHK-002 user-visible promises are implemented exactly as described in packages/main/src/handlers/done-prepare.ts and packages/main/src/core/certification-window.ts, and personally re-running certification-window-smoke.js and done-required-validation-smoke.js after a clean rebuild both exit 0 with their expected PASS markers; no TODO/FIXME/HACK were found in the diff; the acknowledged out-of-checklist host-launcher-env-digest-strip is real code backed by its own passing regression and a proper enforce-mode scope_contract_acknowledge audit trail."
+  },
+  "_hash": "3bacf95e5a37d305883a1830245f67d117311ba75a73ee672a59ade31ef08fa3"
+}

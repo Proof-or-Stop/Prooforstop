@@ -103,6 +103,29 @@ function sourceFiles(entry: ProcessFactRegistryEntry): string[] {
   return stable([...(entry.producerSourceRefs ?? []), ...(entry.consumerSourceRefs ?? [])]);
 }
 
+function isResolvableRegularSourceFile(root: string, file: string): boolean {
+  try { return lstatSync(resolve(root, file)).isFile(); }
+  catch { return false; }
+}
+
+function isExistingDirectory(root: string, file: string): boolean {
+  try { return lstatSync(resolve(root, file)).isDirectory(); }
+  catch { return false; }
+}
+
+function sourceFileRefs(root: string, files: readonly string[]): string[] {
+  return stable(files.filter(file => {
+    try {
+      // Follow neither directory symlinks nor file symlinks. Missing references
+      // stay in the candidate set so the existing unreadable-source diagnostic
+      // remains observable to the acceptance gate.
+      return lstatSync(resolve(root, file)).isFile();
+    } catch {
+      return true;
+    }
+  }));
+}
+
 function processFactPath(entry: ProcessFactRegistryEntry): string {
   return `path:process-fact:${entry.name}->consumer:${entry.consumerGate ?? '<audit-only>'}`;
 }
@@ -126,6 +149,8 @@ interface BoundedSourceGraph {
   entries: ProcessFactRegistryEntry[];
   factories: FactoryInventory[];
   sourceScans: Map<string, LocalImportCallScan>;
+  sourceFiles: Map<string, ts.SourceFile>;
+  checker: ts.TypeChecker;
   blindSpots: string[];
   readContext: SourceReadContext;
   directoryFingerprints: DirectoryFingerprint[];
@@ -133,6 +158,7 @@ interface BoundedSourceGraph {
 
 interface LocalImportCallScan {
   imports: Array<{ imported: string; local: string; sourceFile: string }>;
+  contractImports: Array<{ imported: string; local: string; sourceFile: string; typeOnly: boolean }>;
   calledImports: Array<{ imported: string; local: string; sourceFile: string; caller: string | null }>;
   blindSpots: string[];
   unresolvedImports: string[];
@@ -844,7 +870,12 @@ function createBindingAnalysisContext(root: string, files: readonly string[], re
     writeFile: () => undefined,
   };
   const program = ts.createProgram({ rootNames: [...absoluteSources.keys()], options, host });
-  return { root, physicalRoot, sourceFiles, readBlindSpots, checker: program.getTypeChecker(), readContext };
+  const programSourceFiles = new Map<string, ts.SourceFile>();
+  for (const [file, source] of sourceFiles) {
+    const programSource = program.getSourceFile(source.fileName);
+    if (programSource) programSourceFiles.set(file, programSource);
+  }
+  return { root, physicalRoot, sourceFiles: programSourceFiles, readBlindSpots, checker: program.getTypeChecker(), readContext };
 }
 
 function unwrapExpression(expression: ts.Expression): ts.Expression {
@@ -858,22 +889,24 @@ function unwrapExpression(expression: ts.Expression): ts.Expression {
 
 function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string): LocalImportCallScan {
   const source = context.sourceFiles.get(file);
-  if (!source) return { imports: [], calledImports: [], blindSpots: context.readBlindSpots.get(file) ?? [`uninspectable source file ${file}`], unresolvedImports: [] };
+  if (!source) return { imports: [], contractImports: [], calledImports: [], blindSpots: context.readBlindSpots.get(file) ?? [`uninspectable source file ${file}`], unresolvedImports: [] };
   const text = source.text;
   if (Buffer.byteLength(text, 'utf8') > MAX_LEXICAL_SOURCE_BYTES) {
-    return { imports: [], calledImports: [], blindSpots: [`source file exceeds lexical scan budget: ${file}`], unresolvedImports: [] };
+    return { imports: [], contractImports: [], calledImports: [], blindSpots: [`source file exceeds lexical scan budget: ${file}`], unresolvedImports: [] };
   }
   const parseDiagnostics = (source as ts.SourceFile & { parseDiagnostics?: readonly ts.Diagnostic[] }).parseDiagnostics ?? [];
   if (parseDiagnostics.length > 0) {
-    return { imports: [], calledImports: [], blindSpots: [`typescript parse ambiguity in ${file}`], unresolvedImports: [] };
+    return { imports: [], contractImports: [], calledImports: [], blindSpots: [`typescript parse ambiguity in ${file}`], unresolvedImports: [] };
   }
   const imports: Array<{ imported: string; local: string; sourceFile: string }> = [];
+  const contractImports: Array<{ imported: string; local: string; sourceFile: string; typeOnly: boolean }> = [];
   const unresolved: string[] = [];
   const bindingBlindSpots: string[] = [];
-  const bindings: Array<{ imported: string; local: string; sourceFile: string; node: ts.Identifier; direct: boolean; property: boolean; symbol?: ts.Symbol }> = [];
-  const addBinding = (imported: string, node: ts.Identifier, sourceFile: string, direct: boolean, property: boolean): void => {
-    const row = { imported, local: node.text, sourceFile, node, direct, property, symbol: context.checker.getSymbolAtLocation(node) };
-    imports.push({ imported, local: node.text, sourceFile });
+  const bindings: Array<{ imported: string; local: string; sourceFile: string; node: ts.Identifier; direct: boolean; property: boolean; typeOnly: boolean; symbol?: ts.Symbol }> = [];
+  const addBinding = (imported: string, node: ts.Identifier, sourceFile: string, direct: boolean, property: boolean, typeOnly = false): void => {
+    const row = { imported, local: node.text, sourceFile, node, direct, property, typeOnly, symbol: context.checker.getSymbolAtLocation(node) };
+    contractImports.push({ imported, local: node.text, sourceFile, typeOnly });
+    if (!typeOnly) imports.push({ imported, local: node.text, sourceFile });
     bindings.push(row);
     if (!row.symbol) bindingBlindSpots.push(`unresolved import binding ${node.text} in ${file}`);
   };
@@ -887,12 +920,18 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
       const sourceFile = resolveSpecifier(statement.moduleSpecifier.text);
       if (!sourceFile) continue;
       const clause = statement.importClause;
-      if (clause?.isTypeOnly) continue;
-      if (clause?.name) addBinding('default', clause.name, sourceFile, true, true);
+      if (clause?.name) addBinding('default', clause.name, sourceFile, true, true, clause.isTypeOnly);
       if (clause?.namedBindings && ts.isNamedImports(clause.namedBindings)) {
-        for (const element of clause.namedBindings.elements) if (!element.isTypeOnly) addBinding(element.propertyName?.text ?? element.name.text, element.name, sourceFile, true, false);
+        for (const element of clause.namedBindings.elements) addBinding(
+          element.propertyName?.text ?? element.name.text,
+          element.name,
+          sourceFile,
+          true,
+          false,
+          clause.isTypeOnly || element.isTypeOnly,
+        );
       } else if (clause?.namedBindings && ts.isNamespaceImport(clause.namedBindings)) {
-        addBinding('*', clause.namedBindings.name, sourceFile, false, true);
+        addBinding('*', clause.namedBindings.name, sourceFile, false, true, clause.isTypeOnly);
       }
       continue;
     }
@@ -956,11 +995,20 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
   };
   visitModuleBindings(source);
   const callerFor = (node: ts.Node): string | null => {
+    const propertyName = (name: ts.PropertyName | undefined): string | null => {
+      if (!name) return null;
+      if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+      return null;
+    };
     let current: ts.Node | undefined = node;
     while (current && current !== source) {
       if (ts.isFunctionDeclaration(current) && current.name) return current.name.text;
+      if (ts.isMethodDeclaration(current)) return propertyName(current.name);
       if ((ts.isArrowFunction(current) || ts.isFunctionExpression(current)) && ts.isVariableDeclaration(current.parent)
         && ts.isIdentifier(current.parent.name)) return current.parent.name.text;
+      if ((ts.isArrowFunction(current) || ts.isFunctionExpression(current)) && ts.isPropertyAssignment(current.parent)) {
+        return propertyName(current.parent.name);
+      }
       current = current.parent;
     }
     return null;
@@ -1017,7 +1065,14 @@ function analyzeLocalImportCalls(context: BindingAnalysisContext, file: string):
     ts.forEachChild(node, visitUnsupportedDynamicImports);
   };
   visitUnsupportedDynamicImports(source);
-  return { imports: stableRows(imports), calledImports: stableRows(called), blindSpots: stable(bindingBlindSpots), unresolvedImports: stable(unresolved) };
+  return {
+    imports: stableRows(imports),
+    contractImports: [...new Map(contractImports.map(row => [`${row.sourceFile}\0${row.imported}\0${row.local}\0${row.typeOnly}`, row])).values()]
+      .sort((left, right) => compareCodeUnits(`${left.sourceFile}:${left.imported}:${left.local}:${left.typeOnly}`, `${right.sourceFile}:${right.imported}:${right.local}:${right.typeOnly}`)),
+    calledImports: stableRows(called),
+    blindSpots: stable(bindingBlindSpots),
+    unresolvedImports: stable(unresolved),
+  };
 }
 
 function resolveHandlerFactoryKeys(
@@ -1149,9 +1204,18 @@ function sourceSeedFiles(input: AcceptanceDiscoveryInput, storyArtifactDirectory
   ]).filter(file => {
     const canonical = file.replace(/\\/g, '/');
     const basename = canonical.split('/').at(-1) ?? '';
-    return !(storyArtifactDirectory
+    if (storyArtifactDirectory
       && GENERATED_PROOF_ARTIFACT_BASENAMES.has(basename)
-      && canonical === `${storyArtifactDirectory}${basename}`);
+      && canonical === `${storyArtifactDirectory}${basename}`) return false;
+    // Scope contracts may name an existing directory as a source seed.  It is
+    // still valid scope evidence, but it is not a source file for the bounded
+    // reader.  Keep regular files and missing planned endpoints so their
+    // normal read/closure diagnostics remain observable.
+    try {
+      return !lstatSync(resolve(input.workspaceRoot, canonical)).isDirectory();
+    } catch {
+      return true;
+    }
   });
 }
 
@@ -1161,7 +1225,13 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const seedFiles = sourceSeedFiles(input, generatedStoryArtifactDirectory(readContext, input.storyId));
   const sourceInventory = configuredSourceInventory(root, readContext);
   const blindSpots: string[] = [...sourceInventory.blindSpots];
-  const registryCandidates = stable(['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
+  // A process-fact sourceFiles entry may intentionally point at a directory
+  // (for example the agent prompt asset root).  Scope references are still
+  // retained by sourceSeedFiles, but never pass the directory to the bounded
+  // file reader: it is not a source file and would create a false blind spot.
+  // Missing file references remain in the candidate set so their normal
+  // unreadable-source diagnostic stays observable and fail-closed.
+  const registryCandidates = sourceFileRefs(root, ['packages/main/src/registry.ts', ...PROCESS_FACT_REGISTRY.flatMap(sourceFiles)]);
   const analysisContext = createBindingAnalysisContext(root, stable([...sourceInventory.files, ...seedFiles, ...registryCandidates]), readContext);
   const registryFiles = registryCandidates.filter(file => file === 'packages/main/src/registry.ts'
     || executableText(analysisContext.sourceFiles.get(file)?.text ?? '').includes('registerBatch('));
@@ -1170,9 +1240,15 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const phaseControlFacts = new Set([...planControlFacts, ...preReviewControlFacts, 'acceptance_topology_check',
     'topology_exclusion_approval_set', 'topology_critic_receipt_set', 'topology_critic_receipt_check',
     'artifact:topology-exclusion-approvals.json', 'artifact:topology-critic-receipt.json']);
-  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
-    ? new Set([...planControlFacts, ...preReviewControlFacts]) : planControlFacts;
   const explicitTopologyFactNames = topologyFactNames(input);
+  // Pre-review control facts are phase material only when the current
+  // acceptance topology explicitly declares them. This keeps the basis
+  // closure total for stories whose topology predates the pre-review control
+  // surface while preserving the strict materialization test for declared
+  // future-phase mappings.
+  const allowedPhaseControlFacts = (input.phaseBasis ?? 'plan') === 'pre_review'
+    ? new Set([...planControlFacts, ...[...preReviewControlFacts].filter(fact => explicitTopologyFactNames.has(fact))])
+    : planControlFacts;
   const plannedFactNames = new Set(input.plannedPathRecords.flatMap(record => [
     record.outputFactRef.replace(/^process-fact:/, '').replace(/-/g, '_'),
     record.producer.expectedSymbolOrFact,
@@ -1205,7 +1281,7 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   const inferredHandlerFiles = new Map<string, string>();
   for (const factory of factories) for (const command of factory.commandKeys) inferredHandlerFiles.set(command, factory.sourceFile);
   const entryFiles = (entry: ProcessFactRegistryEntry): string[] => stable([
-    ...sourceFiles(entry),
+    ...sourceFileRefs(root, sourceFiles(entry)),
     ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
   ]);
   const closure = new Set(seedFiles);
@@ -1234,16 +1310,46 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
       for (const file of files) if (!closure.has(file)) { closure.add(file); changed = true; }
     }
   }
+  // A planned source endpoint is only useful when the runtime can reach it.
+  // Keep the closure bounded by retaining only source-inventory files that
+  // import one of the declared endpoint modules; this captures the real
+  // handler binding without turning the discovery graph into a whole-tree
+  // call graph.
+  const plannedEndpointFiles = new Set(input.plannedPathRecords.flatMap(record =>
+    [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)));
+  const plannedEndpointBasenames = [...plannedEndpointFiles].map(file => file.split('/').at(-1)?.replace(/\.[^.]+$/, '') ?? file);
+  for (const file of sourceInventory.files) {
+    if (closure.has(file) || !supportsBindingAnalysis(file)) continue;
+    const source = analysisContext.sourceFiles.get(file);
+    if (!source || !plannedEndpointBasenames.some(name => source.text.includes(name))) continue;
+    const scan = analyzeLocalImportCalls(analysisContext, file);
+    if (!scan.imports.some(binding => plannedEndpointFiles.has(binding.sourceFile))) continue;
+    closure.add(file);
+    sourceScans.set(file, scan);
+  }
   for (const file of closure) {
     blindSpots.push(...(analysisContext.readBlindSpots.get(file) ?? []));
     if (supportsBindingAnalysis(file)) sourceScans.set(file, analyzeLocalImportCalls(analysisContext, file));
   }
   for (const entry of reached) {
-    for (const file of entryFiles(entry)) if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
+    const rawSourceRefs = sourceFiles(entry);
+    const acceptedSourceRefs = new Set(sourceFileRefs(root, rawSourceRefs));
+    for (const file of acceptedSourceRefs) {
+      if (!existsSync(resolve(root, file))) blindSpots.push(`uninspectable registered source ${file} for ${entry.name}`);
+    }
+    // Directory and symlink refs are excluded from the executable source set,
+    // but still pass through the no-follow reader once so their diagnostics are
+    // retained instead of silently disappearing from the acceptance basis.
+    for (const file of rawSourceRefs) {
+      if (acceptedSourceRefs.has(file)) continue;
+      const read = readSourceSafely(readContext, file);
+      if (read.blindSpot) blindSpots.push(`${read.blindSpot} for ${entry.name}`);
+    }
     if (entry.consumerGate) {
       const dispatchConsumer = isDispatchableProcessFact(entry)
         && graphFactoryCommandRegistered(factories, entry.name);
-      const explicitConsumer = dispatchConsumer || (entry.consumerSourceRefs ?? []).some(file => existsSync(resolve(root, file)));
+      const explicitConsumer = dispatchConsumer || sourceFileRefs(root, entry.consumerSourceRefs ?? [])
+        .some(file => isResolvableRegularSourceFile(root, file));
       const producerFiles = stable([
         ...(entry.producerSourceRefs ?? []),
         ...commandNamesForEntry(entry).map(command => inferredHandlerFiles.get(command) ?? '').filter(Boolean),
@@ -1255,7 +1361,8 @@ function buildBoundedSourceGraph(input: AcceptanceDiscoveryInput): BoundedSource
   }
   return {
     seedFiles, sourceInventoryFiles: sourceInventory.files, closureFiles: stable([...closure]), entries: [...reached], factories,
-    sourceScans, blindSpots: stable(blindSpots), readContext, directoryFingerprints: sourceInventory.directoryFingerprints,
+    sourceScans, sourceFiles: analysisContext.sourceFiles, checker: analysisContext.checker,
+    blindSpots: stable(blindSpots), readContext, directoryFingerprints: sourceInventory.directoryFingerprints,
   };
 }
 
@@ -1266,11 +1373,13 @@ function registeredProcessFactClosureFromGraph(graph: BoundedSourceGraph): Regis
     pathRefs: stable(reached.map(processFactPath)),
     sourceInventoryRefs: stable(reached.flatMap(entry => [
       `process-fact:${entry.name}:${digestCanonicalJson(entry)}`,
-      ...((entry.producerSourceRefs ?? []).map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`)),
-      ...((entry.consumerSourceRefs ?? []).map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`)),
+      ...sourceFileRefs(graph.readContext.physicalRoot, entry.producerSourceRefs ?? [])
+        .map(file => `source-file:producer:${encodeURIComponent(entry.name)}:${file}`),
+      ...sourceFileRefs(graph.readContext.physicalRoot, entry.consumerSourceRefs ?? [])
+        .map(file => `source-file:consumer:${encodeURIComponent(entry.name)}:${file}`),
       ...(entry.artifact ? [`artifact:${entry.artifact.path}`] : []),
     ]).concat(
-      graph.closureFiles.map(file => `source-file:closure:${file}`),
+      sourceFileRefs(graph.readContext.physicalRoot, graph.closureFiles).map(file => `source-file:closure:${file}`),
       // B-cc10 F-031: name the config spelling this project ACTUALLY has. This was a
       // hardcoded 'proof-or-stop.config.json' sitting beside dynamically-derived siblings, so a
       // canonical-only project inventoried a file it does not contain — producing a spurious
@@ -1304,6 +1413,7 @@ function adapterId(method: CoverageDiscoveryMethodV1): string {
 
 function sourceProvenance(context: SourceReadContext, file: string): string {
   try {
+    if (isExistingDirectory(context.physicalRoot, file)) return `source-directory:${file}`;
     const read = readSourceSafely(context, file);
     if (read.text === undefined) return `source-file:${file}:uninspectable`;
     const semanticDigest = context.semanticDigests.get(file);
@@ -1342,6 +1452,21 @@ function staticCallPaths(input: AcceptanceDiscoveryInput, graph: BoundedSourceGr
     ...input.plannedPathRecords.flatMap(record => [record.producer, ...record.consumers].map(endpoint => endpoint.expectedFileRef)),
     ...graph.factories.filter(factory => factory.commandKeys.some(command => explicitFacts.has(command))).map(factory => factory.sourceFile),
   ]);
+  // Existing `basis-path:path:static-call:...` references are explicit
+  // forward declarations at PLAN and become mandatory current edges at
+  // pre-review. Include their bounded endpoints in the scan so a declared
+  // edge is actually discoverable even when neither endpoint is already in
+  // the process-fact closure. The emitted path is still derived from the
+  // source import/call scan below; the declaration never self-certifies.
+  for (const ref of input.topologyPathRefs ?? []) {
+    const path = ref.startsWith('basis-path:') ? ref.slice('basis-path:'.length) : ref;
+    const match = /^path:static-call:([^#]+)#[^>]+->consumer:([^#]+)#[^>]+$/.exec(path);
+    if (!match) continue;
+    relevantFiles.add(match[1]);
+    relevantFiles.add(match[2]);
+    bindingRequiredFiles.add(match[1]);
+    bindingRequiredFiles.add(match[2]);
+  }
   for (const file of stable([...relevantFiles]).filter(value => !value.endsWith('/registry.ts'))) {
     const absolute = resolve(input.workspaceRoot, file);
     if (!existsSync(absolute)) continue;
@@ -1381,34 +1506,272 @@ function exportedCallableCount(source: ts.SourceFile, expected: string): number 
   return count;
 }
 
-function sameFileCallableCalls(source: ts.SourceFile, caller: string, callee: string): boolean {
-  let found = false;
-  const inspectBody = (node: ts.Node): void => {
-    if (ts.isCallExpression(node) && ts.isIdentifier(unwrapExpression(node.expression))
-      && (unwrapExpression(node.expression) as ts.Identifier).text === callee) found = true;
-    if (!found) ts.forEachChild(node, inspectBody);
+interface CallableBody {
+  name: string;
+  body: ts.Node;
+  declaration: ts.Node;
+  symbol: ts.Symbol | undefined;
+}
+
+interface CalledCallable {
+  name: string;
+  symbol: ts.Symbol | undefined;
+}
+
+function propertyName(name: ts.PropertyName | undefined): string | null {
+  if (!name) return null;
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+  return null;
+}
+
+function callableBodies(source: ts.SourceFile, expected: string | undefined, checker: ts.TypeChecker): CallableBody[] {
+  const bodies: CallableBody[] = [];
+  const add = (nameNode: ts.Node | undefined, body: ts.Node | undefined): void => {
+    if (!nameNode || body === undefined || !ts.isIdentifier(nameNode) && !ts.isStringLiteral(nameNode) && !ts.isNumericLiteral(nameNode)) return;
+    const name = nameNode.text;
+    if (expected !== undefined && name !== expected) return;
+    bodies.push({ name, body, declaration: nameNode.parent, symbol: checker.getSymbolAtLocation(nameNode) });
   };
-  for (const statement of source.statements) {
-    if (ts.isFunctionDeclaration(statement) && statement.name?.text === caller && statement.body) inspectBody(statement.body);
-    if (!ts.isVariableStatement(statement)) continue;
-    for (const declaration of statement.declarationList.declarations) {
-      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== caller || !declaration.initializer) continue;
-      const initializer = unwrapExpression(declaration.initializer);
-      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) inspectBody(initializer.body);
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionDeclaration(node) && node.body) add(node.name, node.body);
+    if (ts.isMethodDeclaration(node) && node.body) add(node.name, node.body);
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+      const initializer = unwrapExpression(node.initializer);
+      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) add(node.name, initializer.body);
+    }
+    if (ts.isPropertyAssignment(node)) {
+      const initializer = unwrapExpression(node.initializer);
+      if ((ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) && initializer.body) add(node.name, initializer.body);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(source);
+  return bodies;
+}
+
+function uniqueCallableBodies(bodies: readonly CallableBody[]): CallableBody[] {
+  return [...new Map(bodies.map(body => [body.symbol ?? body.declaration, body])).values()];
+}
+
+function inspectCallableBody(body: CallableBody, checker: ts.TypeChecker): CalledCallable[] {
+  const called: CalledCallable[] = [];
+  const inspect = (node: ts.Node, root: boolean): void => {
+    if (!root && (ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)
+      || ts.isArrowFunction(node) || ts.isFunctionExpression(node))) return;
+    if (ts.isCallExpression(node)) {
+      const callee = unwrapExpression(node.expression);
+      if (ts.isIdentifier(callee)) called.push({ name: callee.text, symbol: checker.getSymbolAtLocation(callee) });
+    }
+    ts.forEachChild(node, child => inspect(child, false));
+  };
+  inspect(body.body, true);
+  return called;
+}
+
+function uniqueCallable(source: ts.SourceFile, expected: string, checker: ts.TypeChecker): CallableBody | null {
+  const candidates = uniqueCallableBodies(callableBodies(source, expected, checker));
+  return candidates.length === 1 && candidates[0].symbol ? candidates[0] : null;
+}
+
+function sameFileCallableReachable(source: ts.SourceFile, caller: string, callee: string, checker: ts.TypeChecker): boolean {
+  const callerBody = uniqueCallable(source, caller, checker);
+  const calleeBody = uniqueCallable(source, callee, checker);
+  if (!callerBody || !calleeBody) return false;
+  const pending = [callerBody];
+  const visited = new Set<ts.Symbol>();
+  while (pending.length > 0) {
+    const current = pending.shift()!;
+    if (!current.symbol || visited.has(current.symbol)) continue;
+    visited.add(current.symbol);
+    for (const called of inspectCallableBody(current, checker)) {
+      if (called.symbol === calleeBody.symbol) return true;
+      if (!called.symbol) continue;
+      const target = uniqueCallableBodies(callableBodies(source, called.name, checker))
+        .find(candidate => candidate.symbol === called.symbol);
+      if (target) pending.push(target);
     }
   }
+  return false;
+}
+
+function hasSameFileIncomingCall(source: ts.SourceFile, expected: string, checker: ts.TypeChecker): boolean {
+  const expectedBody = uniqueCallable(source, expected, checker);
+  if (!expectedBody) return false;
+  const candidates = uniqueCallableBodies(callableBodies(source, undefined, checker));
+  return candidates.some(candidate =>
+    candidate.symbol !== expectedBody.symbol
+    && inspectCallableBody(candidate, checker).some(called => called.symbol === expectedBody.symbol));
+}
+
+function sourceSnapshot(graph: BoundedSourceGraph, file: string): ts.SourceFile | undefined {
+  // All symbol-aware helpers must receive nodes from the same Program as the
+  // checker. A separately parsed snapshot has equivalent text but unrelated
+  // symbols, so an absent Program source is intentionally uninspectable.
+  return graph.sourceFiles.get(file);
+}
+
+function callableSignatureMentionsType(source: ts.SourceFile, expected: string, typeName: string): boolean {
+  const mentions = (node: ts.Node | undefined): boolean => node?.getText(source).split(/[^A-Za-z0-9_$]+/).includes(typeName) ?? false;
+  const propertyName = (name: ts.PropertyName | undefined): string | null => {
+    if (!name) return null;
+    if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+    return null;
+  };
+  let found = false;
+  const visit = (node: ts.Node): void => {
+    if (found) return;
+    if (ts.isFunctionDeclaration(node) && node.name?.text === expected) {
+      found = mentions(node.type) || node.parameters.some(parameter => mentions(parameter.type));
+    } else if (ts.isMethodDeclaration(node) && propertyName(node.name) === expected) {
+      found = mentions(node.type) || node.parameters.some(parameter => mentions(parameter.type));
+    } else if (ts.isPropertyAssignment(node) && propertyName(node.name) === expected) {
+      const initializer = unwrapExpression(node.initializer);
+      if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) {
+        found = mentions(initializer.type) || initializer.parameters.some(parameter => mentions(parameter.type));
+      }
+    } else if (ts.isVariableStatement(node)) {
+      for (const declaration of node.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name) || declaration.name.text !== expected || !declaration.initializer) continue;
+        const initializer = unwrapExpression(declaration.initializer);
+        if (ts.isArrowFunction(initializer) || ts.isFunctionExpression(initializer)) {
+          found = mentions(initializer.type) || initializer.parameters.some(parameter => mentions(parameter.type));
+        }
+      }
+    }
+    if (!found) ts.forEachChild(node, visit);
+  };
+  visit(source);
   return found;
 }
 
-function hasSameFileIncomingCall(source: ts.SourceFile, expected: string): boolean {
+function callableReferencesProperty(source: ts.SourceFile, expected: string, property: string, checker: ts.TypeChecker): boolean {
+  const callable = uniqueCallable(source, expected, checker);
+  if (!callable) return false;
+  let found = false;
+  const inspect = (node: ts.Node): void => {
+    if (found) return;
+    if (ts.isPropertyAccessExpression(node) && node.name.text === property) found = true;
+    if (ts.isElementAccessExpression(node) && ts.isStringLiteral(node.argumentExpression) && node.argumentExpression.text === property) found = true;
+    ts.forEachChild(node, inspect);
+  };
+  inspect(callable.body);
+  return found;
+}
+
+function topLevelBindingSymbol(source: ts.SourceFile, localName: string, checker: ts.TypeChecker): ts.Symbol | undefined {
+  const symbols: ts.Symbol[] = [];
   for (const statement of source.statements) {
-    if (ts.isFunctionDeclaration(statement) && statement.name && statement.name.text !== expected
-      && sameFileCallableCalls(source, statement.name.text, expected)) return true;
-    if (!ts.isVariableStatement(statement)) continue;
-    for (const declaration of statement.declarationList.declarations) {
-      if (ts.isIdentifier(declaration.name) && declaration.name.text !== expected
-        && sameFileCallableCalls(source, declaration.name.text, expected)) return true;
+    if (ts.isImportDeclaration(statement)) {
+      const clause = statement.importClause;
+      if (clause?.name?.text === localName) {
+        const symbol = checker.getSymbolAtLocation(clause.name);
+        if (symbol) symbols.push(symbol);
+      }
+      if (clause?.namedBindings && ts.isNamedImports(clause.namedBindings)) {
+        for (const element of clause.namedBindings.elements) if (element.name.text === localName) {
+          const symbol = checker.getSymbolAtLocation(element.name);
+          if (symbol) symbols.push(symbol);
+        }
+      }
+      if (clause?.namedBindings && ts.isNamespaceImport(clause.namedBindings)
+        && clause.namedBindings.name.text === localName) {
+        const symbol = checker.getSymbolAtLocation(clause.namedBindings.name);
+        if (symbol) symbols.push(symbol);
+      }
     }
+    if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name) && declaration.name.text === localName) {
+          const symbol = checker.getSymbolAtLocation(declaration.name);
+          if (symbol) symbols.push(symbol);
+        }
+      }
+    }
+  }
+  return symbols.length === 1 ? symbols[0] : undefined;
+}
+
+function callableDirectlyCallsIdentifier(source: ts.SourceFile, expected: string, calleeName: string, checker: ts.TypeChecker): boolean {
+  const callable = uniqueCallable(source, expected, checker);
+  const importedSymbol = topLevelBindingSymbol(source, calleeName, checker);
+  if (!callable || !importedSymbol) return false;
+  let found = false;
+  const inspect = (node: ts.Node): void => {
+    if (found) return;
+    if (ts.isCallExpression(node)) {
+      const callee = unwrapExpression(node.expression);
+      if (ts.isIdentifier(callee) && callee.text === calleeName
+        && checker.getSymbolAtLocation(callee) === importedSymbol) found = true;
+    }
+    ts.forEachChild(node, inspect);
+  };
+  inspect(callable.body);
+  return found;
+}
+
+function typeDeclaresProperty(source: ts.SourceFile, typeName: string, property: string): boolean {
+  const propertyName = (name: ts.PropertyName | ts.BindingName | undefined): string | null => {
+    if (!name) return null;
+    if (ts.isIdentifier(name) || ts.isStringLiteral(name) || ts.isNumericLiteral(name)) return name.text;
+    return null;
+  };
+  const membersHaveProperty = (members: ts.NodeArray<ts.TypeElement>): boolean => members.some(member => {
+    if (!('name' in member)) return false;
+    return propertyName((member as ts.PropertySignature | ts.MethodSignature).name) === property;
+  });
+  return source.statements.some(statement => {
+    if (ts.isInterfaceDeclaration(statement) && statement.name.text === typeName) return membersHaveProperty(statement.members);
+    if (!ts.isTypeAliasDeclaration(statement) || statement.name.text !== typeName) return false;
+    return ts.isTypeLiteralNode(statement.type) && membersHaveProperty(statement.type.members);
+  });
+}
+
+function reachesRegisteredHandler(graph: BoundedSourceGraph, endpoint: VerificationPlannedPathEndpointV1): boolean {
+  if (endpoint.expectedArtifactKind !== 'handler') return false;
+  const source = sourceSnapshot(graph, endpoint.expectedFileRef);
+  if (!source) return false;
+  return graph.factories.some(factory => factory.registered && factory.sourceFile === endpoint.expectedFileRef
+    && factory.commandKeys.some(command => command !== endpoint.expectedSymbolOrFact
+      && sameFileCallableReachable(source, command, endpoint.expectedSymbolOrFact, graph.checker)));
+}
+
+function outputFactContractRelation(
+  graph: BoundedSourceGraph,
+  record: PlannedCoveragePathV1,
+  producer: VerificationPlannedPathEndpointV1,
+  consumer: VerificationPlannedPathEndpointV1,
+): boolean {
+  const fact = record.outputFactRef.trim();
+  const producerSource = sourceSnapshot(graph, producer.expectedFileRef);
+  const consumerSource = sourceSnapshot(graph, consumer.expectedFileRef);
+  if (!producerSource || !consumerSource) return false;
+
+  // A receipt producer and importer are deliberately separate transactions. For
+  // this shape, the source must declare the output property's type, and both
+  // callable bodies must actually consume that property.
+  const receiptFact = fact.match(/^([A-Za-z_$][\w$]*)\.([A-Za-z_$][\w$]*)$/);
+  if (receiptFact && producer.expectedFileRef === consumer.expectedFileRef
+    && typeDeclaresProperty(producerSource, receiptFact[1], receiptFact[2])
+    && callableReferencesProperty(producerSource, producer.expectedSymbolOrFact, receiptFact[2], graph.checker)
+    && callableReferencesProperty(consumerSource, consumer.expectedSymbolOrFact, receiptFact[2], graph.checker)) {
+    return true;
+  }
+
+  // A typed decision consumer may use verifier helpers rather than calling the
+  // evaluator directly. Require the consumer to import the declared output
+  // type from the producer module, the producer signature to return it, and
+  // the consumer callable to call a value import from that same module.
+  if (/^[A-Z_$][\w$]*$/.test(fact) && producer.expectedFileRef !== consumer.expectedFileRef) {
+    const consumerScan = graph.sourceScans.get(consumer.expectedFileRef);
+    const typeImport = consumerScan?.contractImports.some(binding =>
+      binding.sourceFile === producer.expectedFileRef && binding.imported === fact);
+    const valueImportUsed = consumerScan?.calledImports.some(call =>
+      call.sourceFile === producer.expectedFileRef
+        && (call.caller === consumer.expectedSymbolOrFact
+          || (call.caller !== null && sameFileCallableReachable(consumerSource, consumer.expectedSymbolOrFact, call.caller, graph.checker))));
+    return typeImport === true
+      && callableSignatureMentionsType(producerSource, producer.expectedSymbolOrFact, fact)
+      && valueImportUsed === true;
   }
   return false;
 }
@@ -1424,43 +1787,52 @@ function endpointMatchesArtifactKind(graph: BoundedSourceGraph, endpoint: Verifi
   }
   const registered = registeredHandlerEndpoint(graph, endpoint);
   if (endpoint.expectedArtifactKind === 'dispatch') return registered;
-  const source = graph.sourceScans.get(endpoint.expectedFileRef) ? graph.readContext.snapshots.get(endpoint.expectedFileRef) : undefined;
-  if (source === undefined) return false;
-  const parsed = ts.createSourceFile(endpoint.expectedFileRef, source, ts.ScriptTarget.Latest, true, scriptKindFor(endpoint.expectedFileRef));
-  const exported = exportedCallableCount(parsed, endpoint.expectedSymbolOrFact);
-  if (endpoint.expectedArtifactKind === 'handler') return Number(registered) + exported === 1;
+  const source = sourceSnapshot(graph, endpoint.expectedFileRef);
+  if (!source) return false;
+  const exported = exportedCallableCount(source, endpoint.expectedSymbolOrFact);
+  if (endpoint.expectedArtifactKind === 'handler') {
+    const internal = exported === 0 && !registered && reachesRegisteredHandler(graph, endpoint);
+    return Number(registered) + exported + Number(internal) === 1;
+  }
   return exported === 1;
 }
 
 function endpointIsRuntimeReachable(graph: BoundedSourceGraph, endpoint: VerificationPlannedPathEndpointV1): boolean {
   if (endpoint.expectedArtifactKind === 'process_fact' || registeredHandlerEndpoint(graph, endpoint)) return true;
+  if (reachesRegisteredHandler(graph, endpoint)) return true;
   const importedIncoming = [...graph.sourceScans.values()].some(scan => scan.calledImports.some(call =>
     call.sourceFile === endpoint.expectedFileRef && call.imported === endpoint.expectedSymbolOrFact));
   if (importedIncoming) return true;
-  const sourceText = graph.readContext.snapshots.get(endpoint.expectedFileRef);
-  if (sourceText === undefined) return false;
-  const source = ts.createSourceFile(endpoint.expectedFileRef, sourceText, ts.ScriptTarget.Latest, true, scriptKindFor(endpoint.expectedFileRef));
-  return hasSameFileIncomingCall(source, endpoint.expectedSymbolOrFact);
+  const source = sourceSnapshot(graph, endpoint.expectedFileRef);
+  if (!source) return false;
+  return hasSameFileIncomingCall(source, endpoint.expectedSymbolOrFact, graph.checker);
 }
 
 function producerConsumerRelation(
   graph: BoundedSourceGraph,
+  record: PlannedCoveragePathV1,
   producer: VerificationPlannedPathEndpointV1,
   consumer: VerificationPlannedPathEndpointV1,
 ): boolean {
+  const source = sourceSnapshot(graph, consumer.expectedFileRef);
   const importedCall = (graph.sourceScans.get(consumer.expectedFileRef)?.calledImports ?? []).some(call =>
     call.sourceFile === producer.expectedFileRef && call.imported === producer.expectedSymbolOrFact
-      && call.caller === consumer.expectedSymbolOrFact);
-  const source = graph.readContext.snapshots.get(consumer.expectedFileRef) !== undefined
-    ? ts.createSourceFile(consumer.expectedFileRef, graph.readContext.snapshots.get(consumer.expectedFileRef)!, ts.ScriptTarget.Latest, true, scriptKindFor(consumer.expectedFileRef))
-    : undefined;
+        && (call.caller === consumer.expectedSymbolOrFact
+        || (registeredHandlerEndpoint(graph, consumer)
+          && call.caller !== null && source !== undefined
+          && sameFileCallableReachable(source, consumer.expectedSymbolOrFact, call.caller, graph.checker))));
+  const lexicalImportedCall = source !== undefined
+    && reachesRegisteredHandler(graph, consumer)
+    && (graph.sourceScans.get(consumer.expectedFileRef)?.imports ?? []).some(binding =>
+      binding.sourceFile === producer.expectedFileRef && binding.imported === producer.expectedSymbolOrFact)
+    && callableDirectlyCallsIdentifier(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact, graph.checker);
   const sameFileCall = producer.expectedFileRef === consumer.expectedFileRef && source
-    ? sameFileCallableCalls(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact) : false;
+    ? sameFileCallableReachable(source, consumer.expectedSymbolOrFact, producer.expectedSymbolOrFact, graph.checker) : false;
   const registryRelation = (producer.expectedArtifactKind === 'process_fact' || consumer.expectedArtifactKind === 'process_fact')
     && graph.entries.some(entry => commandNamesForEntry(entry).includes(producer.expectedSymbolOrFact)
     && (entry.consumerSourceRefs ?? []).includes(consumer.expectedFileRef)
     && (sourceFiles(entry).includes(producer.expectedFileRef) || registeredHandlerEndpoint(graph, producer)));
-  return importedCall || sameFileCall || registryRelation;
+  return importedCall || lexicalImportedCall || sameFileCall || registryRelation || outputFactContractRelation(graph, record, producer, consumer);
 }
 
 function actualEndpointPathRefs(input: AcceptanceDiscoveryInput, graph: BoundedSourceGraph): string[] {
@@ -1468,7 +1840,7 @@ function actualEndpointPathRefs(input: AcceptanceDiscoveryInput, graph: BoundedS
   for (const record of input.plannedPathRecords) {
     const endpoints = [record.producer, ...record.consumers];
     if (!endpoints.every(endpoint => endpointMatchesArtifactKind(graph, endpoint) && endpointIsRuntimeReachable(graph, endpoint))) continue;
-    if (!record.consumers.every(consumer => producerConsumerRelation(graph, record.producer, consumer))) continue;
+    if (!record.consumers.every(consumer => producerConsumerRelation(graph, record, record.producer, consumer))) continue;
     refs.push(...endpoints.map(endpoint => `actual:${endpoint.expectedArtifactKind}:${endpoint.expectedFileRef}#${endpoint.expectedSymbolOrFact}`));
   }
   return stable(refs);
@@ -1503,7 +1875,10 @@ function buildResult(
     } else if (method === 'process_fact_registry') {
       pathRefs = graph.entries.map(processFactPath);
       blindSpots = graphBlindSpots;
-      provenanceRefs = stable(graph.entries.flatMap(entry => [`process-fact:${entry.name}:${digestCanonicalJson(entry)}`, ...sourceFiles(entry).map(file => sourceProvenance(graph.readContext, file))]));
+      provenanceRefs = stable(graph.entries.flatMap(entry => [
+        `process-fact:${entry.name}:${digestCanonicalJson(entry)}`,
+        ...sourceFileRefs(input.workspaceRoot, sourceFiles(entry)).map(file => sourceProvenance(graph.readContext, file)),
+      ]));
     } else if (method === 'handler_dispatch_inventory') {
       const commands = catalogCommands(graph.readContext);
       const registeredKeys = new Set(graph.factories.filter(factory => factory.registered).flatMap(factory => factory.commandKeys));
@@ -1520,7 +1895,8 @@ function buildResult(
       provenanceRefs = stable(['packages/main/src/cli/command-catalog.ts', 'packages/main/src/registry.ts', ...graph.factories.map(factory => factory.sourceFile)]
         .map(file => sourceProvenance(graph.readContext, file)));
     } else if (method === 'static_call_graph') {
-      const inspectableEntries = graph.entries.filter(entry => sourceFiles(entry).every(file => existsSync(resolve(input.workspaceRoot, file))));
+      const inspectableEntries = graph.entries.filter(entry => sourceFileRefs(input.workspaceRoot, sourceFiles(entry))
+        .every(file => existsSync(resolve(input.workspaceRoot, file))));
       const staticCalls = staticCallPaths(input, graph);
       pathRefs = inspectableEntries.map(processFactPath);
       pathRefs.push(...staticCalls.paths);

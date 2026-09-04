@@ -50,7 +50,11 @@ import {
   collectReviewerEvidenceState,
   type ReviewerEvidenceRecord,
 } from '../core/review-run.js';
-import { findingAgentMatchesReviewer } from '../core/reviewer-opt-in.js';
+import {
+  canonicalReviewerLane,
+  findingAgentMatchesReviewer,
+  reviewerRoleReadIds,
+} from '../core/reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from '../core/touchpoints-fallback.js';
 import { isFindingBlocking, resolveReviewRoundCount } from '../core/advisory.js';
 import { resolveWorkflowPolicy } from '../core/workflow-policy.js';
@@ -316,13 +320,14 @@ export function createReviewerBatchHandlers(ctx: HandlerContext): Record<string,
     const lanes: ReviewerLanePlan[] = activeReviewers.map((reviewer) => {
       // review_incremental_context facts: prior verdict, bound headHash,
       // scopeChanged, and the material files changed since the lane's last pass.
-      const incremental = reviewIncrementalContext(ctx.store, ctx.root, storyId, reviewer.name);
-      const hasCurrentEvidence = laneHasCurrentRoundEvidence(evidenceState.valid, reviewer.name);
-      const laneBlocking = blockingFindingsForLane(blockingFindings, reviewer.name);
+      const canonicalLane = canonicalReviewerLane(reviewer.name) ?? reviewer.name;
+      const incremental = reviewIncrementalContext(ctx.store, ctx.root, storyId, canonicalLane);
+      const hasCurrentEvidence = laneHasCurrentRoundEvidence(evidenceState.valid, canonicalLane);
+      const laneBlocking = blockingFindingsForLane(blockingFindings, canonicalLane);
       const state = classifyLaneState(hasCurrentEvidence, incremental.scopeChanged, laneBlocking);
       const needsRun = state !== 'current-pass';
       return {
-        lane: reviewer.name,
+        lane: canonicalLane,
         reason: reviewer.reason,
         state,
         scopeChanged: incremental.scopeChanged,

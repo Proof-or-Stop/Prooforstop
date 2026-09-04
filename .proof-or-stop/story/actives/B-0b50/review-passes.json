@@ -1,0 +1,758 @@
+{
+  "passes": [
+    {
+      "id": "B-0b50:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced. Reviewed both checklist items, the integrated source diff, required story context, and related decision documents; the changed recovery command is an additive blocker-specific route, while certification_window_status remains used for other states. Repository-wide residue scan found no incomplete concept cleanup or undelivered promise.",
+      "createdAt": "2026-08-25T20:13:40.313Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-004",
+      "envelopeId": "d73ccf80e4c7b6f9190e8f1d112df4fe93aa5d58fcb4582cfee58f5c0598871b",
+      "writerSessionId": "sess-ae8176c4f8504cede86bc15d1dc43bcb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a419709670c395a06e90dfa6cb4c074ebbdf58d734bdcf54bac12a29293c26bb"
+    },
+    {
+      "id": "B-0b50:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement residue found; the PRE_CERT recovery reroute was checked across the story, decision docs, changed implementation, smoke, and repository references.",
+      "createdAt": "2026-08-25T20:21:45.782Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-007",
+      "envelopeId": "4d1e214479b66e710f71bec97e7877d805849cbe927ca005ecba9783c21355ee",
+      "writerSessionId": "sess-1dcc2d4055e59ff64a7fea19dd172a08",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "accac656376a437531feea6c8b5c55854bb95c563bf9a06690ad0b48ac4fb674"
+      },
+      "readDiagnostics": [],
+      "_hash": "9f7896b56df011ea541b210b0fb4631f57dc53efdf8222e961d6804c4dce4072"
+    },
+    {
+      "id": "B-0b50:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "No concept deletion or replacement was introduced; the removed helper has no live source residue, and all new recovery identifiers are implemented and referenced. Reviewed the story, checklist, related decisions, source diff, and smoke-test changes.",
+      "createdAt": "2026-08-26T06:19:29.265Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-009",
+      "envelopeId": "a0991c920142596d5c50b682425911fa9e7c25b875cc471dc5fba8f5828770ee",
+      "writerSessionId": "sess-d66f9848af8541c6abaaea707ccf884d",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "6c021fa3427e5dae987199e022fe502faf2358cf27af5d6925b2f388a40a0c25"
+    },
+    {
+      "id": "B-0b50:RP-004",
+      "agent": "lattice-review-concept",
+      "note": "RI-003 concept review complete: the removed heavyCertificationStatusNext helper has no live source residue, and the recovery behavior is fully routed through nextCommandForBlocker; the new PRE_CERT probe/status symbols are defined, referenced, and smoke-covered. No incomplete concept deletion or replacement blocker found.",
+      "createdAt": "2026-08-26T06:38:09.180Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-011",
+      "envelopeId": "908187a333ecdd24b0d558cb139ac34af638359098863fdc79c4c3170d3bee1a",
+      "writerSessionId": "sess-d40cdfd8f6e6ddb7dcf25a15f9d170f4",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": "No concept deletion residue remained in live source; historical review metadata references were excluded as audit history."
+      },
+      "_hash": "9573e04364af9686512b59f26746fe25674e97c08d89c52fb0dbac8981d5357c"
+    },
+    {
+      "id": "B-0b50:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "RI-003 quality review: checked the integrated three-file diff, recovery-command allowlist, inventory probe fail-closed path, and focused smoke coverage; no blocking quality findings.",
+      "createdAt": "2026-08-26T06:39:07.675Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-012",
+      "envelopeId": "dc173ed8697e2ea36f62a4839efd791757580e83165198245b6ad060905a911a",
+      "writerSessionId": "sess-8c0bb2fa7f511116a23df2bbc0bc1eeb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a79101d8b3a7f5ed56bb3be0f7ba23e79f62025b0cf9a4f5ef21d77ac226517"
+    },
+    {
+      "id": "B-0b50:RP-006",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: verified all six must intents across CHK-001 and CHK-002 against current HEAD source and the focused certification-window smoke; no blocker.",
+      "createdAt": "2026-08-26T06:49:42.539Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-014",
+      "envelopeId": "846ce6759e331ee7ad553c0ddd7488f76a20f56d4396ca6e04a92ef20307d4de",
+      "writerSessionId": "sess-a69e8653eced23f1befea589a4985d8b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "7e8dfc1938039a0840d044d37d734e3f69af1a1bd92b24b4f7043d80b18ceaf0"
+      },
+      "readDiagnostics": [],
+      "_hash": "7723a7cc7f7f0737dfa61903a6728d06dfd86755cc4468129ead9556f6f7e1ee"
+    },
+    {
+      "id": "B-0b50:RP-007",
+      "agent": "lattice-review-concept",
+      "note": "Concept review completed for the full B-0b50 story. The committed diff adds probe-failure classification and safe recovery propagation, removes only the unused heavyCertificationStatusNext helper, and leaves no residual deleted-concept references. Checklist CHK-001 and CHK-002 verificationIntent is covered by the current certification-window smoke, including happy, edge, and adversarial recovery cases.",
+      "createdAt": "2026-08-26T07:16:37.213Z",
+      "reviewRound": "2026-08-26T07:07:48.610Z",
+      "reviewRunId": "B-0b50:RR-016",
+      "envelopeId": "b8101a2a59073d7e8fdd2abacc82664a101513f7361b48dcacc9cb43dbb6cb17",
+      "writerSessionId": "sess-c4e4dd51d1fb4acb0ec14b9ebfdd7917",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ff5c6f22198772bd7a69e29d9d467f09c3a5d1f275176b12318f99f3c1efbca8"
+    },
+    {
+      "id": "B-0b50:RP-008",
+      "agent": "lattice-review-quality",
+      "note": "Quality review of the current main...HEAD implementation diff completed. Checked exception propagation, probe failure handling, recovery-command allowlisting, boundary cases, dead code, type safety, shell isolation, and the focused smoke/build. No new quality blocker found. Existing B-0b50:F-010 remains a separate topology/pre-review evidence finding and is not re-registered by this lane.",
+      "createdAt": "2026-08-26T07:17:37.939Z",
+      "reviewRound": "2026-08-26T07:07:48.610Z",
+      "reviewRunId": "B-0b50:RR-017",
+      "envelopeId": "8668056a2cc6acfcdf4e29d8f8ec089818ab7236c83a8c52476530222800bf97",
+      "writerSessionId": "sess-3c4f0903ec33b866e12837a5f371dab8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9530adbcb2c7063c888b1a8707d62f55c8322cda40b82b7359046341c9c2b16f"
+    },
+    {
+      "id": "B-0b50:RP-009",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage review passed: F-011 dismissal is scope-valid; all six must intents for CHK-001 and CHK-002 have current-HEAD non-waiver smoke evidence, with no in-scope blocker remaining.",
+      "createdAt": "2026-08-26T07:24:21.824Z",
+      "reviewRound": "2026-08-26T07:07:48.610Z",
+      "reviewRunId": "B-0b50:RR-019",
+      "envelopeId": "e058274c935bc5ca034c666aa15964201aced29e9b1234f5c2a6f89769301157",
+      "writerSessionId": "sess-d1fab5cf06190f798b74ea3f36c325ad",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "accac656376a437531feea6c8b5c55854bb95c563bf9a06690ad0b48ac4fb674"
+      },
+      "readDiagnostics": [],
+      "_hash": "dc78517ed1ffb7d88de5328766d3bf55c856f661a27daa793a86d2646efc6bd8"
+    },
+    {
+      "id": "B-0b50:RP-010",
+      "agent": "lattice-review-concept",
+      "note": "Concept deletion completeness check for B-0b50. Sole deleted concept symbol: heavyCertificationStatusNext (removed from certification-window.ts, replaced by nextCommandForBlocker dispatch). Repo-wide grep for heavyCertificationStatusNext across *.ts/*.md/*.json (excl node_modules/dist/.git) found zero source/doc residue; only hits are inside .proof-or-stop/story/actives/B-0b50/*.json audit-trail records describing the removal. Cross-checked with proof-or-stop validate --concept, which independently confirms 1 symbol deleted, 0 residual references. Verified no importer of the removed symbol remains via import-site grep across packages/main/src. packages/graph/src/core/detail/fn.ts has no diff in main...HEAD (its graph-audit-fix commit bff5ddcdc4 is already a common ancestor via main). New symbols added (PRE_CERT_INVENTORY_PROBE_FAILED, probeFinalizedUnconsumedReviewInventory, ReviewInventoryProbeResult, safeDoneRequiredRecoveryCommand, HOST_LAUNCHER_SESSION_ENV_KEYS) are additive, not concept replacements. No incomplete concept deletion or replacement blocker found.",
+      "createdAt": "2026-08-30T16:29:15.150Z",
+      "reviewRound": "2026-08-30T16:26:56.469Z",
+      "reviewRunId": "B-0b50:RR-020",
+      "envelopeId": "2af2dadf858ebe6c6839fa9bae24812cfa7bc333fb88bc539aeb4f5045f58a45",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "packages/graph/src/core/detail/fn.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "8ee422e956b406883f8d9d1d9b8e3d6f5a97dedc8abb329a129fb8e0c5d991b8"
+    },
+    {
+      "id": "B-0b50:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 verificationIntents covered by non-vacuous evidence, confirmed by mutation test on the allowlist check.",
+      "createdAt": "2026-08-30T16:31:11.937Z",
+      "reviewRound": "2026-08-30T16:26:56.469Z",
+      "reviewRunId": "B-0b50:RR-022",
+      "envelopeId": "a58d1043136a2b75dce2779a28fca9ec7716ad1714e46376329cf73cecdd4cc2",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3be0bf1086a4730754033096de2a9f33703f05d86b4f023f57e2476b39b57fc2"
+    },
+    {
+      "id": "B-0b50:RP-012",
+      "agent": "lattice-review-concept",
+      "note": "Round 3 re-verify against HEAD 74bc486 (post e58fb5caa8). grep -rn heavyCertificationStatusNext across all .ts/.md/.json/.js (excl node_modules/dist/.git) returns hits only inside .proof-or-stop/story/actives/B-0b50/*.json (historical audit records), not residue. Zero live source references remain; the removed export sole call site now routes through nextCommandForBlocker. New PRE_CERT_INVENTORY_PROBE_FAILED / probeFinalizedUnconsumedReviewInventory symbols are defined, referenced, and smoke-covered. Follow-up fix e58fb5caa8 is an export+import consolidation (HOST_LAUNCHER_SESSION_ENV_KEYS), not a concept deletion/replacement, and introduces no residue. No blocking concept-cleanup findings this round.",
+      "createdAt": "2026-08-30T16:35:30.422Z",
+      "reviewRound": "2026-08-30T16:26:56.469Z",
+      "reviewRunId": "B-0b50:RR-024",
+      "envelopeId": "7f2480354a760a0d9adeb75df5a15938bff7772038097198aca8f89333ba79d8",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7376fe69364f77a380d267304d5b263b21ace5466b077b6bd9e25c5f010a67bc"
+    },
+    {
+      "id": "B-0b50:RP-013",
+      "agent": "lattice-review-quality",
+      "note": "Round 3 code-quality re-review. Verified the F-012 fix (commit e58fb5caa8): HOST_LAUNCHER_SESSION_ENV_KEYS is now exported and its regression imports+iterates it directly instead of hand-duplicating the list. Confirmed positive build/tsc/smoke pass, and live negative-control (temporarily neutralized the strip, rebuilt, smoke failed as expected, restored clean). Also reviewed certification-window.ts probe routing and done-prepare.ts allowlist: exhaustive, no dead code, no as-any, no swallowed errors. No quality findings this round.",
+      "createdAt": "2026-08-30T16:39:14.539Z",
+      "reviewRound": "2026-08-30T16:26:56.469Z",
+      "reviewRunId": "B-0b50:RR-025",
+      "envelopeId": "b9a2bbe1c354b82fee7baadef4095f5dc50e2fae8b5631f4bda1f86e5a7a32bc",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2cc54126b30cd4c30483c4db2a57e8e5228884497fe8900c0605cac2e711a8f1"
+    },
+    {
+      "id": "B-0b50:RP-014",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: re-verified at current HEAD after only unrelated concurrent-reviewer metadata drift; all 6 verificationIntent entries have valid non-vacuous manual_transcript evidence, independently re-ran the pinned smoke command with a fresh build and it still PASS.",
+      "createdAt": "2026-08-30T16:39:40.398Z",
+      "reviewRound": "2026-08-30T16:26:56.469Z",
+      "reviewRunId": "B-0b50:RR-026",
+      "envelopeId": "d16c44525c75ff44b67e7234884d6ccbe56df5013ca8511271802fe14ebe8419",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/certification-window.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "74dbfa0762f06b231dbcd1f7be088c2144c991f7c86ce988d26dcae4022b416d"
+    },
+    {
+      "id": "B-0b50:RP-015",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at current HEAD (c0171d1) after RP-010/RP-012 went stale from subsequent legitimate commits (F-012 HOST_LAUNCHER_SESSION_ENV_KEYS export + metadata-only acceptance-basis/Wave-4 rollout regenerations). git diff main...HEAD shows only one concept deletion: heavyCertificationStatusNext removed from packages/main/src/core/certification-window.ts, replaced inline by nextCommandForBlocker(). Repo-wide grep for heavyCertificationStatusNext outside .proof-or-stop/story/actives/** returns zero hits. All matches within .proof-or-stop/story/actives/** are historical audit records (findings.json, review-passes.json, prompt-envelopes.json, summary.json), not live residue. New replacement symbols PRE_CERT_INVENTORY_PROBE_FAILED and probeFinalizedUnconsumedReviewInventory are defined, exported, wired into refuseHeavyCertificationUnlessAdmitted/nextCommandForBlocker, and covered by certification-window-smoke.ts. No other concept deletions/replacements present in the diff. No blocker.",
+      "createdAt": "2026-08-30T16:53:26.602Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-028",
+      "envelopeId": "6724e6647a617fe91e372a0f9d2e143a0e7271b418e2e225564ff79500844bb9",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "d9952f6595d1bc09efe545b4395c2a6bf22edab164011a9072e1759d48b9de05"
+    },
+    {
+      "id": "B-0b50:RP-016",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified at HEAD c0171d1 (round 2026-08-30T16:51:42.451Z). No source changed since RP-013: git diff main...HEAD --name-only confirms identical 5 production/test files. F-012 fix confirmed present (import not re-list). safeDoneRequiredRecoveryCommand allowlist + shell-metachar reject confirmed. probeFinalizedUnconsumedReviewInventory try/catch discrimination confirmed. Dead heavyCertificationStatusNext confirmed fully removed repo-wide. HOST_LAUNCHER_SESSION_ENV_KEYS strip-at-filter (not digest-list append) confirmed intentional per in-code rationale. No as any, no empty catch, no dead code, no shell/fn.ts isolation violations. No blockers.",
+      "createdAt": "2026-08-30T16:53:40.007Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-029",
+      "envelopeId": "89717a9091520adcc3e76d74f9f44a6492a905f68ac31d7f47b579c249044e55",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2714a85d3ba822c662568f3fcf05574b2dfdb84d09f878f2c97f8f9ff13113b8"
+    },
+    {
+      "id": "B-0b50:RP-017",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed (round 3, RR-030): re-verified all 6 verificationIntent entries against current HEAD c0171d1, all covered by valid non-vacuous manual_transcript evidence, no open findings, no blocker.",
+      "createdAt": "2026-08-30T16:53:51.056Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-030",
+      "envelopeId": "9ffed5a72039c88c2d88400ccee0db17d8ba3f46e715fc3dab918bc0e319d5df",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "9f1a88b877dff4836b20571b89b98934f7523d484b4285dfe5eb2953ee796683"
+    },
+    {
+      "id": "B-0b50:RP-018",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified for epoch B-0b50:RI-005 at frozen cutoff 18267efa56708d7e267c82e8770f61c1eee970800fc9a2b9b78a4cefed509061 (unchanged from prior epoch). git diff main...HEAD confirms the only concept deletion is heavyCertificationStatusNext removed from packages/main/src/core/certification-window.ts, replaced inline by nextCommandForBlocker(). Repo-wide grep for heavyCertificationStatusNext (excluding node_modules/dist/.git) returns zero hits outside .proof-or-stop/story/actives/B-0b50/** which are historical audit records (findings.json, review-passes.json, prompt-envelopes.json, summary.json), not live residue. Confirmed nextCommandForBlocker is defined and wired at certification-window.ts:362,397,902,914,927. No other concept deletions/replacements present in the diff. No blocker.",
+      "createdAt": "2026-08-30T16:55:31.539Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-031",
+      "envelopeId": "2598393012ba47954f94697bc9738b42ef632810339375b16571eaffe6220823",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/findings.json",
+          ".proof-or-stop/story/actives/B-0b50/prompt-envelopes.json",
+          ".proof-or-stop/story/actives/B-0b50/review-passes.json",
+          ".proof-or-stop/story/actives/B-0b50/summary.json",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad52d6e24ed5380c41ba9d1fc88c9116c7502112ecf1ba3c7988670d5e4bd681"
+    },
+    {
+      "id": "B-0b50:RP-019",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: all 6 must-priority verificationIntent (CHK-001 happy/edge/adversarial, CHK-002 happy/edge/adversarial) have valid non-vacuous manual_transcript evidence via certification-window-smoke.js. Independently rebuilt and re-ran at current HEAD, confirmed PASS. Material unchanged vs RI-005 cutoff. No coverage gap.",
+      "createdAt": "2026-08-30T16:56:57.434Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-033",
+      "envelopeId": "5f0b9044b08b0dbc06bd50f1f24d9381fc0b1cf260619a0d35ebac13f647274e",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/handlers/done-required-validation.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7a5b8005d6492401a6d4af1818c3c4bdf8c424b53b39b884e570b807585aa269"
+    },
+    {
+      "id": "B-0b50:RP-020",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified against RI-005 (cutoff unchanged from RI-004/RP-016). No dead code/type-safety/IO issues in the diff; both smoke tasks pass after rebuild.",
+      "createdAt": "2026-08-30T16:58:29.122Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-032",
+      "envelopeId": "35b8af790decc7c9b0a2da6cc83b19ed0f13c6adf2b7579ffba27d90e9535f4b",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "4c38aa43e05a79b2c6348f0922cdb74212c7215aaebcb6198cdbcd9a4664461b"
+    },
+    {
+      "id": "B-0b50:RP-021",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at HEAD 3466f26 (round 2026-08-30T17:05:18.175Z). Only source-level concept deletion since RP-018 is unchanged: heavyCertificationStatusNext removed from packages/main/src/core/certification-window.ts, fully replaced by nextCommandForBlocker() plus new PRE_CERT_INVENTORY_PROBE_FAILED / probeFinalizedUnconsumedReviewInventory symbols (defined, exported, wired into refuseHeavyCertificationUnlessAdmitted, and smoke-covered in certification-window-smoke.ts). Repo-wide grep for heavyCertificationStatusNext outside .proof-or-stop/story/actives/B-0b50/** returns zero hits (source, tests, docs, dist checked, node_modules/.git excluded). Remaining hits confined to .proof-or-stop/story/actives/B-0b50/{summary,prompt-envelopes,findings,review-runs,review-passes}.json, which are historical audit records per the exempted category, not live residue. Confirmed the only change since prior pass (RP-018) is commit 822eeae, a metadata-only pre-review-check.json/index.json/process-events.jsonl/process-metrics.json/review-inventory-epochs.json regeneration touching zero source files. No incomplete concept deletion or replacement blocker found.",
+      "createdAt": "2026-08-30T17:07:13.834Z",
+      "reviewRound": "2026-08-30T17:05:18.175Z",
+      "reviewRunId": "B-0b50:RR-035",
+      "envelopeId": "b519064dca00cf37de43dacc7756cce9efe01f154c38251027f3d283d0dbdcf5",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/findings.json",
+          ".proof-or-stop/story/actives/B-0b50/review-passes.json",
+          ".proof-or-stop/story/actives/B-0b50/summary.json",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0bcef8036f3714ae97d56b22a864a5d7df509937035b9a5f9cf2eba488aa8bd0"
+    },
+    {
+      "id": "B-0b50:RP-022",
+      "agent": "lattice-review-test-coverage",
+      "note": "test coverage review passed: re-verified against current HEAD 3466f26 after DEV bounce that only regenerated pre-review-check.json lifecycle metadata. All 6 verificationIntent entries have concrete manual_transcript evidence (mechanical=true, exitCode=0, selectorMatched=true, result=pass). Re-ran the pinned smoke test against current dist and confirmed clean pass. No coverage gap.",
+      "createdAt": "2026-08-30T17:07:47.848Z",
+      "reviewRound": "2026-08-30T17:05:18.175Z",
+      "reviewRunId": "B-0b50:RR-037",
+      "envelopeId": "5862648300af59bf2b4f960d8386b78e5effa38e61785473841f7cc9b30683b2",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5b32140e0826e57c2678c3e93499f6d29e50870e4e4b2ff2dbe8fafd2f039d46"
+    },
+    {
+      "id": "B-0b50:RP-023",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified quality lane at current HEAD (3466f26) after DEV bounce that only regenerated pre-review-check.json. Reviewed source diff: certification-window.ts (new PRE_CERT_INVENTORY_PROBE_FAILED constant + probeFinalizedUnconsumedReviewInventory helper with typed discriminated-union result and proper try/catch that surfaces error.message, no swallowing; refuseHeavyCertificationUnlessAdmitted now distinguishes probe-failed vs empty vs present before choosing next-command), done-prepare.ts (new safeDoneRequiredRecoveryCommand: allowlist-based extraction of a Next: command from validation output text, used only for display text never passed to exec/spawn), validation-command-environment.ts + done-required-validation-smoke.ts (HOST_LAUNCHER_SESSION_ENV_KEYS stripped at filter seam rather than appended to the digest-pinned list, imported not re-listed in its own regression per F-012 fix). No dead code: every new export (PRE_CERT_INVENTORY_PROBE_FAILED, probeFinalizedUnconsumedReviewInventory, ReviewInventoryProbeResult, safeDoneRequiredRecoveryCommand, HOST_LAUNCHER_SESSION_ENV_KEYS) is consumed in production code and covered by certification-window-smoke.ts assertions. No unnecessary as any. No empty catch blocks. tsc --noEmit -p packages/main/tsconfig.json clean. Ran packages/main/dist/tasks/certification-window-smoke.js (the compiled artifact validate.commands actually invokes) after a fresh npm --prefix packages/main run build: exits 0, matches the certification-window-smoke: PASS evidence already recorded in checklist.json. Note: running the .ts source directly via tsx throws, but that is a tsx-only artifact of loadReviewInventoryAdmitApis resolving a compiled-relative ./review-inventory-epoch.js sibling via import.meta.url + createRequire, which only exists under dist/; reproduced identically on main before this diff, so it is pre-existing and not a source of truth for this lane (the project verification path is the compiled dist smoke, which is green). Re-examined the RP-020 comment-precision nit near certification-window.ts ~L923-924 (comment says fallthrough is for no-window-and-no-inventory-APIs; the same rendered-block also covers window-present-but-not-authorizing, e.g. stale/invalid window, since that case does not return early). Confirmed this is comment-only imprecision -- the refreshed.window ternary logic immediately following is correct regardless of the comment wording, so no behavioral defect. Keeping this non-blocking as previously agreed in RP-020; not filing a finding.",
+      "createdAt": "2026-08-30T17:10:25.765Z",
+      "reviewRound": "2026-08-30T17:05:18.175Z",
+      "reviewRunId": "B-0b50:RR-036",
+      "envelopeId": "0095340ab19a073d11720a2248159bdb8a4c4862fdb721894af4fd2e648f083e",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "1991706df21ff9f9b18e8d113206f9d8f1c45d78c5fa6876adb517d1b7975697"
+    },
+    {
+      "id": "B-0b50:RP-024",
+      "agent": "lattice-review-concept",
+      "note": "Re-verified at HEAD e8f31eb (closeout round). Deleted concept heavyCertificationStatusNext (packages/main/src/core/certification-window.ts) grepped across full repo: zero live residue outside .proof-or-stop/story/actives/B-0b50/**/*.json historical audit records and the gitignored activity.jsonl runtime log. Intervening commit 383c9c2d35 only appends env keys to an existing array, no new concept deletion. No blocker.",
+      "createdAt": "2026-08-30T19:00:20.797Z",
+      "reviewRound": "2026-08-30T18:58:39.043Z",
+      "reviewRunId": "B-0b50:RR-038",
+      "envelopeId": "86ed929756e83b2005f96e4e40703e5aba597e9902167b2d5efc0f39b2e60a69",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "abb7819819c5779ec651eeeea11ef201f5d0f9152fa9e31d02ec2764ef1575dc"
+    },
+    {
+      "id": "B-0b50:RP-025",
+      "agent": "lattice-review-quality",
+      "note": "Re-verified against current HEAD (e8f31eb). Since RP-023 only one source commit landed (383c9c2d35): appends CMUX_SOCKET_PATH and CMUX_TERMINAL_LIFECYCLE_ID to HOST_LAUNCHER_SESSION_ENV_KEYS with a matching doc-comment update. Digest-pinned list and digest are unchanged; new keys are stripped at the filter seam, not appended to the pinned list. Regression test imports the array (not a re-listed literal) and its digest-neutrality loop genuinely varies each key and asserts digest equality, so the two new keys are covered automatically. No as any, no empty catch, no dead code. Other diff since RP-023 confirmed to be .proof-or-stop lifecycle metadata only. No blocking quality-lane issues found.",
+      "createdAt": "2026-08-30T19:00:26.453Z",
+      "reviewRound": "2026-08-30T18:58:39.043Z",
+      "reviewRunId": "B-0b50:RR-039",
+      "envelopeId": "a09f97c6eb019b3eddf1064ac47a200d9d6603eedfbd5e4871f411bbb3ef7940",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "0722664d8b10d3557ff5cd38c19f24dca27c3212018ee7d96ad4878070f46007"
+    },
+    {
+      "id": "B-0b50:RP-026",
+      "agent": "lattice-review-test-coverage",
+      "note": "Re-verified at current HEAD e8f31eb (closeout round). CHK-001/CHK-002 verificationEvidence bound to source commit 383c9c2d35, confirmed ancestor of HEAD; zero source commits since (only .proof-or-stop lifecycle metadata). The one intervening source commit is purely additive to HOST_LAUNCHER_SESSION_ENV_KEYS, auto-covered by the existing per-key digest-neutrality loop (confirmed done-required-validation-smoke.ts imports the array, not re-lists it). Re-ran node packages/main/dist/tasks/certification-window-smoke.js against fresh build of current HEAD: exit 0, selector certification-window-smoke: PASS present. Spot-checked concrete assertions for all 6 intents (Next: command routing per blocker type, injection-payload rejection, inventory-completeness-only fail-closed). No coverage gap found.",
+      "createdAt": "2026-08-30T19:02:04.733Z",
+      "reviewRound": "2026-08-30T18:58:39.043Z",
+      "reviewRunId": "B-0b50:RR-040",
+      "envelopeId": "5cab6f2d2f3854b8abef36cf5ee3b75987afe8fcc93aa96adeeda6fa04dbc8b7",
+      "writerSessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c73f037689854a8b414c5e6f60c3ba6a8865ad249722130614115f1e036f2f34"
+    }
+  ]
+}

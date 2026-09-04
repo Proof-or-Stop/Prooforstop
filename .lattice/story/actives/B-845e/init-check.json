@@ -1,0 +1,43 @@
+{
+  "storyId": "B-845e",
+  "checkedAt": "2026-08-18T14:55:16.896Z",
+  "reviewRound": "",
+  "agentId": "lattice-review-story-init",
+  "issues": [
+    {
+      "id": "INIT-001",
+      "severity": "high",
+      "desc": "priority=high but title/description contains no riskSignals keyword or localized equivalent. title is Diagnose why story_advance to TEST is slow; description only talks about measuring REVIEW-to-TEST wall-clock. Neither contains auth/password/token/migration/destructive/state machine/guard/gate/reset/production/incident/hotfix/PII/GDPR/breaking change. Auto-elevation came from background phrases story_advance and production functions, not from title/description risk language."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "product-reviewer",
+      "checkedAt": "2026-08-18T14:53:43.706Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "high",
+          "desc": "Neither checklist item specifies a user-observable finish. CHK-001 is an engineering means (build an in-process timing probe). CHK-002 says write down which step dominates so a later fix story can target the real cost — that is a halfway state, not a closed user moment. The operator who waited on story_advance --phase=TEST still would not know what text they should see, or when to stop asking what comes next. Encode the close on the checklist: named TEST-advance steps with wall-clock seconds, which step dominates, a one-sentence plain-language cause, and an explicit diagnosis-only / fix-is-a-later-story line."
+        },
+        {
+          "id": "I-2",
+          "severity": "medium",
+          "desc": "Background explains the trigger (long wait on TEST advance) and the measurement tradeoff, but never writes the post-completion transcript the user would actually read. Add a concrete outcome such as: TEST-advance wall-clock: preflight Xs (lint Ys), validate Zs — bottleneck is <step> (N% of total). Cause: <plain sentence>. This story is diagnosis only. Without that, PLAN/DEV can treat probe exists plus numbers recorded somewhere as done."
+        }
+      ]
+    },
+    {
+      "agentId": "lattice-review-story-init",
+      "checkedAt": "2026-08-18T14:55:16.896Z",
+      "issues": [
+        {
+          "id": "INIT-001",
+          "severity": "high",
+          "desc": "priority=high but title/description contains no riskSignals keyword or localized equivalent. title is Diagnose why story_advance to TEST is slow; description only talks about measuring REVIEW-to-TEST wall-clock. Neither contains auth/password/token/migration/destructive/state machine/guard/gate/reset/production/incident/hotfix/PII/GDPR/breaking change. Auto-elevation came from background phrases story_advance and production functions, not from title/description risk language."
+        }
+      ]
+    }
+  ],
+  "_hash": "a713a2b84275e353505ff56b96023a2f1db69405604c3997e9fb5353aa367b72"
+}

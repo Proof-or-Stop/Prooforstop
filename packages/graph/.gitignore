@@ -1,0 +1,16 @@
+node_modules/
+dist/
+*.db
+*.db-wal
+*.db-shm
+
+# Build outputs. assets/app.html is assembled from src/shells/web/* by
+# scripts/build-web.mjs, and mermaid.min.js is copied out of node_modules --
+# both are reproduced by `npm run build`, so tracking them would just create
+# merge conflicts on every edit to the web shell.
+assets/
+# Same: copied out of node_modules by the build, never edited by hand.
+vendor/
+
+# Session scratch written by the coding-agent hooks, not project state.
+.remember/

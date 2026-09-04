@@ -24,6 +24,8 @@ import { evaluateLiveSmokeTranscriptValue } from './live-smoke-transcript-eviden
 import {
   canonicalPreReviewAssertionSourceRef,
   decodePreReviewCaseRecords,
+  preReviewCaseRequiresSemanticBinding,
+  preReviewCaseSemanticMatches,
   preReviewExecutableProvenanceIsCurrent,
 } from './pre-review-live-proof.js';
 import { readBrandEnv } from './brand-env.js';
@@ -92,6 +94,14 @@ function trustedPublicKey(gitCwd: string): string | null {
 function unsignedArtifact(artifact: PreReviewCheckArtifactV1): Omit<PreReviewCheckArtifactV1, 'signature'> {
   const { signature: _signature, ...unsigned } = artifact;
   return unsigned;
+}
+
+export function criticReceiptDigestForPreReviewSemanticComparison(
+  mode: AcceptanceTopologyGateMode,
+  currentDigest: string | undefined,
+  signedDigest: string | undefined,
+): string | undefined {
+  return mode === 'enforce' ? currentDigest : signedDigest;
 }
 
 function allEvidence(checklist: ChecklistData): Array<{ itemId: string; index: number; evidence: VerificationEvidence }> {
@@ -193,6 +203,12 @@ export function loadVerifiedPreReviewExecutableProof(input: {
     return expected?.[0] === record[1]
       && canonicalPreReviewAssertionSourceRef(expected[1]) === record[9];
   });
+  const semanticBindings = records.every(record =>
+    preReviewCaseSemanticMatches(
+      record,
+      record[9],
+      preReviewCaseRequiresSemanticBinding(record[9], record[1], record[0]),
+    ));
   const distinctMutationTargets = new Set(mutations.map(record => `${record[2]}\0${record[3]}`)).size === mutations.length;
   const outcomesBite = records.every(record => record[5] === record[6] && record[7] === true);
   const transcriptEvents = records.filter(record => record[1] === 'transcript').every(record => {
@@ -200,8 +216,8 @@ export function loadVerifiedPreReviewExecutableProof(input: {
     const consumer = record[8].find(event => event[0] === 'consumer-verified')?.[1];
     return Number.isInteger(producer) && Number.isInteger(consumer) && (producer as number) < (consumer as number);
   });
-  if (!validRecords || !exactIds || !exactKindsAndSources || !distinctMutationTargets || !outcomesBite || !transcriptEvents
-    || candidate.commandDigests[0] !== digest({ schemaVersion: 'proofstory.pre_review_case_aggregate.v1', storyId: input.storyId, caseRecords: records })) return reject(`proof case records/root invalid shape=${validRecords} ids=${exactIds} distinct=${distinctMutationTargets} outcomes=${outcomesBite} transcript=${transcriptEvents}`);
+  if (!validRecords || !exactIds || !exactKindsAndSources || !semanticBindings || !distinctMutationTargets || !outcomesBite || !transcriptEvents
+    || candidate.commandDigests[0] !== digest({ schemaVersion: 'proofstory.pre_review_case_aggregate.v1', storyId: input.storyId, caseRecords: records })) return reject(`proof case records/root invalid shape=${validRecords} ids=${exactIds} semantics=${semanticBindings} distinct=${distinctMutationTargets} outcomes=${outcomesBite} transcript=${transcriptEvents}`);
   const recordById = new Map(records.map(record => [record[0], record]));
   const verifiedBindingProofs = input.contract?.acceptanceBindings.filter(binding => binding.verificationTopology).map(binding => {
     const topology = binding.verificationTopology!;
@@ -396,7 +412,16 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
   // Re-evaluate semantic evidence against the signed basis while the canonical
   // receipt freshness reader below independently rejects material/story/closure
   // drift; do not silently rebind the stored artifact to the later HEAD.
-  const expectedInput = { ...input, currentArtifact: artifact.preReviewBasisArtifact, executableProof: artifact.executableProof };
+  const expectedInput: PreReviewCheckInput = {
+    ...input,
+    currentArtifact: artifact.preReviewBasisArtifact,
+    executableProof: artifact.executableProof,
+    criticReceiptDigest: criticReceiptDigestForPreReviewSemanticComparison(
+      input.mode,
+      input.criticReceiptDigest,
+      artifact.criticReceiptDigest,
+    ),
+  };
   const expected = issuePreReviewCheckArtifact(expectedInput);
   const codes: PreReviewCheckCodeV1[] = [...expected.codes];
   const executableProvenanceCurrent = preReviewExecutableProvenanceIsCurrent(realpathSync(input.gitCwd), artifact.executableProof?.provenance);
@@ -417,7 +442,20 @@ export function verifyPreReviewCheckArtifact(input: PreReviewCheckInput & { arti
       expectedClosureFilesHash: input.currentArtifact.basis.binding.closureFilesHash,
       expectedSealDigest: input.currentArtifact.basis.snapshotSeal.sealDigest,
     });
-    if (!receipt.ok || artifact.storyId !== input.storyId) codes.push('PR_ARTIFACT_TAMPERED');
+    // A partial/unsupported basis is a valid signed diagnostic artifact. The
+    // receipt verifier includes the basis's own semantic diagnostics in its
+    // `ok` result, so `!receipt.ok` alone does not mean bytes or bindings were
+    // tampered. Ignore only diagnostics already inherent in the signed basis;
+    // signature, key, workspace freshness, expected binding, and receipt/basis
+    // mismatch diagnostics remain integrity failures and fail closed.
+    const signedBasisDiagnostics = new Set(
+      verifyAcceptanceCoverageBasis(artifact.preReviewBasisArtifact.basis).diagnostics
+        .map(item => `${item.code}: ${item.message}`),
+    );
+    const receiptIntegrityFailed = receipt.diagnostics.some(
+      diagnostic => !signedBasisDiagnostics.has(diagnostic),
+    );
+    if (receiptIntegrityFailed || artifact.storyId !== input.storyId) codes.push('PR_ARTIFACT_TAMPERED');
   }
   const ordered = orderedCodes(codes);
   const ok = ordered.length === 0 && artifact?.status === 'pass';

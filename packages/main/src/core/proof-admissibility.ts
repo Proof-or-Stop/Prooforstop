@@ -6,6 +6,12 @@
  * evaluator they can use before future gate integration.
  */
 
+import {
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
+  isDoneRequiredEvidenceVersionedSchema,
+} from './artifact-schema.js';
+
 export const EVIDENCE_SCOPES = [
   'audit-note',
   'legacy-observed',
@@ -216,6 +222,11 @@ const PRODUCTION_GATE_REMEDIATION =
 const AUTHORITY_ADAPTER_REMEDIATION =
   'Verify the external gate decision with the adapter policy for the exact story/head/material tuple; local CLI core records evidence scope but never mints release readiness.';
 
+const DONE_REQUIRED_EVIDENCE_SCHEMA_VERSIONS = [
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
+] as const;
+
 export const PROOF_SURFACE_REGISTRY = [
   {
     artifactKind: 'done-required-evidence',
@@ -224,7 +235,7 @@ export const PROOF_SURFACE_REGISTRY = [
     artifactRole: 'current-verification',
     temporalRole: 'current-state',
     producerBoundary: 'local-runtime-owned',
-    schemaVersions: ['lattice.done_required_evidence.v1'],
+    schemaVersions: DONE_REQUIRED_EVIDENCE_SCHEMA_VERSIONS,
     strictShapeRequired: true,
     semanticDigestRequired: true,
     signatureOrReceiptBindingRequired: false,
@@ -616,6 +627,14 @@ export function getProofSurfaceDefinition(artifactKind: string): ProofSurfaceDef
   return registryByKind.get(artifactKind);
 }
 
+function isSupportedProofSurfaceSchema(definition: ProofSurfaceDefinition, schemaVersion: string): boolean {
+  if (!definition.schemaVersions.includes(schemaVersion)) return false;
+  if (definition.artifactKind === 'done-required-evidence') {
+    return isDoneRequiredEvidenceVersionedSchema(schemaVersion);
+  }
+  return true;
+}
+
 function addReason(
   reasons: AdmissibilityReasonCode[],
   remediation: string[],
@@ -712,7 +731,7 @@ export function evaluateProofAdmissibility(input: EvaluateProofAdmissibilityInpu
     addReason(reasons, remediation, 'unsupported_verifier_version', 'Evaluate the artifact with the current proof admissibility verifier version.');
   }
 
-  if (checks.schemaVersion !== undefined && !definition.schemaVersions.includes(checks.schemaVersion)) {
+  if (checks.schemaVersion !== undefined && !isSupportedProofSurfaceSchema(definition, checks.schemaVersion)) {
     addReason(reasons, remediation, 'unsupported_schema_version', `Use one of the supported schema versions: ${definition.schemaVersions.join(', ')}.`);
   }
 

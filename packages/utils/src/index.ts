@@ -2,19 +2,9 @@
  * @proof-or-stop/utils public entry point
  *
  * Usage (inside a bootstrap script):
- *   import { runCli } from '@proof-or-stop/core/extension-api';
- *   import {
- *     register,
- *     utilsAllowedPhases,
- *     utilsOwnershipClasses,
- *     utilsToolDefs,
- *   } from '@proof-or-stop/utils';
- *   await runCli({
- *     extraTools: utilsToolDefs,
- *     extraRegister: register,
- *     extraOwnershipClasses: utilsOwnershipClasses,
- *     extraAllowedPhases: utilsAllowedPhases,
- *   });
+ *   import { register, utilsToolDefs } from '@proof-or-stop/utils';
+ *   register(registry, ctx);
+ *   await runCli({ extraTools: utilsToolDefs });
  */
 export { register } from './register.js';
 export {

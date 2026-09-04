@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-a2a6",
+  "checkedAt": "2026-08-24T02:13:19.993Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "c9bab6195ffca9c495eb6a410b20f51cd2a0b65fe6d073276074a61c2c18b195",
+  "executionBoundaryHash": "e28c2e9f2a52cb3a2129d9271bc22f6c2d05375fb1838ccdc817ce3a4730e59d",
+  "freshnessHash": "5e65966e728d051e7bc8563eddb6a7f88824659b5afc23c9e9f39f1716d7e7f7",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "B-dc83 business implementation files",
+    "Claude reviewers",
+    "customerKeyRef",
+    "docs/story",
+    "Layer4",
+    "repair UX",
+    "runtime-enforcement bypasses",
+    "tests/fixtures"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "B-dc83 business implementation files",
+      "source": "scopeBoundary.excluded",
+      "text": "B-dc83 business implementation files",
+      "excluded": true
+    },
+    {
+      "keyword": "Claude reviewers",
+      "source": "scopeBoundary.excluded",
+      "text": "Claude reviewers",
+      "excluded": true
+    },
+    {
+      "keyword": "docs/story",
+      "source": "scopeBoundary.excluded",
+      "text": "docs/story",
+      "excluded": true
+    },
+    {
+      "keyword": "runtime-enforcement bypasses",
+      "source": "scopeBoundary.excluded",
+      "text": "runtime-enforcement bypasses",
+      "excluded": true
+    },
+    {
+      "keyword": "tests/fixtures",
+      "source": "scopeBoundary.excluded",
+      "text": "tests/fixtures",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "38733b29c8f7a07def646ab131f3d9740f760671400260f6ebf8d9e25d6f1b05"
+}

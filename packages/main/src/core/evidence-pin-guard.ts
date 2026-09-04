@@ -66,12 +66,13 @@ export interface EvidencePinGuardResult {
 // ── Command-string parsing (pure) ──
 
 /**
- * A shell command is only considered when it looks like a ProofOrStop CLI call —
+ * A shell command is only considered when it looks like a Proof-or-Stop CLI call
+ * (or an explicitly supported legacy invocation) —
  * this keeps the guard from matching unrelated shell text that merely mentions
  * the subcommand token (e.g. `echo verification_evidence_add`).
  */
 function hasProofOrStopMarker(commandString: string): boolean {
-  return /(?:^|[\s"'/=])(?:proofOrStop(?:\.js)?|cli\.js)(?:[\s"']|$)/.test(commandString);
+  return /(?:^|[\s"'/=])(?:proof-or-stop(?:\.js)?|lattice(?:\.js)?|cli\.js)(?:[\s"']|$)/.test(commandString);
 }
 
 /** Extract the first balanced-looking JSON object argument, if present. */
@@ -111,7 +112,7 @@ function pickString(value: unknown): string | undefined {
 
 /**
  * Parse a shell command string into a recognized evidence-write invocation, or
- * null when the string is not a ProofOrStop evidence-write command. Handles both the
+ * null when the string is not a Proof-or-Stop evidence-write command. Handles both the
  * JSON-blob arg form (`proof-or-stop verification_evidence_add '{"storyId":...}'`) and
  * the `--key=value` / `--key value` flag form.
  */

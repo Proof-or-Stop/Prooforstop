@@ -135,7 +135,7 @@ const allNames = AGENT_DISPATCH_REGISTRY.flatMap((entry) => [entry.canonicalName
 assert.equal(new Set(allNames).size, allNames.length, 'canonical names and aliases must not collide');
 assert.deepEqual(
   AGENT_DISPATCH_ACCEPTED_TYPES,
-  allNames.filter(name => name !== 'proof-or-stop-review-channel').sort(),
+  allNames.filter(name => name !== 'proof-or-stop-review-channel' && name !== 'lattice-review-channel').sort(),
   'accepted type list must enumerate every non-retired role while excluding channel',
 );
 assert.deepEqual(
@@ -152,6 +152,20 @@ assert.equal(
 );
 const deliveryEntry = AGENT_DISPATCH_REGISTRY.find((entry) => entry.canonicalName === 'proof-or-stop-review-delivery');
 assert.deepEqual(deliveryEntry?.allowedPhases, ['TEST'], 'delivery reviewer dispatch is TEST-only');
+const rolloutVerifier = AGENT_DISPATCH_REGISTRY.find((entry) => entry.canonicalName === 'acceptance-rollout-verifier');
+assert.ok(rolloutVerifier, 'acceptance-rollout-verifier must be a registered dispatch actor');
+assert.equal(rolloutVerifier?.roleClass, 'story-reviewer');
+assert.deepEqual(rolloutVerifier?.allowedPhases, ['DEV', 'TEST']);
+assert.equal(
+  assertRegisteredAgentMutationAllowed('acceptance-rollout-verifier', 'review_run_start'),
+  rolloutVerifier,
+  'acceptance-rollout-verifier must be allowed to call review_run_start',
+);
+assert.equal(
+  REVIEW_RUN_LANES.includes('acceptance-rollout-verifier' as (typeof REVIEW_RUN_LANES)[number]),
+  false,
+  'acceptance-rollout-verifier is not a REVIEW evidence lane',
+);
 assert.equal(DEFAULT_PHASE_TOOLS.TEST.includes('delivery_check_set'), true, 'delivery_check_set must be legal in TEST');
 assert.equal(DEFAULT_PHASE_TOOLS.REVIEW.includes('delivery_check_set'), false, 'delivery_check_set must not be legal outside the delivery reviewer dispatch phase');
 assert.equal(DEFAULT_PHASE_TOOLS.TEST.includes('delivery_waiver_add'), true, 'delivery waiver must share the delivery reviewer phase');
@@ -231,11 +245,12 @@ for (const blank of ['', ' ', '\t']) {
   );
 }
 assert.throws(
-  () => resolveAgentDispatchType('proof-or-stop-review-unknown'),
-  (error: unknown) => error instanceof AgentDispatchRegistryError
-    && error.code === 'unknown_agent_type'
-    && error.acceptedTypes.includes('verification-intent')
-    && error.acceptedTypes.includes('test-intent'),
+  () => resolveAgentDispatchType('lattice-review-unknown'),
+    (error: unknown) => error instanceof AgentDispatchRegistryError
+      && error.code === 'unknown_agent_type'
+      && error.acceptedTypes.includes('verification-intent')
+      && error.acceptedTypes.includes('proof-or-stop-verification-intent')
+      && !error.acceptedTypes.includes('test-intent'),
   'unknown agent type must return a typed error with accepted canonical and alias guidance',
 );
 for (const unknown of ['PROOF_OR_STOP-IMPLEMENTER', 'review-quality', 'proof-or-stop-review-']) {
@@ -269,8 +284,15 @@ assert.throws(
 );
 
 const verification = resolveAgentDispatchType('verification-intent').entry;
-for (const alias of ['test-intent', 'test-case-reviewer']) {
-  assert.equal(resolveAgentDispatchType(alias).entry, verification);
+assert.equal(verification.canonicalName, 'proof-or-stop-verification-intent');
+for (const legacyType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
+  assert.throws(
+    () => validateAgentDispatchRequest({ agentType: legacyType, phase: 'PLAN', itemId: 'CHK-001' }),
+    (error: unknown) => error instanceof AgentDispatchRegistryError
+      && error.code === 'legacy_agent_type'
+      && /proof-or-stop-verification-intent/.test(error.message),
+    `${legacyType} must be rejected for new PLAN dispatch`,
+  );
 }
 assert.equal(verification.roleClass, 'verification-intent');
 assert.equal(verification.commitAllowed, false);
@@ -374,14 +396,23 @@ for (const actor of TRUSTED_HOST_ACTOR_IDENTITIES) {
   assert.equal(isTrustedHostActor(actor), true, `${actor} is an explicit trusted host identity`);
   assert.equal(assertRegisteredAgentMutationAllowed(actor, 'finding_add'), null, `${actor} retains host mutation compatibility`);
 }
-assert.equal(
-  resolveAgentMutationAuthority({
+assert.throws(
+  () => resolveAgentMutationAuthority({
     command: 'checklist_update',
     envActor: 'test-intent',
     payloadActors: ['verification-intent'],
+  }),
+  /agent_dispatch_identity_conflict/,
+  'legacy actor identity must not be authority-equivalent to the active PLAN role',
+);
+assert.equal(
+  resolveAgentMutationAuthority({
+    command: 'checklist_update',
+    envActor: 'verification-intent',
+    payloadActors: ['verification-intent'],
   }).entry?.canonicalName,
-  'verification-intent',
-  'canonical and alias spellings of the same dispatched role are authority-equivalent',
+  'proof-or-stop-verification-intent',
+  'active alias and canonical role remain authority-equivalent',
 );
 assert.throws(
   () => resolveAgentMutationAuthority({
@@ -583,10 +614,53 @@ try {
     storyId, agentId: 'proof-or-stop-review-delivery', docsPromises: [], realMachineTests: [],
     closingSelfCheck: { summary: 'spoofed delivery evidence must not persist' },
   }));
-  for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
+  for (const agentType of ['verification-intent']) {
     const prompt = handlers.dispatch({ storyId, itemId: 'CHK-001', agentType }).prompt;
     assert.match(prompt, /define verification intent/);
+    assert.match(prompt, /verificationIntent/);
+    assert.doesNotMatch(prompt, /proof-or-stop-test-intent|proof-or-stop-test-case-reviewer|testIntent|testintent_/);
     assert.doesNotMatch(prompt, /git commit|status["': ]+done/i);
+  }
+  const previousPlanActor = process.env.PROOF_OR_STOP_AGENT;
+  process.env.PROOF_OR_STOP_AGENT = 'verification-intent';
+  try {
+    checklistHandlers.checklist_update({
+      storyId,
+      itemId: 'CHK-001',
+      verificationIntent: {
+        happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must' }],
+        edge: [],
+        adversarial: [],
+      },
+      agent: 'verification-intent',
+    });
+    const writtenItem = store.readChecklist(storyId).items.find(item => item.id === 'CHK-001');
+    assert.deepEqual(writtenItem?.verificationIntent, {
+      happy: [{ desc: 'intent write -> persists', type: 'logic', priority: 'must' }],
+      edge: [],
+      adversarial: [],
+    }, 'canonical PLAN role can write verificationIntent through the real checklist handler');
+    assert.equal(writtenItem?.status, 'pending', 'verification-intent role cannot complete the checklist item');
+    assert.throws(
+      () => checklistHandlers.checklist_update({
+        storyId, itemId: 'CHK-001', status: 'done', agent: 'verification-intent',
+      }),
+      /agent_dispatch_mutation_scope_denied/,
+      'canonical PLAN role cannot write checklist status',
+    );
+    assert.throws(
+      () => checklistHandlers.checklist_update({
+        storyId,
+        itemId: 'CHK-001',
+        verificationEvidence: [{ kind: 'logic_test', intentRef: `${storyId}:CHK-001:happy:0`, result: 'pass', note: 'must be rejected' }],
+        agent: 'verification-intent',
+      }),
+      /agent_dispatch_mutation_scope_denied/,
+      'canonical PLAN role cannot write verificationEvidence',
+    );
+  } finally {
+    if (previousPlanActor === undefined) delete process.env.PROOF_OR_STOP_AGENT;
+    else process.env.PROOF_OR_STOP_AGENT = previousPlanActor;
   }
   const beforeUnknown = store.readProcessEvents(storyId).length;
   assert.throws(
@@ -601,13 +675,18 @@ try {
   );
   assert.throws(
     () => checklistHandlers.checklist_update({ storyId, itemId: 'CHK-001', status: 'done', actor: 'test-intent' }),
-    /agent_dispatch_mutation_scope_denied/,
-    'verification-intent alias checklist completion must be rejected by the real handler consumer',
+    /agent_dispatch_mutation_denied/,
+    'legacy verification-intent identity must have no mutation authority',
   );
   assert.throws(
     () => resolveReviewRunLane('proof-or-stop-implementer'),
     /not a registered REVIEW reviewer/,
     'implementer must not mint reviewer-run/pass authority through the real review-run consumer',
+  );
+  assert.equal(
+    resolveReviewRunLane('lattice-review-topology-critic'),
+    'proof-or-stop-review-topology-critic',
+    'independent topology critic must mint its own canonical REVIEW ReviewRun before critic authority',
   );
   const findingsBeforeDenied = JSON.stringify(store.readFindings(storyId));
   assert.throws(
@@ -746,6 +825,9 @@ try {
     () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-review-quality' }),
     /story-only; omit itemId/,
   );
+  const criticReviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-topology-critic' }).prompt;
+  assert.match(criticReviewPrompt, /review_run_start[\s\S]*review_inventory_critic_set/,
+    'REVIEW critic prompt must require fresh terminal ReviewRun evidence and bound critic receipt');
 
   const promptPatterns: Record<string, RegExp> = {
     'implementer-dispatch': /git commit --author=.*proof-or-stop-implementer/,
@@ -759,6 +841,7 @@ try {
     'delivery-review': /delivery_check_set/,
     'finding-repair': /finding_resolve/,
     'cluster-repair': /Resolves: CL-001/,
+    'rollout-verify': /review_run_start/,
   };
   const actualPromptCoverage = new Set<string>();
   for (const entry of AGENT_DISPATCH_REGISTRY) {
@@ -781,7 +864,7 @@ try {
           assertCanonicalLivenessGuidance(prompt, label);
           if (!entry.commitAllowed) assert.doesNotMatch(prompt, /git commit --author=/, `${label} must not receive commit instructions`);
           if (entry.roleClass === 'verification-intent') assert.doesNotMatch(prompt, /status["': ]+done/i, `${label} must not complete an item`);
-          if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /proof-or-stop checklist_update/, `${label} must not mutate checklist status`);
+          if (entry.roleClass.endsWith('reviewer')) assert.doesNotMatch(prompt, /(?:proof-or-stop|lattice) checklist_update/, `${label} must not mutate checklist status`);
           actualPromptCoverage.add(expectedPromptBuilder);
         }
       }

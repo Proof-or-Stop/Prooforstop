@@ -85,6 +85,8 @@ function degradationByCategory(degradations: any[], category: string): any {
 }
 
 // Product identity and package entrypoints.
+// B-cdf6 CHK-002 / B-cc10 CHK-006: the product name is Proof-or-Stop and the
+// published package exposes only the canonical proof-or-stop bin.
 assert.match(runCli(['--version']), new RegExp(`${PROOF_OR_STOP_PRODUCT_NAME} ${PROOF_OR_STOP_CLI_VERSION}`));
 assert.match(runCli(['version']), new RegExp(PROOF_OR_STOP_PRODUCT_NAME));
 const rootPackage = readJson(join(repoRoot, 'package.json'));
@@ -92,7 +94,7 @@ const mainPackage = readJson(join(repoRoot, 'packages', 'main', 'package.json'))
 assert.equal(rootPackage.version, PROOF_OR_STOP_CLI_VERSION, `root package version is ${PROOF_OR_STOP_CLI_VERSION}`);
 assert.equal(mainPackage.version, PROOF_OR_STOP_CLI_VERSION, `packages/main version is ${PROOF_OR_STOP_CLI_VERSION}`);
 assert.equal(mainPackage.bin['proof-or-stop'], 'dist/cli.js', 'canonical proof-or-stop bin points at CLI');
-assert.deepEqual(mainPackage.bin, { 'proof-or-stop': 'dist/cli.js' }, 'proof-or-stop is the sole product bin');
+assert.deepEqual(Object.keys(mainPackage.bin), ['proof-or-stop'], 'package bin map is canonical-only');
 
 // Help exposes first-class Proof-or-Stop identity and the new command set.
 const help = runCli(['help']);
@@ -104,15 +106,11 @@ for (const command of COMMANDS) {
   assert.equal(isCommandAllowed(command, 'DEV'), true, `${command} is allowed during active DEV`);
   assert.equal(getCommandLifecyclePolicy(command)?.ownershipClass, 'readOnly', `${command} is read-only`);
 }
+assert.doesNotMatch(help, /(?:^|\s)(?:lattice|lattice-codex)\s+\S+/, 'help does not teach retired bin invocations');
+
 const storyCreateHelp = runCli(['story_create', '--help']);
-// B-cdf6 (F-030): these pinned the PRE-rename bin name and so failed BECAUSE the
-// rename succeeded — the same class already fixed in decision-doc-promotion-smoke
-// and asserted correctly by `Try proof-or-stop story_advance` further down this
-// very block. They were MASKED until now: the genuinely pre-existing `host
-// status` alias assertion above throws first, so these never executed. Measured
-// help output: `proof-or-stop story_create with checklist` and `proof-or-stop
-// story_advance phase=INIT_CHECK`, zero `proof-or-stop`. Paired doesNotMatch guards
-// keep the example text from regressing to the deprecated bin.
+// B-cdf6 (F-030): help examples must teach the canonical bin and must not
+// regress to the deprecated bin.
 assert.match(storyCreateHelp, /proof-or-stop story_create with checklist/);
 assert.doesNotMatch(storyCreateHelp, /proof-or-stop story_create with checklist/);
 assert.match(storyCreateHelp, /proof-or-stop story_advance phase=INIT_CHECK/);
@@ -150,7 +148,7 @@ assert.match(hostInstallHelp, /does not execute the side-effect path|no third-pa
   }
 }
 
-// Flat commands and space aliases both return parseable JSON.
+// Flat commands and supported command aliases both return parseable JSON.
 const hostList = runJson<any>(['host_list', '--format=json']);
 assert.equal(hostList.schemaVersion, 'lattice.host_list.v1');
 assert.equal(hostList.product.version, PROOF_OR_STOP_CLI_VERSION);
@@ -191,28 +189,28 @@ assert.equal(
 const hostListAlias = runJson<any>(['host', 'list', '--format=json']);
 assert.equal(hostListAlias.schemaVersion, 'lattice.host_list.v1', 'host list alias works');
 
-const hostProbeAlias = runJson<any>(['proof-or-stop', 'host', 'probe', '--host=codex', '--format=json']);
-assert.equal(hostProbeAlias.schemaVersion, 'lattice.host_probe.v1');
-assert.equal(hostProbeAlias.probe.host, 'codex');
-assert.equal(hostProbeAlias.productionDone, false);
-assert.equal(hostProbeAlias.receiptVerified, false);
+const hostProbe = runJson<any>(['host_probe', '--host=codex', '--format=json']);
+assert.equal(hostProbe.schemaVersion, 'lattice.host_probe.v1');
+assert.equal(hostProbe.probe.host, 'codex');
+assert.equal(hostProbe.productionDone, false);
+assert.equal(hostProbe.receiptVerified, false);
 for (const [category, authorityImpact] of [
   ['browser-automation', 'verification-evidence-limited'],
   ['evidence-submit', 'evidence-local-only'],
   ['receipt-verify', 'local-assurance-required'],
 ] as const) {
-  assert.equal(capabilityByCategory(hostProbeAlias.probe.profile, category).status, 'conditional', `codex ${category} remains visible conditional`);
-  const degradation = degradationByCategory(hostProbeAlias.probe.degradations, category);
+  assert.equal(capabilityByCategory(hostProbe.probe.profile, category).status, 'conditional', `codex ${category} remains visible conditional`);
+  const degradation = degradationByCategory(hostProbe.probe.degradations, category);
   assert.equal(degradation.visible, true, `codex ${category} degradation is visible`);
   assert.equal(degradation.authorityImpact, authorityImpact, `codex ${category} authority impact is explicit`);
 }
-assertNoProductionOverclaim(hostProbeAlias, 'proof-or-stop host probe');
+assertNoProductionOverclaim(hostProbe, 'host_probe');
 
-const hostStatusAlias = runJson<any>(['proof-or-stop', 'host', 'status', '--host=claude-code', '--json']);
-assert.equal(hostStatusAlias.schemaVersion, 'lattice.host_status.v1');
-assert.equal(hostStatusAlias.host, 'claude-code');
-assert.equal(hostStatusAlias.overflowReady, true);
-assertNoProductionOverclaim(hostStatusAlias, 'proof-or-stop host status');
+const hostStatus = runJson<any>(['host_status', '--host=claude-code', '--json']);
+assert.equal(hostStatus.schemaVersion, 'lattice.host_status.v1');
+assert.equal(hostStatus.host, 'claude-code');
+assert.equal(hostStatus.overflowReady, true);
+assertNoProductionOverclaim(hostStatus, 'host_status');
 
 const desktopProbe = runJson<any>(['host_probe', '--host=desktop-app', '--format=json']);
 assert.equal(desktopProbe.schemaVersion, 'lattice.host_probe.v1');
@@ -234,18 +232,20 @@ assert.equal(install.thirdPartyInstallsExecuted, false);
 assert.match(install.summary, /optional dashboard\/archive/i);
 assertNoProductionOverclaim(install, 'host_install');
 
-const configDoctor = runJson<any>(['proof-or-stop', 'config', 'doctor', '--format=json']);
+const configDoctor = runJson<any>(['lattice_config_doctor', '--format=json']);
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
 assert.equal(configDoctor.migration.macAppRequired, false);
+// B-cdf6:F-046 / B-cc10:F-196 — the package-bin check must protect the
+// canonical-only package map after the retired alias removal.
 assert.ok(
   configDoctor.checks.some((c: any) => c.id === 'package-bin-aliases' && c.ok === true),
-  'package-bin-aliases check confirms the package exposes only the proof-or-stop bin',
+  'package-bin-aliases check confirms the package exposes only proof-or-stop',
 );
 assert.equal(configDoctor.versions.expected, PROOF_OR_STOP_CLI_VERSION);
-assertNoProductionOverclaim(configDoctor, 'proof-or-stop config doctor');
+assertNoProductionOverclaim(configDoctor, 'lattice_config_doctor');
 
-const rollout = runJson<any>(['proof-or-stop', 'rollout', 'check', `--projects=${repoRoot}`, '--format=json']);
+const rollout = runJson<any>(['rollout_check', `--projects=${repoRoot}`, '--format=json']);
 assert.equal(rollout.schemaVersion, 'lattice.rollout_check.v1');
 assert.equal(rollout.readOnly, true);
 assert.equal(rollout.macAppRequired, false);
@@ -254,14 +254,14 @@ assert.equal(rollout.projects[0].path, repoRoot);
 assert.ok(rollout.projects[0].nextAction.length > 0, 'rollout_check returns actionable nextAction');
 for (const probe of rollout.projects[0].probes) {
   assert.equal(probe.readOnly, true, `${probe.id} is read-only`);
-  assert.match(probe.command, /^(proof-or-stop|filesystem)/, `${probe.id} command uses proof-or-stop wording or filesystem stat`);
+  assert.match(probe.command, /^(proof-or-stop|filesystem)/, `${probe.id} command uses canonical wording or filesystem stat`);
   for (const forbidden of rollout.safety.forbiddenArgs) {
     assert.ok(!probe.command.includes(forbidden), `rollout_check does not record ${forbidden}`);
   }
 }
 assert.equal(rollout.safety.forbiddenArgs.includes('--apply'), true);
 assert.match(rollout.safety.note, /never runs apply, upgrade, repair, fix/i);
-assertNoProductionOverclaim(rollout, 'proof-or-stop rollout check');
+assertNoProductionOverclaim(rollout, 'rollout_check');
 
 const conduit = runJson<any>(['conduit_status', '--format=json']);
 assert.equal(conduit.schemaVersion, 'lattice.conduit_status.v1');
@@ -272,9 +272,9 @@ assert.equal(conduit.receiptVerified, false);
 assert.equal(conduit.authorityChanged, false);
 assertNoProductionOverclaim(conduit, 'conduit_status');
 
-const conduitExplain = runJson<any>(['proof-or-stop', 'conduit', 'explain', '--format=json']);
+const conduitExplain = runJson<any>(['conduit_explain', '--format=json']);
 assert.equal(conduitExplain.schemaVersion, 'lattice.conduit_explain.v1');
 assert.ok(conduitExplain.explanation.some((line: string) => /not a model runner/i.test(line)));
-assertNoProductionOverclaim(conduitExplain, 'proof-or-stop conduit explain');
+assertNoProductionOverclaim(conduitExplain, 'conduit_explain');
 
 console.log('✓ proof-or-stop CLI cutover smoke passed');

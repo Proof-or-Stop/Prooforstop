@@ -18,6 +18,7 @@ import { syncBuiltinESMExports } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 import { resetConfigCache } from '../core/config.js';
+import { DONE_PREPARE_SCHEMA } from '../core/artifact-schema.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { StoryStore } from '../core/store.js';
@@ -933,6 +934,50 @@ function assertConcurrentHeadCasRefusesAndPreservesIndex(): void {
   }
 }
 
+function assertHeadRollbackSurvivesRefreshAndRestoreFailures(): void {
+  const candidate = isolatedCommitCandidate();
+  const { root, storyId, baseline, expected } = candidate;
+  const originalExecFileSync = childProcess.execFileSync;
+  let refreshFailed = false;
+  let restoreFailed = false;
+  try {
+    const parent = git(root, ['rev-parse', 'HEAD']);
+    childProcess.execFileSync = ((command: string, argsOrOptions?: readonly string[] | childProcess.ExecFileSyncOptions, options?: childProcess.ExecFileSyncOptions) => {
+      const argv = Array.isArray(argsOrOptions) ? argsOrOptions.map(String) : [];
+      if (String(command).endsWith('git') && argv[0] === 'update-index' && argv.includes('--cacheinfo')) {
+        refreshFailed = true;
+        throw new Error('injected real-index refresh failure');
+      }
+      if (refreshFailed && String(command).endsWith('git') && argv[0] === 'update-index' && argv.includes('--force-remove')) {
+        restoreFailed = true;
+        throw new Error('injected real-index restore failure');
+      }
+      return (originalExecFileSync as any)(command, argsOrOptions as any, options);
+    }) as typeof childProcess.execFileSync;
+    syncBuiltinESMExports();
+
+    const result = withEnvSync(gitIdentityEnv(), () => commitDonePrepareGeneratedMetadata({
+      root,
+      gitCwd: root,
+      storyId,
+      storyDirRel: '.lattice/story/actives',
+      baseline,
+      expectedProcessEventBinding: expected,
+    }));
+
+    assert.equal(result.ok, false, 'post-CAS cleanup failure remains fail-closed');
+    assert.equal(refreshFailed, true, 'production real-index refresh path was exercised');
+    assert.equal(restoreFailed, true, 'production real-index restore path was exercised');
+    assert.match(result.reason ?? '', /real index refresh.*injected real-index refresh failure/);
+    assert.match(result.reason ?? '', /real index restore.*injected real-index restore failure/);
+    assert.equal(git(root, ['rev-parse', 'HEAD']), parent, 'HEAD CAS rollback is independent of index cleanup failures');
+  } finally {
+    childProcess.execFileSync = originalExecFileSync;
+    syncBuiltinESMExports();
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
 function assertIsolatedIndexPathSetIsExact(): void {
   for (const mode of ['missing', 'extra'] as const) {
     const candidate = isolatedCommitCandidate();
@@ -1219,7 +1264,7 @@ function assertJsonStdoutClean(): void {
       status?: string;
       transcript?: string;
     };
-    assert.equal(parsed.schemaVersion, 'lattice.done_prepare.v1');
+    assert.equal(parsed.schemaVersion, DONE_PREPARE_SCHEMA);
     assert.equal(parsed.storyId, storyId);
     assert.equal(parsed.status, 'pass', `JSON done_prepare should pass:\nstderr:\n${result.stderr}\nstdout:\n${result.stdout}`);
     assert.match(parsed.transcript ?? '', /^DONE prepare: PASS/);
@@ -1241,6 +1286,7 @@ void (async () => {
     assertIndexValidationClosesMutationWindows();
     assertIsolatedTreeExcludesSharedIndexRaces();
     assertConcurrentHeadCasRefusesAndPreservesIndex();
+    assertHeadRollbackSurvivesRefreshAndRestoreFailures();
     assertIsolatedIndexPathSetIsExact();
     assertCommitMessageHooksAndPostCommitSemantics();
     assertCommitMsgRejectionIsFailClosed();

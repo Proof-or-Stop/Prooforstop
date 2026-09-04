@@ -12,13 +12,13 @@
  * as a doc error.
  *
  * B-cdf6 CHK-005 — vacuous-pass hardening. `<bin>` used to be the single hardcoded literal
- * `proof-or-stop`. Once the docs were rewritten to the renamed bin (`proof-or-stop <cmd>`), that regex
+ * `lattice`. Once the docs were rewritten to the renamed bin (`proof-or-stop <cmd>`), that regex
  * matched NOTHING: the loop body never ran, zero drifts were returned, and the gate reported a
  * PASS. That is strictly worse than a loud failure — a doc could reference a nonexistent command
  * forever undetected, which is the exact drift class this scanner exists to catch. Two fixes:
  *
  *   1. The extractor now accepts EVERY bin token the CLI answers to (`PROOF_OR_STOP_BIN_NAMES`:
- *      canonical `proof-or-stop` plus the deprecated `proof-or-stop` alias), so mixed-token docs stay
+ *      canonical `proof-or-stop` plus the deprecated `lattice` alias), so mixed-token docs stay
  *      covered for the whole transition rather than only after a flag day.
  *   2. `extractedCommands` is reported alongside `drifts`, so callers can tell "scanned N
  *      documented commands, all clean" apart from "extracted nothing at all". An empty extraction
@@ -32,7 +32,11 @@ import {
   checkDocsDrift,
   DOCS_DRIFT_ALLOWLIST,
 } from '../handlers/validate-docs-drift.js';
-import { PROOF_OR_STOP_BIN_NAMES, PROOF_OR_STOP_PRIMARY_BIN } from './proof-or-stop-brand.js';
+import {
+  PROOF_OR_STOP_BIN_NAMES,
+  PROOF_OR_STOP_DEPRECATED_BIN,
+  PROOF_OR_STOP_PRIMARY_BIN,
+} from './proof-or-stop-brand.js';
 
 export interface DriftCandidate {
   sectionPath: string; // e.g., "CLAUDE.md#proofOrStop CLI quick reference"
@@ -69,7 +73,7 @@ export interface AuditReport {
  * retiring a bin alias in proof-or-stop-brand.ts cannot silently desync the drift extractor from the
  * names the CLI actually answers to.
  */
-const BIN_TOKEN_ALTERNATION = [...PROOF_OR_STOP_BIN_NAMES]
+const BIN_TOKEN_ALTERNATION = [...new Set([...PROOF_OR_STOP_BIN_NAMES, PROOF_OR_STOP_DEPRECATED_BIN])]
   // Longest first: alternation is ordered, so an entry that is a prefix of another
   // (`proof-or-stop` of `proof-or-stop-codex`, `proof-or-stop` of `proof-or-stop-codex`) must not
   // get first refusal. Backtracking would recover here, but relying on it is fragile —

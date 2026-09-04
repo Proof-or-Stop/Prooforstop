@@ -18,8 +18,8 @@
  * and STRUCTURALLY cannot carry another lens's findings. `runLens` is invoked once
  * per request with that single request and nothing else, so no lens can be biased
  * by, or have its output mis-attributed to, a sibling lens. The two lenses that map
- * to the same lane (behavior/correctness and crash-safety/edge → proof-or-stop-review-
- * behavior) still run + report distinctly; their findings are never merged or
+ * to the same lane (behavior/correctness and crash-safety/edge → proof-or-stop-
+ * review-behavior) still run + report distinctly; their findings are never merged or
  * de-duplicated.
  *
  * The lane type is ALIASED to review-run.ts's `ReviewRunLane` (the six real

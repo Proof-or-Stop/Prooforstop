@@ -70,6 +70,59 @@ const VALIDATION_TRANSPORT_ENV_KEYS = new Set<string>([
     .map((key) => `PROOF_OR_STOP_${key.slice(FROZEN_RETIRED_ENV_PREFIX.length)}`),
 ]);
 
+export function isValidationTransportEnvKey(
+  key: string,
+  platform: NodeJS.Platform = process.platform,
+): boolean {
+  const normalizedKey = platform === 'win32' ? key.toUpperCase() : key;
+  return platform === 'win32'
+    ? [...VALIDATION_TRANSPORT_ENV_KEYS].some((transportKey) => transportKey.toUpperCase() === normalizedKey)
+    : VALIDATION_TRANSPORT_ENV_KEYS.has(normalizedKey);
+}
+
+/**
+ * Host-launcher session identity that is NOT in the frozen list above.
+ *
+ * These are the same class of value as `LATTICE_SESSION_ID` -- per-process
+ * identity injected by the coding-agent host or the terminal multiplexer it runs
+ * under, carrying no validation-command
+ * semantics -- but they are spelled by the host, not by Proof-or-Stop, so
+ * `brandEnvNames` does not reach them. Left ambient they are hashed into
+ * `effectiveEnvironmentDigest`, and because they change with every session
+ * (`CLAUDE_PID` is a pid, `CLAUDE_CODE_MESSAGING_SOCKET` embeds that pid, and
+ * `CMUX_TERMINAL_LIFECYCLE_ID` is a per-terminal UUID) a
+ * receipt written in one session can never be re-derived in another. That is
+ * precisely the "one session's PASS is unverifiable by an independent
+ * reviewer" failure the frozen list exists to prevent: on this repo it
+ * surfaced as `effective-environment-digest-mismatch[0..1]` blocking DONE on a
+ * story whose DONE-required validation had actually passed.
+ *
+ * They are stripped HERE rather than appended to
+ * `VALIDATION_TRANSPORT_ENV_KEY_LIST` on purpose. That list is digest-pinned by
+ * `VALIDATION_TRANSPORT_ENV_KEYS_DIGEST`, and every already-persisted receipt
+ * verifies against the environment its members imply; appending to it would
+ * change the recomputed digest for an unchanged environment and invalidate all
+ * of them at once. Filtering at this seam keeps the pinned list byte-stable --
+ * the same technique the brand rename used for the new `PROOF_OR_STOP_*`
+ * spellings.
+ *
+ * Receipts written BEFORE this strip existed still mismatch, because they
+ * embedded the volatile values; they are re-earned by re-running the
+ * validation, which is the normal remedy for a stale receipt.
+ */
+export const HOST_LAUNCHER_SESSION_ENV_KEYS = [
+  'CLAUDE_CODE_CHILD_SESSION',
+  'CLAUDE_CODE_MESSAGING_SOCKET',
+  'CLAUDE_CODE_MESSAGING_TOKEN',
+  'CLAUDE_PID',
+  'CMUX_SOCKET_PATH',
+  'CMUX_TERMINAL_LIFECYCLE_ID',
+  'CODEX_COMPANION_SESSION_ID',
+  'CODEX_COMPANION_TRANSCRIPT_PATH',
+] as const;
+
+for (const key of HOST_LAUNCHER_SESSION_ENV_KEYS) VALIDATION_TRANSPORT_ENV_KEYS.add(key);
+
 /**
  * Return the exact environment used both for command identity and child spawn.
  * Ambient transport fields are removed, PWD is canonicalized to the effective

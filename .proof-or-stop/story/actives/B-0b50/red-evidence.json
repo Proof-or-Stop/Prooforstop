@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-0b50",
+  "records": [
+    {
+      "id": "RED-20260825193918",
+      "trigger": "Missing PRE_CERT inventory recovery is routed to certification_window_status instead of finalization",
+      "acceptanceTargetRef": "CHK-002:happy:0",
+      "baselineHeadHash": "a1cacb5e23d61ef0a33cf6931016862b0fb88e41",
+      "baselineMaterialHash": "bc4c64a4ec59ab745062b78430e4075b5ad5612d7df89ebed0013033959d71fe",
+      "observedFailure": "Before the fix, a no-window heavy-certification choke emitted Next: proof-or-stop certification_window_status --storyId=B-0b50-red even though no PRE_CERT inventory receipt existed; this forces an unnecessary intermediate status retry instead of direct TEST-safe finalization.",
+      "failingCommand": "node /private/tmp/b0b50-red-probe.mjs",
+      "expectedGreenCommand": "node /private/tmp/b0b50-red-probe.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:0",
+        "relation": "same_acceptance",
+        "command": "node /private/tmp/b0b50-red-probe.mjs"
+      },
+      "note": "The probe is a real pre-fix assertion against the current compiled implementation; it fails on the incorrect status command and will pass after the blocker-specific next command is preserved.",
+      "createdAt": "2026-08-25T19:39:18.605Z"
+    }
+  ],
+  "createdAt": "2026-08-25T19:39:18.605Z",
+  "updatedAt": "2026-08-25T19:39:18.605Z"
+}

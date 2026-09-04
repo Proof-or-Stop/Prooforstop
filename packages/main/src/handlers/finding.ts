@@ -2,7 +2,7 @@
  * Finding handlers — reviewer finding management (signed to prevent forgery)
  */
 
-import { existsSync, readdirSync } from 'fs';
+import { existsSync, readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -16,7 +16,7 @@ import type {
   ReviewerReadManifest,
 } from '../core/types.js';
 import { isFindingEvidenceState, FINDING_EVIDENCE_STATES } from '../core/advisory.js';
-import { signFinding, signReviewPass } from '../core/finding-verify.js';
+import { signFinding, signReviewPass, verifyReviewPass } from '../core/finding-verify.js';
 import { computeProcessMetrics } from '../core/process-metrics.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
 import { isPassOnlyReviewFindingRecord } from '../core/flow-fact-policy.js';
@@ -41,6 +41,12 @@ import {
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import {
+  assertReviewInventoryEvidenceWritable,
+  currentOpenReviewInventory,
+  withReviewInventoryMutationLock,
+} from '../core/review-inventory-epoch.js';
+import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
 import {
   isRegisteredReviewAgent,
   resolveAgentMutationAuthority,
@@ -86,7 +92,16 @@ function withReviewPassLock<T>(ctx: HandlerContext, storyId: string, fn: () => T
   // shared `.proof-or-stop/locks/finding/<id>-review-passes.lock` — the exact lock whose
   // committed-then-deleted holder.json failed quorum-submit-smoke's clean-tree gate.
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'finding', 'review-passes');
-  return withMkdirLock(lockDir, fn, { label: 'review-passes metadata' });
+  return withMkdirLock(lockDir, fn, { label: 'review-passes metadata', heartbeatMs: 1_000 });
+}
+
+function holdReviewPassLockForDeterministicStress(): void {
+  if (process.env.NODE_ENV !== 'test') return;
+  const holdMs = Number(process.env.LATTICE_INTERNAL_REVIEW_PASS_HOLD_MS ?? 0);
+  if (!Number.isFinite(holdMs) || holdMs <= 0) return;
+  const readyFile = process.env.LATTICE_INTERNAL_REVIEW_PASS_READY_FILE;
+  if (readyFile) writeFileSync(readyFile, `${process.pid}\n`, 'utf8');
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, holdMs);
 }
 
 /**
@@ -355,10 +370,61 @@ function recordReviewPass(
   readEvidenceInput: ReadEvidenceInput = {},
   command = 'review_pass_set',
 ): string {
-  return withReviewPassLock(ctx, storyId, () => {
+  return withReviewInventoryMutationLock(ctx.store, storyId, () => withReviewPassLock(ctx, storyId, () => {
+    assertReviewInventoryContextFreshLocked(ctx, storyId);
     const story = ctx.store.readStory(storyId);
     const reviewRun = assertCurrentReviewRunForEvidence(ctx.store, story, ctx.root, agent, reviewRunId);
+    assertReviewInventoryEvidenceWritable(ctx.store, storyId, reviewRun);
     const data = ctx.store.readReviewPasses(storyId);
+    const reviewRound = story.currentReviewRound || '';
+    const trimmedNote = note.trim();
+    const readEvidence = prepareReviewerReadEvidence(ctx, storyId, command, agent, readManifestInput, readEvidenceInput);
+    if (readEvidence.readDiagnostics && readEvidence.readDiagnostics.length > 0) {
+      throw new Error(`${command}: mechanical reviewer read evidence does not match readManifest: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`);
+    }
+    const semanticKey = digestCandidateRoutingValue({
+      storyId,
+      reviewRound,
+      agent,
+      reviewRunId,
+      envelopeId: reviewRun.envelopeId ?? null,
+      note: trimmedNote,
+      readManifest: readEvidence.readManifest,
+      readLog: readEvidence.readLog ?? null,
+      readDiagnostics: readEvidence.readDiagnostics ?? null,
+    });
+    const sameTerminal = data.passes.filter(pass =>
+      pass.reviewRound === reviewRound && pass.agent === agent && pass.reviewRunId === reviewRunId,
+    );
+    if (sameTerminal.length > 1) {
+      throw new Error(`${command}: multiple terminal passes already exist for ${storyId}/${reviewRound}/${agent}/${reviewRunId}; refusing ambiguous retry`);
+    }
+    for (const prior of sameTerminal) {
+      if (!verifyReviewPass(storyId, prior)) {
+        throw new Error(`${command}: existing terminal pass ${prior.id} has an invalid signature; refusing retry`);
+      }
+      const priorSemanticKey = digestCandidateRoutingValue({
+        storyId,
+        reviewRound: prior.reviewRound,
+        agent: prior.agent,
+        reviewRunId: prior.reviewRunId,
+        envelopeId: prior.envelopeId ?? null,
+        note: prior.note.trim(),
+        readManifest: prior.readManifest,
+        readLog: prior.readLog ?? null,
+        readDiagnostics: prior.readDiagnostics ?? null,
+      });
+      if (priorSemanticKey === semanticKey) {
+        return `Review pass ${prior.id} already recorded by ${agent} (idempotent retry)`;
+      }
+      throw new Error(
+        `${command}: conflicting terminal pass already exists for ${storyId}/${reviewRound}/${agent}/${reviewRunId}; ` +
+        `existing=${prior.id}, semantic evidence differs`,
+      );
+    }
+    // Test-only barrier deliberately holds the full read-modify-write section;
+    // a live-owner lock must survive beyond the historical 10s stale threshold.
+    holdReviewPassLockForDeterministicStress();
     const nextNum = data.passes.reduce((max, pass) => {
       const m = pass.id.match(/:RP-(\d+)$/);
       return m ? Math.max(max, Number(m[1])) : max;
@@ -368,12 +434,6 @@ function recordReviewPass(
       throw new Error(`review_pass_set: duplicate review pass id ${id}; refusing to report success`);
     }
     const createdAt = new Date().toISOString();
-    const reviewRound = story.currentReviewRound || '';
-    const trimmedNote = note.trim();
-    const readEvidence = prepareReviewerReadEvidence(ctx, storyId, command, agent, readManifestInput, readEvidenceInput);
-    if (readEvidence.readDiagnostics && readEvidence.readDiagnostics.length > 0) {
-      throw new Error(`${command}: mechanical reviewer read evidence does not match readManifest: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`);
-    }
     // B-3b05 CHK-002: writer-session provenance. Resolve the writing session
     // identity, compare it against the current story owner lease session, and
     // persist writerSessionId + sessionSource into the versioned signature
@@ -471,7 +531,7 @@ function recordReviewPass(
       ? `\n⚠ provenanceFlag=${provenance.provenanceFlag}: writer session ${provenance.writerSessionId} (source=${provenance.sessionSource}) equals story owner lease session ${ownerLease?.sessionId} — subagent-or-self, not mechanically distinguishable (EXP-001); audit-only, no gate consumes it`
       : '';
     return `Review pass ${id} recorded by ${agent}${provenanceHint}${commitHint}`;
-  });
+  }));
 }
 
 export function createFindingHandlers(ctx: HandlerContext) {
@@ -500,7 +560,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const authority = resolveAgentMutationAuthority({ command: 'finding_add', payloadActors: [args.agent] });
       const dispatchedActor = authority.actor;
       const missingAttribution = !dispatchedActor;
-      const agent = dispatchedActor || 'main';
+      // Registry aliases are accepted on input, but persisted findings are a
+      // new-write surface and must carry the canonical proof-or-stop role.
+      const agent = authority.entry?.canonicalName || dispatchedActor || 'main';
       const category = normalizeFindingCategory(args.category);
       // B-3fad CHK-001: evidenceState defaults to verified; explicit suspected/disproven requires the accompanying fields.
       const evidence = resolveEvidenceState(args);
@@ -520,9 +582,6 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const reviewerLane = isReviewerAgent ? resolveReviewRunLane(agent) : undefined;
 
       const story = store.readStory(args.storyId);
-      if (reviewerLane) {
-        assertCurrentReviewRunForEvidence(store, story, ctx.root, reviewerLane, args.reviewRunId);
-      }
 
       if (isPassOnlyReviewFindingRecord({ desc: args.desc, severity: args.severity, agent })) {
         return recordReviewPass(
@@ -543,13 +602,19 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const readEvidence = reviewerLane && (args.readManifest !== undefined || hasMechanicalReadInput(args))
         ? prepareReviewerReadEvidence(ctx, args.storyId, 'finding_add', agent, args.readManifest, args)
         : undefined;
+      if (reviewerLane && currentOpenReviewInventory(store, args.storyId)
+        && (!readEvidence?.readManifest || !readEvidence.readLog)) {
+        throw new Error(
+          'finding_add: OPEN review inventory requires signed readManifest plus mechanical readEvents/readLog for every reviewer finding',
+        );
+      }
 
       // Auto-inject the current review round (reviewer does not need to pass it)
       const reviewRound = story.currentReviewRound || '';
 
       // The readFindings → push → writeFindings critical section uses the
       // unified main lock for B-META and a per-story lock for normal stories.
-      const id = withMetaFindingLock(ctx, args.storyId, () => {
+      const writeFinding = () => withMetaFindingLock(ctx, args.storyId, () => {
         const data = store.readFindings(args.storyId);
         const nextNum = data.findings.length + 1;
         const fid = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
@@ -595,6 +660,15 @@ export function createFindingHandlers(ctx: HandlerContext) {
         store.writeFindings(args.storyId, data);
         return fid;
       });
+      const id = reviewerLane
+        ? withReviewInventoryMutationLock(store, args.storyId, () => {
+            assertReviewInventoryContextFreshLocked(ctx, args.storyId);
+            const lockedStory = store.readStory(args.storyId);
+            const lockedRun = assertCurrentReviewRunForEvidence(store, lockedStory, ctx.root, reviewerLane, args.reviewRunId);
+            assertReviewInventoryEvidenceWritable(store, args.storyId, lockedRun);
+            return writeFinding();
+          })
+        : writeFinding();
 
       // B-4f46 CHK-003: if a signatureTag was provided and is not yet an active/proposed
       // tag, auto-record it as status=proposed in the signature-registry (audit-only;

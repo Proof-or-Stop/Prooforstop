@@ -1,4 +1,33 @@
-import { PROOF_OR_STOP_BIN_NAMES } from '../core/proof-or-stop-brand.js';
+import {
+  PROOF_OR_STOP_BIN_NAMES,
+  PROOF_OR_STOP_DEPRECATED_BIN,
+  PROOF_OR_STOP_DEPRECATED_CODEX_BIN,
+} from '../core/proof-or-stop-brand.js';
+
+/**
+ * Bin tokens this PARSER will strip when pasted redundantly as argv[0].
+ *
+ * Deliberately WIDER than `PROOF_OR_STOP_BIN_NAMES`. That list answers
+ * "which bin names does usage text advertise?", and B-5a88 CHK-007 correctly
+ * narrowed it to the canonical pair so no retired `lattice` name is ever
+ * emitted. Parse tolerance is a DIFFERENT question: an operator (or an older
+ * script, git hook, or copied docs line) may still paste a retired token, and
+ * silently failing to strip it turns `lattice host runtime list` into an
+ * unmatched alias rather than the command the reader intended.
+ *
+ * Accepting a token here does NOT advertise it: usage rendering still goes
+ * through `resolveUsageBin`, which maps anything outside
+ * `PROOF_OR_STOP_BIN_NAMES` back to the canonical `proof-or-stop` form.
+ * `core/audit-scan.ts` already unions these same two sets for exactly this
+ * read-tolerance reason (BIN_TOKEN_ALTERNATION).
+ */
+export const STRIPPABLE_BIN_TOKENS: readonly string[] = [
+  ...new Set([
+    ...PROOF_OR_STOP_BIN_NAMES,
+    PROOF_OR_STOP_DEPRECATED_BIN,
+    PROOF_OR_STOP_DEPRECATED_CODEX_BIN,
+  ]),
+];
 
 export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'host list': 'host_list',
@@ -43,17 +72,11 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'handoff resume': 'handoff_resume',
   'handoff receipt submit': 'handoff_receipt_submit',
   'handoff worktree create': 'handoff_worktree_create',
-  'config doctor': 'proof_or_stop_config_doctor',
-  'config repair': 'proof_or_stop_config_repair',
+  'config doctor': 'lattice_config_doctor',
+  'config repair': 'lattice_config_repair',
   'codex verify': 'verify_codex',
   'codex doctor': 'codex_doctor',
   'rollout check': 'rollout_check',
-  'lab create': 'lab_create',
-  'lab run': 'lab_run',
-  'lab eval': 'lab_eval',
-  'lab compare': 'lab_compare',
-  'lab promote': 'lab_promote',
-  'lab help': 'lab_help',
   'baseline run': 'baseline_run',
   'baseline suite': 'baseline_suite',
   'baseline suite report': 'baseline_suite_report',
@@ -100,8 +123,10 @@ export interface AliasNormalizationResult {
 }
 
 export function normalizeNestedSpaceAlias(argv: string[]): AliasNormalizationResult {
-  // Tolerate one pasted redundant canonical bin token.
-  const aliasStart = PROOF_OR_STOP_BIN_NAMES.includes(argv[0]) ? 1 : 0;
+  // B-cdf6 CHK-002: tolerate a pasted redundant bin token under EITHER name, so
+  // `proof-or-stop proof-or-stop host list` is forgiven exactly like the
+  // `lattice lattice host list` form the deprecated alias already accepted.
+  const aliasStart = STRIPPABLE_BIN_TOKENS.includes(argv[0]) ? 1 : 0;
   const candidates: Array<{ text: string; consumed: 2 | 3 | 4 }> = [
     { text: argv.slice(aliasStart, aliasStart + 4).join(' '), consumed: 4 },
     { text: argv.slice(aliasStart, aliasStart + 3).join(' '), consumed: 3 },

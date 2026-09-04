@@ -25,8 +25,9 @@ import { fileURLToPath } from 'node:url';
 import { resolveAgentAssetResolution } from '../core/agent-asset-resolution.js';
 import { renderCodexAdapterChecks, runCodexAdapterChecks } from '../core/codex-adapter-checks.js';
 import { buildRolloutCheck } from '../core/rollout-check.js';
-import { isModularReviewerRoleId, readPromptRegistry, renderPromptEntryForHost } from '../core/prompt-registry.js';
+import { isActiveModularReviewerRoleId, readPromptRegistry, renderPromptEntryForHost } from '../core/prompt-registry.js';
 import { renderProofOrStopCodexAdapterManifest } from '../init-assets.js';
+import { PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 
 const packageRoot = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 
@@ -56,7 +57,7 @@ function countApproximateTokens(): number {
   for (const entry of registry.agents) {
     const claude = renderPromptEntryForHost(entry, 'claude');
     const codex = renderPromptEntryForHost(entry, 'codex');
-    if (isModularReviewerRoleId(entry.agentId)) {
+    if (isActiveModularReviewerRoleId(entry.agentId)) {
       assert.match(claude, /review_run_start/, `${entry.agentId} Claude registry render is bootstrap-only`);
       assert.match(codex, /review_run_start/, `${entry.agentId} Codex registry render is bootstrap-only`);
       assert.doesNotMatch(claude, /proofbound:modular-role-body:v1/, `${entry.agentId} Claude registry render excludes role body`);
@@ -82,7 +83,7 @@ try {
   const resolution = resolveAgentAssetResolution(absentRoot);
   assert.equal(resolution.mode, 'runtime-owned');
   assert.equal(resolution.promptRegistryHash, registry.materialHash);
-  assert.deepEqual(resolution.projectPromptAssets.map(asset => asset.status), ['absent', 'absent']);
+  assert.deepEqual(resolution.projectPromptAssets.map(asset => asset.status), ['absent', 'absent', 'absent']);
   assert.equal(resolution.authorityBoundary.kind, 'localNonAuthorityAudit');
   assertNoAuthorityCompletionFields(resolution);
 

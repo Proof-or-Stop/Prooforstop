@@ -24,6 +24,8 @@ import {
   type PrewriteGuardResult,
 } from '../core/prewrite-guard.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
+import { currentOpenReviewInventory } from '../core/review-inventory-epoch.js';
+import { STATE_DIR_NAMES } from '../core/brand-paths.js';
 
 // ── Active guard session discovery ──
 
@@ -196,6 +198,31 @@ export function createPrewriteGuardHandlers(ctx: HandlerContext): Record<string,
       const gitCwd = storyId
         ? resolveGitCwd({ store, storyId, metadataRoot: root, projectRoot: root })
         : root;
+      if (storyId && normalizedPaths.length > 0) {
+        const openInventory = currentOpenReviewInventory(store, storyId);
+        const storyMetadataPrefix = store.storyDirRel().replace(/\\/g, '/').replace(/\/$/, '') + `/${storyId}/`;
+        const materialTargets = normalizedPaths.filter(file =>
+          !file.startsWith(storyMetadataPrefix)
+          && !STATE_DIR_NAMES.some(dir =>
+            file.startsWith(`${dir}/locks/`) || file.startsWith(`${dir}/runtime/`)),
+        );
+        if (openInventory && materialTargets.length > 0) {
+          const result: PrewriteGuardResult = {
+            verdict: 'deny',
+            targetPaths: normalizedPaths,
+            storyId,
+            reasons: [
+              'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION',
+              `Epoch: ${openInventory.epochId}`,
+              `Frozen cutoff: ${openInventory.cutoff.materialHash}`,
+              `Recovery: proof-or-stop review_inventory_cancel --storyId=${storyId} --reason=\"replace invalid frozen candidate\", then begin a fresh frozen inventory; only a finalized receipt permits DEV`,
+            ],
+            violations: materialTargets.map(path => ({ path, rule: 'protected' as const })),
+          };
+          if (args.json) return JSON.stringify(result, null, 2);
+          return renderPrewriteGuardResult(result);
+        }
+      }
       const result: PrewriteGuardResult = runPrewriteGuardCheck({
         normalizedPaths,
         contract,

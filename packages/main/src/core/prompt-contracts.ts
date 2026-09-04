@@ -8,8 +8,28 @@ import {
   bytesCharsEstimator,
 } from './usage-ledger/estimate.js';
 
+/** Current prompt protocol identities. The legacy values are reader-only. */
+export const RUNTIME_CONTRACT_SCHEMA = 'proof-or-stop.agent-runtime.v1' as const;
+export const RUNTIME_CONTRACT_SCHEMA_LEGACY = 'proofbound.agent-runtime.v1' as const;
+export const ROLE_CONTRACT_SCHEMA = 'proof-or-stop.role-contract.v1' as const;
+export const ROLE_CONTRACT_SCHEMA_LEGACY = 'proofbound.role-contract.v1' as const;
+export const PROMPT_MEASUREMENT_SCHEMA = 'proof-or-stop.prompt-measurement.v1' as const;
+export const PROMPT_MEASUREMENT_SCHEMA_LEGACY = 'proofbound.prompt-measurement.v1' as const;
+export const KNOWN_EXECUTION_ENVIRONMENT_SCHEMA = 'proof-or-stop.known-execution-environment.v1' as const;
+export const KNOWN_EXECUTION_ENVIRONMENT_SCHEMA_LEGACY = 'proofbound.known-execution-environment.v1' as const;
+export const FULL_TASK_CONTEXT_SCHEMA = 'proof-or-stop.full-task-context.v1' as const;
+export const FULL_TASK_CONTEXT_SCHEMA_LEGACY = 'proofbound.full-task-context.v1' as const;
+export const INCREMENTAL_REVIEW_BASIS_SCHEMA = 'proof-or-stop.incremental-review-basis.v1' as const;
+export const INCREMENTAL_REVIEW_BASIS_SCHEMA_LEGACY = 'proofbound.incremental-review-basis.v1' as const;
+export const PROMPT_ENVELOPE_SCHEMA = 'proof-or-stop.prompt-envelope.v1' as const;
+export const PROMPT_ENVELOPE_SCHEMA_LEGACY = 'proofbound.prompt-envelope.v1' as const;
+
+function isCurrentOrLegacy(value: unknown, current: string, legacy: string): boolean {
+  return value === current || value === legacy;
+}
+
 export const PROMPT_CONTRACT_ALGORITHMS = Object.freeze({
-  canonicalSerialization: 'proofbound.canonical-json.code-point-keys.v1',
+  canonicalSerialization: 'proof-or-stop.canonical-json.code-point-keys.v1',
   digest: 'sha256.domain-separated-utf8.v1',
   bytes: 'utf8-bytes.v1',
   lines: 'lf-logical-lines.v1',
@@ -30,7 +50,7 @@ export type PromptInputLayerAvailability =
   | { availability: 'unavailable'; reason: string };
 
 export interface RuntimeContract {
-  schemaVersion: 'proofbound.agent-runtime.v1';
+  schemaVersion: typeof RUNTIME_CONTRACT_SCHEMA | typeof RUNTIME_CONTRACT_SCHEMA_LEGACY;
   lifecycleVersion: string;
   ownershipVersion: string;
   evidenceVersion: string;
@@ -42,7 +62,7 @@ export interface RuntimeContract {
 export type RoleLifecycleStatus = 'active' | 'compatibility' | 'retired';
 
 export interface RoleContract {
-  schemaVersion: 'proofbound.role-contract.v1';
+  schemaVersion: typeof ROLE_CONTRACT_SCHEMA | typeof ROLE_CONTRACT_SCHEMA_LEGACY;
   roleId: string;
   status: RoleLifecycleStatus;
   replacementAgentType?: string;
@@ -69,7 +89,7 @@ export interface PromptRepetitionMeasurement {
 }
 
 export interface PromptMeasurementRecord {
-  schemaVersion: 'proofbound.prompt-measurement.v1';
+  schemaVersion: typeof PROMPT_MEASUREMENT_SCHEMA | typeof PROMPT_MEASUREMENT_SCHEMA_LEGACY;
   roleId: string;
   runtimeContractVersion: string;
   runtimeSemanticDigest: string;
@@ -89,7 +109,7 @@ export interface PromptMeasurementRecord {
 }
 
 export interface KnownExecutionEnvironment {
-  schemaVersion: 'proofbound.known-execution-environment.v1';
+  schemaVersion: typeof KNOWN_EXECUTION_ENVIRONMENT_SCHEMA | typeof KNOWN_EXECUTION_ENVIRONMENT_SCHEMA_LEGACY;
   nodeVersion: string;
   platform: string;
   architecture: string;
@@ -137,7 +157,7 @@ export interface FullTaskScopeContext {
 }
 
 export interface FullTaskContext {
-  schemaVersion: 'proofbound.full-task-context.v1';
+  schemaVersion: typeof FULL_TASK_CONTEXT_SCHEMA | typeof FULL_TASK_CONTEXT_SCHEMA_LEGACY;
   storyId: string;
   title: string;
   description: string;
@@ -169,7 +189,7 @@ export interface FullTaskContext {
 }
 
 export interface IncrementalReviewBasis {
-  schemaVersion: 'proofbound.incremental-review-basis.v1';
+  schemaVersion: typeof INCREMENTAL_REVIEW_BASIS_SCHEMA | typeof INCREMENTAL_REVIEW_BASIS_SCHEMA_LEGACY;
   storyId: string;
   lane: string;
   priorPassRef: string;
@@ -188,8 +208,18 @@ export interface IncrementalReviewBasis {
   scopeAcknowledgementDigest?: string;
 }
 
+/** Immutable finding fields visible when a review-run Prompt Envelope starts. */
+export interface PromptFindingProjection {
+  id: string;
+  createdAt: string;
+  status: string;
+  severity: string;
+  category: string;
+  desc: string;
+}
+
 export interface PromptEnvelope {
-  schemaVersion: 'proofbound.prompt-envelope.v1';
+  schemaVersion: typeof PROMPT_ENVELOPE_SCHEMA | typeof PROMPT_ENVELOPE_SCHEMA_LEGACY;
   envelopeId: string;
   roleId: string;
   storyId: string;
@@ -219,6 +249,8 @@ export interface PromptEnvelope {
   changedFilesDigest?: string;
   impactedFilesDigest?: string;
   reviewBasisDigest?: string;
+  findingProjection?: PromptFindingProjection[];
+  findingProjectionDigest?: string;
   incrementalContextDigest?: string;
   taskSemanticDigest?: string;
   selectionReason?: 'SAFETY_REQUIRES_FULL' | 'SAFE_INCREMENTAL' | 'FULL_CHEAPER_OR_EQUAL' | 'INCREMENTAL_BUDGET_EXCEEDED' | 'REVIEWER_REQUESTED_FULL';
@@ -492,7 +524,7 @@ function asRecord(value: unknown, label: string): Record<string, unknown> {
 export function validateRuntimeContract(value: unknown): asserts value is RuntimeContract {
   const record = asRecord(value, 'RuntimeContract');
   requireExactKeys(record, ['schemaVersion', 'lifecycleVersion', 'ownershipVersion', 'evidenceVersion', 'compactText', 'semanticDigest', 'renderDigest'], [], 'RuntimeContract');
-  if (record.schemaVersion !== 'proofbound.agent-runtime.v1') throw new PromptContractValidationError('RuntimeContract.schemaVersion is unsupported');
+  if (!isCurrentOrLegacy(record.schemaVersion, RUNTIME_CONTRACT_SCHEMA, RUNTIME_CONTRACT_SCHEMA_LEGACY)) throw new PromptContractValidationError('RuntimeContract.schemaVersion is unsupported');
   for (const key of ['lifecycleVersion', 'ownershipVersion', 'evidenceVersion', 'compactText']) requireNonblank(record[key], `RuntimeContract.${key}`);
   requireDigest(record.semanticDigest, 'RuntimeContract.semanticDigest');
   requireDigest(record.renderDigest, 'RuntimeContract.renderDigest');
@@ -506,7 +538,7 @@ export function validateRoleContract(value: unknown): asserts value is RoleContr
     ['replacementAgentType', 'migrationHint'],
     'RoleContract',
   );
-  if (record.schemaVersion !== 'proofbound.role-contract.v1') throw new PromptContractValidationError('RoleContract.schemaVersion is unsupported');
+  if (!isCurrentOrLegacy(record.schemaVersion, ROLE_CONTRACT_SCHEMA, ROLE_CONTRACT_SCHEMA_LEGACY)) throw new PromptContractValidationError('RoleContract.schemaVersion is unsupported');
   requireNonblank(record.roleId, 'RoleContract.roleId');
   if (!['active', 'compatibility', 'retired'].includes(record.status as string)) throw new PromptContractValidationError('RoleContract.status is invalid');
   if (typeof record.defaultDispatch !== 'boolean') throw new PromptContractValidationError('RoleContract.defaultDispatch must be boolean');
@@ -565,7 +597,7 @@ export function validatePromptMeasurementRecord(value: unknown): asserts value i
     'bytes', 'lines', 'estimatedTokens', 'tokenEstimatorVersion', 'repetition',
     'assembledPromptTokens', 'knownDispatchInputTokens', 'providerProcessedInputTokens',
   ], [], 'PromptMeasurementRecord');
-  if (record.schemaVersion !== 'proofbound.prompt-measurement.v1') throw new PromptContractValidationError('PromptMeasurementRecord.schemaVersion is unsupported');
+  if (!isCurrentOrLegacy(record.schemaVersion, PROMPT_MEASUREMENT_SCHEMA, PROMPT_MEASUREMENT_SCHEMA_LEGACY)) throw new PromptContractValidationError('PromptMeasurementRecord.schemaVersion is unsupported');
   for (const key of ['roleId', 'runtimeContractVersion', 'roleContractVersion', 'tokenEstimatorVersion']) requireNonblank(record[key], `PromptMeasurementRecord.${key}`);
   for (const key of ['runtimeSemanticDigest', 'runtimeRenderDigest', 'roleSemanticDigest', 'roleRenderDigest', 'assembledPromptDigest']) requireDigest(record[key], `PromptMeasurementRecord.${key}`);
   for (const key of ['bytes', 'lines', 'estimatedTokens']) requireNonnegativeInteger(record[key], `PromptMeasurementRecord.${key}`);
@@ -594,12 +626,12 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
     'freshnessClassification', 'toolPolicyDigest', 'systemInstructionDigest', 'requestedModelId',
     'dispatchPromptDigest', 'hostRenderIdentityDigest', 'impactPolicyVersion', 'eligibilityReasonCodes',
     'changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest',
-    'taskSemanticDigest',
+    'taskSemanticDigest', 'findingProjection', 'findingProjectionDigest',
     'selectionReason', 'fullContextBytes', 'incrementalContextBytes', 'escalatedToFull',
     'escalationReason', 'budgetViolation',
   ];
   requireExactKeys(record, required, optional, 'PromptEnvelope');
-  if (record.schemaVersion !== 'proofbound.prompt-envelope.v1') throw new PromptContractValidationError('PromptEnvelope.schemaVersion is unsupported');
+  if (!isCurrentOrLegacy(record.schemaVersion, PROMPT_ENVELOPE_SCHEMA, PROMPT_ENVELOPE_SCHEMA_LEGACY)) throw new PromptContractValidationError('PromptEnvelope.schemaVersion is unsupported');
   for (const key of ['envelopeId', 'runtimeSemanticDigest', 'runtimeRenderDigest', 'roleSemanticDigest', 'roleRenderDigest', 'contextDigest', 'eligibilityDigest', 'knownExecutionEnvironmentDigest', 'launcherSpecDigest', 'commandPolicyDigest', 'assembledPromptDigest']) requireDigest(record[key], `PromptEnvelope.${key}`);
   for (const key of ['roleId', 'storyId', 'createdAt', 'headHash', 'runtimeContractVersion', 'roleContractVersion', 'assemblerVersion', 'dispatchProtocolVersion', 'tokenEstimatorVersion']) requireNonblank(record[key], `PromptEnvelope.${key}`);
   for (const key of ['bytes', 'lines', 'estimatedTokens']) requireNonnegativeInteger(record[key], `PromptEnvelope.${key}`);
@@ -620,7 +652,21 @@ export function validatePromptEnvelope(value: unknown): asserts value is PromptE
   if (record.impactPolicyVersion !== undefined) {
     requireDigest(record.taskSemanticDigest, 'PromptEnvelope.taskSemanticDigest');
   }
-  for (const key of ['changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest', 'taskSemanticDigest']) {
+  if (record.findingProjection !== undefined) {
+    if (!Array.isArray(record.findingProjection)) throw new PromptContractValidationError('PromptEnvelope.findingProjection must be an array');
+    for (const [index, value] of record.findingProjection.entries()) {
+      const row = asRecord(value, `PromptEnvelope.findingProjection[${index}]`);
+      requireExactKeys(row, ['id', 'createdAt', 'status', 'severity', 'category', 'desc'], [], `PromptEnvelope.findingProjection[${index}]`);
+      for (const key of ['id', 'createdAt', 'status', 'severity', 'category', 'desc']) requireNonblank(row[key], `PromptEnvelope.findingProjection[${index}].${key}`);
+    }
+    requireDigest(record.findingProjectionDigest, 'PromptEnvelope.findingProjectionDigest');
+    if (record.findingProjectionDigest !== domainSeparatedDigest('prompt-finding-projection.v1', record.findingProjection)) {
+      throw new PromptContractValidationError('PromptEnvelope.findingProjectionDigest does not match findingProjection');
+    }
+  } else if (record.findingProjectionDigest !== undefined) {
+    throw new PromptContractValidationError('PromptEnvelope.findingProjectionDigest requires findingProjection');
+  }
+  for (const key of ['changedFilesDigest', 'impactedFilesDigest', 'reviewBasisDigest', 'incrementalContextDigest', 'taskSemanticDigest', 'findingProjectionDigest']) {
     if (record[key] !== undefined) requireDigest(record[key], `PromptEnvelope.${key}`);
   }
   if (record.eligibilityReasonCodes !== undefined) requireStringArray(record.eligibilityReasonCodes, 'PromptEnvelope.eligibilityReasonCodes');
@@ -679,7 +725,7 @@ export function validateKnownExecutionEnvironment(value: unknown): asserts value
     [],
     'KnownExecutionEnvironment',
   );
-  if (record.schemaVersion !== 'proofbound.known-execution-environment.v1') {
+  if (!isCurrentOrLegacy(record.schemaVersion, KNOWN_EXECUTION_ENVIRONMENT_SCHEMA, KNOWN_EXECUTION_ENVIRONMENT_SCHEMA_LEGACY)) {
     throw new PromptContractValidationError('KnownExecutionEnvironment.schemaVersion is unsupported');
   }
   for (const key of ['nodeVersion', 'platform', 'architecture', 'cliVersion']) {
@@ -697,7 +743,7 @@ export function validateIncrementalReviewBasis(value: unknown): asserts value is
     'reReviewReasonCodes', 'changedFiles', 'impactedFiles', 'impactedIntentRefs', 'currentClaims',
     'invariants', 'findingDeltas', 'unresolvedFindings', 'affectedContracts', 'authoritativeReferences',
   ], ['scopeAcknowledgementDigest'], 'IncrementalReviewBasis');
-  if (record.schemaVersion !== 'proofbound.incremental-review-basis.v1') {
+  if (!isCurrentOrLegacy(record.schemaVersion, INCREMENTAL_REVIEW_BASIS_SCHEMA, INCREMENTAL_REVIEW_BASIS_SCHEMA_LEGACY)) {
     throw new PromptContractValidationError('IncrementalReviewBasis.schemaVersion is unsupported');
   }
   for (const key of ['storyId', 'lane', 'priorPassRef', 'priorReviewRunId', 'priorEnvelopeId']) {
@@ -735,7 +781,7 @@ export function validateFullTaskContext(value: unknown): asserts value is FullTa
     ['materialHash', 'storyFilesHash', 'scopeContractDigest', 'scope'],
     'FullTaskContext',
   );
-  if (record.schemaVersion !== 'proofbound.full-task-context.v1') {
+  if (!isCurrentOrLegacy(record.schemaVersion, FULL_TASK_CONTEXT_SCHEMA, FULL_TASK_CONTEXT_SCHEMA_LEGACY)) {
     throw new PromptContractValidationError('FullTaskContext.schemaVersion is unsupported');
   }
   for (const key of ['storyId', 'title', 'description', 'phase', 'priority', 'headHash']) {

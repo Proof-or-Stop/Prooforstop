@@ -1,0 +1,23 @@
+{
+  "task": "Route missing PRE_CERT inventory recovery directly to TEST-safe finalization in done_prepare and certification-window blockers.",
+  "outcome": "When TEST lacks a PRE_CERT inventory receipt, the terminal output says Next: proof-or-stop review_inventory_finalize --storyId=B-xxxx, so the operator can finalize the bounded inventory and retry without returning to DEV or starting another REVIEW round.",
+  "facts": [
+    "done_required_validate invokes the shared refuseHeavyCertificationUnlessAdmitted choke before heavy validation",
+    "the choke exception includes a rendered certification-window Next command",
+    "done_prepare parseValidateOutput currently ignores refusalReasons and always reuses the done_required_validate command",
+    "certification-window status projection already maps missing inventory blockers to review_inventory_finalize"
+  ],
+  "constraints": [
+    "preserve fail-closed PRE_CERT behavior",
+    "do not treat inventory completeness as TEST authority",
+    "keep the recovery path inside TEST",
+    "add focused regression coverage without editing fixtures"
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/done-prepare.ts",
+    "packages/main/src/core/certification-window.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts"
+  ],
+  "timestamp": "2026-08-25T19:32:29.685Z"
+}

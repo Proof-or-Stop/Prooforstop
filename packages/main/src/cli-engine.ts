@@ -7,6 +7,7 @@
  * and handlers.
  */
 
+import { validateExternalCommandDeclarations, validateExternalCommandHandlers } from './cli/extension-admission.js';
 import { z, type ZodType } from 'zod';
 import { existsSync, realpathSync } from 'fs';
 import {
@@ -31,11 +32,7 @@ import { detectStaleState } from './core/stale-detector.js';
 import { runHooks, truncateForEnv, buildHookEnv as buildSharedHookEnv, HOOK_TIMEOUT_MS } from './core/hooks.js';
 import { isGitRepository } from './core/git-probe.js';
 import { getGuardFailureReason } from './core/machine.js';
-import {
-  formatProofOrStopVersionLine,
-  detectProofOrStopBrand,
-  PROOF_OR_STOP_BIN_NAMES,
-} from './core/proof-or-stop-brand.js';
+import { detectProofOrStopBrand, formatProofOrStopVersionLine } from './core/proof-or-stop-brand.js';
 import { PROOF_OR_STOP_DIR } from './core/proof-or-stop-paths.js';
 import { renderChecklistDerivedLedger, CHECKLIST_DERIVED_HEADER } from './core/milestone-status.js';
 import { wantsFullOutput } from './cli/output-verbosity.js';
@@ -50,13 +47,7 @@ import {
   resolveActivitySource,
   shouldWriteActivityLog,
 } from './cli/activity-policy.js';
-import {
-  ownerLeaseHelpBlock,
-  storyIdFromArgs,
-  enforceRetiredRootGuard,
-  enforceStoryOwnerLeaseGate,
-  resolveEffectiveOwnershipClass,
-} from './cli/ownership-gate.js';
+import { enforceRetiredRootGuard, enforceStoryOwnerLeaseGate, ownerLeaseHelpBlock, resolveEffectiveOwnershipClass, storyIdFromArgs } from './cli/ownership-gate.js';
 import { enforceReviewerReadOnlyCommandGate } from './cli/reviewer-readonly-gate.js';
 import {
   resolveMainRootFromWorktreeRoot,
@@ -69,11 +60,7 @@ import {
   printToolHelp,
   printValidationFailure,
 } from './cli/help-renderer.js';
-import { normalizeNestedSpaceAlias } from './cli/alias-normalizer.js';
-import {
-  validateExternalCommandDeclarations,
-  validateExternalCommandHandlers,
-} from './cli/extension-admission.js';
+import { normalizeNestedSpaceAlias, STRIPPABLE_BIN_TOKENS } from './cli/alias-normalizer.js';
 import { commitInitCheckMetadataAndMergeMain } from './cli/init-check-metadata-sync.js';
 import { dispatchRecoverEvidenceWithStructuredFailure } from './cli/recover-evidence-dispatch.js';
 import { dispatchUsageSweepAlertWithExit } from './handlers/usage-sweep.js';
@@ -302,6 +289,7 @@ export function enforceExperimentArmRetrievalGate(cmd: string, root: string): vo
  * name: 'gap_analyze'
  * name: 'gap_log'
  * name: 'global_control_status'
+ * name: 'graph'
  * name: 'grill_close'
  * name: 'grill_get'
  * name: 'grill_record'
@@ -763,8 +751,8 @@ export async function runCli(opts?: {
     cmd = normalizedAlias.canonicalAlias!;
     arg = argv[1];
     // B-cdf6 CHK-002: forgive a pasted redundant bin token under EITHER name,
-    // so `proof-or-stop proof-or-stop --version` behaves like `proof-or-stop proofOrStop --version`.
-  } else if (PROOF_OR_STOP_BIN_NAMES.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
+    // so `proof-or-stop proof-or-stop --version` behaves like `lattice lattice --version`.
+  } else if (STRIPPABLE_BIN_TOKENS.includes(cmd) && (argv[1] === 'version' || argv[1] === '--version' || argv[1] === '-v')) {
     argv.splice(0, argv.length, 'version');
     cmd = 'version';
     arg = undefined;

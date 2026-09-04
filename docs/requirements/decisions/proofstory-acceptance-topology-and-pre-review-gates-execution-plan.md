@@ -1270,6 +1270,28 @@ Rules:
    topology, frozen planned-path declaration, or discovery inputs requires basis
    recomputation. Rebinding an old path inventory or declaration projection to a
    new hash is forbidden.
+10. **Ordering: regenerate the coverage basis BEFORE issuing `pre_review_check`,
+    never after.** `pre_review_check` snapshots the plan basis digest into
+    `priorPlanBasisDigest` at issue time, and the next recomputation compares it
+    against the current plan basis by RAW `basisDigest`
+    (`core/pre-review-check.ts`, the `PR_COVERAGE_BASIS_CHANGED` check). Because
+    `basisDigest` covers `binding` (headHash/materialHash/storyFilesHash) and
+    `receiptRef`, a further `acceptance_basis_generate` that changes NO acceptance
+    semantics still moves that digest, so a genuine PASS decays to
+    `PR_COVERAGE_BASIS_CHANGED` (usually alongside `PR_ARTIFACT_TAMPERED`) with no
+    material drift and an unchanged `storyFilesHash`. This is a hazard for the
+    operator, not a code defect: failing closed is correct per Rule 3's
+    "never a silent pass" (Rule 9 governs coverage-basis freshness, not this
+    rule). Recovery requires reissuing `pre_review_check`, which
+    is a DEV-only writer — so a story that hits this in REVIEW cannot self-repair
+    and must return to DEV. Note the codebase has a purpose-built
+    `acceptanceCoverageBasisSemanticDigest` (strips `basisDigest`/`binding`/
+    `receiptRef`) used by `verifyAcceptanceBasisReceipt` to detect exactly this
+    hash-only rebinding; wiring it into the `PR_COVERAGE_BASIS_CHANGED` comparison
+    would need a persisted semantic digest, since `priorPlanBasisDigest` stores
+    only the raw hash. Discovered empirically on B-45a0 (F-431/F-432/F-433/F-435),
+    where two convergence regenerations 82 seconds after a signed PASS silently
+    invalidated it.
 
 ## 10. Applicability and compatibility
 
@@ -1597,6 +1619,10 @@ Implemented contract:
   `acceptance_rollout_report_read` and `acceptance_rollout_check` are read-only.
   DEV→REVIEW consumes the same evaluator. Observe, warn, and enforce keep the
   same status and ordered diagnostics; only enforce blocks.
+- This repository opts into that blocking boundary with
+  `proofStory.acceptanceRolloutGateMode=enforce`; therefore its current signed,
+  promotable full-3×2 report is lifecycle authority rather than diagnostic-only
+  review evidence.
 - Rollback changes only `proofStory.acceptanceRolloutGateMode` to `warn` or
   `observe`. It never deletes or rewrites a report, receipt, failed attempt, or
   prior evidence.

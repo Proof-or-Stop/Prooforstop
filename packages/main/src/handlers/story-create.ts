@@ -20,6 +20,7 @@ import type { ScopeFreezeTextSource } from '../core/types.js';
 import { evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import {
   assertEnglishAuthoringText,
+  checklistEnglishAuthoringFields,
   type EnglishAuthoringTextSource,
 } from './english-artifact-gate.js';
 import {
@@ -364,11 +365,8 @@ function storyCreateAuthoringFields(args: {
     });
   }
   if (Array.isArray(args.checklist)) {
-    args.checklist.forEach((item: { title?: unknown; context?: unknown; userSees?: unknown }, index: number) => {
-      const itemRef = `checklist[${index + 1}]`;
-      fields.push({ field: `${itemRef}.title`, text: item?.title });
-      fields.push({ field: `${itemRef}.context`, text: item?.context });
-      fields.push({ field: `${itemRef}.userSees`, text: item?.userSees });
+    args.checklist.forEach((item, index) => {
+      fields.push(...checklistEnglishAuthoringFields(item, `checklist[${index + 1}]`));
     });
   }
   return fields;
@@ -1174,10 +1172,10 @@ export function createStoryCreateHandlers(ctx: HandlerContext) {
         const initReviewHint =
           `\n\n→ Now please spawn two INIT reviewers in parallel:\n` +
           `  · Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`Review the initial background + checklist of story ${storyId} (run proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}' to get the standard prompt)\` })\n` +
-          `  · Agent({ subagent_type: "product-reviewer", prompt: \`Run proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}' to get the standard prompt; whether pass/fail, must call init_check_set, agentId must be exactly product-reviewer\` })\n` +
+          `  · Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: \`Run proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}' to get the standard prompt; whether pass/fail, must call init_check_set, agentId must be exactly proof-or-stop-product-reviewer\` })\n` +
           `  · Do not have the main agent self-invoke proof-or-stop init_check_set (the CLI does not mechanically validate agentId, but the reviewer template fresh-context fence + CLAUDE.md behavior rules require invocation by an independent subagent—main agent self-invocation effectively bypasses the reviewer, violating the anti-self-absolution convention)\n` +
           `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
-          `  · INIT_CHECK gate requires both proof-or-stop-review-story-init and product-reviewer to have persisted via init_check_set; critical/high issues will block advancement\n` +
+          `  · INIT_CHECK gate requires both proof-or-stop-review-story-init and proof-or-stop-product-reviewer to have persisted via init_check_set; critical/high issues will block advancement\n` +
           `  · Before story_advance, run proof-or-stop init_preflight --storyId=${storyId}; it is read-only, writes no evidence, and creates no worktree\n` +
           `  · After init_preflight reports READY, call proof-or-stop story_advance '{"storyId":"${storyId}","phase":"INIT_CHECK"}' to enter INIT_CHECK`;
         const nonGitHint = !isGitRepository(ctx.root)

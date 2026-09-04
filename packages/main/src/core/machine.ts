@@ -9,7 +9,7 @@ import { resolveAuditConfig } from './audit-config.js';
 import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
 import { safeReadScopeContract } from './proof-or-stop-parallel-wave.js';
 import { TERMINAL_PHASES } from './parallel-policy.js';
-import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, describeInitCheckSignatureDomain, initCheckSignatureIsValid, missingRequiredInitCheckAgents } from './init-check-gate.js';
+import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, initCheckSignatureIsValid, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
@@ -19,7 +19,7 @@ import { isTerminalChecklistStatus } from './checklist-status.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
-import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { computeActiveReviewers, computeFinalReviewRoster } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { isFindingBlocking } from './advisory.js';
 import { evaluateReviewMintStallAdjudication, type StallAdjudication } from './review-convergence.js';
@@ -57,7 +57,9 @@ import {
   renderRedEvidenceQuarantineNotice,
 } from './red-evidence-artifact-validation.js';
 import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
+import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
 import { readDevMemoryFinishDecision } from './playbook-runtime-memory.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -229,11 +231,12 @@ function initPreflightGuidance(storyId: string): string {
 
 function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
   const dispatches = missingAgents.map(agentId => {
-    if (agentId === 'proof-or-stop-review-story-init') {
+    const canonicalAgentId = canonicalAgentRoleId(agentId);
+    if (canonicalAgentId === 'proof-or-stop-review-story-init') {
       return `   Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}'\` })`;
     }
-    if (agentId === 'product-reviewer') {
-      return `   Agent({ subagent_type: "product-reviewer", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}'\` })`;
+    if (canonicalAgentId === 'proof-or-stop-product-reviewer') {
+      return `   Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}'\` })`;
     }
     throw new Error(`unsupported required INIT reviewer: ${agentId}`);
   });
@@ -770,17 +773,32 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
 
 /**
  * F-006: the ROLLBACK doors REVIEW→DEV and TEST→DEV ("rework" via story_advance DEV). These are
- * NOT subject to the review/express gates (a rollback must not re-demand a clean review), but they
- * ARE doors into DEV, so they must enforce the SAME ProofStory DEV admission gate and parallel
- * hard-block used by PLAN/INIT_CHECK DEV entry.
+ * do not re-demand a clean final review, but REVIEW→DEV now requires the signed
+ * frozen-inventory saturation receipt that authorizes one aggregated remediation. Both doors
+ * ARE doors into DEV, so they also enforce the SAME ProofStory DEV admission gate and parallel
+ * hard-block used by PLAN/INIT_CHECK DEV entry. Inventory authority is the
+ * exception to the legacy rollback fail-open rule: unreadable/invalid inventory
+ * evidence fails closed before entering the legacy rollback gates.
  * Returns true to ALLOW re-entry, false to refuse. FAIL-OPEN: any infra error → allow (a rollback
  * must never be stranded by a gate/config error), via proofStoryDevGateFailure,
  * parallelDevEntryBlock, and the outer catch.
  */
 export function canReenterDevGuard(context: StoryMachineContext): boolean {
+  let inventoryStory: StoryInfo | undefined;
+  try {
+    inventoryStory = context.store.readStory(context.storyId);
+    if (inventoryStory.phase === 'REVIEW') {
+      const inventory = reviewInventoryRemediationGate(
+        context.store, context.storyId, inventoryStory.currentReviewRound,
+      );
+      if (!inventory.ok) return false;
+    }
+  } catch {
+    if (inventoryStory?.phase === 'REVIEW') return false;
+  }
   try {
     const config = loadConfig(context.projectRoot);
-    const story = context.store.readStory(context.storyId);
+    const story = inventoryStory ?? context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
     // B-a7c5 CHK-001: a rollback (REVIEW/TEST→DEV) is ALSO a door into DEV. The ack
     // persists for the story's whole lifetime once written by the first PLAN/INIT_CHECK
@@ -856,9 +874,11 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
     if (policy.review.requireReviewerFinding) {
       const currentRoundReviewerEvidence = evidenceState.valid.map((e) => ({ agent: e.agent, kind: e.kind }));
 
-      const { roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
-      if (roundCount <= 1) {
-        // Round 1: require findings from every opt-in reviewer (same source as reviewer_list).
+      {
+        // The former round-2+ single-receipt shortcut could call one lane sufficient
+        // after remediation changed material. Consume only the current signed
+        // canonical impact closure; unknown impact fails closed to all active lanes.
+        // Round number alone never narrows the required set.
         let checklist: { items: unknown[] } = { items: [] };
         try { checklist = context.store.readChecklist(context.storyId); } catch {}
         let decision = null;
@@ -866,7 +886,13 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
         const understanding = context.store.readUnderstanding(context.storyId);
         const touchpoints = understanding?.touchpoints
           ?? detectMdTouchpointsFromGit(context.projectRoot ?? process.cwd());
-        const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
+        const active = computeActiveReviewers(story, checklist, decision, touchpoints);
+        const optIn = computeFinalReviewRoster(
+          context.store,
+          context.projectRoot ?? process.cwd(),
+          context.storyId,
+          active,
+        ).requiredReviewers;
         const missing = optIn.filter(reviewer => !currentRoundReviewerEvidence.some(
           e => findingAgentMatchesReviewer(e.agent, reviewer.name),
         ));
@@ -896,11 +922,6 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
         });
         if (!quorum.ok) {
           return { ok: false, code: 'review_quorum', message: quorum.blocking.join('; ') };
-        }
-      } else {
-        // Round 2+: require at least 1 reviewer finding or pass receipt
-        if (currentRoundReviewerEvidence.length === 0) {
-          return { ok: false, code: 'review_evidence_missing', message: `Round ${roundCount} has no current reviewer finding/pass` };
         }
       }
     }
@@ -1218,20 +1239,14 @@ export function getGuardFailureReason(
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
         `→ Preferred: spawn an independent reviewer\n` +
         `   Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}'\` })\n` +
-        `   and have product-reviewer call init_check_set as well.\n` +
+        `   and have proof-or-stop-product-reviewer call init_check_set as well.\n` +
         `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   proof-or-stop init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
-    // Same snapshot discipline as canEnterInitCheckGuard: judge the record that was read,
-    // through the one shared trust predicate (B-8df9 CHK-003).
-    if (!initCheckSignatureIsValid(storyId, store, projectRoot ?? process.cwd(), initCheck)) {
-      // The signed components are RENDERED from the domain declaration
-      // (INIT_CHECK_SIGNATURE_DOMAIN), never restated here: a hand-written list would
-      // go stale the next time the domain moves and send the reader to debug fields
-      // nobody touched — which is exactly what happened before B-8df9 CHK-002 widened
-      // the domain to cover the reviewer verdict.
-      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch — one of the signed components changed after signing (signed: ${describeInitCheckSignatureDomain()}); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
+    const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
+    if (initCheck._hash !== expected) {
+      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (background/title/description/checklist were modified); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
     }
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {
@@ -1280,6 +1295,18 @@ export function getGuardFailureReason(
     // re-demand a clean review (canReenterDevGuard applies ONLY the parallel check), so the review
     // block must be skipped for those phases too, leaving the parallel reason to render below.
     const isRollbackDoor = story.phase === 'REVIEW' || story.phase === 'TEST';
+    if (story.phase === 'REVIEW') {
+      try {
+        const inventory = reviewInventoryRemediationGate(store, storyId, story.currentReviewRound);
+        if (!inventory.ok) {
+          return `Cannot enter remediation DEV: ${inventory.reason}. ` +
+            `Next: ${inventory.nextCommand ?? `proof-or-stop review_inventory_status --storyId=${storyId}`}`;
+        }
+      } catch (error) {
+        return `Cannot enter remediation DEV: inventory evidence is unreadable or invalid (${error instanceof Error ? error.message : String(error)}). ` +
+          `Next: proof-or-stop review_inventory_status --storyId=${storyId}`;
+      }
+    }
     let tookExpressChannel = false;
     if (story.phase === 'INIT_CHECK') {
       // Express channel failure reasons — read WorkflowPolicy

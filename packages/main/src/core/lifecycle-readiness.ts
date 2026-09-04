@@ -12,6 +12,7 @@ import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { evaluateReviewerQuorum, type ReviewerEvidenceEntry } from './reviewer-quorum.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 import type { StoryStore } from './store.js';
 import type { Finding, StoryPhase, VerificationEvidence } from './types.js';
 
@@ -120,8 +121,15 @@ function targetRank(target: LifecycleReadinessTarget): number {
   return PHASE_RANK[target];
 }
 
-function rollbackToDevCommand(storyId: string): string {
-  return `proof-or-stop story_advance '{"storyId":"${storyId}","phase":"DEV"}'`;
+function reviewRemediationCommand(store: StoryStore, storyId: string): string {
+  try {
+    const latest = store.readReviewInventoryEpochs(storyId).epochs.at(-1);
+    if (latest?.state === 'OPEN') return `proof-or-stop review_inventory_status --storyId=${storyId}`;
+    if (latest?.state === 'FINALIZED' && !latest.consumedAt) {
+      return `proof-or-stop story_advance '{"storyId":"${storyId}","phase":"DEV"}'`;
+    }
+  } catch { /* begin is the fail-closed recovery for missing/unreadable inventory */ }
+  return `proof-or-stop review_inventory_begin --storyId=${storyId}`;
 }
 
 function storyAdvanceCommand(storyId: string, phase: LifecycleReadinessTarget): string {
@@ -208,7 +216,7 @@ function activeReviewersForStory(store: StoryStore, storyId: string, projectRoot
 }
 
 function reviewerLane(name: string): string {
-  return name.startsWith('proof-or-stop-review-') ? name : `proof-or-stop-review-${name}`;
+  return canonicalAgentRoleId(name.startsWith('proof-or-stop-review-') ? name : `proof-or-stop-review-${name}`);
 }
 
 function reviewerRunStartCommand(storyId: string, lane: string): string {
@@ -369,7 +377,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
         category: 'blocking',
         code: 'open_review_loop',
         reason: `${openLoops.length} review loop(s) are still open`,
-        nextCommand: rollbackToDevCommand(storyId),
+        nextCommand: reviewRemediationCommand(store, storyId),
       }));
     }
   } catch (err) {
@@ -414,7 +422,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       category: 'stale',
       code: 'invalid_review_run_binding',
       reason: evidenceState.invalid.slice(0, 3).map((issue) => issue.message).join('; '),
-      nextCommand: rollbackToDevCommand(storyId),
+      nextCommand: reviewRemediationCommand(store, storyId),
     }));
   }
 
@@ -425,8 +433,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       kind: record.kind,
       signatureValid: record.signatureValid,
     }));
-    if (roundCount <= 1) {
-      const activeReviewers = activeReviewersForStory(store, storyId, projectRoot);
+    const activeReviewers = activeReviewersForStory(store, storyId, projectRoot);
       const missing = activeReviewers.filter((reviewer) => !currentRoundReviewerEvidence.some(
         (evidence) => findingAgentMatchesReviewer(evidence.agent, reviewer.name),
       ));
@@ -474,7 +481,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
           category: 'blocking',
           code: 'reviewer_quorum_not_met',
           reason: `Round ${roundCount} reviewer quorum not met: ${quorum.blocking.slice(0, 3).join('; ')}`,
-          nextCommand: rollbackToDevCommand(storyId),
+          nextCommand: reviewRemediationCommand(store, storyId),
         }));
       } else if (quorum.warnings.length > 0) {
         rows.push(row({
@@ -501,31 +508,6 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
           blocking: false,
         }));
       }
-    } else if (currentRoundReviewerEvidence.length === 0) {
-      rows.push(row({
-        id: 'review.current_round_evidence',
-        status: 'blocked',
-        source: 'review',
-        sourceRef: 'findings.json + review-passes.json',
-        owner: 'reviewer',
-        category: 'missing',
-        code: 'missing_current_round_review_evidence',
-        reason: `Round ${roundCount} requires at least one valid current-round reviewer finding or review pass`,
-        nextCommand: `proof-or-stop reviewer_list '{"storyId":"${storyId}"}'`,
-      }));
-    } else {
-      rows.push(row({
-        id: 'review.current_round_evidence',
-        status: 'pass',
-        source: 'review',
-        sourceRef: 'findings.json + review-passes.json',
-        owner: 'reviewer',
-        category: 'advisory',
-        code: 'current_round_review_evidence_present',
-        reason: `Round ${roundCount} has ${currentRoundReviewerEvidence.length} valid reviewer evidence record(s)`,
-        blocking: false,
-      }));
-    }
   }
 
   const blockingFindings = evidenceState.valid
@@ -542,7 +524,7 @@ function buildReviewGateRows(store: StoryStore, storyId: string, projectRoot: st
       category: 'blocking',
       code: 'open_blocking_review_finding',
       reason: `${blockingFindings.length} blocking finding(s) open (Round ${roundCount}, blocking: ${severities.join('/')})`,
-      nextCommand: rollbackToDevCommand(storyId),
+      nextCommand: reviewRemediationCommand(store, storyId),
     }));
   } else {
     rows.push(row({

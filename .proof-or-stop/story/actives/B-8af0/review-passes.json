@@ -1,0 +1,332 @@
+{
+  "passes": [
+    {
+      "id": "B-8af0:RP-001",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed all B-8af0 diffs and the full review-inventory decision. The replacement keeps changedPaths as ranking-only input, canonically binds selected path plus contentHash, and classifies invalid persisted candidate artifacts fail-closed. Concept residue scan found no actionable stale concept.",
+      "createdAt": "2026-08-20T11:13:25.103Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-001",
+      "envelopeId": "0956303379beb6d76d891bf16db602e18e4dc438a39313acfd0dfc006c0b52fa",
+      "writerSessionId": "sess-7910df854ed25d48b9951940c9ba8e0f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "887112e3b5c8a0ec736b6295a64c41f57a9d10ce511710812006cfa9d208e346"
+    },
+    {
+      "id": "B-8af0:RP-002",
+      "agent": "lattice-review-concept",
+      "note": "Fresh frozen-wave concept review found no new concept-residue blocker. The only legacy BUG-F107 reference is a historical follow-up cross-reference plus the explicit B-8af0 closure; all live behavior and docs use the canonical ordering and invalid-artifact terms.",
+      "createdAt": "2026-08-20T11:18:39.602Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-005",
+      "envelopeId": "5bb0a44c60f582b83abe44509e1f4149099304a59bb8873ece653a5bfc4ba2f4",
+      "writerSessionId": "sess-7910df854ed25d48b9951940c9ba8e0f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "B-3f3d-FOLLOWUP-STORIES.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "40bcd9e7ac179e2da34f9b3f292d7bde27062c057ae062ca076e5a533cadbd90"
+    },
+    {
+      "id": "B-8af0:RP-003",
+      "agent": "lattice-review-concept",
+      "note": "Wave 2 concept review found no new verified finding family beyond the already recorded malformed-artifact pre-begin and selected-path coverage gaps. The historical BUG-F107 reference is explanatory only; live terminology and barrier behavior remain consistent.",
+      "createdAt": "2026-08-20T11:26:21.749Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-010",
+      "envelopeId": "ebcc4da0d952b3a77036fb7011a473f25f614b6e6c5bdc0812c1c2f730d8bbae",
+      "writerSessionId": "sess-7910df854ed25d48b9951940c9ba8e0f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "B-3f3d-FOLLOWUP-STORIES.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c2e8acbfae78e25ac1c39e1fd9d556b84443e2bbd8baa99e54d0d43384280d1c"
+    },
+    {
+      "id": "B-8af0:RP-004",
+      "agent": "lattice-review-test-coverage",
+      "note": "Saturation wave 2 coverage review found no new family: all 10 must intents retain mechanically recorded evidence; the only gaps remain the already-classified pre-begin malformed-artifact and selected-path mutation coverage families.",
+      "createdAt": "2026-08-20T11:26:38.250Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-012",
+      "envelopeId": "845553f763b4a60e4747aec3372a46d1c942efb03a30830c6cbf10d55d6cbdcd",
+      "writerSessionId": "sess-3bfcf13c815bb20e1116d14eb4fbd9cb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c2659c35bd4e6d0c6c9d7daba127ef21e8cd18c0c42c253257e6ea7376d23e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "83ff12700a0b983e04353870561b8bc67783d8ed0d39a1180c93d602b1d28aab"
+    },
+    {
+      "id": "B-8af0:RP-005",
+      "agent": "lattice-review-quality",
+      "note": "Wave 2 quality review found no new independent family beyond the already-open pre-begin malformed-artifact and selected-path coverage findings.",
+      "createdAt": "2026-08-20T11:26:39.880Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-011",
+      "envelopeId": "2fef930ef58806bfdcc57320cc44c320d593faae74c9bc8bceaab0a5d13819ca",
+      "writerSessionId": "sess-ce1e4a32823650df10074d112e637d38",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "31c0f43f4bad266714bbf7f065c6801dea9ea35c3c03be6a761571c7b756503f"
+      },
+      "readDiagnostics": [],
+      "_hash": "9b47a824119d162dfe049ab02f1bab25058ea9d7cd744da504383494ec31e042"
+    },
+    {
+      "id": "B-8af0:RP-006",
+      "agent": "lattice-review-docs",
+      "note": "Wave 2 docs review extracted 10 changed declarations and compared the one referenced decision paragraph. It found no new verified documentation-code family beyond existing F-005; the retained documented immediate malformed-artifact promise is already recorded for remediation, so no duplicate finding is added.",
+      "createdAt": "2026-08-20T11:26:47.725Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-013",
+      "envelopeId": "f1b41d8a0d5caef5cf63786dd0f03dd0bf8c4839e92379e6e7510b4539d35524",
+      "writerSessionId": "sess-7910df854ed25d48b9951940c9ba8e0f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bb706adac2c0f3b5f110f35156a833a843f8bb70338ce1c95dbea6495afecf91"
+    },
+    {
+      "id": "B-8af0:RP-007",
+      "agent": "lattice-review-topology-critic",
+      "note": "RI-001 saturation wave 2 completeness review found no new raw finding family in the required lanes; prior-wave families remain historical and require remediation, not a duplicate wave-2 finding.",
+      "createdAt": "2026-08-20T11:27:03.729Z",
+      "reviewRound": "2026-08-20T11:11:04.601Z",
+      "reviewRunId": "B-8af0:RR-014",
+      "envelopeId": "598502164bc08f7a571ef908a40d3053233ce1035b95b62769b2810bf1d54f25",
+      "writerSessionId": "sess-0789c45360d7c3c9b1e5074eedd5e14f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "07513e1a2bb20d2716a09126d885d8301a8dc7d57273f57a5a36fb56ac45cc41"
+    },
+    {
+      "id": "B-8af0:RP-008",
+      "agent": "lattice-review-concept",
+      "note": "Reviewed the full current diff. A malformed persisted artifact now creates a signed INVALIDATED epoch with the stable blocker and terminal run boundary in the same write; it never grants an OPEN inventory or accepts review evidence. Existing cancellation/rebegin semantics remain explicit, and no concept-residue or new blocker was found.",
+      "createdAt": "2026-08-20T12:01:19.686Z",
+      "reviewRound": "2026-08-20T12:00:08.932Z",
+      "reviewRunId": "B-8af0:RR-015",
+      "envelopeId": "a4f0f6e6bc1ed309000a155aa0d6991d8d249f7bcfe1fbc2dc76968d17f01a8c",
+      "writerSessionId": "sess-7910df854ed25d48b9951940c9ba8e0f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "B-3f3d-FOLLOWUP-STORIES.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "04391ce43a00cb191df7383e73b2a414dbda5e61642f8fad9efefb219ea911f3"
+    },
+    {
+      "id": "B-8af0:RP-009",
+      "agent": "lattice-review-docs",
+      "note": "Reviewed the 10 changed declarations and one relevant decision paragraph. F-005 is now delivered: review_inventory_begin writes a signed INVALIDATED epoch with OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT in the same transaction, renders it directly, and the string/object pre-begin fixture verifies durable no-OPEN behavior. No docs-code drift remains.",
+      "createdAt": "2026-08-20T12:01:46.642Z",
+      "reviewRound": "2026-08-20T12:00:08.932Z",
+      "reviewRunId": "B-8af0:RR-018",
+      "envelopeId": "48e1479e0e0b772b34ee8ee09e598b23b838d9d40d4193d19b5641f5e526d715",
+      "writerSessionId": "sess-7910df854ed25d48b9951940c9ba8e0f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "95e96e45722f4cabf8f18b065a6795c564d123047ffcec5ba0d9c8000abe3e35"
+    },
+    {
+      "id": "B-8af0:RP-010",
+      "agent": "lattice-review-quality",
+      "note": "Reviewed remediation 49f7549: recomputed-digest string/object malformed candidates injected before begin atomically render and persist INVALIDATED with the stable blocker; real handler smoke passes without TypeError.",
+      "createdAt": "2026-08-20T12:03:22.266Z",
+      "reviewRound": "2026-08-20T12:00:08.932Z",
+      "reviewRunId": "B-8af0:RR-016",
+      "envelopeId": "a8ee542133cd39ba7e8f78906feb990ad55534eafddbfe6f758a2775784686b8",
+      "writerSessionId": "sess-ce1e4a32823650df10074d112e637d38",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "31c0f43f4bad266714bbf7f065c6801dea9ea35c3c03be6a761571c7b756503f"
+      },
+      "readDiagnostics": [],
+      "_hash": "df9c73ec21b3d45e2678ae886ec58d7355d04ab2d95f36f8b3383ad76025214f"
+    },
+    {
+      "id": "B-8af0:RP-011",
+      "agent": "lattice-review-test-coverage",
+      "note": "Coverage pass: current build real-handler smoke proves a structurally valid selected-path or contentHash mutation invalidates with OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION; recomputed artifactDigest, canonical reordering, and story-branch changedPaths-neutral reroute remain covered and pass.",
+      "createdAt": "2026-08-20T12:04:37.766Z",
+      "reviewRound": "2026-08-20T12:00:08.932Z",
+      "reviewRunId": "B-8af0:RR-017",
+      "envelopeId": "f85ccbeb78804bcee8533137b25b2c9359560244ec99f351e0a475f4180fd042",
+      "writerSessionId": "sess-3bfcf13c815bb20e1116d14eb4fbd9cb",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c2659c35bd4e6d0c6c9d7daba127ef21e8cd18c0c42c253257e6ea7376d23e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "32f60feeb1e2a6fbffeb0d6c3f4f827cc8656ad2963641d44ae89509d62c48a9"
+    }
+  ]
+}
