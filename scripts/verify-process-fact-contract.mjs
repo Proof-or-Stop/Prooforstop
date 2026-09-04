@@ -60,6 +60,8 @@ const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
 const flowFactPolicyPath = 'packages/main/src/core/flow-fact-policy.ts';
 const lifecycleRegistryPath = 'packages/main/src/core/lifecycle-registry.ts';
+const machinePath = 'packages/main/src/core/machine.ts';
+const doneOraclePath = 'packages/main/src/core/done-oracle.ts';
 const legacyTestFixtureCommands = [
   'test_auto',
   'test_story',
@@ -4796,7 +4798,7 @@ function parseProcessFactRegistry() {
   }
 
   const finalRegistryBody = extractExportedArrayBody(sourceText, 'PROCESS_FACT_REGISTRY');
-  for (const requiredSpread of ['COMMAND_PROCESS_FACTS', 'PROCESS_FACT_REVIEWER_LANES', 'PROCESS_FACT_ARTIFACTS', 'PROCESS_FACT_FLOW_POLICIES']) {
+  for (const requiredSpread of ['COMMAND_PROCESS_FACTS', 'PROCESS_FACT_REVIEWER_LANES', 'PROCESS_FACT_ARTIFACTS', 'PROCESS_FACT_FLOW_POLICIES', 'PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS']) {
     assert(
       finalRegistryBody.includes(`...${requiredSpread}`),
       `${processFactRegistryPath}: final PROCESS_FACT_REGISTRY export missing ...${requiredSpread}`,
@@ -4893,12 +4895,14 @@ function parseProcessFactRegistry() {
     rationale: entry.rationale,
   }));
   const closeoutTelemetryEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_CLOSEOUT_TELEMETRY');
+  const donePreflightConsumerEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS');
 
   cachedProcessFactRegistryEntries = [
     ...commandEntries,
     ...laneEntries,
     ...artifactEntries,
     ...flowPolicyEntries,
+    ...donePreflightConsumerEntries,
     ...closeoutTelemetryEntries,
   ];
   if (process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
@@ -4909,6 +4913,172 @@ function parseProcessFactRegistry() {
 
 function processFactRegistryMap() {
   return new Map(parseProcessFactRegistry().map(entry => [entry.name, entry]));
+}
+
+function parseDonePreflightPredicateInventory(sourceText) {
+  const body = extractExportedArrayBody(sourceText, 'DONE_PREFLIGHT_PREDICATE_INVENTORY');
+  return parseTopLevelObjectBlocks(body, `${processFactRegistryPath} DONE_PREFLIGHT_PREDICATE_INVENTORY`)
+    .map(block => ({
+      blockerCode: readStringProperty(block, 'blockerCode'),
+      processFactName: readStringProperty(block, 'processFactName'),
+      oracleRowId: readStringProperty(block, 'oracleRowId'),
+    }));
+}
+
+function collectLiteralDoneBlockerCodes(machineSource) {
+  const sourceFile = ts.createSourceFile(machinePath, machineSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const doneBranches = [];
+  const findDoneBranch = (node) => {
+    if (ts.isIfStatement(node)) {
+      const condition = node.expression.getText(sourceFile).replace(/\s+/g, '');
+      if (condition === "targetPhase==='DONE'" || condition === "'DONE'===targetPhase") {
+        doneBranches.push(node.thenStatement);
+      }
+    }
+    ts.forEachChild(node, findDoneBranch);
+  };
+  findDoneBranch(sourceFile);
+
+  if (doneBranches.length !== 1) {
+    return {
+      codes: new Set(),
+      errors: [`${machinePath}: expected exactly one targetPhase === 'DONE' branch, found ${doneBranches.length}`],
+    };
+  }
+
+  const codes = new Set();
+  const collectFromText = (text) => {
+    for (const match of text.matchAll(/\[([a-z][a-z0-9_]*)\]/g)) codes.add(match[1]);
+  };
+  const visitLiteral = (node) => {
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+      collectFromText(node.text);
+      return;
+    }
+    if (ts.isTemplateExpression(node)) {
+      collectFromText(node.head.text);
+      for (const span of node.templateSpans) {
+        visitLiteral(span.expression);
+        collectFromText(span.literal.text);
+      }
+      return;
+    }
+    ts.forEachChild(node, visitLiteral);
+  };
+  visitLiteral(doneBranches[0]);
+  return { codes, errors: [] };
+}
+
+function collectLiteralDoneOracleRowIds(doneOracleSource) {
+  const sourceFile = ts.createSourceFile(doneOraclePath, doneOracleSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const rowIds = new Set();
+  const visit = (node) => {
+    if (
+      ts.isPropertyAssignment(node)
+      && node.name.getText(sourceFile) === 'id'
+      && (ts.isStringLiteral(node.initializer) || ts.isNoSubstitutionTemplateLiteral(node.initializer))
+    ) {
+      rowIds.add(node.initializer.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return rowIds;
+}
+
+/**
+ * Pure contract checker shared by the real-source assertion and the in-memory
+ * future-predicate mutation proof below.
+ */
+function checkDonePreflightPredicateInventory({ machineSource, doneOracleSource, mappings, registry }) {
+  const errors = [];
+  const extracted = collectLiteralDoneBlockerCodes(machineSource);
+  errors.push(...extracted.errors);
+  const oracleRowIds = collectLiteralDoneOracleRowIds(doneOracleSource);
+  const byCode = new Map();
+
+  for (const mapping of mappings) {
+    if (!mapping.blockerCode || !mapping.processFactName || !mapping.oracleRowId) {
+      errors.push(`${processFactRegistryPath}: DONE preflight inventory entries require blockerCode, processFactName, and oracleRowId`);
+      continue;
+    }
+    if (byCode.has(mapping.blockerCode)) {
+      errors.push(`${processFactRegistryPath}: duplicate DONE blocker mapping for [${mapping.blockerCode}]`);
+      continue;
+    }
+    byCode.set(mapping.blockerCode, mapping);
+  }
+
+  for (const code of [...extracted.codes].sort()) {
+    if (!byCode.has(code)) {
+      errors.push(`${processFactRegistryPath}: literal DONE blocker [${code}] has no done-preflight mapping`);
+    }
+  }
+  for (const [code, mapping] of [...byCode.entries()].sort(([a], [b]) => a.localeCompare(b))) {
+    if (!extracted.codes.has(code)) {
+      errors.push(`${processFactRegistryPath}: DONE blocker mapping [${code}] is not a literal code in machine.ts's targetPhase DONE branch`);
+    }
+    const processFact = registry.get(mapping.processFactName);
+    if (!processFact) {
+      errors.push(`${processFactRegistryPath}: DONE blocker [${code}] maps to missing process fact ${mapping.processFactName}`);
+    } else {
+      if (processFact.level !== 'L4') {
+        errors.push(`${processFactRegistryPath}: DONE blocker [${code}] process fact ${mapping.processFactName} must stay L4`);
+      }
+      if (!processFact.semantics.includes('gate-evidence')) {
+        errors.push(`${processFactRegistryPath}: DONE blocker [${code}] process fact ${mapping.processFactName} must include gate-evidence`);
+      }
+    }
+    if (!oracleRowIds.has(mapping.oracleRowId)) {
+      errors.push(`${doneOraclePath}: DONE blocker [${code}] maps to missing oracle row ${mapping.oracleRowId}`);
+    }
+  }
+
+  return errors;
+}
+
+function assertDonePreflightPredicateInventoryParity() {
+  const failureCountBefore = failures.length;
+  const registrySource = read(processFactRegistryPath);
+  const machineSource = read(machinePath);
+  const doneOracleSource = read(doneOraclePath);
+  const mappings = parseDonePreflightPredicateInventory(registrySource);
+  const registry = processFactRegistryMap();
+  const errors = checkDonePreflightPredicateInventory({ machineSource, doneOracleSource, mappings, registry });
+  for (const error of errors) fail(error);
+
+  for (const factName of ['runtime:done_finish_decision_presence', 'runtime:done_phase_agnostic_reviewer_verdict']) {
+    const fact = registry.get(factName);
+    assert(fact?.level === 'L4', `${processFactRegistryPath}: ${factName} must be an L4 process fact`);
+    assert(fact?.consumerGate?.includes('storyMachine.canFinish DONE gate'), `${processFactRegistryPath}: ${factName} must name the real DONE consumer`);
+    assert(fact?.consumerGate?.includes('done_closure/done_prepare preflight'), `${processFactRegistryPath}: ${factName} must name the read-only done_prepare consumer`);
+  }
+  const reviewerFact = registry.get('runtime:done_phase_agnostic_reviewer_verdict');
+  assert(reviewerFact?.producer.includes('evaluateReviewVerdict'), `${processFactRegistryPath}: reviewer preflight fact must identify evaluateReviewVerdict`);
+  for (const token of ['phase-agnostic', 'Dynamic reviewer verdict codes', 'review_evidence_invalid', 'stale_closeout_review', 'never rebound or rewritten']) {
+    assert(reviewerFact?.rationale.includes(token), `${processFactRegistryPath}: reviewer preflight fact missing contract token ${JSON.stringify(token)}`);
+  }
+
+  const marker = "if (targetPhase === 'DONE') {";
+  assert(machineSource.includes(marker), `${machinePath}: mutation proof insertion point missing`);
+  const mutatedMachineSource = machineSource.replace(marker, `${marker}\n    void '[future_done_predicate]';`);
+  const mutationErrors = checkDonePreflightPredicateInventory({
+    machineSource: mutatedMachineSource,
+    doneOracleSource,
+    mappings,
+    registry,
+  });
+  assert(
+    mutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('no done-preflight mapping')),
+    'DONE preflight inventory mutation must reject an unmapped [future_done_predicate] through the production-source check function',
+  );
+
+  if (
+    failures.length === failureCountBefore
+    && mutationErrors.some(message => message.includes('[future_done_predicate]'))
+  ) {
+    console.log('DONE/preflight predicate inventory parity passed');
+  }
 }
 
 function extractCliToolNames(cliText) {
@@ -8112,6 +8282,7 @@ assertReopenAuditConcurrencyResidualContract();
 assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
 assertProcessFactCommandInventory();
+assertDonePreflightPredicateInventoryParity();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
 assertParentRoadmapIntentTotalityPlan();
@@ -8146,3 +8317,4 @@ if (failures.length) {
 
 console.log('');
 console.log('Process fact contract verified');
+console.log('Process-fact contract verification passed');

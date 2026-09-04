@@ -753,6 +753,19 @@ function assertFlowFactPolicyRegistry(): void {
   assert.equal(express?.kind, 'flow-policy');
   assert.equal(hasProcessFactSemantic('flow-policy:express-verification-policy', 'verification-policy'), true);
 
+  const finishDecision = getProcessFactRegistryEntry('runtime:done_finish_decision_presence');
+  assert.equal(finishDecision?.level, 'L4');
+  assert.match(finishDecision?.consumerGate ?? '', /storyMachine\.canFinish DONE gate/);
+  assert.match(finishDecision?.consumerGate ?? '', /done_closure\/done_prepare preflight/);
+  assert.equal(hasProcessFactSemantic('runtime:done_finish_decision_presence', 'blocker-state'), true);
+
+  const reviewerVerdict = getProcessFactRegistryEntry('runtime:done_phase_agnostic_reviewer_verdict');
+  assert.equal(reviewerVerdict?.level, 'L4');
+  assert.match(reviewerVerdict?.producer ?? '', /evaluateReviewVerdict/);
+  assert.match(reviewerVerdict?.consumerGate ?? '', /storyMachine\.canFinish DONE gate/);
+  assert.match(reviewerVerdict?.consumerGate ?? '', /done_closure\/done_prepare preflight/);
+  assert.equal(hasProcessFactSemantic('runtime:done_phase_agnostic_reviewer_verdict', 'freshness-policy'), true);
+
   assert.equal(
     isPassOnlyReviewFindingRecord({
       desc: 'PASS: docs consistency check PASSED.',
@@ -4343,6 +4356,26 @@ function assertDoneOracleSameSource(): void {
     /from '\.\.\/handlers\//,
     'core/done-oracle.ts must not import from any handlers/ module (core→handlers layer violation)',
   );
+  assert.match(
+    doneOracleImportLines,
+    /evaluateReviewVerdict.*from '\.\/machine\.js'/,
+    'DONE preflight must import the real phase-agnostic evaluateReviewVerdict predicate',
+  );
+  assert.match(
+    doneOracleImportLines,
+    /readDevMemoryFinishDecision.*from '\.\/playbook-runtime-memory\.js'/,
+    'DONE preflight must import the real finish-decision presence reader',
+  );
+  assert.match(
+    doneOracleSrc,
+    /const reviewVerdict = evaluateReviewVerdict\(\{[\s\S]*?id: 'review-verdict'/,
+    'DONE preflight review-verdict row must consume evaluateReviewVerdict directly',
+  );
+  assert.match(
+    doneOracleSrc,
+    /const finishDecision = readDevMemoryFinishDecision\(root, storyId\);[\s\S]*?id: 'dev-memory-finish-decision'/,
+    'DONE preflight finish-decision row must consume readDevMemoryFinishDecision directly',
+  );
 
   // --- 1 & 3. Behavioral same-source + regression baseline ---
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-oracle-same-source-'));
@@ -4437,6 +4470,11 @@ function assertDoneOracleSameSource(): void {
     const byId = new Map(gateRows.map(r => [r.id, r]));
     assert.equal(byId.get('test-evidence')?.status, 'pass', 'baseline: test-evidence passes');
     assert.equal(byId.get('bugs-fixed')?.status, 'pass', 'baseline: no bugs → pass');
+    assert.equal(byId.get('dev-memory-finish-decision')?.status, 'fail', 'baseline: missing finish decision fails preflight');
+    assert.match(byId.get('dev-memory-finish-decision')?.detail ?? '', /missing_dev_memory_finish_decision/);
+    assert.equal(byId.get('review-verdict')?.status, 'fail', 'baseline: reviewer runs without a pass fail the shared verdict');
+    assert.match(byId.get('review-verdict')?.detail ?? '', /review_evidence_missing/);
+    assert.equal(byId.get('review-verdict')?.source, 'review-runs.json + review-passes.json + findings.json');
     assert.equal(byId.get('delivery-check')?.status, 'fail', 'baseline: missing delivery-check → fail');
     assert.equal(byId.get('delivery-check')?.blocking, true, 'baseline: missing delivery-check is blocking');
     assert.equal(byId.get('story-summary')?.status, 'fail', 'baseline: missing summary → fail');

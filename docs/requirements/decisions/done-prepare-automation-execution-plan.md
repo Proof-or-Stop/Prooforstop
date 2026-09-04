@@ -148,6 +148,38 @@ Supported `dryRun` behavior:
 - report planned steps and blockers;
 - do not mutate git, evidence, version files, or build outputs.
 
+### DONE Predicate Parity Contract
+
+`done_prepare` and `done_closure` are read-only projections, but readiness must
+consume the same finish-decision presence predicate and the same phase-agnostic
+`evaluateReviewVerdict` result as the real TEST-to-DONE transition. A missing or
+malformed finish-decision record therefore reports
+`missing_dev_memory_finish_decision`. Invalid reviewer evidence keeps the
+established `stale_closeout_review` presentation only when the shared verdict
+code is `review_evidence_invalid`; every other reviewer verdict code is
+preserved. Inspection must never refresh, re-sign, rebind, or rewrite reviewer
+evidence.
+
+This parity is mechanically guarded. The process-fact registry inventories each
+literal machine-readable blocker code in `machine.ts`'s
+`targetPhase === 'DONE'` branch and maps it to both an L4 process fact and a
+literal `done-oracle.ts` row. The source-first contract verifier rejects a new
+literal DONE code until that mapping and row exist, and mutation-proves this
+behavior by inserting an unmapped `future_done_predicate` in memory. Dynamic
+codes returned by `evaluateReviewVerdict` remain covered by the shared
+`review-verdict` row and its explicit phase-agnostic process fact rather than by
+pretending that they are static literals.
+
+Defects found while maintaining this contract are triaged before scope changes.
+An applicable critical/high defect, safety or data-integrity risk, destructive
+compatibility break, acceptance blocker, or lifecycle-gate-truth defect is
+repaired in the current Story. An unrelated nonblocking medium/low defect does
+not widen the Story merely to obtain a globally green repository: retain its
+reproduction, evidence, impact, recommended treatment, and traceable
+finding/gap/backlog owner. Reassess it immediately and return it to the current
+Story if later evidence raises its severity or makes it acceptance- or
+gate-blocking; prose alone is not a deferral record.
+
 ## Execution Flow
 
 ### 1. Preflight
