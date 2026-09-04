@@ -417,6 +417,29 @@ function seedRecordedReceipts(env: Env, command: string, pinSelector: string, ro
 const PASS_TAIL = `${OLD_SELECTOR}\n${NEW_SELECTOR}\n${PLAN_ONLY_EXTRA}\n`;
 const FAIL_TAIL = `${OLD_SELECTOR}\n`;
 
+/**
+ * Commit the story metadata written by the preceding evidence call.
+ *
+ * B-5a15's causal execution key dedups on cwd + command + inputs + environment +
+ * storyFilesHash. Two renders of one pinned command must therefore differ in one of
+ * those or the second is refused as a duplicate of the first. The render-mode file
+ * cannot be the differentiator: it is material, and B-1482's narrowing proof requires
+ * both sides to share ONE recorded material binding (a narrowing is only proven by two
+ * verdicts of the same repo state). `storyFilesHash` is the remaining seam -- it is
+ * story metadata, excluded from materialHash by material-path-policy.ts, and it genuinely
+ * moves between the two calls because the first call records its own evidence. Committing
+ * that metadata makes the movement visible to the key without touching the material
+ * binding, so both receipts stay on one material state and the selector assertions here
+ * are unchanged.
+ */
+function commitStoryMetadata(root: string, label: string): void {
+  // Stage ONLY the story-metadata tree. `git add .` would also stage render-mode.txt,
+  // which is material -- moving the material binding and tripping B-1482's requirement
+  // that both sides of the proof share one recorded material state.
+  git(root, ['add', '.proof-or-stop']);
+  git(root, ['commit', '-m', `story metadata: ${label}`, '--allow-empty']);
+}
+
 /** Drive the real write path to the exact B-a745 corpus: one passing render, one failing render. */
 async function recordA745Corpus(): Promise<{ env: Env; command: string; modePath: string }> {
   const env = makeEnv([{ ref: 'INT-PASS', type: 'cli' }, { ref: 'INT-A745', type: 'cli' }]);
@@ -427,6 +450,7 @@ async function recordA745Corpus(): Promise<{ env: Env; command: string; modePath
     storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PASS', kind: 'integration_test',
     command, selector: OLD_SELECTOR, result: 'pass', note: 'recorded PASSING render of the pinned command',
   });
+  commitStoryMetadata(env.root, 'after the passing render');
   writeFileSync(modePath, 'stop\n');
   await env.handlers.verification_evidence_add({
     storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-A745', kind: 'integration_test',
@@ -910,6 +934,20 @@ const OVERCLAIM = 'mechanically excluded';
 interface CliResult { code: number; stdout: string; stderr: string }
 
 /** Run the REAL compiled CLI against a temp project root. */
+/**
+ * One session id for the whole suite.
+ *
+ * The owner lease seeded in makeEnv() is written under this process's session id, but
+ * runCli spawns the REAL CLI as a separate process whose ppid-derived id differs -- so
+ * the owner gate refused every CLI-path case as a non-owner ("verification_pin_narrow is
+ * an owner-gated storyScopedMutating command"). Pinning the id in this process and
+ * inheriting it into the subprocess makes both sides the same owner, which is what a real
+ * operator session is. It does not relax the gate: a lease is still required, and a
+ * different id is still refused.
+ */
+const SMOKE_SESSION_ID = 'b1482-narrowing-repin-smoke';
+process.env.PROOF_OR_STOP_SESSION_ID = SMOKE_SESSION_ID;
+
 function runCli(root: string, command: string, args: Record<string, unknown>): CliResult {
   try {
     const stdout = execFileSync(process.execPath, [CLI_PATH, command, JSON.stringify(args)], {
