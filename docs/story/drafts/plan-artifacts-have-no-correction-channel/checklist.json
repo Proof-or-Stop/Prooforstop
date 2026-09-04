@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Add an append-only corrections annotation to PLAN artifacts, allowed in DEV and REVIEW, that must cite a finding id",
+      "context": "The artifact itself stays frozen and its hash unchanged; the annotation is a sibling record carrying actor, head hash, phase and the cited finding. plan_get and understanding_get render annotations inline so a reader of the artifact alone sees the correction. Register the command across command-catalog, command-policy, config phase tools and process-fact-levels, since B-1482 established that registration needs all four.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Reconcile the project instructions with the command policy on plan.md freezing",
+      "context": "The instructions say plan.md is soft-frozen after DEV starts with changes justified in the commit message; plan_set's policy allows PLAN only, so that route does not exist. The policy is the one with a reason behind it, so the instructions should describe the annotation route instead.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Make the PLAN scope reviewer and the story description consumers read annotations",
+      "context": "On B-77e6 index.json's description, injected into every reviewer's task context, still framed the goal as a literal zero with no mention of two permanent exemptions. Whatever renders PLAN artifacts into reviewer context should include the annotations, or the correction stops one hop short of the readers it exists for.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Decide how an unreachable suite should be surfaced, and record why",
+      "context": "Three options with different costs. A gate that fails when a tasks-directory suite is in none of the three inventories is strongest but needs to separate deliberate non-registration from accidental omission, and an opt-out list is itself the curated thing that drifts. A report printed by the full-suite runner naming what it did not run is weaker but cannot be gamed and would have surfaced both suites immediately. Registering just these two fixes nothing structural.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Build the reachability check so that it is correct, not merely plausible",
+      "context": "npm test is node packages/main/dist/tasks/full-suite-runner.js, whose entries come from entriesFromSerialReference(serialReference, pkg.scripts) in packages/main/src/tasks/full-suite-runner.ts. Script names, task file stems and the names inside script bodies do not correspond one-to-one; a quick match on those produced a demonstrably wrong answer while this draft was being written, reporting suites as unregistered that are known to run. Resolve each script body to the file it actually executes rather than matching names, and prove the checker on suites known to be registered and known not to be.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Triage the two confirmed failures once they are reachable again",
+      "context": "evidence-plan-smoke asserts a line that renderEvidencePlanReport does not print, and candidate-spec-routing-smoke fails its collector-valid filesReadFully case; both reproduce from the main checkout's build. Each is either a real defect the suite was written to catch or a stale expectation, and which one it is cannot be decided from the fact that it has been red for a while.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

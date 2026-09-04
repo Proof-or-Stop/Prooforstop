@@ -1,0 +1,28 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Restore the executable mode on every emitted bin entry inside the build's locked critical section",
+      "context": "scripts/build-main-with-binding.mjs, after the atomic staging swap and before writeBuildBinding (see the comments at lines 28-32 for why that section is the atomic unit readers observe). Drive the path set from the bin map in packages/main/package.json rather than hardcoding dist/cli.js, so a second binary added later is covered.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Decide and record whether the build binding should cover file mode, since content-only hashing means a broken dist self-verifies",
+      "context": "scripts/full-suite-build-binding.mjs hashes relative path plus readFileSync content only; there is no statSync, no .mode and no chmod in the file. Recorded preference: assert executable mode on the verify path and keep mode out of the hash, because folding it in turns a permission problem into a content-identity problem, becomes sensitive to umask and platform, and would invalidate every existing binding at once against treeDigest's stated byte-identical continuity with the pre-B-1734 implementation. Whichever is chosen, state why, because chmod-on-build alone cannot repair an already-broken tree.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add a regression case that compiles and asserts the emitted entry is executable",
+      "context": "The case must force a genuine emit rather than hitting the content-hash fast path; one that lands on the fast path passes while testing nothing, which is a fail-open shape. Assert the mode of the emitted entry resolved through the bin map in packages/main/package.json, not a hardcoded dist/cli.js, or the case keeps passing after someone adds a second binary with the same defect.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

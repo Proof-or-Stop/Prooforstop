@@ -1,0 +1,15 @@
+{
+  "name": "machine-duplicate-proofstory-diagnostic-input",
+  "title": "core/machine.ts keeps a private copy of proofStoryDiagnosticInput that never resolves the story workspace",
+  "description": "packages/main/src/core/machine.ts around lines 156 to 186 has its own proofStoryDiagnosticInput and proofStoryDevGateFailure reading context.store and context.projectRoot directly, while packages/main/src/handlers/phase-gates.ts's copy now resolves the story workspace first after B-77e6. Same fact, two resolution strategies, and the audit fixture cannot see it because it scans handlers only. The machine copy sits on the REVIEW/TEST to DEV re-entry guard and is pinned by literal text in scripts/verify-process-fact-contract.mjs. Filed as B-77e6:F-007 and routed here because it is outside that story's scope contract.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "story-workspace",
+    "machine",
+    "proofstory",
+    "duplicate-owner",
+    "audit-scope"
+  ],
+  "createdAt": "2026-09-04T13:52:36.555Z"
+}
