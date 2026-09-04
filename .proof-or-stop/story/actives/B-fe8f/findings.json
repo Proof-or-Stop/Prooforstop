@@ -623,7 +623,7 @@
       "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1312-1317 — version-proof false failure after 9d44c9f980: assertVersionSync says later Stories may advance the repository patch, but still requires the globally installed CLI version to equal readSyncedVersion(repositoryRoot) from this behind Story worktree. On the current committed review state the worktree/local CLI is 0.3.274, global/main CLI is 0.3.275, and `node packages/main/dist/tasks/finding-ledger-runtime-smoke.js` exits 1 with `installed CLI version 0.3.275 differs from current 0.3.274` after all preceding Story 3 matrices pass. This makes the accepted version proof non-convergent under the normal later-main-bump condition it claims to support; retain the Git-derived proof that B-fe8f made exactly one patch bump, but do not require a behind worktree and the independently advancing installed main CLI to be identical.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-04T07:49:29.909Z",
@@ -631,7 +631,11 @@
       "reviewRunId": "B-fe8f:RR-067",
       "_hash": "5217b46a3bad4b1e3771b80bbbfe613a779fc97a00df53848aced8d85a4998bf",
       "signatureTag": "edge|unknown|packages-main-tasks",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by implementer commit 2c26dbe246e3634431ecba26cb6fa9615f2bc1cf and re-verified on the final Story file binding by mechanical receipt commit 5587bcb. The unchanged RED control still reports oldRuleRejects=true. The GREEN requires the repository-local CLI to equal the worktree version and independently binds the PATH global CLI realpath, npm-global @proof-or-stop/core package, bin target, and version to current main; its selector reports green.version_sync PASS with rootPackage, mainPackage, lockfile, runtimeConstant, localCli, and installedCli all true. Stale and mismatched global bindings remain rejected.",
+      "resolvedAt": "2026-09-04T12:55:48.948Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-031",
