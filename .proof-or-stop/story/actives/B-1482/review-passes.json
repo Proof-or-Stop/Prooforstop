@@ -123,6 +123,32 @@
         "scanEscalationReason": null
       },
       "_hash": "7ad3f22be0c6fa526931bc218dfad56fef9dbc034380a80b6a6cb2475f2a990c"
+    },
+    {
+      "id": "B-1482:RP-005",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 4 re-audit of all 11 intent sentences vs pinned cases: every clause of A1/A2/A3 (CHK-001), B1/B6/B9/B8 (CHK-002), C4/C3/C1/C2 (CHK-003) is exercised by an assertion that fails on violation, including the shared-helper calls inside B6/B8/C1/C4 that closed F-011/F-012/F-013-style gaps. Deletion-mutation corpus verified honest: all 4 quoted claim sentences occur exactly once per document (8/8 sentence x doc pairs); replaying assertDocumentationClaims against each single-sentence-deleted copy fails as required (8/8). Rebuilt the two newest REDs (F-021 d34a908f32, F-022 dc9876a609) in isolated detached temp worktrees from clean builds: both reproduce their documented RED failure exactly. All 11 verificationEvidence receipts are mechanical:true, selectorMatched:true, carry a selector byte-identical to the pinned verification.selector, and that selector is an exact whole printed line inside outputTail. Re-ran the live smoke suite at current HEAD; its 25 [PASS] lines + verdict are byte-identical to a recorded receipt outputTail, confirming freshness despite headHash drift from later metadata-only commits. No pinned selector can print while its sentence is violated: the harness only emits a case line after that case runs to completion without throwing, and every clause of every pinned sentence is covered by an assertion that throws on violation. No open finding; recording pass.",
+      "createdAt": "2026-09-04T01:14:41.956Z",
+      "reviewRound": "2026-09-04T01:04:08.380Z",
+      "reviewRunId": "B-1482:RR-010",
+      "envelopeId": "627e6c5b789af4d605832ef37abbc89ef6dccb09d740e1ddbe42b2a30e1c59e3",
+      "writerSessionId": "sess-295ee905ce444ed5da492ee21a195ba0",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          "CLAUDE.md#verification-intent--evidence-narrowing-only-re-pin",
+          "docs/requirements/decisions/narrowing-only-evidence-repin.md",
+          "packages/main/src/tasks/narrowing-repin-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-1482/background.md",
+          ".proof-or-stop/story/actives/B-1482/checklist.json",
+          ".proof-or-stop/story/actives/B-1482/plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e4cdba043ef20a1c2e8932e6ea8c62ae4c539405d17900913d0fa1fe8bc743a9"
     }
   ]
 }
