@@ -11,20 +11,20 @@
  * See B-c351 F-006 for the extraction rationale.
  */
 
+import { verifyFinding } from './finding-verify.js';
+import { isReviewerAgent } from './review-run.js';
+import { isFindingBlocking } from './advisory.js';
+import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
+import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
+import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import type { Finding } from './types.js';
 import { createActor } from 'xstate';
 import { createHash } from 'crypto';
 import type { StoryStore } from './store.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import { verifyFinding } from './finding-verify.js';
-import type { Finding } from './types.js';
-import { storyMachine, type StoryMachineContext } from './machine.js';
-import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
-import { isFindingBlocking } from './advisory.js';
+import { evaluateReviewVerdict, storyMachine, type StoryMachineContext } from './machine.js';
 import { isTerminalChecklistStatus } from './checklist-status.js';
-import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
-import { computeActiveReviewers } from '../handlers/reviewer-list.js';
-import { isReviewerAgent } from './review-run.js';
 
 /**
  * Resolve effective blocking severities with round decay.

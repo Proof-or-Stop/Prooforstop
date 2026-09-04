@@ -1,0 +1,69 @@
+<canvas id="cv"></canvas>
+<!-- D3/SVG mount; hidden until the engine takes over (see boot in app.js) -->
+<div id="glhost"></div>
+
+<div class="hud top">
+  <div class="srchcol">
+    <div class="srchrow">
+      <div class="srchbox">
+        <svg class="srchic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="6.6" cy="6.6" r="4.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M10.2 10.2 L14 14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        <input class="srch" id="q" type="search" autocomplete="off" spellcheck="false"
+          placeholder="Search every story, finding, intent, evidence command…" aria-label="Search all story data">
+        <kbd class="srchkbd" id="skbd">/</kbd>
+      </div>
+      <button class="themebtn" id="themeBtn" title="Switch between light and dark">
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="themeic sun"><circle cx="12" cy="12" r="4.6"/><path d="M12 2.5v2.2M12 19.3v2.2M4.6 4.6l1.6 1.6M17.8 17.8l1.6 1.6M2.5 12h2.2M19.3 12h2.2M4.6 19.4l1.6-1.6M17.8 6.2l1.6-1.6"/></svg>
+        <svg viewBox="0 0 24 24" aria-hidden="true" class="themeic moon"><path d="M20.5 14.3A8.5 8.5 0 1 1 9.7 3.5a7 7 0 0 0 10.8 10.8Z"/></svg>
+      </button>
+      <button class="filtbtn" id="filtBtn" aria-expanded="false" aria-controls="ctl"
+              title="Filter which phases are shown">
+        <svg viewBox="0 0 16 16" aria-hidden="true" class="filtic"><path d="M2 4h12M4.5 8h7M7 12h2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" fill="none"/></svg>
+        <span class="filtlabel">Filters</span>
+        <span class="filtcount" id="filtCount"></span>
+        <span class="filtcaret" aria-hidden="true">▾</span>
+      </button>
+    </div>
+    <div class="ctl" id="ctl" role="group" aria-label="Phase filters" hidden></div>
+    <div class="results" id="results" role="listbox" aria-label="Search results"></div>
+  </div>
+
+  <div class="brandcol">
+    <!-- Status BEFORE the title: this row is right-aligned, so a status whose
+         width changes (live / syncing / offline / detail failed) would otherwise
+         shove the title sideways on every state change. -->
+    <div class="titlerow"><span id="liveTag" class="livetag">connecting…</span><h1>Story Graph</h1></div>
+    <div class="sub"><b id="mN">…</b> stories &middot; <b id="mE">…</b> directed relations</div>
+  </div>
+</div>
+
+<div class="lgnd">
+  <div class="t">Edge direction</div>
+  <div class="row"><span>A &rarr; B means A builds on B</span></div>
+  <div class="t" style="margin-top:9px">Node size</div>
+  <div class="sz">
+    <i style="width:5px;height:5px"></i><i style="width:9px;height:9px"></i><i style="width:14px;height:14px"></i><i style="width:20px;height:20px"></i>
+    <span style="margin-left:4px">1 &rarr; 58 dependents</span>
+  </div>
+</div>
+
+<div class="hud bot">
+  <div class="tips">
+    <kbd>/</kbd> search &nbsp; <kbd>drag</kbd> orbit &nbsp; <kbd>scroll</kbd> zoom &nbsp; <kbd>shift+drag</kbd> pan &nbsp; <kbd>click</kbd> detail &nbsp; <kbd>right-click</kbd> reset view &nbsp; <kbd>esc</kbd> close<br>
+    <span id="hv">&nbsp;</span>
+  </div>
+
+</div>
+
+<div class="tip" id="tp"></div>
+
+<aside class="dr" id="dr" aria-live="polite">
+  <div class="dh">
+    <div class="r">
+      <div><div class="sidrow"><div class="sid mono" id="dId">&mdash;</div><span id="dossierSlot"></span></div><h3 id="dT">&mdash;</h3></div>
+      <button class="x" id="dX" aria-label="Close">&times;</button>
+    </div>
+    <div class="chips" id="dC"></div>
+  </div>
+  <div class="db" id="dB"></div>
+</aside>
+<div class="loading" id="boot">loading story graph…</div>

@@ -1,0 +1,685 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-5a88",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:32f21b9421b23d653883c5b03de0b3dc2f30f4ab5076f3facc6ddcac65eaa701",
+  "acceptanceBindings": [
+    {
+      "id": "B-5a88-AC-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002",
+        "CHK-003",
+        "CHK-004",
+        "CHK-005",
+        "CHK-006",
+        "CHK-007"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0",
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0",
+        "CHK-005:happy:0",
+        "CHK-005:edge:0",
+        "CHK-005:adversarial:0",
+        "CHK-006:happy:0",
+        "CHK-006:edge:0",
+        "CHK-006:adversarial:0",
+        "CHK-007:happy:0",
+        "CHK-007:edge:0",
+        "CHK-007:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "B-5a88 的 canonical proof-or-stop 身份由运行时、CLI 和 npm 产物使用，用户可观察到新名称，同时既有 lattice 记录仍可被正确读取。",
+      "note": "Canonical identity migration acceptance is bound to a planned dispatch-registry to story-dispatch edge and the verifier-owned process-fact basis paths.",
+      "verificationTopology": {
+        "schemaVersion": "proofstory.acceptance_topology.v1",
+        "producerRefs": [
+          {
+            "id": "P-DISPATCH",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "CHK-001:happy:0:VPP-CHK001-DISPATCH",
+              "endpointRef": "VPP-CHK001-DISPATCH-PRODUCER"
+            }
+          }
+        ],
+        "consumerRefs": [
+          {
+            "id": "C-DISPATCH",
+            "sourceRef": {
+              "refKind": "planned",
+              "plannedPathDeclarationRef": "CHK-001:happy:0:VPP-CHK001-DISPATCH",
+              "endpointRef": "VPP-CHK001-DISPATCH-CONSUMER"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ]
+          }
+        ],
+        "positiveAssertionRefs": [
+          {
+            "id": "A-HAPPY-01",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "A-HAPPY-02",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-002:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "A-HAPPY-03",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "A-HAPPY-04",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "A-HAPPY-05",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-005:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "A-HAPPY-06",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-006:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "A-HAPPY-07",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-007:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          }
+        ],
+        "mutationCaseRefs": [
+          {
+            "id": "M-01",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-02",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-002:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-03",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-04",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-05",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-005:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-06",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-006:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-07",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-007:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-08",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-09",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-002:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-10",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-11",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-12",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-005:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-13",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-006:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "M-14",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-007:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          }
+        ],
+        "transcriptAssertionRefs": [
+          {
+            "id": "T-01",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-02",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-03",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-001:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-04",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-002:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-05",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-002:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-06",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-002:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-07",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-08",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-09",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-003:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-10",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-11",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-12",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-004:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-13",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-005:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-14",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-005:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-15",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-005:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-16",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-006:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-17",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-006:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-18",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-006:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-19",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-007:happy:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-20",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-007:edge:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          },
+          {
+            "id": "T-21",
+            "sourceRef": {
+              "refKind": "existing",
+              "canonicalSourceRef": "intent:CHK-007:adversarial:0"
+            },
+            "producerRefs": [
+              "P-DISPATCH"
+            ],
+            "consumerRefs": [
+              "C-DISPATCH"
+            ]
+          }
+        ],
+        "commandRefs": [
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis->consumer:<audit-only>"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchPromptBuilder->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchPromptBuilder"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#resolveAgentDispatchType->consumer:packages/main/src/handlers/story-dispatch.ts#resolveAgentDispatchType"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/agent-dispatch-registry.ts#validateAgentDispatchRequest->consumer:packages/main/src/handlers/story-dispatch.ts#validateAgentDispatchRequest"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:process-fact:dispatch->consumer:<audit-only>"
+          }
+        ]
+      }
+    }
+  ],
+  "diagnosticGaps": [],
+  "note": "Canonical identity migration topology includes the verifier-discovered dispatch audit path.",
+  "createdAt": "2026-08-20T05:20:29.310Z",
+  "updatedAt": "2026-08-21T15:13:31.906Z"
+}

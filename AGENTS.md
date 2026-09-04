@@ -265,20 +265,127 @@ Every checklist item should define:
 
 ```json
 {
-  "title": "Observable requirement",
-  "context": "Why it matters and the relevant truth source",
-  "relatedDocs": ["docs/requirements/example.md#section"],
-  "userSees": "Specific terminal or UI output after completion",
-  "excludes": ["Explicit non-goal"],
-  "files": {
-    "modify": ["AGENTS.md"],
-    "create": [],
-    "test": []
-  },
-  "verificationIntent": {
-    "happy": [],
-    "edge": [],
-    "adversarial": []
+  "title": "做什么（一句话）",
+  "context": "根因/参考方案",
+  "relatedDocs": ["requirements/foo.md", "AGENTS.md#section"]
+}
+```
+
+- title 描述「做什么」，不描述「怎么做」
+- context 给执行 agent 提供决策上下文
+- **主 agent 只写 title + context + relatedDocs，不写旧 testIntent；当前验收意图是 `verificationIntent`**
+- relatedDocs 是关联的文档路径数组（可带 `#锚点` 给人看，不参与机器匹配），用于三次提醒避免代码改了文档忘改
+
+### relatedDocs 三次提醒
+
+关联文档在三个时机被**软提醒**（不阻塞）：
+
+1. **PLAN→DEV 推进时**：`story_advance DEV` hint 列出 story 全部 relatedDocs 去重清单
+2. **`checklist_update` 标 done 时**：列出该 item 的关联文档清单
+3. **DONE 推进时**：列出 `git diff main...HEAD` 中未出现的关联文档清单
+
+是否更新文档由 agent 自己判断，没有 ack 机制也没有门禁。
+
+### English authoring and legacy relatedDocs recovery
+
+English-artifact gates scan all recursively scanned string leaves of story metadata. The listed examples (`excludes`, `files`, `reason`, `verificationEvidence`) are non-exhaustive. Recover leftover CJK in relatedDocs and other leaves before REVIEW→TEST.
+
+Reviewer latest-run binding is kind-aware: a fresh PASS is accepted on any current-round material-fresh run; an open FINDING still requires the latest run on the lane.
+
+### Pre-context Intake（understanding.json）
+
+PLAN 阶段开拆 checklist 之前，主 agent 应该先调 `understanding_set` 落一份理解快照：
+
+| 字段 | 含义 |
+|---|---|
+| `task` | 一句话描述要解决的问题（≥ 5 字符）|
+| `outcome` | 完成后能观察到什么变化（≥ 5 字符）|
+| `facts` | 已知事实（来自真相源、已有代码、上下文）|
+| `constraints` | 必须遵守的规则（性能/兼容性/规范）|
+| `unknowns` | 拆 checklist 时还没想清楚的问题 |
+| `touchpoints` | 可能受影响的代码文件列表 |
+
+**第一版软引入**：未填只 hint 提醒，不阻塞。但 `story_review` 会把"missing understanding / unresolved unknowns / empty touchpoints"作为 advisory 列出，reviewer 也能看到 prompt 里的完整 understanding。`unknowns` 非空时建议拆 checklist 前先调研。
+
+### 高风险关键词检测
+
+`story_create` 自动扫 description + checklist titles 命中以下分类时自动 elevate priority 到 high 并写 `riskSignals`：
+
+- 安全/凭证（auth/password/token/credential）
+- 数据迁移/破坏性（migration/destructive/drop table）
+- 状态机/门禁（machine.ts/state machine/guard/gate）
+- test runner 框架（fixture runner / legacy test_auto / cleanupFixtureDir）
+- git 破坏性操作（git restore/reset/clean/push --force）
+- 生产环境/紧急（production/incident/hotfix/p0/p1）
+- 合规/隐私（PII/GDPR/compliance）
+- 破坏性 API 变更（public api/api break/breaking change）
+
+命中时 `story_review` 会强制要求 decision.json + ≥ 3 preMortem 场景（缺则 blocker）。
+
+### 重复 story 检测（dedup）
+
+`story_create` 在新建前对已有 story 做重复检测，防止跨 session / 多 agent 并发跑同一 backlog 时产生语义重复 story（B-6812 G2）：
+
+- **归一化 name idempotency**：用 `normalizeName(name)`（lowercase + trim + 下划线/空格/连续连字符归一为单连字符 + 去首尾连字符）比较，而非 exact-name。`"Fix Login"` / `"fix-login"` / `"  FIX__LOGIN  "` 视为同一 story → 返回已有 storyId 并复用，不新建。**仅当 `normalizeName(name)` 非空才参与匹配**——旧数据多 name 为空串/全分隔符，归一化后为 `""`，绝不会让两个空 normalized name 互相误判成同一个 story。
+- **keyword 完全重叠 block**：遍历 active non-terminal story（phase ∉ DONE/DISCARDED），算 keyword 重叠率；当新 story 的全部 keyword 都被某已有 story 覆盖（`ratio === 1`）且共同 keyword ≥ 2 个时，`story_create` 抛错 `❌ 疑似重复 story B-xxxx（keyword 完全重叠），确认要新建请加 forceNew:true` 并以非零 exit code 退出。DONE/DISCARDED story 的 keyword 完全重叠仅 warn（关键词查重段），不 block。
+- **`forceNew: true` override**：传 `forceNew:true` 整体绕过归一化 name idempotency 与 keyword 完全重叠 block，强制新建。确认确实要新建语义相近的 story 时使用。
+
+#### 重复 / 并发警告走 stderr（B-6812 G3/G4）
+
+`story_create` 的 advisory 文本（keyword 重叠 `dupWarning`、高风险 `riskHint`、最近并发 story 提示）全部走 `process.stderr.write`，**不**拼进 stdout 返回值。stdout 只保留创建结论（`Story B-xxxx created ...`）+ 非 advisory 引导（INIT reviewer 提示、non-git 提示）。原因：`proof-or-stop story_create | tail` 这类管道只消费 stdout，advisory 拼进 stdout 会被 tail 静默吃掉；走 stderr 后即使被管道也仍然可见。
+
+- **最近并发 story 摊开（G4）**：每次成功创建后扫 `listStoryIds()`，筛 `createdAt` 在过去 30 分钟内且 phase ∉ DONE/DISCARDED 的**其它** story，写 stderr：`⚠ 最近 30 分钟内还创建了 N 个 story：B-xxxx [phase] title`。无并发 story 时不输出（不误报）。30 分钟为硬编码常量（`RECENT_CONCURRENT_WINDOW_MS`），非配置项。
+- 终态 story（DONE/DISCARDED）、`createdAt` 缺失或非法 ISO 的 story 都被跳过，不计入并发提示也不会让创建崩溃。
+
+### 结构化决策（decision.json）
+
+PLAN 阶段为非 trivial story 落 `decision_set`。schema：
+
+```json
+{
+  "principles": ["..", "..", ".."],
+  "drivers": ["..", "..", ".."],
+  "options": [
+    {"name": "A: ...", "pros": ["..."], "cons": ["..."]},
+    {"name": "B: ...", "pros": ["..."], "cons": ["..."]}
+  ],
+  "chosen": "A: ...",
+  "rationale": "选 A 因为 ...",
+  "preMortem": [
+    {"scenario": "..", "trigger": "..", "consequence": "..", "mitigation": ".."}
+  ]
+}
+```
+
+校验规则（hard）：
+- `principles`: 3-5 条
+- `drivers`: 1-5 条
+- `options`: ≥ 2 个；只有 1 个时 cons 必须写明"为什么其他备选被排除"
+- 每个 option 必须有 pros + cons（不能只列好处）
+- `chosen` 必须 ∈ options
+- `rationale` ≥ 10 字符
+- 高风险 story（priority=high/critical 或 riskSignals 非空）：`preMortem` 必须 ≥ 3 条，每条 4 个字段全填
+
+非高风险 story 的 decision 是可选的（`story_review` 只 advisory）。
+
+### Legacy testIntent（兼容背景）
+
+本节保留旧 story / 旧 fixture 兼容语义，不能作为新 story 的标准流程。当前流程使用 checklist item 上的 `verificationIntent`，DEV/REVIEW/TEST 用 `verificationEvidence` 证明，TEST 跑 `proof-or-stop validate`。
+
+每条 testIntent 从纯字符串改为带类型的对象：
+
+```json
+{
+  "testIntent": {
+    "happy": [
+      { "desc": "正常操作 → 预期结果", "type": "cli_blackbox" }
+    ],
+    "edge": [
+      { "desc": "边界条件下的表现", "type": "cli_blackbox" }
+    ],
+    "adversarial": [
+      { "desc": "异常操作下的表现", "type": "browser_blackbox" }
+    ]
   }
 }
 ```
@@ -652,7 +759,96 @@ explicit classes. Bare silent catches are forbidden.
 | PERSIST | A log or pending-state persistence operation fails | Call `reportHealthIssue('persist:...', error, context)`. |
 | MUTATION | Git mutation, file write, or spawned operation fails | Throw a contextual error to the caller. |
 
-`reportHealthIssue` is defined in `packages/main/src/core/health.ts`, appends to
-the CLI health log, and must not throw. Before silencing a caught error, ask how a
-user will discover the failure ten minutes later. If there is no answer, leave a
-health trace or fail visibly.
+`reportHealthIssue` 在 `core/health.ts`，往 CLI health log append 一条记录，**自身永不抛错**。用户跑 `proof-or-stop doctor` 可以看到所有 PERSIST 失败 + 按分类汇总。
+
+写 silent catch 时问自己一个问题：**如果这里失败了，10 分钟后用户会怎么发现？** 没答案就用 `reportHealthIssue` 留痕。
+
+<!-- lattice:end -->
+
+### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
+
+**先 `acceptance_basis_generate`，再 `pre_review_check`，顺序不能反。**
+
+`pre_review_check` 会把当时的 plan `basisDigest` 快照进 `priorPlanBasisDigest`，
+而 `basisDigest` 覆盖 `binding`（headHash/materialHash/storyFilesHash）与 `receiptRef`。
+所以事后再跑一次 `acceptance_basis_generate`——哪怕 acceptance 语义完全没变——也会移动那个 digest，
+把刚拿到的 PASS 打成 `PR_COVERAGE_BASIS_CHANGED`（通常伴随 `PR_ARTIFACT_TAMPERED`），
+而 `storyFilesHash` 根本没动。
+
+这是**操作顺序陷阱，不是代码缺陷**：fail-closed 符合 Section 9 Rule 3「never a silent pass」（Rule 9 讲的是 coverage-basis freshness，不是这条）。
+但补救只能靠重跑 `pre_review_check`，而它是 `allowedPhases: ['DEV']`——
+在 REVIEW 撞上这个的 story 无法自愈，必须回 DEV。
+
+代码里已有 `acceptanceCoverageBasisSemanticDigest`（剥掉 `basisDigest`/`binding`/`receiptRef`）
+专门识别这种 hash-only rebinding，`verifyAcceptanceBasisReceipt` 也在用；
+但要接进 `PR_COVERAGE_BASIS_CHANGED` 的比较需要持久化一个 semantic digest，
+因为 `priorPlanBasisDigest` 只存原始 hash。
+
+真相源：`docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md`
+Section 9 Rule 10。
+
+## Defect triage discipline
+
+Fix major or acceptance-blocking defects on the spot. Record non-major, non-blocking
+defects with evidence and defer them. Never widen scope to chase all-green.
+
+### Step 1 — classify before acting
+
+For every new defect found during development, first decide: is this a major risk to
+the current story, or does it block its acceptance? Do not start fixing before this
+question is answered. The reviewer's job is to find; the main agent's job is to triage.
+
+### Step 2 — fix in the current story
+
+Mandatory when the defect is any of:
+
+- critical / high severity
+- security, data integrity, or destructive-compatibility impact
+- blocks the current story's acceptance, REVIEW, TEST, or DONE
+- makes already-registered evidence false (a selector that cannot match the real
+  verdict, a receipt claiming `pass` for a command that failed) — this is the subtlest
+  case and the easiest to wave past
+
+Action: fix, add the regression test, `finding_resolve` with mechanical evidence — the
+command run and its actual output, not a description of it.
+
+### Step 3 — record and defer
+
+Applies when the defect is medium / low **and** all of:
+
+- not a direct regression of the current acceptance scope
+- does not affect the user's core outcome
+- does not distort a lifecycle gate
+
+Action: preserve reproduction steps, evidence, blast radius, and a recommended fix.
+Record it in a finding / gap / backlog entry and name the follow-up story that owns it.
+Do not widen the current story's scope. Convenience is not a reason to fix out-of-scope
+work.
+
+### Step 4 — deferral must be traceable, and is reversible
+
+A deferral decided verbally does not count. It needs a durable, followable record:
+`finding_add`, `gap_log`, or a follow-up `story_create` with the evidence linked, plus a
+line in this story's resolution or summary saying it was recorded and deferred.
+
+If later evidence shows the severity was underestimated, or the defect turns out to
+block acceptance after all, pull it back into the current story immediately. Step 3 is a
+classification, not a commitment.
+
+### Why rule 3 has teeth
+
+Green is not the goal; trustworthy evidence is. Never make a check pass by relaxing its
+decision rule, widening an allowlist, or bending acceptance inputs to fit your own change.
+
+B-45a0 case: adding files to `REPLAY_ADMISSION_NONEXECUTING_PATHS` looked like a cheap
+way to make the replay admission pass. Measuring the actual diff showed the drift was in
+`story-aware-validation.ts` — where `discoverValidationInventory` and
+`compileValidationCatalog` are defined — i.e. producer-side drift, precisely what that
+allowlist refuses by design. The honest fix was re-running the campaign for a fresh report.
+
+Every out-of-scope fix is also another material change: it can invalidate an open review
+inventory epoch, re-stale acceptance surfaces, and force another review round.
+
+One-line test: **if this defect goes unfixed, is this story's acceptance conclusion
+false?** Yes → step 2. No → step 3.
+

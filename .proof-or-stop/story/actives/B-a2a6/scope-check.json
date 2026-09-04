@@ -1,0 +1,141 @@
+{
+  "storyId": "B-a2a6",
+  "checkedAt": "2026-08-24T02:20:32.059Z",
+  "features": [
+    {
+      "feature": "User-visible outcome: lifecycle readiness completes faster and more predictably while reporting the same reviewer evidence verdicts.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/understanding.json"
+    },
+    {
+      "feature": "Create one immutable prompt-envelope snapshot per collectReviewerEvidenceState call and thread it through evidence binding, prompt-envelope verification, and incremental eligibility lookup.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+    },
+    {
+      "feature": "Bound prompt-envelope reads to one collection-scoped snapshot for multi-record collections, with no per-record rereads and a constant bound independent of record count.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+    },
+    {
+      "feature": "Independent direct callers that omit the optional snapshot retain existing direct-read behavior and the same fail-closed results.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+    },
+    {
+      "feature": "Signature, envelope-integrity, scope, freshness, dispatch-binding, review-run, and task-semantic checks remain fail-closed.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/understanding.json"
+    },
+    {
+      "feature": "Missing, empty, malformed, or unreadable envelope sources preserve refusal and diagnostics and never make a reviewer record eligible or gate-passing.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+    },
+    {
+      "feature": "Mixed valid, stale, duplicate, and ineligible records preserve ordering, deduplication, cutoff inclusivity, stale classification, eligibility, and aggregate gate outcomes.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+    },
+    {
+      "feature": "The shared snapshot remains immutable or isolated against mutation, truncation, reordering, or filtering, with no cross-record or cross-collection contamination.",
+      "covered_by": "CHK-001, CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+    },
+    {
+      "feature": "Separate runs and sequential collections receive separate snapshots, so a source change cannot be hidden by stale cached state.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+    },
+    {
+      "feature": "Cached and uncached executions remain field-equivalent for accepted and rejected records, integrity verdicts, incremental eligibility and cutoff, reviewer evidence state, finding/pass classification, and lifecycle-gate outcome.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-a2a6/checklist.json"
+    },
+    {
+      "feature": "B-dc83 business implementation files remain outside this story; this is a separate prompt-envelope cache maintenance story.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Frozen scope-boundary and execution-boundary explicitly exclude B-dc83 business implementation files.",
+      "source": ".proof-or-stop/story/actives/B-a2a6/scope-boundary.json"
+    },
+    {
+      "feature": "Direct edits to docs/story and tests/fixtures remain outside this story.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Frozen scope-boundary and execution-boundary exclude docs/story and tests/fixtures.",
+      "source": ".proof-or-stop/story/actives/B-a2a6/execution-boundary.json"
+    },
+    {
+      "feature": "Runtime-enforcement bypasses and any weakening of lifecycle evidence gates are outside this story.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The frozen scope excludes runtime-enforcement bypasses; the decision rejects bypassing runtime enforcement and requires all integrity checks to remain active.",
+      "source": ".proof-or-stop/story/actives/B-a2a6/scope-boundary.json"
+    },
+    {
+      "feature": "Claude reviewers and non-Codex review evidence are outside this review scope.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Frozen scope excludes Claude reviewers and the story requires Codex-only review evidence.",
+      "source": ".proof-or-stop/story/actives/B-a2a6/scope-boundary.json"
+    },
+    {
+      "feature": "No global or cross-command cache, Authority/remote claim, or lifecycle-phase bypass is part of this story.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "The chosen decision is per-collection snapshot threading; global caching and runtime enforcement bypasses are explicitly rejected.",
+      "source": ".proof-or-stop/story/actives/B-a2a6/decision.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".proof-or-stop/story/actives/B-a2a6/background.md",
+      ".proof-or-stop/story/actives/B-a2a6/checklist.json",
+      ".proof-or-stop/story/actives/B-a2a6/decision.json",
+      ".proof-or-stop/story/actives/B-a2a6/execution-boundary.json",
+      ".proof-or-stop/story/actives/B-a2a6/index.json",
+      ".proof-or-stop/story/actives/B-a2a6/review.json",
+      ".proof-or-stop/story/actives/B-a2a6/scope-boundary.json",
+      ".proof-or-stop/story/actives/B-a2a6/scope-freeze-check.json",
+      ".proof-or-stop/story/actives/B-a2a6/understanding.json",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/story-lifecycle.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 15,
+    "covered": 10,
+    "excluded": 5,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "8390f8dc91645950b236285514d8b01cac6c006c74a0321593b0f4c4dd2cb125",
+  "openQuestions": []
+}

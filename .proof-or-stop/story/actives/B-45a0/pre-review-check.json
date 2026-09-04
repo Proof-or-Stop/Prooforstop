@@ -1,0 +1,2059 @@
+{
+  "schemaVersion": "proofstory.pre_review_check.v1",
+  "storyId": "B-45a0",
+  "mode": "observe",
+  "cutoffAt": "2026-09-02T07:46:06.530Z",
+  "planBasisDigest": "sha256:3579f1685ec33e476c72ecfd83e241362a075da8f566d0a4171366892d355042",
+  "preReviewBasisArtifact": {
+    "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+    "basis": {
+      "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+      "storyId": "B-45a0",
+      "phaseBasis": "pre_review",
+      "priorPlanBasisDigest": "sha256:3579f1685ec33e476c72ecfd83e241362a075da8f566d0a4171366892d355042",
+      "status": "complete",
+      "generatedBy": {
+        "verifier": "acceptance-coverage-basis-verifier",
+        "command": "proof-or-stop pre_review_check",
+        "algorithmVersion": "v1"
+      },
+      "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+      "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+      "discoveryMethods": [
+        "scope_contract",
+        "process_fact_registry",
+        "handler_dispatch_inventory",
+        "static_call_graph",
+        "runtime_trace"
+      ],
+      "adapterResults": [
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "handler-dispatch-inventory:plan:v1",
+          "method": "handler_dispatch_inventory",
+          "pathRefs": [
+            "path:process-fact:acceptance_basis->consumer:<audit-only>",
+            "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate"
+          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "source-file:packages/main/src/cli/command-catalog.ts:sha256:f68b317360d6530e5819da53a09ff32d4fddd1ed6f24ab92bc0380be8da94d64",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:3fd821e603fda5afa02495a6d1b322ba323d24549f967b392cf0bd8587b77575",
+            "source-file:packages/main/src/handlers/scope-check.ts:sha256:daf8735ca090401162bb586dd39fcad69423e21c93f869f66a3ef0f42e9a1bf2",
+            "source-file:packages/main/src/handlers/verifier.ts:sha256:21e6c1d6759eeb060c957102e8c480cb050faee6899ef38755c0088d8b882efb",
+            "source-file:packages/main/src/registry.ts:sha256:5fadd5574a45e1a6e026d081c0ab9f635f0b2ce0acbeb66270f03140bcce02e6",
+            "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:handler_dispatch_inventory:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
+              "scope:checklist:CHK-014",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+              "scope:file:lattice.config.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/keyed-scheduler.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-fact-registry.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
+              "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
+              "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
+            ]
+          },
+          "resultDigest": "sha256:d1978eb4ff236716429e20ae4f08e5b77268475f7bd94c8b53538bd05c5544cc"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "process-fact-registry:plan:v1",
+          "method": "process_fact_registry",
+          "pathRefs": [
+            "path:process-fact:acceptance_basis->consumer:<audit-only>",
+            "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate"
+          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+            "process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c",
+            "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+            "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+            "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:3fd821e603fda5afa02495a6d1b322ba323d24549f967b392cf0bd8587b77575",
+            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:7fb4fda1ff54740cbbd7e8060854006b3c232c4ff44b15633367a6eaa4841eb8",
+            "source-file:packages/main/src/registry.ts:sha256:5fadd5574a45e1a6e026d081c0ab9f635f0b2ce0acbeb66270f03140bcce02e6",
+            "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:abc56ba87eccd87421ae9d881607d2baea8e853ee3ae60f010ee2d6c45519b63"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:process_fact_registry:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
+              "scope:checklist:CHK-014",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+              "scope:file:lattice.config.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/keyed-scheduler.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-fact-registry.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
+              "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
+              "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
+            ]
+          },
+          "resultDigest": "sha256:e53698c71cb88c3886f8523cde994a120c37569c01a2cf8765a6ff798b135902"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "runtime-trace:plan:v1",
+          "method": "runtime_trace",
+          "pathRefs": [],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "runtime-fact-registry:sha256:170d1bca7e423fa069e197feae5747af35c6d8e37c31d5e041aa8534998b712c",
+            "runtime-trace:story:B-45a0:bounded"
+          ],
+          "asymmetryPolicy": {
+            "kind": "bounded_non_exhaustive",
+            "policyRef": "policy:bounded-runtime:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
+              "scope:checklist:CHK-014",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+              "scope:file:lattice.config.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/keyed-scheduler.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-fact-registry.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
+              "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
+              "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
+            ]
+          },
+          "resultDigest": "sha256:dbd953ea08cef6bde7e383b69b768509ba1af3f79648f0ce2e08915a1f827efc"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "scope-contract:plan:v1",
+          "method": "scope_contract",
+          "pathRefs": [
+            "planned:CHK-003:happy:0:VPP-CHK-003"
+          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:checklist:CHK-007",
+            "scope:checklist:CHK-008",
+            "scope:checklist:CHK-009",
+            "scope:checklist:CHK-010",
+            "scope:checklist:CHK-011",
+            "scope:checklist:CHK-012",
+            "scope:checklist:CHK-013",
+            "scope:checklist:CHK-014",
+            "scope:file:docs/CLI.md",
+            "scope:file:docs/requirements/NAV.md",
+            "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+            "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+            "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+            "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+            "scope:file:lattice.config.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+            "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+            "scope:file:packages/main/src/core/evidence-freshness.ts",
+            "scope:file:packages/main/src/core/keyed-scheduler.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
+            "scope:file:packages/main/src/core/runtime-fact-registry.ts",
+            "scope:file:packages/main/src/core/story-change-resolver.ts",
+            "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+            "scope:file:packages/main/src/core/validation-build-proof.ts",
+            "scope:file:packages/main/src/core/validation-catalog.ts",
+            "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+            "scope:file:packages/main/src/core/validation-command-receipt.ts",
+            "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+            "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+            "scope:file:packages/main/src/core/validation-execution-lock.ts",
+            "scope:file:packages/main/src/core/validation-executor.ts",
+            "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+            "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+            "scope:file:packages/main/src/core/validation-selection-manifest.ts",
+            "scope:file:packages/main/src/core/validation-types.ts",
+            "scope:file:packages/main/src/handlers/phase-gates.ts",
+            "scope:file:packages/main/src/handlers/scope-check.ts",
+            "scope:file:packages/main/src/handlers/verifier.ts",
+            "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+            "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+            "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+            "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+            "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+            "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+            "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+            "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+            "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+            "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+            "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+            "scope:file:scripts/run-dynamic-validation-replay.mjs",
+            "scope:file:scripts/verify-process-fact-contract.mjs",
+            "scope:file:scripts/verify-validation-catalog.mjs",
+            "source-file:packages/main/src/core/dual-revision-impact-graph.ts:sha256:8d101533009b615078d2660099d1f398dba718f6d52df5598fc6fbc4b2e001c2",
+            "source-file:packages/main/src/core/story-change-resolver.ts:sha256:fdcadf5c4059dc5d248e319660e7f7469e9847db460bf96ae50fbb0c0d314531",
+            "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:scope_contract:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
+              "scope:checklist:CHK-014",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+              "scope:file:lattice.config.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/keyed-scheduler.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-fact-registry.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
+              "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
+              "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
+            ]
+          },
+          "resultDigest": "sha256:f1fbdeeae050b3520baeb677bfa345969fd5150fc9bcb5d5217b9becd33e94f5"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "static-call-graph:plan:v1",
+          "method": "static_call_graph",
+          "pathRefs": [
+            "actual:source_file:packages/main/src/core/dual-revision-impact-graph.ts#buildDualRevisionImpactGraph",
+            "actual:source_file:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest",
+            "path:process-fact:acceptance_basis->consumer:<audit-only>",
+            "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+            "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+            "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
+            "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
+            "path:static-call:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest->consumer:packages/main/src/core/dual-revision-impact-graph.ts#buildStoryChangeManifest",
+            "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
+            "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
+            "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
+          ],
+          "coverageClaim": "complete_for_scope",
+          "blindSpots": [],
+          "provenanceRefs": [
+            "source-file:docs/CLI.md:sha256:50837c9cce8b867adc131fbb0e9fd69cda42f4c2f27a10273d0d553f711628c3",
+            "source-file:docs/requirements/NAV.md:sha256:c6cd05959a09023d90bb416b8dae3e7f389502a2521652a81f7cf4c327c3f78a",
+            "source-file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md:sha256:b7c087e068aa33b50f7d3e2cd5f10ab345ddcb4a10ba306e5e050e2ad2efa8d5",
+            "source-file:docs/requirements/decisions/dynamic-validation-operations.md:sha256:cfc60fbf0c8b5e7369c7bb2ae05edb6f1653711508871ed7683412b854640af0",
+            "source-file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md:sha256:19feb1a8b5123e1e94da23d73edb8fd816d0915038f8a507a4abbb895c1ec418",
+            "source-file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md:sha256:76238d62ae0740e11c29d6c52d20cfab8ca1eeb1658fa087c95da9ac0ed98df6",
+            "source-file:lattice.config.json:sha256:a2175b507ccccd51ca727dcdb57fb7681e1935497ccd4aaaffdca999580b5303",
+            "source-file:package.json:sha256:c57f1a38721164ee49a018c47b2f0c2f77cd1ccd0e8a152e0203fa5a21073bd2",
+            "source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac",
+            "source-file:packages/main/src/core/config.ts:sha256:05b6403a123a0de1ab8c0e00d814a48166f8cf7ed5781f69c545db1079ec4bdc",
+            "source-file:packages/main/src/core/dual-revision-impact-graph.ts:sha256:8d101533009b615078d2660099d1f398dba718f6d52df5598fc6fbc4b2e001c2",
+            "source-file:packages/main/src/core/dynamic-validation-enforcement.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-observer.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-report.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-scheduling.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-selection.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/dynamic-validation-shadow.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/evidence-freshness.ts:sha256:cdc152d155fbdec735463994eea1b02c2047d120886089fce38ae0c11adcfc29",
+            "source-file:packages/main/src/core/keyed-scheduler.ts:sha256:8f56a9e0dac1dedb63f93f5b2537851f18374826bc95cbda7cb6cb11b5d2d6f4",
+            "source-file:packages/main/src/core/process-fact-registry.ts:sha256:89f76ca3c8b6c733fb6ea330d60e4d11fc2a81532daa570b11a68a116bb2a320",
+            "source-file:packages/main/src/core/runtime-artifact-registry.ts:sha256:aa1f8a62625b346cac8f3bb0f7efaa0bd262be90ead387960462e19cfb474161",
+            "source-file:packages/main/src/core/runtime-fact-registry.ts:sha256:bbe573ec27a7e9d98a19b1cbbf009b94c5335500c5cd134ef103aee362f10c67",
+            "source-file:packages/main/src/core/story-change-resolver.ts:sha256:fdcadf5c4059dc5d248e319660e7f7469e9847db460bf96ae50fbb0c0d314531",
+            "source-file:packages/main/src/core/validation-baseline-epoch.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-build-proof.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-catalog.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-closure-certificate.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-command-receipt.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-evidence-admissibility.ts:sha256:ec8126769814e488ae578b0b7eba37e08880ff59e24d90d4b6376a04b09758dd",
+            "source-file:packages/main/src/core/validation-evidence-reuse.ts:sha256:57df3554a61f506292a89035d1b6b534e03ed7cbdf3526fd204bf0a9665311c6",
+            "source-file:packages/main/src/core/validation-execution-lock.ts:sha256:263f0ecb59b85b836b0e70e1cb396bcd692f0cc5831d164f52899938c16f4ced",
+            "source-file:packages/main/src/core/validation-executor.ts:sha256:e8f68918ac2bf52d1f2f3787d19379013127fdab6dc5b0dccba64b18a4f9bb6f",
+            "source-file:packages/main/src/core/validation-revocation-ledger.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-runtime-tracer.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-selection-manifest.ts:sha256:71db5675c38d52329b3fddfd1a9c33f65bc6743877fe021a9d728130a447069c",
+            "source-file:packages/main/src/core/validation-types.ts:sha256:fb427178d8fef599e9da9606c5f87dcac7f3fc3a55aab1993a6a8a966c8ffc16",
+            "source-file:packages/main/src/handlers/phase-gates.ts:sha256:5b7fdf20d9d2490879e6a941c13610da6ffb2b70215cde19e197810c19a1ad0e",
+            "source-file:packages/main/src/handlers/proofstory.ts:sha256:3fd821e603fda5afa02495a6d1b322ba323d24549f967b392cf0bd8587b77575",
+            "source-file:packages/main/src/handlers/scope-check.ts:sha256:daf8735ca090401162bb586dd39fcad69423e21c93f869f66a3ef0f42e9a1bf2",
+            "source-file:packages/main/src/handlers/story-aware-validation.ts:sha256:a94ed5a3eeb781300118198317255b5682df838c3eb7d495fd16bc1976548d14",
+            "source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:7fb4fda1ff54740cbbd7e8060854006b3c232c4ff44b15633367a6eaa4841eb8",
+            "source-file:packages/main/src/handlers/verifier.ts:sha256:21e6c1d6759eeb060c957102e8c480cb050faee6899ef38755c0088d8b882efb",
+            "source-file:packages/main/src/tasks/done-required-validation-smoke.ts:sha256:cb0223716ecd0ce152fae2ef845f9c0f2d8c110540a39b00ea9b66d2ea4dc9d9",
+            "source-file:packages/main/src/tasks/quorum-submit-shards.ts:sha256:008bcf39aa0e4c73d205906ec5db011ee98fd20dee85468e77a7b48305581192",
+            "source-file:packages/main/src/tasks/quorum-submit-smoke.ts:sha256:1233e704cd0b42398f2bcf7b3931869561029fb546e098b7f6cc5ecd1b34a240",
+            "source-file:packages/main/src/tasks/review-pass-provenance-smoke.ts:sha256:2c7da73c073bd2468343b7c5d75bfd696df3654d17d67768f32cd2a34ac6d50a",
+            "source-file:packages/main/src/tasks/review-pass-shards.ts:sha256:008bcf39aa0e4c73d205906ec5db011ee98fd20dee85468e77a7b48305581192",
+            "source-file:packages/main/src/tasks/story-files-hash-batch-smoke.ts:sha256:08205778e4f5644d07ce16ed0e3b79c767636a9d24a1164a96c7f38afdca51ec",
+            "source-file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts:sha256:912cba71293ee63fb3789ba5c46006e1fde8cb20a77caf46e02cc77990d860de",
+            "source-file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts:sha256:5cbbfa44a564d209cc45113e3dc2e1268bee0feea26660357e9ca213e876c92c",
+            "source-file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts:sha256:b1e3cb840534a3b9ede06b6edbf77b76bcec4f76243a778087a4eedcf5b80bc6",
+            "source-file:packages/main/src/tasks/validation-protocol-smoke.ts:sha256:8fd2af6d1e62a2891c3e1df0ea938dd7484ee7e798be7f27c87cd82a1faee78a",
+            "source-file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts:sha256:12f47bd3ebe01c0f72083fbe558dae0c6dcc2faf921d8d1aafff3dfdb47a6d42",
+            "source-file:packages/main/tests/validate-plan-scheduling.test.mjs:sha256:b10eea825cccf261170769b351e2512df0eddd05eaf384d059adc7486961d67b",
+            "source-file:packages/main/tests/validate-resource-claims.test.mjs:sha256:29f5c4ecabec6ab2067f08326c4aa5fa14e6ae0cf0cec52fa89798adbc399631",
+            "source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745",
+            "source-file:scripts/run-dynamic-validation-fault-injection.mjs:sha256:c4f95bb3eea69e61fad4f355d87ef281aee116e02c2d18110abf2e1ce1a18554",
+            "source-file:scripts/run-dynamic-validation-replay.mjs:sha256:3ba28e0850a61d4ba76042b64246902678d7907c35aeadda6a4ad6ca09e1f72a",
+            "source-file:scripts/verify-process-fact-contract.mjs:sha256:abc56ba87eccd87421ae9d881607d2baea8e853ee3ae60f010ee2d6c45519b63",
+            "source-file:scripts/verify-validation-catalog.mjs:sha256:02c190d9f3e3f09f0afaddbd0bb7c146fe05b2f95ff1fb06fb38ce56feb8a502"
+          ],
+          "asymmetryPolicy": {
+            "kind": "exhaustive",
+            "policyRef": "policy:static_call_graph:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:checklist:CHK-007",
+              "scope:checklist:CHK-008",
+              "scope:checklist:CHK-009",
+              "scope:checklist:CHK-010",
+              "scope:checklist:CHK-011",
+              "scope:checklist:CHK-012",
+              "scope:checklist:CHK-013",
+              "scope:checklist:CHK-014",
+              "scope:file:docs/CLI.md",
+              "scope:file:docs/requirements/NAV.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+              "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+              "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+              "scope:file:lattice.config.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+              "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+              "scope:file:packages/main/src/core/evidence-freshness.ts",
+              "scope:file:packages/main/src/core/keyed-scheduler.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-fact-registry.ts",
+              "scope:file:packages/main/src/core/story-change-resolver.ts",
+              "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+              "scope:file:packages/main/src/core/validation-build-proof.ts",
+              "scope:file:packages/main/src/core/validation-catalog.ts",
+              "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+              "scope:file:packages/main/src/core/validation-command-receipt.ts",
+              "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+              "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+              "scope:file:packages/main/src/core/validation-execution-lock.ts",
+              "scope:file:packages/main/src/core/validation-executor.ts",
+              "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+              "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+              "scope:file:packages/main/src/core/validation-selection-manifest.ts",
+              "scope:file:packages/main/src/core/validation-types.ts",
+              "scope:file:packages/main/src/handlers/phase-gates.ts",
+              "scope:file:packages/main/src/handlers/scope-check.ts",
+              "scope:file:packages/main/src/handlers/verifier.ts",
+              "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+              "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+              "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+              "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+              "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+              "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+              "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+              "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+              "scope:file:scripts/run-dynamic-validation-replay.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-validation-catalog.mjs"
+            ]
+          },
+          "resultDigest": "sha256:ded3d93d31f8f20baec28454c28867a9b0997274997490c8535bff750a762a12"
+        }
+      ],
+      "scopeRefs": [
+        "scope:checklist:CHK-001",
+        "scope:checklist:CHK-002",
+        "scope:checklist:CHK-003",
+        "scope:checklist:CHK-004",
+        "scope:checklist:CHK-005",
+        "scope:checklist:CHK-006",
+        "scope:checklist:CHK-007",
+        "scope:checklist:CHK-008",
+        "scope:checklist:CHK-009",
+        "scope:checklist:CHK-010",
+        "scope:checklist:CHK-011",
+        "scope:checklist:CHK-012",
+        "scope:checklist:CHK-013",
+        "scope:checklist:CHK-014",
+        "scope:file:docs/CLI.md",
+        "scope:file:docs/requirements/NAV.md",
+        "scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "scope:file:docs/requirements/decisions/dynamic-validation-operations.md",
+        "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "scope:file:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "scope:file:lattice.config.json",
+        "scope:file:package.json",
+        "scope:file:packages/main/src/core/config.ts",
+        "scope:file:packages/main/src/core/dual-revision-impact-graph.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-enforcement.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-observer.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-report.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-scheduling.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-selection.ts",
+        "scope:file:packages/main/src/core/dynamic-validation-shadow.ts",
+        "scope:file:packages/main/src/core/evidence-freshness.ts",
+        "scope:file:packages/main/src/core/keyed-scheduler.ts",
+        "scope:file:packages/main/src/core/process-fact-registry.ts",
+        "scope:file:packages/main/src/core/runtime-artifact-registry.ts",
+        "scope:file:packages/main/src/core/runtime-fact-registry.ts",
+        "scope:file:packages/main/src/core/story-change-resolver.ts",
+        "scope:file:packages/main/src/core/validation-baseline-epoch.ts",
+        "scope:file:packages/main/src/core/validation-build-proof.ts",
+        "scope:file:packages/main/src/core/validation-catalog.ts",
+        "scope:file:packages/main/src/core/validation-closure-certificate.ts",
+        "scope:file:packages/main/src/core/validation-command-receipt.ts",
+        "scope:file:packages/main/src/core/validation-evidence-admissibility.ts",
+        "scope:file:packages/main/src/core/validation-evidence-reuse.ts",
+        "scope:file:packages/main/src/core/validation-execution-lock.ts",
+        "scope:file:packages/main/src/core/validation-executor.ts",
+        "scope:file:packages/main/src/core/validation-revocation-ledger.ts",
+        "scope:file:packages/main/src/core/validation-runtime-tracer.ts",
+        "scope:file:packages/main/src/core/validation-selection-manifest.ts",
+        "scope:file:packages/main/src/core/validation-types.ts",
+        "scope:file:packages/main/src/handlers/phase-gates.ts",
+        "scope:file:packages/main/src/handlers/scope-check.ts",
+        "scope:file:packages/main/src/handlers/verifier.ts",
+        "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+        "scope:file:packages/main/src/tasks/quorum-submit-shards.ts",
+        "scope:file:packages/main/src/tasks/quorum-submit-smoke.ts",
+        "scope:file:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+        "scope:file:packages/main/src/tasks/review-pass-shards.ts",
+        "scope:file:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+        "scope:file:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+        "scope:file:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        "scope:file:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "scope:file:packages/main/src/tasks/validation-protocol-smoke.ts",
+        "scope:file:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+        "scope:file:packages/main/tests/validate-plan-scheduling.test.mjs",
+        "scope:file:packages/main/tests/validate-resource-claims.test.mjs",
+        "scope:file:scripts/run-dynamic-validation-fault-injection.mjs",
+        "scope:file:scripts/run-dynamic-validation-replay.mjs",
+        "scope:file:scripts/verify-process-fact-contract.mjs",
+        "scope:file:scripts/verify-validation-catalog.mjs"
+      ],
+      "sourceInventoryRefs": [
+        "artifact:acceptance-basis.json",
+        "planned:CHK-003:happy:0:VPP-CHK-003",
+        "process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f",
+        "process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c",
+        "process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095",
+        "process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82",
+        "source-file:closure:docs/CLI.md",
+        "source-file:closure:docs/requirements/NAV.md",
+        "source-file:closure:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "source-file:closure:docs/requirements/decisions/dynamic-validation-operations.md",
+        "source-file:closure:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "source-file:closure:docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "source-file:closure:lattice.config.json",
+        "source-file:closure:package.json",
+        "source-file:closure:packages/main/src/core/acceptance-topology.ts",
+        "source-file:closure:packages/main/src/core/config.ts",
+        "source-file:closure:packages/main/src/core/dual-revision-impact-graph.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-enforcement.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-observer.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-report.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-scheduling.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-selection.ts",
+        "source-file:closure:packages/main/src/core/dynamic-validation-shadow.ts",
+        "source-file:closure:packages/main/src/core/evidence-freshness.ts",
+        "source-file:closure:packages/main/src/core/keyed-scheduler.ts",
+        "source-file:closure:packages/main/src/core/process-fact-registry.ts",
+        "source-file:closure:packages/main/src/core/runtime-artifact-registry.ts",
+        "source-file:closure:packages/main/src/core/runtime-fact-registry.ts",
+        "source-file:closure:packages/main/src/core/story-change-resolver.ts",
+        "source-file:closure:packages/main/src/core/validation-baseline-epoch.ts",
+        "source-file:closure:packages/main/src/core/validation-build-proof.ts",
+        "source-file:closure:packages/main/src/core/validation-catalog.ts",
+        "source-file:closure:packages/main/src/core/validation-closure-certificate.ts",
+        "source-file:closure:packages/main/src/core/validation-command-receipt.ts",
+        "source-file:closure:packages/main/src/core/validation-evidence-admissibility.ts",
+        "source-file:closure:packages/main/src/core/validation-evidence-reuse.ts",
+        "source-file:closure:packages/main/src/core/validation-execution-lock.ts",
+        "source-file:closure:packages/main/src/core/validation-executor.ts",
+        "source-file:closure:packages/main/src/core/validation-revocation-ledger.ts",
+        "source-file:closure:packages/main/src/core/validation-runtime-tracer.ts",
+        "source-file:closure:packages/main/src/core/validation-selection-manifest.ts",
+        "source-file:closure:packages/main/src/core/validation-types.ts",
+        "source-file:closure:packages/main/src/handlers/phase-gates.ts",
+        "source-file:closure:packages/main/src/handlers/proofstory.ts",
+        "source-file:closure:packages/main/src/handlers/scope-check.ts",
+        "source-file:closure:packages/main/src/handlers/story-aware-validation.ts",
+        "source-file:closure:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:closure:packages/main/src/handlers/verifier.ts",
+        "source-file:closure:packages/main/src/tasks/done-required-validation-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/quorum-submit-shards.ts",
+        "source-file:closure:packages/main/src/tasks/quorum-submit-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/review-pass-provenance-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/review-pass-shards.ts",
+        "source-file:closure:packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validation-protocol-smoke.ts",
+        "source-file:closure:packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts",
+        "source-file:closure:packages/main/tests/validate-plan-scheduling.test.mjs",
+        "source-file:closure:packages/main/tests/validate-resource-claims.test.mjs",
+        "source-file:closure:scripts/run-dynamic-validation-fault-injection.mjs",
+        "source-file:closure:scripts/run-dynamic-validation-replay.mjs",
+        "source-file:closure:scripts/verify-process-fact-contract.mjs",
+        "source-file:closure:scripts/verify-validation-catalog.mjs",
+        "source-file:config:proof-or-stop.config.json",
+        "source-file:consumer:acceptance_basis:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:acceptance_basis:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:acceptance_basis:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:acceptance_basis_generate:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:acceptance_basis_generate:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:acceptance_basis_generate:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:acceptance_topology_check:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:acceptance_topology_check:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:acceptance_topology_check:scripts/verify-process-fact-contract.mjs",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/core/acceptance-topology.ts",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/transition-orchestrator.ts",
+        "source-file:consumer:artifact%3Aacceptance-basis.json:scripts/verify-process-fact-contract.mjs",
+        "source-file:producer:acceptance_basis:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:acceptance_basis:packages/main/src/registry.ts",
+        "source-file:producer:acceptance_basis_generate:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:acceptance_basis_generate:packages/main/src/registry.ts",
+        "source-file:producer:acceptance_topology_check:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:acceptance_topology_check:packages/main/src/registry.ts",
+        "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/handlers/proofstory.ts",
+        "source-file:producer:artifact%3Aacceptance-basis.json:packages/main/src/registry.ts",
+        "source_file:packages/main/src/core/dual-revision-impact-graph.ts#buildDualRevisionImpactGraph",
+        "source_file:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest"
+      ],
+      "plannedPathRecords": [
+        {
+          "schemaVersion": "proofstory.planned_coverage_path.v1",
+          "plannedPathRef": "planned:CHK-003:happy:0:VPP-CHK-003",
+          "plannedPathDeclarationRef": "CHK-003:happy:0:VPP-CHK-003",
+          "declarationDigest": "sha256:28d5faf88ac30bc5f3084807a02b8e744f9c50474a67814c29e078b7b6b503e5",
+          "producer": {
+            "id": "EP-CHK-003-PRODUCER",
+            "role": "producer",
+            "expectedArtifactKind": "source_file",
+            "expectedFileRef": "packages/main/src/core/story-change-resolver.ts",
+            "expectedSymbolOrFact": "buildStoryChangeManifest",
+            "fileDeclarationRef": "CHK-003:files:create:0"
+          },
+          "consumers": [
+            {
+              "id": "EP-CHK-003-CONSUMER",
+              "role": "consumer",
+              "expectedArtifactKind": "source_file",
+              "expectedFileRef": "packages/main/src/core/dual-revision-impact-graph.ts",
+              "expectedSymbolOrFact": "buildDualRevisionImpactGraph",
+              "fileDeclarationRef": "CHK-003:files:create:1"
+            }
+          ],
+          "outputFactRef": "process-fact:story-change-manifest",
+          "acceptanceBindingRefs": [
+            "acceptance-binding:B-45a0-complete-dynamic-validation"
+          ],
+          "verificationIntentRefs": [
+            "CHK-003:happy:0"
+          ],
+          "declarationRefs": [
+            "CHK-003:files:create:0",
+            "CHK-003:files:create:1"
+          ],
+          "plannedPathDigest": "sha256:e6a85aa68315c3f0c86e2d21d1af19b3af1697a9e1cc76588da1a474651bf63f"
+        }
+      ],
+      "plannedActualReconciliations": [
+        {
+          "schemaVersion": "proofstory.planned_actual_path_reconciliation.v1",
+          "plannedPathRef": "planned:CHK-003:happy:0:VPP-CHK-003",
+          "actualPathRefs": [
+            "actual:source_file:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest",
+            "actual:source_file:packages/main/src/core/dual-revision-impact-graph.ts#buildDualRevisionImpactGraph"
+          ],
+          "relation": "exact",
+          "reconciliationDigest": "sha256:dc398d8f71e8963fa3a62f91776a9fca36b91a4a558be6586223dee7aa7456ec"
+        }
+      ],
+      "enumeratedPathRefs": [
+        "actual:source_file:packages/main/src/core/dual-revision-impact-graph.ts#buildDualRevisionImpactGraph",
+        "actual:source_file:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest",
+        "path:process-fact:acceptance_basis->consumer:<audit-only>",
+        "path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate",
+        "path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate",
+        "path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport",
+        "path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck",
+        "path:static-call:packages/main/src/core/story-change-resolver.ts#buildStoryChangeManifest->consumer:packages/main/src/core/dual-revision-impact-graph.ts#buildStoryChangeManifest",
+        "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext",
+        "path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext",
+        "path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext",
+        "planned:CHK-003:happy:0:VPP-CHK-003"
+      ],
+      "excludedPathRefs": [],
+      "blindSpots": [],
+      "snapshotSeal": {
+        "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+        "inventoryDirectoryDigest": "sha256:ea915374e0f21a0bb54f6cbf51b82b1b16c453e0a4b3533285c67ce04f9b1248",
+        "inventoryDirectoryCount": 21,
+        "sourceSnapshotDigest": "sha256:685e5192a63af812d0f4741113f3a4ce10a63277e02529f609f1251c8470126d",
+        "sourceSnapshotCount": 873,
+        "configSnapshotDigest": "sha256:ab4b658eaf618dd6e859c44d6bab29230deefeef2b53889c500533b9dde9b251",
+        "status": "complete",
+        "issues": [],
+        "sealDigest": "sha256:fdf3fe09abdccf5b460a987d2431a9adda3a3b95c03c411162ef9429abbb8280"
+      },
+      "binding": {
+        "headHash": "55be7ce1abfb6796cee00cef2665efcf6be87d7e",
+        "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+        "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+        "scopeCheckDigest": "sha256:348c9f6183653761c39bfd0081b914ed9e595879d13933a83b85b771ab1a7254",
+        "scopeContractDigest": "sha256:152850a0ff6e7ac1f0a12f70d5a0999440969e1281859700a7e85bcef58b9a63",
+        "closureFilesHash": "sha256:9b5149b7843441d830d4825e16e5ca5d49342ab47ac389312b66ed82709b3445"
+      },
+      "receiptRef": "receipt:coverage-basis:B-45a0:pre_review:0002351899095846",
+      "basisDigest": "sha256:689b299ee90f6ac4497d811c34a0df676426adaf87594a8fbe85d4b1ca15bc84"
+    },
+    "receipt": {
+      "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+      "receiptRef": "receipt:coverage-basis:B-45a0:pre_review:0002351899095846",
+      "issuer": "acceptance-coverage-basis-verifier",
+      "issuerKeyId": "sha256:a944288d3323f4b761cbb51602e62f88fbc1b35530eabfa265971baee771138b",
+      "signerPublicKey": "GpD4A2Km0wpT87L2EcszehhUu0nPgXbafTXgXTjTKAM=",
+      "storyId": "B-45a0",
+      "phaseBasis": "pre_review",
+      "basisDigest": "sha256:689b299ee90f6ac4497d811c34a0df676426adaf87594a8fbe85d4b1ca15bc84",
+      "topologyDigest": "sha256:433db979804030eb6fac753e3108b1b1fcf8421d3ea46d50e9ba2fbe355d821b",
+      "scopeCheckDigest": "sha256:348c9f6183653761c39bfd0081b914ed9e595879d13933a83b85b771ab1a7254",
+      "scopeContractDigest": "sha256:152850a0ff6e7ac1f0a12f70d5a0999440969e1281859700a7e85bcef58b9a63",
+      "headHash": "55be7ce1abfb6796cee00cef2665efcf6be87d7e",
+      "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+      "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+      "closureFilesHash": "sha256:9b5149b7843441d830d4825e16e5ca5d49342ab47ac389312b66ed82709b3445",
+      "sealDigest": "sha256:fdf3fe09abdccf5b460a987d2431a9adda3a3b95c03c411162ef9429abbb8280",
+      "workspaceIdentityDigest": "sha256:3982df8a3a496488d75aa257cf83262705901996a517a2a911848309f9519ccd",
+      "signature": "zfSFs7kRnQIrH1Z7MQxkXtYkv6TJZQCuKRqlBzvtSFMU1JlncPJf9BnJ0VWzJE7OvuthHa4jAt1nd0awgGQyDw=="
+    }
+  },
+  "topologyDigest": "sha256:433db979804030eb6fac753e3108b1b1fcf8421d3ea46d50e9ba2fbe355d821b",
+  "scopeCheckDigest": "sha256:348c9f6183653761c39bfd0081b914ed9e595879d13933a83b85b771ab1a7254",
+  "scopeContractDigest": "sha256:152850a0ff6e7ac1f0a12f70d5a0999440969e1281859700a7e85bcef58b9a63",
+  "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+  "closureFilesHash": "sha256:9b5149b7843441d830d4825e16e5ca5d49342ab47ac389312b66ed82709b3445",
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:7f0cfed33a22675d53b934a780aeabc5df670fbc9132622c5c1cae597788538c"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:31f9da7faf04d6dd91a29048731f5e844cf4df09a9249947b3ea6b1571ca8037"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:60084862f9c731cc91909d1cb1e7cc5238467edff0c8a9bd0cca664898418cbb"
+    },
+    {
+      "intentRef": "CHK-001:edge:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 3,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:b3040afe2eff9aa80538146754eeeb0b9aae00de147c313e1d4f88dd0ab22e51"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:9ee854638c4ba5843b439a60091418ec43b3eab72b2d19264c517a863969c10a"
+    },
+    {
+      "intentRef": "CHK-001:happy:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:a09c392cf20cd8bcad959221983debdbee1ce9eb0db3f197b7a1376d81cf2124"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:20a5028ce553f02dc7f206c58f05ffbd224608b74b86821ca6ddd2eac2bad2a7"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:34fd8ac040022059e639ab8390b7c30113f722e97c1e8c146a114c2471600a32"
+    },
+    {
+      "intentRef": "CHK-002:edge:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f120f17ecb5bcd58fcf6d470cd74b065be8ef84eb22399ae839db7a49037601c"
+    },
+    {
+      "intentRef": "CHK-002:edge:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1c03da418bba877a784f8e7a8647c9ff2f5c552ff83a8b5a136de762fb3ec6ce"
+    },
+    {
+      "intentRef": "CHK-002:happy:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:e3754c42b6a71ac756bb0a4ac68f0802ff05089d72235c803e394515d0b14d18"
+    },
+    {
+      "intentRef": "CHK-002:happy:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:0de9935b9e20a2287684694c07e3f19ca57b70277271e38ea3edae6cf44e0338"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:9aeb46afc29647332ebd4f87a60e064f9bfde96536a5142220d5a4e34b39483e"
+    },
+    {
+      "intentRef": "CHK-003:edge:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d27027266e4698f514ea51946b474bdad6e2f9d9a45dafc50acb341a3fc3bc00"
+    },
+    {
+      "intentRef": "CHK-003:happy:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:4a2dab4f810b00db58493310a6ca06299c67718176f62740d9a785e49b884292"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:4f28330fab8b929d506e361b3c0c59b9beee17bc6867cbc87a1467de98783541"
+    },
+    {
+      "intentRef": "CHK-004:edge:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d52999259cda24f17adce28a13bfabc5980c56d4cc3c35f19293664e73c65402"
+    },
+    {
+      "intentRef": "CHK-004:happy:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:00b3e6b1aadc3af4161f7a9ef1deb85a9f28cc83ff61a2aa76e29c358567cf98"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:68601fb93acb86d05c58afa90429b253b8ac66648045406525fea6946bda498d"
+    },
+    {
+      "intentRef": "CHK-005:edge:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:422b93251344b95814982ca4240abcff87ab3c2d89c12251ba5edfa7af62a101"
+    },
+    {
+      "intentRef": "CHK-005:happy:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:df489feab36a7983c8208266bd1bbce7357ad879ecff5b7f069e32c430dd5ffe"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:db458663ff46faf7951c327342ef79474d1dc4e3e34401df6c84e65d2b84836e"
+    },
+    {
+      "intentRef": "CHK-006:edge:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:99f0dd15dce6642fc8a389e05414309b26679ece84e2396cd02633f32e499679"
+    },
+    {
+      "intentRef": "CHK-006:happy:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f83f92ab468c7014324f45db51d9461e9b37ce59d75f8db5349f67dcdd9808b2"
+    },
+    {
+      "intentRef": "CHK-007:adversarial:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:cc45cffdd50c4582e88286b3856da7f9e8d84af9329806d359c7cb25ff907ab0"
+    },
+    {
+      "intentRef": "CHK-007:edge:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e43e18736a32c0e743ce198b1a49db2c509346f56f616e95ff7dbc4f05c29830"
+    },
+    {
+      "intentRef": "CHK-007:happy:0",
+      "itemId": "CHK-007",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:5cb61eeab84ba35861189175a2feb3e79793849d9de64dd60ed555accdb25a54"
+    },
+    {
+      "intentRef": "CHK-008:adversarial:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:2da360c44b9024fc7782d7a03d18771ef7425c4b7e2183dad0f3b1edae1b1beb"
+    },
+    {
+      "intentRef": "CHK-008:edge:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:fe59b131018330e02252274708fce3c1c6c7877e4a504abcf8d52d6c47d7afc3"
+    },
+    {
+      "intentRef": "CHK-008:happy:0",
+      "itemId": "CHK-008",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:cb1123b4ccd61ddcde34cc3fdb5e50a3ccf5f37075f37a94ba818c2b0df63663"
+    },
+    {
+      "intentRef": "CHK-009:adversarial:0",
+      "itemId": "CHK-009",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:28d07c3029acfac0d5e9fa6955ed579fd84a153fe00d22239e24eb6fefab1c76"
+    },
+    {
+      "intentRef": "CHK-009:edge:0",
+      "itemId": "CHK-009",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a1cb5fc80801484ebf51358cdc6228fcafd9618db78a3d1c8c81dcc7909f5716"
+    },
+    {
+      "intentRef": "CHK-009:happy:0",
+      "itemId": "CHK-009",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c545515c294ec47ab9dec3b4f88e616902151666ef28fd4794b2e72aac8faa21"
+    },
+    {
+      "intentRef": "CHK-010:adversarial:0",
+      "itemId": "CHK-010",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:920f541646d80a371ec2830f97ca10981df1b1e1add47d69ea8140c1bd4cae4f"
+    },
+    {
+      "intentRef": "CHK-010:edge:0",
+      "itemId": "CHK-010",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:3cb602a4bb683f88110576ac876c119870d23d505aee68ced725f8d21284c7a8"
+    },
+    {
+      "intentRef": "CHK-010:happy:0",
+      "itemId": "CHK-010",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:c5df4b8428125dfd0febf49bd6e95cf0792b110d4973806442b9e9aa72deb120"
+    },
+    {
+      "intentRef": "CHK-011:adversarial:0",
+      "itemId": "CHK-011",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:31b1e63006f0597ab35df095bfc9408e0be6c32f75b9bd83cd5496e928c44785"
+    },
+    {
+      "intentRef": "CHK-011:edge:0",
+      "itemId": "CHK-011",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:625c6da871f64dc2bc0448d6f41a270c06c7cde9e741ab1ea0434bc08529de1a"
+    },
+    {
+      "intentRef": "CHK-011:happy:0",
+      "itemId": "CHK-011",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:358354f80c24d6b79c4026bae384a3d439d4c84c8474411667b8b8577f2f984b"
+    },
+    {
+      "intentRef": "CHK-012:adversarial:0",
+      "itemId": "CHK-012",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:186cb1ea7e90ea459f7e4111b875b5048f155a4ab23b09ac66603101630ff127"
+    },
+    {
+      "intentRef": "CHK-012:edge:0",
+      "itemId": "CHK-012",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:fedceac50c030163b3f5df883c103b86c7204e5345198db1c8e38a38bd95b9bd"
+    },
+    {
+      "intentRef": "CHK-012:happy:0",
+      "itemId": "CHK-012",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:91ab564966f3d48e62311bb26cb428e0c41b1afd50f4d31ac2fbd522c5a6623b"
+    },
+    {
+      "intentRef": "CHK-013:adversarial:0",
+      "itemId": "CHK-013",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:559abf2013540db221e7c7e1796b91a9525b142a2164bc213f3f449a407c53c2"
+    },
+    {
+      "intentRef": "CHK-013:edge:0",
+      "itemId": "CHK-013",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:233ddcde55ad50c74dfd9a3d5a7ee61bfefe4a59f630cd14c1b6ad74c9774c88"
+    },
+    {
+      "intentRef": "CHK-013:happy:0",
+      "itemId": "CHK-013",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:071fcedc763f46adca38efccb32a9c13dc45477930580e82ce9e7bf81d59ffa4"
+    },
+    {
+      "intentRef": "CHK-014:adversarial:0",
+      "itemId": "CHK-014",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:a810ef5e0bd1b3c02bd6020401ffadda2c8bc3283e8c7117038f2ee2da5867a7"
+    },
+    {
+      "intentRef": "CHK-014:edge:0",
+      "itemId": "CHK-014",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:7942ed9ebf522fff59d28877a03c29a09985c780131f80d531ecd5e73b51f1b0"
+    },
+    {
+      "intentRef": "CHK-014:happy:0",
+      "itemId": "CHK-014",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:8244a7ed30dc4efdd7065c3e88e3ddc3b05ae55fb949dca71e1715e5d69b34aa"
+    },
+    {
+      "intentRef": "CHK-014:happy:1",
+      "itemId": "CHK-014",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:b188e02979506f523176b89f5d47c003a268d3464242d0c2db12042cf908a582"
+    },
+    {
+      "intentRef": "CHK-014:happy:2",
+      "itemId": "CHK-014",
+      "evidenceIndex": 4,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:7b1419b09e5085e0aa6e123e44911cace740f8180665f8275fdb59368da1e5cb"
+    }
+  ],
+  "executableProof": {
+    "schemaVersion": "proofstory.pre_review_executable_proof.v1",
+    "storyId": "B-45a0",
+    "producer": "registered-verification-command",
+    "verifier": "pre-review-check-command-runner",
+    "commandDigests": [
+      "sha256:af7a663f94083994b4463462df6ffc9d2f193ebc15d81c8c13929e2c1af73724"
+    ],
+    "caseRecordsEncoding": "gzip-base64",
+    "caseRecords": "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",
+    "provenance": {
+      "runnerPath": "scripts/run-proofstory-pre-review-live-proof.mjs",
+      "runnerDigest": "sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9",
+      "targetPath": "packages/main/dist/tasks/proofstory-pre-review-check-smoke.js",
+      "targetDigest": "sha256:a0e1a27d3adf2c71a424f38fc4173766569f751e6a25023fa5d2b3a47433306d",
+      "buildCommand": "npm --prefix packages/main run build"
+    },
+    "bindingProofs": [
+      {
+        "bindingId": "B-45a0-complete-dynamic-validation",
+        "positiveAssertionIds": [
+          "positive-1",
+          "positive-2",
+          "positive-3",
+          "positive-4",
+          "positive-5",
+          "positive-6",
+          "positive-7",
+          "positive-8",
+          "positive-9",
+          "positive-10",
+          "positive-11",
+          "positive-12",
+          "positive-13",
+          "positive-14",
+          "positive-15",
+          "positive-16",
+          "positive-17",
+          "positive-18"
+        ],
+        "mutationProofs": [
+          {
+            "mutationId": "mutation-1",
+            "expectedCode": "PR_MUTATION_DID_NOT_BITE",
+            "observedCode": "PR_MUTATION_DID_NOT_BITE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-2",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-3",
+            "expectedCode": "PROMPT_CONTRACT_REJECTED",
+            "observedCode": "PROMPT_CONTRACT_REJECTED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-4",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-5",
+            "expectedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "observedCode": "PR_PLANNED_PATH_UNRESOLVED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-6",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-7",
+            "expectedCode": "PROMPT_MIRROR_REJECTED",
+            "observedCode": "PROMPT_MIRROR_REJECTED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-8",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-9",
+            "expectedCode": "FAIL_CLOSED",
+            "observedCode": "FAIL_CLOSED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-10",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-11",
+            "expectedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
+            "observedCode": "PR_TOPOLOGY_CRITIC_REATTESTATION_REQUIRED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-12",
+            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-13",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-14",
+            "expectedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "observedCode": "PR_AUTHORITY_INADMISSIBLE",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-15",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-16",
+            "expectedCode": "PACKAGE_GRAPH_REJECTED",
+            "observedCode": "PACKAGE_GRAPH_REJECTED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-17",
+            "expectedCode": "PASS",
+            "observedCode": "PASS",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-18",
+            "expectedCode": "BIN_ALIAS_REJECTED",
+            "observedCode": "BIN_ALIAS_REJECTED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-19",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-20",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-21",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-22",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-23",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-24",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-25",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-26",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-27",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-28",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-29",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-30",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-31",
+            "expectedCode": "PR_ARTIFACT_TAMPERED",
+            "observedCode": "PR_ARTIFACT_TAMPERED",
+            "controlRestored": true
+          },
+          {
+            "mutationId": "mutation-32",
+            "expectedCode": "PR_NEW_PATH_UNMAPPED",
+            "observedCode": "PR_NEW_PATH_UNMAPPED",
+            "controlRestored": true
+          }
+        ],
+        "transcriptProofs": [
+          {
+            "transcriptId": "transcript-1",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-2",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 211,
+            "consumerSequence": 212
+          },
+          {
+            "transcriptId": "transcript-3",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-4",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 215,
+            "consumerSequence": 216
+          },
+          {
+            "transcriptId": "transcript-5",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-6",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 219,
+            "consumerSequence": 220
+          },
+          {
+            "transcriptId": "transcript-7",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-8",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 223,
+            "consumerSequence": 224
+          },
+          {
+            "transcriptId": "transcript-9",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-10",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 227,
+            "consumerSequence": 228
+          },
+          {
+            "transcriptId": "transcript-11",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-12",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 231,
+            "consumerSequence": 232
+          },
+          {
+            "transcriptId": "transcript-13",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-14",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-15",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-16",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-17",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-18",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-19",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-20",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-21",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-22",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-23",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-24",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-25",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-26",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-27",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 6,
+            "consumerSequence": 7
+          },
+          {
+            "transcriptId": "transcript-28",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 263,
+            "consumerSequence": 264
+          },
+          {
+            "transcriptId": "transcript-29",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 265,
+            "consumerSequence": 266
+          },
+          {
+            "transcriptId": "transcript-30",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 267,
+            "consumerSequence": 268
+          },
+          {
+            "transcriptId": "transcript-31",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 269,
+            "consumerSequence": 270
+          },
+          {
+            "transcriptId": "transcript-32",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 271,
+            "consumerSequence": 272
+          },
+          {
+            "transcriptId": "transcript-33",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 273,
+            "consumerSequence": 274
+          },
+          {
+            "transcriptId": "transcript-34",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 275,
+            "consumerSequence": 276
+          },
+          {
+            "transcriptId": "transcript-35",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 277,
+            "consumerSequence": 278
+          },
+          {
+            "transcriptId": "transcript-36",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 279,
+            "consumerSequence": 280
+          },
+          {
+            "transcriptId": "transcript-37",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 281,
+            "consumerSequence": 282
+          },
+          {
+            "transcriptId": "transcript-38",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 283,
+            "consumerSequence": 284
+          },
+          {
+            "transcriptId": "transcript-39",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 285,
+            "consumerSequence": 286
+          },
+          {
+            "transcriptId": "transcript-40",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 287,
+            "consumerSequence": 288
+          },
+          {
+            "transcriptId": "transcript-41",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 289,
+            "consumerSequence": 290
+          },
+          {
+            "transcriptId": "transcript-42",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 291,
+            "consumerSequence": 292
+          },
+          {
+            "transcriptId": "transcript-43",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 293,
+            "consumerSequence": 294
+          },
+          {
+            "transcriptId": "transcript-44",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 295,
+            "consumerSequence": 296
+          },
+          {
+            "transcriptId": "transcript-45",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 297,
+            "consumerSequence": 298
+          },
+          {
+            "transcriptId": "transcript-46",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 299,
+            "consumerSequence": 300
+          },
+          {
+            "transcriptId": "transcript-47",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 301,
+            "consumerSequence": 302
+          },
+          {
+            "transcriptId": "transcript-48",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 303,
+            "consumerSequence": 304
+          },
+          {
+            "transcriptId": "transcript-49",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 305,
+            "consumerSequence": 306
+          },
+          {
+            "transcriptId": "transcript-50",
+            "producerRefs": [
+              "producer-planned-change-manifest"
+            ],
+            "consumerRefs": [
+              "consumer-planned-impact-graph"
+            ],
+            "producerSequence": 307,
+            "consumerSequence": 308
+          }
+        ]
+      }
+    ]
+  },
+  "criticReceiptDigest": "sha256:b09f8da4a308694e9a9ac32915763476d0227f032e4cf462eda85af663101adb",
+  "codes": [],
+  "status": "pass",
+  "issuedAt": "2026-09-02T07:46:06.530Z",
+  "signerPublicKey": "4K3JOygx9kXStVuiYM8fjT485DCzR4yqnTy5Sch+TOQ=",
+  "signature": "Jo5M/L24N5GVtnOvnE6kSCHQF+Jt/mfSBKvdH7npUOZuXrRGKbEGu/6CTFMcVKLpwPWMnN0l5vyjZGbfKSUbBw=="
+}

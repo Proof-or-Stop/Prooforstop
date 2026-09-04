@@ -4,6 +4,11 @@ import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import { withMkdirLock } from './mkdir-lock.js';
+import {
+  causalDependencyDecisionMatchesCurrentIdentity,
+  verifyCausalDependencyDecision,
+  type CausalDependencyDecision,
+} from './causal-evidence.js';
 
 export const CERTIFICATION_WINDOW_STATES = [
   'BLOCKED',
@@ -29,6 +34,7 @@ export const INVENTORY_COMPLETENESS_AUTHORITY = 'inventory-completeness-only';
 
 export const PRE_CERT_INVENTORY_API_ABSENT = 'pre_cert_inventory_api_absent';
 export const PRE_CERT_INVENTORY_NOT_FINALIZED = 'pre_cert_inventory_not_finalized';
+export const PRE_CERT_INVENTORY_PROBE_FAILED = 'pre_cert_inventory_probe_failed';
 export const PRE_CERT_MAIN_NOT_MERGED = 'pre_cert_main_not_merged';
 export const PRE_CERT_BLOCKING_FINDINGS_OPEN = 'pre_cert_blocking_findings_open';
 export const PRE_CERT_COVERAGE_MISSING = 'pre_cert_coverage_missing';
@@ -40,6 +46,8 @@ export const PRE_CERT_RECEIPT_TAMPERED = 'pre_cert_receipt_tampered';
 export const PRE_CERT_INVENTORY_NOT_AUTHORITY = 'pre_cert_inventory_not_certification_authority';
 export const PRE_CERT_WINDOW_REQUIRED = 'pre_cert_window_required';
 export const PRE_CERT_WINDOW_INVALIDATED = 'pre_cert_window_invalidated';
+export const PRE_CERT_CAUSAL_FRESHNESS_REQUIRED = 'pre_cert_causal_freshness_required';
+export const PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY = 'pre_cert_material_drift_reattestation_advisory';
 
 export const PRECERT_VERIFIER_IDENTITY = 'proof-or-stop:done_required_validate';
 export const PRECERT_TEST_IDENTITY = 'npm test';
@@ -48,6 +56,8 @@ export interface CertificationWindowFrozenIdentity {
   headHash: string;
   materialHash: string;
   storyFilesHash: string;
+  /** Domain inputs captured when the certification window was admitted. */
+  causalInputHashes?: Record<string, string>;
   expectedMainSha: string;
   verifierIdentity: string;
   testIdentity: string;
@@ -147,13 +157,36 @@ export interface ReviewInventoryAdmitApis {
     store: unknown,
     storyId: string,
   ) => ReviewInventoryAdmitPair | null;
-  consumeReviewInventoryReceipt: (
+  consumeReviewInventoryCompletenessReceipt: (
     store: unknown,
     storyId: string,
     reviewRound: string,
     currentCutoff: { materialHash: string; storyFilesHash?: string },
     validateInventoryContext?: () => void,
   ) => string | null;
+}
+
+export type ReviewInventoryProbeResult =
+  | { status: 'present'; inventory: ReviewInventoryAdmitPair }
+  | { status: 'empty'; inventory: null }
+  | { status: 'failed'; error: string };
+
+export function probeFinalizedUnconsumedReviewInventory(
+  apis: ReviewInventoryAdmitApis,
+  store: unknown,
+  storyId: string,
+): ReviewInventoryProbeResult {
+  try {
+    const inventory = apis.finalizedUnconsumedReviewInventory(store, storyId);
+    return inventory
+      ? { status: 'present', inventory }
+      : { status: 'empty', inventory: null };
+  } catch (error) {
+    return {
+      status: 'failed',
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 export interface CertificationWindowAdmitFacts {
@@ -170,6 +203,11 @@ export interface CertificationWindowAdmitFacts {
   dirtyNonRuntimePaths: string[];
   gitIndexReadable: boolean;
   evidenceTargetWritable: boolean;
+  causalInputHashes?: Record<string, string>;
+  causalDependencyGraphDigest?: string;
+  causalInputHashesDigest?: string;
+  /** Optional signed decision used only by the explicit specialized consumer. */
+  causalDecision?: CausalDependencyDecision;
 }
 
 export interface CertificationWindowAdmitDecision {
@@ -184,6 +222,10 @@ export interface CertificationWindowStatusProjection {
   receipt: PrecertReceipt | null;
   blockerCode: string | null;
   nextCommand: string;
+  advisory?: {
+    code: typeof PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY;
+    detail: string;
+  };
 }
 
 function canonical(value: unknown): string {
@@ -324,11 +366,11 @@ export function loadReviewInventoryAdmitApis(): ReviewInventoryAdmitApis | null 
   try {
     const required = createRequire(import.meta.url)('./review-inventory-epoch.js') as Record<string, unknown>;
     const finalized = required.finalizedUnconsumedReviewInventory;
-    const consume = required.consumeReviewInventoryReceipt;
+    const consume = required.consumeReviewInventoryCompletenessReceipt;
     if (typeof finalized !== 'function' || typeof consume !== 'function') return null;
     return {
       finalizedUnconsumedReviewInventory: finalized as ReviewInventoryAdmitApis['finalizedUnconsumedReviewInventory'],
-      consumeReviewInventoryReceipt: consume as ReviewInventoryAdmitApis['consumeReviewInventoryReceipt'],
+      consumeReviewInventoryCompletenessReceipt: consume as ReviewInventoryAdmitApis['consumeReviewInventoryCompletenessReceipt'],
     };
   } catch {
     return null;
@@ -341,6 +383,8 @@ export function nextCommandForBlocker(storyId: string, blockerCode?: string | nu
     case PRE_CERT_INVENTORY_API_ABSENT:
     case PRE_CERT_INVENTORY_NOT_AUTHORITY:
       return `proof-or-stop review_inventory_finalize --storyId=${storyId}`;
+    case PRE_CERT_INVENTORY_PROBE_FAILED:
+      return `proof-or-stop certification_window_status --storyId=${storyId}`;
     case PRE_CERT_MAIN_NOT_MERGED:
       return `proof-or-stop done_prepare --storyId=${storyId} --mergeMain`;
     case PRE_CERT_BLOCKING_FINDINGS_OPEN:
@@ -375,6 +419,7 @@ export function projectCertificationWindowStatus(
   storyId: string,
   window: CertificationWindow | null,
   receipt: PrecertReceipt | null = null,
+  advisory?: CertificationWindowStatusProjection['advisory'],
 ): CertificationWindowStatusProjection {
   if (!window) {
     return {
@@ -383,6 +428,7 @@ export function projectCertificationWindowStatus(
       receipt: null,
       blockerCode: PRE_CERT_WINDOW_MISSING,
       nextCommand: nextCommandForState(storyId, 'BLOCKED', PRE_CERT_WINDOW_MISSING),
+      ...(advisory ? { advisory } : {}),
     };
   }
   const blockerCode = window.blockerCode
@@ -394,6 +440,7 @@ export function projectCertificationWindowStatus(
     receipt,
     blockerCode,
     nextCommand: nextCommandForState(storyId, window.state, blockerCode),
+    ...(advisory ? { advisory } : {}),
   };
 }
 
@@ -432,6 +479,30 @@ export function evaluateCertificationWindowAdmit(
       admit: false,
       blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
       blockerDetail: `[${PRE_CERT_INVENTORY_API_ABSENT}] Review inventory admit APIs are absent; begin stays fail-closed and does not stub-always-admit. Inventory completeness is not PRE_CERT.`,
+    };
+  }
+  const causalDecisionBindingAdmissible = !facts.causalDecision
+    || causalDependencyDecisionMatchesCurrentIdentity(facts.causalDecision, {
+      storyId: facts.currentStoryId,
+      materialHash: facts.materialHash,
+      storyFilesHash: facts.storyFilesHash,
+      headHash: facts.headHash,
+      dependencyGraphDigest: facts.causalDependencyGraphDigest,
+      currentInputHashesDigest: facts.causalInputHashesDigest,
+    });
+  if (facts.causalDecision && (
+    !verifyCausalDependencyDecision(facts.causalDecision)
+    || !facts.causalDecision.gateAdmissible
+    || !causalDecisionBindingAdmissible
+  )) {
+    return {
+      admit: false,
+      blockerCode: PRE_CERT_CAUSAL_FRESHNESS_REQUIRED,
+      blockerDetail: facts.causalDecision && verifyCausalDependencyDecision(facts.causalDecision)
+        ? causalDecisionBindingAdmissible
+          ? `CausalEvidence requires fresh affected-node evidence: ${facts.causalDecision.reason}`
+          : 'CausalEvidence decision binding does not match the live certification hashes; stale evidence is refused.'
+        : 'CausalEvidence decision is missing or tampered; stale affected-node bypass is refused.',
     };
   }
   const lineageRefusal = inventoryLineageRefusal(facts);
@@ -502,6 +573,9 @@ export function renderCertificationWindowStatus(projection: CertificationWindowS
     lines.push(`expectedMainSha: ${window.frozen.expectedMainSha}`);
     lines.push(`storyFilesHash: ${window.frozen.storyFilesHash}`);
   }
+  if (projection.advisory) {
+    lines.push(`Warning: [${projection.advisory.code}] ${projection.advisory.detail}`);
+  }
   if (blockerCode) lines.push(`Blocker: [${blockerCode}]`);
   if (window?.blockerDetail) lines.push(`Detail: ${window.blockerDetail}`);
   lines.push(`Next: ${nextCommand}`);
@@ -545,7 +619,13 @@ export function persistBlockedCertificationWindow(args: {
   return withCertificationWindowLock(args.store, args.storyId, () => {
     const data = args.store.readCertificationWindows(args.storyId);
     const latest = latestCertificationWindow(data);
-    if (latest && verifyCertificationWindow(latest) && latest.state === 'BLOCKED' && latest.blockerCode === args.blockerCode) {
+    if (
+      latest
+      && verifyCertificationWindow(latest)
+      && latest.state === 'BLOCKED'
+      && latest.blockerCode === args.blockerCode
+      && latest.blockerDetail === args.blockerDetail
+    ) {
       return latest;
     }
     const now = new Date().toISOString();
@@ -667,29 +747,96 @@ export function loadVerifiedCertificationWindow(
 }
 
 export interface CertificationWindowCurrentIdentity {
+  storyId?: string;
   materialHash?: string;
   storyFilesHash?: string;
+  /** Current hashes for the declared causal dependency inputs. */
+  causalInputHashes?: Record<string, string>;
   verifierIdentity?: string;
   testIdentity?: string;
   headHash?: string;
   /** True when the workspace is a git repo but current hashes could not be read. */
   hashUnavailable?: boolean;
+  causalDependencyGraphDigest?: string;
+  causalInputHashesDigest?: string;
+  /** Signed specialized decision; absent keeps the existing strict hash gate. */
+  causalDecision?: CausalDependencyDecision;
+}
+
+function causalDecisionMatchesCertificationSnapshot(
+  decision: CausalDependencyDecision,
+  frozen: CertificationWindowFrozenIdentity,
+  current: CertificationWindowCurrentIdentity,
+): boolean {
+  if (!causalDependencyDecisionMatchesCurrentIdentity(decision, {
+    storyId: current.storyId,
+    materialHash: current.materialHash,
+    storyFilesHash: current.storyFilesHash,
+    headHash: current.headHash,
+    dependencyGraphDigest: current.causalDependencyGraphDigest,
+    currentInputHashesDigest: current.causalInputHashesDigest,
+  })) return false;
+  const binding = decision.identityBinding!;
+  return binding.previousMaterialHash === frozen.materialHash
+    && binding.previousStoryFilesHash === frozen.storyFilesHash
+    && binding.previousHeadHash === frozen.headHash;
 }
 
 export function detectCertificationWindowMaterialDrift(
   window: CertificationWindow,
   current: CertificationWindowCurrentIdentity,
-): { drifted: boolean; reason?: string } {
+): { drifted: boolean; reason?: string; advisory?: CertificationWindowStatusProjection['advisory'] } {
   const frozen = window.frozen;
   if (!frozen) return { drifted: false };
   if (current.hashUnavailable) {
     return { drifted: true, reason: 'current certification hashes are missing' };
   }
+  if (current.causalDecision && !verifyCausalDependencyDecision(current.causalDecision)) {
+    return { drifted: true, reason: 'causal dependency decision is missing or tampered' };
+  }
+  if (current.causalDecision && !current.causalDecision.gateAdmissible) {
+    return { drifted: true, reason: current.causalDecision.reason };
+  }
+  if (current.causalDecision && !causalDecisionMatchesCertificationSnapshot(current.causalDecision, frozen, current)) {
+    const binding = current.causalDecision.identityBinding;
+    // B-5a15 F-338: map into the parameter shape, exactly as
+    // causalDecisionMatchesCertificationSnapshot does. Passing `current` raw silently read
+    // undefined for both digests -- CertificationWindowCurrentIdentity names them
+    // causalDependencyGraphDigest / causalInputHashesDigest -- so the two digest comparisons
+    // were skipped and this re-check blamed the FROZEN binding when only the CURRENT one had
+    // drifted. The parameter type is all-optional and `current` is a variable, so excess
+    // property checking never flagged it.
+    const currentMatches = binding
+      ? causalDependencyDecisionMatchesCurrentIdentity(current.causalDecision, {
+        storyId: current.storyId,
+        materialHash: current.materialHash,
+        storyFilesHash: current.storyFilesHash,
+        headHash: current.headHash,
+        dependencyGraphDigest: current.causalDependencyGraphDigest,
+        currentInputHashesDigest: current.causalInputHashesDigest,
+      })
+      : false;
+    return {
+      drifted: true,
+      reason: currentMatches
+        ? 'causal dependency previous binding does not match frozen certification hashes'
+        : 'causal dependency current binding does not match current certification hashes [causal advisory binding mismatch]',
+    };
+  }
+  const allowSpecializedUnrelatedDrift = current.causalDecision?.causalDecision === 'advisory'
+    && current.causalDecision.storyFilesHashAdvisory;
   if (current.storyFilesHash && frozen.storyFilesHash && current.storyFilesHash !== frozen.storyFilesHash) {
     return { drifted: true, reason: 'storyFilesHash changed' };
   }
+  let advisory: CertificationWindowStatusProjection['advisory'] | undefined;
   if (current.materialHash && frozen.materialHash && current.materialHash !== frozen.materialHash) {
-    return { drifted: true, reason: 'materialHash changed' };
+    if (!allowSpecializedUnrelatedDrift) {
+      return { drifted: true, reason: 'materialHash changed' };
+    }
+    advisory = {
+      code: PRE_CERT_MATERIAL_DRIFT_REATTESTATION_ADVISORY,
+      detail: 'Whole-tree materialHash drifted while storyFilesHash remained unchanged; specialized evidence remains usable only with mandatory re-attestation. Stored hashes are not rewritten.',
+    };
   }
   if (
     frozen.verifierIdentity === PRECERT_VERIFIER_IDENTITY
@@ -705,7 +852,7 @@ export function detectCertificationWindowMaterialDrift(
   ) {
     return { drifted: true, reason: 'test identity changed' };
   }
-  return { drifted: false };
+  return { drifted: false, ...(advisory ? { advisory } : {}) };
 }
 
 export function persistInvalidatedCertificationWindow(args: {
@@ -776,24 +923,20 @@ export function refreshCertificationWindowLineage(args: {
   store: CertificationWindowStorePort;
   storyId: string;
   current: CertificationWindowCurrentIdentity;
-}): { window: CertificationWindow | null; receipt: PrecertReceipt | null } {
+}): { window: CertificationWindow | null; receipt: PrecertReceipt | null; advisory?: CertificationWindowStatusProjection['advisory'] } {
   const loaded = loadVerifiedCertificationWindow(args.store, args.storyId);
   if (!loaded.window) return { window: null, receipt: null };
   if (loaded.window.state !== 'ADMITTED' && loaded.window.state !== 'RUNNING') {
     return { window: loaded.window, receipt: loaded.receipt };
   }
   const drift = detectCertificationWindowMaterialDrift(loaded.window, args.current);
-  if (!drift.drifted) return { window: loaded.window, receipt: loaded.receipt };
+  if (!drift.drifted) return { window: loaded.window, receipt: loaded.receipt, advisory: drift.advisory };
   return persistInvalidatedCertificationWindow({
     store: args.store,
     storyId: args.storyId,
     current: args.current,
     reason: drift.reason ?? 'certification subject changed',
   });
-}
-
-export function heavyCertificationStatusNext(storyId: string): string {
-  return `proof-or-stop certification_window_status --storyId=${storyId}`;
 }
 
 /**
@@ -807,6 +950,7 @@ export function persistSyntheticAdmittedWindowForTest(args: {
   projectRoot: string;
   gitCwd?: string;
   inventory?: CertificationWindowInventoryBinding;
+  causalInputHashes?: Record<string, string>;
 }): { window: CertificationWindow; receipt: PrecertReceipt } {
   if (args.inventory?.authorizesTest === true) {
     throw new Error('persistSyntheticAdmittedWindowForTest: inventory binding must not set authorizesTest=true');
@@ -819,6 +963,7 @@ export function persistSyntheticAdmittedWindowForTest(args: {
     headHash,
     materialHash,
     storyFilesHash,
+    causalInputHashes: args.causalInputHashes,
     expectedMainSha: headHash,
     verifierIdentity: PRECERT_VERIFIER_IDENTITY,
     testIdentity: PRECERT_TEST_IDENTITY,
@@ -863,9 +1008,40 @@ export function refuseHeavyCertificationUnlessAdmitted(args: {
   const refreshed = refreshCertificationWindowLineage(args);
   if (!windowAuthorizesHeavyCertification(refreshed.window, refreshed.receipt)) {
     const projection = projectCertificationWindowStatus(args.storyId, refreshed.window, refreshed.receipt);
+    if (!refreshed.window) {
+      const apis = loadReviewInventoryAdmitApis();
+      if (apis) {
+        const inventoryProbe = probeFinalizedUnconsumedReviewInventory(apis, args.store, args.storyId);
+        if (inventoryProbe.status === 'failed') {
+          const rendered = renderCertificationWindowStatus({
+            ...projection,
+            blockerCode: PRE_CERT_INVENTORY_PROBE_FAILED,
+            nextCommand: nextCommandForBlocker(args.storyId, PRE_CERT_INVENTORY_PROBE_FAILED),
+          });
+          throw new Error(
+            `[${PRE_CERT_INVENTORY_PROBE_FAILED}] Review Inventory probe failed: ${inventoryProbe.error}\n${rendered}`,
+          );
+        }
+        const rendered = renderCertificationWindowStatus({
+          ...projection,
+          // A TEST invocation with no window is blocked on the PRE_CERT inventory
+          // prerequisite only when the inventory probe completed cleanly.
+          nextCommand: inventoryProbe.status === 'present'
+            ? projection.nextCommand
+            : nextCommandForBlocker(args.storyId, PRE_CERT_INVENTORY_NOT_FINALIZED),
+        });
+        throw new Error(
+          `[${PRE_CERT_WINDOW_REQUIRED}] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\n${rendered}`,
+        );
+      }
+    }
     const rendered = renderCertificationWindowStatus({
       ...projection,
-      nextCommand: heavyCertificationStatusNext(args.storyId),
+      // A TEST invocation with no window and no inventory APIs is blocked on the
+      // missing PRE_CERT inventory prerequisite.
+      nextCommand: refreshed.window
+        ? projection.nextCommand
+        : nextCommandForBlocker(args.storyId, PRE_CERT_INVENTORY_NOT_FINALIZED),
     });
     throw new Error(
       `[${PRE_CERT_WINDOW_REQUIRED}] Official heavy certification requires a current ADMITTED or RUNNING CertificationWindow.\n${rendered}`,

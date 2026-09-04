@@ -4,7 +4,7 @@ description: REVIEW review: channel constraints (normal channel dispatch coverag
 model: sonnet
 tools: Bash, Grep, Read
 ---
-<!-- proofOrStop:start -->
+<!-- proof-or-stop:start -->
 # Proof-or-Stop Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -48,15 +48,15 @@ proof-or-stop checklist_get '{"storyId":"B-xxxx"}'
 ## Fresh-Context Fence
 
 Fresh-context separation is a prompt and evidence discipline, not a hidden
-mechanical identity boundary. Subagents and the main agent can look similar to
-the shell, so auditability comes from structured Proof-or-Stop facts plus this fence.
+mechanical identity boundary. Subagents and the main agent can look similar to the
+shell, so auditability comes from structured Proof-or-Stop facts plus this fence.
 
 - A worker/reviewer must infer only from its provided inputs, code diff, story
   metadata exposed by Proof-or-Stop commands, and explicitly read source files.
 - Do not assume the main agent's private intent or full conversation history.
 - For reviewer lanes, an unregistered issue is not a finding. Every real issue
-  must be recorded with `proof-or-stop finding_add`; no-issue conclusions must be
-  recorded with `proof-or-stop review_pass_set`.
+  must be recorded with `proof-or-stop finding_add`; no-issue conclusions must
+  be recorded with `proof-or-stop review_pass_set`.
 - For implementer lanes, mark checklist progress through `proof-or-stop
   checklist_update` and record verificationEvidence for completed items.
 
@@ -98,7 +98,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- proofOrStop:end -->
+<!-- proof-or-stop:end -->
 ## Closing Self-Check (mandatory after completing the first-stage check)
 
 After completing the entire check process below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?** New `proof-or-stop <cmd>` examples, handler schema fields, ENV variables, behavior sections added to CLAUDE.md / README — all must be cross-checked against the code for corresponding implementations. If you find "promised but undelivered" → **critical finding** (category=`missing`, prefix the desc with `doc-promise-undelivered:`).
@@ -158,7 +158,7 @@ proof-or-stop review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId fr
 proof-or-stop finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"Normal channel CHK-003/CHK-005/CHK-007 have no dispatch events in process-events.jsonl; main agent suspected of self-writing. Should be dispatched to proof-or-stop-implementer.","severity":"critical","category":"missing","agent":"proof-or-stop-review-channel"}'
 
 # Cross-repo meta-workflow (files contain out-of-repo absolute paths)
-proof-or-stop finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"Cross-repo meta-workflow detected: 9 of 10 CHKs have files pointing to out-of-repo absolute paths (/Users/.../proofOrStop/...); dispatch evidence may be in an external repo; recommend manual confirmation instead of a mechanical violation call.","severity":"medium","category":"edge","agent":"proof-or-stop-review-channel"}'
+proof-or-stop finding_add '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","desc":"Cross-repo meta-workflow detected: 9 of 10 CHKs have files pointing to out-of-repo absolute paths (/Users/.../lattice/...); dispatch evidence may be in an external repo; recommend manual confirmation instead of a mechanical violation call.","severity":"medium","category":"edge","agent":"proof-or-stop-review-channel"}'
 
 # Express channel
 proof-or-stop review_pass_set '{"storyId":"B-xxx","reviewRunId":"<reviewRunId from review_run_start>","agent":"proof-or-stop-review-channel","note":"Express channel (≤2 items, no riskSignals); main agent self-writing is compliant."}'

@@ -3,26 +3,432 @@
     {
       "id": "CHK-001",
       "title": "Reproduce and close the remaining candidate-routing freshness leak",
-      "context": "Pop the B-3f3d stash@{0} fixture, confirm it still fails, then determine whether candidate SELECTION or only ORDER moves under changedPaths churn. Bind a sorted set of path+contentHash if order is the cause. Evidence: corpusDigest identical while candidateSpecSetDigest moved.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "context": "Read the preserved failing reference only through immutable git object 2c9395fa22e18ca40ba3ee47d9d40c2ad748e009; never apply or pop a stash. Reconstruct a minimal story-branch regression, confirm it initially fails, then determine whether candidate selection or only order moves under changedPaths churn. If order is the cause, bind a sorted path+contentHash set. The completed test must positively assert that a semantically unchanged re-route leaves the epoch State: OPEN, not merely absence of one blocker.",
+      "status": "done",
+      "startTime": "2026-08-20T09:26:13.410Z",
+      "endTime": "2026-08-20T10:22:04.588Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-001:canonical-order-open",
+            "desc": "Build the handler smoke, freeze an OPEN review-inventory epoch, then reroute a valid candidate artifact whose candidate rows contain the identical path/contentHash pairs in a different order. The real review_inventory_status handler must report State: OPEN. WHY: the barrier compares the canonical routing universe, not producer ordering.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B-8af0 canonical candidate-order OPEN: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-001:content-and-selection-drift",
+            "desc": "From the same frozen OPEN epoch, reroute a valid artifact with either one selected path changed or one selected contentHash changed. The real status handler must persist State: INVALIDATED with OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION. WHY: canonicalization must not launder a genuine candidate-universe change.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B-8af0 candidate content-or-selection drift: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-001:order-only-scope",
+            "desc": "Assert the order-neutral case uses exactly the same path/contentHash multiset and separately assert every changed path/contentHash fixture invalidates; do not accept a test that only compares digest helper output without exercising persistInvalidationIfDrifted. WHY: this prevents a weak sort that either still leaks ordering or hides selection drift.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B-8af0 canonical barrier real-handler discriminates order: PASS"
+            }
+          }
+        ]
+      },
+      "userSees": "After rerouting reordered but semantically identical candidates, the terminal shows `State: OPEN`; after a selected path or contentHash changes, it shows `State: INVALIDATED` and `OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION`.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/candidate-spec-routing.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/core/candidate-spec-routing.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:canonical-order-open",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "The real handler fixture proves a reordered but identical selected path/content multiset remains OPEN at final HEAD.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed823117b1fd7665c8aca0e1dd402f908dbb836ae7090538c1e8a623e17a3a9a",
+            "outputTail": "json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 selected path mutation invalidates: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 pre-begin malformed candidates fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 handler artifactDigest tamper fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:39:45.087Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        },
+        {
+          "intentRef": "CHK-001:content-and-selection-drift",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "The real handler fixture proves a changed selected content hash invalidates the frozen epoch with the candidate-routing mutation blocker.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed823117b1fd7665c8aca0e1dd402f908dbb836ae7090538c1e8a623e17a3a9a",
+            "outputTail": "json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 selected path mutation invalidates: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 pre-begin malformed candidates fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 handler artifactDigest tamper fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:41:31.767Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        },
+        {
+          "intentRef": "CHK-001:order-only-scope",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "The real handler smoke proves canonical order neutrality and separately preserves a true selected-candidate change invalidation.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed823117b1fd7665c8aca0e1dd402f908dbb836ae7090538c1e8a623e17a3a9a",
+            "outputTail": "json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 selected path mutation invalidates: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 pre-begin malformed candidates fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 handler artifactDigest tamper fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:43:24.266Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "7c26e78c9b6342418db24e66e5296b745bb565df6ad98a079feaa086d9123818",
+        "storyFilesHash": "8a9c32f9442c6bb67b1ad184fe553aa7e107e19bf09a4da6c185e60981e7d13d",
+        "headHash": "8f32570e61d70189a1d01065bc31d6dd44e78ff0",
+        "attestedAt": "2026-08-20T10:22:04.779Z",
+        "materialHash": "c9ede6af98196b040226f14fda956c2c03a3cc664ed2a0f4a508fe78161989e2"
+      }
     },
     {
       "id": "CHK-002",
       "title": "Guard malformed candidate input at the gate boundary",
-      "context": "captureReviewInventoryScope must not throw on a non-array candidates value, since persistInvalidationIfDrifted has no try/catch at six gate lifecycle call sites and verifyCandidateSpecSet does not validate Array.isArray. Fail closed with a blocker rather than an uncaught TypeError.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "context": "Persist a malformed candidate-spec artifact whose candidates field is truthy but not an array, then exercise the real review-inventory handler path through persistInvalidationIfDrifted. It must fail closed with a deterministic candidate-artifact blocker and must never throw an uncaught TypeError; verifier-only coverage is insufficient because this path is called by multiple lifecycle gates without a catch boundary.",
+      "status": "done",
+      "startTime": "2026-08-20T09:26:14.599Z",
+      "endTime": "2026-08-20T11:00:36.117Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-002:truthy-nonarray-fails-closed",
+            "desc": "Persist a signed-looking candidate-spec artifact with a truthy non-array candidates field, invoke review_inventory_status through the real handler so it reaches persistInvalidationIfDrifted, and assert State: INVALIDATED plus the stable OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT blocker. WHY: the gate must classify malformed persisted input instead of treating it as absent or throwing.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B-8af0 malformed candidates fail closed: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-002:no-uncaught-typeerror",
+            "desc": "Exercise at least string and object truthy non-array candidates through the same real handler path and assert neither invocation escapes as TypeError; each result must be the same deterministic invalid-candidate-artifact blocker. WHY: falsy-or-null validation alone does not cover the crash class.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B-8af0 malformed candidate variants deterministic: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-002:malformed-artifact-cannot-pass-as-valid",
+            "desc": "Use a malformed artifact whose other digest/signature-shaped fields are internally consistent, then prove the structural candidates check still wins before the barrier projects candidate rows. WHY: an attacker must not recompute a digest around a non-array shape to bypass fail-closed handling.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B-8af0 malformed candidate structural guard: PASS"
+            }
+          },
+          {
+            "id": "CHK-002:artifact-digest-tamper-still-rejected",
+            "desc": "Mutate a valid candidate artifact without recomputing artifactDigest and prove verifyCandidateSpecSet rejects it. WHY: canonical barrier comparison must not weaken the independent full-artifact tamper detector.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+              "selector": "B-8af0 artifactDigest tamper guard: PASS"
+            }
+          }
+        ]
+      },
+      "userSees": "When review-inventory reads a persisted artifact with a truthy non-array `candidates` field, the terminal shows `State: INVALIDATED` and `OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT`, never an uncaught `TypeError`.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/candidate-spec-routing.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:artifact-digest-tamper-still-rejected",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/candidate-spec-routing-smoke.js",
+          "result": "pass",
+          "note": "The candidate-routing smoke proves the independent full artifactDigest tamper verifier still rejects a modified artifact.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d4bbb44f5a9e8cc1a4d584a875ad0b98ac159159c55f99283b85c6e976638e76",
+            "outputTail": "Switched to a new branch 'main'\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 artifactDigest tamper guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\ncandidate-spec-routing smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:48:53.514Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        },
+        {
+          "intentRef": "CHK-002:truthy-nonarray-fails-closed",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "The real handler writes the typed invalid-candidate-artifact blocker and terminal INVALIDATED state for a persisted truthy non-array candidates field.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed823117b1fd7665c8aca0e1dd402f908dbb836ae7090538c1e8a623e17a3a9a",
+            "outputTail": "json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 selected path mutation invalidates: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 pre-begin malformed candidates fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 handler artifactDigest tamper fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:45:09.657Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        },
+        {
+          "intentRef": "CHK-002:no-uncaught-typeerror",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "The real handler exercises signed-looking string and object candidates artifacts without escaping a TypeError and yields the same typed blocker.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed823117b1fd7665c8aca0e1dd402f908dbb836ae7090538c1e8a623e17a3a9a",
+            "outputTail": "json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 selected path mutation invalidates: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 pre-begin malformed candidates fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 handler artifactDigest tamper fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:47:03.039Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        },
+        {
+          "intentRef": "CHK-002:malformed-artifact-cannot-pass-as-valid",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "The real handler receives string and object malformed artifacts whose digest was recomputed and still rejects their structure before barrier projection.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed823117b1fd7665c8aca0e1dd402f908dbb836ae7090538c1e8a623e17a3a9a",
+            "outputTail": "json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 selected path mutation invalidates: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 pre-begin malformed candidates fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 handler artifactDigest tamper fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:48:52.204Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "6b6975a7d0d266a416784ad265260f32043bf7b945d086dae9a3639246e61abf",
+        "storyFilesHash": "8a9c32f9442c6bb67b1ad184fe553aa7e107e19bf09a4da6c185e60981e7d13d",
+        "headHash": "8f32570e61d70189a1d01065bc31d6dd44e78ff0",
+        "attestedAt": "2026-08-20T10:22:05.783Z",
+        "materialHash": "c9ede6af98196b040226f14fda956c2c03a3cc664ed2a0f4a508fe78161989e2"
+      }
     },
     {
       "id": "CHK-003",
       "title": "Add the end-to-end routing-neutral regression fixture",
-      "context": "B-3f3d:F-108. review-inventory-handler-smoke.ts must branch to story/<id> first so git diff main...HEAD is non-empty, otherwise changedPaths never populates and the fixture proves nothing. Assert the epoch stays OPEN after an unrelated commit plus a re-route.",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "context": "Build the regression in the handler smoke from immutable fixture facts, not by applying a stash. The test must check out a story/<id> branch first so git diff main...HEAD has changedPaths, commit an unrelated file, rerun candidate_spec_route, and positively assert the frozen epoch remains State: OPEN with no candidate-routing mutation. A test that merely lacks one blocker is insufficient because another invalidation could still close the epoch.",
+      "status": "done",
+      "startTime": "2026-08-20T09:26:17.703Z",
+      "endTime": "2026-08-20T10:22:06.576Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "CHK-003:story-branch-reroute-remains-open",
+            "desc": "In the handler smoke, create and check out a story/<id> branch before the fixture commit, assert git diff --name-only main...HEAD is nonempty after committing an unrelated file, rerun candidate_spec_route, then assert real review_inventory_status prints State: OPEN. WHY: this recreates the original changedPaths channel rather than a helper-only approximation.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B-8af0 story-branch routing-neutral OPEN: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "CHK-003:positive-open-not-absence",
+            "desc": "After the unrelated commit and reroute, assert the persisted epoch state is exactly OPEN and the status text is exactly State: OPEN, not merely that OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION is absent. WHY: another invalidation reason could otherwise create a false green.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B-8af0 routing-neutral positive OPEN state: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "CHK-003:immutable-fixture-and-reroute-order",
+            "desc": "Derive the regression facts from immutable git object 2c9395fa22e18ca40ba3ee47d9d40c2ad748e009 without applying or popping a stash; prove the unrelated commit precedes the reroute and still yields nonempty changedPaths. WHY: the fixture must continue exercising the real F-107 freshness route after future workspace state changes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B-8af0 immutable story-branch fixture: PASS"
+            }
+          }
+        ]
+      },
+      "userSees": "After an unrelated story-branch commit and candidate reroute, the terminal positively prints `State: OPEN`; the smoke output includes the B-8af0 story-branch routing-neutral pass marker.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:story-branch-reroute-remains-open",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "The real fixture creates story/<id>, commits an unrelated runtime artifact, proves main...HEAD is nonempty, reroutes, and remains OPEN.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed823117b1fd7665c8aca0e1dd402f908dbb836ae7090538c1e8a623e17a3a9a",
+            "outputTail": "json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 selected path mutation invalidates: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 pre-begin malformed candidates fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 handler artifactDigest tamper fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:50:50.545Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        },
+        {
+          "intentRef": "CHK-003:positive-open-not-absence",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "The fixture asserts rendered State: OPEN after the unrelated story-branch commit rather than merely absence of candidate mutation text.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed823117b1fd7665c8aca0e1dd402f908dbb836ae7090538c1e8a623e17a3a9a",
+            "outputTail": "json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 selected path mutation invalidates: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 pre-begin malformed candidates fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 handler artifactDigest tamper fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:52:37.837Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        },
+        {
+          "intentRef": "CHK-003:immutable-fixture-and-reroute-order",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Re-executed the frozen real-handler story-branch fixture at the current B-8af0 material after scope review identified a missing mechanical receipt.",
+          "headHash": "a16893a54919c6a6ef435a27c35f5ebcaaa8bc2a",
+          "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+          "storyFilesHash": "a1fe50c9b2db58a608bdad8cb157dd3748d7f214ebecef264436d78755f25b8b",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ed823117b1fd7665c8aca0e1dd402f908dbb836ae7090538c1e8a623e17a3a9a",
+            "outputTail": "json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 selected path mutation invalidates: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 canonical candidate-order OPEN: PASS\nB-8af0 candidate content-or-selection drift: PASS\nB-8af0 canonical barrier real-handler discriminates order: PASS\nB-8af0 story-branch routing-neutral OPEN: PASS\nB-8af0 routing-neutral positive OPEN state: PASS\nB-8af0 immutable story-branch fixture: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 malformed candidates fail closed: PASS\nB-8af0 malformed candidate variants deterministic: PASS\nB-8af0 malformed candidate structural guard: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 pre-begin malformed candidates fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB-8af0 handler artifactDigest tamper fail closed: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T11:54:29.543Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T11:54:29.601Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "aab247752958f92a74c0448a979df4be154ffbee0564c5d9af444915a59971a2",
+        "storyFilesHash": "8a9c32f9442c6bb67b1ad184fe553aa7e107e19bf09a4da6c185e60981e7d13d",
+        "headHash": "8f32570e61d70189a1d01065bc31d6dd44e78ff0",
+        "attestedAt": "2026-08-20T10:22:06.769Z",
+        "materialHash": "c9ede6af98196b040226f14fda956c2c03a3cc664ed2a0f4a508fe78161989e2"
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-20T10:27:01.783Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Scope re-review found artifactDigest tamper coverage does not traverse the real review-inventory status handler."
+    },
+    {
+      "timestamp": "2026-08-20T11:00:36.117Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Real-handler stale artifactDigest tamper regression committed in 123b6e6584c877517b40924daf1804842856f277; all pinned verification evidence refreshed on that HEAD."
     }
   ]
 }

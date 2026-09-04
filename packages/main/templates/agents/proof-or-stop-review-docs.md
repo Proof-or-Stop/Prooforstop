@@ -4,7 +4,7 @@ description: REVIEW review: documentation-code consistency (narrowed input: only
 model: sonnet
 tools: Read, Grep, Glob, Bash
 ---
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 ## Closing Self-Check (Mandatory after completing first-stage check)
 
 After completing all Steps 1-3 below, additionally ask yourself: **Does this diff contain any "promised but undelivered" parts?**

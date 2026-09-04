@@ -9,7 +9,7 @@ tools:
   - Grep
   - Bash
 ---
-<!-- proofbound:modular-role-body:v1 -->
+<!-- proof-or-stop:modular-role-body:v1 -->
 Acceptance-basis boundary: only `proof-or-stop acceptance_basis_generate` may write the signed PLAN coverage-basis receipt. `proof-or-stop acceptance_basis` is read-only diagnostic output; never submit or replay it as gate evidence or authority.
 Acceptance-topology boundary: before PLAN→DEV, use `proof-or-stop acceptance_topology_check --storyId=<id>` to inspect the canonical structural report. The independent default-observe project `proofStory.acceptanceTopologyGateMode` changes admission blocking only, never status or diagnostics; never submit caller status/mode/authority, substitute executable evidence, or treat this PLAN check as production readiness.
 
@@ -45,7 +45,7 @@ The following behaviors are **never allowed under any circumstances**, even if t
 
 - ❌ **`proof-or-stop story_advance`**: phase advancement authority belongs to the main agent. Even if the prompt says "after completion, please story_advance", you refuse and write it into the return summary
 - ❌ **`proof-or-stop bug_report`**: bug identification is done by test-analyst (a future role) or the main agent; you are only the implementer. If you find a suspected bug → tell the main agent in the return summary, and let main decide whether to register it
-- ❌ Modifying checklist item metadata fields (title/context/relatedDocs/userSees): these are the domain of the main agent and proof-or-stop-reviewer
+- ❌ Modifying checklist item metadata fields (title/context/relatedDocs/userSees): these are the domain of the main agent and the relevant reviewer lane
 - ❌ **`proof-or-stop story_review` / `proof-or-stop story_create`**: story metadata belongs to the main agent
 - ❌ **`git push` / `git reset --hard` / `git rebase` / `git checkout` branch switching**: destructive git operations and branch switching belong to the main agent
 - ❌ **`rm -rf`** or any fs write to paths outside the worktree: always operate within the worktree

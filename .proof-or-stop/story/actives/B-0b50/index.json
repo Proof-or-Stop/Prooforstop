@@ -1,0 +1,199 @@
+{
+  "storyId": "B-0b50",
+  "name": "fix-precert-inventory-recovery-hint",
+  "title": "Route missing PRE_CERT inventory recovery directly to TEST-safe finalization",
+  "description": "When done_prepare reports pre_cert_inventory_not_finalized in TEST, render the existing TEST-safe review_inventory_finalize command as the direct next action and explicitly prevent an unnecessary TEST to DEV to REVIEW bounce. Preserve all current receipt and certification semantics.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "keywords": [
+    "done_prepare",
+    "pre-cert",
+    "review-inventory",
+    "recovery-hint",
+    "lifecycle"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    }
+  ],
+  "createdAt": "2026-08-25T19:23:45.148Z",
+  "startedAt": "2026-08-25T19:23:45.148Z",
+  "endedAt": "2026-08-30T19:34:38.723Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-25T19:23:47.974Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-fffdfe86efdbe43b3a612ec00d6853e9",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-25T19:28:50.030Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-96baeaeaf4f4476b9def02488d1cb699",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-08-25T19:29:11.798Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-bda21000bfa077c3796082f433fba2e7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-25T19:40:48.220Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-bda21000bfa077c3796082f433fba2e7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-25T20:09:28.955Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-bda21000bfa077c3796082f433fba2e7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-26T07:02:38.010Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-bda21000bfa077c3796082f433fba2e7",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-26T07:07:48.610Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-bda21000bfa077c3796082f433fba2e7",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-26T09:53:37.100Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-bda21000bfa077c3796082f433fba2e7",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T16:24:04.018Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T16:26:56.469Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T16:47:51.600Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T16:51:42.451Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T17:04:48.275Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T17:05:18.175Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-30T17:49:26.721Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-08-30T18:55:34.463Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-08-30T18:58:39.043Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-08-30T19:19:45.781Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-08-30T19:34:38.723Z",
+      "branch": "story/B-0b50",
+      "user": "Pan Qi",
+      "sessionId": "sess-34f4410ad976749411dd4fc598723add",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-08-30T18:58:39.043Z"
+}

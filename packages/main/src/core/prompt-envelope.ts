@@ -10,10 +10,14 @@ import {
   validateIncrementalReviewBasis,
   validateKnownExecutionEnvironment,
   validatePromptEnvelope,
+  FULL_TASK_CONTEXT_SCHEMA,
+  KNOWN_EXECUTION_ENVIRONMENT_SCHEMA,
+  PROMPT_ENVELOPE_SCHEMA,
   type FullTaskContext,
   type IncrementalReviewBasis,
   type KnownExecutionEnvironment,
   type PromptEnvelope,
+  type PromptFindingProjection,
   type RoleContract,
   type RuntimeContract,
 } from './prompt-contracts.js';
@@ -21,9 +25,12 @@ import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 import type { ChecklistData, ScopeContractData, StoryInfo } from './types.js';
 import { digestScopeContract } from './guard-session.js';
 import { isModularReviewerRoleId } from './prompt-registry.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 
-export const PROMPT_ENVELOPE_ASSEMBLER_VERSION = 'proofbound.full-context-assembler.v1';
-export const PROMPT_DISPATCH_PROTOCOL_VERSION = 'proofbound.prompt-dispatch.v1';
+export const PROMPT_ENVELOPE_ASSEMBLER_VERSION = 'proof-or-stop.full-context-assembler.v1';
+export const PROMPT_ENVELOPE_ASSEMBLER_VERSION_LEGACY = 'proofbound.full-context-assembler.v1';
+export const PROMPT_DISPATCH_PROTOCOL_VERSION = 'proof-or-stop.prompt-dispatch.v1';
+export const PROMPT_DISPATCH_PROTOCOL_VERSION_LEGACY = 'proofbound.prompt-dispatch.v1';
 
 export interface FullPromptAssemblyInput {
   roleContract: RoleContract;
@@ -61,6 +68,8 @@ export interface ConditionalReviewAssemblyInput extends FullPromptAssemblyInput 
   changedFilesDigest: string;
   impactedFilesDigest: string;
   reviewBasis?: IncrementalReviewBasis | null;
+  /** Exact mutable finding fields observed at run start; signed by envelopeId. */
+  findingProjection?: PromptFindingProjection[];
   incrementalBudgetBytes?: number;
   fullBudgetBytes?: number;
   reviewerEscalationReason?: string;
@@ -995,7 +1004,7 @@ export function buildFullTaskContext(args: {
   scopeContract?: ScopeContractData | null;
 }): FullTaskContext {
   const context: FullTaskContext = {
-    schemaVersion: 'proofbound.full-task-context.v1',
+    schemaVersion: FULL_TASK_CONTEXT_SCHEMA,
     storyId: args.story.storyId,
     title: args.story.title,
     description: args.story.description,
@@ -1092,7 +1101,7 @@ export function fullTaskSemanticDigest(context: FullTaskContext): string {
 
 export function captureKnownExecutionEnvironment(): KnownExecutionEnvironment {
   const value: KnownExecutionEnvironment = {
-    schemaVersion: 'proofbound.known-execution-environment.v1',
+    schemaVersion: KNOWN_EXECUTION_ENVIRONMENT_SCHEMA,
     nodeVersion: process.version,
     platform: process.platform,
     architecture: process.arch,
@@ -1130,19 +1139,20 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     throw new Error(`full Prompt Envelope requires an active role; ${input.roleContract.roleId} is ${input.roleContract.status}`);
   }
   assertContractRenderCoherence(input.runtimeContract, input.roleContract, input.rolePrompt);
+  const canonicalLane = input.lane === undefined ? undefined : canonicalAgentRoleId(input.lane);
   if (input.dispatchKind === 'review-run') {
     for (const [key, value] of Object.entries({
       reviewRunId: input.reviewRunId,
       reviewRound: input.reviewRound,
-      lane: input.lane,
+      lane: canonicalLane,
     })) {
       if (typeof value !== 'string' || value.trim().length === 0) {
         throw new Error(`review-run Prompt Envelope requires ${key}`);
       }
     }
-    if (input.roleContract.roleId !== input.lane) {
+    if (input.roleContract.roleId !== canonicalLane) {
       throw new Error(
-        `review-run Prompt Envelope role/lane mismatch: ${input.roleContract.roleId} !== ${input.lane}`,
+        `review-run Prompt Envelope role/lane mismatch: ${input.roleContract.roleId} !== ${canonicalLane}`,
       );
     }
     if (typeof input.dispatchPrompt !== 'string' || input.dispatchPrompt.length === 0) {
@@ -1164,13 +1174,13 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     input.dispatchPrompt,
   );
   const envelopeWithoutId: Omit<PromptEnvelope, 'envelopeId'> = {
-    schemaVersion: 'proofbound.prompt-envelope.v1',
+    schemaVersion: PROMPT_ENVELOPE_SCHEMA,
     roleId: input.roleContract.roleId,
     storyId: input.taskContext.storyId,
     dispatchKind: input.dispatchKind,
     ...(input.reviewRunId ? { reviewRunId: input.reviewRunId } : {}),
     ...(input.reviewRound ? { reviewRound: input.reviewRound } : {}),
-    ...(input.lane ? { lane: input.lane } : {}),
+    ...(canonicalLane ? { lane: canonicalLane } : {}),
     ...(input.dispatchPrompt ? { dispatchPromptDigest: reviewerDispatchPromptDigest(input.dispatchPrompt) } : {}),
     ...(input.hostRenderIdentityDigest ? { hostRenderIdentityDigest: input.hostRenderIdentityDigest } : {}),
     createdAt: input.createdAt,
@@ -1231,7 +1241,12 @@ export function assembleConditionalReviewPromptEnvelope(
     ? input.incrementalBudgetBytes!
     : 64_000;
   const fullBudgetViolation = full.envelope.bytes > fullBudgetBytes;
-  const basis = input.reviewBasis ?? null;
+  const basis = input.reviewBasis
+    ? { ...input.reviewBasis, lane: canonicalAgentRoleId(input.reviewBasis.lane) }
+    : null;
+  if (basis && basis.lane !== full.envelope.lane) {
+    throw new Error(`conditional review Prompt Envelope role/lane mismatch: ${full.envelope.lane} !== ${basis.lane}`);
+  }
   const safetyRequiresFull = !input.incrementalEligible || !basis;
   let incrementalPrompt: string | undefined;
   if (basis) {
@@ -1275,6 +1290,8 @@ export function assembleConditionalReviewPromptEnvelope(
     changedFilesDigest: input.changedFilesDigest,
     impactedFilesDigest: input.impactedFilesDigest,
     taskSemanticDigest: fullTaskSemanticDigest(input.taskContext),
+    findingProjection: input.findingProjection ?? [],
+    findingProjectionDigest: domainSeparatedDigest('prompt-finding-projection.v1', input.findingProjection ?? []),
     ...(basis ? {
       reviewBasisDigest: domainSeparatedDigest('incremental-review-basis.v1', basis),
       incrementalContextDigest: domainSeparatedDigest('incremental-review-context.raw-utf8.v1', incrementalPrompt!),

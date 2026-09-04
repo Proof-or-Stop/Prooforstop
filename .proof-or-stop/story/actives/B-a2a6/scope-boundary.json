@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-a2a6",
+  "mode": "correctness_fix",
+  "allowed": [
+    "package-lock.json",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src/core/review-incremental-context.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/tasks/review-incremental-context-smoke.ts"
+  ],
+  "excluded": [
+    "B-dc83 business implementation files",
+    "Claude reviewers",
+    "docs/story",
+    "runtime-enforcement bypasses",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User approved the scoped prompt-envelope cache fix and a separate maintenance story.",
+  "createdAt": "2026-08-24T02:07:36.592Z",
+  "updatedAt": "2026-08-24T02:07:36.592Z",
+  "_hash": "c9bab6195ffca9c495eb6a410b20f51cd2a0b65fe6d073276074a61c2c18b195"
+}

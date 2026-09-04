@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3f3d",
+  "sourceText": "先分析 review 和 dev 为什么反复；保障在进入 dev 前审查足够且无遗漏，多轮 review 直到不再发现新 finding；然后开始并完成第一个优化 Story。",
+  "normalizedOutcome": "Freeze one REVIEW candidate, complete all required review lanes and a completeness critic until a zero-new-verified-finding saturation wave, then enter one aggregated remediation DEV and run fresh final review without reducing quality assurance.",
+  "acceptanceClaim": "The B-cdf6 replay reduces mutation-driven reviewer redispatches from at least five to zero while accepted OPEN commits, stale acceptance, escaped critical/high findings, post-cert commits and assurance regressions remain zero.",
+  "keyRequirementIds": [
+    "REQ-FROZEN-CUTOFF",
+    "REQ-ONE-REMEDIATION",
+    "REQ-QUALITY-NONREGRESSION",
+    "REQ-SATURATION"
+  ],
+  "requestHash": "sha256:de63fe67091adf13b078b8855d214cefe0dd16b9829134b17d4dc588f725ccb2",
+  "createdAt": "2026-08-14T13:59:03.108Z",
+  "updatedAt": "2026-08-14T13:59:03.108Z"
+}

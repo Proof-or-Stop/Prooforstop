@@ -52,7 +52,7 @@ import {
 } from './validate-lint.js';
 import type { Finding } from '../core/types.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
-import { findingAgentMatchesReviewer } from '../core/reviewer-opt-in.js';
+import { canonicalReviewerLane, findingAgentMatchesReviewer } from '../core/reviewer-opt-in.js';
 import { collectReviewerEvidenceState } from '../core/review-run.js';
 import {
   runDocsDriftGate,
@@ -272,7 +272,8 @@ function conceptReviewerHandledResiduals(
     const evidenceState = collectReviewerEvidenceState(store, storyId, projectRoot);
     const conceptFindings = evidenceState.valid
       .map((entry) => entry.finding)
-      .filter((finding): finding is Finding => !!finding && finding.agent === 'proof-or-stop-review-concept');
+      .filter((finding): finding is Finding => !!finding
+        && findingAgentMatchesReviewer(finding.agent, 'proof-or-stop-review-concept'));
     const conceptPasses = evidenceState.valid
       .map((entry) => entry.pass)
       .filter((pass) => !!pass && findingAgentMatchesReviewer(pass.agent, 'concept'));
@@ -281,7 +282,7 @@ function conceptReviewerHandledResiduals(
       return {
         handled: false,
         reason: conceptIssues[0]?.message
-          ?? 'No finding/review pass from proof-or-stop-review-concept seen in the current REVIEW round (reviewer did not run or did not register any result)',
+          ?? `No finding/review pass from ${canonicalReviewerLane('concept')} seen in the current REVIEW round (reviewer did not run or did not register any result)`,
       };
     }
     return {

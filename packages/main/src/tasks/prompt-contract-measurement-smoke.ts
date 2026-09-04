@@ -424,7 +424,7 @@ assert.equal(new Set(PROMPT_ROLE_CONTRACTS.map(contract => contract.roleId)).siz
 assert.equal(PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'active').length, 13);
 assert.deepEqual(
   PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'compatibility').map(contract => contract.roleId).sort(),
-  ['implementation-reviewer', 'test-case-reviewer', 'test-intent'],
+  ['proof-or-stop-implementation-reviewer', 'proof-or-stop-test-case-reviewer', 'proof-or-stop-test-intent'],
 );
 assert.deepEqual(
   PROMPT_ROLE_CONTRACTS.filter(contract => contract.status === 'retired').map(contract => contract.roleId),
@@ -503,8 +503,10 @@ assert.match(mutationChildOutput, /deep-freeze-consumption PASS/);
 const dispatchBefore = canonicalJsonStringify(AGENT_DISPATCH_REGISTRY);
 buildPromptRoleContracts();
 assert.equal(canonicalJsonStringify(AGENT_DISPATCH_REGISTRY), dispatchBefore);
-assert.equal(resolveAgentDispatchType('test-intent').canonicalType, 'verification-intent');
-assert.equal(resolveAgentDispatchType('test-case-reviewer').canonicalType, 'verification-intent');
+assert.equal(resolveAgentDispatchType('verification-intent').canonicalType, 'proof-or-stop-verification-intent');
+for (const legacyType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
+  assert.throws(() => resolveAgentDispatchType(legacyType), /legacy read-side identity.*proof-or-stop-verification-intent/);
+}
 assert.equal(resolveAgentDispatchType('product-reviewer').entry.allowedPhases[0], 'INIT');
 assert.throws(
   () => resolveAgentDispatchType('proof-or-stop-review-channel'),
@@ -550,8 +552,8 @@ rejects(
 );
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
-    contract.roleId === 'test-intent'
-      ? { ...contract, replacementAgentType: 'proof-or-stop-review-quality' }
+    contract.roleId === 'proof-or-stop-test-intent'
+      ? { ...contract, replacementAgentType: 'lattice-review-quality' }
       : contract
   ), packageRoleIds),
   /frozen role policy/,
@@ -590,8 +592,8 @@ rejects(
 );
 rejects(
   () => validatePromptRoleContracts(PROMPT_ROLE_CONTRACTS.map(contract =>
-    contract.roleId === 'implementation-reviewer'
-      ? { ...contract, migrationHint: 'Use only proof-or-stop-review-quality.' }
+    contract.roleId === 'proof-or-stop-implementation-reviewer'
+      ? { ...contract, migrationHint: 'Use only lattice-review-quality.' }
       : contract
   ), packageRoleIds),
   /frozen role policy/,

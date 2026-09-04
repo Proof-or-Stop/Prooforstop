@@ -703,6 +703,12 @@ Required prompt changes:
 - Keep adversarial stance, but route scope coverage to
   `proof-or-stop-review-scope-plan`.
 
+Selected implementation (B-5a88/F-445): `proof-or-stop-verification-intent` is
+the active PLAN dispatch role and may write only `verificationIntent` through
+`checklist_update`. The historical role values remain readable compatibility
+identities with no new mutation or evidence ownership; explicit new-story
+dispatch of those identities fails closed with migration guidance.
+
 Lifecycle impact:
 
 - PLAN intent generation becomes compatible with current gates.
@@ -727,6 +733,11 @@ Required prompt changes:
 - Remove instruction paths tied to TEST_CASE_REVIEW for new flow.
 - Do not instruct direct fixture JSON reading unless a legacy fixture
   maintenance story explicitly needs it.
+
+Selected implementation (B-5a88/F-445): retain this role and its short prompt
+asset only as a read-side compatibility identity. New REVIEW coverage uses
+`proof-or-stop-review-test-coverage`; the legacy identity cannot author new
+verification intent or evidence.
 
 Lifecycle impact:
 

@@ -1,4 +1,8 @@
 import type { ResourceClaim } from './keyed-scheduler.js';
+import type {
+  DoneRequiredCommandSpecSchema,
+  DoneRequiredEvidenceSchema,
+} from './artifact-schema.js';
 
 export type ValidationStatus = 'pass' | 'fail' | 'warn';
 export type ValidationFailureKind = 'validation_failure' | 'infra_failure';
@@ -28,6 +32,21 @@ export interface ValidationCommand {
   timeoutMs?: number;
   optional?: boolean;
   focus?: string[];
+  /** Versioned real case registry consumed by DYN-5 adapters. */
+  caseRegistryPath?: string;
+  /** Source entrypoint executed by the registered DYN-5 case runners. */
+  runnerSourcePath?: string;
+  /** Content digest of the registered runner source, bound into catalog identity. */
+  runnerSourceDigest?: string;
+  /** Environment keys the command is permitted to read during closure tracing. */
+  declaredEnvironmentKeys?: string[];
+  /** Explicit catalog policy; omitted fields remain non-authoritative defaults. */
+  assurance?: 'always' | 'story-selectable' | 'full-only';
+  riskTier?: 'local' | 'shared' | 'gate' | 'validation-infra';
+  closurePolicy?: 'static-and-traced' | 'whole-repository' | 'never-reuse';
+  fullBaselineReusePolicy?: 'not-applicable' | 'exact-current-epoch-only' | 'forbidden';
+  cpuWeight?: number;
+  expectedP50Ms?: number;
   /**
    * What this command touches, in the SAME vocabulary the full test suite
    * declares (core/keyed-scheduler.ts): git-common-dir / fixed-path /
@@ -55,6 +74,23 @@ export interface ValidationCommandResult {
   timeoutMs?: number;
   failureKind?: ValidationFailureKind;
   durationMs: number;
+  /** Real command-boundary observations captured by the executor spawn seam. */
+  runtimeTrace?: {
+    command: string;
+    argv: string[];
+    cwd: string;
+    environmentKeys: string[];
+    startedAt: string;
+    endedAt: string;
+    exitCode: number;
+    /** Observable executor boundary events, in occurrence order. */
+    events: string[];
+    readPaths?: string[];
+    loadedPaths?: string[];
+    spawnedPaths?: string[];
+    registryKeys?: string[];
+    unknownRuntimeInputs: string[];
+  };
   worktreePollution?: {
     statusLines: string[];
     paths: string[];
@@ -242,7 +278,7 @@ export type DoneRequiredEvidenceStatus = 'PASS' | 'FAIL';
 
 export interface DoneRequiredCommandSpecEnvelope {
   /** v2 digests a repo-relative logical cwd; v1 (legacy) digested an absolute cwd. */
-  schema: 'lattice.command-spec.v1' | 'lattice.command-spec.v2';
+  schema: DoneRequiredCommandSpecSchema;
   digest: string;
   command: string;
   args: string[];
@@ -286,7 +322,7 @@ export interface DoneRequiredCommandReceipt {
 }
 
 export interface DoneRequiredEvidenceData {
-  schema: 'proofOrStop.done-required-evidence';
+  schema: DoneRequiredEvidenceSchema;
   version: 1;
   storyId: string;
   status: DoneRequiredEvidenceStatus;

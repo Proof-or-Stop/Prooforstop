@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-45a0",
+  "phase": "TEST",
+  "generatedAt": "2026-09-02T10:50:44.458Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "a1a358fdfbe1fe9e041d57d97ce6868ce7eea4d646e18d1d7a5b1733d2895d1a",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:eb7b65b935d13ac8c7eb906ba09711d9a99ba95240afd13cb8fd66700fb891c9"
+    },
+    "groups": {
+      "completed": [
+        "DYN-1",
+        "DYN-2",
+        "DYN-3",
+        "DYN-4",
+        "DYN-5"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "bffd9d39380404772ad6a6d3d4d7ffdd99369e95",
+    "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+    "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408"
+  },
+  "rows": [
+    {
+      "milestone": "DYN-1",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Observe-only catalog, closure, change, and selection prove soundness while complete validation remains authority.",
+      "acceptance": "Observe reports selected/full comparison with zero hidden gaps and no authority change.",
+      "evidence": [
+        "CHK-001:happy:0 [pass/docs_check] node scripts/verify-story-aware-validation-plan.mjs note=verification_run executed the pinned verifier for CHK-001:happy:0",
+        "CHK-002:happy:0 [pass/integration_test] node scripts/verify-validation-inventory.mjs note=Refresh current-head verifier receipt after the committed suite and replay fixes.",
+        "CHK-003:happy:0 [pass/logic_test] npm --prefix packages/main run test:dynamic-validation-change-manifest note=Refresh current-head verifier receipt after the committed suite and replay fixes.",
+        "CHK-004:happy:0 [pass/logic_test] node scripts/verify-validation-catalog.mjs note=Refresh current-head verifier receipt after the committed suite and replay fixes.",
+        "CHK-005:happy:0 [pass/logic_test] npm --prefix packages/main run test:dynamic-validation-selection note=Refresh current-head verifier receipt after the committed suite and replay fixes.",
+        "CHK-006:happy:0 [pass/logic_test] npm --prefix packages/main run test:dynamic-validation-observe-equivalence note=Refresh current-head verifier receipt after the committed suite and replay fixes."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "DYN-2",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Source-first receipts and shadow reuse are proven against the complete-plan oracle.",
+      "acceptance": "Receipt validity, reuse eligibility, expiry, revocation, and oracle equivalence all pass.",
+      "evidence": [
+        "CHK-007:happy:0 [pass/logic_test] npm --prefix packages/main run test:dynamic-validation-receipts note=Refresh current-head verifier receipt after the committed suite and replay fixes.",
+        "CHK-008:happy:0 [pass/logic_test] npm --prefix packages/main run test:dynamic-validation-shadow-equivalence note=Refresh current-head verifier receipt after the committed suite and replay fixes."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "DYN-3",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Only eligible low-risk Stories obtain dynamic TEST authority through fail-closed gates.",
+      "acceptance": "All blocking prerequisites are mechanically checked and invalid evidence falls back to full validation.",
+      "evidence": [
+        "CHK-009:happy:0 [pass/logic_test] npm --prefix packages/main run test:dynamic-validation-test-gate note=Refresh current-head verifier receipt after the committed suite and replay fixes.",
+        "CHK-010:happy:0 [pass/integration_test] node packages/main/dist/cli.js validate --dynamic-mode=observe --json note=Re-run the complete dynamic observe validation at the current HEAD with an explicitly raised audited timeout because the full inventory command exceeds the 270000ms default."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "DYN-4",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Selected commands use resource-safe weighted LPT scheduling.",
+      "acceptance": "Stable waves honor CPU, worker, resource, and drain constraints and reject scheduler mutants.",
+      "evidence": [
+        "CHK-012:happy:0 [pass/logic_test] node packages/main/dist/tasks/story-aware-validation-smoke.js note=Refresh current-head verifier receipt after the committed suite and replay fixes."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "DYN-5",
+      "status": "completed (ledger=planned; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Quorum and review-pass are safely shardable with exact aggregation and sentinels.",
+      "acceptance": "Stable routing, complete aggregation, sentinel coverage, and residue rejection pass.",
+      "evidence": [
+        "CHK-013:happy:0 [pass/logic_test] node packages/main/dist/tasks/story-aware-validation-smoke.js note=Refresh current-head verifier receipt after the committed suite and replay fixes."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

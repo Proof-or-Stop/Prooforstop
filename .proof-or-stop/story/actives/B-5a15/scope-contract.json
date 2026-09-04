@@ -1,0 +1,705 @@
+{
+  "storyId": "B-5a15",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/certification-window.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/core/pre-review-live-proof.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts",
+    "packages/main/src/handlers/certification-window.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/tasks/causal-evidence-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/causal-evidence.test.mjs"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [
+    "docs/story/**",
+    "tests/fixtures/**",
+    "packages/main/src/**/unrelated-*"
+  ],
+  "scopeChangeReason": "PLAN-time omission, not an expansion: handlers/certification-window.ts carries 164 insertions across five of this story CHK-003 commits (55a1e00343 derived the certification causal domain inputs; f5c6f8a2f6 and 3172e57e16 fixed the causal edge model; e10f82859b, 0adc7c34ea). It is the only production file importing evaluateCausalDependencies (:19) and calling it (:206) inside buildCertificationDecision, so it is the sole file that can anchor CHK-003 planned acceptance path. It was already recorded as an acknowledged out-of-scope change; scopeAllows (acceptance-coverage-basis.ts:83-86) reads only the signed lists, so the acknowledgement could not admit the endpoint and the record was dropped from the basis entirely.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "B-5a15 adds gate-consumed CausalEvidence process facts; the registry and its contract verifier must change together under the repository process-fact hard contract.",
+      "timestamp": "2026-08-20T11:12:00.803Z",
+      "paths": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/process-fact-levels.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "3ebdc2cd6f863fdf61992fe005dd738b51b31790",
+      "materialHash": "5baf9d01e6e157ae02918867bb97482fbd04ea45ed00adf821b447f1022037f4",
+      "anchors": [
+        "CausalEvidence",
+        "processFactRegistry"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These focused tests are required to prove cross-request exact-key single-flight, full preflight revalidation, and production causal metrics for B-5a15.",
+      "timestamp": "2026-08-20T14:36:00.300Z",
+      "paths": [
+        "packages/main/tests/causal-evidence-concurrency.test.mjs",
+        "packages/main/tests/checklist-causal-preflight-batch.test.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/tests/causal-evidence-concurrency.test.mjs",
+        "packages/main/tests/checklist-causal-preflight-batch.test.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "27d874ba83d5be353c998799dd59a84e4281c693",
+      "materialHash": "b0b0ee3fae40ca1538bf8b91df6608c154f05e4c7858a8c316051cb1bb678cb9",
+      "anchors": [
+        "causalEvidence",
+        "preflightRevalidation",
+        "causalMetrics"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Causal preflight needs a typed production test seam in HandlerContext so focused tests can mutate second-read facts and prove launch-time revalidation without replacing real probes.",
+      "timestamp": "2026-08-20T16:09:36.901Z",
+      "paths": [
+        "packages/main/src/handlers/context.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/context.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "b7a607e657b226a2304187688e628b8b7d49b0e9",
+      "materialHash": "432da04b4d4044ca8aa5914339fa12a11cf3967d018a9ba1922b625c8d7d0250",
+      "anchors": [
+        "CausalPreflightFacts",
+        "causalPreflightFacts"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The verifier-path fix must add a launch-boundary callback to validation-executor and a focused test proving validate cannot launch after causal preflight drift; both are necessary to close CHK-004 without weakening the gate.",
+      "timestamp": "2026-08-20T16:42:39.096Z",
+      "paths": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/validation-executor.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "e81e40ede4766cc62a79d5266a9726d68addf84a",
+      "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
+      "anchors": [
+        "executeValidationPlan.beforeLaunch",
+        "createValidationCausalPreflightGate"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These exact story-local causal-evidence index and receipt files are generated proof outputs required to record B-5a15 preflight execution and are part of the intended acceptance artifact path.",
+      "timestamp": "2026-08-20T16:47:15.749Z",
+      "paths": [
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json"
+      ],
+      "affectedPathCount": 4,
+      "phase": "REVIEW",
+      "headHash": "e81e40ede4766cc62a79d5266a9726d68addf84a",
+      "materialHash": "8a4bb5365eec48bb494ba0c462d59873a1c4a34476135d1ee4ffccc7610dde25",
+      "anchors": [
+        "causalEvidenceReceiptPersistence",
+        "acceptanceEvidenceOutput"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The live verifier must bind every active B-5a15 topology assertion to a fresh executable proof.",
+      "timestamp": "2026-08-20T20:46:51.263Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "cbc1fbb0c2e0a532572e89d2b20321f3bc90d94b",
+      "materialHash": "92b9b4542b2f767e4eebff2f5980eb46da38e30dec7f98182aa7a7ce08896663"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These harness updates are required to make the configured validation smoke tests create valid owner leases and recognize the canonical proof-or-stop configuration.",
+      "timestamp": "2026-08-21T02:10:37.355Z",
+      "paths": [
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+        "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "26d7175ae2eb025432515c605219d285c426d18f",
+      "materialHash": "95579731deb560adb45f4ac83d1898af3dbf03f9338d3de0faed04aebb7bf4c7",
+      "anchors": [
+        "configured_validation_smoke_coverage",
+        "B_5a15_causal_evidence_retry_safety"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This smoke update is required to prove the F-044 acceptance-control regression and preserve atomic refusal for mutated command or result evidence.",
+      "timestamp": "2026-08-21T03:36:08.182Z",
+      "paths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "398f29aacd00458dabd784c548041d174b3891fd",
+      "materialHash": "861070b7b992e720ecf2503f9afe7917f7d36b897ba45a752a247721fc571023",
+      "anchors": [
+        "configured_validation_smoke_coverage",
+        "B_5a15_acceptance_provenance_identity"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Align the smoke guard with the current repository command-catalog baseline; no production behavior changes.",
+      "timestamp": "2026-08-21T07:02:27.661Z",
+      "paths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e415e4549b7a53d1b5aee65bcfc1d2113272bae6",
+      "materialHash": "012baf0a63c4e3e8976ac5caf65847255ece15c546ab39ac9dd10edb87816acd",
+      "anchors": [
+        "retiredAuthorityVocabularyGuardSmoke.dynamicBindingGraphBound"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This one-file test harness update is necessary to assert causal validation preflight refusal without requiring a synthetic FAIL evidence record.",
+      "timestamp": "2026-08-21T09:09:34.717Z",
+      "paths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/flow-stability-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6259219bba3cbf32f2de6d379664ada38339c7a9",
+      "materialHash": "dc7de7ff7ba6546f5d2dbaa7be182b29a9193c53b3fa204f5838aea69da6c696"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These two decision documents record the required B-5a15 workflow and evidence-performance changes and are part of the reviewed implementation scope.",
+      "timestamp": "2026-08-21T15:28:51.885Z",
+      "paths": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "370fd5b0ae43fe23cd92ef5e99eb511af6306d7f",
+      "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The requirements contract names this executable verifier smoke entrypoint; adding its source is necessary to make the documented acceptance command runnable and to close the independently verified blocker.",
+      "timestamp": "2026-08-21T18:37:14.228Z",
+      "paths": [
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/verifier-causal-preflight-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "bb922933b1654d403c82a142ae217c5d4b91ca99",
+      "materialHash": "853d5eb4322ecb6d3ba9b94131ecab4e76ac0b8a2e77f47f24a2c39fc04ac775",
+      "anchors": [
+        "CHK_004",
+        "verifierCausalPreflightSmoke",
+        "documentedVerificationCommand"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The production handler and its smoke test are required to prove the CertificationWindow causal-evidence wiring and snapshot invalidation behavior.",
+      "timestamp": "2026-08-22T05:59:36.854Z",
+      "paths": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "cfc8402e1f8224c227d507f968b488bb21ebb28a",
+      "materialHash": "9ef9d9e58737da562ae603f38a4ea393a304c5faf2f9affdeefcc0287d3c24e6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The live acceptance proof must share the production pre-review input builder so its executable evidence follows the same verifier path.",
+      "timestamp": "2026-08-23T16:46:00.686Z",
+      "paths": [
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/proofstory.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "62a1f2802247d24e2b6ea3d7d9076c1fa2bf3a6e",
+      "materialHash": "41c6cc5292244472d1c39f14ff24db385986581252fdd7774d615019e35042e5"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These sixteen story-local CAS receipt files are verifier-generated acceptance evidence required by B-5a15; acknowledging them keeps the causal-evidence output within the reviewed story scope.",
+      "timestamp": "2026-08-24T04:35:49.552Z",
+      "paths": [
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/13b36387c701d9cc69c837d8e90c24be4535c44d21d959af19bb892ef2fde71c.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/18667e72f9942c56f4d199e1b697488411efe70d259c902d6475a64ee8d71d5e.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1ce3969b9287d490b4b2aad25530eed7c4d2dce250bc7f488675893203f38767.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/283bc7fbea10ab6b7fc44abce5d14f985949276d17bf694e26b818ab798b2469.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/30396d99643023c69f1061762225d2754d4545548f7e3463cc5a3becc6dc54ef.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/3d066062ebd3a5374eb5ca02a705a7531e81ba2fd7832d1689343bc8361b9e5a.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/498af679ded5f722cd7bcf0e2c153949afa9bb3567cb743b0396c8939393901b.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/5dd78e4bb830094288f33225ddb37e40bf5d5689cf7165ccd330760fbf882953.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/77ece510f9bfaa5efb5fc01cb79e21eb6568cd13f049e5daf1367939f3a44f5c.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/795d18154272548780bda3964ed406d6e31237049a363a0fddcbca7cf7997497.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/9444af0763979061e4aaba94ac012d8a9a543c061a80ee6a784203fa2def94a7.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a076edfedd19fd9fe820a6d89c5e86d5e794e1865ea83c19e435fc109148ccdb.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/b470e48980c58f11d6bb5718f1e84ad4e20aee9f917e1fc433394fc9011a52e4.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d60dc99c7796a66b1ed7d28028ddd46f387377d20fa3b5ab1c40da252fd16448.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/13b36387c701d9cc69c837d8e90c24be4535c44d21d959af19bb892ef2fde71c.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/18667e72f9942c56f4d199e1b697488411efe70d259c902d6475a64ee8d71d5e.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1ce3969b9287d490b4b2aad25530eed7c4d2dce250bc7f488675893203f38767.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/283bc7fbea10ab6b7fc44abce5d14f985949276d17bf694e26b818ab798b2469.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/30396d99643023c69f1061762225d2754d4545548f7e3463cc5a3becc6dc54ef.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/3d066062ebd3a5374eb5ca02a705a7531e81ba2fd7832d1689343bc8361b9e5a.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/498af679ded5f722cd7bcf0e2c153949afa9bb3567cb743b0396c8939393901b.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/5dd78e4bb830094288f33225ddb37e40bf5d5689cf7165ccd330760fbf882953.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/77ece510f9bfaa5efb5fc01cb79e21eb6568cd13f049e5daf1367939f3a44f5c.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/795d18154272548780bda3964ed406d6e31237049a363a0fddcbca7cf7997497.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/9444af0763979061e4aaba94ac012d8a9a543c061a80ee6a784203fa2def94a7.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a076edfedd19fd9fe820a6d89c5e86d5e794e1865ea83c19e435fc109148ccdb.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/b470e48980c58f11d6bb5718f1e84ad4e20aee9f917e1fc433394fc9011a52e4.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d60dc99c7796a66b1ed7d28028ddd46f387377d20fa3b5ab1c40da252fd16448.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json"
+      ],
+      "affectedPathCount": 16,
+      "phase": "DEV",
+      "headHash": "827d1259510cc0433636479035d37c0ae7a8bf4d",
+      "materialHash": "84b306befb2d3da045ff3ff950e6166511abb101ca64dcda773b748455031ed6"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This shared allowlist is required to classify session-like environment keys correctly for B-5a15 causal evidence and fail-closed verifier execution.",
+      "timestamp": "2026-08-24T18:50:08.134Z",
+      "paths": [
+        "packages/main/src/core/validation-command-environment.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/validation-command-environment.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "8b617a0f640cae50b087fd3aa71bf169d1c2f1fc",
+      "materialHash": "fd57303f3eced30f2a270d51d6541b4350a2f903f378512c910e7753fc6a452b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This smoke fixture must seed the owner lease required by B-5a15 causal verifier preflight so direct handler coverage matches the production CLI ownership contract.",
+      "timestamp": "2026-08-24T21:58:27.015Z",
+      "paths": [
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "e7b4b095922baf085faadd8d6239373adc1d9895",
+      "materialHash": "0abe1a13ef324f8569ea40bf4ba2b01c17c6c18bf56d335ffe4e7c5616c94398"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "User-approved minimal scope extension is required to register topology-critic receipt closeout lineage, emit its trusted write receipt, and lock the behavior with a regression smoke test so the current review blocker can be truthfully remediated.",
+      "timestamp": "2026-08-25T16:29:07.036Z",
+      "paths": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/closeout-trust.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/tasks/closeout-trust-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "0265d19fc7964ad4dc202297a14ef6fad094152d",
+      "materialHash": "e2b9a304b33a1b93675b12b661d999c08babc2216b41f67b44d584c55851b4e5",
+      "anchors": [
+        "CLOSEOUT_ARTIFACT_POLICIES",
+        "topology_critic_receipt_set",
+        "classifyCurrentCloseoutArtifactForReviewRetention"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "DONE-required root npm test includes test:brief-output; raise its full-suite isolation timeout to 240s so closeout verification can earn a current-HEAD PASS without changing unique-key, CAS-receipt, or invalidation semantics.",
+      "timestamp": "2026-08-31T17:07:14.081Z",
+      "paths": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/full-suite-runner.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "96554e014fdd1c26403d29a0f7b3b454d3a42c4c",
+      "materialHash": "cdc15bd102d7477311bb455067352b95438feb71fefb34e8c2732599c960912a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Synthetic CertificationWindow fixtures must persist derived certification domain hashes so DONE-required and heartbeat smokes keep ADMITTED windows; this does not change unique-key, CAS-receipt, or precise-invalidation semantics.",
+      "timestamp": "2026-08-31T19:15:32.283Z",
+      "paths": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "REVIEW",
+      "headHash": "cef220a2a90c6b7d81457a8f8e714de398b40d36",
+      "materialHash": "6d1ff7dcd6d03e382ddeecd9947b457e1d15122db53341de1f01e74308b26a5a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "CausalEvidence CAS receipts are the artifact this story's feature produces (CHK-002 writes them before canonical import), so they necessarily appear as story-owned files; pre-review-check.ts carries the storyId-scoped binding lookup fix required for the pre-review live proof to pass.",
+      "timestamp": "2026-09-01T05:44:09.527Z",
+      "paths": [
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/07b89ed8efe28594089d787d373cbcf7bda464e65059107134b5cb267ecbf6ba.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/07f1bcdc7273bec8538237914eab605d75d9c93dc39993f7bc1621c31bfb417f.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/41799fb84b066063589a9ea43acf902a77e3b9b82949d81542af02d3816eb8e7.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/427e83113627aa7e69cca79362a7e140afdc92f6775b8a5af2d1f23dc1912138.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/4f63c560b5d36fdf12094d4a2edee20e1b87375367ff1d124f464ee70fa170fa.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/51411f220948ed4d46c7e19256b9731022747e592877eddb9eff39174d857ef3.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/61a99fb14bddc4c6b0d95c4ce64a45710c41a294c4a062a76ec0920472990ee4.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/7bae9003ffc5ef0bf085b951ddc2f2295139c74e2534b06d4a73e7bc3c3e1b24.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/829f8832c63673618c9895b795a8ea57bfc21eaa825af6ed7d6524a9a1bf416f.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/9631827044f9936e32cf3f5bbedb2294a1f69bdbb18a0b8b4145a152705fd6d3.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a1b7f501829b463139285211396c1e6e57fd3a1c8711213f05dca8b04f6775a5.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/aaf78eaf0a816207149a921557fb62b3e48283398418850975cab33fd28bde9e.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ad2320008f337f3b5c8a4562093eaba1d47a7f32212c938f357fc213cab19567.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/bc3480cf2102da96be2c181c242a9e3e3aabb879be6f30a4d09c8ec96e4ec14e.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/be9e36867559a616373dca5ccb95641d97ac2ff1b7b84af48d4f1e3c3ffa9381.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/c487f223634f18ed0587aa9e44688ec6220980d1e686439ce894aad2ccc03772.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d73e8b513b4bfc422c7fcaf54764dd53f82fd5db4f2a2f743440ae19105f26bc.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/e6580f88e9b30d5e819417b917d83c75fa1504e6ea6b9a61e78f03b049f496c7.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ece8c3cd0ad359c8c81a6322215994a920a8aeadaa4591d11724d51fd015d2e5.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/07b89ed8efe28594089d787d373cbcf7bda464e65059107134b5cb267ecbf6ba.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/07f1bcdc7273bec8538237914eab605d75d9c93dc39993f7bc1621c31bfb417f.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/41799fb84b066063589a9ea43acf902a77e3b9b82949d81542af02d3816eb8e7.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/427e83113627aa7e69cca79362a7e140afdc92f6775b8a5af2d1f23dc1912138.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/4f63c560b5d36fdf12094d4a2edee20e1b87375367ff1d124f464ee70fa170fa.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/51411f220948ed4d46c7e19256b9731022747e592877eddb9eff39174d857ef3.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/61a99fb14bddc4c6b0d95c4ce64a45710c41a294c4a062a76ec0920472990ee4.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/7bae9003ffc5ef0bf085b951ddc2f2295139c74e2534b06d4a73e7bc3c3e1b24.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/829f8832c63673618c9895b795a8ea57bfc21eaa825af6ed7d6524a9a1bf416f.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/9631827044f9936e32cf3f5bbedb2294a1f69bdbb18a0b8b4145a152705fd6d3.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a1b7f501829b463139285211396c1e6e57fd3a1c8711213f05dca8b04f6775a5.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/aaf78eaf0a816207149a921557fb62b3e48283398418850975cab33fd28bde9e.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ad2320008f337f3b5c8a4562093eaba1d47a7f32212c938f357fc213cab19567.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/bc3480cf2102da96be2c181c242a9e3e3aabb879be6f30a4d09c8ec96e4ec14e.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/be9e36867559a616373dca5ccb95641d97ac2ff1b7b84af48d4f1e3c3ffa9381.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/c487f223634f18ed0587aa9e44688ec6220980d1e686439ce894aad2ccc03772.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d73e8b513b4bfc422c7fcaf54764dd53f82fd5db4f2a2f743440ae19105f26bc.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/e6580f88e9b30d5e819417b917d83c75fa1504e6ea6b9a61e78f03b049f496c7.json",
+        ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ece8c3cd0ad359c8c81a6322215994a920a8aeadaa4591d11724d51fd015d2e5.json",
+        "packages/main/src/core/pre-review-check.ts"
+      ],
+      "affectedPathCount": 20,
+      "phase": "REVIEW",
+      "headHash": "3c0b62c1d300fcb6278cb2274e26380b1ea2089b",
+      "materialHash": "da24ca06e80437243b4b6a94f765b39c9645b1ae33d62d42a1ccb70a21bdd77c"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "User-approved out-of-scope fix for the validate-time defect recorded as B-5a15:F-349, which blocked this story's TEST gate. Both files received the identical one-line change: the resources key was REMOVED from validate.commands[112] (npm --prefix packages/graph run check). ROOT CAUSE, measured not argued: that command runs packages/graph/scripts/verify-no-project-writes.mjs, which compares a whole-repo byte digest before and after its scan and deliberately hashes gitignored paths including .proof-or-stop/** (see its comment at :43-49, an intentional anti-regression choice). It previously declared a single SHARED git-common-dir claim, so the scheduler ran it concurrently with sibling commands 113-115 while validate committed its own metadata mid-run (commit 5d6f77dafe rewrote test-evidence.json by 2199 lines). The probe therefore observed the repository changing underneath it and reported UNEXPECTED_PROJECT_WRITE - detecting the harness it runs inside, not a real write leak. Reproduced on two consecutive full validate runs; passes standalone. WHY REMOVING THE KEY IS THE CORRECT FORM: resolveValidationResourceClaims (packages/main/src/core/validation-executor.ts:1656-1660) maps an EMPTY claim list to a single EXCLUSIVE barrier with exclusiveByDefault=true, while validate-resource-claims.test.mjs:245-247 requires any DECLARED list to be a SHARED barrier plus at least one further claim. My first attempt set access=exclusive on the single declared claim; that violated the invariant and broke validate.commands[75] and [107], so it was reverted. Both guards now pass: validate-resource-claims PASS (34 assertions) and red-b49d4-registration-derivation 0 RED / 26 GREEN. RESULT: validate reports 0 failures across all 116 commands, where it previously reported 115/116. ACCEPTED TRADEOFF, explicitly approved by the user: the probe is now an exclusive barrier for every story in this repo, so validate loses some parallelism - a throughput cost, not a correctness one, since serialization only removes foreign mutations from the measured window while leaving the graph-app writes the probe asserts about fully inside it. The RI-060 quality lane independently reviewed this change and passed it (RP-277), and all three lanes verified the material delta contains only these two files.",
+      "timestamp": "2026-09-02T10:34:17.566Z",
+      "paths": [
+        "proof-or-stop.config.json",
+        "lattice.config.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "proof-or-stop.config.json",
+        "lattice.config.json"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "1e3e802d7ba572b6c7be9063a89af3ec2d6ed8d3",
+      "materialHash": "0dd3167744d36c12c17fab9bd7e66dfc3e2202d896ed9b871226fff7e8853c1b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Records the scope-ack-before-sealing ordering discipline discovered as B-5a15:F-350, appended as item 8 of the existing 'Host DONE convergence / drift handling' section. Required by the project's standing rule that a fact living only in a finding or in private memory is not delivered - the project doc is the single source of truth someone follows to reproduce the work. The defect was mine: I ran scope_contract_acknowledge for the F-349 config paths AFTER acceptance-basis.json and pre-review-check.json had been sealed, and since both pin the scope-contract digest in their signature domain, the acknowledgement instantly invalidated them (AT_SCOPE_BINDING_MISSING and PR_ARTIFACT_TAMPERED) - the very gates it was meant to unblock. The round-2 test-coverage lane caught it and proved the consequence mechanically rather than asserting it: a fresh run of the pinned command returned 19/21 instead of 21/21, failing exactly at the two tests that emit the CHK-004:happy:2 and :3 selectors, with grep of both selector strings returning zero hits. The doc entry states the correct order (acknowledge, then seal, then earn), and records the blast radius precisely so a future host does not over-scope the repair: storyFilesHash does NOT move on a scope revision, so earned verificationEvidence receipts survive; what breaks is the two signed acceptance artifacts plus the reviewer run bindings, and pre_review_check being DEV-only forces a DEV round-trip if discovered in REVIEW. Documentation-only change to a doc this story is already required to keep in sync; no runtime, schema, or gate behavior is altered.",
+      "timestamp": "2026-09-02T11:50:36.455Z",
+      "paths": [
+        "CLAUDE.md"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "CLAUDE.md"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "2f3f8297669b9c9b799b16184ce06f73097136a7",
+      "materialHash": "d497af094d097b9e9b6fd582eb70c84f1e07f117ea221980f5dcc9a7e5e3b261"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Out-of-scope but acceptance-blocking, fixed in place per defect-triage rule 1. git ls-files output crossed Node's 1MB execFileSync default as the repo grew (14997 tracked files / 1050604 bytes, over by 2028), so the verifier died with spawnSync git ENOBUFS at status:0 -- git succeeded and only the capture buffer overflowed. The full-suite runner is fail-fast, so this single terminal failure cancelled 36 downstream suites and blocked done_prepare, making it non-deferrable. Change is one added maxBuffer option plus an explanatory comment; no decision logic, allowlist, or acceptance input was relaxed. Verified both directions: clean run exits 0, and a planted deprecated-only file still exits 1 naming the stranded path, so the check is repaired rather than silenced. Root suite went from 22/58 with 36 cancelled to 58/58.",
+      "timestamp": "2026-09-02T21:09:45.346Z",
+      "paths": [
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "scripts/verify-core-package-rename.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "9cdf7d2e89aa4a8a18ea97949efccb48ff90a395",
+      "materialHash": "7ac86c29a82cb8e6fd8e079c9474e33fb8704255fb321bbf663b3aec4091cc03"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Dev-memory append written by dev_memory_capture while recording the five reusable lessons this story produced (scope-ack ordering, refresh_stale rebind-vs-re-earn, wait-loop observability, single-host assurance floor, gate-retry breaker freeze). The DONE gate itself requires a dev_memory_finish_decision, so this file necessarily changes during closeout; it is append-only session experience, contains no product code, and affects no gate evidence (authority: non_authoritative, gateEvidence: false).",
+      "timestamp": "2026-09-03T02:19:14.522Z",
+      "paths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/dev-memory/experience.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "c9867250294b50b00898e326a86664459fbd8db4",
+      "materialHash": "e31e6c8c66b369bdf3270a302741eccc89441c0f5351bbc30df92e817243a30a"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Out-of-scope but gate-blocking, fixed in place per defect-triage rule 1. This verifier is one of the 116 validate commands, so its failure blocks B-5a15's REVIEW->TEST gate, but the defect is inherited from main commit 3aa57145 which changed handlers/graph.ts (+101 lines, not in B-5a15's diff) to rebuild the browser client on demand without updating this verifier's refusal-wording assertions. Confirmed pre-existing by running the same verifier on the main checkout at 3aa57145 with d3 and assets present: it fails identically there. Rewritten to assert the invariant its own docstring states (never serve a client-less page) across two admissible branches rather than one obsolete mechanism; the refuse-before-listening assertions are preserved verbatim. Verified both directions on the committed file: positive control exits 0, and a negative control breaking the rebuild assertion exits 1 naming the injected fault, so the check is repaired rather than silenced.",
+      "timestamp": "2026-09-03T03:31:56.503Z",
+      "paths": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/graph/scripts/verify-missing-assets-fail.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "51ca9d3afbb252b9f0e5abce0a4078680d1f5e8c",
+      "materialHash": "51b3a82de92dd6744c639c441880834d604aad03cd0fcd9eaa1a452e8b5682de"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "package.json's test:serial-reference chain is story-owned scope for this work: B-5a15 registered test:verifier-causal-preflight there (finding F-400, an acceptance-integrity defect where CHK-004's evidence pinned a test with zero references to the gate it claimed to verify while the only covering test had zero registrations), and F-402/F-403 required the matching RESOURCE_POLICY entry in full-suite-runner.ts because a member present in one membership authority but absent from the other fails closed with unknownPolicy before any test runs. The path became unacknowledged only because merging main at 17df1f389e re-touched the same key: the merge preserved main's test:graph-story-flag-smoke alongside this story's test:verifier-causal-preflight as a union (58 entries, valid JSON), which moved the file after the earlier acknowledgements were recorded. No new scope is being claimed by this acknowledgement.",
+      "timestamp": "2026-09-03T12:05:20.995Z",
+      "paths": [
+        "package.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "package.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "dc2823b3a44610c095bb8171ec874aefb59af436",
+      "materialHash": "c0a6d28bdba97588b91b278dd0dadf3b2cf573e8af43fb4d146ed48f93e6d448"
+    }
+  ],
+  "createdAt": "2026-08-20T09:29:12.295Z",
+  "updatedAt": "2026-09-03T12:05:20.996Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/core/causal-evidence.ts": "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts": "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/core/evidence-freshness.ts": "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/certification-window.ts": "packages/main/src/core/certification-window.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/tasks/causal-evidence-smoke.ts": "packages/main/src/tasks/causal-evidence-smoke.ts",
+    "packages/main/tests/causal-evidence.test.mjs": "packages/main/tests/causal-evidence.test.mjs",
+    "docs/story/**": "docs/story/**",
+    "tests/fixtures/**": "tests/fixtures/**",
+    "packages/main/src/**/unrelated-*": "packages/main/src/**/unrelated-*",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/tests/causal-evidence-concurrency.test.mjs": "packages/main/tests/causal-evidence-concurrency.test.mjs",
+    "packages/main/tests/checklist-causal-preflight-batch.test.mjs": "packages/main/tests/checklist-causal-preflight-batch.test.mjs",
+    "packages/main/src/handlers/context.ts": "packages/main/src/handlers/context.ts",
+    "packages/main/src/core/validation-executor.ts": "packages/main/src/core/validation-executor.ts",
+    "packages/main/tests/verifier-causal-preflight.test.mjs": "packages/main/tests/verifier-causal-preflight.test.mjs",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/index.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1bffe0ccea0e35eef4104ab253884a46b33f1d3e8f5408cf5ae483650fe69a84.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/8d87b53390f9816cad227924186c18714ddb968aa21c042fea57666d83bee06d.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/cd868a007315ae4b8f01f65861eb092f609c65277a5ca7a8c3eb7be55208124d.json",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/core/acceptance-coverage-basis.ts": "packages/main/src/core/acceptance-coverage-basis.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/core/pre-review-live-proof.ts": "packages/main/src/core/pre-review-live-proof.ts",
+    "packages/main/src/handlers/live-smoke-transcript.ts": "packages/main/src/handlers/live-smoke-transcript.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts": "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+    "packages/main/src/tasks/validate-command-timeout-smoke.ts": "packages/main/src/tasks/validate-command-timeout-smoke.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-topology-smoke.ts",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts": "packages/main/src/tasks/flow-stability-smoke.ts",
+    "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md": "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+    "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md": "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+    "packages/main/src/tasks/verifier-causal-preflight-smoke.ts": "packages/main/src/tasks/verifier-causal-preflight-smoke.ts",
+    "packages/main/src/handlers/certification-window.ts": "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts": "packages/main/src/tasks/certification-window-smoke.ts",
+    "packages/main/src/handlers/proofstory.ts": "packages/main/src/handlers/proofstory.ts",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/05f7b12f2debde8acc4dd937cfe5a28f868632cc5318646fbf42e8cc22082179.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/13b36387c701d9cc69c837d8e90c24be4535c44d21d959af19bb892ef2fde71c.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/13b36387c701d9cc69c837d8e90c24be4535c44d21d959af19bb892ef2fde71c.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/18667e72f9942c56f4d199e1b697488411efe70d259c902d6475a64ee8d71d5e.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/18667e72f9942c56f4d199e1b697488411efe70d259c902d6475a64ee8d71d5e.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1ce3969b9287d490b4b2aad25530eed7c4d2dce250bc7f488675893203f38767.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/1ce3969b9287d490b4b2aad25530eed7c4d2dce250bc7f488675893203f38767.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/283bc7fbea10ab6b7fc44abce5d14f985949276d17bf694e26b818ab798b2469.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/283bc7fbea10ab6b7fc44abce5d14f985949276d17bf694e26b818ab798b2469.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/30396d99643023c69f1061762225d2754d4545548f7e3463cc5a3becc6dc54ef.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/30396d99643023c69f1061762225d2754d4545548f7e3463cc5a3becc6dc54ef.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/3d066062ebd3a5374eb5ca02a705a7531e81ba2fd7832d1689343bc8361b9e5a.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/3d066062ebd3a5374eb5ca02a705a7531e81ba2fd7832d1689343bc8361b9e5a.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/498af679ded5f722cd7bcf0e2c153949afa9bb3567cb743b0396c8939393901b.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/498af679ded5f722cd7bcf0e2c153949afa9bb3567cb743b0396c8939393901b.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/5dd78e4bb830094288f33225ddb37e40bf5d5689cf7165ccd330760fbf882953.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/5dd78e4bb830094288f33225ddb37e40bf5d5689cf7165ccd330760fbf882953.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/77ece510f9bfaa5efb5fc01cb79e21eb6568cd13f049e5daf1367939f3a44f5c.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/77ece510f9bfaa5efb5fc01cb79e21eb6568cd13f049e5daf1367939f3a44f5c.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/795d18154272548780bda3964ed406d6e31237049a363a0fddcbca7cf7997497.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/795d18154272548780bda3964ed406d6e31237049a363a0fddcbca7cf7997497.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/9444af0763979061e4aaba94ac012d8a9a543c061a80ee6a784203fa2def94a7.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/9444af0763979061e4aaba94ac012d8a9a543c061a80ee6a784203fa2def94a7.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a076edfedd19fd9fe820a6d89c5e86d5e794e1865ea83c19e435fc109148ccdb.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a076edfedd19fd9fe820a6d89c5e86d5e794e1865ea83c19e435fc109148ccdb.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/b470e48980c58f11d6bb5718f1e84ad4e20aee9f917e1fc433394fc9011a52e4.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/b470e48980c58f11d6bb5718f1e84ad4e20aee9f917e1fc433394fc9011a52e4.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d60dc99c7796a66b1ed7d28028ddd46f387377d20fa3b5ab1c40da252fd16448.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d60dc99c7796a66b1ed7d28028ddd46f387377d20fa3b5ab1c40da252fd16448.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ed28534544f5eee6957b570ed5189b1c05ca250ba9de801a703233ace09022cf.json",
+    "packages/main/src/core/validation-command-environment.ts": "packages/main/src/core/validation-command-environment.ts",
+    "packages/main/src/tasks/closeout-trust-smoke.ts": "packages/main/src/tasks/closeout-trust-smoke.ts",
+    "packages/main/src/core/closeout-trust.ts": "packages/main/src/core/closeout-trust.ts",
+    "packages/main/src/tasks/full-suite-runner.ts": "packages/main/src/tasks/full-suite-runner.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/07b89ed8efe28594089d787d373cbcf7bda464e65059107134b5cb267ecbf6ba.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/07b89ed8efe28594089d787d373cbcf7bda464e65059107134b5cb267ecbf6ba.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/07f1bcdc7273bec8538237914eab605d75d9c93dc39993f7bc1621c31bfb417f.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/07f1bcdc7273bec8538237914eab605d75d9c93dc39993f7bc1621c31bfb417f.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/41799fb84b066063589a9ea43acf902a77e3b9b82949d81542af02d3816eb8e7.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/41799fb84b066063589a9ea43acf902a77e3b9b82949d81542af02d3816eb8e7.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/427e83113627aa7e69cca79362a7e140afdc92f6775b8a5af2d1f23dc1912138.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/427e83113627aa7e69cca79362a7e140afdc92f6775b8a5af2d1f23dc1912138.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/4f63c560b5d36fdf12094d4a2edee20e1b87375367ff1d124f464ee70fa170fa.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/4f63c560b5d36fdf12094d4a2edee20e1b87375367ff1d124f464ee70fa170fa.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/51411f220948ed4d46c7e19256b9731022747e592877eddb9eff39174d857ef3.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/51411f220948ed4d46c7e19256b9731022747e592877eddb9eff39174d857ef3.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/61a99fb14bddc4c6b0d95c4ce64a45710c41a294c4a062a76ec0920472990ee4.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/61a99fb14bddc4c6b0d95c4ce64a45710c41a294c4a062a76ec0920472990ee4.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/7bae9003ffc5ef0bf085b951ddc2f2295139c74e2534b06d4a73e7bc3c3e1b24.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/7bae9003ffc5ef0bf085b951ddc2f2295139c74e2534b06d4a73e7bc3c3e1b24.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/829f8832c63673618c9895b795a8ea57bfc21eaa825af6ed7d6524a9a1bf416f.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/829f8832c63673618c9895b795a8ea57bfc21eaa825af6ed7d6524a9a1bf416f.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/9631827044f9936e32cf3f5bbedb2294a1f69bdbb18a0b8b4145a152705fd6d3.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/9631827044f9936e32cf3f5bbedb2294a1f69bdbb18a0b8b4145a152705fd6d3.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a1b7f501829b463139285211396c1e6e57fd3a1c8711213f05dca8b04f6775a5.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/a1b7f501829b463139285211396c1e6e57fd3a1c8711213f05dca8b04f6775a5.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/aaf78eaf0a816207149a921557fb62b3e48283398418850975cab33fd28bde9e.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/aaf78eaf0a816207149a921557fb62b3e48283398418850975cab33fd28bde9e.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ad2320008f337f3b5c8a4562093eaba1d47a7f32212c938f357fc213cab19567.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ad2320008f337f3b5c8a4562093eaba1d47a7f32212c938f357fc213cab19567.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/bc3480cf2102da96be2c181c242a9e3e3aabb879be6f30a4d09c8ec96e4ec14e.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/bc3480cf2102da96be2c181c242a9e3e3aabb879be6f30a4d09c8ec96e4ec14e.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/be9e36867559a616373dca5ccb95641d97ac2ff1b7b84af48d4f1e3c3ffa9381.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/be9e36867559a616373dca5ccb95641d97ac2ff1b7b84af48d4f1e3c3ffa9381.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/c487f223634f18ed0587aa9e44688ec6220980d1e686439ce894aad2ccc03772.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/c487f223634f18ed0587aa9e44688ec6220980d1e686439ce894aad2ccc03772.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d73e8b513b4bfc422c7fcaf54764dd53f82fd5db4f2a2f743440ae19105f26bc.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/d73e8b513b4bfc422c7fcaf54764dd53f82fd5db4f2a2f743440ae19105f26bc.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/e6580f88e9b30d5e819417b917d83c75fa1504e6ea6b9a61e78f03b049f496c7.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/e6580f88e9b30d5e819417b917d83c75fa1504e6ea6b9a61e78f03b049f496c7.json",
+    ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ece8c3cd0ad359c8c81a6322215994a920a8aeadaa4591d11724d51fd015d2e5.json": ".proof-or-stop/story/actives/B-5a15/causal-evidence/receipts/ece8c3cd0ad359c8c81a6322215994a920a8aeadaa4591d11724d51fd015d2e5.json",
+    "packages/main/src/core/pre-review-check.ts": "packages/main/src/core/pre-review-check.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "lattice.config.json": "lattice.config.json",
+    "CLAUDE.md": "CLAUDE.md",
+    "scripts/verify-core-package-rename.mjs": "scripts/verify-core-package-rename.mjs",
+    ".proof-or-stop/dev-memory/experience.jsonl": ".proof-or-stop/dev-memory/experience.jsonl",
+    "packages/graph/scripts/verify-missing-assets-fail.mjs": "packages/graph/scripts/verify-missing-assets-fail.mjs",
+    "package.json": "package.json"
+  }
+}

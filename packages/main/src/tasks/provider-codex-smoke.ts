@@ -27,7 +27,6 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { codexCliAvailable, runBoundedCodexProvider } from '../providers/codex-cli.js';
 import { executePlannedSteps } from '../core/planned-steps-executor.js';
-import { runAgentLivenessSuiteForPinnedEvidence } from './agent-liveness-suite-smoke.js';
 
 type JsonObject = Record<string, any>;
 
@@ -361,7 +360,6 @@ try {
   assert.equal(unavailable.steps[0].status, 'blocked');
   assert.equal(unavailable.steps[0].reason, 'provider_unavailable', 'codex blocks when the CLI is unavailable on this host');
 
-  runAgentLivenessSuiteForPinnedEvidence();
   console.log('✓ provider codex smoke passed: real codexCliAvailable preflight; bounded spawn capture (digest/bytes/exit/duration, no raw transcript leakage); stdin-closed no-hang; non-zero/missing/E2BIG/generic-spawn/timeout classification; end-to-end executor run with redacted env where provider success never equals validation or authority DONE; disabled/unavailable fail closed');
 } finally {
   rmSync(work, { recursive: true, force: true });

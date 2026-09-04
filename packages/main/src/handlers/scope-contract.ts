@@ -34,6 +34,7 @@ import type { ScopeDiffPack } from '../core/types.js';
 import { checkSemanticScope, mergeSemanticScopeResult } from '../core/semantic-scope-gate.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { resolveStorySignedWorkspace } from '../core/story-signed-workspace-resolution.js';
+import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { loadConfig } from '../core/config.js';
 
 type StructuredScopeAcknowledgement = ScopeContractAcknowledgement & {
@@ -370,6 +371,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
       hunkDigest?: string;
       hunkDigests?: string[];
     }): string {
+      return withReviewInventoryMutationLock(store, args.storyId, () => {
       if (!args.storyId) throw new Error('storyId is required');
       const gitCwd = resolveScopeGitCwd(args.storyId);
       const canonicalAckPaths = canonicalPaths(
@@ -456,6 +458,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         renderAcknowledgementRow(ack, updated.acknowledgements.length - 1),
         `Total acknowledgements: ${updated.acknowledgements.length}`,
       ].join('\n');
+      });
     },
   };
 }

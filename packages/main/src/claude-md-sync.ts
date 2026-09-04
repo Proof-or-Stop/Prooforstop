@@ -9,6 +9,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'fs';
 import type { WorkflowProfile } from './core/types.js';
 import { WORKFLOW_PRESETS } from './core/types.js';
+import { inspectManagedBlock, replaceManagedBlock } from './core/managed-markers.js';
 
 /**
  * Generate CLAUDE.md profile section content for a given profile.
@@ -79,14 +80,16 @@ export function syncProfileSection(claudeMdPath: string, profile: WorkflowProfil
 
   const content = readFileSync(claudeMdPath, 'utf-8');
   const newSection = generateProfileSection(profile);
-  const marker = /<!--\s*proof-or-stop-profile:start\s*-->[\s\S]*?<!--\s*proof-or-stop-profile:end\s*-->/;
-
+  const inspection = inspectManagedBlock(content, 'profile');
   let updated: string;
-  if (marker.test(content)) {
-    updated = content.replace(marker, newSection);
-  } else {
-    // Append outside proof-or-stop:start/end markers
+  if (inspection.status === 'valid') {
+    // Replacing a legacy block with the canonical section performs the
+    // in-place migration. Ambiguous/nested blocks are never overwritten.
+    updated = replaceManagedBlock(content, newSection, 'profile') ?? content;
+  } else if (inspection.status === 'missing') {
     updated = content.trimEnd() + '\n\n' + newSection + '\n';
+  } else {
+    return false;
   }
 
   if (updated !== content) {

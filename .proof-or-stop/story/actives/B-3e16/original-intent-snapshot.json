@@ -1,0 +1,16 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-3e16",
+  "sourceText": "Create a story to migrate the functionality in ~/work/repo/proof-or-stop-graph into our Prooforstop repo, as one of the proof-or-stop commands. Follow-up decisions: use a new packages/graph subpackage; vendored browser bundles are dependency build output and do not enter source; name the command \"graph\"; then complete the story.",
+  "normalizedOutcome": "Running proof-or-stop graph inside this repository starts the interactive story and evidence graph that previously required the separate proof-or-stop-graph checkout, serving the d3 graph view, full-text search and per-story detail drawer, while leaving the inspected worktree clean.",
+  "acceptanceClaim": "proof-or-stop graph is a registered top-level command in this repository that builds from packages/graph and serves the migrated browser client, with the vendored bundles remaining gitignored build output.",
+  "keyRequirementIds": [
+    "REQ-001-graph-command-exists",
+    "REQ-002-subpackage-boundary",
+    "REQ-003-assets-not-in-source",
+    "REQ-004-clean-worktree"
+  ],
+  "requestHash": "sha256:6c11b4de6519cbe1a9ee8f64dff6f57cefa95185097be9bfec26aad8fca5b65a",
+  "createdAt": "2026-08-28T09:28:39.574Z",
+  "updatedAt": "2026-08-28T09:28:39.574Z"
+}

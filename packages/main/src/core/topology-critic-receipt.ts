@@ -12,11 +12,17 @@ import type {
 import type { SessionSource } from './owner-session.js';
 import { exportPublicKeyRaw, importPrivateKeyRaw, signCanonical, verifyCanonical } from './authority-signing.js';
 import { digestCanonicalJson } from './digest.js';
+import { agentRoleIdsEqual } from './agent-role-identity.js';
 
 export const TOPOLOGY_CRITIC_ROLE = 'proof-or-stop-review-topology-critic' as const;
 export const TOPOLOGY_EXCLUSION_APPROVER_ROLE = 'proof-or-stop-review-scope-plan' as const;
 const IMPLEMENTER_ROLE = 'proof-or-stop-implementer' as const;
 const IMPLEMENTER_AUTHOR = 'proof-or-stop-implementer <proof-or-stop-implementer@noreply.local>';
+const LEGACY_IMPLEMENTER_AUTHOR = 'lattice-implementer <lattice-implementer@noreply.local>';
+
+function canonicalBusinessAuthorIdentity(identity: string): string {
+  return identity.trim() === LEGACY_IMPLEMENTER_AUTHOR ? IMPLEMENTER_AUTHOR : identity.trim();
+}
 
 type ReceiptContext = {
   storyId: string;
@@ -107,19 +113,21 @@ export function currentImplementationBusinessCommit(gitCwd: string): { businessC
   let rows = '';
   try { rows = git(gitCwd, ['log', 'main..HEAD', '--format=%H%x09%an <%ae>']); } catch { /* no local main */ }
   if (!rows) rows = git(gitCwd, ['log', '-n', '50', '--format=%H%x09%an <%ae>']);
-  const line = rows.split('\n').find(row => row.endsWith(`\t${IMPLEMENTER_AUTHOR}`));
+  const line = rows.split('\n').find(row => row.endsWith(`\t${IMPLEMENTER_AUTHOR}`))
+    ?? rows.split('\n').find(row => row.endsWith(`\t${LEGACY_IMPLEMENTER_AUTHOR}`));
   if (!line) throw new Error(`implementation provenance is missing a business commit authored by ${IMPLEMENTER_AUTHOR}`);
   const [businessCommit, businessCommitAuthor] = line.split('\t');
-  return { businessCommit, businessCommitAuthor };
+  return { businessCommit, businessCommitAuthor: canonicalBusinessAuthorIdentity(businessCommitAuthor) };
 }
 
 export function topologyDispatchBusinessAuthor(gitCwd: string): string {
-  return currentGitAuthorIdentity(gitCwd);
+  return canonicalBusinessAuthorIdentity(currentGitAuthorIdentity(gitCwd));
 }
 
 export function deriveImplementationProvenance(gitCwd: string, events: readonly ProcessEvent[], context: ReceiptContext): TopologyImplementationProvenanceV1 {
   const { businessCommit, businessCommitAuthor } = currentImplementationBusinessCommit(gitCwd);
-  const event = [...events].reverse().find(candidate => candidate.type === 'dispatch' && candidate.agentType === IMPLEMENTER_ROLE);
+  const event = [...events].reverse().find(candidate => candidate.type === 'dispatch'
+    && agentRoleIdsEqual(typeof candidate.agentType === 'string' ? candidate.agentType : undefined, IMPLEMENTER_ROLE));
   if (!event || typeof event.sessionId !== 'string' || !event.sessionId.trim()) {
     throw new Error('implementation provenance is missing a session-bound proof-or-stop-implementer dispatch');
   }
@@ -132,7 +140,7 @@ export function deriveImplementationProvenance(gitCwd: string, events: readonly 
     storyFilesHash: context.storyFilesHash,
     businessIdentity: businessCommitAuthor,
     businessCommit,
-    businessCommitAuthor,
+    businessCommitAuthor: canonicalBusinessAuthorIdentity(businessCommitAuthor),
     businessCommitAuthorSource: 'git-log:commit-author',
   };
 }
@@ -159,20 +167,30 @@ export function deriveRoleProvenance(args: {
   context: ReceiptContext;
   implementation: TopologyImplementationProvenanceV1;
 }): TopologyActorProvenanceV1 {
-  if (args.actor !== args.expectedRole) throw new Error(`role eligibility failed: expected ${args.expectedRole}, received ${args.actor || '<missing>'}`);
+  if (!args.actor || !agentRoleIdsEqual(args.actor, args.expectedRole)) throw new Error(`role eligibility failed: expected ${args.expectedRole}, received ${args.actor || '<missing>'}`);
   if (!args.sessionId.trim()) throw new Error('role eligibility failed: session identity is missing');
   if (!SIGNABLE_SESSION_SOURCES.has(args.sessionSource)) {
     throw new Error(`role eligibility failed: ${args.expectedRole} must sign from a host-adapter session, received "${args.sessionSource}"`);
   }
   const event = [...args.events].reverse().find(candidate =>
     candidate.type === 'dispatch'
-    && candidate.agentType === args.expectedRole
+    && agentRoleIdsEqual(typeof candidate.agentType === 'string' ? candidate.agentType : undefined, args.expectedRole)
     && candidate.sessionId === args.sessionId
     && candidate.storyId === args.context.storyId
     && candidate.businessCommit === args.implementation.businessCommit
     && candidate.storyFilesHash === args.context.storyFilesHash,
   );
-  if (!event) throw new Error(`no current registered dispatch provenance for ${args.expectedRole} in session ${args.sessionId}`);
+  if (!event) {
+    const candidates = args.events
+      .filter(candidate => candidate.type === 'dispatch' && candidate.agentType === args.expectedRole && candidate.storyId === args.context.storyId)
+      .slice(-3)
+      .map(candidate => `session=${candidate.sessionId ?? '<missing>'},businessCommit=${candidate.businessCommit ?? '<missing>'},storyFilesHash=${candidate.storyFilesHash ?? '<missing>'}`)
+      .join(' | ') || 'none';
+    throw new Error(
+      `no current registered dispatch provenance for ${args.expectedRole} in session ${args.sessionId}; ` +
+      `expected businessCommit=${args.implementation.businessCommit}, storyFilesHash=${args.context.storyFilesHash}; candidates=${candidates}`,
+    );
+  }
   const headHash = typeof event.headHash === 'string' ? event.headHash : '';
   const businessCommit = typeof event.businessCommit === 'string' ? event.businessCommit : '';
   const businessCommitAuthor = typeof event.businessCommitAuthor === 'string' ? event.businessCommitAuthor.trim() : '';
@@ -200,7 +218,8 @@ export function independenceMatrix(actor: TopologyActorProvenanceV1, implementat
     agent: actor.agentId !== implementation.agentId,
     session: actor.sessionId !== implementation.sessionId,
     dispatch: actor.dispatchId !== implementation.dispatchId,
-    businessCommitAuthor: actor.businessCommitAuthor !== implementation.businessCommitAuthor,
+    businessCommitAuthor: canonicalBusinessAuthorIdentity(actor.businessCommitAuthor)
+      !== canonicalBusinessAuthorIdentity(implementation.businessCommitAuthor),
   };
 }
 
@@ -211,7 +230,7 @@ function verifierIndependenceMatrix(actor: unknown, implementation: TopologyImpl
     session: typeof value.sessionId === 'string' && value.sessionId.trim().length > 0 && value.sessionId !== implementation.sessionId,
     dispatch: typeof value.dispatchId === 'string' && value.dispatchId.trim().length > 0 && value.dispatchId !== implementation.dispatchId,
     businessCommitAuthor: typeof value.businessCommitAuthor === 'string' && value.businessCommitAuthor.trim().length > 0
-      && value.businessCommitAuthor !== implementation.businessCommitAuthor,
+      && canonicalBusinessAuthorIdentity(value.businessCommitAuthor) !== canonicalBusinessAuthorIdentity(implementation.businessCommitAuthor),
   };
 }
 
@@ -269,7 +288,7 @@ function actorDispatchDiagnostics(args: {
     return diagnostics;
   }
   const candidates = args.events.filter(event => event.type === 'dispatch'
-    && event.agentType === args.expectedRole
+    && agentRoleIdsEqual(typeof event.agentType === 'string' ? event.agentType : undefined, args.expectedRole)
     && event.storyId === args.context.storyId
     && event.businessCommit === args.implementation.businessCommit
     && event.storyFilesHash === args.context.storyFilesHash
@@ -382,8 +401,8 @@ export function verifyTopologyExclusionApproval(args: {
   if (!trusted || approval.signerPublicKey !== trusted || !verifyCanonical(unsignedApproval(approval), approval.signature, trusted)) diagnostics.push('exclusion approval signature is invalid');
   const expectedApprovalRef = `TEA-${digest({ storyId: context.storyId, exclusionRef: approval.exclusionRef }).slice(7, 19)}`;
   if (approval.schemaVersion !== 'proofstory.topology_exclusion_approval.v1' || approval.storyId !== context.storyId
-    || approval.approverRole !== TOPOLOGY_EXCLUSION_APPROVER_ROLE || approval.approverIdentity !== TOPOLOGY_EXCLUSION_APPROVER_ROLE
-    || !hasActorProvenance(approval.approverProvenance) || approval.approverProvenance.agentId !== TOPOLOGY_EXCLUSION_APPROVER_ROLE
+    || !agentRoleIdsEqual(approval.approverRole, TOPOLOGY_EXCLUSION_APPROVER_ROLE) || !agentRoleIdsEqual(approval.approverIdentity, TOPOLOGY_EXCLUSION_APPROVER_ROLE)
+    || !hasActorProvenance(approval.approverProvenance) || !agentRoleIdsEqual(approval.approverProvenance.agentId, TOPOLOGY_EXCLUSION_APPROVER_ROLE)
     || approval.approverProvenance.businessCommitAuthorSource !== 'git-var:GIT_AUTHOR_IDENT'
     || approval.approvalRef !== expectedApprovalRef || !isValidIssuedAt(approval.issuedAt)) diagnostics.push('exclusion approval role/story binding mismatch');
   diagnostics.push(...actorDispatchDiagnostics({
@@ -467,8 +486,8 @@ export function verifyTopologyCriticReceipt(args: {
   const trusted = registeredPublicKey(args.gitCwd, TOPOLOGY_CRITIC_ROLE);
   if (!trusted || receipt.signerPublicKey !== trusted || !verifyCanonical(unsignedReceipt(receipt), receipt.signature, trusted)) diagnostics.push('topology critic signature is invalid');
   if (receipt.schemaVersion !== 'proofstory.topology_critic_receipt.v1' || receipt.storyId !== context.storyId
-    || receipt.criticRole !== TOPOLOGY_CRITIC_ROLE || receipt.criticIdentity !== TOPOLOGY_CRITIC_ROLE
-    || !hasActorProvenance(receipt.criticProvenance) || receipt.criticProvenance.agentId !== TOPOLOGY_CRITIC_ROLE
+    || !agentRoleIdsEqual(receipt.criticRole, TOPOLOGY_CRITIC_ROLE) || !agentRoleIdsEqual(receipt.criticIdentity, TOPOLOGY_CRITIC_ROLE)
+    || !hasActorProvenance(receipt.criticProvenance) || !agentRoleIdsEqual(receipt.criticProvenance.agentId, TOPOLOGY_CRITIC_ROLE)
     || receipt.criticProvenance.businessCommitAuthorSource !== 'git-var:GIT_AUTHOR_IDENT'
     || !isValidIssuedAt(receipt.issuedAt)) diagnostics.push('topology critic role/story binding mismatch');
   diagnostics.push(...actorDispatchDiagnostics({

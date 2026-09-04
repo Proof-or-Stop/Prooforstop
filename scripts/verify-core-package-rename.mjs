@@ -13,13 +13,9 @@
  *               NEW name (packages/utils imports main's build output, so a stale reference
  *               would surface as a cross-package resolution break).
  *
- *   adversarial the OQ-2 scope boundary still holds: the ROOT package name stays `proof-or-stop`
- *               while packages/main is `@proof-or-stop/core`. This is the assertion that
- *               would otherwise regress SILENTLY — a future sweep that "finishes the
- *               rename" by renaming the root would violate the recorded scope boundary
- *               (docs/requirements/decisions/proof-or-stop-identity-migration.md, and
- *               brand-rename-mapping.md:131 which freezes the root as a publish-level
- *               change owned by its own story). Renaming the root makes this exit non-zero.
+ *   adversarial the root package identity and packages/main identity are both canonical.
+ *               This catches a partial migration where the root still exposes the
+ *               retired `lattice` package identity while the core package has moved.
  *
  * Read-only: asserts, never writes.
  */
@@ -31,9 +27,16 @@ import { fileURLToPath } from 'node:url';
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const CANONICAL_CORE = '@proof-or-stop/core';
+const CANONICAL_ROOT = 'proof-or-stop';
+// origin/main merge: our pre-merge main carried the two USE sites of RETIRED_CORE (the
+// retired-dependency assertion and the source-body scan) but never declared it, so this
+// script threw ReferenceError after its first three checks. Same split-rename pattern as
+// RETIRED_STORY_INIT_DIRECT_WRITE in verify-proof-or-stop-prompt-baseline.mjs. Declared
+// exactly as origin does, assembled from fragments so the retired token never appears
+// literally in this source (the residue guards scan for it).
 const RETIRED_CORE = `@${['lat', 'tice'].join('')}/core`;
+// Same split-rename gap: one USE site, no declaration. Declared exactly as origin does.
 const RETIRED_STATE_PREFIX = `.${['lat', 'tice'].join('')}/`;
-const FROZEN_ROOT = 'proof-or-stop';
 
 const failures = [];
 
@@ -82,15 +85,15 @@ const utilsDistExists = existsSync(join(repoRoot, 'packages/utils/dist/index.js'
 console.log(`utilsDistExists=${utilsDistExists}`);
 check('packages/utils built against the renamed core (cross-package resolution intact)', utilsDistExists);
 
-// ---- adversarial: the OQ-2 boundary must NOT be "helpfully" completed ----
+// ---- adversarial: the root package identity is migrated too ----------------
 const rootPkg = readPackage('package.json');
 const rootName = rootPkg?.name ?? '<unreadable>';
 console.log(`rootPackageName=${rootName}`);
-const oq2BoundaryHeld = rootName === FROZEN_ROOT && coreName === CANONICAL_CORE;
-console.log(`oq2BoundaryHeld=${oq2BoundaryHeld}`);
+const rootIdentityMigrated = rootName === CANONICAL_ROOT && coreName === CANONICAL_CORE;
+console.log(`rootIdentityMigrated=${rootIdentityMigrated}`);
 check(
-  `ROOT package name stays "${FROZEN_ROOT}" (OQ-2 exclusion) while core is renamed`,
-  oq2BoundaryHeld,
+  `ROOT package name is "${CANONICAL_ROOT}" while core is renamed`,
+  rootIdentityMigrated,
 );
 
 // B-cc10 F-024: the failure gate MOVED to the very end of this file. It used to sit
@@ -115,7 +118,12 @@ check(
 // canonical name alongside it in the same file. A file that mentions only the old
 // spelling has not been migrated; a file that mentions both is read-both by design.
 {
-  const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8' })
+  // maxBuffer: `git ls-files` output crossed Node's 1MB execFileSync default as the
+  // repo grew (14997 files / ~1.05MB), which surfaced as `spawnSync git ENOBUFS` with
+  // `status: 0` -- git itself succeeded and only the capture buffer overflowed, so the
+  // failure looked like a rename regression rather than a size limit. 64MB leaves
+  // decades of headroom; do not drop this back to the default.
+  const tracked = execFileSync('git', ['ls-files'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
     .trim().split('\n').filter(Boolean);
   const skip = (f) =>
     f.includes('node_modules/') || f.includes('/dist/') || f.startsWith('dist/')

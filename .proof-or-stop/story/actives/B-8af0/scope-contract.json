@@ -1,0 +1,151 @@
+{
+  "storyId": "B-8af0",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/candidate-spec-routing.ts",
+    "packages/main/src/handlers/review-inventory.ts",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts"
+  ],
+  "protectedFiles": [
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/B-3f3d user-facing status and userSees follow-ups",
+    "packages/main/src/B-49ed topology critic signing/provenance",
+    "packages/main/src/candidate-routing rollout promotion",
+    "packages/main/src/Authority or production behavior"
+  ],
+  "scopeChangeReason": "The real story-branch red fixture proved changedPaths is being promoted into protected exact-path candidate selection, so closing F-107/F-108 requires the narrow producer correction in currentStoryRoutingInput in addition to canonical barrier ordering.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "The declared B-8af0 closure requires strict candidate artifact shape validation and typed invalidation propagation; both anchors implement the approved F-107/F-111 behavior.",
+      "timestamp": "2026-08-20T10:24:43.150Z",
+      "paths": [
+        "packages/main/src/core/candidate-spec-routing.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/candidate-spec-routing.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "c3dcb470479d15c09d89b535674637046a2a1a2c",
+      "materialHash": "c9ede6af98196b040226f14fda956c2c03a3cc664ed2a0f4a508fe78161989e2",
+      "anchors": [
+        "isRecord",
+        "assertOpenInventoryFresh"
+      ],
+      "hunkDigests": [
+        "617fb9cb57cf49dad90fe0f3e4cc561bed72e202d99548ae7f57bb6e78212ba9",
+        "7bdaf4935cce62f86fce64cc70f959173c0d73cf8acc5d6d93324f904bec8b35"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-001 and F-005 proved review_inventory_begin could sign OPEN for a persisted malformed artifact; this anchor now atomically persists the documented typed INVALIDATED terminal state and is exercised by the real handler smoke.",
+      "timestamp": "2026-08-20T11:59:38.044Z",
+      "paths": [
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "282187fd92219289ce4d143e2c0e93a92248cdb3",
+      "materialHash": "93cfea0e00ed722a8d95ca9392230888a8bcdfb87af118f7b813177f3141f233",
+      "anchors": [
+        "review_inventory_begin"
+      ],
+      "hunkDigests": [
+        "269810f8cb39afb9a29de7eda9b143b1bbf096ecc9f33c0b6adba823265208b5",
+        "f4c56cd7cf637916cbd4c8f607e8aa78ae768aebf2b4ff78e4dbe465bfbbf91f",
+        "4473c7d6f273b540c039f21f6538a46a544ab9782f6721af08b666100908d536",
+        "e08fbc2bab74491781226f0305fb3719999817e9925d13c471358e8e1e0ac66d"
+      ]
+    }
+  ],
+  "createdAt": "2026-08-20T09:20:27.970Z",
+  "updatedAt": "2026-08-20T11:59:38.044Z",
+  "fileRules": [
+    {
+      "path": "packages/main/src/handlers/candidate-spec-routing.ts",
+      "allowedAnchors": [
+        "currentStoryRoutingInput"
+      ],
+      "intentRefs": [
+        "CHK-001:canonical-order-open",
+        "CHK-003:story-branch-reroute-remains-open"
+      ]
+    },
+    {
+      "path": "packages/main/src/handlers/review-inventory.ts",
+      "allowedAnchors": [
+        "captureReviewInventoryScope",
+        "persistInvalidationIfDrifted",
+        "renderReviewInventoryStatus"
+      ],
+      "intentRefs": [
+        "CHK-001:canonical-order-open",
+        "CHK-001:content-and-selection-drift",
+        "CHK-002:truthy-nonarray-fails-closed",
+        "CHK-002:no-uncaught-typeerror"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/candidate-spec-routing.ts",
+      "allowedAnchors": [
+        "verifyCandidateSpecSet"
+      ],
+      "intentRefs": [
+        "CHK-002:malformed-artifact-cannot-pass-as-valid",
+        "CHK-002:artifact-digest-tamper-still-rejected"
+      ]
+    },
+    {
+      "path": "packages/main/src/core/types.ts",
+      "allowedAnchors": [
+        "ReviewInventoryEpoch"
+      ],
+      "intentRefs": [
+        "CHK-002:truthy-nonarray-fails-closed"
+      ]
+    }
+  ],
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/candidate-spec-routing.ts": "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/review-inventory.ts": "packages/main/src/handlers/review-inventory.ts",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/candidate-spec-routing-smoke.ts": "packages/main/src/tasks/candidate-spec-routing-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts": "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts": "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/B-3f3d user-facing status and userSees follow-ups": "B-3f3d user-facing status and userSees follow-ups",
+    "packages/main/src/B-49ed topology critic signing/provenance": "B-49ed topology critic signing/provenance",
+    "packages/main/src/candidate-routing rollout promotion": "candidate-routing rollout promotion",
+    "packages/main/src/Authority or production behavior": "Authority or production behavior",
+    "packages/main/src/handlers/candidate-spec-routing.ts": "packages/main/src/handlers/candidate-spec-routing.ts"
+  },
+  "anchorParserVersion": "typescript-5.9-ast-v1",
+  "anchorArtifactVersion": "lattice.scope-anchor.v1",
+  "astAnchorMode": "enforce"
+}

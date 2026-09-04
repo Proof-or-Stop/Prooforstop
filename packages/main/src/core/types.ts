@@ -30,9 +30,11 @@ export type StoryPhase = 'IDEA' | 'INIT' | 'INIT_CHECK' | 'PLAN' | 'DEV' | 'REVI
 /** Canonical role names accepted by the typed dispatch contract. */
 export type AgentDispatchCanonicalType =
   | 'proof-or-stop-implementer'
-  | 'verification-intent'
+  | 'proof-or-stop-verification-intent'
+  | 'proof-or-stop-test-intent'
+  | 'proof-or-stop-test-case-reviewer'
   | 'proof-or-stop-review-story-init'
-  | 'product-reviewer'
+  | 'proof-or-stop-product-reviewer'
   | 'proof-or-stop-review-scope-plan'
   | 'proof-or-stop-review-topology-critic'
   | 'proof-or-stop-review-concept'
@@ -43,7 +45,25 @@ export type AgentDispatchCanonicalType =
   | 'proof-or-stop-review-channel'
   | 'proof-or-stop-review-delivery'
   | 'proof-or-stop-finding-repair'
-  | 'proof-or-stop-cluster-repair';
+  | 'proof-or-stop-cluster-repair'
+  // Accepted only as legacy input/read values. Runtime registry rows always
+  // use the proof-or-stop spellings above.
+  | 'lattice-implementer'
+  | 'verification-intent'
+  | 'proof-or-stop-review-story-init'
+  | 'product-reviewer'
+  | 'lattice-review-scope-plan'
+  | 'lattice-review-topology-critic'
+  | 'lattice-review-concept'
+  | 'lattice-review-quality'
+  | 'lattice-review-test-coverage'
+  | 'lattice-review-behavior'
+  | 'lattice-review-docs'
+  | 'lattice-review-channel'
+  | 'lattice-review-delivery'
+  | 'lattice-finding-repair'
+  | 'lattice-cluster-repair'
+  | 'acceptance-rollout-verifier';
 
 export type AgentDispatchRoleClass =
   | 'implementer'
@@ -70,7 +90,8 @@ export type AgentDispatchPromptBuilderKey =
   | 'coverage-review'
   | 'delivery-review'
   | 'finding-repair'
-  | 'cluster-repair';
+  | 'cluster-repair'
+  | 'rollout-verify';
 
 export type AgentDispatchMutationCommand =
   | 'checklist_update'
@@ -81,6 +102,7 @@ export type AgentDispatchMutationCommand =
   | 'review_run_start'
   | 'finding_add'
   | 'review_pass_set'
+  | 'review_inventory_critic_set'
   | 'delivery_check_set'
   | 'finding_resolve'
   // B-e10d (W2b): the RED-evidence subsystem's first mutating command. The
@@ -93,6 +115,20 @@ export type AgentDispatchMutationCommand =
 
 export type AgentDispatchReviewerLane =
   | 'proof-or-stop-review-story-init'
+  | 'proof-or-stop-product-reviewer'
+  | 'proof-or-stop-review-scope-plan'
+  | 'proof-or-stop-review-topology-critic'
+  | 'proof-or-stop-review-concept'
+  | 'proof-or-stop-review-quality'
+  | 'proof-or-stop-review-test-coverage'
+  | 'proof-or-stop-review-behavior'
+  | 'proof-or-stop-review-docs'
+  | 'proof-or-stop-review-channel'
+  | 'proof-or-stop-review-delivery'
+  | 'acceptance-rollout-verifier'
+  // Historical spellings are accepted at the input/compatibility boundary;
+  // canonical proof-or-stop lanes remain the runtime authority.
+  | 'lattice-review-story-init'
   | 'product-reviewer'
   | 'proof-or-stop-review-scope-plan'
   | 'proof-or-stop-review-topology-critic'
@@ -111,6 +147,7 @@ export type AgentDispatchEvidenceOwnership =
   | 'scope-check'
   | 'topology-exclusion-approval'
   | 'topology-critic-receipt'
+  | 'review-inventory-critic-receipt'
   | 'review-run'
   | 'finding'
   | 'review-pass'
@@ -232,6 +269,8 @@ export interface StoryInfo {
   currentReviewRound?: string;
   /** High-risk signals (auto-detection): triggered keyword categories */
   riskSignals?: Array<{ category: string; matched: string }>;
+  /** Dynamic validation capability triggers declared by Story planning. */
+  affectedCapabilities?: string[];
   /**
    * B-5010 CHK-004: risk signal explicitly dismissed by the main agent (false-positive whitelist).
    * story_review skips dismissed categories when determining isHighRisk / advisory message.
@@ -907,7 +946,7 @@ export interface TopologyExclusionApprovalV1 {
   exclusionRef: string;
   scopeRef: string;
   approverIdentity: string;
-  approverRole: 'proof-or-stop-review-scope-plan';
+  approverRole: 'proof-or-stop-review-scope-plan' | 'lattice-review-scope-plan';
   approverProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
@@ -931,7 +970,7 @@ export interface TopologyCriticReceiptV1 {
   schemaVersion: 'proofstory.topology_critic_receipt.v1';
   storyId: string;
   criticIdentity: string;
-  criticRole: 'proof-or-stop-review-topology-critic';
+  criticRole: 'proof-or-stop-review-topology-critic' | 'lattice-review-topology-critic';
   criticProvenance: TopologyActorProvenanceV1;
   implementationProvenance: TopologyImplementationProvenanceV1;
   basisDigest: string;
@@ -1078,6 +1117,10 @@ export interface VerificationExecutionReceipt {
     /** Attributable ≥ 30-char justification for raising the budget. */
     reason: string;
   };
+  /** B-5a15: canonical CausalEvidence provenance (legacy receipts omit these). */
+  executionKey?: string;
+  causalReceiptHash?: string;
+  commandReruns?: 0;
 }
 
 export interface VerificationEvidence {
@@ -1767,6 +1810,141 @@ export interface ReviewRunData {
   runs: ReviewRun[];
 }
 
+export type ReviewInventoryEpochState = 'OPEN' | 'FINALIZED' | 'INVALIDATED' | 'CANCELLED';
+
+export interface ReviewInventoryLaneTerminal {
+  lane: string;
+  reviewRunId: string;
+  terminal: 'pass' | 'finding';
+  hostIdentity: string;
+  promptIdentity: string;
+  evidenceIds: string[];
+  coverageDigest: string;
+}
+
+export interface ReviewInventoryWave {
+  wave: number;
+  startedAt: string;
+  completedAt?: string;
+  lanes: ReviewInventoryLaneTerminal[];
+  verifiedFindingFamilies: string[];
+  verifiedFindingSetDigest?: string;
+  newVerifiedFindingCount?: number;
+  criticDigest?: string;
+  saturated?: boolean;
+  /** Highest numeric ReviewRun id already existing when this checkpoint sealed the wave. */
+  nextRunSequenceBoundary?: number;
+}
+
+/** Signed frozen-candidate inventory fact. It never certifies remediated material. */
+export interface ReviewInventoryEpoch {
+  schemaVersion: 'proofbound.review_inventory_epoch.v1';
+  epochId: string;
+  storyId: string;
+  reviewRound: string;
+  state: ReviewInventoryEpochState;
+  begunAt: string;
+  updatedAt: string;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  /** Frozen REVIEW acceptance subject (scope contract + complete checklist semantics). */
+  scopeDigest: string;
+  /** Frozen signed candidate-routing universe, when routing exists at epoch begin. */
+  candidateSpecSetDigest?: string;
+  corpusDigest?: string;
+  requiredLanes: string[];
+  /** Highest numeric ReviewRun id existing at begin; current-wave runs must be strictly newer. */
+  initialRunSequenceBoundary?: number;
+  /** Signed snapshot of open verified findings from current-cutoff/current-round runs that predate begunAt. */
+  baselineFindingIds?: string[];
+  maxWaves: number;
+  waves: ReviewInventoryWave[];
+  invalidation?: {
+    detectedAt: string;
+    oldMaterialHash: string;
+    currentMaterialHash: string;
+    oldStoryFilesHash?: string;
+    currentStoryFilesHash?: string;
+    blockerCode:
+      | 'OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION'
+      | 'OPEN_REVIEW_INVENTORY_SCOPE_MUTATION'
+      | 'OPEN_REVIEW_INVENTORY_CANDIDATE_ROUTING_MUTATION'
+      | 'OPEN_REVIEW_INVENTORY_INVALID_CANDIDATE_ARTIFACT';
+    oldScopeDigest?: string;
+    currentScopeDigest?: string;
+    oldRequiredLanes?: string[];
+    currentRequiredLanes?: string[];
+    oldCandidateSpecSetDigest?: string;
+    currentCandidateSpecSetDigest?: string;
+    oldCorpusDigest?: string;
+    currentCorpusDigest?: string;
+  };
+  cancelledAt?: string;
+  cancelReason?: string;
+  /** Highest ReviewRun sequence existing when CANCELLED/INVALIDATED became terminal. */
+  terminalRunSequenceBoundary?: number;
+  receiptId?: string;
+  consumedAt?: string;
+  consumedByReviewRound?: string;
+  _hash: string;
+}
+
+export interface ReviewInventoryReceipt {
+  schemaVersion: 'proofbound.review_inventory_receipt.v1';
+  receiptId: string;
+  epochId: string;
+  storyId: string;
+  reviewRound: string;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  scopeDigest: string;
+  requiredLanes: string[];
+  waveCount: number;
+  findingSetDigest: string;
+  coverageDigest: string;
+  saturationResult: 'ZERO_NEW_VERIFIED_FINDINGS';
+  authority: 'inventory-completeness-only';
+  authorizesTest: false;
+  issuedAt: string;
+  consumedAt?: string;
+  /** Signed revocation of an unconsumed receipt; revoked receipts never grant remediation authority. */
+  invalidatedAt?: string;
+  invalidationReason?: string;
+  _hash: string;
+}
+
+export interface ReviewInventoryCriticReceipt {
+  schemaVersion: 'proofbound.review_inventory_critic_receipt.v1';
+  criticReceiptId: string;
+  epochId: string;
+  storyId: string;
+  reviewRound: string;
+  wave: number;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  aggregateFindingSetDigest: string;
+  requiredLaneCoverageDigest: string;
+  criticLane: 'proof-or-stop-review-topology-critic' | 'lattice-review-topology-critic';
+  reviewRunId: string;
+  terminalEvidenceIds: string[];
+  readEvidenceDigest: string;
+  findingDispositions: ReviewInventoryFindingDisposition[];
+  createdAt: string;
+  _hash: string;
+}
+
+export interface ReviewInventoryFindingDisposition {
+  findingId: string;
+  disposition: 'verified_family' | 'duplicate' | 'not_verified';
+  familyKey?: string;
+  canonicalFindingId?: string;
+  reason: string;
+}
+
+export interface ReviewInventoryEpochData {
+  schemaVersion: 'proofbound.review_inventory_epochs.v1';
+  epochs: ReviewInventoryEpoch[];
+  receipts: ReviewInventoryReceipt[];
+  criticReceipts: ReviewInventoryCriticReceipt[];
+}
+
 /** Evaluator scoring evidence (consumed by browser project DONE gate) */
 export interface EvalEvidenceData {
   scores: { functionality: number; usability: number };
@@ -1850,6 +2028,14 @@ export interface VerificationCoverageReport {
   /** Present when fact provenance issues were found on covered/weak evidence */
   factProvenanceIssues?: import('./fact-provenance.js').FactProvenanceIssue[];
 }
+
+/**
+ * CausalEvidence receipts are defined with the execution service so their
+ * canonical digest helpers stay beside the schema. Re-exporting the shared
+ * receipt type here keeps the project-wide core type surface available to
+ * stores and handlers without duplicating a mutable receipt shape.
+ */
+export type { CausalEvidenceReceipt } from './causal-evidence.js';
 
 /**
  * RALPLAN-DR structured decision.

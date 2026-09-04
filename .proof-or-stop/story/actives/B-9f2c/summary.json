@@ -1,0 +1,55 @@
+{
+  "storyId": "B-9f2c",
+  "changes": "Ported the per-story dossier page from the upstream proof-or-stop-graph repository (the four commits after the already-migrated 10b5921 baseline) into packages/graph: a new src/shells/web/dossier.js of 1119 lines copied verbatim, plus the upstream hunks to app.css, app.js and app.body.html, the /story/<id> route in src/io/http.ts, and the dossier.js concatenation in scripts/build-web.mjs (placed after app.js and playback.js, which is load-bearing). Added a --story=<id> flag to the existing proof-or-stop graph command in packages/main/src/handlers/graph.ts and cli/command-catalog.ts, which opens http://localhost:<port>/story/<id> instead of the graph home; an unknown id is refused before the server starts listening and the error names near-miss candidates. Added packages/main/src/tasks/graph-story-flag-smoke.ts and registered it in BOTH test surfaces. Documented the dossier and the flag in packages/graph/README.md and CLAUDE.md. Re-approved a dynamic-code-loading fingerprint pin that this story's own handler edit had revoked.",
+  "usage": "Run `proof-or-stop graph --story=B-xxxx` from inside a Proof-or-Stop repository to open that story's dossier page directly. Plain `proof-or-stop graph` still opens the graph home unchanged. The dossier is also reachable from the `open dossier` button in the graph drawer header, and by navigating to /story/<id> directly, which is shareable and works with the browser back/forward buttons. --root, --port, --no-open and --json all keep their existing behavior.",
+  "expectedOutcome": "The command prints and opens http://localhost:<port>/story/<id>, that URL returns HTTP 200 serving the dossier page, a nested path such as /story/a/b is not matched, and a mistyped story id exits non-zero before any port is bound while suggesting the closest real ids.",
+  "actualTranscript": "Observed on a live server started with `node packages/main/dist/cli.js graph --story=B-9f2c --no-open --port=18799`, which logged `graph serving http://localhost:18799/story/B-9f2c`. Then: `curl -s -o /dev/null -w '%{http_code}' http://localhost:18799/story/B-9f2c` returned 200; `curl -s http://localhost:18799/story/B-9f2c | grep -c openStoryDossier` returned 6; the bytes served at / and at /story/B-9f2c were identical by shasum, which is the intended single-shell design; `curl -s -o /dev/null -w '%{http_code}' http://localhost:18799/story/a/b` returned 404; and `node packages/main/dist/cli.js graph --story=B-9f2d --no-open` exited 1 printing 'graph: --story=B-9f2d is not a story in this repository.', 'known stories: 370' and 'did you mean: B-9f2c, B-182d, B-3f3d, B-6f23, B-9123' with the correct id ranked first. The server was then killed and port 18799 confirmed free.",
+  "outcomeDiff": "No difference. Every expected observation was reproduced on a real server, including the two negative cases (nested path 404, unknown id refused pre-listen with ranked suggestions). All 116 configured validate commands passed, all 22 must-priority verification intents hold fresh mechanical receipts, and four independent reviewer lanes recorded passes with zero findings.",
+  "acceptanceVerdict": "accepted",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Three, all deliberate and recorded. First, the dossier page itself is a verbatim upstream port and was not re-authored, so its internal style differs from this repository's conventions; that was the explicit scope decision. Second, finding F-001 is resolved as accepted_risk rather than fixed: CHK-002's adversarial:0 intent was authored with a clause about a d3 hard-failure branch that exists only as an uncommitted edit in the unrelated main checkout, never on this branch or upstream, so that clause is unsatisfiable here; only the load-order clause was evidenced, no evidence was fabricated, and the intent could not be reworded because verificationIntent is frozen after PLAN by design. Two independent reviewers examined and agreed with that handling. Third, the review assurance floor is satisfied through the degraded-single-host fallback rather than a 3x2 two-host quorum, because this is a single-host environment.",
+  "pitfalls": "Four worth knowing. First, a fresh worktree has no dist/ or node_modules for any package because both are gitignored, so packages/main, packages/utils and packages/graph must each be built or installed before the CLI and its guards will run; a missing packages/utils/dist/index.js surfaces as a confusing nested 'Command failed' stack from acceptance_rollout_report. Second, editing packages/main/src/handlers/graph.ts revokes a dynamic-code-loading fingerprint pin in retired-authority-vocabulary-guard-smoke.ts by design, and the pin must be re-approved by a human at BOTH of its two sites after confirming the dynamic-code surface is unchanged. Third, reviewer verdicts and verification receipts both bind to the file set, and every review_pass_set auto-commits its own metadata, so the tree must be frozen before earning verdicts and evidence must be refreshed AFTER the last reviewer signs, with no commit between the refresh and the advance. Fourth, packages/graph/assets is gitignored build output and must never be committed, even though the build writes into it.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 180183
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 74342
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 829899
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 2547723
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 16973125
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 162503
+    }
+  },
+  "totalDurationMs": 20768380,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-02T13:58:28.052Z",
+  "updatedAt": "2026-09-02T13:58:28.052Z"
+}

@@ -7,12 +7,12 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { resetConfigCache } from '../core/config.js';
+import { AgentDispatchRegistryError, validateAgentDispatchRequest } from '../core/agent-dispatch-registry.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { cleanStrayWorktreeFiles, STRAY_FILE_WHITELIST } from '../handlers/stray-file-cleanup.js';
 import { checkCommitAuthor } from '../handlers/validate-channel.js';
 import { runDocsDriftGate } from '../handlers/validate-docs-drift.js';
-import { runAgentLivenessSuiteForPinnedEvidence } from './agent-liveness-suite-smoke.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -745,19 +745,26 @@ async function assertTypedDispatchUsesRoleSafePromptsAndBoundaries(): Promise<vo
 
     const planStoryId = 'B-verification-dispatch';
     writeChecklistConcurrencyStory(root, planStoryId, 'PLAN');
-    for (const agentType of ['verification-intent', 'test-intent', 'test-case-reviewer']) {
-      const verificationPrompt = await runProofOrStop(root, 'dispatch', {
-        storyId: planStoryId,
-        itemId: 'CHK-001',
-        agentType,
-      });
-      assert.match(verificationPrompt, /define verification intent/, `${agentType} must route to verification-intent prompt`);
-      assert.doesNotMatch(verificationPrompt, /git commit|status["': ]+done/i, `${agentType} must not receive implementer completion guidance`);
+    const verificationPrompt = await runProofOrStop(root, 'dispatch', {
+      storyId: planStoryId,
+      itemId: 'CHK-001',
+      agentType: 'verification-intent',
+    });
+    assert.match(verificationPrompt, /define verification intent/, 'verification-intent must route to its prompt');
+    assert.doesNotMatch(verificationPrompt, /git commit|status["': ]+done/i, 'verification-intent must not receive implementer completion guidance');
+    for (const agentType of ['proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer', 'test-intent', 'test-case-reviewer']) {
+      assert.throws(
+        () => validateAgentDispatchRequest({ agentType, phase: 'PLAN', itemId: 'CHK-001' }),
+        (error: unknown) => error instanceof AgentDispatchRegistryError
+          && error.code === 'legacy_agent_type'
+          && /legacy read-side identity.*proof-or-stop-verification-intent/.test(error.message),
+        `${agentType} must be rejected with canonical verification-intent guidance`,
+      );
     }
     await assert.rejects(
-      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { PROOF_OR_STOP_AGENT: 'test-intent' }),
+      runProofOrStop(root, 'checklist_update', { storyId: planStoryId, itemId: 'CHK-001', status: 'done' }, { PROOF_OR_STOP_AGENT: 'verification-intent' }),
       /agent_dispatch_mutation_scope_denied/,
-      'verification-intent alias must not mark checklist done',
+      'verification-intent role must not mark checklist done',
     );
   } finally {
     rmSync(root, { recursive: true, force: true });
@@ -863,25 +870,36 @@ function assertStrayCleanupAllowsGeneratedReviewMetadata(): void {
   }
 }
 
-await assertReviewPassConcurrentWrites();
-await assertChecklistConcurrentUpdates();
-await assertChecklistConcurrentVerificationIntentUpdates();
-await assertTypedDispatchUsesRoleSafePromptsAndBoundaries();
-console.log('typed dispatch role/cardinality/mutation smoke PASS');
-await assertDiscardRemovesUntrackedWorktreeAndBranch();
-await assertDiscardCanCleanAlreadyDiscardedResidue();
-await assertDiscardPrunesMissingWorktreeRegistry();
-await assertDiscardCleansInvalidGitPointerResidue();
-await assertDiscardForceFromInvalidWorktreeCwd();
-await assertDiscardFailureDoesNotMarkSuccess();
-await assertPurgeDropsSafeInitCommit();
-await assertPurgeTombstonesBuriedSafeInitCommit();
-await assertDoctorRepairCleansTerminalWorktrees();
-await assertInitDispatchPromptHasStatusFirstLivenessGuidance();
-await assertItemDispatchWritesChannelEvidence();
-assertStrayCleanupAllowsGeneratedReviewMetadata();
-assertDocsDriftAllowsBootstrapAndLegacyCommands();
-assertChannelAllowsExplicitMainAgentPlanOwnership();
+const dyn5Case = process.env.PROOF_OR_STOP_DYN5_CASE;
+if (dyn5Case) {
+  // DYN-5 invokes named, real scenario bodies from this smoke suite rather
+  // than a marker-only probe.  Each case creates its own fixture and asserts
+  // the same handler/discard behavior as the complete oracle.
+  if (dyn5Case === 'review-pass:scenario-1') await assertReviewPassConcurrentWrites();
+  else if (dyn5Case === 'review-pass:scenario-2') await assertDiscardRemovesUntrackedWorktreeAndBranch();
+  else if (dyn5Case === 'review-pass:scenario-3') await assertDiscardFailureDoesNotMarkSuccess();
+  else throw new Error(`unknown DYN-5 review-pass case: ${dyn5Case}`);
+  console.log(`PROOF_OR_STOP_DOMAIN_CASE:${dyn5Case}`);
+} else {
+  await assertReviewPassConcurrentWrites();
+  await assertChecklistConcurrentUpdates();
+  await assertChecklistConcurrentVerificationIntentUpdates();
+  await assertTypedDispatchUsesRoleSafePromptsAndBoundaries();
+  console.log('typed dispatch role/cardinality/mutation smoke PASS');
+  await assertDiscardRemovesUntrackedWorktreeAndBranch();
+  await assertDiscardCanCleanAlreadyDiscardedResidue();
+  await assertDiscardPrunesMissingWorktreeRegistry();
+  await assertDiscardCleansInvalidGitPointerResidue();
+  await assertDiscardForceFromInvalidWorktreeCwd();
+  await assertDiscardFailureDoesNotMarkSuccess();
+  await assertPurgeDropsSafeInitCommit();
+  await assertPurgeTombstonesBuriedSafeInitCommit();
+  await assertDoctorRepairCleansTerminalWorktrees();
+  await assertInitDispatchPromptHasStatusFirstLivenessGuidance();
+  await assertItemDispatchWritesChannelEvidence();
+  assertStrayCleanupAllowsGeneratedReviewMetadata();
+  assertDocsDriftAllowsBootstrapAndLegacyCommands();
+  assertChannelAllowsExplicitMainAgentPlanOwnership();
 
-runAgentLivenessSuiteForPinnedEvidence();
-console.log('✓ review pass and discard smoke passed');
+  console.log('✓ review pass and discard smoke passed');
+}

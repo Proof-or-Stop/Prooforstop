@@ -98,6 +98,10 @@
 - [@test Annotation and Fixture Specification](decisions/test-fixture-spec.md)
 - [testIntent Adversarial Review System](decisions/test-intent-review.md)
 - [Test Runner Consolidation Plan](decisions/test-runner-consolidation-plan.md)
+- [Story-Aware Dynamic Validation — Execution and Audit Plan](decisions/story-aware-dynamic-validation-execution-plan.md) — normative layered-validation design record.
+- [Story-aware current-main characterization](decisions/story-aware-dynamic-validation-current-main-characterization.md) — inventory, baseline and executable smoke interpretation.
+- [Dynamic-validation operations](decisions/dynamic-validation-operations.md) — mode/configuration/artifact/triage/rollback runbook.
+- [Dynamic-validation enforcement evidence](decisions/dynamic-validation-enforcement-evidence.md) — historical replay, FI-1..FI-5, paired-performance and authority threshold.
 - [Testing Completeness Decisions](decisions/testing-completeness.md)
 - [Testing Infrastructure](decisions/testing-infra.md)
 - [Three-Round Two-Host Review Escalation Execution Plan](decisions/three-round-two-host-review-escalation-execution-plan.md)

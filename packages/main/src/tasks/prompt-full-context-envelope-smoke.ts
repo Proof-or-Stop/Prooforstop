@@ -1217,7 +1217,7 @@ assert.throws(
 const reviewBasis: IncrementalReviewBasis = {
   schemaVersion: 'proofbound.incremental-review-basis.v1',
   storyId: taskContext.storyId,
-  lane: role.roleId,
+  lane: 'lattice-review-quality',
   priorPassRef: 'RP-001',
   priorReviewRunId: 'B-envelope:RR-000',
   priorEnvelopeId: '1'.repeat(64),

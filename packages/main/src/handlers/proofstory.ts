@@ -40,6 +40,7 @@ import {
   type ProofStoryDiagnosticInput,
 } from '../core/proofstory.js';
 import { withMkdirLock } from '../core/mkdir-lock.js';
+import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
 import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
 import { currentMilestoneStatusEvidenceBinding } from '../core/milestone-status.js';
 import { tryBuildMaterialClassificationSnapshotForDiagnostics } from '../core/material-code-policy.js';
@@ -105,7 +106,11 @@ function loadRegisteredAcceptanceRolloutCohort(workspaceRoot: string): Acceptanc
   const output = execFileSync(process.execPath, [runner], {
     cwd: workspaceRoot,
     encoding: 'utf8',
-    env: { ...process.env, PROOF_OR_STOP_AGENT: 'acceptance-rollout-verifier' },
+    // The verifier name is an artifact issuer, not a registered mutation
+    // role. The cohort runner invokes signed reviewer lanes itself, so its
+    // parent process must use the trusted host actor rather than laundering
+    // an unregistered actor through nested CLI calls.
+    env: { ...process.env, PROOF_OR_STOP_AGENT: 'main' },
     maxBuffer: 16 * 1024 * 1024,
   });
   const parsed = JSON.parse(output) as AcceptanceRolloutCohortInputV1;
@@ -182,7 +187,7 @@ function currentBasisDerivationForContext(ctx: HandlerContext, storyId: string, 
   return { workspace, scopeCheck, scopeContract, derivation };
 }
 
-function currentPreReviewInputForContext(ctx: HandlerContext, storyId: string): PreReviewCheckInput {
+export function currentPreReviewInputForContext(ctx: HandlerContext, storyId: string): PreReviewCheckInput {
   const planArtifact = ctx.store.readAcceptanceBasis(storyId);
   if (!planArtifact) throw new Error('pre_review_check requires the verifier-owned PLAN acceptance basis');
   const current = currentBasisDerivationForContext(ctx, storyId, 'pre_review', planArtifact.basis.basisDigest);
@@ -320,7 +325,15 @@ function currentTopologyReceiptStateForContext(ctx: HandlerContext, storyId: str
     expectedSealDigest: current.derivation.basis.snapshotSeal.sealDigest,
     expectedBasisSemanticDigest: acceptanceCoverageBasisSemanticDigest(current.derivation.basis),
   });
-  if (!basisVerification.ok) throw new Error(`topology critic basis verification failed: ${basisVerification.code}: ${basisVerification.diagnostics.join('; ')}`);
+  // B-3f3d: a failed basis verification must NOT close the negative verdict. Refusing
+  // request_changes on a stale basis is what made the deadlock inescapable: the frozen
+  // pre-review snapshot preferred above can only be refreshed by pre_review_check (DEV-only),
+  // DEV needs a finalized review-inventory receipt, and that needs a critic terminal state --
+  // the very thing this throw blocks. A critic must always be able to say "this fails".
+  // The caller decides: a PASS verdict still requires basisVerification.ok (enforced at the
+  // pass branch), while request_changes may be signed over a stale/unverified basis, which is
+  // an honest record of exactly what the critic judged. basisVerification is returned so the
+  // signer can bind its outcome into the receipt rather than silently ignoring it.
   const context = canonicalTopologyReceiptContext({
     storyId,
     basisStatus: artifact.basis.status,
@@ -335,7 +348,7 @@ function currentTopologyReceiptStateForContext(ctx: HandlerContext, storyId: str
   });
   const events = store.readProcessEvents(storyId);
   const implementation = deriveImplementationProvenance(current.workspace.signedWorkspaceRoot, events, context);
-  return { current, artifact, context, events, implementation };
+  return { current, artifact, context, events, implementation, basisVerification };
 }
 
 /** Canonical read-only CLI verifier; reusable by a future phase-appropriate gate without creating a Wave 2A lifecycle consumer. */
@@ -567,8 +580,17 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       const receipt = issueTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, critic, implementation: state.implementation, approvals, events: state.events, verdict: args.verdict });
       store.writeTopologyCriticReceipt(args.storyId, receipt);
       const verification = verifyTopologyCriticReceipt({ gitCwd: state.current.workspace.signedWorkspaceRoot, context: state.context, receipt, approvals, implementation: state.implementation, events: store.readProcessEvents(args.storyId) });
+      // B-3f3d: PASS keeps the full basis requirement that used to be enforced by an
+      // unconditional throw in currentTopologyReceiptStateForContext. That throw also blocked
+      // request_changes, making the deadlock inescapable; the check now lives here, on the
+      // pass branch only, so a critic can always record a NEGATIVE verdict on a stale basis.
+      if (args.verdict === 'pass' && !state.basisVerification.ok) {
+        throw new Error(`topology critic pass refused: basis verification failed: ${state.basisVerification.code}: ${state.basisVerification.diagnostics.join('; ')}`);
+      }
       if (args.verdict === 'pass' && !verification.ok) throw new Error(`topology critic receipt self-verification failed: ${verification.code}: ${verification.diagnostics.join('; ')}`);
-      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'topology_critic_receipt_set');
+      const commitHint = autoCommitStoryMetadata(ctx.root, args.storyId, 'topology_critic_receipt_set', {
+        closeoutArtifactPaths: ['topology-critic-receipt.json'],
+      });
       if (args.json) return stringify({ receipt, verification });
       return `Topology critic receipt: ${verification.ok ? 'PASS' : 'REJECTED'}\nStory: ${args.storyId}\nVerdict: ${receipt.verdict}\nIndependence: agent=${verification.independence.agent} session=${verification.independence.session} dispatch=${verification.independence.dispatch} businessCommitAuthor=${verification.independence.businessCommitAuthor}${commitHint}`;
     },
@@ -1113,7 +1135,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
       const withdrawnAcceptanceBindingRefs = optionalStringArray(args.withdrawnAcceptanceBindingRefs, 'withdrawnAcceptanceBindingRefs');
       const hasWithdrawals = withdrawnChecklistItemRefs.length > 0 || withdrawnAcceptanceBindingRefs.length > 0;
 
-      return withMkdirLock(
+      return withReviewInventoryMutationLock(store, args.storyId, () => withMkdirLock(
         store.runtimeLockDirPath(args.storyId, 'checklist', 'checklist'),
         () => {
           // Build (and shape-validate) the decision. buildScopeShrinkageDecision
@@ -1218,7 +1240,7 @@ export function createProofStoryHandlers(ctx: HandlerContext): Record<string, (.
           ].join('\n');
         },
         { label: 'checklist metadata' },
-      );
+      ));
     },
 
     scope_shrinkage_decision_get(args: { storyId: string; json?: boolean }): string {

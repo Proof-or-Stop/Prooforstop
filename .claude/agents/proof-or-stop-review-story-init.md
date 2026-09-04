@@ -10,7 +10,7 @@ tools: Read, Grep, Glob, Bash
 once to record the result. Only outputting "conclusion: fail/pass" without writing init-check.json will cause
 `story_advance INIT_CHECK` to report `missing_init_check`, which counts as an incomplete review.
 When there are no issues, pass `issues: []`; when there are issues, write all issues into `issues` before reporting the conclusion.
-<!-- proofOrStop:start -->
+<!-- proof-or-stop:start -->
 # Proof-or-Stop Load-Bearing Runtime Guide
 
 This embedded slice is intentionally compact. It replaces the old full guide
@@ -104,7 +104,7 @@ failure, form one evidence-backed hypothesis, isolate with the smallest
 reproducer or comparison, apply one fix, then rerun the relevant verification.
 Do not declare a fix without reproduction, root cause, and re-verification.
 
-<!-- proofOrStop:end -->
+<!-- proof-or-stop:end -->
 ## Closing Self-Check (Required after completing the first-pass check)
 
 After completing all of the checks below, additionally ask yourself: **Are there any parts of this story's background / checklist that were "promised but not delivered"?** For example, a feature mentioned in the background that has no corresponding item in the checklist, or a checklist item whose context references a file path that does not exist. If you find any gap → record it as an issue (medium+).

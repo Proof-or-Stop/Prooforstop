@@ -19,6 +19,7 @@ import {
   normalizeReviewerReadLogEvidence,
   normalizeReviewerReadManifest,
 } from './reviewer-read-evidence.js';
+import { readGitBlobAt } from './git-blob-reader.js';
 
 const FINDING_SALT = 'lattice-finding-integrity-v1';
 const REVIEW_PASS_SALT = 'lattice-review-pass-integrity-v1';
@@ -137,7 +138,7 @@ export function verifyFinding(
   return f._hash === oldExpected;
 }
 
-import { PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
+import { PROOF_OR_STOP_STATE_DIR, stateDirCandidates } from './brand-paths.js';
 
 export const GAP_LOG_PROVENANCE_SCHEMA = 'lattice.gap-log-provenance.v1' as const;
 // B-cc10: these hardcoded '.proof-or-stop/' after CHK-003's move, so gap_log wrote to the
@@ -149,6 +150,20 @@ export const GAP_LOG_ARTIFACT_PATH =
   `${PROOF_OR_STOP_STATE_DIR}/story/actives/B-META-framework-audit/findings.json` as const;
 export const GAP_LOG_PROVENANCE_LEDGER_PATH =
   `${PROOF_OR_STOP_STATE_DIR}/story/actives/B-META-framework-audit/gap-log-provenance.jsonl` as const;
+
+/**
+ * Receipt path spellings a verifier will ACCEPT, canonical first.
+ *
+ * `artifactPath` / `ledgerPath` are signed fields, so receipts written before the
+ * B-cc10 `.lattice/` -> `.proof-or-stop/` state-dir migration carry the deprecated
+ * spelling immutably. These lists exist for READ/verify compatibility only; the
+ * canonical writer continues to emit `GAP_LOG_ARTIFACT_PATH` /
+ * `GAP_LOG_PROVENANCE_LEDGER_PATH` for every new receipt.
+ */
+export const GAP_LOG_ARTIFACT_PATH_ACCEPTED: readonly string[] =
+  stateDirCandidates('story/actives/B-META-framework-audit/findings.json');
+export const GAP_LOG_PROVENANCE_LEDGER_PATH_ACCEPTED: readonly string[] =
+  stateDirCandidates('story/actives/B-META-framework-audit/gap-log-provenance.jsonl');
 
 export interface GapLogProvenanceReceipt {
   schemaVersion: typeof GAP_LOG_PROVENANCE_SCHEMA;
@@ -195,17 +210,40 @@ function expectedReceiptHash(gitCwd: string, receipt: Omit<GapLogProvenanceRecei
   return createHmac('sha256', readFileSync(keyPath)).update(receiptPayload(receipt)).digest('hex');
 }
 
-function committedArtifactDigest(gitCwd: string, commit: string): string | null {
-  try {
-    const text = execFileSync('git', ['show', `${commit}:${GAP_LOG_ARTIFACT_PATH}`], {
-      cwd: gitCwd,
-      encoding: 'utf8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return digestGapLogArtifact(JSON.parse(text) as FindingData);
-  } catch {
-    return null;
+function committedArtifactDigest(gitCwd: string, commit: string):
+  | { status: 'ok'; digest: string }
+  | { status: 'missing' }
+  | { status: 'error'; reason: string } {
+  // READ-BOTH over the state-dir spellings, canonical first (B-cc10 migration).
+  //
+  // A receipt's parentHead may predate the `.lattice/` -> `.proof-or-stop/` state-dir
+  // move, in which case the committed B-META artifact exists ONLY under the deprecated
+  // spelling at that commit. Reading just GAP_LOG_ARTIFACT_PATH returned `missing` for
+  // every pre-migration receipt, so verifyGapLogArtifactBinding fell into its
+  // "no committed artifact => preArtifactDigest must be the canonical EMPTY digest"
+  // branch and rejected receipt 1 with `invalid_binding_shape`. That orphaned the whole
+  // historical chain: gap_log refused every write, and classifySharedLifecycleMetadata
+  // reported the B-META paths as untrusted shared metadata, which fails the scope gate
+  // for any story whose merge touches them.
+  //
+  // This is a READ-ONLY widening for historical commits and does not weaken the binding:
+  // whichever spelling resolves, its bytes must still digest to the receipt's recorded
+  // preArtifactDigest, and the HMAC chain check below is untouched. Canonical-first order
+  // means a post-migration commit still reads the canonical path.
+  for (const candidate of stateDirCandidates('story/actives/B-META-framework-audit/findings.json')) {
+    const blob = readGitBlobAt(gitCwd, commit, candidate);
+    if (blob.status === 'error') return blob;
+    if (blob.status !== 'ok') continue;
+    try {
+      return {
+        status: 'ok',
+        digest: digestGapLogArtifact(JSON.parse(blob.content.toString('utf8')) as FindingData),
+      };
+    } catch (error: any) {
+      return { status: 'error', reason: `invalid committed JSON: ${error?.message ?? String(error)}` };
+    }
   }
+  return { status: 'missing' };
 }
 
 export function readGapLogProvenanceLedger(root: string): GapLogProvenanceReceipt[] {
@@ -251,7 +289,11 @@ export function verifyGapLogArtifactBinding(
   if (receipts.length === 0) return { trusted: false, reason: 'missing_binding' };
   let previous = '';
   let priorPost = receipts[0].preArtifactDigest;
-  const firstCommittedDigest = committedArtifactDigest(gitCwd, receipts[0].parentHead);
+  const firstCommitted = committedArtifactDigest(gitCwd, receipts[0].parentHead);
+  if (firstCommitted.status === 'error') {
+    return { trusted: false, reason: 'invalid_binding_shape', findingId: receipts[0].findingId };
+  }
+  const firstCommittedDigest = firstCommitted.status === 'ok' ? firstCommitted.digest : null;
   const canonicalEmptyDigest = digestGapLogArtifact({ findings: [] });
   if (
     (firstCommittedDigest !== null && firstCommittedDigest !== receipts[0].preArtifactDigest)
@@ -271,8 +313,17 @@ export function verifyGapLogArtifactBinding(
       || receipt.sequence !== index + 1
       || receipt.previousIntegrityHash !== previous
       || receipt.preArtifactDigest !== priorPost
-      || receipt.artifactPath !== GAP_LOG_ARTIFACT_PATH
-      || receipt.ledgerPath !== GAP_LOG_PROVENANCE_LEDGER_PATH
+      // Accept the canonical spelling OR the deprecated pre-B-cc10 one. These two
+      // fields are inside the HMAC body, so a receipt signed before the
+      // `.lattice/` -> `.proof-or-stop/` state-dir move CANNOT be rewritten to the
+      // canonical spelling without invalidating its own signature. Requiring the
+      // canonical literal therefore permanently rejected every historical receipt.
+      // packages/main/tests/artifact-schema-migration.test.mjs already asserts this
+      // same either-spelling tolerance ("canonical or historical-compatible"); this
+      // aligns the verifier with the contract the test states. New writes still emit
+      // only the canonical spelling (see the writer in core/audit-meta-store.ts).
+      || !GAP_LOG_ARTIFACT_PATH_ACCEPTED.includes(receipt.artifactPath)
+      || !GAP_LOG_PROVENANCE_LEDGER_PATH_ACCEPTED.includes(receipt.ledgerPath)
       || receipt.storyId !== 'B-META-framework-audit'
       || receipt.writerCommand !== 'gap_log'
       || !/^[a-f0-9]{40,64}$/.test(receipt.parentHead)
