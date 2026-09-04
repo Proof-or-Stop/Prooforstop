@@ -8,7 +8,7 @@ import { checkEvidenceFreshnessForGit, currentMaterialHash, currentStoryFilesHas
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import type { ChecklistData, ChecklistItem, ChecklistStatus, FrozenClaimSnapshot, StoryInfo, VerificationEvidence, VerificationExecutionReceipt, VerificationIntent, VerificationIntentItem, VerificationIntentPin, VerificationIntentType, VerificationLane, VerificationPinNarrowingRecord } from '../core/types.js';
 import { claimDigest } from '../core/frozen-claim-drift.js';
-import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, isExecutableIntentType, makeEvidence, NARROWING_TAIL_BOUNDED_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
+import { buildVerificationCoverage, collectRecordedPinnedReceipts, collectVerificationIntents, computeRecordedReceiptSetDigest, detectEvidenceRowContradiction, evaluateSelectorNarrowing, intentRef, isExecutableIntentType, makeEvidence, NARROWING_TAIL_BOUNDED_NOTE, renderVerificationPinNarrowCommand, VERIFICATION_LANES, VERIFICATION_PIN_NARROWING_PRECONDITION } from '../core/verification.js';
 import { DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS, EVIDENCE_COMMAND_TIMEOUT_CAP_MS, parseAllowlistedCommand, runSingleAllowlistedCommand, type SingleCommandExecutionResult } from '../core/validation-executor.js';
 import { configuredValidationCommands } from './verifier.js';
 import { createHash } from 'crypto';
@@ -886,6 +886,8 @@ async function enforceAndStampEvidence(
 function applyVerificationPin(
   item: ChecklistItem,
   pin: { lane: VerificationLane; index: number; verification: VerificationIntentPin },
+  /** Story id, carried only so the refusal below can print a runnable narrowing form. */
+  storyId?: string,
 ): void {
   const laneIntents = item.verificationIntent?.[pin.lane];
   const intent = laneIntents?.[pin.index];
@@ -896,8 +898,19 @@ function applyVerificationPin(
   }
   if (intent.verification) {
     if (intent.verification.command !== pin.verification.command || intent.verification.selector !== pin.verification.selector) {
+      // B-1482 F-015: the last refusal on the direct-caller path that still handed out
+      // the categorical claim. It teaches the same route, from the same renderer, as the
+      // floor above — a caller who meets this one lost a race, not an argument.
+      const narrowForm = renderVerificationPinNarrowCommand({
+        ...(storyId !== undefined ? { storyId } : {}),
+        itemId: item.id,
+        intentRef: intentRef(item.id, pin.lane, pin.index, intent),
+      });
       throw new Error(
-        `verification evidence refused: receipt-command-mismatch: expected ${intent.verification.command}, got ${pin.verification.command} (the verification pin is immutable) [receipt_command_mismatch]`,
+        `verification evidence refused: receipt-command-mismatch: expected ${intent.verification.command}, ` +
+        `got ${pin.verification.command} (a concurrent writer pinned this intent first, and an evidence write ` +
+        `never moves a pin; the one audited movement — \`${narrowForm}\` — re-points the SELECTOR only, never ` +
+        `the pinned command. ${VERIFICATION_PIN_NARROWING_PRECONDITION}) [receipt_command_mismatch]`,
       );
     }
     return;
@@ -2038,7 +2051,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === args.itemId);
         if (!item) throw new Error(`Checklist item ${args.itemId} not found`);
-        if (stamp.pin) applyVerificationPin(item, stamp.pin);
+        if (stamp.pin) applyVerificationPin(item, stamp.pin, args.storyId);
         const hashes = evidenceHashes(gitCwd, root);
         const command = stamp.evidencePatch.command ?? (args.command ? args.command.trim() : undefined);
         const result = stamp.evidencePatch.result ?? args.result;
@@ -2167,7 +2180,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           const stamp = stamps[i];
           const item = cl.items.find(it => it.id === entry.itemId);
           if (!item) throw new Error(`Checklist item ${entry.itemId} not found`);
-          if (stamp.pin) applyVerificationPin(item, stamp.pin);
+          if (stamp.pin) applyVerificationPin(item, stamp.pin, args.storyId);
           const command = stamp.evidencePatch.command ?? (entry.command ? entry.command.trim() : undefined);
           const result = stamp.evidencePatch.result ?? entry.result;
           const evidence = makeEvidence({
@@ -2298,7 +2311,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const cl = store.readChecklist(args.storyId);
         const item = cl.items.find(i => i.id === itemId);
         if (!item) throw new Error(`Checklist item ${itemId} not found`);
-        if (stamp.pin) applyVerificationPin(item, stamp.pin); // defensive: pin already existed
+        if (stamp.pin) applyVerificationPin(item, stamp.pin, args.storyId); // defensive: pin already existed
         const hashes = evidenceHashes(gitCwd, root);
         const note = (args.note && args.note.trim().length >= 5)
           ? args.note.trim()
