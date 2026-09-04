@@ -1,0 +1,28 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-af1b",
+  "mode": "feature",
+  "allowed": [
+    "Claude-host english-only-guard converted from warn-only to exit 2 on CJK in guarded commands (.claude/hooks/english-only-guard.cjs) with its smoke flipped accordingly",
+    "Codex-host English guard rendered from init-assets.ts, registered in getCodexHooks() and managed-assets, emitted to .codex/hooks/english-only-guard.cjs, blocking",
+    "Minimal edits to .githooks/commit-msg only as needed to conform to the shared fixture table",
+    "New attribution-trailer guard as a blocking PreToolUse hook on both hosts (.claude/hooks/attribution-guard.cjs source, Codex renderer in init-assets.ts), registered in settings.json / hooks.json / managed-assets",
+    "red_evidence_create for each checklist RED before its fix lands",
+    "Registration of the new smoke in package.json scripts and the validate command registry; init smoke proving a fresh init emits the new guards; roster-pinning tests updated",
+    "Shared predicate packages/main/src/core/attribution-detect.ts plus keep-in-sync and conformance smoke packages/main/src/tasks/attribution-guard-smoke.ts run against both host hooks and .githooks/commit-msg"
+  ],
+  "excluded": [
+    "Adding a REVIEW-to-TEST preflight gate for attribution (separate story if wanted)",
+    "Banning host names as subject matter in commit messages; only attribution metadata is guarded",
+    "Changing scope or evidence PreToolUse hooks beyond roster registration edits",
+    "Configuring GitHub branch rulesets or any remote repository setting",
+    "Fixing the build exec-bit defect tracked in docs/story/drafts/build-emits-non-executable-cli",
+    "Removing .githooks/commit-msg or changing how core.hooksPath is configured",
+    "Rewriting or force-pushing any already-pushed commit; no history rewrite of any branch"
+  ],
+  "confirmedBy": "jek",
+  "confirmationNote": "Owner request in chat on 2026-09-04: open a story; it must state RED and GREEN checks for each item; also convert english-only-guard to blocking in the same change. Earlier the owner set the rule that no commit may carry a Claude or Codex attribution trailer, asked why the guard was not a host hook under .claude and .codex so it survives a clone, and chose blocking over warning.",
+  "createdAt": "2026-09-04T07:38:20.456Z",
+  "updatedAt": "2026-09-04T07:38:20.456Z",
+  "_hash": "02af6f223370c40d4d1c64902ed43c67a9eb54de3f31767bef78cebd5179bd2b"
+}
