@@ -20,11 +20,11 @@ import { createDoctorHandlers } from '../handlers/doctor.js';
 import { detectManagedAssetMode, managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
 import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
 import { renderProofOrStopBootstrapScript, renderProofOrStopCodexWrapperScript } from '../init-assets.js';
 import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } from './full-suite-runner.js';
-import type { ChecklistData, StoryInfo } from '../core/types.js';
 
 // B-623a: keep this smoke hermetic and fast — doctor now runs an advisory host
 // burn scan over the real ~/.codex / ~/.claude stores by default; 0 disables it.
@@ -1666,6 +1666,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: transitionFallbackRoot });
     const evidence: any = {
       command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"already passed"}',
@@ -1676,6 +1680,17 @@ try {
       storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)!,
       verificationCoverage: { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] },
     };
+    // origin/main merge: this fixture drives runValidateGate directly, which bypasses the
+    // CLI ownership gate that a real story-scoped validate goes through. B-5a15 added a
+    // causal preflight that probes writer availability (causal-evidence.ts:911), and with
+    // no owner lease on disk it refuses with writerLease:writer_unavailable BEFORE running
+    // validate -- so the rerun never happens and the stored PASS survives, which is what
+    // made 'whole-tree material drift must rerun rather than reuse PASS evidence' fail.
+    // Seeding the same lease the real command would acquire SATISFIES that guard instead
+    // of weakening it; exempting fixtures from the preflight would disable a fail-closed
+    // check whose whole purpose is preventing false PASS evidence. Same precedent and
+    // rationale as closeout-trust-smoke.ts.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
     return { root, store, storyId, evidence };
   }
 
@@ -1760,6 +1775,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateFreshRoot });
     const evidence = {
       command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"already passed"}',
@@ -1981,6 +2000,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateLegacyNoCoverageRoot });
     const legacyEvidence = {
       command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"legacy pass without coverage"}',
@@ -2053,6 +2076,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateStaleRoot });
     const staleEvidence = {
       command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"old pass"}',
@@ -2113,9 +2140,6 @@ try {
     initSmokeGitRepo(gateFailRoot);
     gitQuiet(gateFailRoot, ['add', 'proof-or-stop.config.json']);
     gitQuiet(gateFailRoot, ['commit', '-m', 'seed validate gate fail smoke']);
-    initSmokeGitRepo(gateFailRoot);
-    gitQuiet(gateFailRoot, ['add', 'lattice.config.json']);
-    gitQuiet(gateFailRoot, ['commit', '-m', 'seed failing validation gate smoke']);
     resetConfigCache();
     const store = new StoryStore(gateFailRoot);
     const storyId = 'B-vgate-fail';
@@ -2127,6 +2151,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateFailRoot });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
@@ -2158,9 +2186,6 @@ try {
     initSmokeGitRepo(gateInfraRoot);
     gitQuiet(gateInfraRoot, ['add', 'proof-or-stop.config.json']);
     gitQuiet(gateInfraRoot, ['commit', '-m', 'seed validate gate infra smoke']);
-    initSmokeGitRepo(gateInfraRoot);
-    gitQuiet(gateInfraRoot, ['add', 'lattice.config.json']);
-    gitQuiet(gateInfraRoot, ['commit', '-m', 'seed infra validation gate smoke']);
     resetConfigCache();
     const store = new StoryStore(gateInfraRoot);
     const storyId = 'B-vgate-infra';
@@ -2172,6 +2197,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateInfraRoot });
     const actor = { stop() { /* transition-orchestrator owns actor stop */ } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateInfraRoot, scanRoot: gateInfraRoot }, storyId, actor),
@@ -2222,10 +2251,7 @@ try {
   // 2. storyId alias writes test evidence (same as --story)
   const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-storyid-alias-'));
   try {
-    writeFileSync(join(storyIdAliasRoot, 'lattice.config.json'), JSON.stringify({ validate: { commands: [] } }));
-    initSmokeGitRepo(storyIdAliasRoot);
-    gitQuiet(storyIdAliasRoot, ['add', 'lattice.config.json']);
-    gitQuiet(storyIdAliasRoot, ['commit', '-m', 'seed story id alias smoke']);
+    writeFileSync(join(storyIdAliasRoot, 'proof-or-stop.config.json'), JSON.stringify({ validate: { commands: [] } }));
     resetConfigCache();
     // B-dc2e CHK-001: validate now resolves git-common-dir identity for its
     // workspace capacity lock, so these alias fixtures (bare temp dirs while
@@ -2273,10 +2299,7 @@ try {
   // 3. --story still writes test evidence (unchanged behavior)
   const storyFlagRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-story-flag-'));
   try {
-    writeFileSync(join(storyFlagRoot, 'lattice.config.json'), JSON.stringify({ validate: { commands: [] } }));
-    initSmokeGitRepo(storyFlagRoot);
-    gitQuiet(storyFlagRoot, ['add', 'lattice.config.json']);
-    gitQuiet(storyFlagRoot, ['commit', '-m', 'seed story flag smoke']);
+    writeFileSync(join(storyFlagRoot, 'proof-or-stop.config.json'), JSON.stringify({ validate: { commands: [] } }));
     resetConfigCache();
     initSmokeGitRepo(storyFlagRoot);
     gitQuiet(storyFlagRoot, ['commit', '--allow-empty', '-m', 'seed storyFlagRoot']);
