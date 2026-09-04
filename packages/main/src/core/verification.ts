@@ -444,6 +444,55 @@ export const NARROWING_TAIL_BOUNDED_NOTE =
   'Absence of the new selector was asserted WITHIN each cited receipt retained outputTail, ' +
   'which is a bounded tail of the captured output and not the whole recorded run.';
 
+/** The one audited movement an evidence pin admits (B-1482). */
+export const VERIFICATION_PIN_NARROW_COMMAND = 'verification_pin_narrow';
+
+/**
+ * The precondition every caller-facing message that names the narrowing MUST carry with
+ * it. Naming the command without it sends the reader to a command that will refuse them
+ * for a reason they were never told.
+ */
+export const VERIFICATION_PIN_NARROWING_PRECONDITION =
+  'It moves the pin to a STRICTER selector on the same pinned command, and only when a recorded ' +
+  'FAILING receipt of that command, which the current selector matched, lacks the new selector in ' +
+  'its retained output; a LOOSER selector and a different pinned command stay refused everywhere.';
+
+/**
+ * An intentRef is either a custom intent id (which encodes nothing) or the
+ * `<itemId>:<lane>:<index>` form minted by {@link intentRef}. Only the latter tells a
+ * message which checklist item owns the intent.
+ */
+function itemIdFromIntentRef(ref: string | undefined): string | undefined {
+  if (!ref) return undefined;
+  const match = /^(.+):(?:happy|edge|adversarial):\d+$/.exec(ref);
+  return match ? match[1] : undefined;
+}
+
+/**
+ * Render the RUNNABLE form of the narrowing command for a caller-facing message.
+ *
+ * B-1482 F-008: the refusal used to teach a form without `--itemId`, which the registered
+ * schema requires, so pasting the tool's own instruction produced an argument-validation
+ * error rather than a re-pin. Every required argument is emitted here, from ONE place, so
+ * the seatbelt message and the enforcement floor cannot drift apart. Values the caller
+ * must choose stay as `<placeholder>` tokens; values the tool already knows are filled in.
+ */
+export function renderVerificationPinNarrowCommand(args: {
+  storyId?: string;
+  itemId?: string;
+  intentRef?: string;
+}): string {
+  const itemId = args.itemId ?? itemIdFromIntentRef(args.intentRef) ?? '<itemId>';
+  return [
+    `proof-or-stop ${VERIFICATION_PIN_NARROW_COMMAND}`,
+    `--storyId=${args.storyId ?? '<storyId>'}`,
+    `--itemId=${itemId}`,
+    `--intentRef=${args.intentRef ?? '<intentRef>'}`,
+    '--selector=<stricter>',
+    '--reason=<why>',
+  ].join(' ');
+}
+
 /** One tool-recorded receipt, projected into what the narrowing proof is allowed to read. */
 export interface RecordedPinnedReceipt {
   receiptId: string;

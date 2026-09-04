@@ -20,15 +20,22 @@
  */
 
 import type { ChecklistData, VerificationIntentPin } from './types.js';
-import { collectVerificationIntents } from './verification.js';
+import {
+  collectVerificationIntents,
+  renderVerificationPinNarrowCommand,
+  VERIFICATION_PIN_NARROW_COMMAND,
+  VERIFICATION_PIN_NARROWING_PRECONDITION,
+} from './verification.js';
 
 // ── Verdict ──
 
 /**
  * B-1482: the one audited movement an evidence pin admits. Named here so the teaching
  * message cannot keep offering a two-option Fix list after the third option shipped.
+ * The command name and its runnable form both come from ONE place (core/verification),
+ * shared with the enforcement floor, so the two messages cannot drift apart.
  */
-const NARROWING_COMMAND = 'verification_pin_narrow';
+const NARROWING_COMMAND = VERIFICATION_PIN_NARROW_COMMAND;
 
 export type EvidencePinVerdict = 'allow' | 'deny';
 
@@ -155,6 +162,24 @@ export function resolvePinFromChecklist(
   return null;
 }
 
+/**
+ * Resolve WHICH checklist item owns `intentRef`. B-1482 F-008: the taught narrowing
+ * command needs `--itemId`, and a custom intent id encodes no item, so the owner is
+ * resolved from the same loaded checklist the pin came from instead of being guessed.
+ */
+export function resolveIntentOwnerItemId(
+  checklist: ChecklistData,
+  intentRef: string,
+): string | undefined {
+  if (!checklist || !Array.isArray(checklist.items)) return undefined;
+  for (const item of checklist.items) {
+    for (const collected of collectVerificationIntents(item)) {
+      if (collected.ref === intentRef) return item.id;
+    }
+  }
+  return undefined;
+}
+
 // ── Verdict computation (pure) ──
 
 /**
@@ -169,6 +194,12 @@ export function resolvePinFromChecklist(
 export function computeEvidencePinVerdict(
   parsed: ParsedEvidenceInvocation,
   pin: VerificationIntentPin | null,
+  /**
+   * B-1482 F-008: the checklist item that owns the intent, when the caller resolving the
+   * pin also resolved the owner. Used only to fill `--itemId` into the taught narrowing
+   * form; absent, the form falls back to the ref-derived item or a `<placeholder>`.
+   */
+  owner?: { itemId?: string },
 ): EvidencePinGuardResult {
   const base = {
     matched: true,
@@ -210,6 +241,13 @@ export function computeEvidencePinVerdict(
 
   const ref = parsed.intentRef ?? '<intentRef>';
   const story = parsed.storyId ?? '<storyId>';
+  // Rendered from the shared single source, so every argument the registered schema
+  // requires is present and the reader can paste the line as printed (B-1482 F-008).
+  const narrowForm = renderVerificationPinNarrowCommand({
+    ...(parsed.storyId !== undefined ? { storyId: parsed.storyId } : {}),
+    ...(owner?.itemId !== undefined ? { itemId: owner.itemId } : {}),
+    ...(parsed.intentRef !== undefined ? { intentRef: parsed.intentRef } : {}),
+  });
   return {
     verdict: 'deny',
     ...base,
@@ -223,7 +261,7 @@ export function computeEvidencePinVerdict(
       // which is the very defect the narrowing was built for. The precondition is stated
       // with it, so the reader is not sent to a command that will refuse them for a
       // reason they were never told.
-      `Third option: if the pinned selector is not discriminating — it matched a run that genuinely FAILED — re-pin it with \`proof-or-stop ${NARROWING_COMMAND} --storyId=${story} --intentRef=${ref} --selector=<stricter> --reason=<why>\`. It moves the pin to a STRICTER selector on the same pinned command, and only when a recorded FAILING receipt of that command, which the current selector matched, lacks the new selector in its retained output; a LOOSER selector and a different pinned command stay refused everywhere.`,
+      `Third option: if the pinned selector is not discriminating — it matched a run that genuinely FAILED — re-pin it with \`${narrowForm}\`. ${VERIFICATION_PIN_NARROWING_PRECONDITION}`,
     ],
   };
 }
