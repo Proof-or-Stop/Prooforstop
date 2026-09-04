@@ -132,9 +132,16 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-04T20:58:40.830Z",
-      "endTime": null
+      "endTime": "2026-09-04T21:04:20.551Z",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "106bcf0c684825c7ede14e868a905a057a8c002631f4f5ae40b5867b9be45de1",
+        "storyFilesHash": "1a3fec54a8521f83d4ccbdf42981df15fa0f16c85ebff314b868931130d4d4ba",
+        "headHash": "7e188145568bbbf05f09f0ad1313f3536d0208a0",
+        "attestedAt": "2026-09-04T21:04:21.134Z",
+        "materialHash": "d81e690512633bda40c683cd67d9ed656dceb77b09e556bd19f07699e0ce0e20"
+      }
     },
     {
       "id": "CHK-003",
@@ -241,6 +248,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Begin the minimal production fix by adding the real finish-decision and reviewer-verdict predicates to the shared done-oracle checklist."
+    },
+    {
+      "timestamp": "2026-09-04T21:04:20.551Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer commit 7e18814556 reuses the real finish-decision and reviewer-verdict predicates; owner rerun produced all five GREEN outputs including evidence/git-state immutability."
     }
   ]
 }
