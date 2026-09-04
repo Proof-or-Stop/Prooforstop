@@ -1,0 +1,87 @@
+{
+  "principles": [
+    "One canonical REVIEW contract eliminates drift across all five reviewer lanes.",
+    "Agent guidance projects System semantics but never replaces mechanical gate facts.",
+    "Dynamic Finding authority remains unchanged and retired vocabulary is not active Task Context authority.",
+    "Scope follows applicability and gate impact rather than severity alone.",
+    "Tests must prove delivery, isolation, and pre-digest rejection of contradictory Task Context."
+  ],
+  "drivers": [
+    "Five REVIEW lanes and two envelope paths need byte-consistent behavior.",
+    "Open-source English quality and canonical Proof-or-Stop identities are required.",
+    "Signed reviewers proved that generic migration exceptions allow authority laundering.",
+    "The user requested Agent behavior while preserving Dynamic Finding System consistency."
+  ],
+  "options": [
+    {
+      "name": "Central resolver injection with strict Task Context guard",
+      "pros": [
+        "Single prompt source of truth",
+        "Covers both envelope modes",
+        "Rejects authority contradictions before digest",
+        "Keeps Dynamic Finding authority unchanged"
+      ],
+      "cons": [
+        "Changes prompt digests",
+        "Requires focused and full-context tests"
+      ]
+    },
+    {
+      "name": "Duplicate rules in each reviewer template",
+      "pros": [
+        "No central resolver change"
+      ],
+      "cons": [
+        "Five copies drift",
+        "Harder to prove byte identity",
+        "Does not solve Task Context authority injection"
+      ]
+    },
+    {
+      "name": "Implement Dynamic Finding runtime now",
+      "pros": [
+        "Could mechanically enforce future semantics"
+      ],
+      "cons": [
+        "Materially expands scope",
+        "Requires schema, handler, predicate, registry, migration, and gate work",
+        "Contradicts the requested Agent-side boundary"
+      ]
+    }
+  ],
+  "chosen": "Central resolver injection with strict Task Context guard",
+  "rationale": "Inject one canonical contract only for the five REVIEW lanes after base-body selection, keep the authoritative Dynamic Finding plan unchanged, reject active retired or contradictory authority in Story/checklist/verificationIntent Task Context before digesting, and verify both envelope modes plus non-REVIEW isolation.",
+  "preMortem": [
+    {
+      "scenario": "Contract leaks into non-REVIEW roles",
+      "trigger": "Injection uses a broad modular-role predicate",
+      "consequence": "Owner or implementer receives unauthorized reviewer behavior",
+      "mitigation": "Exhaustively assert every active non-REVIEW role omits the contract in both modes."
+    },
+    {
+      "scenario": "Task Context launders contradictory authority",
+      "trigger": "A malicious positive statement is wrapped in test or migration prose",
+      "consequence": "A signed reviewer envelope carries stale semantics",
+      "mitigation": "Scan affirmative residue even inside quoted-fixture or mutation prose and add exact RED/GREEN bypass cases."
+    },
+    {
+      "scenario": "Prompt prose is mistaken for gate evidence",
+      "trigger": "requiredCheckIds or rendered text is consumed as lifecycle proof",
+      "consequence": "Review passes without signed reviewer evidence",
+      "mitigation": "Keep prompt metadata non-evidentiary and verify no authority dataflow into gate consumers."
+    },
+    {
+      "scenario": "Identity migration leaves obsolete verifier pins",
+      "trigger": "Frozen PLAN commands reference retired role IDs, paths, or version",
+      "consequence": "Permanent waivers replace positive evidence",
+      "mitigation": "Use controlled replan to canonicalize all verifier pins and require 60 mechanical receipts."
+    },
+    {
+      "scenario": "Digest refresh blesses semantic regression",
+      "trigger": "Pins are updated before negative tests",
+      "consequence": "Baseline passes while behavior is unsafe",
+      "mitigation": "Run focused RED/GREEN mutation checks before reviewed baseline updates."
+    }
+  ],
+  "timestamp": "2026-09-02T02:48:44.891Z"
+}

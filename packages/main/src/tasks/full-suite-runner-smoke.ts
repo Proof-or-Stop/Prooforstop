@@ -12,7 +12,7 @@ import {
   fullSuiteBudgetBreached, identityChanged, isUnderFullSuiteBudget, killProcessTree, parsePositiveInteger, parseRunnerArgs, shouldEnforceFullSuiteBudget,
   FULL_SUITE_BUDGET_MS, fullSuiteBudgetIsSatisfiable, longestEntryTimeoutMs,
   CONCURRENCY_HEADROOM_FACTOR, effectiveEntryTimeoutMs, withConcurrencyHeadroom, defaultJobs,
-  resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact,
+  resetInterruptForTest, runEntry, runScheduled, validateInventory, writeResultArtifact, parseSerialReference,
   observedOutputSignatures, pathIsContained, validateJsonOutputPath,
   stateDirKey,
   cancelCompletedFullSuiteResult, cancelledFullSuiteResult,
@@ -52,11 +52,56 @@ const cancelOnFirstFailure: KeyedSchedulerOptions<FullSuiteEntry, FullSuiteResul
   cancellation: 'cancel-on-first-failure', cancelledResult: cancelledFullSuiteResult, cancelCompletedResult: cancelCompletedFullSuiteResult,
 };
 
+/**
+ * B-dc2e CHK-002 / F-002: the real-inventory membership case as a function of its
+ * inputs, so main() runs it once for real and once with the prefix-stale edge
+ * predicate neutralised. It prints nothing itself: `printMembershipLine` is invoked
+ * LAST, only after the edge assertion and the composed-chain assertion have both
+ * held, so the pinned membership line depends on the edge assertion instead of
+ * being printed unconditionally by the composed-chain assertion.
+ */
+interface RealInventoryInput {
+  scripts: Record<string, string>;
+  policy: Record<string, FullSuiteEntry>;
+  /** The edge predicate: does the main-chain-only failure message report exactly the prefix members as stalePolicy? */
+  prefixMembersReadStale: (message: string, prefixMembers: string[]) => boolean;
+  printMembershipLine: () => void;
+}
+function evaluateRealInventory(input: RealInventoryInput): { mainChain: string; composedChain: string; prefixMembers: string[] } {
+  const mainChain = input.scripts['test:serial-reference'] ?? '';
+  const prefixChain = input.scripts['test:serial-reference-prefix'] ?? '';
+  assert(mainChain.length > 0 && prefixChain.length > 0, 'real inventory reads both live serial-reference chains from root package.json');
+  const prefixMembers = parseSerialReference(prefixChain);
+  let mainOnlyMessage = '';
+  try { entriesFromSerialReference(mainChain, input.scripts, input.policy); } catch (error) { mainOnlyMessage = error instanceof Error ? error.message : String(error); }
+  assertWithDetail(input.prefixMembersReadStale(mainOnlyMessage, prefixMembers),
+    'real inventory: against the main chain alone exactly the test:serial-reference-prefix members read as stalePolicy', `message=${mainOnlyMessage || '<no throw>'}`);
+  // F-002 control: the edge predicate must DISCRIMINATE. Against a scratch policy with
+  // the prefix rows removed the main chain alone reads clean (nothing stale, so no
+  // throw), and the predicate must reject that message. A predicate that accepts it
+  // too (one neutralised to a constant true) fails here, before the membership line.
+  const controlPolicy: Record<string, FullSuiteEntry> = { ...input.policy };
+  for (const name of prefixMembers) delete controlPolicy[name];
+  let controlMessage = '';
+  try { entriesFromSerialReference(mainChain, input.scripts, controlPolicy); } catch (error) { controlMessage = error instanceof Error ? error.message : String(error); }
+  assertWithDetail(!input.prefixMembersReadStale(controlMessage, prefixMembers),
+    'real inventory: the prefix-stale edge predicate rejects the main chain evaluated against a policy without the prefix rows', `message=${controlMessage || '<no throw>'}`);
+  const composedChain = [prefixChain, mainChain].join(' && ');
+  const members = parseSerialReference(composedChain);
+  const entries = entriesFromSerialReference(composedChain, input.scripts, input.policy);
+  validateInventory(entries, composedChain, input.scripts);
+  assert(entries.length === members.length && members.every((name) => input.policy[name] !== undefined)
+    && prefixMembers.every((name) => entries.some((item) => item.name === name)),
+    'real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row');
+  input.printMembershipLine();
+  return { mainChain, composedChain, prefixMembers };
+}
+
 async function main(): Promise<void> {
   const observations = {
     aliasCollisions: 0, failClosedThrows: 0, completedMembers: 0,
     schedulerIsolation: false, cancellationPolicies: { cancelOnFirstFailure: false, runAll: false },
-    mutationBites: { removedFixedPortKey: false, inventoryOmission: false },
+    mutationBites: { removedFixedPortKey: false, inventoryOmission: false, realPolicyRowRemoval: false, realInventoryEdgeNeutralised: false },
     lifecycle: { normalCleanup: false, normalCompletionGrandchild: false, timeoutGrandchild: false, externalInterrupt: false, outsideRootRefused: false },
   };
   const collisionPath = join(process.cwd(), ...stateDirKey('runtime', 'full-suite-fixed-sentinel').split('/'));
@@ -145,6 +190,59 @@ async function main(): Promise<void> {
     if (rejected) observations.failClosedThrows++;
     assert(rejected, `${label} inventory fails closed`);
   }
+
+  // The synthetic test:a / test:b fixtures above compare a hand-built policy with a
+  // hand-built chain, so genuine drift between the LIVE root package.json chains and the
+  // LIVE RESOURCE_POLICY never reaches them. This case reads both at run time: the chains
+  // straight from package.json and the policy through the exported FULL_SUITE_ENTRIES
+  // accessor (Object.values of RESOURCE_POLICY at import; never a copied table). It then
+  // proves the case can fail by removing one real policy row on a scratch copy.
+  const livePackage = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8')) as { scripts: Record<string, string> };
+  const livePolicy: Record<string, FullSuiteEntry> = Object.fromEntries(FULL_SUITE_ENTRIES.map((item) => [item.name, item]));
+  // The canonical runner composes prefix + main before evaluating (see full-suite-runner
+  // main()). Against the main chain alone the prefix members legitimately read as
+  // stalePolicy, so that reading is asserted as the expected edge rather than treated as
+  // drift, and membership is evaluated over the composed chain.
+  const prefixMembersReadStale = (message: string, prefixMembers: string[]): boolean =>
+    message.includes(`unknownPolicy=[] stalePolicy=[${prefixMembers.join(',')}] missingScripts=[]`);
+  const live = evaluateRealInventory({
+    scripts: livePackage.scripts, policy: livePolicy, prefixMembersReadStale,
+    printMembershipLine: () => { process.stdout.write('[PASS] real inventory: every test:serial-reference and test:serial-reference-prefix member has a RESOURCE_POLICY row\n'); },
+  });
+  const liveMainChain = live.mainChain;
+  const liveChain = live.composedChain;
+
+  // F-002 mutation, in process: the same case with the prefix-stale edge predicate
+  // neutralised to a constant true. It must fail BEFORE the membership line is printed,
+  // so that line is proof the edge assertion ran and discriminated, not decoration.
+  let printedUnderMutation = false;
+  let edgeMutationThrew = false;
+  const receiptsBeforeMutation = checks.length;
+  try {
+    evaluateRealInventory({
+      scripts: livePackage.scripts, policy: livePolicy, prefixMembersReadStale: () => true,
+      printMembershipLine: () => { printedUnderMutation = true; },
+    });
+  } catch { edgeMutationThrew = true; }
+  // The mutation run's own assertions are not receipts of this smoke.
+  checks.length = receiptsBeforeMutation;
+  observations.mutationBites.realInventoryEdgeNeutralised = edgeMutationThrew && !printedUnderMutation;
+  assertWithDetail(edgeMutationThrew && !printedUnderMutation, 'real inventory edge mutation: a prefix-stale predicate neutralised to true fails the case before the membership line is printed', `threw=${edgeMutationThrew} printed=${printedUnderMutation}`);
+  process.stdout.write('[PASS] real inventory edge mutation: a prefix-stale predicate neutralised to true fails the case before the membership line is printed\n');
+
+  // Mutation on a scratch copy of the live policy: drop the first main-chain member's
+  // row (independent of members appended later) and require the composed evaluation to
+  // fail naming exactly that row, with nothing else reported stale.
+  const removedRow = parseSerialReference(liveMainChain)[0]!;
+  const scratchPolicy: Record<string, FullSuiteEntry> = { ...livePolicy };
+  delete scratchPolicy[removedRow];
+  let mutationMessage = '';
+  try { entriesFromSerialReference(liveChain, livePackage.scripts, scratchPolicy); } catch (error) { mutationMessage = error instanceof Error ? error.message : String(error); }
+  const mutationNamesRow = mutationMessage.includes(`unknownPolicy=[${removedRow}]`) && mutationMessage.includes('stalePolicy=[]');
+  observations.mutationBites.realPolicyRowRemoval = mutationNamesRow;
+  assertWithDetail(mutationNamesRow, 'real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership', `removed=${removedRow}; message=${mutationMessage || '<no throw>'}`);
+  assert(livePolicy[removedRow] !== undefined && FULL_SUITE_ENTRIES.some((item) => item.name === removedRow), 'real inventory mutation runs on a scratch copy and leaves the live policy intact');
+  process.stdout.write('[PASS] real inventory mutation: removing a RESOURCE_POLICY row on a scratch copy fails membership\n');
 
   const canonicalRoot = mkdtempSync(join(tmpdir(), 'full-suite-claims-'));
   try {
@@ -649,7 +747,7 @@ async function main(): Promise<void> {
     mutationBites: observations.mutationBites,
     lifecycle: observations.lifecycle,
   })}\n`);
-  process.stdout.write(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: checks, mutations: ['inventory-omission', 'resource-key-collision', 'fixed-path-collision', 'timeout-grandchild', 'ordinary-failure', 'tracked-output-overwrite', 'identity-drift'] })}\n`);
+  process.stdout.write(`PROOF_OR_STOP_FULL_SUITE_SUMMARY=${JSON.stringify({ assertions: checks, mutations: ['inventory-omission', 'real-policy-row-removal', 'real-inventory-edge-neutralised', 'resource-key-collision', 'fixed-path-collision', 'timeout-grandchild', 'ordinary-failure', 'tracked-output-overwrite', 'identity-drift'] })}\n`);
   process.stdout.write(`full-suite-runner-smoke: PASS (${checks.length} assertions)\n`);
 }
 

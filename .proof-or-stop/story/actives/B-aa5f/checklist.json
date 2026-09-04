@@ -1,0 +1,248 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Prove and repair stale-refresh execution fan-out",
+      "context": "Probe rp-mtlq4b1z-hem77a and review rr-mtlq63zn-umve6e prove that selector is currently part of the subprocess execution key. A committed pre-fix test must first fail on the real handler with the measured B-fe8f-shaped count, and red_evidence_create must bind that failing command and baseline commit before any production fix. The same unchanged test command must then pass after the fan-out implementation.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "relatedDocs": [
+        "docs/step2-evidence-receipts-handoff.md#2a-schema-pin-command-selector-on-the-intent",
+        "docs/requirements/decisions/story-files-hash-material-drift.md#freshness-semantics"
+      ],
+      "userSees": "A tool-owned RED record points to a committed baseline where the 71-intent/two-command fixture fails because execution count is greater than 2; after a distinct GREEN commit the same command reports exactly two subprocess executions and 71 independently evaluated intent receipts.",
+      "excludes": [
+        "Persistent reuse across different repository states",
+        "Dependency-manifest freshness authorization",
+        "Changing the selector pin mutation policy"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "baa5f-fanout-71x2",
+            "desc": "A committed pre-fix fixture records RED with 71 unique selectors over two commands and measured execution count greater than 2; after a distinct production commit the unchanged command turns GREEN with execution count exactly 2 and all matching intents mechanical.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "baa5f-independent-selector-result",
+            "desc": "From one successful shared execution, one absent selector demotes only its own intent while sibling selectors receive passing receipts.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "baa5f-execution-failure-fans-out",
+            "desc": "A non-zero or timed-out shared execution cannot mint a pass for any assertion that references it.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Separate immutable execution receipts from per-intent assertion receipts",
+      "context": "The current VerificationExecutionReceipt embeds selectorMatched and cannot safely represent one execution feeding distinct selectors. Introduce versioned execution and assertion identities with legacy fail-closed compatibility.",
+      "relatedDocs": [
+        "docs/evidence/evidence-platform-architecture.md#digest-and-integrity",
+        "docs/step2-evidence-receipts-handoff.md#2-the-fix-the-tool-executes-and-stamps-the-receipt"
+      ],
+      "userSees": "Each verifier execution has one immutable execution receipt and output artifact, while every intent has its own assertion receipt bound to its immutable selector and the shared execution digest.",
+      "excludes": [
+        "Changing manual/docs evidence into executable proof",
+        "Allowing caller-authored receipts",
+        "Remote signature or cache services"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/evidence/artifact-store.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/runtime-fact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/verification-execution-evidence.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "baa5f-receipt-layering",
+            "desc": "Multiple intent assertions reference one execution receipt and independently bind intentRef, selector, matcher version, output digest, and result.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "baa5f-legacy-receipt-compat",
+            "desc": "Legacy combined receipts remain readable but cannot be silently promoted into reusable split receipts.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "baa5f-receipt-tamper",
+            "desc": "Tampering with the execution, selector, assertion, or output artifact invalidates the affected evidence fail closed.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Authorize input-scoped reuse only for mechanically complete verifier closures",
+      "context": "Replace all-or-nothing stale re-execution with evidenceInputDigest decisions only when dependency closure, environment, toolchain, command, cwd, timeout, and capture semantics are complete and unchanged; otherwise retain strict material/story hash invalidation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-files-hash-material-drift.md#why-not-story-diff-only",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+      ],
+      "userSees": "An unrelated file change launches zero verifier subprocesses and emits an auditable reuse receipt only when the complete verifier input closure is unchanged; uncertain inputs trigger a real rerun.",
+      "excludes": [
+        "Observed-read traces treated as complete without enforcement",
+        "Network or dynamic-input reuse",
+        "Skipping side-effectful commands whose outputs are required downstream"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/types.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "baa5f-input-scoped-reuse",
+            "desc": "Unrelated file drift with an unchanged mechanically complete input closure performs zero executions and writes a reuse receipt referencing the immutable prior execution.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "baa5f-one-command-input-drift",
+            "desc": "When only one of two verifier input digests changes, only that command executes once and the other receives a reuse decision.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "baa5f-incomplete-closure-reruns",
+            "desc": "Missing, partial, dynamic, networked, side-effectful, or changed-during-run inputs prohibit reuse and force a real command execution.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Wire the new evidence facts into lifecycle gates and contract verification",
+      "context": "Execution, assertion, reuse, dependency completeness, and artifact integrity are gate-consumed process facts. Update registry semantics, migration diagnostics, documentation, and regression coverage so narrative claims cannot bypass runtime enforcement.",
+      "relatedDocs": [
+        "AGENTS.md#two-layer-process-fact-contract",
+        "docs/evidence/evidence-platform-architecture.md#consumption-boundary"
+      ],
+      "userSees": "Lifecycle validation reports the execution/assertion/reuse evidence state and rejects malformed, stale, incomplete, or tampered records while accepting current split evidence.",
+      "excludes": [
+        "Unrelated reviewer or DONE gate redesign",
+        "Manual version bump outside automatic DONE effects",
+        "Remote publication"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "create": [
+          "docs/requirements/decisions/verification-execution-receipt-fanout-and-input-scoped-freshness.md"
+        ],
+        "test": [
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "baa5f-lifecycle-consumption",
+            "desc": "Lifecycle gates consume valid split and reuse evidence and the process-fact contract verifier recognizes every new fact.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "baa5f-migration-diagnostic",
+            "desc": "Legacy or incomplete records produce explicit diagnostics and retain strict fallback rather than disappearing or being silently rebound.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "baa5f-no-narrative-bypass",
+            "desc": "Narrative pass text or caller-authored hashes, signatures, and receipts cannot satisfy the new gate facts.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

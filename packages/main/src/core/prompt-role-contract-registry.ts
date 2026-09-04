@@ -221,6 +221,19 @@ const commonPolicy = {
   stopConditionCodes: ['missing-required-input', 'authority-boundary'],
 } as const;
 
+export const REVIEW_FINDING_TRIAGE_CHECK_ID = 'defect-triage-and-routing-check' as const;
+
+/**
+ * Declarative prompt metadata for the five active modular REVIEW lanes only.
+ * This declaration is not evidence that the check ran, is not lifecycle gate
+ * evidence, and does not change Dynamic Finding schema, blocking, freshness,
+ * supersession, severity, or applicability semantics.
+ */
+const reviewFindingTriageRequiredCheckIds = Object.freeze([
+  ...commonPolicy.requiredCheckIds,
+  REVIEW_FINDING_TRIAGE_CHECK_ID,
+] as const);
+
 const ACTIVE = 'active' as const;
 const COMPATIBILITY = 'compatibility' as const;
 
@@ -261,6 +274,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
   },
   'proof-or-stop-review-behavior': {
     ...commonPolicy,
+    requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review user-visible behavior and edge conditions.',
@@ -277,6 +291,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
   },
   'proof-or-stop-review-concept': {
     ...commonPolicy,
+    requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review concept deletion and residual references.',
@@ -293,6 +308,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
   },
   'proof-or-stop-review-docs': {
     ...commonPolicy,
+    requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review documentation and code consistency.',
@@ -301,6 +317,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
   },
   'proof-or-stop-review-quality': {
     ...commonPolicy,
+    requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review implementation quality, safety, and maintainability.',
@@ -333,6 +350,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
   },
   'proof-or-stop-review-test-coverage': {
     ...commonPolicy,
+    requiredCheckIds: reviewFindingTriageRequiredCheckIds,
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Review verification intent and evidence coverage.',

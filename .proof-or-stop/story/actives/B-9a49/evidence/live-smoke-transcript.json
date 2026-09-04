@@ -1,0 +1,20 @@
+{
+  "storyId": "B-9a49",
+  "expected": "Generated prompts for all five active REVIEW lanes visibly contain the same complete triage behavior in both supported envelope modes, while non-REVIEW prompts do not.",
+  "actual": {
+    "command": "node scripts/run-proofstory-pre-review-live-proof.mjs",
+    "exitCode": 0,
+    "stdout": "PROOFSTORY_PRE_REVIEW_PROOF={\"schemaVersion\":\"proofstory.pre_review_executable_proof.v1\",\"storyId\":\"B-9a49\",\"producer\":\"registered-verification-command\",\"verifier\":\"pre-review-check-command-runner\",\"commandDigests\":[\"sha256:ecd38113be6b8bc3dc040d8220b812176729ac852dde7bc7ff7668229bdfaf28\"],\"caseRecordsEncoding\":\"gzip-base64\",\"caseRecords\":\"H4sIAAAAAAACE5WSb2vbMBDGv4rwawuSkXXgd14TqFnbBNtlDBOKIp0TUUUy+uPN334nx07zoivsjXXozqfn+d01TZLT3baiX5M06YyTXvaAoTVKmeCz1vDgQFDQrbEcaLw/MP6GJXNqKqXcaI8xZuAP8OCBTBXkJ+uBrMhUSNzZvAH5Lf2JTG1TMvdNCdOCnKTzxg60s+DA9sxLo8nU3+EDu7yqroe3AdKmSTprROBgKfRMBeZBJOlyuU+bBP904YyZHqxs5Zj4st+nidQetM/uH37QxWKVnVjXDZlFT0cLoKljZ7jYYtwnsVNOn15qusK3z8GPsjBkwZ+MlX7IhLTAPY3iERV0ig23+ferSyGposv4AYLqTTtCiYg4C44pgkUgOx+tlq/5S/2wLYv612vxnK+fiqoqvj9uPs/NbGa1FB2qEcAi2hGSHbVxXnJqDpH0iGZCFmGjYhvQ40e0mECcjlnJVPZu8WCCFgxnh3OkynCmKFdygleX+XN1Xxa7mi5ROHLVjtuLQ+ixucuuU5yHNqew2RHlqCt17gMimuuJ1D2+Nm5KF7kJcIhRGy1RA1GyBT5wBeSm77Zcb8rN+jb6bJnu/rFL3/5/lfZ/AcoWTrt4AwAA\",\"provenance\":{\"runnerPath\":\"scripts/run-proofstory-pre-review-live-proof.mjs\",\"runnerDigest\":\"sha256:e45f9001861defcd91a85f1c8f10df27d24487f95bb80dfd8ed6dde7c6a0f2e9\",\"targetPath\":\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\",\"targetDigest\":\"sha256:af04ba776986f32c27820b322c35fcf2a90b8d46c52f0e5f836acabfbc902fe5\",\"buildCommand\":\"npm --prefix packages/main run build\"},\"bindingProofs\":[]}\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-03T17:53:28.320Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "90880b8b1f7c5830c4454d59ddeabedd4c2444dd",
+  "materialHash": "db61f664def0c53c4addce6762e3633a7daf017fef4fa8b709b11028d2895f37"
+}

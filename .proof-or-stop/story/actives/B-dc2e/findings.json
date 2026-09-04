@@ -1,0 +1,182 @@
+{
+  "findings": [
+    {
+      "id": "B-dc2e:F-001",
+      "desc": "quality: packages/main/src/handlers/cross-host-review.ts:598-617 (capText/boundPersistedFindings) silently caps each persisted finding field (title<=200, file<=300, description<=1000, fix<=1000 chars) with no truncation marker. Array-level truncation IS auditable (findingCount stays the TRUE count while findings.length can be <=50, so a reader can detect the array was capped), but per-field truncation is silent: capText() just slices, so a reader of the persisted verdict JSON or --json output cannot tell whether a title/description/fix was cut short vs organically that length. This undermines the CHK-004 goal of the artifact being a trustworthy, complete-or-visibly-incomplete audit record.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T05:25:15.645Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-002",
+      "_hash": "7ecf72cabaf81b01165d691c4f7bd6608d6af35fc6039f67dfeddcb8d2a2a75e",
+      "files": [
+        "packages/main/src/handlers/cross-host-review.ts"
+      ],
+      "signatureTag": "missing|ts|quality-packages-main",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@3b1536f"
+    },
+    {
+      "id": "B-dc2e:F-002",
+      "desc": "CHK-002:edge:0 evidence is vacuous: it is pinned to the SAME selector as CHK-002:happy:0 (packages/main/src/tasks/full-suite-runner-smoke.ts:171, printed by the composed-chain assertion at lines 168-170), not to the actual distinguishing assertion at lines 160-163 (mainOnlyMessage stalePolicy check for prefix members). I confirmed by mutation test: neutralizing the line 160-163 assertWithDetail condition to a constant true still prints the pinned selector line and exits 0 (verified by patching packages/main/dist/tasks/full-suite-runner-smoke.js locally, running it, then restoring the original file byte-for-byte). So a regression or deletion of the mainOnlyMessage check would leave the edge:0 receipt result=pass/selectorMatched=true unchanged; the pinned evidence provides no mechanical proof that the edge intent (prefix members are not reported as stalePolicy against the main chain alone) is actually being exercised. Fix: pin CHK-002:edge:0 to a distinct process.stdout.write emitted right after the mainOnlyMessage assertWithDetail succeeds (mirroring the pattern already used for the other three CHK-002 selectors), then re-add the evidence against the new distinct selector.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T05:25:18.910Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/background.md",
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "2e5c363e3b63e87c92a9f569d3ab52c1d296aaf3bcafac4c28beeb5ca02a60db",
+      "files": [
+        "packages/main/src/tasks/full-suite-runner-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|edge-evidence-vacuous",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@3b1536f"
+    },
+    {
+      "id": "B-dc2e:F-003",
+      "desc": "quality: .proof-or-stop/story/actives/B-dc2e/plan.md:3 states \"Every smoke's default output stays under 11000 characters\" but packages/main/src/tasks/validation-tier-planner-smoke.ts default stdout is measured at 10822 chars (node packages/main/dist/tasks/validation-tier-planner-smoke.js), a 178-char / 1.6% margin, and no assertion in the file enforces this bound (contrast single-owner-extraction-smoke.ts, which has an explicit self-bound assertion for its own output length). A small future addition to this 3760+-line smoke silently breaks the documented plan.md convention with nothing catching it; the executor's hard trimOutput cap (MAX_OUTPUT_CHARS=12000, core/validation-executor.ts:40) still has 1178 chars of headroom, so this is a maintainability/fragility gap, not an active truncation bug.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T05:25:25.603Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-002",
+      "_hash": "9ef84ca885470720961e70852149911464fb07cc414c824a79bff0751d7e2cdc",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|quality-proof-stop",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-03T05:53:39.689Z"
+    },
+    {
+      "id": "B-dc2e:F-004",
+      "desc": "CHK-001:adversarial:0 verificationEvidence.note says: RED commit 9c33736320 showed the orphaning case failing AND the CASE_MISMATCH assertion failing with undefined, implying both happen when 9c33736320 itself is checked out. I checked out 9c33736320 in a temp detached git worktree, built packages/main and ran node packages/main/dist/tasks/validation-protocol-smoke.js directly: it fails with AssertionError: root package.json must define test:validation-protocol -> tasks/validation-protocol-smoke.js at runInventoryAndSweep (line 139), never reaching the CASE_MISMATCH assertion further down (line ~1403 in current source). This exactly matches the RED commit message itself, which correctly attributes the CASE_MISMATCH failure to a direct run at HEAD~ (the parent, pre-existing failure) and the registration failure to a direct run at this commit (the new case) -- two different commits, two different failures. The checklist verificationEvidence note conflates them as both occurring at 9c33736320. Functionally harmless (the RED-before-GREEN gate reads commit subjects, not this note, and the RED commit does genuinely fail either way), but the note is not literally reproducible as worded and should say the CASE_MISMATCH failure is reproduced at HEAD~ (parent of 9c33736320), not at 9c33736320 itself. Low severity: documentation/evidence-note accuracy only, no gate or mechanical-proof impact. Separately confirmed: the CASE_MISMATCH detector at packages/main/src/tasks/validation-protocol-smoke.ts:1392-1400 is genuinely filesystem-neutral (findCaseVariant compares lowercased readdir() names; canonicalExists is used only for the printed diagnostic label, never to gate the assertion), so it is not merely proving this machines case-insensitive behaviour -- this part of the design is sound.",
+      "severity": "low",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-03T05:25:34.869Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-003",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-dc2e/background.md",
+          ".proof-or-stop/story/actives/B-dc2e/checklist.json",
+          ".proof-or-stop/story/actives/B-dc2e/plan.md",
+          "packages/main/src/tasks/cross-host-review-smoke.ts",
+          "packages/main/src/tasks/full-suite-runner-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "758d91b9f4be3c317a73a4ac4ad97c4720a8b9ba8c4687fc7db38835a9a5989e",
+      "files": [
+        "packages/main/src/tasks/validation-protocol-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|adversarial-verificationevidence-note",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-09-03T05:53:40.972Z"
+    },
+    {
+      "id": "B-dc2e:F-005",
+      "desc": "test",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-03T05:28:49.594Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-004",
+      "_hash": "b4a5b57f5c54d156de875bd2ffb9955da34b21d97975bf9aacf85d9b28230ebd",
+      "signatureTag": "missing|unknown|test",
+      "signatureTagSource": "auto",
+      "dismissReason": "Accidental test finding created while probing the correct reviewRunId parameter format for finding_add during behavior review; no substantive content, dismissing immediately and refiling the real finding separately.",
+      "dismissedAt": "2026-09-03T05:29:17.946Z"
+    },
+    {
+      "id": "B-dc2e:F-006",
+      "desc": "packages/main/src/core/red-green-commit-guard.ts (evaluateRedGreenCommitOrder, consumed by validation-tier-planner-smoke.ts:3617 via git log --format=%s main..HEAD) false-rejects a legitimate GREEN(CHK-nnn)/GREEN(F-nnn) when its matching RED subject already sits on main before the current branch point rather than on the story branch itself. Repro (plain git): init a repo, commit RED(CHK-001): x directly on main, branch off AFTER that commit, then commit only GREEN(CHK-001): y on the new branch; git log --format=%s main..HEAD on the branch shows only the GREEN subject (the RED is a common ancestor via main and is excluded by the range), so evaluateRedGreenCommitOrder reports green_without_red and describeRedGreenViolations names CHK-001 as violated even though a RED for that literal id genuinely exists earlier in history. The id-reuse precondition is not hypothetical here: git log --all --format=%s on this checkout shows CHK-001, CHK-002, CHK-003, CHK-004, CHK-006 and F-010 already have RED+GREEN pairs merged to main from earlier stories, because checklist/finding ids restart at 1 every story so bare-id collision across stories is routine. Under this framework normal single-branch-per-story workflow (RED and GREEN both committed on the SAME story branch) this does not misfire in the common case, but the only documented mitigation for cross-story bare-id collision is the optional B-xxxx: qualifier prefix in the subject, which the checklist/plan do not require authors to use, and no smoke case in validation-tier-planner-smoke.ts exercises this branch-point/main-ancestor edge. A legitimate story that needs a RED-before-GREEN pair for a bare id whose RED landed on main ahead of the branch point (via history cleanup on the story own branch, or reused numbering interacting with a rebase) would be incorrectly blocked by the RED-before-GREEN guard self-check inside test:validation-tier-planner, which is part of test:serial-reference / the required validate suite. Recommend documenting the story-qualifier as required guidance for bare-id reuse risk, or adding a smoke case asserting the known limitation so it cannot regress silently.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-03T05:29:31.841Z",
+      "reviewRound": "2026-09-03T05:14:28.506Z",
+      "reviewRunId": "B-dc2e:RR-004",
+      "_hash": "c458f73d35bfef58bef094354ffe57c2d5ac8f819a42c7fb657e5669f534160e",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "clusterId": "CL-001",
+      "resolvedBy": "CL-001@3b1536f"
+    },
+    {
+      "id": "B-dc2e:F-007",
+      "desc": "quality: packages/main/src/tasks/validation-tier-planner-smoke.ts:3801-3811 (priorRedIds, added by GREEN(F-006) ec9a4b5ddc) silently returns an EMPTY set on this actual repo because its unranged `git log --format=%s <merge-base>` call (line 3804, via gitOutput/gitOutputIn at lines 3606-3611 and 3636-3641, neither passes a maxBuffer override) exceeds Node execFileSync default maxBuffer (1MB) once main history grows past it -- reproduced directly: `execFileSync('git',[\"log\",\"--format=%s\",mergeBase])` on this checkout throws ENOBUFS (subjects total 1,391,818 bytes across 27,141+ commits), and gitOutput/gitOutputIn's bare try{}catch{return null} swallows it, so priorRedIds(null) silently returns an empty Set instead of the branch-point RED ids. F-006's whole point was to stop a false green_without_red rejection when a legitimate RED sits on main before the branch point; on THIS repo (which the fix was written against and merges into) that exact mitigation is a silent no-op today, and will stay a silent no-op for every future story once this branch merges, because main only grows. No test in this diff exercises a real/large repo through priorRedIds -- both F-006 fixture cases use freshly-created temp repos with 2-4 commits, so the maxBuffer failure mode is completely uncovered and the smoke passes green while masking that the delivered mitigation does not work in the repo it ships in. Severity: medium -- fails closed (reverts to the pre-fix stricter/false-block behaviour, not a security or data-integrity issue) but silently defeats a feature this same story built, with no diagnostic surfaced (bare catch), and squarely matches the quality role's own Type Safety check item (empty catch swallowing errors). Fix direction: pass an explicit maxBuffer to the git log call in priorRedIds (or better, bound the query with --since/-n rather than reading full unranged history), and add a test that exercises priorRedIds against a repo whose merge-base history exceeds the default buffer.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-03T06:02:55.396Z",
+      "reviewRound": "2026-09-03T05:53:36.659Z",
+      "reviewRunId": "B-dc2e:RR-007",
+      "_hash": "ec9f9107d314a8fbee6bd6f492617e8d2d03fc6054e70426051d52e24e16f09c",
+      "signatureTag": "edge|unknown|quality-packages-main",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-dc2e:F-007@8fec180"
+    },
+    {
+      "id": "B-dc2e:F-008",
+      "desc": "packages/main/src/tasks/validation-tier-planner-smoke.ts:3801-3811 priorRedIds() + core/red-green-commit-guard.ts priorRedAccepted: the F-006 fix satisfies a GREEN(id) whenever ANY RED subject with the SAME BARE id string is reachable from merge-base(main,HEAD) -- with no scoping to the same story/lineage. Checklist/finding ids restart at CHK-001/F-001 in every story and are usually written unqualified; this repo already has RED(CHK-001)..RED(CHK-006) and RED(F-010) on main from unrelated, already-merged stories. Since git merge main is REQUIRED before DONE (CLAUDE.md DONE gate), a vacuous GREEN(CHK-001) on B-dc2e own branch -- with no RED of its own anywhere in this story -- is ALREADY accepted right now, satisfied by an unrelated story RED(CHK-001) (\"add stable validation command identity fixture suite\"), purely by string-equal id collision. Verified live against the current branch: merge-base(main,HEAD)=a53b4a5..., priorRedIds() includes CHK-001..CHK-006, F-010, plus 8 B-a745:F-nnn ids from another story; feeding evaluateRedGreenCommitOrder([{subject:\"GREEN(CHK-001): fabricated, never observed a failing CHK-001 fixture\"}], {priorRedIds}) returns ok:true with priorRedAccepted:[{id:\"CHK-001\"}]. This defeats the guard entire purpose (never squash/skip the RED) for the common case of low-numbered ids -- exactly the pattern this codebase own history already exhibits, and it will bite this exact story or any future one at DONE-time merge. Fix should scope acceptance to the SAME story (e.g. require the RED subject be story-qualified with THIS story id, or otherwise bind priorRedIds to only the branch own earlier RED lineage instead of any RED reachable from merge-base).",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-behavior",
+      "createdAt": "2026-09-03T06:07:27.506Z",
+      "reviewRound": "2026-09-03T05:53:36.659Z",
+      "reviewRunId": "B-dc2e:RR-009",
+      "_hash": "4bb4b7ce6625f9296dbf68f16a3a7adea27ee5e308a8862487155f5ad78a0d8c",
+      "signatureTag": "adversarial|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedBy": "B-dc2e:F-008@8fec180"
+    }
+  ]
+}

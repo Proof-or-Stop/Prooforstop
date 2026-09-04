@@ -1,0 +1,92 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-dc2e",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:17e8b101803e9f7040c03e51c819ca45b136b7d66d95abf8a5dce88d710cd35f",
+  "acceptanceBindings": [
+    {
+      "id": "AB-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Orphan smoke fixed and registered; task-file sweep classified."
+    },
+    {
+      "id": "AB-002",
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Real-data membership case with scratch mutation."
+    },
+    {
+      "id": "AB-003",
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-003:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "RED guard covers F-nnn with a no-RED marker; shared helper."
+    },
+    {
+      "id": "AB-004",
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Host B findings persisted, bounded, never raw stdout."
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "Each binding proves through its own smoke file.",
+  "createdAt": "2026-09-03T04:37:35.444Z",
+  "updatedAt": "2026-09-03T04:37:35.444Z"
+}
