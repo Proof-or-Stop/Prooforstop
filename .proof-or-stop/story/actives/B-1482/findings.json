@@ -340,6 +340,24 @@
       ],
       "signatureTag": "missing|ts|code-drift-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-1482:F-019",
+      "desc": "doc-code-drift: core/evidence-pin-guard.ts:255 — the seatbelt deny messages opening sentence (reasons[0]) reads \"The intent ${ref} is already pinned to an immutable verification (B-ec67) and your write does not match it.\" with no qualifier; the exception is only stated three lines later at reasons[3] (\"Third option: ... re-pin it with verification_pin_narrow ...\"). Read in isolation the opening sentence is a false categorical claim — the exact kind of unqualified immutability statement this story exists to eliminate (see F-008/F-009/F-010, CLAUDE.md accepted-limitation wording). Verified live: `verification_pin_guard_check` on a scratch story returns reasons as an array, so a structured/JSON consumer keys off reasons[0] specifically getting only the unqualified sentence, and the Claude PreToolUse hook (.claude/hooks/proof-or-stop-evidence-pretool.cjs) does join all reasons into one stderr write before exit 2, so a full-message reader is fine, but a caller that surfaces only the first line/sentence (log truncation, a terminal that wraps, a human skimming) is handed a false statement. The fix is a one-line reword of reasons[0] itself (e.g. \"already pinned (immutable except for exactly one audited narrowing exception, see below)\") rather than relying on a later line to retroactively correct it. Not blocking on its own (the full joined message is machine-tested by C5/C9/C10 to include the narrowing route and precondition), but the opening framing is inaccurate and should not depend on the reader continuing past line 1.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-04T00:27:03.472Z",
+      "reviewRound": "2026-09-04T00:17:29.017Z",
+      "reviewRunId": "B-1482:RR-008",
+      "_hash": "79d85312858173a7e80ea0e9de78209b71686125aa781ce8b29779536d286ef9",
+      "files": [
+        "packages/main/src/core/evidence-pin-guard.ts"
+      ],
+      "signatureTag": "missing|ts|code-drift-core",
+      "signatureTagSource": "auto"
     }
   ]
 }
