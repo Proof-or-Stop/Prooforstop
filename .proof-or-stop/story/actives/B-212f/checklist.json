@@ -73,7 +73,7 @@
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md#execution-flow",
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md#output-contract"
       ],
-      "userSees": "done_prepare reports missing_dev_memory_finish_decision before suggesting DONE, and reports stale_closeout_review with diff_pack_changed when the real DONE gate would reject the same reviewer pass",
+      "userSees": "For a missing finish decision done_prepare prints \"missing_dev_memory_finish_decision\"; for a stale reviewer diffPackHash it prints both \"stale_closeout_review\" and \"diff_pack_changed\".",
       "excludes": [
         "Do not change which finish-decision values satisfy DONE.",
         "Do not weaken or bypass evaluateReviewVerdict.",
