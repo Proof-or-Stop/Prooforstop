@@ -375,6 +375,36 @@
         "scanEscalationReason": null
       },
       "_hash": "ee6c9303031d2654ab805b19ecaf48b3c50c956e24b8e1803aab401dba9f7fef"
+    },
+    {
+      "id": "B-e256:RP-015",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Round-2+ re-verification bound to RR-023 (headHash ba2c773, story 26eb95f). Only new activity since prior pass RP-014 is commit d98c5aecba (carry B-83aa lifecycle-bounded heartbeat smoke). Verified: (1) git diff 92a12ee0ad -- packages/main/src/tasks/validate-progress-heartbeat-smoke.ts is empty (byte-identical to B-83aa) and git show --stat d98c5aecba touches only that one file; (2) node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js passes (validate-progress-heartbeat smoke passed, ~87s); (3) git status clean of source dirt, no conflict markers in story-relevant files, git log --oneline -3 shows only this commit plus two metadata commits (record REVIEW metadata, record verification_evidence_refresh_stale metadata) -- no cherry-pick residue; (4) review_incremental_context flags scopeChanged=true / RELATED_STORY_MATERIAL_DRIFT because its diff base (priorHeadHash ebdd41f7f0, bound to RP-014) is a now-unreachable/dangling commit object -- git diff main...HEAD --name-only (the actual review basis) is narrow and matches the scope contract; confirmed via git log that every commit touching packages/main/src/core/version-bump.ts and runtime-environment-checks.ts (F-001/F-002/F-004, cross-host review rounds r6-r13) predates RP-014 and was already reviewed then, so no new logic surfaced; (5) scope_contract_check reports Scope gate: warn (1 warning, mode=shadow) for packages/main/src/core/version-bump.ts, listed as [acknowledged] with blocking=false -- finding_list confirms B-e256:F-005 (the finding that drove this acknowledgement) is status=resolved/evidenceState=verified, so the shadow-mode warning is sufficiently accounted for and not a new finding; (6) npx tsc --noEmit -p packages/main exits 0; node packages/main/tests/global-core-realpath.test.mjs prints ok global-core-realpath; node packages/main/dist/cli.js doctor prints the pinned row: global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.275 mode=0755 executable=yes. Spot-checked the carried smoke file and the largest already-reviewed diffs (runtime-environment-checks.ts, promote-dist.mjs, proof-or-stop.config.json, red-global-cli-exec-bit.mjs) for dead code / as any / empty catch -- none found. No blocker. Did not run proof-or-stop validate or lint per dispatch instruction; did not modify any repository files.",
+      "createdAt": "2026-09-04T15:57:52.101Z",
+      "reviewRound": "2026-09-04T15:49:14.300Z",
+      "reviewRunId": "B-e256:RR-023",
+      "envelopeId": "a4bbecc9c006ef4f687ecc61a71bdbf29f0b44064d9d56d4fa1ac3ea75ecb510",
+      "writerSessionId": "sess-3d43db3176c0b9b772929e2f49d4b197",
+      "sessionSource": "host-adapter",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/scope-contract.json",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "a67a6c4cd00713443b89edbbb4c4cb9ebfaa2d67e7c2134f111027e95b37be6a"
     }
   ]
 }
