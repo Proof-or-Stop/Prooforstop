@@ -995,8 +995,9 @@ function squashWhitespace(text: string): string {
 }
 
 /**
- * The literal sentence each document carries a claim of CHK-003:happy:0 in, quoted from
- * the document itself. They are the mutation corpus: C4 re-runs its whole documentation
+ * The literal sentence or invocation each document carries one of the claims C4 checks
+ * in, quoted from the document itself. Most are claims of CHK-003:happy:0; the runnable
+ * command form is one C4 checks beyond that sentence (B-1482 F-022). They are the mutation corpus: C4 re-runs its whole documentation
  * check set against a copy of the document with one of these deleted, and that run MUST
  * fail. Quoting the sentence independently of the checks is what makes the mutation a
  * proof rather than a restatement of whatever the checks happen to grep for (B-1482
@@ -1052,6 +1053,12 @@ const DOCUMENTED_CLAIM_SENTENCES: ReadonlyArray<{ claim: string; sentences: Reco
  * Every documentation claim C4 checks, for ONE document. Extracted so the same check set
  * can be run against a MUTATED copy of the document: a claim whose check survives the
  * deletion of the sentence that states it is not being checked at all.
+ *
+ * SCOPE: every clause below is asserted against BOTH documents -- the decision record and
+ * CLAUDE.md -- so the label in each failure message names which copy failed, not which
+ * document the clause is limited to. No clause is document-specific any more; the last
+ * one that was (the command form, checked against CLAUDE.md alone) became a both-document
+ * clause in B-1482 F-022, because the decision record teaches the form as well.
  */
 function assertDocumentationClaims(label: DocLabel, text: string): void {
   assert.equal(
@@ -1107,9 +1114,17 @@ function assertDocumentationClaims(label: DocLabel, text: string): void {
     text, /re-checked FIRST[^.]*before the proof/i,
     `${label} states the digest is re-checked FIRST, before the proof`,
   );
-  if (label === 'CLAUDE.md') {
-    assert.ok(text.includes(NARROW_COMMAND), 'CLAUDE.md documents the command form');
-  }
+  // The runnable command form. Not `includes(NARROW_COMMAND)`: both documents also name
+  // the command in the prose sentence stating the one allowed movement, so that grep
+  // survives the deletion of the invocation and would still pass on a document that
+  // taught the name and nothing else (B-1482 F-022, the same grep-survives-deletion
+  // shape as F-020 and F-021). Asserted as a pasteable invocation instead, and against
+  // BOTH documents, because the decision document prints one too -- it is not a
+  // CLAUDE.md-only claim.
+  assert.match(
+    text, new RegExp(`proof-or-stop ${NARROW_COMMAND} '\\{.*?\\}'`),
+    `${label} prints a runnable ${NARROW_COMMAND} invocation, not only the command name`,
+  );
 }
 
 /**
@@ -1252,7 +1267,11 @@ const CHK003_CASES: SmokeCase[] = [
         ['decision doc', squashWhitespace(readRepoFile(DECISION_DOC))],
         ['CLAUDE.md', squashWhitespace(readRepoFile(CLAUDE_MD))],
       ];
-      // Every claim, against the documents as they stand.
+      // Every claim, against the documents as they stand. The check set is the SAME for
+      // both documents: every clause in assertDocumentationClaims is asserted against the
+      // decision record and against CLAUDE.md, including the runnable command form, which
+      // both of them print (B-1482 F-022). A reader does not have to open the corpus to
+      // learn the scope of a clause -- there is one scope, and it is both documents.
       for (const [label, text] of documents) {
         assertDocumentationClaims(label, text);
       }
