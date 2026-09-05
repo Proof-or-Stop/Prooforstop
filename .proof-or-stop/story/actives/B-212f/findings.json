@@ -2439,6 +2439,54 @@
       ],
       "signatureTag": "canonical-timeout-fixture-filename",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-049",
+      "desc": "RI-003 wave2 independent critic corroboration of canonical F-041 and current F-046, validation-inventory-fixed-pin-maintenance. The fixed511e1906 expectation still conflicts with the previously independently computed current131-command e1b85f5c inventory and official planner failure; fresh empty git diff d391f06..HEAD across source/tests/scripts/docs/config, Story background/plan and official test-evidence.json proves the bounded prior source inspection, exact failed-output review and inventory query remain current. No test or baseline reruns performed in this wave. The introduced pin omission still directly blocks configured validation, requiring the same bounded fixed-pin maintenance, never dynamic expected values or inventory deletion. RR-059 starts after all four required lane terminals. I inspected all current raw F-044..F-048 observations and their read evidence: F-044 retains pinned-nondefault-intent-refresh-recovery, F-045 canonical-ambient-env-fixture, F-046 validation-inventory-fixed-pin-maintenance, and F-047/F-048 canonical-timeout-fixture-filename. These match existing wave1 roots, with F-048 duplicating F-047 in the current set while preserving original F-038. The other established families english-smoke-repository-root-depth, retired-lab-alias-smoke-expectation, init-tamper-diagnostic-domain-drift, and canonical-process-fact-mutation-env-propagation remain unchanged and unresolved in prior inventory, not erased by lacking a new raw duplicate. No new independent root is supported. Prior official validation remains FAIL with complete131 commands and9 required failures; the b49 failed child remains derivative of the F-039 INIT diagnostic root. This finding is a truthful current corroboration/read terminal, not a new defect or acceptance credential. Unsupported acceptance basis receives separately checked topology request_changes only. No implementation or lifecycle writes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-05T16:55:08.791Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-059",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "192c36e54ffa1b4c82f17ed6aff35a6823832989fa89ad358a2938d507e57f10",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "validation-inventory-fixed-pin-maintenance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
