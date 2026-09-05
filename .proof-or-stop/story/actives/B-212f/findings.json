@@ -937,7 +937,7 @@
       "desc": "RI-001 wave 3 coverage re-attestation of F-011/F-017, canonical B-212f:F-009, same completed-done-snapshot-live-overlay family and no new root cause. Source material and Story files remain unchanged. packages/main/tests/red/red-done-shared-predicates.mjs:133-149,260-266 still uses a TEST-phase reader and tests only finish=null under completedSnapshot, omitting historical-valid/live-stale DONE assurance. Fresh node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs again compares source-extracted main 69403365ae/current buildDoneChecklist using identical DONE-phase snapshot-aware readers: main escalation pass/nonblocking becomes current escalation fail/blocking plus stale review-verdict fail/blocking; active canFinishGuard remains false. The unchanged post-done-closure-snapshot smoke already reproduced exit 1 at initial TEST readiness before historical assertions in this review session. Therefore the signed decision requirement to preserve completion-snapshot compatibility remains unsupported by the passing shared proof. Preserve original F-009/F-011/F-017 observations; classify this terminal as duplicate corroboration of canonical F-009. Its bounded repair must cover completed historical assurance and keep active TEST-to-DONE strict.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-05T12:40:26.395Z",
@@ -978,7 +978,11 @@
         "packages/main/src/core/done-oracle.ts"
       ],
       "signatureTag": "completed-done-snapshot-live-overlay",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed the introduced historical snapshot regression in 8168160d51 under the explicitly human-approved narrow boundary: only actual DONE plus completedSnapshot preserves prior artifact/assurance presentation and labels reviewer status informational, not fresh PASS or full historical audit. TEST plus a supplied snapshot and default DONE guard remain live-strict. Final tests 982a3d1c12 and 15497d063b reproduce blocked versus local-admissible on immutable 5d0abf0 and pass after repair; post-done-closure-snapshot-smoke also passes and is registered in routine validation. Full historical reviewer replay is not claimed as implemented: traceable future capability is docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md. Original observations remain preserved; topology diagnostics are not asserted to be acceptance PASS.",
+      "resolvedAt": "2026-09-05T14:40:42.034Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-025",
