@@ -779,7 +779,57 @@
       },
       "status": "pending",
       "startTime": "2026-09-05T16:59:18.671Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "verification-run-and-guard-smoke: PASS",
+            "executedAt": "2026-09-05T17:30:57.433Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:ebdaaf92475e0a528549d18cd77abc86c639c41637b9588982f435c3cfc036f6",
+            "causalReceiptHash": "c5fe8a0e093db75d97306300190cb2f6d327612c35d62e20c6ec8462741288c7",
+            "commandReruns": 0
+          },
+          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
+          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
+          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+          "timestamp": "2026-09-05T17:31:08.260Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8eec03ad6ac7bc657a770f256c76631d00cdf2ae9100e0e84981943c9066f73b",
+            "outputTail": "cli surface smoke passed\n",
+            "selectorMatched": true,
+            "selector": "cli surface smoke passed",
+            "executedAt": "2026-09-05T17:31:04.148Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:8a25c3b6c2b13dc285c897365506d85c44c529462260580221ccedceb7f9a43a",
+            "causalReceiptHash": "ef26d49478933b04c807b715da77833bd922c720fa110bb6fe6b18d18ac1521f",
+            "commandReruns": 0
+          },
+          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
+          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
+          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+          "timestamp": "2026-09-05T17:31:08.260Z"
+        }
+      ]
     },
     {
       "id": "CHK-006",
@@ -835,7 +885,57 @@
       },
       "status": "pending",
       "startTime": "2026-09-05T17:09:47.986Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8eec03ad6ac7bc657a770f256c76631d00cdf2ae9100e0e84981943c9066f73b",
+            "outputTail": "cli surface smoke passed\n",
+            "selectorMatched": true,
+            "selector": "cli surface smoke passed",
+            "executedAt": "2026-09-05T17:31:04.148Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:8a25c3b6c2b13dc285c897365506d85c44c529462260580221ccedceb7f9a43a",
+            "causalReceiptHash": "ef26d49478933b04c807b715da77833bd922c720fa110bb6fe6b18d18ac1521f",
+            "commandReruns": 0
+          },
+          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
+          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
+          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+          "timestamp": "2026-09-05T17:31:08.260Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "verification-run-and-guard-smoke: PASS",
+            "executedAt": "2026-09-05T17:30:57.433Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:ebdaaf92475e0a528549d18cd77abc86c639c41637b9588982f435c3cfc036f6",
+            "causalReceiptHash": "c5fe8a0e093db75d97306300190cb2f6d327612c35d62e20c6ec8462741288c7",
+            "commandReruns": 0
+          },
+          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
+          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
+          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+          "timestamp": "2026-09-05T17:31:08.260Z"
+        }
+      ]
     },
     {
       "id": "CHK-007",
@@ -892,7 +992,57 @@
       },
       "status": "in_progress",
       "startTime": "2026-09-05T17:24:25.756Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "verification-run-and-guard-smoke: PASS",
+            "executedAt": "2026-09-05T17:30:57.433Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:ebdaaf92475e0a528549d18cd77abc86c639c41637b9588982f435c3cfc036f6",
+            "causalReceiptHash": "c5fe8a0e093db75d97306300190cb2f6d327612c35d62e20c6ec8462741288c7",
+            "commandReruns": 0
+          },
+          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
+          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
+          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+          "timestamp": "2026-09-05T17:31:08.260Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "verification-run-and-guard-smoke: PASS",
+            "executedAt": "2026-09-05T17:30:57.433Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:ebdaaf92475e0a528549d18cd77abc86c639c41637b9588982f435c3cfc036f6",
+            "causalReceiptHash": "c5fe8a0e093db75d97306300190cb2f6d327612c35d62e20c6ec8462741288c7",
+            "commandReruns": 0
+          },
+          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
+          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
+          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+          "timestamp": "2026-09-05T17:31:08.260Z"
+        }
+      ]
     }
   ],
   "auditLog": [
