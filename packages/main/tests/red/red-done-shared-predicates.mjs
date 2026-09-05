@@ -248,7 +248,7 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   const adapterMutants = [
     ['wrong root', oracleSource.replace('projectRoot: root, gitCwd', "projectRoot: 'WRONG', gitCwd")],
     ['wrong story', oracleSource.replace('evaluateDonePredicates({ storyId, store', "evaluateDonePredicates({ storyId: 'B-wrong', store")],
-    ['opposite outer path', oracleSource.replace('const donePredicates = [...evaluateDonePredicates(', 'const donePredicates = storyId.length === 0 ? [...evaluateDonePredicates(').replace('projectRoot: root, gitCwd })];', 'projectRoot: root, gitCwd })] : [];')],
+    ['opposite outer path', oracleSource.replace('const donePredicates = [...evaluateDonePredicates(', 'const donePredicates = storyId.length === 0 ? [...evaluateDonePredicates(').replace(' })];', ' })] : [];')],
     ['discarded projection result', oracleSource.replace('return projectDonePredicateRows(rows, donePredicates);', 'return (projectDonePredicateRows(rows, donePredicates), rows);')],
     ['early return before projection', oracleSource.replace('const rows: DoneCheckRow[] = [];', 'const rows: DoneCheckRow[] = []; if (storyId) return rows;')],
     ['cleared shared outcomes', oracleSource.replace('return projectDonePredicateRows(rows, donePredicates);', 'donePredicates.length = 0; return projectDonePredicateRows(rows, donePredicates);')],
@@ -326,7 +326,7 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
     }, { name: 'AssertionError' }, `${name}: executable mutation must be killed`);
   }
   const skippedOracle = oracleSource.replace('const donePredicates = [...evaluateDonePredicates(', 'const donePredicates = storyId.length === 0 ? [...evaluateDonePredicates(')
-    .replace('projectRoot: root, gitCwd })];', 'projectRoot: root, gitCwd })] : [];');
+    .replace(' })];', ' })] : [];');
   assert.notEqual(skippedOracle, oracleSource);
   const skipped = productionConsumers(future, skippedOracle, fixture());
   assert.throws(() => skipped.api.buildDoneChecklist('B-probe', skipped.store, 'ROOT', { gitCwd: 'GIT' }),
