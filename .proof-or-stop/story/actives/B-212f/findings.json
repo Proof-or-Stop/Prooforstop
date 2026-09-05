@@ -2113,6 +2113,74 @@
       ],
       "signatureTag": "validation-inventory-fixed-pin-maintenance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-044",
+      "desc": "RI-003 wave 2 corroboration of canonical B-212f:F-036 only; no new defect family and no acceptance PASS. packages/main/src/handlers/checklist.ts:1661 still excludes already-pinned docs/manual intents from staleReexecCandidate, so async refresh at lines3112-3129 does not rerun them and cannot restore mechanical receipts. Fresh source inspection confirms the exact guard unchanged; git diff 810bec8..HEAD over production/test/script/config and Story background/plan/checklist inputs is empty. The previously executed actual Part B witness preserved in F-036 remains applicable on identical production dd65407421/material5f21d60f876149ae07175707c662798e5c550344fe4f36522a1c1b9541efdd63: INT-DOC mechanical:false/no receipt, identical CLI pin succeeds, direct smoke exits1 at B4. No suite or baseline rerun was performed for this corroboration. finding_list freshly confirms canonical F-036 is verified/open under RR-050, preserving its current Owner repair responsibility and original baseline evidence. F-040 was also freshly read and remains independently verified/open; scripts/verify-process-fact-contract.mjs:695 still reads legacy mutation environment variable. This terminal does not merge that separate root into F-036 or claim either issue repaired. Fresh RR-055 uses canonical full/FULL_CHEAPER_OR_EQUAL context; previously validated actual full and filename-triage reads are reused on identical source, with current delta and original Finding checks, as requested. No new quality family found in this bounded unchanged-material wave. Existing blockers remain; final family/zero-new classification belongs to the independent inventory critic, not this corroboration prose.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T16:49:00.877Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-055",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/checklist.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7ca162b832d1a53632fee8c80443d38b855f323693d3831f985296365afba820"
+      },
+      "readDiagnostics": [],
+      "_hash": "301b584c9b878cd8787b703c931cb4f4f4c8578f30afdcd504c74ca6aa6f5129",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "signatureTag": "pinned-nondefault-intent-refresh-recovery",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

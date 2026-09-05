@@ -377,7 +377,7 @@
       "reviewRound": "2026-09-05T15:52:07.337Z",
       "state": "OPEN",
       "begunAt": "2026-09-05T16:33:19.685Z",
-      "updatedAt": "2026-09-05T16:33:19.685Z",
+      "updatedAt": "2026-09-05T16:46:35.867Z",
       "cutoff": {
         "headHash": "bdc8f9eb11a5772c2bb92c5e7a50a3dd677a2401",
         "materialHash": "5f21d60f876149ae07175707c662798e5c550344fe4f36522a1c1b9541efdd63",
@@ -394,9 +394,81 @@
       ],
       "initialRunSequenceBoundary": 49,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-05T16:33:19.685Z",
+          "completedAt": "2026-09-05T16:46:35.867Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-212f:RR-053",
+              "terminal": "finding",
+              "hostIdentity": "8538ad82ccf6c7ba7e0424d31403b9bfa87c560bd4ca14d1751c2b5667c6bd4e",
+              "promptIdentity": "8355b52323318d84f06b0342c316c7cf3a428d766d15c9db41b33a8d05a198dc",
+              "evidenceIds": [
+                "B-212f:F-042"
+              ],
+              "coverageDigest": "c506d8a9abebda7fb813ea8181143daebb81f011d37b8d124f0cc2ae68b8471c"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-212f:RR-050",
+              "terminal": "finding",
+              "hostIdentity": "e8c71f0bd8e8fa64a9c860f93036f9abe4993b041b7a55a86d80f8073dfe640e",
+              "promptIdentity": "3b3f566d85a42c611a318bdb5c8689a66b5473fb42df485579e47b3dccfa6a12",
+              "evidenceIds": [
+                "B-212f:F-036",
+                "B-212f:F-040"
+              ],
+              "coverageDigest": "d60744e0c2b3270a6cf3dd2063987cdae89a8ba560b8b56380c5fa6823eae217"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-212f:RR-051",
+              "terminal": "finding",
+              "hostIdentity": "e8c71f0bd8e8fa64a9c860f93036f9abe4993b041b7a55a86d80f8073dfe640e",
+              "promptIdentity": "42389758add4eec33b79c4226df09e1ed359973b8284e80f3ca572eb6b69a0dd",
+              "evidenceIds": [
+                "B-212f:F-035",
+                "B-212f:F-037",
+                "B-212f:F-039",
+                "B-212f:F-041"
+              ],
+              "coverageDigest": "117219e55e93d03ec25209fa015300587d04cc1da6f66c01ff4c73a914236130"
+            },
+            {
+              "lane": "proof-or-stop-review-docs",
+              "reviewRunId": "B-212f:RR-052",
+              "terminal": "finding",
+              "hostIdentity": "e8c71f0bd8e8fa64a9c860f93036f9abe4993b041b7a55a86d80f8073dfe640e",
+              "promptIdentity": "fb1ffd1091ea2560f7d69573c864a03dd75e6bf54b88beccf0114164715262fd",
+              "evidenceIds": [
+                "B-212f:F-034",
+                "B-212f:F-038"
+              ],
+              "coverageDigest": "3ca3bb13631032fe30537851d710fbe43f9816c380c3eec0fde6a9ba919665c3"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "canonical-ambient-env-fixture",
+            "canonical-process-fact-mutation-env-propagation",
+            "canonical-timeout-fixture-filename",
+            "english-smoke-repository-root-depth",
+            "init-tamper-diagnostic-domain-drift",
+            "pinned-nondefault-intent-refresh-recovery",
+            "retired-lab-alias-smoke-expectation",
+            "validation-inventory-fixed-pin-maintenance"
+          ],
+          "verifiedFindingSetDigest": "260fb0739ea13d771c68a3842892ff68a1be76853d4b523d1ce8363b2a03413e",
+          "newVerifiedFindingCount": 8,
+          "criticDigest": "53e08c70a4c4ba042af76bf9841c0f815ea2f486c663a1849ae6827c819e5b54",
+          "saturated": false,
+          "nextRunSequenceBoundary": 54
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "c660ec5012d5224226101ffc404380ba5d37235e80cd0652b7faef303a779a01"
+      "_hash": "45d5e9464ac8407d57b459c6291dfd05946786624140b247385a6610f26ffe4f"
     }
   ],
   "receipts": [
@@ -712,6 +784,86 @@
       ],
       "createdAt": "2026-09-05T15:29:16.865Z",
       "_hash": "2c9f07c8c5b133d34d82fd4a02b4b8468677e6f322b9eeefb9ee64d8f7018b9e"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-212f:RI-003:CRIT-01",
+      "epochId": "B-212f:RI-003",
+      "storyId": "B-212f",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "bdc8f9eb11a5772c2bb92c5e7a50a3dd677a2401",
+        "materialHash": "5f21d60f876149ae07175707c662798e5c550344fe4f36522a1c1b9541efdd63",
+        "storyFilesHash": "8c9a7add4e6019248cc962b818deff3f14d2cd7d1b6a15c5538122a321357d6f"
+      },
+      "aggregateFindingSetDigest": "260fb0739ea13d771c68a3842892ff68a1be76853d4b523d1ce8363b2a03413e",
+      "requiredLaneCoverageDigest": "0ac1aeeb09d1c1fa32e03556c60059d9e987c7238a21680ac7a280a2875f3649",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-212f:RR-054",
+      "terminalEvidenceIds": [
+        "B-212f:F-043"
+      ],
+      "readEvidenceDigest": "3593d54a4f193a9e1e69bd115fc1f14691045c7a249483be62d85bb8d359eea6",
+      "findingDispositions": [
+        {
+          "findingId": "B-212f:F-034",
+          "disposition": "verified_family",
+          "familyKey": "canonical-ambient-env-fixture",
+          "reason": "Recorded done-required-validation failure names retired LATTICE_ACTIVITY_RECORD_READONLY. Independent source comparison shows the smoke loops frozen historical keys while active matching substitutes canonical PROOF_OR_STOP spellings and excludes retired keys; its bounded common environment excludes the outer timeout. This unchanged-main test contract requires canonical active fixture inputs with frozen digest and explicit-overlay protections retained. This verified current configured-validation blocker stays with the Story Owner for bounded repair; completeness is not validation success."
+        },
+        {
+          "findingId": "B-212f:F-035",
+          "disposition": "verified_family",
+          "familyKey": "english-smoke-repository-root-depth",
+          "reason": "Recorded english-early-check output reaches seven behavioral checks then ENOENT packages/AGENTS.md. Independent path inspection shows compiled dist/tasks ascends to dist then only two more levels, reaching packages rather than repository root. Unchanged-main test path bug; preserve working cliPath and English assertions, fix only root depth. This verified current configured-validation blocker stays with the Story Owner for bounded repair; completeness is not validation success."
+        },
+        {
+          "findingId": "B-212f:F-036",
+          "disposition": "verified_family",
+          "familyKey": "pinned-nondefault-intent-refresh-recovery",
+          "reason": "Recorded verification-run-and-guard B4 fails mechanical:false for pinned docs. Independent source inspection finds refresh explicitly accepts all immutable pins, but staleReexecCandidate rejects non-executable default types before execution. This explains the signed docs-versus-cli control evidence and differs from snapshot integrity. Unchanged-main fail-closed recovery bug; preserve exact pins, selector, timeout and failed/pinless demotion. This verified current configured-validation blocker stays with the Story Owner for bounded repair; completeness is not validation success."
+        },
+        {
+          "findingId": "B-212f:F-037",
+          "disposition": "verified_family",
+          "familyKey": "retired-lab-alias-smoke-expectation",
+          "reason": "Recorded cli-surface output is unmatched Lab create versus expected lab_create. Independent active alias-map and assertion inspection confirms the smoke demands retired Lab aliases absent from supported normalization. Unchanged-main stale test contract; retain positive parser coverage using supported commands and negative retired-alias controls, not runtime alias restoration. This verified current configured-validation blocker stays with the Story Owner for bounded repair; completeness is not validation success."
+        },
+        {
+          "findingId": "B-212f:F-038",
+          "disposition": "verified_family",
+          "familyKey": "canonical-timeout-fixture-filename",
+          "reason": "Recorded heartbeat output contains validate start/done with no named timeout. Independent setupTimeoutFixture writes lattice.config.json while active CONFIG_FILENAMES and config resolver accept only proof-or-stop.config.json. runCli removes inherited max and supplies its own pins, so outer timeout is not the root. This aligns with signed original/canonical filename main-head controls: intended command was not loaded. Unchanged-main fixture bug, separate from ambient filtering. This verified current configured-validation blocker stays with the Story Owner for bounded repair; completeness is not validation success."
+        },
+        {
+          "findingId": "B-212f:F-039",
+          "disposition": "verified_family",
+          "familyKey": "init-tamper-diagnostic-domain-drift",
+          "reason": "Read complete red-b8df9 output: all signature shape/discrimination controls and renderer M1 pass; only M2 fails rendersDomain=false and handwrittenList=true. Source machine mismatch message indeed restates a partial list instead of exported domain renderer, also present on main. Read complete red-b49 output: only attribution row fails naming that same child; it is a derivative failure, not another root. Preserve hashing and both guards; use the domain renderer in diagnostic. This verified current configured-validation blocker stays with the Story Owner for bounded repair; completeness is not validation success."
+        },
+        {
+          "findingId": "B-212f:F-040",
+          "disposition": "verified_family",
+          "familyKey": "canonical-process-fact-mutation-env-propagation",
+          "reason": "Recorded acceptance-basis smoke fails first mutation assertion with actual empty output. Independent source inspection confirms caller supplies PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION while read() consumes LATTICE_PROCESS_FACT_CONTRACT_MUTATION and only thrown child errors populate the assertion text. Main has same read mismatch. Signed bounded child controls show canonical status0 versus retired status1 with intended diagnostic, supporting a non-biting canonical mutation path, not timeout or missing module. Preserve adversarial proof and meaningful failure diagnostics. This verified current configured-validation blocker stays with the Story Owner for bounded repair; completeness is not validation success."
+        },
+        {
+          "findingId": "B-212f:F-041",
+          "disposition": "verified_family",
+          "familyKey": "validation-inventory-fixed-pin-maintenance",
+          "reason": "Independently recomputed current inventory count131 and digest e1b85f5c0ecd1cbdf95c62e442eeabe398ce44b5f55cf36c17d03f953f682e86 with no declared cwd and all normalized cwd dot. Recorded planner failure matches stale fixed511e1906 pin. Main/head config adds exactly three B-212f commands while pin remains unchanged: introduced maintenance omission. Follow existing fixed-pin maintenance policy; never derive expected dynamically or remove inventory rows. This verified current configured-validation blocker stays with the Story Owner for bounded repair; completeness is not validation success."
+        },
+        {
+          "findingId": "B-212f:F-042",
+          "disposition": "duplicate",
+          "familyKey": "canonical-timeout-fixture-filename",
+          "canonicalFindingId": "B-212f:F-038",
+          "reason": "Independently inspected the same retired fixture filename versus canonical-only config resolver and the recorded missing timeout diagnostic. F-042 explicitly corroborates F-038 source/runtime chain and needs the same filename-only repair, with no distinct cause or obligation. F-038 is live verified current-wave canonical; this one-step duplicate is acyclic and preserves the original observation and Story Owner repair responsibility."
+        }
+      ],
+      "createdAt": "2026-09-05T16:46:17.008Z",
+      "_hash": "1378f5ca9db3ac47688a148bddf2a34423f4edf5071a47dc46b833b33fd15e81"
     }
   ]
 }
