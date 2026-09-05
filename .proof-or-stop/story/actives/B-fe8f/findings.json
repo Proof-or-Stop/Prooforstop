@@ -764,6 +764,29 @@
       "_hash": "b30ef200d6522e9faa43b8c955decb757f1b8a87fce24e8f4a4809058bb9e2f9",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-036",
+      "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1513-1590,3599-3625 — CHK-002/CHK-006 missing coverage confirming the F-033 root: the combined/B-META fixtures append directly to finding-ledger.json and check lock compatibility, but never execute the live Finding mutators in packages/main/src/core/audit-meta-store.ts:165-204,460-526, packages/main/src/handlers/cluster.ts:75-147, packages/main/src/core/cluster-sync.ts:207-210, or packages/main/src/handlers/signature-backfill.ts:136-158. Those paths still write findings.json directly (including array-length B-META IDs and cluster/signature/status mutations), while Store projects same-ID ledger payloads over the mirror. Consequently the current 71/71 selector PASS and green.story3_matrix do not prove the Section 9.3/Story objective that every Finding-system mutation is durable and exactly-once. Add real command-level concurrent B-META allocation and read-after-write regressions for audit, cluster, cluster-sync and signature-backfill paths; current acceptance remains unproven. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T09:29:25.838Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-080",
+      "_hash": "48f2e7dd22aa820049498e57c59e4af6a0909f60fb9736a16083dfb3861ebe6b",
+      "files": [
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/handlers/cluster.ts",
+        "packages/main/src/core/cluster-sync.ts",
+        "packages/main/src/handlers/signature-backfill.ts",
+        "packages/main/src/core/store.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
