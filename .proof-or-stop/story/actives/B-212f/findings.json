@@ -1,0 +1,24 @@
+{
+  "findings": [
+    {
+      "id": "B-212f:F-001",
+      "desc": "scripts/verify-process-fact-contract.mjs:4972-5034 exact-mapping mutation false-green: collectLiteralDoneOracleRowIds accepts every literal id property anywhere in done-oracle.ts, and checkDonePreflightPredicateInventory verifies only that the declared row id exists, not that the row emits the mapped blocker code or consumes the corresponding predicate. Executing the exact checker functions in memory with future_done_predicate mapped to the unrelated existing test-evidence row and artifact:delivery-check.json returned errors:[]; therefore a future DONE predicate can be added, falsely mapped to an unrelated row, and the promised omission guard still passes while done_prepare remains divergent. This directly violates CHK-003 and can make lifecycle readiness evidence misleading; require the checker/mutation test to reject wrong-row mappings by proving code-to-row/predicate correspondence, not mere set membership.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T09:19:55.835Z",
+      "reviewRound": "2026-09-05T09:16:31.756Z",
+      "reviewRunId": "B-212f:RR-001",
+      "_hash": "2e9aace6d1cff21acfbdc16220fee2d68052c420fa7ad4a24f9e66517d59fc99",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "adversarial|mjs|scripts-verify-process",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
