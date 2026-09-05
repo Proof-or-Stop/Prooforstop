@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "dc0391f7895a2e35ac7b892918dcea5afb661ee33c2a1a7afa19ef0173375ba0",
+  "committedLedgerDigest": "7d41bf63dd0dba5049966484147a371c9eda513ffa9b5bf5b152e0a7deae6625",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -1392,6 +1392,34 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-03T17:56:06.918Z"
+    },
+    {
+      "recordId": "lr_mto948p3_1gng_b27d375a65154cd2bb324aed9a86bd89",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f-refresh-cross-selector-single-execution-v1",
+      "payload": {
+        "id": "B-fe8f:F-044",
+        "desc": "Current B-fe8f official verification_evidence_refresh_stale remains non-convergent after exact-key grouping: 58 Story intents use distinct selectors for the same expensive finding-ledger-runtime-smoke command, so the local CLI repeatedly executes the same process. The observed run exceeded 6m56s and had already restarted the full smoke; receipt files 8c817740... and a440c86e... were created minutes apart for the same command. Continuing would run the multi-minute command once per selector and block REVIEW/TEST/DONE. Preserve selector-specific match and signed receipt identities, but cache one raw command execution across identical executable/argv/cwd/timeout/material/environment/provenance and derive each selector result/receipt from that immutable raw output. Add a regression proving multiple distinct selectors cause one runner invocation and independent selector matches.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main-agent",
+        "createdAt": "2026-09-05T10:40:00.518Z",
+        "reviewRound": "2026-09-05T09:19:48.861Z",
+        "_hash": "7376acc32af6f66dbedef49bb5c6b5822d5a22ea63ee398c8e622c247378bb25",
+        "files": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "signatureTag": "adversarial.ts.verification-refresh-cross-selector-reexecution",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "fba8b4ec8a9ad5e9e4af61dfb5a9c2cbe85a14ae9a26cab302b2fe9f77a0746d",
+      "priorDigest": "dc0391f7895a2e35ac7b892918dcea5afb661ee33c2a1a7afa19ef0173375ba0",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T10:40:00.519Z"
     }
   ],
   "receipts": [
@@ -3575,6 +3603,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "a5833c71f549acc304bdb06eacd7e43823a758b04351bc5e6a30a2d397a91784",
         "signature": "MzzJ/yYwOWaGWdQInlNMmhFZJnWNVKS16oPaRS23szjMMUwsCMn7ge0kW0NCXqAHRo70bKeTiBHwj+cinBv5Cg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mto948p3_1gng_6913acfb50804f419f7d00551f897dfe",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f-refresh-cross-selector-single-execution-v1",
+      "requestDigest": "7a51ee7648e21e708f9be932b8d2c96611a15661d31625c873693ab33e65b78a",
+      "recordIds": [
+        "lr_mto948p3_1gng_b27d375a65154cd2bb324aed9a86bd89"
+      ],
+      "priorLedgerDigest": "dc0391f7895a2e35ac7b892918dcea5afb661ee33c2a1a7afa19ef0173375ba0",
+      "committedLedgerDigest": "7d41bf63dd0dba5049966484147a371c9eda513ffa9b5bf5b152e0a7deae6625",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "f794742f-4d86-48bf-a350-a0b019882cc1",
+      "committedAt": "2026-09-05T10:40:00.519Z",
+      "replayed": false,
+      "exactRequestDigest": "f527d781206daf3f4fb5522605b5d80399af0a9afc3b3666dedb14d21a318c1b",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mto948p3_1gng_6913acfb50804f419f7d00551f897dfe",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f-refresh-cross-selector-single-execution-v1",
+        "exactRequestDigest": "f527d781206daf3f4fb5522605b5d80399af0a9afc3b3666dedb14d21a318c1b",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mto948p3_1gng_b27d375a65154cd2bb324aed9a86bd89"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "dc0391f7895a2e35ac7b892918dcea5afb661ee33c2a1a7afa19ef0173375ba0",
+        "committedLedgerDigest": "7d41bf63dd0dba5049966484147a371c9eda513ffa9b5bf5b152e0a7deae6625",
+        "replayed": false,
+        "committedAt": "2026-09-05T10:40:00.519Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "f794742f-4d86-48bf-a350-a0b019882cc1",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "951a8ea6de4f1e0d23477c8cc551312f33a3930e59b74688c7b70918ab5a8c55",
+        "signature": "jmnkUwFfrDaHIgou8hbDcw4yhQNsAoz979/M8i/FmgwNwG+g3TKl+dP0JhKWN2oWhr7/zxy19GobhEfME5LrBQ=="
       }
     }
   ]

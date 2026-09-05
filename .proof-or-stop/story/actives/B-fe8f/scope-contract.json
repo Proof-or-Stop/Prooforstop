@@ -225,10 +225,86 @@
       "headHash": "16dd8f619c1fc85274338af3c5b381ea1f260e75",
       "materialHash": "e2c78a9f38dd24ee93d7f0ed82157f9ad417abc4e9c03ec2e78bd4a0dbe80016",
       "hunkDigest": "b4a751b0b17b599a3de40cdb241dcfd909810d4c1b4c9c0a212cd5b40d82c616"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Current REVIEW high blocker F-033 proves these four live Finding writers bypass the authoritative ledger and can lose B-META, cluster, status, or signature mutations on the next projection read; bounded changes are required by CHK-002 and Section 9.3 exactly-once durability.",
+      "timestamp": "2026-09-05T09:47:39.605Z",
+      "paths": [
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/handlers/cluster.ts",
+        "packages/main/src/core/cluster-sync.ts",
+        "packages/main/src/handlers/signature-backfill.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/handlers/cluster.ts",
+        "packages/main/src/core/cluster-sync.ts",
+        "packages/main/src/handlers/signature-backfill.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "b950a4e308b71a38bd8cb2b8896e3b89de768875",
+      "materialHash": "0d6a1ddb0f31339bb63e2c8fc52081671b73830520cbac57fff261e4085556b2",
+      "anchors": [
+        "finding.F033",
+        "finding.F036",
+        "finding.F039",
+        "section9_3.everyFindingMutation"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The accepted F-033 repair uses dependency injection rather than a forbidden core-to-handler dependency; these three existing handler entrypoints must pass the single authoritative Finding mutation adapter into audit, gap, and cluster-sync production writers, with no unrelated behavior changes.",
+      "timestamp": "2026-09-05T09:52:10.791Z",
+      "paths": [
+        "packages/main/src/handlers/audit.ts",
+        "packages/main/src/handlers/gap-log.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/audit.ts",
+        "packages/main/src/handlers/gap-log.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "b950a4e308b71a38bd8cb2b8896e3b89de768875",
+      "materialHash": "0d6a1ddb0f31339bb63e2c8fc52081671b73830520cbac57fff261e4085556b2",
+      "anchors": [
+        "finding.F033",
+        "finding.F039",
+        "authoritativeFindingMutation.adapter"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Current B-fe8f evidence refresh mechanically failed with causal_receipt_identity_mismatch because repeated stale rows for one verifier observed Git index stat-cache drift; these two paths are required to execute each initial executionKey group once and prove immutable stamp cloning without weakening identity checks.",
+      "timestamp": "2026-09-05T10:20:34.371Z",
+      "paths": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b",
+      "materialHash": "19c5a09fe21ae7284383dc6a7685261598988302ad8a0c3358a2d9462c8546f8",
+      "anchors": [
+        "causalReceipt.identityMismatch",
+        "verificationRefresh.executionKeyGrouping",
+        "story.B_fe8f"
+      ]
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-03T19:19:45.813Z",
+  "updatedAt": "2026-09-05T10:20:34.371Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -285,6 +361,15 @@
     "proof-or-stop.config.json": "proof-or-stop.config.json",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
     ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json": ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json",
-    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/core/audit-meta-store.ts": "packages/main/src/core/audit-meta-store.ts",
+    "packages/main/src/handlers/cluster.ts": "packages/main/src/handlers/cluster.ts",
+    "packages/main/src/core/cluster-sync.ts": "packages/main/src/core/cluster-sync.ts",
+    "packages/main/src/handlers/signature-backfill.ts": "packages/main/src/handlers/signature-backfill.ts",
+    "packages/main/src/handlers/audit.ts": "packages/main/src/handlers/audit.ts",
+    "packages/main/src/handlers/gap-log.ts": "packages/main/src/handlers/gap-log.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
   }
 }
