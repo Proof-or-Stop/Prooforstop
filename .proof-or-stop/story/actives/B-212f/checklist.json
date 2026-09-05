@@ -1034,7 +1034,7 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "in_progress",
       "startTime": "2026-09-05T17:09:47.986Z",
       "endTime": null,
       "verificationEvidence": [
@@ -1681,6 +1681,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implementer61ea99033b and08680744ba are preserved with final dependency repair31351f6c67. Owner real batches0993b46/6006220/9e7e150 verify all26 pins; dry-run freshness reports no stale evidence. Original parity/shared and strict E controls retained; formal131 validation pending."
+    },
+    {
+      "timestamp": "2026-09-05T17:40:50.149Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Resume acceptance of the preserved canonical implementer commit after its separately tracked verifier dependencies were repaired."
     }
   ]
 }
