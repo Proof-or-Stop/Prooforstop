@@ -971,6 +971,48 @@
       ],
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-042",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:729-786 — RI-001 wave-1 re-observation of root B-fe8f:F-035 on unchanged frozen Story material: non-applicable assessment proposal variants still validate the discriminant but not the variant payload shape, so the previously demonstrated signed pre_existing_unaffected proposal with baseHead:null remains accepted instead of failing closed. This is the same defect as F-035, not a new root. Severity: high.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T09:35:40.274Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-084",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/handlers/finding-ledger.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "13642c3ce0efabf98005144eda0c1a6a409e4267e842ff69109193dd111d818d",
+      "files": [
+        "packages/main/src/handlers/finding-ledger.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
