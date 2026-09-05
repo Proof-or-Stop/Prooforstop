@@ -345,9 +345,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T08:58:49.649Z",
-      "endTime": null,
+      "endTime": "2026-09-05T09:00:08.779Z",
       "userSeesSnapshot": {
         "normalizedClaimDigest": "52dbfce77407fe2644a500a5ded8c954504525ab65710a9ff4eaf69a24ed3d2a",
         "storyFilesHash": "4ae2fcae560bde8d30aa9607f58034f8500a0f90edb7818b4377b335a7f5365e",
@@ -717,6 +717,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Apply the scope-review-required narrow correction: remove the accidentally added normative defect-triage paragraph from the done_prepare decision document while preserving all parity/process-fact documentation and code."
+    },
+    {
+      "timestamp": "2026-09-05T09:00:08.779Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer commit 4ae0de6cdc removes the misplaced Finding-policy paragraph while preserving the DONE/preflight parity contract; process-fact verifier passed.",
+      "agent": "proof-or-stop-implementer"
     }
   ]
 }
