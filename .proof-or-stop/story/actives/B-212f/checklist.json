@@ -777,8 +777,64 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "pending",
       "startTime": "2026-09-05T16:59:18.671Z",
+      "endTime": null
+    },
+    {
+      "id": "CHK-006",
+      "title": "Repair the two follow-on canonical CLI blockers exposed by CHK-005",
+      "context": "F-050 and F-051 were exposed when commit61ea99033b let the existing verification and CLI smoke commands proceed beyond their original failures. The pinned manual/docs recovery assertions now pass, but guard fixtures use an unrecognized old script name. The real config doctor alias resolves to an unregistered command, independently reproduced by Owner. Both current acceptance blockers require this exact additional repair under the user's bounded-scope policy. Preserve CHK-005's original eight-family accounting and all existing rejection checks.",
+      "relatedDocs": [
+        "AGENTS.md#defect-triage-and-bounded-scope",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "The verification guard smoke and CLI surface smoke complete with their existing success summaries; nested config doctor and repair help resolve to registered canonical commands.",
+      "excludes": [
+        "Change production guard acceptance to recognize unsupported invocations.",
+        "Restore retired command registrations.",
+        "Remove nested alias or mismatch rejection tests.",
+        "Modify real project configuration when testing repair."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Real nested config aliases reach registered canonical commands while existing retired-alias negatives remain enforced.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+              "selector": "cli surface smoke passed"
+            }
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "Canonical CLI fixture invocations exercise pin-mismatch denial, valid matching commands and wrapper guard behavior without broadening production marker recognition.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
       "endTime": null
     }
   ],
@@ -1197,6 +1253,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Owner starts the exact eight-family repair assigned to the canonical independent implementer after RI-003 authorized remediation."
+    },
+    {
+      "timestamp": "2026-09-05T17:09:47.027Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "pending",
+      "reason": "Implementation61ea99033b is committed; full pinned verification is blocked by separately tracked F-050/F-051 and CHK-006. Keep one item in progress without claiming CHK-005 acceptance."
     }
   ]
 }
