@@ -138,6 +138,27 @@
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-process",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-212f:F-007",
+      "desc": "doc-promise-undelivered: scripts/verify-process-fact-contract.mjs:5013-5023 and 5135-5144 still admit two structural false greens after 1002a294. Exact in-memory execution of checkDonePreflightPredicateInventory returned no future_done_predicate errors when machine and oracle shared the same nearest Boolean(storyId) guard but were enclosed by opposite outer guards storyId.length > 0 versus === 0; findNearestBlockerBranch discards the rest of the control-flow path. It also returned no errors when the matching doneBlockerRow call sat inside rows.push but its result was discarded by a comma expression and the actually pushed row was doneCheckRow(pass); isEmittedThroughRowsPush checks only ancestry, not that the call result is the emitted row. Separately, the checker also returned errors:[] after changing readDevMemoryFinishDecision oracle arguments to process.cwd(), B-wrong, corroborating F-005 because call provenance at 5057-5084 ignores ordinary arguments. These bypasses contradict docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-173 claims for blocker-emitting branch, branch inversion, exact binding, and value origin. Require the full enclosing blocker path and direct emitted-value identity, plus same-callee/different-argument provenance coverage.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T10:07:01.819Z",
+      "reviewRound": "2026-09-05T10:01:39.984Z",
+      "reviewRunId": "B-212f:RR-011",
+      "_hash": "4857993798f4096b97f2edb03f2a3a37fbda915fc92f2b12369c48cdcfcb642f",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|mjs|promise-undelivered-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
