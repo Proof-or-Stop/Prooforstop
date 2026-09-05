@@ -26,7 +26,8 @@ import { runDoneRequiredValidation } from '../core/done-required-validation.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
-import { signReviewRun, collectReviewerEvidenceState } from '../core/review-run.js';
+import { signReviewRun, hashReviewPrompt, collectReviewerEvidenceState } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
 import { signReviewPass } from '../core/finding-verify.js';
 import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
@@ -164,9 +165,12 @@ async function createDoneReadyFixture(): Promise<{
   const lanes = ['quality', 'concept', 'test-coverage', 'behavior', 'docs'].map(lane => `proof-or-stop-review-${lane}`);
   store.writeReviewRuns(STORY_ID, { runs: lanes.map(lane => {
     const reviewRunId = `${STORY_ID}:${lane}`;
+    const promptHash = hashReviewPrompt(resolvePromptRoleBody(lane, {
+      version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { [lane]: 'legacy-full-context' },
+    }).body);
     return { reviewRunId, storyId: STORY_ID, agent: lane, lane, reviewRound: 'round-1', startedAt: NOW,
-      headHash, materialHash, storyFilesHash: storyFilesHash ?? undefined, promptHash: 'fixture', scopeBinding,
-      _hash: signReviewRun(STORY_ID, reviewRunId, lane, lane, 'round-1', NOW, headHash, materialHash, 'fixture', scopeBinding.bindingHash, undefined, storyFilesHash ?? undefined) };
+      headHash, materialHash, storyFilesHash: storyFilesHash ?? undefined, promptHash, scopeBinding,
+      _hash: signReviewRun(STORY_ID, reviewRunId, lane, lane, 'round-1', NOW, headHash, materialHash, promptHash, scopeBinding.bindingHash, undefined, storyFilesHash ?? undefined) };
   }) });
   store.writeReviewPasses(STORY_ID, { passes: lanes.map((lane, index) => {
     const id = `RP-${index}`; const reviewRunId = `${STORY_ID}:${lane}`; const note = 'Signed historical snapshot regression fixture';
