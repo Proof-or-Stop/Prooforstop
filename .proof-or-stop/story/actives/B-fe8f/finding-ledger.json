@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "23c6d622991f35573dac9ee527db16279d0c53c22ad1b03defd1f0f268186ea5",
+  "committedLedgerDigest": "b28167a4bf400b64a435ebafe5f9b4f43e5fbd89cd58b3075f220b31271af97a",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -1470,6 +1470,34 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T11:09:08.361Z"
+    },
+    {
+      "recordId": "lr_mtocq2c8_1i0w_286ff98e700142e8a2bee42d41afeece",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f-authoritative-reader-receipt-binding-20260905",
+      "payload": {
+        "id": "B-fe8f:F-047",
+        "desc": "Current-Story authoritative-reader receipt binding defect, found while closing F-033. core/store.ts readFindings consumes base Finding payload fields before authenticating their unique signed carrier and actual record-prefix digest; the pre-ad0 finding_projection reader likewise trusted a signed carrier without binding its bytes to the actual prefix. These fields can affect Finding status and lifecycle truth, so this is a CHK-002/CHK-006 acceptance blocker, not compatibility clustering debt. Actual isolated RED: test-only d69169e4d50065421a21bfdc0ba1ae9593bee7fe --projection-receipt-only exited1 with finding.projection_receipt_prefix: RED failures=8; fix ad0c1b79f928877e4e02fa624186d339d54cd2c2 made those cases GREEN. After that fix, the new --base-finding-authority-only regression against ad0 source exited1 with finding.base_receipt_authority: RED failures=20, covering state/shape/carrier inconsistencies under empty and falsely closed compatibility mirrors; production Store had not yet changed. Required closure: the bounded base/legacy-binding/projection/lifecycle reader unit must preserve authentic legacy and mixed-batch positives while rejecting inconsistent authority without silent row loss or untrusted mirror fallback. Implementation is in progress; neither the earlier 71/71 PASS nor the partial projection repair closes this whole Finding.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-05T12:20:57.557Z",
+        "reviewRound": "2026-09-05T10:56:02.507Z",
+        "_hash": "6c4bb762d8517850bf0e4928be865698c27aab042de38c44c63e117e1c663a67",
+        "files": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "signatureTag": "adversarial|ts|current-story-authoritative",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "22a2c788d047028c751b51cb92ca0f9745d2ecdfbf713f3a07a7f79c87961639",
+      "priorDigest": "23c6d622991f35573dac9ee527db16279d0c53c22ad1b03defd1f0f268186ea5",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T12:20:57.560Z"
     }
   ],
   "receipts": [
@@ -3782,6 +3810,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "8b27dad62764eb7f758b27f3c3ac26e95bdbe2717b3ef890c1a516c7d157e604",
         "signature": "G88cALdrS71A/7zyesMV6ksv+6aOVX4hDPla973gjV4FBYT2bEsmBFYbEWJiAoL6ck7uiwOof3rDeJwOT+9gBA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtocq2c9_1i0w_132dcfade52a4bcb9cec7ecb7a1499be",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f-authoritative-reader-receipt-binding-20260905",
+      "requestDigest": "c19644c0e3276e50aa0e9e92f915c6650d7f85cdd38f306663b67094712f08d5",
+      "recordIds": [
+        "lr_mtocq2c8_1i0w_286ff98e700142e8a2bee42d41afeece"
+      ],
+      "priorLedgerDigest": "23c6d622991f35573dac9ee527db16279d0c53c22ad1b03defd1f0f268186ea5",
+      "committedLedgerDigest": "b28167a4bf400b64a435ebafe5f9b4f43e5fbd89cd58b3075f220b31271af97a",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "f009bb07-3535-4625-9e9f-240abd303d12",
+      "committedAt": "2026-09-05T12:20:57.560Z",
+      "replayed": false,
+      "exactRequestDigest": "161bc49b272f38a798e0b42a7f5309663066fd4ebf6437a02c5239684cb47574",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtocq2c9_1i0w_132dcfade52a4bcb9cec7ecb7a1499be",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f-authoritative-reader-receipt-binding-20260905",
+        "exactRequestDigest": "161bc49b272f38a798e0b42a7f5309663066fd4ebf6437a02c5239684cb47574",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtocq2c8_1i0w_286ff98e700142e8a2bee42d41afeece"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "23c6d622991f35573dac9ee527db16279d0c53c22ad1b03defd1f0f268186ea5",
+        "committedLedgerDigest": "b28167a4bf400b64a435ebafe5f9b4f43e5fbd89cd58b3075f220b31271af97a",
+        "replayed": false,
+        "committedAt": "2026-09-05T12:20:57.560Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "f009bb07-3535-4625-9e9f-240abd303d12",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "c57026f09b5489851c252d26ae6b16708fb10cdbe6d1656b3964419d847ce817",
+        "signature": "RsP2JvOVs+m19aaFp7AYlyT5eo7DsibAU4asAxjrQnDNRmPH/v/rMwkAe6vANwVWEu0Mh+/mLGsIhCH8flarCg=="
       }
     }
   ]

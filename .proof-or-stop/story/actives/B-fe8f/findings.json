@@ -1175,6 +1175,26 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtoa5pc9_1zkr_a757a3a329d3490284762a7f886c95d2",
       "ledgerCommitReceiptId": "lrc_mtoa5pca_1zkr_9bd80aa8fdcd41638a38df358da496b6"
+    },
+    {
+      "id": "B-fe8f:F-047",
+      "desc": "Current-Story authoritative-reader receipt binding defect, found while closing F-033. core/store.ts readFindings consumes base Finding payload fields before authenticating their unique signed carrier and actual record-prefix digest; the pre-ad0 finding_projection reader likewise trusted a signed carrier without binding its bytes to the actual prefix. These fields can affect Finding status and lifecycle truth, so this is a CHK-002/CHK-006 acceptance blocker, not compatibility clustering debt. Actual isolated RED: test-only d69169e4d50065421a21bfdc0ba1ae9593bee7fe --projection-receipt-only exited1 with finding.projection_receipt_prefix: RED failures=8; fix ad0c1b79f928877e4e02fa624186d339d54cd2c2 made those cases GREEN. After that fix, the new --base-finding-authority-only regression against ad0 source exited1 with finding.base_receipt_authority: RED failures=20, covering state/shape/carrier inconsistencies under empty and falsely closed compatibility mirrors; production Store had not yet changed. Required closure: the bounded base/legacy-binding/projection/lifecycle reader unit must preserve authentic legacy and mixed-batch positives while rejecting inconsistent authority without silent row loss or untrusted mirror fallback. Implementation is in progress; neither the earlier 71/71 PASS nor the partial projection repair closes this whole Finding.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-05T12:20:57.557Z",
+      "reviewRound": "2026-09-05T10:56:02.507Z",
+      "_hash": "6c4bb762d8517850bf0e4928be865698c27aab042de38c44c63e117e1c663a67",
+      "files": [
+        "packages/main/src/core/store.ts",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+      ],
+      "signatureTag": "adversarial|ts|current-story-authoritative",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtocq2c8_1i0w_286ff98e700142e8a2bee42d41afeece",
+      "ledgerCommitReceiptId": "lrc_mtocq2c9_1i0w_132dcfade52a4bcb9cec7ecb7a1499be"
     }
   ]
 }
