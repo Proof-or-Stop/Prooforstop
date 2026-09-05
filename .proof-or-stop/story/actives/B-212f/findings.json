@@ -29,7 +29,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-168 promises that DONE/preflight parity is mechanically guarded, but scripts/verify-process-fact-contract.mjs:4972-5034 collects every literal id anywhere in done-oracle.ts and checks only row-id set membership. A future literal DONE blocker can therefore be mapped to an unrelated existing row/process fact and the verifier passes without done_prepare consuming that predicate; the in-memory test at 5062-5074 covers only an entirely unmapped code. This leaves the advertised future-divergence guard incomplete and can again make DONE readiness evidence misleading. Require a wrong-row/wrong-predicate mutation to fail by mechanically binding each blocker code to the corresponding oracle predicate/row behavior. Same root cause independently registered as B-212f:F-001.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-05T09:23:36.661Z",
@@ -43,7 +43,11 @@
         "packages/main/src/core/done-oracle.ts"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by proof-or-stop-implementer commit 2480d37f8b1cd4845c0bb79415cc68c9314c8dba. Executable mutations now prove an unrelated existing row and a row-local wrong predicate are both rejected; exact blocker-to-oracle correspondence is checked. Owner reran node scripts/verify-process-fact-contract.mjs and node packages/main/tests/red/red-done-prepare-done-parity.mjs successfully, then refreshed all pinned verification evidence.",
+      "resolvedAt": "2026-09-05T09:42:18.662Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
