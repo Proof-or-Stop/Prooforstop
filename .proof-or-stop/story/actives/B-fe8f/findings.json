@@ -1158,6 +1158,23 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtoa390g_obi_44b5f588d27e4e7ab0759da9d99b965e",
       "ledgerCommitReceiptId": "lrc_mtoa390h_obi_50197141b57a4955ab7cf20b43a79104"
+    },
+    {
+      "id": "B-fe8f:F-046",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:884-889 — dependencyBundle is exact-keyed to only the five always-required members, but docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1030-1032 explicitly permits canonicalIdentityDigest, currentCanonicalFinding, and supersessionChainTipDigest. A correctly re-signed applicable proposal containing canonicalIdentityDigest with a recomputed bundle digest returns proposal_exact_union_invalid on current HEAD. This rejects valid Story 2 identity/supersession-bound proposals at the shared verifier port and makes the implemented exact union narrower than the approved contract. Severity: medium.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T11:09:08.360Z",
+      "reviewRound": "2026-09-05T10:56:02.507Z",
+      "reviewRunId": "B-fe8f:RR-093",
+      "_hash": "dfaf7700493657e82d248963e763086f06cc7e83425010656a4c808cb59241d3",
+      "signatureTag": "edge|unknown|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoa5pc9_1zkr_a757a3a329d3490284762a7f886c95d2",
+      "ledgerCommitReceiptId": "lrc_mtoa5pca_1zkr_9bd80aa8fdcd41638a38df358da496b6"
     }
   ]
 }
