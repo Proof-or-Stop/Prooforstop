@@ -1,89 +1,89 @@
 {
   "storyId": "B-212f",
-  "checkedAt": "2026-09-05T08:41:06.919Z",
+  "checkedAt": "2026-09-05T08:56:19.694Z",
   "features": [
     {
-      "feature": "Commit and canonically register an executable RED/GREEN parity test that drives done_prepare and the real DONE guard on equivalent fixtures.",
+      "feature": "Commit and canonically register the executable done_prepare/DONE parity RED/GREEN test.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "done_prepare and done_closure consume the same finish-decision presence predicate as the real TEST-to-DONE transition.",
+      "feature": "done_prepare consumes the same finish-decision presence predicate and missing_dev_memory_finish_decision code as real DONE.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "A missing or malformed finish-decision record is surfaced by preflight as missing_dev_memory_finish_decision.",
+      "feature": "done_prepare consumes the same phase-agnostic reviewer verdict, including stale diffPackHash rejection and diff_pack_changed detail, as real DONE.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "done_prepare consumes the same phase-agnostic evaluateReviewVerdict result as DONE, including stale diffPackHash rejection.",
+      "feature": "Only review_evidence_invalid maps to stale_closeout_review and all other reviewer verdict codes are preserved.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "Only review_evidence_invalid maps to stale_closeout_review; every other reviewer verdict code remains unchanged.",
+      "feature": "DONE preflight inspection remains read-only and does not rewrite, refresh, re-sign, rebind, or manufacture reviewer evidence.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "Preflight inspection remains read-only and never refreshes, re-signs, rebinds, rewrites, or manufactures reviewer evidence.",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
-    },
-    {
-      "feature": "Mechanically inventory every literal DONE blocker code, bind it to an L4 process fact and done-oracle row, and mutation-prove that future unmapped predicates fail.",
+      "feature": "Every literal DONE blocker code is mapped to an L4 process fact and a done-oracle row, with an in-memory future predicate mutation proving omission fails.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "Defect triage keeps severity, applicability, disposition, and gate impact distinct; current repair and evidence-backed routing follow the bounded authority rules.",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:decisions/review-finding-triage-prompt-change-proposal.md"
-    },
-    {
-      "feature": "The closure runbook projects the same DONE oracle data, fails closed on inconsistent metadata, and never advances DONE or writes delivery/summary artifacts.",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:decisions/done-closure-runbook-assistant-execution-plan.md"
-    },
-    {
-      "feature": "The parity acceptance test proves reviewer-evidence bytes and git state are unchanged by done_prepare evaluation.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "Tool-owned verification evidence matches selectors against complete ANSI-stripped output beyond the presentation window while keeping the public result and persisted tail bounded and rejecting genuinely absent selectors.",
+      "feature": "Selectors beyond the 12000-character presentation window are matched and digested from complete private command output.",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Unrelated done_prepare redesign, gate relaxation, Authority/production claims, remote publication, and global-green cleanup remain outside this Story.",
+      "feature": "Public routine validation output and persisted outputTail remain bounded after the selector repair.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "A genuinely absent selector remains rejected and immutable evidence pins and shell-command restrictions remain unchanged.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "This Story does not define or amend Finding disposition policy.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Scope boundary and checklist exclusions prohibit unrelated lifecycle policy changes, evidence/gate weakening, remote publication, and global-green expansion.",
+      "excluded_by": "understanding.json line 16, plan.md line 33, and proofstory.json lines 76 and 94 explicitly exclude that deliverable.",
+      "source": "description"
+    },
+    {
+      "feature": "The changed done_prepare decision document adds normative rules deciding current-Story defect repair, routing, later reassessment, and what counts as a deferral record.",
+      "covered_by": null,
+      "status": "gap",
+      "excluded_by": null,
+      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
+    },
+    {
+      "feature": "Unrelated lifecycle-policy changes, gate weakening, global-green cleanup, and remote publication remain excluded.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Checklist exclusions and scope/execution boundaries prohibit unrelated policy changes, weakened gates, global-green expansion, and remote publication.",
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     }
   ],
@@ -94,6 +94,7 @@
       ".proof-or-stop/story/actives/B-212f/decision.json",
       ".proof-or-stop/story/actives/B-212f/execution-boundary.json",
       ".proof-or-stop/story/actives/B-212f/plan.md",
+      ".proof-or-stop/story/actives/B-212f/proofstory.json",
       ".proof-or-stop/story/actives/B-212f/scope-boundary.json",
       ".proof-or-stop/story/actives/B-212f/understanding.json",
       "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
@@ -247,13 +248,25 @@
   },
   "summary": {
     "total": 12,
-    "covered": 11,
-    "excluded": 1,
-    "gaps": 0,
+    "covered": 9,
+    "excluded": 2,
+    "gaps": 1,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-09-05T08:26:08.024Z",
-  "_hash": "fef95f25cdc3cebdb35ba9e8f5ff28db06b004c75ba6f2f37b0d3e2c5fba9003",
-  "openQuestions": []
+  "reviewRound": "2026-09-05T08:47:30.075Z",
+  "_hash": "74f4a30eafc42e448916a0a55122a8e8dda8098e8300741e788c43e8ea5b20ba",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "Should the new normative defect-triage paragraph be removed from the done_prepare decision document, or should the Story explicitly restore policy-amendment scope? Current PLAN and ProofStory explicitly exclude defining or amending Finding disposition policy.",
+      "evidence": "The changed decision document says: \"Defects found while maintaining this contract are triaged before scope changes\" and then prescribes current repair, routing, reassessment, and prose-deferral behavior, while plan.md says: \"This deliverable does not define or amend Finding disposition policy.\"",
+      "sourcePointers": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md:173",
+        ".proof-or-stop/story/actives/B-212f/plan.md:33",
+        ".proof-or-stop/story/actives/B-212f/understanding.json:16",
+        ".proof-or-stop/story/actives/B-212f/proofstory.json:76"
+      ]
+    }
+  ]
 }

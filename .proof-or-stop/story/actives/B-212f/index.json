@@ -4,7 +4,7 @@
   "title": "Make done_prepare enforce the real DONE finish-decision and reviewer-verdict predicates",
   "description": "Fix the confirmed B-aa5f done_prepare/DONE parity defect. Commit the executable RED proving that real DONE rejects a missing dev_memory_finish_decision and a stale reviewer scopeBinding.diffPackHash while the original done_prepare omitted both results; then make the unchanged test GREEN with matching missing_dev_memory_finish_decision and stale_closeout_review codes. Add the process-fact omission guard and the bounded selector-window evidence repair needed to keep this Story's own mechanical verification executable. This Story does not amend the Dynamic Finding System execution plan or its lifecycle gate predicates.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "PLAN",
   "priority": "high",
   "riskSignals": [
     {
@@ -177,6 +177,24 @@
       "phase": "INIT",
       "action": "advance",
       "timestamp": "2026-09-05T08:51:32.705Z",
+      "branch": "story/B-212f",
+      "user": "Harmonynet",
+      "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-05T08:53:02.193Z",
+      "branch": "story/B-212f",
+      "user": "Harmonynet",
+      "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-05T08:53:08.839Z",
       "branch": "story/B-212f",
       "user": "Harmonynet",
       "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
