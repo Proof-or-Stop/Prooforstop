@@ -225,7 +225,7 @@
       "reviewRound": "2026-09-05T14:39:40.791Z",
       "state": "OPEN",
       "begunAt": "2026-09-05T15:04:04.962Z",
-      "updatedAt": "2026-09-05T15:04:04.962Z",
+      "updatedAt": "2026-09-05T15:18:19.633Z",
       "cutoff": {
         "headHash": "51dcfde1434bf944f0cfd25fbe1d7cbb635d57ba",
         "materialHash": "61fc533166bc8232903a987717e4934f8f40bc9d57104e4ae91e69c5aa61df19",
@@ -242,11 +242,71 @@
       ],
       "initialRunSequenceBoundary": 35,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-05T15:04:04.962Z",
+          "completedAt": "2026-09-05T15:18:19.633Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-212f:RR-036",
+              "terminal": "pass",
+              "hostIdentity": "88b95bdae67a970f5f90f8e650b216d826ae6b8bb00d1c2ada8aa1a71070cb93",
+              "promptIdentity": "858d6e18ef2b4e1a844534249ea8b19bfad47624f9257fbe21019ef6af98da24",
+              "evidenceIds": [
+                "B-212f:RP-007"
+              ],
+              "coverageDigest": "0ebc50468f713eed83be1bd048890b394e06d231aa28be4e77fb342e94bb71ff"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-212f:RR-037",
+              "terminal": "finding",
+              "hostIdentity": "88b95bdae67a970f5f90f8e650b216d826ae6b8bb00d1c2ada8aa1a71070cb93",
+              "promptIdentity": "c2e037bf5cee60b893bd97e34390c9eab1f6764f2ef3d711ae30f11ba5ad7185",
+              "evidenceIds": [
+                "B-212f:F-028"
+              ],
+              "coverageDigest": "36458bdb8327fd1fa5bdca9b7de5146e067c9867e7fba200402596c55180b444"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-212f:RR-038",
+              "terminal": "finding",
+              "hostIdentity": "54aa7f9d72dd75041df9bbb3fc3a1eb50bc49829e4bb5df7434980f42d5e0ac1",
+              "promptIdentity": "9265cb0c61fce33a1d74aea9fe37cd62b07269f69e30ab2302df7c41c909916e",
+              "evidenceIds": [
+                "B-212f:F-029"
+              ],
+              "coverageDigest": "5f3c99233f10d25fe9f941070bb39c6b17bfc38828121a8ec04cc67711382a97"
+            },
+            {
+              "lane": "proof-or-stop-review-docs",
+              "reviewRunId": "B-212f:RR-039",
+              "terminal": "pass",
+              "hostIdentity": "54aa7f9d72dd75041df9bbb3fc3a1eb50bc49829e4bb5df7434980f42d5e0ac1",
+              "promptIdentity": "b0f31861bc0adb5c606ad25a18e09d275c5de2955a4540ee9f449ca8ff97013b",
+              "evidenceIds": [
+                "B-212f:RP-008"
+              ],
+              "coverageDigest": "be3256a1ff93f94ce4b822ff612aff5fffd5637b85c1a824367acbe62d5fb476"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "optional-envelope-field-preservation"
+          ],
+          "verifiedFindingSetDigest": "dff0053aa38edd5ccb110d591fd96340e8eef788ab5bffaae9353ccd9105e420",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "e8e1ec073c6856bbfbd057b8b79e9aeaf5b2c8869001746fecd9f0f1cb4ddeda",
+          "saturated": false,
+          "nextRunSequenceBoundary": 40
+        }
+      ],
       "baselineFindingIds": [
         "B-212f:F-027"
       ],
-      "_hash": "69d432bb225d61b438090359ed96466489ad6c78534b23d425adeb6b177853a5"
+      "_hash": "dc616058b3c4317328b3b1534de32df3cbe1d568d09a23506ec710be94fa9e73"
     }
   ],
   "receipts": [
@@ -451,6 +511,51 @@
       ],
       "createdAt": "2026-09-05T12:44:42.343Z",
       "_hash": "2755fed03ae5428a31931c4fc3b481fa0ff75afb216d4433792505026343575e"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-212f:RI-002:CRIT-01",
+      "epochId": "B-212f:RI-002",
+      "storyId": "B-212f",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "51dcfde1434bf944f0cfd25fbe1d7cbb635d57ba",
+        "materialHash": "61fc533166bc8232903a987717e4934f8f40bc9d57104e4ae91e69c5aa61df19",
+        "storyFilesHash": "163103f71effb594cf8f5872a1b1f267e2dc41306a670f2100d14765cb31f564"
+      },
+      "aggregateFindingSetDigest": "dff0053aa38edd5ccb110d591fd96340e8eef788ab5bffaae9353ccd9105e420",
+      "requiredLaneCoverageDigest": "e80ce61fb3212d7dd9fb1f3fd5b08fdc312c40bb469e05b78a2c9eac5e9b48a1",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-212f:RR-040",
+      "terminalEvidenceIds": [
+        "B-212f:F-030"
+      ],
+      "readEvidenceDigest": "46ddbf58e679e6c4a06eeabac4bbdcce0b2a1c43df6f83616c97d142e2d1b412",
+      "findingDispositions": [
+        {
+          "findingId": "B-212f:F-027",
+          "disposition": "verified_family",
+          "familyKey": "optional-envelope-field-preservation",
+          "reason": "Independently reproduced RR-034 raw-envelope verification ok:true versus snapshot verification false with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch. snapshotPromptEnvelopes injects own undefined optional properties, canonical JSON integrity rejects them, and prior-pass lookup omits an otherwise authentic legacy pass. F-027 is the signed eligible baseline and canonical original for this live current-gate false rejection. Source predates this Story but gate truth requires bounded repair; no historical replay scope expansion. This epoch has no prior family-bearing wave, so this family is new to RI-002 wave 1."
+        },
+        {
+          "findingId": "B-212f:F-028",
+          "disposition": "duplicate",
+          "familyKey": "optional-envelope-field-preservation",
+          "canonicalFindingId": "B-212f:F-027",
+          "reason": "Read the signed quality observation and independently reproduced its exact raw-versus-snapshot failure. It shares F-027's helper, optional-property-presence corruption, canonical-integrity rejection, and lost prior-pass consequence, with no distinct root or repair. Preserve F-027 as canonical and retain this corroborating observation."
+        },
+        {
+          "findingId": "B-212f:F-029",
+          "disposition": "duplicate",
+          "familyKey": "optional-envelope-field-preservation",
+          "canonicalFindingId": "B-212f:F-027",
+          "reason": "Read the signed coverage observation and independently checked the helper/integrity/prior-pass chain and RR-034 witness. Missing optional-own-key/integrity/prior-pass-selection regression coverage concerns the same F-027 root and bounded repair, not another defect family. Explicit invalid values must remain invalid, with clone isolation covered. Preserve this lane evidence as a duplicate of the eligible canonical F-027."
+        }
+      ],
+      "createdAt": "2026-09-05T15:17:42.001Z",
+      "_hash": "e0b0468339618405aaae73b60517ac4bae1fd4b18cadd2795ff88a9d44b04d06"
     }
   ]
 }

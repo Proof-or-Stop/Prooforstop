@@ -424,6 +424,50 @@
       },
       "readDiagnostics": [],
       "_hash": "e535fe052bf318d741a963c42df6ddbc656e6f063b2e59ff2456d3758f1e3f8e"
+    },
+    {
+      "id": "B-212f:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-002 wave 2 final discovery-wave concept terminal: no additional concept-lane defect or promised-but-undelivered change. Fresh git diff 891c81b..HEAD is empty across guides, docs, source, scripts, config and Story background/plan/checklist/decision, preserving RR-032/RR-036 full-read basis; canonical incremental selection binds prior RP-007 with no changed files. Inspected fresh canonical finding deltas F-028/F-029/F-030: each corroborates F-027 optional-envelope-field-preservation and none claims a separate root. Fresh source at review-run.ts:151-175 still materializes absent optional fields as own undefined; previously read canonical serializer and prior-pass selector explain the existing integrity/eligibility disagreement. F-027 and its corroborations remain unresolved current gate-truth repair work for the Owner; no superseding pass, current-gate acceptance, implementation repair, historical reviewer replay, or product completion is asserted. Concept residue and changed-document claims retain the prior assessment. No broad rescan or unrelated tests rerun. This signed terminal covers inventory discovery only.",
+      "createdAt": "2026-09-05T15:20:59.424Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-042",
+      "envelopeId": "37a4293b1aa8c85fc51659cff8477699ca455a7368e60d695bf0d3216a714375",
+      "writerSessionId": "sess-30ca165d3df921e631ee7421e9be9256",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "9a0c8a24e0827df349ea9bc5b85401da904453d303b5a562a1fddec0428fcdbc"
     }
   ]
 }
