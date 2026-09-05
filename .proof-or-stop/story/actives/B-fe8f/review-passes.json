@@ -2420,6 +2420,56 @@
       },
       "readDiagnostics": [],
       "_hash": "ccae62d2e071492eae5627fc1cc82e321ffa4aa9715967cef6d7253726d9c96e"
+    },
+    {
+      "id": "B-fe8f:RP-065",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent Claude CLI host quality lane, round 27, RR-111 at head e057a28 / storyFilesHash acfc9f8. LANE CONCLUSION ONLY: not standard validation, not DONE, no clearance for other lanes, no quorum. Three bounded passes. PASS 1 repair and ledger: git diff edda7b58..HEAD touches exactly four files, so all ledger source (core/store.ts, core/finding-ledger.ts, handlers/finding-ledger.ts, tasks/finding-ledger-runtime-smoke.ts, tests/red) is byte-identical to the tree I reviewed and passed at RR-103/RP-058, and that Store reader conclusion carries forward unchanged. The four repairs are correct: english-early-check-smoke repositoryRoot now resolves three levels above packageRoot, which is right because packageRoot is packages/main/dist as confirmed by cliPath joining cli.js there; validate-progress-heartbeat-smoke writes the canonical proof-or-stop.config.json so the intended hanging command is actually configured; done-required-validation-smoke now asserts retired ambient spellings remain semantic while canonical spellings stay session-neutral, matching F-050 without restoring aliases or weakening the digest assertion; alias-normalizer adds the six documented lab nested aliases and repoints config doctor/repair to the registered proof_or_stop ids. I verified those eight alias targets resolve to real registered commands in command-catalog.ts and command-policy.ts. I initially suspected the two config renames were scope creep beyond F-053, then read F-054 and withdrew that: config doctor was exiting 1 with Unknown command against a retired handler id while docs/CLI.md promises it, so the rename is a bounded repair of a broken documented promise, correctly registered as its own finding. PASS 2 test and receipt closure: F-050 through F-054 are all status resolved, evidenceState verified, resolutionType fixed, resolveEvidenceStrength strong. I independently confirmed with git that 46a37452ef07 is an ancestor of HEAD and that git diff 46a3745..HEAD over packages, scripts, bin and config is EMPTY, so the official 71/71 refresh bound to that commit is bound to the current source rather than a superseded tree. I executed no test and no build; I consumed recorded evidence only, and F-054's own resolution correctly disclaims that this proves bounded repair rather than full standard validation, host quorum or DONE. PASS 3 compatibility and trust: the alias work restores documented CLI compatibility for the six lab commands and config doctor/repair. Trust reasoning is unchanged because core/finding-ledger.ts is byte-identical, so its declared registry git-common-dir-current-key with rotation replacement-invalidates-prior-current-key still stands together with the execution plan section 9.3 and section 6 local-filesystem writer and fault model; F-048 therefore remains a declared different-trust-root case rather than a current-Story blocker, key-loss must stay fail-closed because a trustless fallback would reintroduce the repaired F-047 defect, and the traceable route remains docs/story/drafts/keyed-ledgers-survive-reclone. Outcome: no blocking defect from this lane at this material. Open and unresolved, none of which I resolved or dismissed: F-048 high suspected, F-049 low suspected, and F-055 low suspected filed this round against done-required-validation-smoke.ts:381 for an unexplained retired-token concatenation that is a readability and residue-visibility concern only, with the assertion logic itself correct. Operational note: the globally installed proof-or-stop binary remains a stale pre-B-fe8f build reporting phantom untrusted closeout artifact path finding-ledger.json blockers that the local build at this same source does not; use the local build. Session identity for later host quorum: sess-6caebb34c1ed02b54e92ef4f13d647ac, host-adapter provider claude-code, non-owner independent reviewer.",
+      "createdAt": "2026-09-05T15:05:57.588Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "reviewRunId": "B-fe8f:RR-111",
+      "envelopeId": "213362e3666564d20f75ee06cae9ab10e50f944911a005823b94ae272acdd8bd",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "84691410d08882b6cff4cbd668710b982f064c2a84cf8099a96ae2b01fae9fe8"
     }
   ]
 }
