@@ -1001,7 +1001,7 @@
       "desc": "Coverage corroboration of canonical B-212f:F-018 in the same done-eager-invalid-delivery-promises family, not a new root cause. packages/main/tests/red/red-done-shared-predicates.mjs:185-187 marks delivery tampered/stale only by changing reader ok/code while retaining the valid fixture deliveryCheck.docsPromises array; the early-failure assertion tests only canFinishGuard. Consequently the passing shared-consumer proof omits eager-oracle traversal of actually malformed rejected delivery content, despite the decision preMortem requiring safe incomplete-artifact handling. Fresh real-filesystem command node /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs deletes docsPromises only in the synthetic signed fixture record: current guard prints delivery_check_tampered, but current oracle throws Cannot read properties of undefined (reading filter), stack evaluateDonePredicates -> buildDoneChecklist -> buildDoneClosureRunbook, exit 1. The same fixture with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist instead prints MALFORMED_DELIVERY_ORACLE with delivery-check fail/blocking and delivery-check.json._hash source; its original parity assertions are intentionally inapplicable after inserting this earlier blocker and are not used as the witness. This directly leaves diagnostic parity and safe invalid-input behavior unproven. F-018 owns the implementation and bounded regression repair: cover missing/null/non-array docsPromises and malformed elements after rejected integrity, preserving the structured blocker and active DONE rejection. Preserve this as signed duplicate coverage corroboration of F-018.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-05T12:41:12.146Z",
@@ -1042,7 +1042,11 @@
         "packages/main/src/core/done-oracle.ts"
       ],
       "signatureTag": "done-eager-invalid-delivery-promises",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 8168160d51: shared evaluator only traverses delivery docsPromises after deliveryCheckFreshness.ok, retaining structured tamper/stale rejection and treating rejected raw contents as opaque. Frozen shared-predicate tests at 982a3d1c12 reproduce undefined.filter on immutable 5d0abf0 and pass on the final implementation, including malformed content while active DONE remains blocked. Final shared predicate, original parity, process contract, post-DONE snapshot and flow stability commands all passed; tool-owned verification receipts were refreshed on the final material. No topology acceptance certification is claimed.",
+      "resolvedAt": "2026-09-05T14:40:48.264Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-026",
