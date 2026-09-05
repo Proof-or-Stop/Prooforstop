@@ -454,6 +454,30 @@
             "timeoutMs": 270000
           },
           "timestamp": "2026-09-05T10:01:18.991Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-shared-predicates.mjs",
+          "result": "pass",
+          "note": "Committed shared evaluator proof executes production consumers, future predicate propagation, finite input adapters and runtime false-pass mutations; baseline53c237 reproduces F-005/F-006/F-007 bypasses and current5d0abf0 is GREEN with unchanged test e61291fd92.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "384adcf7e233f766fa3ca276eec1da954f78be97d7ed4a3042731b98c52b4746",
+            "outputTail": "GREEN shared DONE predicates: 15 production-consumer fixture cases\nGREEN shared DONE predicates: lazy first failure and legacy diagnostic precedence\nGREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row\nGREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected\nGREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure\nShared DONE predicate parity passed\n",
+            "selectorMatched": true,
+            "selector": "Shared DONE predicate parity passed",
+            "executedAt": "2026-09-05T11:53:50.337Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:cb6db025b774571c1956160b788d9ba71251777c9f81ae588f19fe8acf6e7aef",
+            "causalReceiptHash": "77876f3fbc076606edf4281262c0729b3b97442edea36405cc2c436e90a5f1c2",
+            "commandReruns": 0
+          },
+          "headHash": "5d0abf0edda6c3128da953c932223ec28e4310ac",
+          "materialHash": "d063051d78733c30a7e36459ba810649f25dcfee5448f056ae636a9a0d194c01",
+          "storyFilesHash": "48b2d628f246546cae43aa4d36b9d8bb4a0706ab5fada0e2c2d3705baf7065e2",
+          "timestamp": "2026-09-05T11:53:50.906Z"
         }
       ]
     },
