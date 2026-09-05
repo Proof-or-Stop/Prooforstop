@@ -360,9 +360,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T11:28:49.377Z",
-      "endTime": null,
+      "endTime": "2026-09-05T11:53:53.460Z",
       "userSeesSnapshot": {
         "normalizedClaimDigest": "52dbfce77407fe2644a500a5ded8c954504525ab65710a9ff4eaf69a24ed3d2a",
         "storyFilesHash": "4ae2fcae560bde8d30aa9607f58034f8500a0f90edb7818b4377b335a7f5365e",
@@ -992,6 +992,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Implement approved shared evaluator and executable mutation proof after local main sync.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:53:53.460Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 5d0abf0edda6c3128da953c932223ec28e4310ac. Shared evaluator replaces disproven parser; final frozen test e61291fd92 passes, original parity remains unchanged, build/process-fact/flow smoke pass.",
       "agent": "proof-or-stop-implementer"
     }
   ]
