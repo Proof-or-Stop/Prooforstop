@@ -103,7 +103,7 @@
       "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:167-173 promises value-provenance equality and rejection of a different origin, but scripts/verify-process-fact-contract.mjs:5057-5084 summarizes a call only as its callee name/base and ignores ordinary arguments. Independent in-memory execution added machine blocker future_provenance_predicate guarded by readDevMemoryFinishDecision(..., storyId) and the exact mapped oracle doneBlockerRow guarded by readDevMemoryFinishDecision(root, B-wrong-story); the production verifier exited 0 and printed DONE/preflight predicate inventory parity passed and Process-fact contract verification passed. The inverse-polarity mutation now correctly fails, but same-reader/different-target provenance remains false-green, so F-003/F-004 closure and the decision-doc promise are incomplete. Bind semantically relevant call arguments (especially storyId/root inputs) or use an explicit source-owned predicate identity, and add this same-callee/different-argument mutation as a required failure.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-05T10:04:04.015Z",
@@ -116,7 +116,11 @@
         "packages/main/src/core/process-fact-registry.ts"
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by independent implementer commit5d0abf0edda6c3128da953c932223ec28e4310ac. The disproven source-semantic parser is removed; DONE guard, diagnostic and final oracle projection share evaluateDonePredicates. Owner replayed exact legacy checker against wrong root/story, opposite outer paths and discarded blocker values at baseline53c237: errors=[] and proof exit1. Unchanged final test e61291fd92 on implementation exits0 with Shared DONE predicate parity passed; it executes current consumers, injected future predicate, false-pass mutants and multiple same-row failure reasons. Original filesystem parity test remains unchanged and exits0; process-fact and flow smoke pass. Fourteen tool-owned intent receipts are current. Independent current-round review is still required to verify this closure.",
+      "resolvedAt": "2026-09-05T12:06:15.416Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-006",
