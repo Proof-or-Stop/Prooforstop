@@ -197,8 +197,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T11:28:45.898Z",
       "endTime": null,
       "userSeesSnapshot": {
         "normalizedClaimDigest": "106bcf0c684825c7ede14e868a905a057a8c002631f4f5ae40b5867b9be45de1",
@@ -938,6 +938,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Retain verified implementer commit 414e02135b; shared evaluator refinement is tracked by CHK-003.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:28:45.898Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Retain verified implementer commit 7e18814556; shared evaluator refinement is tracked by CHK-003.",
       "agent": "proof-or-stop-implementer"
     }
   ]
