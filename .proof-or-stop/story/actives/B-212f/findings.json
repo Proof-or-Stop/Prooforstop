@@ -700,7 +700,7 @@
       "desc": "RI-001 wave 2 independent completeness critic corroborates canonical F-018; this critic terminal adds no separate family. Fresh source read machine.ts:1006-1016 confirms delivery-integrity yields delivery_check_tampered before deliveryCheck.docsPromises.filter, and done-oracle.ts exhausts that generator. I inspected and independently executed /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs against current and main dist. Current marked output reports guard delivery_check_tampered then MALFORMED_DELIVERY_ORACLE_THROW Cannot read properties of undefined (reading filter); main gives MALFORMED_DELIVERY_ORACLE delivery-check fail/blocking with delivery-check.json._hash. Both command exit codes are 1 for different expected witness reasons: current throws, while main retains original now-inapplicable parity assertions; marked row evidence establishes the regression, not exit status alone. This is a distinct dependency-validation defect from historical snapshot overlay: active TEST malformed delivery triggers it without completedSnapshot. Preserve F-018 as canonical and repair untrusted promise access without accepting invalid evidence. Prior full bounded document/test reads remain applicable: git diff e8feacc633..a79f8c1347 is empty across those exact files and scoped material. Wave 2 raw required-lane findings and their read manifests/logs were inspected. Topology remains unsupported observe/inconclusive, separately receipted request_changes; no acceptance PASS, implementation edit, dismissal, or lifecycle change.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-09-05T12:35:23.254Z",
@@ -740,7 +740,11 @@
         "packages/main/tests/red/red-done-shared-predicates.mjs"
       ],
       "signatureTag": "adversarial|ts|wave-independent-completeness",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 8168160d51: shared evaluator only traverses delivery docsPromises after deliveryCheckFreshness.ok, retaining structured tamper/stale rejection and treating rejected raw contents as opaque. Frozen shared-predicate tests at 982a3d1c12 reproduce undefined.filter on immutable 5d0abf0 and pass on the final implementation, including malformed content while active DONE remains blocked. Final shared predicate, original parity, process contract, post-DONE snapshot and flow stability commands all passed; tool-owned verification receipts were refreshed on the final material. No topology acceptance certification is claimed.",
+      "resolvedAt": "2026-09-05T14:40:45.705Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-020",
