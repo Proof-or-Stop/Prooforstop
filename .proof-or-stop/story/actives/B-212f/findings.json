@@ -127,7 +127,7 @@
       "desc": "scripts/verify-process-fact-contract.mjs:5057-5084 provenance mutation still false-greens: summarizeValueProvenance serializes an ordinary CallExpression as only call:<callee> and omits its arguments. I executed the production checkDonePreflightPredicateInventory functions in memory with machine provenance readDevMemoryFinishDecision(rootA, storyId) and oracle provenance readDevMemoryFinishDecision(rootB, storyId), while keeping the same future_done_predicate code, exact test-evidence row, polarity, and L4 gate-evidence mapping; the checker returned errors:[]. Thus a DONE predicate and done_prepare row can read different roots/inputs yet the verifier accepts them, contradicting docs/requirements/decisions/done-prepare-automation-execution-plan.md:167-173 that different origin cannot satisfy the contract. The committed provenance mutation at scripts/verify-process-fact-contract.mjs:5400-5408 only changes the callee shape (parameter storyId versus String(finishDecision)), so it does not kill same-callee/different-argument provenance drift. This directly leaves F-004 closure incomplete and can make DONE/preflight parity evidence misleading; require call-argument provenance normalization and an executable same-callee/different-root-or-storyId mutation that must fail.",
       "severity": "critical",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-05T10:06:50.013Z",
@@ -141,7 +141,11 @@
         "packages/main/src/core/machine.ts"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-process",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by independent implementer commit5d0abf0edda6c3128da953c932223ec28e4310ac. The disproven source-semantic parser is removed; DONE guard, diagnostic and final oracle projection share evaluateDonePredicates. Owner replayed exact legacy checker against wrong root/story, opposite outer paths and discarded blocker values at baseline53c237: errors=[] and proof exit1. Unchanged final test e61291fd92 on implementation exits0 with Shared DONE predicate parity passed; it executes current consumers, injected future predicate, false-pass mutants and multiple same-row failure reasons. Original filesystem parity test remains unchanged and exits0; process-fact and flow smoke pass. Fourteen tool-owned intent receipts are current. Independent current-round review is still required to verify this closure.",
+      "resolvedAt": "2026-09-05T12:06:16.869Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-007",
