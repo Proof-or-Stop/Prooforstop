@@ -890,8 +890,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T17:24:25.756Z",
       "endTime": null
     }
   ],
@@ -1337,6 +1337,15 @@
       "from": "in_progress",
       "to": "pending",
       "reason": "Repair08680744ba is committed and CLI verifier passes; complete guard verification remains blocked by F-052/F-053, assigned separately to CHK-007."
+    },
+    {
+      "timestamp": "2026-09-05T17:24:25.756Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Owner authorizes exact F-052/F-053 repair preserving the existing strict refresh contract and unchanged runtime rejection tests."
     }
   ]
 }
