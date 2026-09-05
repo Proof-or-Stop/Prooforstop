@@ -74,10 +74,24 @@
       "milestoneIds": [],
       "acceptanceClaim": "Registry, verifier, flow-stability coverage, and decision documentation mechanically prevent current or future machine-coded DONE predicates from being absent from the preflight oracle.",
       "note": "Covers the two-layer process-fact contract, generic omission mutation proof, and bounded defect triage."
+    },
+    {
+      "id": "AB-EVIDENCE-SELECTOR",
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:edge:0",
+        "CHK-004:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "Tool-executed evidence matches and digests complete private command output while keeping public validation output and persisted outputTail bounded, so selectors beyond the presentation window no longer block required Story evidence.",
+      "note": "Bounded current-Story repair for reproduced BUG-001, which directly blocked B-212f lifecycle evidence."
     }
   ],
   "diagnosticGaps": [],
-  "note": "Independent scope review OQ-1/OQ-2 are answered by explicit read-only fixture checks and a generic machine-DONE-code to oracle-row inventory with mutation proof.",
+  "note": "Independent scope and intent review bind all four checklist items: the original DONE/preflight parity repair plus CHK-004, whose reproduced selector-window defect directly blocked this Story's tool-owned acceptance evidence.",
   "createdAt": "2026-09-04T20:34:25.284Z",
-  "updatedAt": "2026-09-04T20:49:55.898Z"
+  "updatedAt": "2026-09-05T08:40:28.196Z"
 }
