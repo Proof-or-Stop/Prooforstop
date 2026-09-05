@@ -1374,7 +1374,7 @@
       "desc": "Current standard-validation blocker inherited from main. Independent default-environment node packages/main/dist/tasks/english-early-check-smoke.js passed its earlier CLI/CJK cases, then exited 1 with ENOENT reading packages/AGENTS.md (dist line316). packageRoot is actually packages/main/dist and the two-level parent calculation reaches packages instead of the repository root. This test blob equals main and the failure does not traverse the Finding authority reader. Required bounded repair: derive the correct repository root for the guide assertion without weakening English-artifact coverage or editing the guide to satisfy a wrong path. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T13:21:46.306Z",
@@ -1386,7 +1386,11 @@
       "signatureTag": "edge|ts|current-standard-validation",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoew9qc_15mc_0a04bee3b6cb43edb6a931776b4e33de",
-      "ledgerCommitReceiptId": "lrc_mtoew9qc_15mc_67eafbb02c9648a4891a0c0a571e57da"
+      "ledgerCommitReceiptId": "lrc_mtoew9qc_15mc_67eafbb02c9648a4891a0c0a571e57da",
+      "resolvedAt": "2026-09-05T14:54:07.835Z",
+      "resolvedReason": "Fixed in 46a37452ef07f7d87caa18e41462bf74e81f2d71. The compiled task resolves guidance three parents above packages/main/dist. english-early-check-smoke passed with guidance and language assertions preserved. Build and diff check passed. Official stale evidence refresh completed71/71 against that source in342.5seconds (metadata bc342c8). This proves bounded repair, not full standard validation, host quorum or DONE.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-053",
