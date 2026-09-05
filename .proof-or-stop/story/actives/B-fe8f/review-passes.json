@@ -2087,6 +2087,52 @@
       },
       "readDiagnostics": [],
       "_hash": "91c721bbc46f311b9f690c8a13d7309b312f760e5b190b1284330a107af6e572"
+    },
+    {
+      "id": "B-fe8f:RP-058",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent Claude CLI host quality lane, RR-103. LANE CONCLUSION ONLY: not a validation result, not a DONE assertion, and no clearance for other lanes. Standard-validation blockers F-050 to F-053 remain open and unfixed, no current validation PASS exists, and the 129-command run stopped by state_changed_before_launch is not a valid complete validation result. Scope: git diff 5657b83..HEAD, touching only core/store.ts and finding-ledger-runtime-smoke.ts across RED d69169e4 to GREEN ad0c1b79 and RED a0f1b76e to GREEN 845023258f plus hardening edda7b58; reviewed source is byte-identical to edda7b58 and the working tree is clean. Store reader unit checked: receiptMatchesLedgerPrefix binds each signed carrier to its real persisted batch prefix including multi-record batches; trustedCurrentFindingCarrier demands a unique carrier plus operation, story, receipt, idempotency, writer, fence and replay agreement; the pre-exact receipt exception is safe because the signed committedLedgerDigest transitively covers record payload bytes; unsigned historical carriers require a separately authenticated exact-byte legacy_receipt_binding; authenticatedLegacyFinding rebuilds the bound open row so a falsely closed mirror grants no terminal state; base and legacy failures throw while projection and lifecycle failures skip, so every fail-closed direction points toward open and blocking; exactLedgerRecordHash equals canonicalHash so writer and reader agree. Signed proposal contract is untouched by this delta and was re-confirmed. RED-before-GREEN ordering is genuine and all three new regressions run from the default entrypoint asserting ledger and mirror byte equality, so reads perform no writes. F-048 stays registered and unresolved, but I do NOT treat it as a current-Story blocker: execution plan section 9.3 and section 6 scope the supported writer and fault model to a shared canonical local filesystem across local processes and worktrees, and core/finding-ledger.ts declares registry git-common-dir-current-key with rotation replacement-invalidates-prior-current-key, so a fresh clone lacking the original anchor is a declared different trust root rather than a broken contract; plan line 3618 on legacy readability covers schema and byte readability under preserved current trust, and every Story without a ledger still returns its mirror unchanged. Restoring a trustless base or mirror fallback would reintroduce the repaired F-047 defect, so key-loss must remain fail-closed. Traceable route: docs/story/drafts/keyed-ledgers-survive-reclone, dated before this repair. Residual non-blocking observation: the refusal text FINDING_LEDGER_AUTHORITY_INVALID names an authenticity failure where the cause may be an absent or foreign trust anchor, while finding_ledger_query already has the better shaped signing_key_unavailable refusal. F-049 remains suspected low with its existing follow-up draft owner. Operational warning: the globally installed proof-or-stop binary is a stale build predating this Story adding finding-ledger.json to REVIEW_RETENTION_PROTOCOL_METADATA_PATHS, so it reports four phantom blockers naming untrusted closeout artifact path finding-ledger.json that the local build at this same source and HEAD does not. I executed no build and no test suite.",
+      "createdAt": "2026-09-05T14:22:50.629Z",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "reviewRunId": "B-fe8f:RR-103",
+      "envelopeId": "235a1d0882ea1ab2e3da6e46eb6e02580cdf9dfa637840fa64749061ec787913",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "e18229e8c642c76ce96ba25489b72a292bc7ab887b47ae65f25e884e9c8266eb"
     }
   ]
 }
