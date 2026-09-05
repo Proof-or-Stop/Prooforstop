@@ -1520,6 +1520,86 @@
       "resolvedAt": "2026-09-05T15:53:11.358Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-212f:F-034",
+      "desc": "RI-003 wave 1 verified family canonical-ambient-env-fixture. packages/main/src/tasks/done-required-validation-smoke.ts:380-413 iterates the frozen VALIDATION_TRANSPORT_ENV_KEY_LIST and incorrectly expects retired LATTICE_ACTIVITY_RECORD_READONLY and other LATTICE-prefixed keys to be ambient session-neutral. validation-command-environment.ts:66-72 intentionally derives canonical PROOF_OR_STOP aliases while excluding retired names from active matching; the frozen inventory/digest is past-evidence data, not the active key set. Exact actual smoke executions on main69403365 and current B-212f, both with PROOF_OR_STOP_MAX_TIMEOUT_MS absent and with31090000, all exit1 at compiled344 with POSIX ambient transport key is session-neutral: LATTICE_ACTIVITY_RECORD_READONLY. Repro commands: node packages/main/dist/tasks/done-required-validation-smoke.js and node /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/tasks/done-required-validation-smoke.js, repeated with that single outer timeout assignment. Source lines318-324 construct a bounded environment containing PATH/CI/LANG/LC_ALL/NODE_OPTIONS, so caller timeout is not an input to this assertion. Independent effectiveValidationCommandEnvironment controls show retired activity key ambientEqual:false, canonical activity key ambientEqual:true, CODEX_THREAD_ID ambientEqual:true; explicit overlays remain unequal for all three. Tests/helpers are unchanged versus main and source unchanged since prior signed docs read (git diff e611a05 HEAD across code/tests/docs/config/Story plan/background/checklist empty). This pre-existing medium test-contract defect currently blocks configured B-212f validation, hence requires bounded current-Story repair rather than global-green expansion or restoring retired runtime behavior. Repair only test inputs to canonical active spellings, preserve frozen list/digest and legitimate host identity filtering, retain retired-key semantic controls, Windows case behavior and explicit-overlay coverage. Earlier read-both migration prose is not permission to change current canonical runtime; no separate docs rewrite is requested. Prior complete reads reused, implicated test inspected at bounded sections; decisions title-triaged with relevant excerpts, never claimed full. No source, lifecycle or owner mutation; diagnostic temporary fixtures cleaned.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-05T16:35:52.919Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-052",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c1bdf1f16a842e9b692ee5147dae7651e98ef1914e8021db8fd7669cf2f079fe"
+      },
+      "readDiagnostics": [],
+      "_hash": "c8edeaf97da7114eb3e27c3578504e551140fb72aa74b8570d48da968ffc435c",
+      "files": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/core/validation-command-environment.ts",
+        "packages/main/src/core/brand-env.ts",
+        "proof-or-stop.config.json",
+        "docs/requirements/decisions/brand-rename-mapping.md"
+      ],
+      "signatureTag": "canonical-ambient-env-fixture",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
