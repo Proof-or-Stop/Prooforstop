@@ -144,8 +144,9 @@ export async function runLocalBootstrap() {
         labRegister = typeof labModule.register === 'function' ? labModule.register : null;
         if (typeof labModule.createLabToolDefs === 'function') {
           // Lab owns only schema factories and receives the same installed Zod
-          // runtime as core. Do not reach into a compiled private core path:
-          // clean/atomic builds never produce dist/core/zod.js.
+          // runtime as core. Zod is a package dependency of the main CLI; do not
+          // reach into a compiled private core path because clean/atomic builds
+          // never produce a packages/main/dist/core/zod.js facade.
           const zodModule = await import('zod');
           labToolDefs = labModule.createLabToolDefs(zodModule.z);
         } else {
