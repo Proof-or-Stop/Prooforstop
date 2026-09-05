@@ -1238,7 +1238,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:884-889 — dependencyBundle is exact-keyed to only the five always-required members, but docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1030-1032 explicitly permits canonicalIdentityDigest, currentCanonicalFinding, and supersessionChainTipDigest. A correctly re-signed applicable proposal containing canonicalIdentityDigest with a recomputed bundle digest returns proposal_exact_union_invalid on current HEAD. This rejects valid Story 2 identity/supersession-bound proposals at the shared verifier port and makes the implemented exact union narrower than the approved contract. Severity: medium.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T11:09:08.360Z",
@@ -1248,7 +1248,11 @@
       "signatureTag": "edge|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoa5pc9_1zkr_a757a3a329d3490284762a7f886c95d2",
-      "ledgerCommitReceiptId": "lrc_mtoa5pca_1zkr_9bd80aa8fdcd41638a38df358da496b6"
+      "ledgerCommitReceiptId": "lrc_mtoa5pca_1zkr_9bd80aa8fdcd41638a38df358da496b6",
+      "resolvedAt": "2026-09-05T13:04:17.889Z",
+      "resolvedReason": "RED test-only 57c362e005b03b933f92a44a9a03f8cec990167a produced 141 envelope-contract failures. GREEN e0a79946e70ac8a026b845ff7180ec311907d72e validates signed leaf/array/nested shapes and exact optional dependency fields/digest. Focused GREEN reports invalid=407 legal=43, all 8 dependency-optional combinations, all 6 variants, legal empty envelope arrays and sparse-array rejection; current full pinned refresh re-executed the complete smoke. This is contract validation, not Story1 applicability semantics. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-047",
