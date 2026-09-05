@@ -346,7 +346,7 @@
           }
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-09-05T09:16:07.059Z",
       "endTime": "2026-09-05T09:16:07.860Z",
       "userSeesSnapshot": {
@@ -864,6 +864,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implemented and committed by proof-or-stop-implementer at 8b1e7bce0a; private full-output selector matching remains bounded at public and persisted surfaces.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:26:15.818Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for verified review Findings B-212f:F-001 and B-212f:F-002: add a wrong-row/wrong-predicate RED and make the omission guard prove exact blocker-to-oracle correspondence.",
       "agent": "proof-or-stop-implementer"
     }
   ]
