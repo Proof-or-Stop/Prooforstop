@@ -1451,6 +1451,21 @@
         ]
       },
       {
+        "label": "B-212f CHK-003: shared DONE predicates reach boolean, diagnostic and preflight consumers with executable mutation protection",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-b49d4-harness-registration.mjs"

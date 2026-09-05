@@ -4388,23 +4388,23 @@ function assertDoneOracleSameSource(): void {
   );
   assert.match(
     doneOracleImportLines,
-    /evaluateReviewVerdict.*from '\.\/machine\.js'/,
-    'DONE preflight must import the real phase-agnostic evaluateReviewVerdict predicate',
-  );
-  assert.match(
-    doneOracleImportLines,
-    /readDevMemoryFinishDecision.*from '\.\/playbook-runtime-memory\.js'/,
-    'DONE preflight must import the real finish-decision presence reader',
+    /evaluateDonePredicates.*from '\.\/machine\.js'/,
+    'DONE preflight must import the shared DONE predicate source',
   );
   assert.match(
     doneOracleSrc,
-    /const reviewVerdict = evaluateReviewVerdict\(\{[\s\S]*?id: 'review-verdict'/,
-    'DONE preflight review-verdict row must consume evaluateReviewVerdict directly',
+    /const donePredicates = \[\.\.\.evaluateDonePredicates\(\{ storyId, store, projectRoot: root, gitCwd \}\)\];/,
+    'DONE preflight must evaluate shared predicates with the current root, story and git cwd',
   );
   assert.match(
     doneOracleSrc,
-    /const finishDecision = readDevMemoryFinishDecision\(root, storyId\);[\s\S]*?id: 'dev-memory-finish-decision'/,
-    'DONE preflight finish-decision row must consume readDevMemoryFinishDecision directly',
+    /const reviewVerdict = donePredicateValue<ReturnType<typeof evaluateReviewVerdict>>\(donePredicates, 'review-verdict'\);/,
+    'DONE preflight review-verdict row must consume the already evaluated shared verdict',
+  );
+  assert.match(
+    doneOracleSrc,
+    /const finishDecision = donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>\(donePredicates, 'dev-memory-finish-decision'\);/,
+    'DONE preflight finish-decision row must consume the already evaluated shared presence fact',
   );
 
   // --- 1 & 3. Behavioral same-source + regression baseline ---
@@ -4536,7 +4536,8 @@ function assertDoneOracleSameSource(): void {
     const hashMismatchRows = buildDoneChecklist(storyId, store, root);
     const hashMismatchRow = new Map(hashMismatchRows.map(r => [r.id, r])).get('delivery-check');
     assert.equal(hashMismatchRow?.status, 'fail', 'delivery-check hash mismatch must fail');
-    assert.equal(hashMismatchRow?.detail, 'delivery-check.json _hash mismatch');
+    assert.match(hashMismatchRow?.detail ?? '', /^delivery-check\.json _hash mismatch — Cannot enter DONE:/);
+    assert.match(hashMismatchRow?.detail ?? '', /\[delivery_check_tampered\]/);
     assert.equal(hashMismatchRow?.source, 'delivery-check.json._hash');
     assert.match(hashMismatchRow?.hint ?? '', /Re-run the proof-or-stop-review-delivery reviewer to generate a new delivery-check\.json/);
 
@@ -4564,7 +4565,8 @@ function assertDoneOracleSameSource(): void {
     const unverifiedDocsRows = buildDoneChecklist(storyId, store, root);
     const unverifiedDocsRow = new Map(unverifiedDocsRows.map(r => [r.id, r])).get('delivery-check');
     assert.equal(unverifiedDocsRow?.status, 'fail', 'unverified docsPromise must fail');
-    assert.equal(unverifiedDocsRow?.detail, '1 docsPromise entries are unverified and not waived');
+    assert.match(unverifiedDocsRow?.detail ?? '', /^1 docsPromise entries are unverified and not waived — Cannot enter DONE:/);
+    assert.match(unverifiedDocsRow?.detail ?? '', /\[unverified_promise\]/);
     assert.equal(unverifiedDocsRow?.source, 'delivery-check.json.docsPromises');
     assert.match(unverifiedDocsRow?.hint ?? '', /Use delivery_waiver_add to write a waiver/);
     assert.match(unverifiedDocsRow?.hint ?? '', /re-run the proof-or-stop-review-delivery reviewer to add verification evidence/);

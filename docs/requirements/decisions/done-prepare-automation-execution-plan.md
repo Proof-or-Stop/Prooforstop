@@ -160,21 +160,29 @@ code is `review_evidence_invalid`; every other reviewer verdict code is
 preserved. Inspection must never refresh, re-sign, rebind, or rewrite reviewer
 evidence.
 
-This parity is mechanically guarded. The process-fact registry inventories each
-literal machine-readable blocker code in `machine.ts`'s
-`targetPhase === 'DONE'` branch and maps it to both an L4 process fact and a
-row-local `doneBlockerRow` binding in `done-oracle.ts`. The verifier also proves
-that the machine blocker and oracle binding use the same normalized boolean
-expression, polarity, blocker-emitting branch, and value provenance. Naming an
-unrelated existing row, inverting a branch, or reusing an identifier under a
-different operator or origin cannot satisfy the contract. The source-first
-contract verifier rejects a new literal DONE code until that mapping and exact
-binding exist, and mutation-proves unmapped, wrong-row, inverted-branch,
-wrong-operator, and wrong-provenance `future_done_predicate` cases in memory.
-Dynamic
-codes returned by `evaluateReviewVerdict` remain covered by the shared
-`review-verdict` row and its explicit phase-agnostic process fact rather than by
-pretending that they are static literals.
+`machine.ts` defines an ordered, lazy `evaluateDonePredicates` generator.
+The boolean DONE guard and DONE diagnostic consume its first failed result;
+the oracle consumes all results and generically projects every failure onto
+its existing row, or appends a row when none exists. Multiple failures sharing
+a row retain every failure reason. Existing stricter preflight failures remain
+blocking, and a completed historical snapshot cannot downgrade a live failure.
+The lazy consumer retains the existing first-failure diagnostic order.
+
+The process-fact registry maps the shared generator's literal blocker codes to
+their source-owned row identities and L4 process facts. A new literal code
+requires a mapping; a new shared predicate automatically reaches the three
+consumers without adding an oracle whitelist entry. Dynamic reviewer codes
+remain covered by the shared `review-verdict` result.
+
+The contract verifier checks a deliberately finite adapter syntax: the guard,
+first-failure helper, phase dispatch, canonical root/story inputs, and final
+oracle projection. It runs executable fixtures and inverse-outcome,
+skipped-result, discarded-result, and future-predicate mutations. The original
+filesystem parity RED remains the integration witness for missing finish
+decisions and stale reviewer diff packs. This contract does not claim semantic
+equivalence for arbitrary TypeScript programs; it replaces the former semantic
+source parser whose same-reader/different-input and control-flow witnesses
+incorrectly passed verification.
 
 ## Execution Flow
 

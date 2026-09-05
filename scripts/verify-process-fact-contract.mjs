@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
+import { checkSharedDoneAdapterSources, runSharedDonePredicateProof } from '../packages/main/tests/red/red-done-shared-predicates.mjs';
 
 const root = process.cwd();
 // --quiet suppresses only the verbose listings (registry entries, inventory
@@ -2827,8 +2828,9 @@ function assertCloseoutTrustBoundary() {
   assert(machineText.includes('collectReviewerEvidenceState') && machineText.includes('[stale_closeout_review]'), 'TEST→DONE guard and failure renderer must consume closeout-aware reviewer evidence freshness');
   assert(machineText.includes('export function evaluateReviewVerdict')
     && /function canPassReviewGuard[\s\S]{0,200}evaluateReviewVerdict\(context\)\.ok/.test(machineText)
-    && /function canFinishGuard[\s\S]{0,2500}evaluateReviewVerdict\(context\)\.ok/.test(machineText)
-    && (machineText.match(/evaluateReviewVerdict\(\{/g) || []).length >= 2,
+    && machineText.includes('const reviewVerdict = evaluateReviewVerdict(context);')
+    && machineText.includes('return firstDonePredicateFailure(context) === null;')
+    && machineText.includes('return firstDonePredicateFailure({ storyId, store, projectRoot:'),
   'REVIEW→TEST and TEST→DONE boolean/reason paths must share the authoritative reviewer verdict evaluator');
   for (const token of ['review_round_missing', 'review_evidence_missing', 'review_evidence_invalid', 'review_lane_missing', 'review_quorum', 'review_finding_blocking']) {
     assert(machineText.includes(token), `shared reviewer verdict must preserve ${token}`);
@@ -5226,495 +5228,106 @@ function parseDonePreflightPredicateInventory(sourceText) {
     }));
 }
 
-function collectLiteralDoneBlockerCodes(machineSource) {
-  const sourceFile = ts.createSourceFile(machinePath, machineSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
-  const doneBranches = [];
-  const findDoneBranch = (node) => {
-    if (ts.isIfStatement(node)) {
-      const condition = node.expression.getText(sourceFile).replace(/\s+/g, '');
-      if (condition === "targetPhase==='DONE'" || condition === "'DONE'===targetPhase") {
-        doneBranches.push(node.thenStatement);
-      }
-    }
-    ts.forEachChild(node, findDoneBranch);
-  };
-  findDoneBranch(sourceFile);
-
-  if (doneBranches.length !== 1) {
-    return {
-      codes: new Set(),
-      errors: [`${machinePath}: expected exactly one targetPhase === 'DONE' branch, found ${doneBranches.length}`],
-    };
-  }
-
-  const codes = new Set();
-  const semanticGuardsByCode = new Map();
-  const collectFromText = (text, node) => {
-    for (const match of text.matchAll(/\[([a-z][a-z0-9_]*)\]/g)) {
-      codes.add(match[1]);
-      const guards = semanticGuardsByCode.get(match[1]) || new Set();
-      const guard = collectSemanticBlockerGuard(node, sourceFile, doneBranches[0]);
-      if (guard) guards.add(guard);
-      semanticGuardsByCode.set(match[1], guards);
-    }
-  };
-  const visitLiteral = (node) => {
-    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
-      collectFromText(node.text, node);
-      return;
-    }
-    if (ts.isTemplateExpression(node)) {
-      collectFromText(node.head.text, node);
-      for (const span of node.templateSpans) {
-        visitLiteral(span.expression);
-        collectFromText(span.literal.text, span.literal);
-      }
-      return;
-    }
-    ts.forEachChild(node, visitLiteral);
-  };
-  visitLiteral(doneBranches[0]);
-  return { codes, semanticGuardsByCode, errors: [] };
-}
-
-function unwrapPredicateExpression(node) {
-  let current = node;
-  while (ts.isParenthesizedExpression(current)) current = current.expression;
-  return current;
-}
-
-function normalizePredicateExpression(node, sourceFile, negate = false) {
-  const expression = unwrapPredicateExpression(node);
-  if (ts.isPrefixUnaryExpression(expression) && expression.operator === ts.SyntaxKind.ExclamationToken) {
-    return normalizePredicateExpression(expression.operand, sourceFile, !negate);
-  }
-  if (ts.isBinaryExpression(expression)) {
-    const operator = expression.operatorToken.getText(sourceFile);
-    const inverseOperators = new Map([
-      ['===', '!=='], ['!==', '==='], ['==', '!='], ['!=', '=='],
-      ['>', '<='], ['<=', '>'], ['<', '>='], ['>=', '<'],
-    ]);
-    if (operator === '&&' || operator === '||') {
-      const normalizedOperator = negate ? (operator === '&&' ? '||' : '&&') : operator;
-      return `(${normalizePredicateExpression(expression.left, sourceFile, negate)}${normalizedOperator}${normalizePredicateExpression(expression.right, sourceFile, negate)})`;
-    }
-    const normalizedOperator = negate ? inverseOperators.get(operator) : operator;
-    if (normalizedOperator) {
-      return `(${expression.left.getText(sourceFile).replace(/\s+/g, '')}${normalizedOperator}${expression.right.getText(sourceFile).replace(/\s+/g, '')})`;
-    }
-  }
-  const text = expression.getText(sourceFile).replace(/\s+/g, '');
-  return negate ? `!(${text})` : text;
-}
-
-function nodeIsWithin(node, container) {
-  return node.pos >= container.pos && node.end <= container.end;
-}
-
-function findNearestBlockerBranch(node, stopNode) {
-  for (let current = node.parent; current && current !== stopNode; current = current.parent) {
-    if (ts.isIfStatement(current)) {
-      if (nodeIsWithin(node, current.thenStatement)) return { condition: current.expression, blockerWhen: true };
-      if (current.elseStatement && nodeIsWithin(node, current.elseStatement)) return { condition: current.expression, blockerWhen: false };
-    } else if (ts.isConditionalExpression(current)) {
-      if (nodeIsWithin(node, current.whenTrue)) return { condition: current.condition, blockerWhen: true };
-      if (nodeIsWithin(node, current.whenFalse)) return { condition: current.condition, blockerWhen: false };
-    }
-  }
-  return null;
-}
-
-function collectGuardRootIdentifiers(expression) {
-  const roots = new Set();
-  const visit = (node) => {
-    if (ts.isPropertyAccessExpression(node)) {
-      visit(node.expression);
-      return;
-    }
-    if (ts.isIdentifier(node)) {
-      roots.add(node.text);
-      return;
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(expression);
-  return roots;
-}
-
-function collectValueDeclarations(sourceFile) {
-  const declarations = new Map();
-  const visit = (node) => {
-    if ((ts.isVariableDeclaration(node) || ts.isParameter(node)) && ts.isIdentifier(node.name)) {
-      const entries = declarations.get(node.name.text) || [];
-      entries.push(node);
-      declarations.set(node.name.text, entries);
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(sourceFile);
-  return declarations;
-}
-
-function summarizeValueProvenance(identifier, referenceNode, sourceFile, declarations, seen = new Set()) {
-  if (seen.has(identifier)) return `cycle:${identifier}`;
-  const candidates = (declarations.get(identifier) || [])
-    .filter(declaration => declaration.pos <= referenceNode.pos)
-    .sort((a, b) => b.pos - a.pos);
-  const declaration = candidates[0];
-  if (!declaration) return `symbol:${identifier}`;
-  if (ts.isParameter(declaration)) return `parameter:${identifier}`;
-  if (!declaration.initializer) return `uninitialized:${identifier}`;
-  const nextSeen = new Set(seen);
-  nextSeen.add(identifier);
-  const summarize = (node) => {
-    const value = unwrapPredicateExpression(node);
-    if (ts.isIdentifier(value)) {
-      return summarizeValueProvenance(value.text, declaration, sourceFile, declarations, nextSeen);
-    }
-    if (ts.isPropertyAccessExpression(value)) {
-      return `${summarize(value.expression)}.property:${value.name.text}`;
-    }
-    if (ts.isCallExpression(value)) {
-      const callee = value.expression;
-      const calleeName = ts.isPropertyAccessExpression(callee) ? callee.name.text : callee.getText(sourceFile).replace(/\s+/g, '');
-      const base = ts.isPropertyAccessExpression(callee) ? `:${summarize(callee.expression)}` : '';
-      const callbacks = (calleeName === 'filter' || calleeName === 'some' || calleeName === 'every')
-        ? value.arguments.filter(ts.isIdentifier).map(argument => `:callback:${argument.text}`).join('')
-        : '';
-      return `call:${calleeName}${base}${callbacks}`;
-    }
-    return `expression:${value.getText(sourceFile).replace(/\s+/g, '')}`;
-  };
-  return summarize(declaration.initializer);
-}
-
-function collectSemanticBlockerGuard(node, sourceFile, stopNode) {
-  const branch = findNearestBlockerBranch(node, stopNode);
-  if (!branch) return null;
-  const normalizedExpression = normalizePredicateExpression(branch.condition, sourceFile, !branch.blockerWhen);
-  const declarations = collectValueDeclarations(sourceFile);
-  const provenance = [...collectGuardRootIdentifiers(branch.condition)]
-    .sort()
-    .map(identifier => `${identifier}<-${summarizeValueProvenance(identifier, node, sourceFile, declarations)}`)
-    .join(',');
-  return `${normalizedExpression}::${provenance}`;
-}
-
-function collectLiteralDoneOracleRowIds(doneOracleSource) {
-  const sourceFile = ts.createSourceFile(doneOraclePath, doneOracleSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
-  const rowIds = new Set();
-  const visit = (node) => {
-    if (
-      ts.isPropertyAssignment(node)
-      && node.name.getText(sourceFile) === 'id'
-      && (ts.isStringLiteral(node.initializer) || ts.isNoSubstitutionTemplateLiteral(node.initializer))
-    ) {
-      rowIds.add(node.initializer.text);
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(sourceFile);
-  return rowIds;
-}
-
-function collectDoneOracleBlockerBindings(doneOracleSource) {
-  const sourceFile = ts.createSourceFile(doneOraclePath, doneOracleSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
-  const byCode = new Map();
-  const semanticGuardsByCode = new Map();
+/** Inventory the single source, not purported equivalence of two programs. */
+function collectSharedDoneBlockerBindings(machineSource) {
+  const sf = ts.createSourceFile(machinePath, machineSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const evaluator = sf.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'evaluateDonePredicates');
   const errors = [];
-  const buildFunctions = sourceFile.statements.filter(node => (
-    ts.isFunctionDeclaration(node)
-    && node.name?.text === 'buildDoneChecklist'
-  ));
-  if (buildFunctions.length !== 1 || !buildFunctions[0].body) {
-    return {
-      byCode,
-      semanticGuardsByCode,
-      errors: [`${doneOraclePath}: expected exactly one buildDoneChecklist function with a body, found ${buildFunctions.length}`],
-    };
+  const byCode = new Map();
+  if (!evaluator?.body || !evaluator.asteriskToken) {
+    return { errors: ['shared DONE predicate generator missing'], byCode };
   }
-  const isEmittedThroughRowsPush = (node) => {
-    for (let current = node.parent; current && current !== buildFunctions[0].body; current = current.parent) {
-      if (
-        ts.isCallExpression(current)
-        && ts.isPropertyAccessExpression(current.expression)
-        && current.expression.expression.getText(sourceFile) === 'rows'
-        && current.expression.name.text === 'push'
-      ) return true;
-    }
-    return false;
-  };
-  const visit = (node) => {
-    if (
-      ts.isCallExpression(node)
-      && ts.isIdentifier(node.expression)
-      && node.expression.text === 'doneBlockerRow'
-    ) {
-      const [codeNode, rowIdNode] = node.arguments;
-      const codeIsLiteral = codeNode && (ts.isStringLiteral(codeNode) || ts.isNoSubstitutionTemplateLiteral(codeNode));
-      if (codeIsLiteral) {
-        if (!isEmittedThroughRowsPush(node)) {
-          errors.push(`${doneOraclePath}: DONE blocker [${codeNode.text}] must be emitted through rows.push from buildDoneChecklist`);
-          ts.forEachChild(node, visit);
-          return;
-        }
-        const rowIdIsLiteral = rowIdNode && (ts.isStringLiteral(rowIdNode) || ts.isNoSubstitutionTemplateLiteral(rowIdNode));
-        if (!rowIdIsLiteral) {
-          errors.push(`${doneOraclePath}: DONE blocker [${codeNode.text}] must bind a literal oracle row id at its doneBlockerRow call site`);
-        } else {
-          const rows = byCode.get(codeNode.text) || new Set();
-          rows.add(rowIdNode.text);
-          byCode.set(codeNode.text, rows);
-          const guards = semanticGuardsByCode.get(codeNode.text) || new Set();
-          const guard = collectSemanticBlockerGuard(node, sourceFile, buildFunctions[0].body);
-          if (guard) guards.add(guard);
-          semanticGuardsByCode.set(codeNode.text, guards);
-        }
+  const visit = node => {
+    if (ts.isYieldExpression(node)) {
+      const call = node.expression;
+      if (node.asteriskToken || !call || !ts.isCallExpression(call) || call.expression.getText(sf) !== 'donePredicate'
+        || call.arguments.length !== 4 || !ts.isStringLiteral(call.arguments[0]) || !ts.isStringLiteral(call.arguments[1])) {
+        errors.push('shared DONE outcomes must be direct yields of donePredicate with literal predicate/row identities');
+        return;
       }
+      const rowId = call.arguments[1].text;
+      const collect = child => {
+        const literal = ts.isStringLiteral(child) || ts.isNoSubstitutionTemplateLiteral(child)
+          || ts.isTemplateHead(child) || ts.isTemplateMiddle(child) || ts.isTemplateTail(child);
+        if (literal) {
+          for (const match of child.text.matchAll(/\[([a-z][a-z0-9_]*)\]/g)) {
+            const rows = byCode.get(match[1]) ?? new Set();
+            rows.add(rowId);
+            byCode.set(match[1], rows);
+          }
+        }
+        ts.forEachChild(child, collect);
+      };
+      collect(call.arguments[3]);
     }
     ts.forEachChild(node, visit);
   };
-  visit(buildFunctions[0].body);
-  return { byCode, semanticGuardsByCode, errors };
+  visit(evaluator.body);
+  return { errors, byCode };
 }
 
-/**
- * Pure contract checker shared by the real-source assertion and the in-memory
- * future-predicate mutation proof below.
- */
 function checkDonePreflightPredicateInventory({ machineSource, doneOracleSource, mappings, registry }) {
-  const errors = [];
-  const extracted = collectLiteralDoneBlockerCodes(machineSource);
-  errors.push(...extracted.errors);
-  const oracleRowIds = collectLiteralDoneOracleRowIds(doneOracleSource);
-  const oracleBlockerBindings = collectDoneOracleBlockerBindings(doneOracleSource);
-  errors.push(...oracleBlockerBindings.errors);
-  const byCode = new Map();
-
-  for (const mapping of mappings) {
-    if (!mapping.blockerCode || !mapping.processFactName || !mapping.oracleRowId) {
-      errors.push(`${processFactRegistryPath}: DONE preflight inventory entries require blockerCode, processFactName, and oracleRowId`);
+  const extracted = collectSharedDoneBlockerBindings(machineSource);
+  const errors = [...extracted.errors, ...checkSharedDoneAdapterSources(machineSource, doneOracleSource)];
+  const mapped = new Map();
+  for (const entry of mappings) {
+    if (!entry.blockerCode || !entry.processFactName || !entry.oracleRowId) {
+      errors.push('DONE predicate inventory requires code, process fact and oracle row');
       continue;
     }
-    if (byCode.has(mapping.blockerCode)) {
-      errors.push(`${processFactRegistryPath}: duplicate DONE blocker mapping for [${mapping.blockerCode}]`);
-      continue;
+    if (mapped.has(entry.blockerCode)) errors.push('duplicate DONE predicate mapping: ' + entry.blockerCode);
+    mapped.set(entry.blockerCode, entry);
+    const fact = registry.get(entry.processFactName);
+    if (fact?.level !== 'L4' || !fact?.semantics.includes('gate-evidence')) {
+      errors.push('DONE predicate [' + entry.blockerCode + '] requires an L4 gate-evidence process fact');
     }
-    byCode.set(mapping.blockerCode, mapping);
-  }
-
-  for (const code of [...extracted.codes].sort()) {
-    if (!byCode.has(code)) {
-      errors.push(`${processFactRegistryPath}: literal DONE blocker [${code}] has no done-preflight mapping`);
-    }
-  }
-  for (const [code, mapping] of [...byCode.entries()].sort(([a], [b]) => a.localeCompare(b))) {
-    if (!extracted.codes.has(code)) {
-      errors.push(`${processFactRegistryPath}: DONE blocker mapping [${code}] is not a literal code in machine.ts's targetPhase DONE branch`);
-    }
-    const processFact = registry.get(mapping.processFactName);
-    if (!processFact) {
-      errors.push(`${processFactRegistryPath}: DONE blocker [${code}] maps to missing process fact ${mapping.processFactName}`);
-    } else {
-      if (processFact.level !== 'L4') {
-        errors.push(`${processFactRegistryPath}: DONE blocker [${code}] process fact ${mapping.processFactName} must stay L4`);
-      }
-      if (!processFact.semantics.includes('gate-evidence')) {
-        errors.push(`${processFactRegistryPath}: DONE blocker [${code}] process fact ${mapping.processFactName} must include gate-evidence`);
-      }
-    }
-    if (!oracleRowIds.has(mapping.oracleRowId)) {
-      errors.push(`${doneOraclePath}: DONE blocker [${code}] maps to missing oracle row ${mapping.oracleRowId}`);
-    }
-    if (!oracleBlockerBindings.byCode.get(code)?.has(mapping.oracleRowId)) {
-      errors.push(`${doneOraclePath}: DONE blocker [${code}] has no row-local blocker binding to ${mapping.oracleRowId}`);
-    }
-    const machineSemanticGuards = extracted.semanticGuardsByCode.get(code) || new Set();
-    const oracleSemanticGuards = oracleBlockerBindings.semanticGuardsByCode.get(code) || new Set();
-    const sharedSemanticGuards = [...machineSemanticGuards].filter(guard => oracleSemanticGuards.has(guard));
-    if (sharedSemanticGuards.length === 0) {
-      errors.push(`${doneOraclePath}: DONE blocker [${code}] row ${mapping.oracleRowId} has no matching semantic blocker guard (normalized expression, polarity, emitting branch, and value provenance)`);
+    const rows = extracted.byCode.get(entry.blockerCode);
+    if (!rows || rows.size !== 1 || !rows.has(entry.oracleRowId)) {
+      errors.push('DONE predicate [' + entry.blockerCode + '] must map to its exact shared outcome row ' + entry.oracleRowId);
     }
   }
-  for (const [code, rowIds] of oracleBlockerBindings.byCode) {
-    const mapping = byCode.get(code);
-    if (!mapping) {
-      errors.push(`${doneOraclePath}: row-local DONE blocker binding [${code}] has no done-preflight mapping`);
-      continue;
-    }
-    for (const rowId of rowIds) {
-      if (rowId !== mapping.oracleRowId) {
-        errors.push(`${doneOraclePath}: DONE blocker [${code}] is bound to oracle row ${rowId}, but the inventory maps ${mapping.oracleRowId}`);
-      }
-    }
+  for (const code of extracted.byCode.keys()) {
+    if (!mapped.has(code)) errors.push('DONE predicate [' + code + '] has no done-preflight mapping');
   }
-
   return errors;
 }
 
 function assertDonePreflightPredicateInventoryParity() {
-  const failureCountBefore = failures.length;
-  const registrySource = read(processFactRegistryPath);
+  const before = failures.length;
   const machineSource = read(machinePath);
   const doneOracleSource = read(doneOraclePath);
-  const mappings = parseDonePreflightPredicateInventory(registrySource);
   const registry = processFactRegistryMap();
-  const errors = checkDonePreflightPredicateInventory({ machineSource, doneOracleSource, mappings, registry });
-  for (const error of errors) fail(error);
-
-  for (const factName of ['runtime:done_finish_decision_presence', 'runtime:done_phase_agnostic_reviewer_verdict']) {
-    const fact = registry.get(factName);
-    assert(fact?.level === 'L4', `${processFactRegistryPath}: ${factName} must be an L4 process fact`);
-    assert(fact?.consumerGate?.includes('storyMachine.canFinish DONE gate'), `${processFactRegistryPath}: ${factName} must name the real DONE consumer`);
-    assert(fact?.consumerGate?.includes('done_closure/done_prepare preflight'), `${processFactRegistryPath}: ${factName} must name the read-only done_prepare consumer`);
+  const mappings = parseDonePreflightPredicateInventory(read(processFactRegistryPath));
+  for (const error of checkDonePreflightPredicateInventory({ machineSource, doneOracleSource, mappings, registry })) fail(error);
+  for (const name of ['runtime:done_shared_predicate_projection', 'runtime:done_finish_decision_presence', 'runtime:done_phase_agnostic_reviewer_verdict']) {
+    const fact = registry.get(name);
+    assert(fact?.level === 'L4' && fact?.consumerGate?.includes('storyMachine.canFinish DONE gate')
+      && fact?.consumerGate?.includes('done_closure/done_prepare preflight'), name + ': both DONE consumers must stay registered at L4');
   }
-  const reviewerFact = registry.get('runtime:done_phase_agnostic_reviewer_verdict');
-  assert(reviewerFact?.producer.includes('evaluateReviewVerdict'), `${processFactRegistryPath}: reviewer preflight fact must identify evaluateReviewVerdict`);
-  for (const token of ['phase-agnostic', 'Dynamic reviewer verdict codes', 'review_evidence_invalid', 'stale_closeout_review', 'never rebound or rewritten']) {
-    assert(reviewerFact?.rationale.includes(token), `${processFactRegistryPath}: reviewer preflight fact missing contract token ${JSON.stringify(token)}`);
+  const sf = ts.createSourceFile(machinePath, machineSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const evaluator = sf.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'evaluateDonePredicates');
+  if (evaluator?.body) {
+    const offset = evaluator.body.getStart(sf) + 1;
+    const future = machineSource.slice(0, offset)
+      + "\n yield donePredicate('future', 'future-row', null, '[future_done_predicate]');\n"
+      + machineSource.slice(offset);
+    const missing = checkDonePreflightPredicateInventory({ machineSource: future, doneOracleSource, mappings, registry });
+    assert(missing.some(error => error.includes('[future_done_predicate]') && error.includes('no done-preflight mapping')),
+      'future shared DONE literal must fail the inventory until registered');
+    const registered = [...mappings, { blockerCode: 'future_done_predicate', oracleRowId: 'future-row', processFactName: 'artifact:delivery-check.json' }];
+    assert(checkDonePreflightPredicateInventory({ machineSource: future, doneOracleSource, mappings: registered, registry }).length === 0,
+      'new registered shared predicate needs no manual oracle row whitelist');
+    const wrong = registered.map(entry => entry.blockerCode === 'future_done_predicate' ? { ...entry, oracleRowId: 'test-evidence' } : entry);
+    assert(checkDonePreflightPredicateInventory({ machineSource: future, doneOracleSource, mappings: wrong, registry })
+      .some(error => error.includes('[future_done_predicate]') && error.includes('exact shared outcome row')),
+    'wrong row mapping must fail against source-owned outcome identity');
   }
-
-  const marker = "if (targetPhase === 'DONE') {";
-  assert(machineSource.includes(marker), `${machinePath}: mutation proof insertion point missing`);
-  const mutatedMachineSource = machineSource.replace(marker, `${marker}\n    void '[future_done_predicate]';`);
-  const mutationErrors = checkDonePreflightPredicateInventory({
-    machineSource: mutatedMachineSource,
-    doneOracleSource,
-    mappings,
-    registry,
-  });
-  assert(
-    mutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('no done-preflight mapping')),
-    'DONE preflight inventory mutation must reject an unmapped [future_done_predicate] through the production-source check function',
-  );
-
-  const wrongRowMappings = [
-    ...mappings,
-    {
-      blockerCode: 'future_done_predicate',
-      processFactName: 'artifact:delivery-check.json',
-      oracleRowId: 'test-evidence',
-    },
-  ];
-  const wrongRowMutationErrors = checkDonePreflightPredicateInventory({
-    machineSource: mutatedMachineSource,
-    doneOracleSource,
-    mappings: wrongRowMappings,
-    registry,
-  });
-  assert(
-    wrongRowMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('row-local blocker binding')),
-    'DONE preflight inventory mutation must reject [future_done_predicate] mapped to an unrelated existing oracle row',
-  );
-
-  const finishDecisionMarker = '[missing_dev_memory_finish_decision]';
-  assert(machineSource.includes(finishDecisionMarker), `${machinePath}: wrong-predicate mutation point missing`);
-  const wrongPredicateMachineSource = machineSource.replace(
-    finishDecisionMarker,
-    `${finishDecisionMarker} [future_done_predicate]`,
-  );
-  const rowsMarker = '  const rows: DoneCheckRow[] = [];';
-  assert(doneOracleSource.includes(rowsMarker), `${doneOraclePath}: wrong-predicate mutation point missing`);
-  const wrongPredicateOracleSource = doneOracleSource.replace(
-    rowsMarker,
-    `${rowsMarker}\n  if (options.completedSnapshot) {\n    rows.push(doneBlockerRow('future_done_predicate', 'test-evidence', { id: 'test-evidence', status: 'fail', label: 'mutation', detail: 'mutation', source: 'mutation' }));\n  }`,
-  );
-  const wrongPredicateMutationErrors = checkDonePreflightPredicateInventory({
-    machineSource: wrongPredicateMachineSource,
-    doneOracleSource: wrongPredicateOracleSource,
-    mappings: wrongRowMappings,
-    registry,
-  });
-  assert(
-    !wrongPredicateMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('row-local blocker binding')),
-    'wrong-predicate mutation fixture must first establish an exact row-local [future_done_predicate] binding',
-  );
-  assert(
-    wrongPredicateMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('semantic blocker guard')),
-    'DONE preflight inventory mutation must reject a row-local [future_done_predicate] binding guarded by an unrelated oracle predicate',
-  );
-
-  const finishDecisionBranch = `rows.push(finishDecision
-    ? doneCheckRow(finishDecisionRow)
-    : doneBlockerRow('missing_dev_memory_finish_decision', 'dev-memory-finish-decision', finishDecisionRow));`;
-  assert(doneOracleSource.includes(finishDecisionBranch), `${doneOraclePath}: finish-decision polarity mutation point missing`);
-  const invertedFinishDecisionOracleSource = doneOracleSource.replace(
-    finishDecisionBranch,
-    `rows.push(finishDecision
-    ? doneBlockerRow('missing_dev_memory_finish_decision', 'dev-memory-finish-decision', finishDecisionRow)
-    : doneCheckRow(finishDecisionRow));`,
-  );
-  const invertedFinishDecisionErrors = checkDonePreflightPredicateInventory({
-    machineSource,
-    doneOracleSource: invertedFinishDecisionOracleSource,
-    mappings,
-    registry,
-  });
-  assert(
-    !invertedFinishDecisionErrors.some(message => message.includes('[missing_dev_memory_finish_decision]') && message.includes('row-local blocker binding')),
-    'finish-decision polarity mutation fixture must retain the exact row-local blocker binding',
-  );
-  assert(
-    invertedFinishDecisionErrors.some(message => message.includes('[missing_dev_memory_finish_decision]') && message.includes('semantic blocker guard')),
-    'DONE preflight inventory mutation must reject an inverted finish-decision blocker branch',
-  );
-
-  const provenanceMachineSource = machineSource.replace(
-    marker,
-    `${marker}\n    if (storyId.length > 0) return 'Cannot enter DONE. [future_done_predicate]';`,
-  );
-  const provenanceOracleSource = doneOracleSource.replace(
-    rowsMarker,
-    `${rowsMarker}\n  if (storyId.length === 0) {\n    rows.push(doneBlockerRow('future_done_predicate', 'test-evidence', { id: 'test-evidence', status: 'fail', label: 'mutation', detail: 'mutation', source: 'mutation' }));\n  }`,
-  );
-  const provenanceMutationErrors = checkDonePreflightPredicateInventory({
-    machineSource: provenanceMachineSource,
-    doneOracleSource: provenanceOracleSource,
-    mappings: wrongRowMappings,
-    registry,
-  });
-  assert(
-    !provenanceMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('row-local blocker binding')),
-    'operator/polarity mutation fixture must retain the exact row-local blocker binding',
-  );
-  assert(
-    provenanceMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('semantic blocker guard')),
-    'DONE preflight inventory mutation must reject storyId.length > 0 versus storyId.length === 0 predicate provenance',
-  );
-
-  const machineFinishDecisionDeclaration = '    const finishDecision = readDevMemoryFinishDecision(projectRoot ?? process.cwd(), storyId);';
-  const oracleFinishDecisionDeclaration = '  const finishDecision = readDevMemoryFinishDecision(root, storyId);';
-  assert(machineSource.includes(machineFinishDecisionDeclaration), `${machinePath}: value-provenance mutation point missing`);
-  assert(doneOracleSource.includes(oracleFinishDecisionDeclaration), `${doneOraclePath}: value-provenance mutation point missing`);
-  const valueProvenanceMachineSource = machineSource.replace(
-    machineFinishDecisionDeclaration,
-    `${machineFinishDecisionDeclaration}\n    const provenanceProbe = storyId;\n    if (provenanceProbe.length > 0) return 'Cannot enter DONE. [future_done_predicate]';`,
-  );
-  const valueProvenanceOracleSource = doneOracleSource.replace(
-    oracleFinishDecisionDeclaration,
-    `${oracleFinishDecisionDeclaration}\n  const provenanceProbe = String(finishDecision);\n  if (provenanceProbe.length > 0) {\n    rows.push(doneBlockerRow('future_done_predicate', 'test-evidence', { id: 'test-evidence', status: 'fail', label: 'mutation', detail: 'mutation', source: 'mutation' }));\n  }`,
-  );
-  const valueProvenanceMutationErrors = checkDonePreflightPredicateInventory({
-    machineSource: valueProvenanceMachineSource,
-    doneOracleSource: valueProvenanceOracleSource,
-    mappings: wrongRowMappings,
-    registry,
-  });
-  assert(
-    !valueProvenanceMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('row-local blocker binding')),
-    'value-provenance mutation fixture must retain the exact row-local blocker binding',
-  );
-  assert(
-    valueProvenanceMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('semantic blocker guard')),
-    'DONE preflight inventory mutation must reject identical guard text backed by different value provenance',
-  );
-
-  if (
-    failures.length === failureCountBefore
-    && mutationErrors.some(message => message.includes('[future_done_predicate]'))
-  ) {
-    console.log('DONE/preflight predicate inventory parity passed');
+  try {
+    runSharedDonePredicateProof(machineSource, doneOracleSource);
+  } catch (error) {
+    fail('executable shared DONE predicate proof: ' + (error?.message ?? String(error)));
   }
+  if (failures.length === before) console.log('DONE/preflight predicate inventory parity passed');
 }
 
 function extractCliToolNames(cliText) {

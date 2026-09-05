@@ -1547,11 +1547,20 @@ export const PROCESS_FACT_SIGNED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
  */
 export const PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS = [
   {
+    name: 'runtime:done_shared_predicate_projection',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'schema-contract', 'blocker-state', 'gate-evidence'],
+    level: 'L4',
+    producer: 'core/machine evaluateDonePredicates ordered lazy outcomes',
+    consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
+    rationale: 'The boolean DONE gate and diagnostic consume the first failed shared outcome. The oracle projects every shared failure with all failure reasons, appending missing rows and preserving stricter preflight failures; completed snapshots cannot downgrade live failures. Literal code/row identities, finite adapter syntax, and executable mutation witnesses guard this boundary without claiming arbitrary source-program semantic equivalence.',
+  },
+  {
     name: 'runtime:done_finish_decision_presence',
     kind: 'runtime-behavior',
     semantics: ['runtime-behavior', 'schema-contract', 'blocker-state', 'gate-evidence'],
     level: 'L4',
-    producer: 'core/playbook-runtime-memory readDevMemoryFinishDecision',
+    producer: 'core/machine evaluateDonePredicates via core/playbook-runtime-memory readDevMemoryFinishDecision',
     consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
     rationale: 'DONE and its read-only preflight projection consume the same fail-closed finish-decision presence predicate. A missing or malformed record yields missing_dev_memory_finish_decision; the projection reads but never creates or repairs the record.',
   },
@@ -1560,7 +1569,7 @@ export const PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS = [
     kind: 'runtime-behavior',
     semantics: ['runtime-behavior', 'freshness-policy', 'review-run', 'review-pass', 'blocker-state', 'gate-evidence'],
     level: 'L4',
-    producer: 'core/machine evaluateReviewVerdict',
+    producer: 'core/machine evaluateDonePredicates via evaluateReviewVerdict',
     consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
     rationale: 'DONE and its read-only preflight projection call the same phase-agnostic evaluateReviewVerdict predicate. Dynamic reviewer verdict codes use the shared review-verdict row; only review_evidence_invalid is presented through the established stale_closeout_review compatibility code, and reviewer evidence is never rebound or rewritten.',
   },
@@ -1573,13 +1582,13 @@ export interface DonePreflightPredicateInventoryEntry {
 }
 
 /**
- * Every literal machine-readable blocker code in machine.ts's
- * `targetPhase === 'DONE'` branch must be represented here. The source-first
- * process-fact verifier checks this inventory against machine.ts and an exact
- * row-local doneBlockerRow binding in done-oracle.ts. It normalizes the blocker
- * branch's boolean expression and polarity on both surfaces, and compares the
- * referenced value provenance, then mutation-proves omission, wrong-row,
- * inverted-branch, wrong-operator, and wrong-provenance detection.
+ * Every literal machine-readable blocker code in machine.ts's shared
+ * evaluateDonePredicates generator must be represented here. The DONE branch
+ * and boolean guard are thin consumers of its first failed result; the oracle
+ * projects all failed results without a manually maintained row whitelist.
+ * The verifier checks source-owned code/row identities, finite adapter shapes,
+ * and executable propagation/mutation witnesses. It does not attempt to prove
+ * semantic equivalence between arbitrary independently written predicates.
  */
 export const DONE_PREFLIGHT_PREDICATE_INVENTORY = [
   {

@@ -19,7 +19,7 @@ import type { ChecklistData, StoryPhase, TestEvidenceData } from './types.js';
 import type { StoryStore } from './store.js';
 import { loadConfig } from './config.js';
 import { resolveWorkflowPolicy } from './workflow-policy.js';
-import { evaluateReviewVerdict } from './machine.js';
+import { evaluateDonePredicates, donePredicateValue, type DonePredicateResult, type evaluateReviewVerdict } from './machine.js';
 import { readDevMemoryFinishDecision } from './playbook-runtime-memory.js';
 import { evaluateDeclaredArtifactReferences } from './declared-artifact-gate.js';
 import {
@@ -261,11 +261,38 @@ function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean
   };
 }
 
+/** Every shared failure reaches the oracle, including newly added predicates.
+ * Existing presentation order and stricter preflight failures are preserved.
+ * Return copies so discarding this result cannot mutate the caller's rows.
+ */
+export function projectDonePredicateRows(rows: readonly DoneCheckRow[], results: readonly DonePredicateResult[]): DoneCheckRow[] {
+  const projected = rows.map(row => ({ ...row }));
+  for (const result of results) {
+    if (result.ok) continue;
+    const index = projected.findIndex(row => row.id === result.oracleRowId);
+    const prior = index >= 0 ? projected[index] : undefined;
+    const failureDetail = (result.failureReason ?? 'DONE predicate rejected').replace(/\s*\n\s*/g, ' ');
+    const row: DoneCheckRow = {
+      ...prior,
+      id: result.oracleRowId,
+      label: prior?.label ?? result.oracleRowId,
+      status: 'fail',
+      blocking: true,
+      detail: prior?.detail && !prior.detail.includes(failureDetail)
+        ? `${prior.detail} — ${failureDetail}`
+        : prior?.detail ?? failureDetail,
+      source: prior?.source ?? 'machine.evaluateDonePredicates',
+    };
+    if (index >= 0) projected[index] = row;
+    else projected.push(row);
+  }
+  return projected;
+}
+
 /**
- * Bind a machine-readable DONE blocker to the exact oracle row that renders
- * the same failed predicate. The process-fact contract verifier reads these
- * call sites, so pointing an inventory entry at an unrelated existing row is
- * no longer enough to claim DONE/preflight parity.
+ * Preserve the established presentation row binding. Shared predicate truth
+ * is applied generically by projectDonePredicateRows at the final return;
+ * this presentation helper is not a second gate or semantic proof mechanism.
  */
 function doneBlockerRow(
   blockerCode: string,
@@ -297,6 +324,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // read-only projections stay byte-identical. `root` is still used for all
   // config/store/audit reads — ONLY git invocation cwd changes.
   const gitCwd = options.gitCwd ?? root;
+  const donePredicates = [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd })];
   const suppliedSnapshotReuse = options.evidenceHashSnapshot
     ? checkEvidenceHashSnapshotReuse(options.evidenceHashSnapshot, { gitCwd, metadataRoot: root, ref: 'HEAD' })
     : null;
@@ -312,7 +340,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   const policy = resolveWorkflowPolicy(config, storyForPolicy);
 
   // 1. test evidence
-  const evidence = store.readTestEvidence(storyId);
+  const evidence = donePredicateValue<ReturnType<StoryStore['readTestEvidence']>>(donePredicates, 'test-evidence');
   if (!evidence) {
     rows.push(doneCheckRow({
       id: 'test-evidence',
@@ -428,9 +456,9 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   }
 
   // 2. all bugs fixed
-  const bugData = store.readBugs(storyId);
+  const bugData = donePredicateValue<ReturnType<StoryStore['readBugs']>>(donePredicates, 'bugs-fixed');
   const total = bugData.bugs.length;
-  const openBugs = bugData.bugs.filter(b => b.status === 'open');
+  const openBugs = bugData.bugs.filter(b => b.status !== 'fixed');
   if (openBugs.length > 0) {
     rows.push(doneCheckRow({
       id: 'bugs-fixed',
@@ -453,7 +481,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // Keep done_prepare/session preflight aligned with the real TEST→DONE guard.
   // This record's contents remain non-authoritative; its existence is the
   // lifecycle completeness predicate enforced by machine.ts.
-  const finishDecision = readDevMemoryFinishDecision(root, storyId);
+  const finishDecision = donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>(donePredicates, 'dev-memory-finish-decision');
   const finishDecisionRow = {
     id: 'dev-memory-finish-decision',
     status: finishDecision ? 'pass' : 'fail',
@@ -653,7 +681,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   } catch { /* ignore */ }
 
   // 6. delivery-check.json (hard gate, mirrors machine.canFinish / getGuardFailureReason)
-  const deliveryCheckFreshness = evaluateDeliveryCheckFreshness(storyId, store, gitCwd, root);
+  const deliveryCheckFreshness = donePredicateValue<ReturnType<typeof evaluateDeliveryCheckFreshness>>(donePredicates, 'delivery-presence');
   const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
   if (!deliveryCheck) {
     rows.push(doneBlockerRow('missing_delivery_check', 'delivery-check', {
@@ -720,7 +748,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // 6a. Optional legacy-compatible live-smoke evidence. Missing remains the
   // delivery reviewer's decision, but a present failed transcript is a hard
   // contradiction and cannot count as successful closeout evidence.
-  const liveSmokeTranscript = evaluateOptionalLiveSmokeTranscript(store, storyId);
+  const liveSmokeTranscript = donePredicateValue<ReturnType<typeof evaluateOptionalLiveSmokeTranscript>>(donePredicates, 'live-smoke-transcript');
   if (liveSmokeTranscript.status !== 'absent') {
     const liveSmokeRow = {
       id: 'live-smoke-transcript',
@@ -860,12 +888,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // Reconsume the same phase-agnostic lane verdict as the real TEST→DONE
   // guard. Review escalation and assurance are additional predicates; neither
   // substitutes for signature, run-binding, lane, finding, or diff-pack checks.
-  const reviewVerdict = evaluateReviewVerdict({
-    storyId,
-    store,
-    projectRoot: root,
-    gitCwd,
-  });
+  const reviewVerdict = donePredicateValue<ReturnType<typeof evaluateReviewVerdict>>(donePredicates, 'review-verdict');
   const reviewVerdictCode = reviewVerdict.code === 'review_evidence_invalid'
     ? 'stale_closeout_review'
     : (reviewVerdict.code ?? 'review_verdict_error');
@@ -893,14 +916,14 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   //     problems. When triggered, DONE requires full 3x2 host quorum or explicit
   //     degraded 3x1 fallback over the current material hash.
   {
-    const escalation = evaluateReviewEscalation({
+    const escalation = options.completedSnapshot ? evaluateReviewEscalation({
       projectRoot: root,
       gitCwd,
       storyId,
       store,
       ...(currentBindingMaterialHash ? { materialHash: currentBindingMaterialHash } : {}),
       ...(currentBindingStoryFilesHash ? { storyFilesHash: currentBindingStoryFilesHash } : {}),
-    });
+    }) : donePredicateValue<ReturnType<typeof evaluateReviewEscalation>>(donePredicates, 'review-escalation');
     const escalationBaseDetail = escalation.required
       ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}; ${renderReviewAssuranceGuidanceSummary(buildReviewEscalationGuidance(escalation, storyId))}`
       : `not required; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`;
@@ -930,14 +953,14 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // diffs need at least one fresh local review round, while failure-signal code
   // diffs need the sticky 3x1 local floor.
   {
-    const floor = evaluateReviewAssuranceFloor({
+    const floor = options.completedSnapshot ? evaluateReviewAssuranceFloor({
       projectRoot: root,
       gitCwd,
       storyId,
       store,
       ...(currentBindingMaterialHash ? { materialHash: currentBindingMaterialHash } : {}),
       ...(currentBindingStoryFilesHash ? { storyFilesHash: currentBindingStoryFilesHash } : {}),
-    });
+    }) : donePredicateValue<ReturnType<typeof evaluateReviewAssuranceFloor>>(donePredicates, 'review-assurance-floor');
     const floorBaseDetail = floor.required
       ? `${floor.assuranceLevel}; material code paths ${floor.materialCodePaths.length}; local rounds ${floor.localRounds.validRounds.length}/${floor.localRounds.requiredRounds}; ${renderReviewAssuranceGuidanceSummary(buildReviewAssuranceFloorGuidance(floor))}`
       : `not required; material code paths ${floor.materialCodePaths.length}`;
@@ -1079,7 +1102,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }));
   }
 
-  return rows;
+  return projectDonePredicateRows(rows, donePredicates);
 }
 
 export function renderDoneChecklist(storyId: string, rows: DoneCheckRow[]): string {
