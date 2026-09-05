@@ -197,9 +197,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T09:16:05.320Z",
-      "endTime": null,
+      "endTime": "2026-09-05T09:16:06.141Z",
       "userSeesSnapshot": {
         "normalizedClaimDigest": "106bcf0c684825c7ede14e868a905a057a8c002631f4f5ae40b5867b9be45de1",
         "storyFilesHash": "1a3fec54a8521f83d4ccbdf42981df15fa0f16c85ebff314b868931130d4d4ba",
@@ -813,6 +813,16 @@
       "action": "update",
       "from": "pending",
       "to": "in_progress",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 7e18814556; done_prepare now consumes the shared finish-decision and reviewer-verdict predicates.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:06.141Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
       "reason": "Implemented and committed by proof-or-stop-implementer at 7e18814556; done_prepare now consumes the shared finish-decision and reviewer-verdict predicates.",
       "agent": "proof-or-stop-implementer"
     }
