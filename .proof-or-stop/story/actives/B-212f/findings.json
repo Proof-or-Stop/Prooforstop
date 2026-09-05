@@ -547,7 +547,7 @@
       "desc": "packages/main/src/core/done-oracle.ts:327,888-961,1105 RI-001 wave 2 independently re-observes F-009, same completed-done-snapshot-live-overlay defect family, on unchanged material. Reran node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs: original main production buildDoneChecklist gives historical review-escalation pass/nonblocking; current gives fail/blocking and stale review-verdict fail/blocking under the identical DONE-phase snapshot-aware reader fixture. Active canFinishGuard remains false in both controls. Existing actual-filesystem witness remains /tmp/b212f-quality-snapshot.Sx1V74/filesystem-witness.mjs. No repair occurred. Preserve original F-009 and its evidence; this is a current wave observation, not a separate root cause. Historical DONE projection must preserve completed-snapshot assurance and classify current-material reviewer drift without weakening active TEST-to-DONE checks.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T12:31:52.807Z",
@@ -586,7 +586,11 @@
         "packages/main/tests/red/red-done-shared-predicates.mjs"
       ],
       "signatureTag": "completed-done-snapshot-live-overlay",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed the introduced historical snapshot regression in 8168160d51 under the explicitly human-approved narrow boundary: only actual DONE plus completedSnapshot preserves prior artifact/assurance presentation and labels reviewer status informational, not fresh PASS or full historical audit. TEST plus a supplied snapshot and default DONE guard remain live-strict. Final tests 982a3d1c12 and 15497d063b reproduce blocked versus local-admissible on immutable 5d0abf0 and pass after repair; post-done-closure-snapshot-smoke also passes and is registered in routine validation. Full historical reviewer replay is not claimed as implemented: traceable future capability is docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md. Original observations remain preserved; topology diagnostics are not asserted to be acceptance PASS.",
+      "resolvedAt": "2026-09-05T14:40:38.128Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-017",
