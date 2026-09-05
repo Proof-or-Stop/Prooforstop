@@ -170,16 +170,6 @@ codes returned by `evaluateReviewVerdict` remain covered by the shared
 `review-verdict` row and its explicit phase-agnostic process fact rather than by
 pretending that they are static literals.
 
-Defects found while maintaining this contract are triaged before scope changes.
-An applicable critical/high defect, safety or data-integrity risk, destructive
-compatibility break, acceptance blocker, or lifecycle-gate-truth defect is
-repaired in the current Story. An unrelated nonblocking medium/low defect does
-not widen the Story merely to obtain a globally green repository: retain its
-reproduction, evidence, impact, recommended treatment, and traceable
-finding/gap/backlog owner. Reassess it immediately and return it to the current
-Story if later evidence raises its severity or makes it acceptance- or
-gate-blocking; prose alone is not a deferral record.
-
 ## Execution Flow
 
 ### 1. Preflight
