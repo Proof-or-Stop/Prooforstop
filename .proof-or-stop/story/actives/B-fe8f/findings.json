@@ -912,6 +912,7 @@
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoe9ekr_23hf_df0e81695c0545ac80e6abed9dc42d2a",
+      "ledgerCommitReceiptId": "lrc_mtoe9eks_23hf_1d12d87a0f9d4e0e90f93c43cc6c6bb1",
       "resolvedAt": "2026-09-05T13:03:59.512Z",
       "resolvedReason": "Fixed in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b: read-only query/runtime verification uses non-creating trust loads. Cold-start no-key and write-denied filesystem controls verify deterministic no-write behavior and before/after filesystem invariance. Current tool-owned full pinned refresh supplies the GREEN receipts. Original observations and their re-attestations remain in the ledger; no severity downgrade or dismissal is used. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
       "resolutionType": "fixed",
@@ -982,7 +983,7 @@
       "desc": "RI-001 wave 1 re-attestation of B-fe8f:F-037 on unchanged frozen material 0d6a1ddb: packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1818,2009-2026 creates/loads the ledger signer before exercising finding_ledger_query, while production packages/main/src/handlers/finding-ledger.ts:1702-1722 calls findingLedgerSignerFromWorkspace and packages/main/src/core/finding-ledger.ts:111-121 writes a new key when absent. The query.protected_read_only selector therefore still lacks a cold-start no-key and write-denied-filesystem test, so CHK-005 does not prove the registered read-only command performs no mutation or has deterministic no-write behavior. Severity: medium.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-05T09:34:07.150Z",
@@ -1027,7 +1028,12 @@
         "packages/main/src/core/finding-ledger.ts"
       ],
       "signatureTag": "missing|ts|wave-attestation-fe8f",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoe9gcp_24k0_c50f7ec4c4f04e80bd227724e74b9549",
+      "resolvedAt": "2026-09-05T13:04:01.816Z",
+      "resolvedReason": "Fixed in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b: read-only query/runtime verification uses non-creating trust loads. Cold-start no-key and write-denied filesystem controls verify deterministic no-write behavior and before/after filesystem invariance. Current tool-owned full pinned refresh supplies the GREEN receipts. Original observations and their re-attestations remain in the ledger; no severity downgrade or dismissal is used. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-041",
