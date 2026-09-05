@@ -832,6 +832,53 @@
       ],
       "signatureTag": "completed-done-snapshot-live-overlay",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-023",
+      "desc": "packages/main/src/core/machine.ts:1015 RI-001 wave 3 independently re-observes existing F-018 done-eager-invalid-delivery-promises family. Reran actual filesystem/dist witness node /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs: guard reason remains delivery_check_tampered, oracle still throws Cannot read properties of undefined (reading filter) in evaluateDonePredicates -> buildDoneChecklist -> buildDoneClosureRunbook. Bounded source-executed production-consumer variants additionally confirm missing docsPromises, null, and non-array object all throw; empty-array tampered control produces a structured fail row; missing test-evidence early guard reads only test evidence and returns false. These are variants of F-018, not additional roots. No repair occurred. Retain the integrity blocker and avoid traversing already rejected untrusted delivery contents while preserving lazy active-DONE rejection; add malformed dependency coverage. No new independent quality defect family found in this final-wave bounded audit.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T12:40:17.696Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-029",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "867043daaba3ebf7e2a3b23f1f90947e3fe5fc416ac77686d8faa8a223a4e05e",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/tests/red/red-done-shared-predicates.mjs"
+      ],
+      "signatureTag": "done-eager-invalid-delivery-promises",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
