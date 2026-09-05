@@ -859,6 +859,7 @@
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoe97nl_217m_08a04dcb1e1549fa85a82886f2fd9af7",
+      "ledgerCommitReceiptId": "lrc_mtoe97nl_217m_318e6917b23f49148f9bd984ce44a032",
       "resolvedAt": "2026-09-05T13:03:50.545Z",
       "resolvedReason": "Fixed in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b: production audit/B-META, cluster, cluster-sync and signature-backfill mutations use authoritative append/CAS projections and unique allocation. The final Store authority-chain correction in 845023258fdae5280a68043ea30fdc4d8c74b98e and edda7b58bbe9cc580a9ec6dcb9bc804037f4ed82 preserves legitimate read-after-write, legacy upgrade and mixed batches. Current tool-owned full pinned refresh and its live-mutator/concurrency selectors are the GREEN evidence; these are real producer paths, not only synthetic ledger appends. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
       "resolutionType": "fixed",
@@ -904,7 +905,7 @@
       "desc": "RI-001 wave 1 re-attestation of B-fe8f:F-036 on unchanged frozen material 0d6a1ddb: packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1513-1590,3599-3625 still tests synthetic direct ledger/B-META lock writes but does not execute audit-meta-store, cluster, cluster-sync, or signature-backfill Finding mutations. The live paths at packages/main/src/core/audit-meta-store.ts:165-204,460-526, packages/main/src/handlers/cluster.ts:75-147, packages/main/src/core/cluster-sync.ts:207-210, and packages/main/src/handlers/signature-backfill.ts:136-158 still write findings.json directly. Thus CHK-002/CHK-006 and green.story3_matrix still lack command-level proof that all Finding-system mutations are durable/exactly-once. Severity: high.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-05T09:33:41.707Z",
@@ -951,7 +952,12 @@
         "packages/main/src/handlers/signature-backfill.ts"
       ],
       "signatureTag": "missing|ts|wave-attestation-fe8f",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoe99nr_21il_007afdbad4fa4654a0d111542b0d1fee",
+      "resolvedAt": "2026-09-05T13:03:53.139Z",
+      "resolvedReason": "Fixed in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b: production audit/B-META, cluster, cluster-sync and signature-backfill mutations use authoritative append/CAS projections and unique allocation. The final Store authority-chain correction in 845023258fdae5280a68043ea30fdc4d8c74b98e and edda7b58bbe9cc580a9ec6dcb9bc804037f4ed82 preserves legitimate read-after-write, legacy upgrade and mixed batches. Current tool-owned full pinned refresh and its live-mutator/concurrency selectors are the GREEN evidence; these are real producer paths, not only synthetic ledger appends. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-040",
