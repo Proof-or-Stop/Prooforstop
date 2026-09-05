@@ -346,8 +346,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T08:42:08.049Z",
       "endTime": null,
       "userSeesSnapshot": {
         "normalizedClaimDigest": "52dbfce77407fe2644a500a5ded8c954504525ab65710a9ff4eaf69a24ed3d2a",
@@ -671,6 +671,15 @@
       "to": "done",
       "reason": "Reopen recovery verified that implementer commit 7e18814556 remains present and is the committed implementation for CHK-002; fresh tool-owned intent evidence will now be regenerated.",
       "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T08:42:08.049Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed process-fact registry, omission inventory, flow-stability, and decision-document work under the corrected defect-triage contract."
     }
   ]
 }
