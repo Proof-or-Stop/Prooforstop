@@ -378,13 +378,9 @@ function assertDoneRequiredBlocked(
       );
     }
 
-    const retiredPrefix = ['LAT', 'TICE_'].join('');
     for (const key of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
-      const activeKey = key.startsWith(retiredPrefix)
-        ? `PROOF_OR_STOP_${key.slice(retiredPrefix.length)}`
-        : key;
-      const owner = { ...common, [activeKey]: 'owner-identity' };
-      const reviewer = { ...common, [activeKey]: 'reviewer-identity' };
+      const owner = { ...common, [key]: 'owner-identity' };
+      const reviewer = { ...common, [key]: 'reviewer-identity' };
       const posixOwner = buildDoneRequiredExecutionIdentity({
         projectRoot: root, policy, processEnvironment: owner, platform: 'linux',
       });
@@ -394,15 +390,15 @@ function assertDoneRequiredBlocked(
       assert.deepEqual(
         posixOwner.commands.map(command => command.effectiveEnvironmentDigest),
         posixReviewer.commands.map(command => command.effectiveEnvironmentDigest),
-        `POSIX ambient transport key is session-neutral: ${activeKey}`,
+        `POSIX ambient transport key is session-neutral: ${key}`,
       );
 
-      const mixedCase = activeKey.split('').map((character, index) =>
+      const mixedCase = key.split('').map((character, index) =>
         index % 2 === 0 ? character.toLowerCase() : character.toUpperCase()).join('');
       const windowsOwner = buildDoneRequiredExecutionIdentity({
         projectRoot: root,
         policy,
-        processEnvironment: { ...common, [activeKey.toLowerCase()]: 'owner-identity' },
+        processEnvironment: { ...common, [key.toLowerCase()]: 'owner-identity' },
         platform: 'win32',
       });
       const windowsReviewer = buildDoneRequiredExecutionIdentity({
@@ -414,11 +410,11 @@ function assertDoneRequiredBlocked(
       assert.deepEqual(
         windowsOwner.commands.map(command => command.effectiveEnvironmentDigest),
         windowsReviewer.commands.map(command => command.effectiveEnvironmentDigest),
-        `Windows ambient transport key is case-insensitively session-neutral: ${activeKey}`,
+        `Windows ambient transport key is case-insensitively session-neutral: ${key}`,
       );
 
-      const lower = activeKey.toLowerCase();
-      if (lower !== activeKey) {
+      const lower = key.toLowerCase();
+      if (lower !== key) {
         const lowerOwner = buildDoneRequiredExecutionIdentity({
           projectRoot: root,
           policy,

@@ -36,8 +36,8 @@ import {
 } from '../handlers/english-artifact-gate.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-// packageRoot is dist at runtime; AGENTS.md / CLAUDE.md live three levels above it.
-const repositoryRoot = resolve(packageRoot, '..', '..', '..');
+// AGENTS.md / CLAUDE.md live at the repository root, two levels above packages/main.
+const repositoryRoot = resolve(packageRoot, '..', '..');
 const cliPath = join(packageRoot, 'cli.js');
 const STORY_DIR = '.proof-or-stop/story/actives';
 

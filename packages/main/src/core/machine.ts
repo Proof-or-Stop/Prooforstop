@@ -9,7 +9,7 @@ import { resolveAuditConfig } from './audit-config.js';
 import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
 import { safeReadScopeContract } from './proof-or-stop-parallel-wave.js';
 import { TERMINAL_PHASES } from './parallel-policy.js';
-import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, describeInitCheckSignatureDomain, initCheckSignatureIsValid, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
+import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, initCheckSignatureIsValid, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
@@ -1246,7 +1246,7 @@ export function getGuardFailureReason(
     }
     const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
     if (initCheck._hash !== expected) {
-      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (signed components: ${describeInitCheckSignatureDomain()}); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
+      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (background/title/description/checklist were modified); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
     }
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {
