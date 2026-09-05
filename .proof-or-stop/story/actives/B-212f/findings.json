@@ -1341,6 +1341,58 @@
       ],
       "signatureTag": "optional-envelope-field-preservation",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-031",
+      "desc": "RI-002 wave 2 quality terminal re-observation of canonical B-212f:F-027, also corroborated by F-028/F-029/F-030, in the same optional-envelope-field-preservation family. No new independent quality root found. Fresh exact read-only RR-034 production verifier replay still returns raw ok:true and frozen snapshot ok:false with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch. packages/main/src/core/review-run.ts:157-173 injects absent optional keys as own undefined; prompt-contracts.ts:326-327 rejects unsupported undefined and review-incremental-context.ts:606 skips valid legacy RP-001/RP-002. git diff 48d3f41..HEAD across packages/main, scripts, docs, config and Story background/plan/checklist is empty, so the previous bounded diagnosis and completed integrated CHK-001 through CHK-004 review remain applicable. Canonical current run selected SAFE_INCREMENTAL with changedFiles:[] and RP-005 as trusted prior. F-027 still requires the tiny current-Story clone-contract repair because this pre-existing issue blocks current gate truth; no fresh PASS or workaround supersession is claimed. Preserve absence and explicit invalid values while cloning/freezing actual arrays, with integrity/prior-selection equivalence and mutation-isolation regression coverage. No broad suite rerun, new implementation family, historical replay expansion, source edit, or lifecycle change.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T15:21:15.453Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-041",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "d577f57cf466db94b86ef0cb01dcf84855422656fa143157cd782b7199da80d3",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/prompt-contracts.ts"
+      ],
+      "signatureTag": "optional-envelope-field-preservation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
