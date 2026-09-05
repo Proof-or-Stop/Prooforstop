@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "627d982585a28758be35f62f7025034a471d5a0c1823f4fe5c942d2fbdcf46f1",
+  "committedLedgerDigest": "e3e1222b960f059e88c3d7eb77291edcac03659b1aedf141ea358afa44e78e51",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2117,6 +2117,34 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T13:21:42.161Z"
+    },
+    {
+      "recordId": "lr_mtoew83t_15fd_96238524a46744ad937089fd6dbfc8b9",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f-baseline-gate-heartbeat-fixture-20260905",
+      "payload": {
+        "id": "B-fe8f:F-051",
+        "desc": "Current standard-validation blocker inherited from main. Independent default-environment node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js exited 1: the true-hang assertion at source765 cannot find validate timeout: command 1/1 true-hang, with stderr only running validate then validate done. setupTimeoutFixture at source164 writes retired lattice.config.json, but current brand-paths accepts canonical proof-or-stop.config.json, so the intended hanging command is never configured/executed. The test and brand-paths blobs equal main; Finding changes to config.ts only add command permissions and do not alter discovery. Required bounded repair: use the canonical filename in this timeout fixture and retain the actual watchdog/kill and no-evidence assertions. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
+        "severity": "medium",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-05T13:21:44.199Z",
+        "reviewRound": "2026-09-05T13:03:05.150Z",
+        "_hash": "127e31bfc5eec67ad149c148cf080e825dd84dd9899dff96205df7d92bac6a03",
+        "files": [
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/core/brand-paths.ts"
+        ],
+        "signatureTag": "edge|ts|current-standard-validation",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "b3b065e25ef22f88612b183c41d1d0611fb18220f66b46e072bfb44faed6cc6d",
+      "priorDigest": "627d982585a28758be35f62f7025034a471d5a0c1823f4fe5c942d2fbdcf46f1",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T13:21:44.201Z"
     }
   ],
   "receipts": [
@@ -5854,6 +5882,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "6acdb0007ea708e22bc538f403856fb97971ba3ed797cbb02e11a99182cca0b1",
         "signature": "GrFCIx/Rs9F17qqUSXcGKUCOgB9cMUIninRMtztk6AVMtBM3Hu+Ux7FkQPAyS0pVWCIo4xR5zd5XewKLwK1QCw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtoew83u_15fd_a3447cd983354c4c9271f78bceb417e8",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f-baseline-gate-heartbeat-fixture-20260905",
+      "requestDigest": "d71b3ed930a788b452186cdaed1bbc3e6d2818d3164a593371918d93a3a931ac",
+      "recordIds": [
+        "lr_mtoew83t_15fd_96238524a46744ad937089fd6dbfc8b9"
+      ],
+      "priorLedgerDigest": "627d982585a28758be35f62f7025034a471d5a0c1823f4fe5c942d2fbdcf46f1",
+      "committedLedgerDigest": "e3e1222b960f059e88c3d7eb77291edcac03659b1aedf141ea358afa44e78e51",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "832c0dc6-e36a-48f7-874f-2341dea37297",
+      "committedAt": "2026-09-05T13:21:44.201Z",
+      "replayed": false,
+      "exactRequestDigest": "571d44856c95a0c7bbd2b8e9e67e231e6c0d4d89617f6b1260f967389e88b384",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtoew83u_15fd_a3447cd983354c4c9271f78bceb417e8",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f-baseline-gate-heartbeat-fixture-20260905",
+        "exactRequestDigest": "571d44856c95a0c7bbd2b8e9e67e231e6c0d4d89617f6b1260f967389e88b384",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtoew83t_15fd_96238524a46744ad937089fd6dbfc8b9"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "627d982585a28758be35f62f7025034a471d5a0c1823f4fe5c942d2fbdcf46f1",
+        "committedLedgerDigest": "e3e1222b960f059e88c3d7eb77291edcac03659b1aedf141ea358afa44e78e51",
+        "replayed": false,
+        "committedAt": "2026-09-05T13:21:44.201Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "832c0dc6-e36a-48f7-874f-2341dea37297",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "cd4f367ffcb67e76741dca23372dcfa55e334ef5170d81b806689393c0054919",
+        "signature": "M4odqiefsav8N+t0G9Phj5pIoY41TsBOCh6ijH/VV4m5c4n6P309nLrkLJcmQNy2vDFNH0GleeDchXm5yiyIDw=="
       }
     }
   ]

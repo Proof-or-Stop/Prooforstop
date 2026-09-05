@@ -1340,6 +1340,26 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtoew6j5_159f_593fc3b640e547078c8191bc8bb16ac0",
       "ledgerCommitReceiptId": "lrc_mtoew6j5_159f_1587f731a7364fddbe23e368508ee313"
+    },
+    {
+      "id": "B-fe8f:F-051",
+      "desc": "Current standard-validation blocker inherited from main. Independent default-environment node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js exited 1: the true-hang assertion at source765 cannot find validate timeout: command 1/1 true-hang, with stderr only running validate then validate done. setupTimeoutFixture at source164 writes retired lattice.config.json, but current brand-paths accepts canonical proof-or-stop.config.json, so the intended hanging command is never configured/executed. The test and brand-paths blobs equal main; Finding changes to config.ts only add command permissions and do not alter discovery. Required bounded repair: use the canonical filename in this timeout fixture and retain the actual watchdog/kill and no-evidence assertions. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-05T13:21:44.199Z",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "_hash": "127e31bfc5eec67ad149c148cf080e825dd84dd9899dff96205df7d92bac6a03",
+      "files": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/core/brand-paths.ts"
+      ],
+      "signatureTag": "edge|ts|current-standard-validation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoew83t_15fd_96238524a46744ad937089fd6dbfc8b9",
+      "ledgerCommitReceiptId": "lrc_mtoew83u_15fd_a3447cd983354c4c9271f78bceb417e8"
     }
   ]
 }
