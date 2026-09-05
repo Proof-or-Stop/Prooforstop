@@ -2505,6 +2505,24 @@
       ],
       "signatureTag": "canonical-evidence-guard-fixture-entrypoint",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-051",
+      "desc": "Follow-on real CLI failure exposed after F-037 fixture repair61ea99033b: node bin/proof-or-stop.js config doctor --help exits1 with Unknown command: lattice_config_doctor. Owner independently reproduced this actual CLI invocation. cli/alias-normalizer.ts75-76 maps config doctor/config repair to lattice_config_doctor/lattice_config_repair, while command-policy.ts348-349 registers proof_or_stop_config_doctor/proof_or_stop_config_repair. Alias normalizer source is identical to main69403365, so this is a pre-existing medium public alias-routing defect, not justification to restore retired commands or remove CLI smoke. Repair the two canonical mappings and preserve end-to-end nested alias assertions; config repair testing must remain help/preview and never modify real user configuration. Direct current pinned verification and mandatory acceptance blocker.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-05T17:09:07.385Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "_hash": "a24c39ce048569b50c6d202fd78e1ce4dc411d1ce1f10c47ddd3933dafd350c8",
+      "files": [
+        "packages/main/src/cli/alias-normalizer.ts",
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "canonical-config-alias-command-routing",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
