@@ -2192,6 +2192,52 @@
       },
       "readDiagnostics": [],
       "_hash": "70934430c4d9c24bbf340a264fc7f628d16e11d12116a7aaa5e4f480751f7d7e"
+    },
+    {
+      "id": "B-fe8f:RP-060",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Bounded source-freshness RE-ATTESTATION of the already completed independent Claude CLI host quality review; no new audit and no tests were run. Required because the RI-003 inventory initialRunSequenceBoundary demands a new quality run and RP-058 predates that boundary. Mechanical justification from read-only review_incremental_context: isFirstPass false, scopeChanged false, freshnessClassification CURRENT_MATERIAL, eligibilityReasonCodes ELIGIBLE_NO_MATERIAL_CHANGE and ELIGIBLE_TRUSTED_PRIOR_BINDINGS, changedFiles none, impactedFiles none, priorReviewRunId B-fe8f:RR-103, priorPassRef B-fe8f:RP-058. RR-105 carries the same round, the same storyFilesHash e418ebc and the same scope digests 0bd8725/53d8195 as RR-103, and git confirms zero delta over packages, scripts, bin, docs and config against the GREEN-tested tree edda7b58. LANE CONCLUSION ONLY: not a validation result, not a DONE assertion, and no clearance for other lanes. Substance carried forward from RR-103: the Store reader unit was checked and receiptMatchesLedgerPrefix binds each signed carrier to its real persisted batch prefix including multi-record batches; trustedCurrentFindingCarrier demands a unique carrier plus operation, story, receipt, idempotency, writer, fence and replay agreement; the pre-exact receipt exception is safe because the signed committedLedgerDigest transitively covers record payload bytes; unsigned historical carriers require a separately authenticated exact-byte legacy_receipt_binding; authenticatedLegacyFinding rebuilds the bound open row so a falsely closed mirror grants no terminal state; base and legacy failures throw while projection and lifecycle failures skip, so every fail-closed direction points toward open and blocking; exactLedgerRecordHash equals canonicalHash so writer and reader agree. The signed proposal contract is untouched by this delta. RED-before-GREEN ordering is genuine and all three new regressions run from the default entrypoint asserting ledger and mirror byte equality, so reads perform no writes. F-048 stays registered and unresolved and I still do NOT treat it as a current-Story blocker: execution plan section 9.3 and section 6 scope the supported writer and fault model to a shared canonical local filesystem across local processes and worktrees, and core/finding-ledger.ts declares registry git-common-dir-current-key with rotation replacement-invalidates-prior-current-key, so a fresh clone lacking the original anchor is a declared different trust root rather than a broken contract; plan line 3618 covers schema and byte readability under preserved current trust, and every Story without a ledger still returns its mirror unchanged. Restoring a trustless base or mirror fallback would reintroduce the repaired F-047 defect, so key-loss must remain fail-closed. Traceable route: docs/story/drafts/keyed-ledgers-survive-reclone, dated before this repair. F-049 remains suspected low with its existing follow-up draft owner. F-050 to F-053 remain open verified standard-validation blockers inherited from main; the incremental context lists all six unresolved findings, I resolved and dismissed none of them, and the Owner will repair F-050 to F-053 after this inventory permits DEV. Operational warning unchanged: the globally installed proof-or-stop binary is a stale build predating this Story adding finding-ledger.json to REVIEW_RETENTION_PROTOCOL_METADATA_PATHS, so it reports phantom untrusted closeout artifact path finding-ledger.json blockers that the local build at this same source does not; use the local build for this Story.",
+      "createdAt": "2026-09-05T14:29:44.011Z",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "reviewRunId": "B-fe8f:RR-105",
+      "envelopeId": "1929437bd88c5795c2724f4c53385e487126a0f474249769df4ce6e4742971d6",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "packages/main/src/core/closeout-trust.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "3e721776857c74d844caa03290f387789f6d3f3a4bd5fbb22fd72c5eb7bbfcae"
     }
   ]
 }
