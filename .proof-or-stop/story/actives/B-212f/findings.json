@@ -898,7 +898,7 @@
       "desc": "packages/main/src/core/machine.ts:1015 RI-001 wave 3 independently re-observes existing F-018 done-eager-invalid-delivery-promises family. Reran actual filesystem/dist witness node /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs: guard reason remains delivery_check_tampered, oracle still throws Cannot read properties of undefined (reading filter) in evaluateDonePredicates -> buildDoneChecklist -> buildDoneClosureRunbook. Bounded source-executed production-consumer variants additionally confirm missing docsPromises, null, and non-array object all throw; empty-array tampered control produces a structured fail row; missing test-evidence early guard reads only test evidence and returns false. These are variants of F-018, not additional roots. No repair occurred. Retain the integrity blocker and avoid traversing already rejected untrusted delivery contents while preserving lazy active-DONE rejection; add malformed dependency coverage. No new independent quality defect family found in this final-wave bounded audit.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T12:40:17.696Z",
@@ -938,7 +938,11 @@
         "packages/main/tests/red/red-done-shared-predicates.mjs"
       ],
       "signatureTag": "done-eager-invalid-delivery-promises",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 8168160d51: shared evaluator only traverses delivery docsPromises after deliveryCheckFreshness.ok, retaining structured tamper/stale rejection and treating rejected raw contents as opaque. Frozen shared-predicate tests at 982a3d1c12 reproduce undefined.filter on immutable 5d0abf0 and pass on the final implementation, including malformed content while active DONE remains blocked. Final shared predicate, original parity, process contract, post-DONE snapshot and flow stability commands all passed; tool-owned verification receipts were refreshed on the final material. No topology acceptance certification is claimed.",
+      "resolvedAt": "2026-09-05T14:40:46.982Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-024",
