@@ -1397,7 +1397,7 @@
       "desc": "Current standard-validation and documented CLI compatibility blocker inherited from main. Independent default-environment node packages/main/dist/tasks/cli-surface-smoke.js exited 1 at dist80: normalizeNestedSpaceAlias([lab,create,--help]) returns matched=false/cmd=lab instead of lab_create. The nested alias map lacks the six Lab mappings although docs/CLI.md1130 explicitly promises canonical lab create/run/eval/compare/promote/help and flat compatibility commands. Alias normalizer and smoke blobs equal main. Required bounded repair: restore the six declared nested mappings and prove argv/help handling while leaving Lab implementation, package publication and unrelated command families outside scope. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T13:21:48.231Z",
@@ -1411,7 +1411,11 @@
       "signatureTag": "missing|ts|current-standard-validation",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoewb7s_15si_e10d6612b95e4168bf661a78d271ab2b",
-      "ledgerCommitReceiptId": "lrc_mtoewb7t_15si_57352435ef3a49a2acbbb3201f9afc58"
+      "ledgerCommitReceiptId": "lrc_mtoewb7t_15si_57352435ef3a49a2acbbb3201f9afc58",
+      "resolvedAt": "2026-09-05T14:54:09.804Z",
+      "resolvedReason": "Fixed in 46a37452ef07f7d87caa18e41462bf74e81f2d71. All six documented Lab nested aliases map to their registered IDs; original cli-surface-smoke passed end-to-end. Build and diff check passed. Official stale evidence refresh completed71/71 against that source in342.5seconds (metadata bc342c8). This proves bounded repair, not full standard validation, host quorum or DONE.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-054",
