@@ -275,12 +275,11 @@
     },
     {
       "id": "CHK-003",
-      "title": "Mechanically guard DONE/preflight parity and document bounded defect triage",
-      "context": "DONE gate evidence and reviewer-pass behavior are process facts, so update the process-fact registry and verifier together with a same-source/parity regression. During DEV/REVIEW/TEST, classify every defect by both applicability and gate impact before changing scope. Repair a verified applicable critical/high defect, and repair any verified defect introduced or worsened by this Story or directly blocking its acceptance, core result, compatibility promise, protected surface, or lifecycle-gate truth. A verified non-applicable critical/high defect may leave this Story only with strong evidence that it does not block the current gate and a traceable owner or route. Otherwise eligible nonblocking low/medium defects retain reproduction, evidence, impact, recommended treatment, and a traceable finding/gap/backlog owner; reassess immediately if later evidence changes applicability or gate impact.",
+      "title": "Mechanically guard DONE/preflight predicate parity",
+      "context": "DONE gate evidence and reviewer-pass behavior are process facts, so update the process-fact registry and verifier together with a same-source/parity regression. The regression must inventory literal DONE blocker codes, require each code to map to a done-oracle row, and prove an inserted unmapped future_done_predicate is rejected. Keep this deliverable limited to parity enforcement and the directly controlling done_prepare decision document; it does not define or amend Finding disposition policy.",
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
-        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
-        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
       ],
       "userSees": "The contract command prints \"DONE/preflight predicate inventory parity passed\" and \"Process-fact contract verification passed\", while the flow suite prints \"flow stability smoke passed\".",
       "excludes": [
