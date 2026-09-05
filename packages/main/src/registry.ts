@@ -220,7 +220,7 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createReviewLoopHandlers(ctx));
   registry.registerBatch(createFindingHandlers(ctx));
   const findingLedgerHandlers = createFindingLedgerHandlers(ctx);
-  registry.registerBatch({ finding_ledger_query: findingLedgerHandlers.finding_ledger_query });
+  registry.register('finding_ledger_query', findingLedgerHandlers.finding_ledger_query);
   registry.registerBatch(createFindingRuntimeEvidenceHandlers(ctx));
   registry.registerBatch(createEvaluateHandlers(ctx));
   registry.registerBatch(createWorkflowHandlers(ctx));
