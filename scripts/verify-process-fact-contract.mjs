@@ -692,7 +692,7 @@ function read(relPath) {
   assert(existsSync(absPath), `${relPath} should exist`);
   if (!existsSync(absPath)) return '';
   let text = readFileSync(absPath, 'utf8');
-  const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
+  const mutation = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION;
   const roleId = canonicalRoleId(basename(relPath));
   if (mutation === 'drop-acceptance-basis-prompt' && roleId === 'proof-or-stop-implementer') {
     // B-cc10: accept either brand so the mutation actually drops the live prompt line.
@@ -4488,6 +4488,21 @@ function assertReviewInventoryRemediationContract() {
     /withChecklistLock[\s\S]*withReviewInventoryMutationLock[\s\S]*withMkdirLock/.test(checklistHandlerText),
     'packages/main/src/handlers/checklist.ts: every checklist acceptance writer must use inventory -> checklist lock order',
   );
+  const refreshSource = ts.createSourceFile('checklist.ts', checklistHandlerText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const refreshCandidate = findFunctionDeclaration(refreshSource, 'staleReexecCandidate')?.body?.getText(refreshSource) ?? '';
+  // Finite admission-shape check complements the real handler smoke; it is not
+  // a claim of arbitrary semantic equivalence from source tokens.
+  assert(refreshCandidate.includes('if (!resolved || !pin) return undefined;')
+    && !refreshCandidate.includes('isExecutableIntentType')
+    && refreshCandidate.includes('resolveEvidenceCommandTimeout'),
+    'stale refresh candidate must admit every immutable pin, including docs/manual, without bypassing timeout enforcement');
+  assert(read(processFactRegistryPath).includes('every immutable pinned intent, including docs/manual'),
+    'stale pinned docs/manual recovery must remain registered as mechanical gate evidence');
+  const refreshSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
+  for (const marker of ['pinned manual verifier re-earns mechanical authority', 'pinned docs verifier re-earns mechanical authority',
+    'a failing re-run leaves the row demoted', 'pin-less demotion strips the receipt']) {
+    assert(refreshSmoke.includes(marker), `stale refresh executable control missing: ${marker}`);
+  }
   assert(
     /reviewInventoryAcceptanceSubjectDigest[\s\S]*verificationIntent[\s\S]*verificationEvidence[\s\S]*userSeesSnapshot/.test(epochText),
     `${epochPath}: the frozen acceptance subject must include complete checklist review semantics`,

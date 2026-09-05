@@ -1658,7 +1658,9 @@ function staleReexecCandidate(
 ): StaleReexecCandidate | undefined {
   const resolved = resolveIntentForRef(item, intentRef);
   const pin = resolved?.intent.verification;
-  if (!resolved || !pin || !isExecutableIntentType(resolved.intent.type)) return undefined;
+  // An explicit immutable pin makes docs/manual executable too, exactly as in
+  // enforceAndStampEvidence and the outer refresh loop.
+  if (!resolved || !pin) return undefined;
 
   const kind = intentTypeToEvidenceKind(resolved.intent.type);
   const priorOverride = evidence?.receipt?.timeoutOverride;
