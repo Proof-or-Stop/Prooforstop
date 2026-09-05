@@ -1255,7 +1255,7 @@
       "desc": "RI-002 wave 1 coverage corroboration of canonical B-212f:F-027, same optional-envelope-field-preservation root and no new independent family. Read-only replay on unchanged material61fc5331/Story files163103f7: verifyReviewRunPromptEnvelope for B-212f:RR-034 over stored envelopes returns {ok:true}; passing snapshotPromptEnvelopes(envelopes) returns {ok:false} with eligibilityDigest, eligibilityReasonCodes and priorPassRef mismatch. packages/main/src/core/review-run.ts:157-173 inserts absent optional eligibilityReasonCodes/findingProjection properties as undefined; prompt-contracts.ts:326-327 rejects undefined in canonical serialization, and review-incremental-context.ts:606 then skips the otherwise trusted prior. The actual collector uses these snapshots at review-run.ts:1678, explaining rejection of this lane's valid RP-003 without persisted-envelope corruption. Bounded searches of existing task/test coverage found no direct snapshotPromptEnvelopes regression asserting absent-property own keys and unchanged canonical digest/integrity/prior selection; current incremental cutoff tests do not prove that clone contract. This is verified applicable because it blocks current Story review acceptance despite the underlying pre-existing implementation. F-027 owns the repair. Add focused raw/snapshot key,digest,integrity and prior-pass-selection equivalence for legacy absent optional fields, while retaining deep mutation isolation and tamper rejection and preserving explicitly invalid values as invalid. Do not manufacture a replacement pass to hide the disagreement or redesign historical review. Prior completed full-file reads remain unchanged and reusable; newly implicated modules were inspected only at bounded relevant sections.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-05T15:10:59.837Z",
@@ -1299,7 +1299,11 @@
         "packages/main/src/tasks/review-incremental-context-smoke.ts"
       ],
       "signatureTag": "optional-envelope-field-preservation",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in dd65407421 after frozen RED 9b077c1370. snapshotPromptEnvelopes now preserves optional-property absence, clones/freezes actual arrays and finding rows, and preserves explicit malformed values for fail-closed canonical rejection. The unchanged source-executed regression uses actual serializer, envelope integrity, ReviewRun/ReviewPass signatures and latestTrustedPriorPass: legacy raw integrity and RP-001 remain identical after snapshot, key sets/digests are preserved, malformed values remain rejected, and mutation isolation remains enforced. Replaying the old helper from RED commit still fails. The actual RR-034 raw/snapshot probe now agrees and rejects only legitimate current taskSemanticDigest drift; this does not assert the old run regained freshness. Original parity, shared proof, snapshot smoke, process contract, root build and 14 refreshed official verification receipts pass on final implementation. No historical replay redesign or topology acceptance certification is claimed.",
+      "resolvedAt": "2026-09-05T15:53:06.055Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-030",
