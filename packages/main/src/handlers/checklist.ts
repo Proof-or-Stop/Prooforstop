@@ -1595,6 +1595,9 @@ type ReexecStamp = {
 type StaleReexecCandidate = {
   item: ChecklistItem;
   input: EvidenceWriteInput;
+  /** Process identity without selector/intent presentation semantics. */
+  rawExecutionKey: string;
+  /** Evidence identity including selector/type/kind semantics. */
   executionKey: string;
   rowKey: string;
 };
@@ -1694,27 +1697,33 @@ function staleReexecCandidate(
   const effectiveTimeoutMs = validatedOverride?.timeoutMs
     ?? configuredTimeoutMs
     ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+  const timeoutProvenance = priorOverride
+    ? {
+        source: 'carried-receipt-override',
+        timeoutMs: validatedOverride?.timeoutMs,
+        reason: validatedOverride?.reason,
+        priorDefaultTimeoutMs: priorOverride.defaultTimeoutMs,
+      }
+    : {
+        source: configuredTimeoutMs === undefined ? 'executor-default' : 'configured-command-timeout',
+        configuredTimeoutMs: configuredTimeoutMs ?? null,
+      };
+  const normalizedCommand = parseAllowlistedCommand(pin.command);
+  const rawExecutionKey = JSON.stringify({
+    version: 1,
+    command: normalizedCommand,
+    cwd: refreshGitCwd,
+    effectiveTimeoutMs,
+    timeoutProvenance,
+  });
   const executionKey = JSON.stringify({
     version: 1,
-    command: pin.command,
+    rawExecutionKey,
     selector: pin.selector,
     intentType: resolved.intent.type,
     evidenceKind: kind,
-    cwd: refreshGitCwd,
-    effectiveTimeoutMs,
-    timeoutProvenance: priorOverride
-      ? {
-          source: 'carried-receipt-override',
-          timeoutMs: validatedOverride?.timeoutMs,
-          reason: validatedOverride?.reason,
-          priorDefaultTimeoutMs: priorOverride.defaultTimeoutMs,
-        }
-      : {
-          source: configuredTimeoutMs === undefined ? 'executor-default' : 'configured-command-timeout',
-          configuredTimeoutMs: configuredTimeoutMs ?? null,
-        },
   });
-  return { item, input, executionKey, rowKey: `${item.id}::${intentRef}` };
+  return { item, input, rawExecutionKey, executionKey, rowKey: `${item.id}::${intentRef}` };
 }
 
 /**
@@ -3101,6 +3110,16 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // shared receipt. Only a real mechanical pass records stamps for the group;
       // every failure leaves every grouped row absent so all take the demotion path.
       const reexecByKey = new Map<string, ReexecStamp>();
+      const rawProcessResults = new Map<string, Promise<SingleCommandExecutionResult>>();
+      const rawExecutionContext = causalCanonical({
+        schemaVersion: 1,
+        storyId: args.storyId,
+        materialHash: computed.materialHash ?? null,
+        storyFilesHash: computed.storyFilesHash ?? null,
+        effectiveEnvironment: effectiveCausalEnvironment(undefined, computed.refreshGitCwd),
+        runtimeVersion: process.version,
+        toolVersion: resolveCausalToolVersion(root) ?? null,
+      });
       if (!args.dryRun) {
         const groups = new Map<string, { representative: StaleReexecCandidate; rowKeys: string[] }>();
         for (const entry of computed.stale) {
@@ -3136,11 +3155,28 @@ export function createChecklistHandlers(ctx: HandlerContext) {
               candidate.item,
               candidate.input,
               {
-                runCommand: (command, cwd, timeoutMs) => runSingleAllowlistedCommand(
-                  command,
-                  root,
-                  { cwd, ...(timeoutMs !== undefined ? { timeoutMs } : {}) },
-                ),
+                runCommand: (command, cwd, timeoutMs) => {
+                  const effectiveTimeoutMs = timeoutMs
+                    ?? resolvePinnedCommandTimeoutMs(root, command)
+                    ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+                  const cacheKey = causalCanonical({
+                    schemaVersion: 1,
+                    rawExecutionKey: candidate.rawExecutionKey,
+                    command: parseAllowlistedCommand(command),
+                    cwd,
+                    effectiveTimeoutMs,
+                    context: rawExecutionContext,
+                  });
+                  const existing = rawProcessResults.get(cacheKey);
+                  if (existing) return existing;
+                  const execution = runSingleAllowlistedCommand(
+                    command,
+                    root,
+                    { cwd, timeoutMs: effectiveTimeoutMs },
+                  ).then((result) => Object.freeze({ ...result }));
+                  rawProcessResults.set(cacheKey, execution);
+                  return execution;
+                },
                 preflightFacts: causalPreflightFactsFor(args.storyId, computed.refreshGitCwd),
                 cwd: computed.refreshGitCwd,
                 storyId: args.storyId,
