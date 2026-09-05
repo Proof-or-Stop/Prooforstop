@@ -2238,6 +2238,48 @@
       },
       "readDiagnostics": [],
       "_hash": "3e721776857c74d844caa03290f387789f6d3f3a4bd5fbb22fd72c5eb7bbfcae"
+    },
+    {
+      "id": "B-fe8f:RP-061",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-003 post-boundary bounded coverage re-attestation under the CLI-selected SAFE_INCREMENTAL basis from RR-102/RP-057. Reused the actual prior story-level reads of CHK-001 through CHK-006, RED verifier, bounded Store four-reader unit, smoke assertions, and Section 9.3; this is not a new whole-corpus audit. The current scoped source/test/scripts/config diff from edda7b58 is empty. Independently reran the production strict coverage/freshness computation: 71 of 71 intents covered, zero missing required intents, zero waivers, current materialHash 6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b. Reverified all 71 exact causal receipt identities and signatures: zero invalid; 13 RED-verifier receipts and 58 full-smoke receipts. Existing current official execution is reused, not claimed as a new independent suite run. The edda exact-original-rows and ledger/mirror byte assertions preserve the F047 negative and legal controls already reviewed. Read all incremental finding deltas F048-F053. F048 is preserved high/suspected and not claimed repaired, dismissed, or formally deferred: actual understanding constraints, Section 9.3 shared canonical local-FS scope, and git-common-dir-current-key/replacement-invalidates-prior-current-key policy do not promise recovery across a clone that loses the old trust root; the existing keyed-ledgers-survive-reclone draft is traceable compatibility accounting only. No cross-clone support claim. F049 remains a tracked nonblocking performance concern. F050-F053 remain recorded standard-validation blockers for Owner handling; this coverage PASS neither closes nor suppresses them and is not full-validation or DONE evidence. Prior acceptance-rollout cohort result is not this Story independent-host quorum, and pre-review observe/inconclusive is not PASS. No new coverage Finding; no build or full suite rerun; no source, scope, status, or owner mutation. The manifest distinguishes actual full-file reads reused from the prior trusted run from filename/title triage; specification passages were bounded reads, not a claimed full decision document.",
+      "createdAt": "2026-09-05T14:31:34.532Z",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "reviewRunId": "B-fe8f:RR-106",
+      "envelopeId": "159f4db65c9269a232e522b41fb4a0cfc18047f426cbceef2a79e6c94269c309",
+      "writerSessionId": "sess-6d2c0609b0d0cdcf53060e334118e702",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/background.md",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2c551a03e168ddf3a288e032575e926e0005714011f101e07fb6d88e29df425a"
+      },
+      "readDiagnostics": [],
+      "_hash": "e81279001ac30d71ddb9906ba0462456bb18de18b593524aa12b8b15321f1315"
     }
   ]
 }
