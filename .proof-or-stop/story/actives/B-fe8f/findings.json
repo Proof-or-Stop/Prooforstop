@@ -1326,7 +1326,7 @@
       "desc": "Current standard-validation blocker inherited from main, not introduced by the Finding reader repair. Independent actual command PROOF_OR_STOP_MAX_TIMEOUT_MS=7200000 PROOF_OR_STOP_IDLE_TIMEOUT_MS=1800000 node packages/main/dist/tasks/done-required-validation-smoke.js exited 1: POSIX ambient transport key is session-neutral: LATTICE_ACTIVITY_RECORD_READONLY (dist line344). The test at source381-393 iterates the frozen historical key list, while validation-command-environment.ts65-70 deliberately derives active PROOF_OR_STOP spellings and excludes retired spellings. Its explicit synthetic environment does not inherit the outer timeout settings. Both source blobs equal main. Required bounded repair: test the active transport-key contract while preserving frozen historical bytes and explicitly testing retired-name semantics; do not restore obsolete aliases or weaken the digest assertion. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T13:21:42.160Z",
@@ -1339,7 +1339,11 @@
       "signatureTag": "edge|ts|current-standard-validation",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoew6j5_159f_593fc3b640e547078c8191bc8bb16ac0",
-      "ledgerCommitReceiptId": "lrc_mtoew6j5_159f_1587f731a7364fddbe23e368508ee313"
+      "ledgerCommitReceiptId": "lrc_mtoew6j5_159f_1587f731a7364fddbe23e368508ee313",
+      "resolvedAt": "2026-09-05T14:54:03.734Z",
+      "resolvedReason": "Fixed in 46a37452ef07f7d87caa18e41462bf74e81f2d71. Canonical transport spellings are derived from the frozen list while retired spellings remain semantic; original POSIX/Windows/overlay assertions are preserved. done-required-validation-smoke passed. Build and diff check passed. Official stale evidence refresh completed71/71 against that source in342.5seconds (metadata bc342c8). This proves bounded repair, not full standard validation, host quorum or DONE.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-051",
