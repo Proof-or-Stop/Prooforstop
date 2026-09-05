@@ -54,8 +54,13 @@ export function checkSharedDoneAdapterSources(machineSource, oracleSource) {
   const declaration = build?.body?.statements.filter(node => ts.isVariableStatement(node)
     && node.declarationList.declarations.some(entry => entry.name.getText() === 'donePredicates')) ?? [];
   if (declaration.length !== 1) errors.push('oracle inputs: expected one direct shared evaluation');
-  else same(declaration[0].getText(),
-    'const donePredicates = [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd })];', 'oracle inputs');
+  else {
+    const supported = [
+      'const donePredicates = [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd })];',
+      'const donePredicates = [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd }, { completedSnapshot: options.completedSnapshot })];',
+    ];
+    if (!supported.some(source => tokens(source) === tokens(declaration[0].getText()))) errors.push('oracle inputs: shared DONE adapter shape changed');
+  }
   const returns = [];
   const visit = node => {
     if (ts.isFunctionLike(node)) return;
@@ -118,6 +123,7 @@ function legacyBypassWitness(verifierSource) {
 
 function fixture() {
   return {
+    phase: 'TEST',
     evidence: { result: 'PASS', output: 'legacy passing evidence', timestamp: 'fixture' },
     bugs: { bugs: [] }, finish: { decision: 'no-reusable-lesson' },
     delivery: { ok: true, code: 'ok', reason: 'valid delivery', deliveryCheck: { docsPromises: [] } },
@@ -132,7 +138,7 @@ function productionConsumers(machineSource, oracleSource, state) {
   const store = {
     readTestEvidence: id => { calls.push(['test', id]); return state.evidence; },
     readBugs: id => { calls.push(['bugs', id]); return state.bugs; },
-    readStory: () => ({ phase: 'TEST' }), readChecklist: () => ({ items: [] }),
+    readStory: () => ({ phase: state.phase }), readChecklist: () => ({ items: [] }),
     readDeclaredArtifacts: () => ({ entries: [] }),
   };
   const exported = {};
@@ -142,9 +148,9 @@ function productionConsumers(machineSource, oracleSource, state) {
     evaluateDeliveryCheckFreshness: (id, inputStore, gitCwd, root) => { calls.push(['delivery', id, gitCwd, root]); return state.delivery; },
     evaluateOptionalLiveSmokeTranscript: () => state.live,
     deliveryPromiseBlocksDone: promise => promise.status === 'unverified',
-    evaluateReviewVerdict: context => { calls.push(['review', context.projectRoot, context.storyId, context.gitCwd]); return state.review; },
-    evaluateReviewEscalation: context => { calls.push(['escalation', context.projectRoot, context.storyId, context.gitCwd]); return state.escalation; },
-    evaluateReviewAssuranceFloor: context => { calls.push(['floor', context.projectRoot, context.storyId, context.gitCwd]); return state.floor; },
+    evaluateReviewVerdict: (context, options) => { calls.push(['review', context.projectRoot, context.storyId, context.gitCwd]); return options?.completedSnapshot ? state.historicalReview ?? state.review : state.review; },
+    evaluateReviewEscalation: context => { calls.push(['escalation', context.projectRoot, context.storyId, context.gitCwd]); return context.materialHash === 'historical-material' ? state.historicalEscalation ?? state.escalation : state.escalation; },
+    evaluateReviewAssuranceFloor: context => { calls.push(['floor', context.projectRoot, context.storyId, context.gitCwd]); return context.materialHash === 'historical-material' ? state.historicalFloor ?? state.floor : state.floor; },
     formatReviewEscalationFailure: value => `Cannot enter DONE: ${value.reason ?? 'escalation'} [review_escalation]`,
     formatReviewAssuranceFloorFailure: value => `Cannot enter DONE: ${value.reason ?? 'floor'} [review_assurance_floor]`,
     resolveGitCwd: () => 'GIT',
@@ -183,6 +189,9 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
     ['finish missing or malformed', f => { f.finish = null; }, 'dev-memory-finish-decision', 'missing_dev_memory_finish_decision'],
     ['delivery missing', f => { f.delivery = { ok: false, code: 'missing_delivery_check', reason: 'missing', deliveryCheck: null }; }, 'delivery-check', 'missing_delivery_check'],
     ['delivery tampered', f => { Object.assign(f.delivery, { ok: false, code: 'delivery_check_tampered', reason: 'tampered' }); }, 'delivery-check', 'delivery_check_tampered'],
+    ...[undefined, null, {}, [null], [3]].map(value => [`rejected malformed delivery ${JSON.stringify(value)}`, f => {
+      Object.assign(f.delivery, { ok: false, code: 'delivery_check_tampered', reason: 'tampered', deliveryCheck: { docsPromises: value } });
+    }, 'delivery-check', 'delivery_check_tampered']),
     ['delivery stale', f => { Object.assign(f.delivery, { ok: false, code: 'stale_delivery_check', reason: 'stale' }); }, 'delivery-check', 'stale_delivery_check'],
     ['live smoke failed', f => { f.live = { ok: false, status: 'failed', reason: 'failed smoke' }; }, 'live-smoke-transcript', 'live_smoke_transcript_failed'],
     ['promise unresolved', f => { f.delivery.deliveryCheck.docsPromises = [{ docPath: 'promise.md', status: 'unverified' }]; }, 'delivery-check', 'unverified_promise'],
@@ -264,6 +273,31 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   });
   assert.ok(snapshotRows.some(row => row.id === 'dev-memory-finish-decision' && row.blocking && row.status === 'fail'),
     'completedSnapshot must not downgrade a live shared failure');
+  for (const phase of ['TEST', 'DONE']) {
+    const historical = fixture(); historical.phase = phase;
+    historical.historicalReview = { ok: true, advisories: ['Historical DONE snapshot; current material drift'] };
+    historical.historicalEscalation = historical.escalation;
+    historical.historicalFloor = historical.floor;
+    historical.review = { ok: false, code: 'review_evidence_invalid', message: 'diff_pack_changed' };
+    historical.escalation = { ...historical.escalation, ok: false, required: true, reason: 'current material drift' };
+    historical.floor = { ...historical.floor, ok: false, required: true, reason: 'current material drift' };
+    const h = productionConsumers(machineSource, oracleSource, historical);
+    const options = { gitCwd: 'GIT', completedSnapshot: { materialHash: 'historical-material', storyFilesHash: 'historical-story' } };
+    const rows = h.api.buildDoneChecklist('B-probe', h.store, 'ROOT', options);
+    for (const id of ['review-verdict', 'review-escalation', 'review-assurance-floor']) {
+      const row = rows.find(row => row.id === id);
+      assert.equal(row?.blocking, phase === 'TEST', `${phase}: ${id} uses the correct material domain`);
+    }
+    assert.equal(h.api.canFinishGuard(h.context), false, `${phase}: default guard remains live-strict`);
+    const injected = productionConsumers(future, oracleSource, historical);
+    assert.ok(injected.api.buildDoneChecklist('B-probe', injected.store, 'ROOT', options)
+      .some(row => row.id === 'future-done-predicate' && row.blocking), `${phase}: historical projection forwards future predicates`);
+    historical.historicalReview = { ok: false, code: 'review_evidence_invalid', message: 'invalid signature after material drift' };
+    const invalid = productionConsumers(machineSource, oracleSource, historical);
+    assert.ok(invalid.api.buildDoneChecklist('B-probe', invalid.store, 'ROOT', options)
+      .some(row => row.id === 'review-verdict' && row.blocking), `${phase}: integrity rejection is never blanket downgraded`);
+  }
+  console.log('GREEN historical DONE projection: snapshot assurance, strict TEST, integrity blockers and generic future predicate');
   const stricter = [{ id: 'test-evidence', status: 'fail', blocking: true, detail: 'stricter preflight', source: 'fixture', label: 'test' }];
   const strictWitness = productionConsumers(machineSource, oracleSource, fixture());
   const strictProjection = strictWitness.api.projectDonePredicateRows(stricter, [...strictWitness.api.evaluateDonePredicates(strictWitness.context)]);
@@ -298,6 +332,9 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   assert.throws(() => skipped.api.buildDoneChecklist('B-probe', skipped.store, 'ROOT', { gitCwd: 'GIT' }),
     /Missing shared DONE predicate result: test-evidence/, 'skipped outcomes must explicitly fail closed before rendering');
   console.log('GREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure');
+  assert.doesNotMatch(readFileSync('docs/requirements/decisions/done-prepare-automation-execution-plan.md', 'utf8'),
+    /`done_prepare` and `done_closure` are read-only projections/,
+    'documentation must not claim the mutating done_prepare command is read-only');
   console.log('Shared DONE predicate parity passed');
 }
 
