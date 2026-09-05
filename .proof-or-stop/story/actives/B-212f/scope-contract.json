@@ -54,10 +54,28 @@
       "phase": "DEV",
       "headHash": "25f0b9a8cf2061127ba18489b0bed153df33b10f",
       "materialHash": "ffdbd9afade1fc3f2f057c492b82b16a36aa78b9b7d1a0466e22a5bcfca85d50"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "B-212f F-009 and its independently verified inventory corroborations prove a regression introduced by this Story: historical DONE projection is overwritten by live failures, while the existing snapshot fixture fails before its historical assertions because the new prerequisites are absent. Add only a typed DONE-snapshot validation path in review-run.ts to retain downstream integrity checks, and repair/extend the existing snapshot smoke fixture. Default live review and TEST-to-DONE behavior must stay strict; no other scope or protected file is authorized. This is current acceptance-blocking repair under the user-requested triage rule, not unrelated global-green work.",
+      "timestamp": "2026-09-05T12:45:49.102Z",
+      "paths": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "20386a10cf86524af62058b8113d03984769447e",
+      "materialHash": "d063051d78733c30a7e36459ba810649f25dcfee5448f056ae636a9a0d194c01"
     }
   ],
   "createdAt": "2026-09-04T20:34:07.555Z",
-  "updatedAt": "2026-09-05T11:15:06.665Z",
+  "updatedAt": "2026-09-05T12:45:49.102Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -81,6 +99,8 @@
     ".proof-or-stop/story/actives/B-212f/causal-evidence/receipts/6bbebd55b068338dcd29198ad4b92d25c33c777962055c1c9775f74d9fced830.json": ".proof-or-stop/story/actives/B-212f/causal-evidence/receipts/6bbebd55b068338dcd29198ad4b92d25c33c777962055c1c9775f74d9fced830.json",
     ".proof-or-stop/story/actives/B-212f/causal-evidence/receipts/a231f78e3dc1ce9abe58e88356754961113146ff1a4dc8eae6dd337d2713ba72.json": ".proof-or-stop/story/actives/B-212f/causal-evidence/receipts/a231f78e3dc1ce9abe58e88356754961113146ff1a4dc8eae6dd337d2713ba72.json",
     ".proof-or-stop/story/actives/B-212f/causal-evidence/receipts/b2b214babd2bad47d63e6620709c01a8fac598ee3a37f3afe4cdf8a5ec78e275.json": ".proof-or-stop/story/actives/B-212f/causal-evidence/receipts/b2b214babd2bad47d63e6620709c01a8fac598ee3a37f3afe4cdf8a5ec78e275.json",
-    "packages/main/tests/red/red-done-shared-predicates.mjs": "packages/main/tests/red/red-done-shared-predicates.mjs"
+    "packages/main/tests/red/red-done-shared-predicates.mjs": "packages/main/tests/red/red-done-shared-predicates.mjs",
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts": "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts"
   }
 }
