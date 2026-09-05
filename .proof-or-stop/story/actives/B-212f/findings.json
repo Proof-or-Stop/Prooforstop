@@ -247,7 +247,7 @@
       "desc": "doc-promise-undelivered: Independent docs-lane corroboration of canonical B-212f:F-008, same root and impact, not a new defect family. docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 states that done_prepare and done_closure are read-only projections. The recommended invocation at lines 93-100 sets mergeMain=true and dryRun=false, while packages/main/src/handlers/done-prepare.ts:1889-1901 skips mutation only for mergeMain=false or dryRun=true and otherwise executes git merge main --no-edit. The new command-wide read-only promise exceeds the shared readiness evaluator boundary and could cause an operator to run a mutating command as inspection. Verified by independent source/doc reads; no merge was executed. The shared evaluator and finite mutation-proof description at doc163-184 match inspected source; node packages/main/tests/red/red-done-shared-predicates.mjs independently exited 0. Repair only the changed promise wording to refer to shared readiness projection, preserving authorized merge/refresh/validate behavior. Preserve F-008 as canonical observation; inventory critic should classify this corroboration as duplicate of its live owner-bound Finding.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-05T12:16:51.845Z",
@@ -283,7 +283,11 @@
         "packages/main/src/handlers/done-prepare.ts"
       ],
       "signatureTag": "missing|md|promise-undelivered-independent",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed in 8168160d51: documentation scopes read-only to the shared readiness projection, explicitly preserves done_prepare merge/refresh/build/validate side effects and points inspection to dryRun. Final frozen test 982a3d1c12 rejects the old whole-command claim on immutable 5d0abf0 and passes on the final implementation. Original parity test remains byte-identical. This is a wording repair, not a claim that done_prepare has become read-only.",
+      "resolvedAt": "2026-09-05T14:40:27.119Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-011",
