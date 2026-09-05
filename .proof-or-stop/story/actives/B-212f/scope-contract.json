@@ -98,10 +98,44 @@
       "phase": "DEV",
       "headHash": "8168160d5160b8a858632f891589c29b44497a25",
       "materialHash": "61fc533166bc8232903a987717e4934f8f40bc9d57104e4ae91e69c5aa61df19"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-034 through F-041 are independently verified mandatory validation blockers, not optional cleanup. User explicitly requires acceptance and lifecycle-blocking defects repaired in this Story. CHK-005 limits changes to eight recorded root families; preserve retired-brand rejection, fixed inventory pin, command execution safeguards, signature decisions, and original parity proof.",
+      "timestamp": "2026-09-05T16:56:54.310Z",
+      "paths": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts",
+        "packages/main/src/tasks/cli-surface-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts",
+        "packages/main/src/tasks/cli-surface-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "affectedPathCount": 10,
+      "phase": "DEV",
+      "headHash": "76d9cbdf9380f7c65574593d3dfb7bd4614081dd",
+      "materialHash": "5f21d60f876149ae07175707c662798e5c550344fe4f36522a1c1b9541efdd63"
     }
   ],
   "createdAt": "2026-09-04T20:34:07.555Z",
-  "updatedAt": "2026-09-05T14:23:58.516Z",
+  "updatedAt": "2026-09-05T16:56:54.310Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -133,6 +167,13 @@
     "docs/story/drafts/gap-log-existing-provenance-chain-invalid/index.json": "docs/story/drafts/gap-log-existing-provenance-chain-invalid/index.json",
     "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md": "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
     "docs/story/drafts/historical-reviewer-audit-snapshot-context/checklist.json": "docs/story/drafts/historical-reviewer-audit-snapshot-context/checklist.json",
-    "docs/story/drafts/historical-reviewer-audit-snapshot-context/index.json": "docs/story/drafts/historical-reviewer-audit-snapshot-context/index.json"
+    "docs/story/drafts/historical-reviewer-audit-snapshot-context/index.json": "docs/story/drafts/historical-reviewer-audit-snapshot-context/index.json",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts": "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts"
   }
 }

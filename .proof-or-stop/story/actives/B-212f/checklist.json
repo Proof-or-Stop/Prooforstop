@@ -654,6 +654,132 @@
           "timestamp": "2026-09-05T15:46:06.378Z"
         }
       ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Repair the evidenced blockers in B-212f mandatory validation",
+      "context": "The official 131-command validation at 2026-09-05T16:22:02.145Z failed nine commands. RI-003 records eight roots in F-034 through F-041 plus corroboration F-042. Seven roots reproduce on main 69403365; the fixed inventory digest omission was introduced by the three B-212f command registrations. The user requires current acceptance blockers to be repaired in this Story. Preserve the original parity RED and all sound rejection controls. This item is limited to those eight evidenced families, not repository-wide cleanup.",
+      "relatedDocs": [
+        "AGENTS.md#defect-triage-and-bounded-scope",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "userSees": "All eight targeted regression commands finish with their existing success summaries, and the configured 131-command validation reports PASS.",
+      "excludes": [
+        "Restore retired runtime brands or Lab aliases.",
+        "Remove failing validation commands or replace fixed expected digests with dynamically computed expectations.",
+        "Weaken signature, immutable pin, timeout, selector, or DONE freshness checks.",
+        "Repair unrelated nonblocking defects."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Pinned docs and manual intents re-execute and earn fresh mechanical evidence under unchanged pin and stamping safeguards.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Canonical mutation controls exercise and reject removed acceptance-basis process facts.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "desc": "English authoring checks read the real repository guides and preserve all behavioral rejection cases.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+              "selector": "english-early-check smoke passed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The real validation inventory matches the reviewed fixed digest without declared or absolute command working directories.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "validation-tier-planner-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Current CLI aliases normalize correctly while retired Lab aliases stay unavailable.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+              "selector": "cli surface smoke passed"
+            }
+          },
+          {
+            "desc": "Canonical ambient transport fields stay session-neutral while retired semantic fields and explicit overlays affect evidence identity.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+              "selector": "done-required-validation smoke passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The canonical fixture actually schedules the hanging command, records its timeout, and preserves named progress diagnostics.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+              "selector": "validate-progress-heartbeat smoke passed"
+            }
+          },
+          {
+            "desc": "INIT_CHECK tamper diagnostics derive from the signature domain while valid, malformed, and tampered verdict controls retain their rejection behavior.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+              "selector": "PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest."
+            }
+          }
+        ]
+      },
+      "status": "in_progress",
+      "startTime": "2026-09-05T16:59:18.671Z",
+      "endTime": null
     }
   ],
   "auditLog": [
@@ -1062,6 +1188,15 @@
       "to": "done",
       "reason": "Verified implementer commit8b1e7bce0a and merge f23f3d70ca retain complete private output selector/digest with bounded public and persisted windows. Current merged build and evidence-receipt smoke passed; tool-owned receipts will be refreshed on committed material.",
       "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T16:59:18.671Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Owner starts the exact eight-family repair assigned to the canonical independent implementer after RI-003 authorized remediation."
     }
   ]
 }
