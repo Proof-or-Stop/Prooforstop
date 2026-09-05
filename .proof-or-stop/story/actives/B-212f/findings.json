@@ -879,6 +879,54 @@
       ],
       "signatureTag": "done-eager-invalid-delivery-promises",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-024",
+      "desc": "RI-001 wave 3 coverage re-attestation of F-011/F-017, canonical B-212f:F-009, same completed-done-snapshot-live-overlay family and no new root cause. Source material and Story files remain unchanged. packages/main/tests/red/red-done-shared-predicates.mjs:133-149,260-266 still uses a TEST-phase reader and tests only finish=null under completedSnapshot, omitting historical-valid/live-stale DONE assurance. Fresh node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs again compares source-extracted main 69403365ae/current buildDoneChecklist using identical DONE-phase snapshot-aware readers: main escalation pass/nonblocking becomes current escalation fail/blocking plus stale review-verdict fail/blocking; active canFinishGuard remains false. The unchanged post-done-closure-snapshot smoke already reproduced exit 1 at initial TEST readiness before historical assertions in this review session. Therefore the signed decision requirement to preserve completion-snapshot compatibility remains unsupported by the passing shared proof. Preserve original F-009/F-011/F-017 observations; classify this terminal as duplicate corroboration of canonical F-009. Its bounded repair must cover completed historical assurance and keep active TEST-to-DONE strict.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T12:40:26.395Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "8b1f3421d3fe3952c7b31ed1fbeca6e096756bfc33a9a04aa2781b16cffbb898",
+      "files": [
+        "packages/main/tests/red/red-done-shared-predicates.mjs",
+        "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "completed-done-snapshot-live-overlay",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
