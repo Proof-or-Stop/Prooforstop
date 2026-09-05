@@ -98,6 +98,48 @@
         "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
       },
       "_hash": "e8047572844d29fabddc1d059d4f8b7000a54968ad62135fc7bfec72363ef5be"
+    },
+    {
+      "id": "B-212f:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent ordinary coverage review of all four checklist items on material61fc5331/Story files163103f7. All14 tool-owned intent receipts are pass/mechanical/selectorMatched with exit0 and current bindings; original parity blob0375c372 is unchanged. Fresh shared predicate proof, original filesystem parity, post-done-closure-snapshot smoke and process-fact verifier --quiet all exit0. Current shared test and snapshot smoke blobs exactly match frozen15497d063b. Independent source-executed replay against immutable5d0abf0 fails on malformed delivery; repaired machine with immutable old oracle fails the historical compatibility assertions. Reviewed F009/F018 and coverage corroborations F011/F017/F024/F025 closure against the human-approved narrower contract: active TEST and default DONE guard remain strict, TEST cannot opt into history with a supplied snapshot, actual DONE plus completedSnapshot preserves established historical artifact/assurance checks and reviewer information explicitly makes no fresh PASS/full audit claim. Tests cover retired workspace, unsupported legacy/full/incremental reviewer shapes as informational only, malformed rejected promises, missing historical assurance, future-predicate propagation and historical-phase escape mutation. The snapshot smoke is registered at config.validate.commands[76]. CHK004 long-output receipt implementation is unchanged and its refreshed receipt covers full digest, bounded tail and genuinely absent-selector refusal. No coverage blocker found; this lane PASS does not assert full historical reviewer audit, global validation, TEST/DONE acceptance or Authority completion.",
+      "createdAt": "2026-09-05T14:46:04.976Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-034",
+      "envelopeId": "85c92397047b417926628071aea58ebf6cb69e8665ffeb1f37e316b122ec06d7",
+      "writerSessionId": "sess-6ff749093aec60d12c24f8501f82f122",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "8d5ba6d3f9c02c5b4eab8fa09a3cde11aeb5197b970c5e01283fb9fac819073f"
     }
   ]
 }
