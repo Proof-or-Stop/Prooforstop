@@ -4498,9 +4498,26 @@ function assertReviewInventoryRemediationContract() {
     'stale refresh candidate must admit every immutable pin, including docs/manual, without bypassing timeout enforcement');
   assert(read(processFactRegistryPath).includes('every immutable pinned intent, including docs/manual'),
     'stale pinned docs/manual recovery must remain registered as mechanical gate evidence');
+  const stampBody = findFunctionDeclaration(refreshSource, 'enforceAndStampEvidence')?.body?.getText(refreshSource) ?? '';
+  assert(stampBody.includes('executedAt: receipt.executedAt')
+    && !stampBody.includes('executedAt: new Date()'),
+    'verification execution time must project the signed causal receipt, never per-intent restamping time');
+  for (const binding of [
+    '...(deps.refreshExecutionKey !== undefined ? { refreshExecutionKey: deps.refreshExecutionKey } : {})',
+    'runCommand: runCommand(candidate.executionKey)',
+    'refreshExecutionKey: candidate.executionKey',
+    'JSON.stringify({ refreshExecutionKey, command, cwd, timeoutMs: effectiveTimeoutMs })',
+    'preflightInputKey(input, sourceReceipt.executionKey)',
+    'preflightInputKey(input, receipt.executionKey)',
+    'preflightInputKey(causalPreflight.input, receipt.executionKey)',
+    'preflightInputKey(firstPreflight.input, firstReceipt.executionKey)',
+  ]) assert(checklistHandlerText.includes(binding), `strict refresh identity binding missing: ${binding}`);
+  assert(read(processFactRegistryPath).includes('strict refresh execution inputs bind the authoritative candidate key'),
+    'strict refresh physical/CAS/import identity and signed execution time must remain registered');
   const refreshSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
   for (const marker of ['pinned manual verifier re-earns mechanical authority', 'pinned docs verifier re-earns mechanical authority',
-    'a failing re-run leaves the row demoted', 'pin-less demotion strips the receipt']) {
+    'a failing re-run leaves the row demoted', 'pin-less demotion strips the receipt',
+    'shared rows bind cloned facts from the same execution', 'different selector/effective-timeout/provenance keys never dedupe']) {
     assert(refreshSmoke.includes(marker), `stale refresh executable control missing: ${marker}`);
   }
   assert(

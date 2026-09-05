@@ -399,7 +399,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
-    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; failed or pinless rows never regain mechanical authority',
+    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; strict refresh execution inputs bind the authoritative candidate key through physical execution, signed causal identity and receipt-keyed import checks; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
   },
   verification_run: {
     name: 'checklist.json',
