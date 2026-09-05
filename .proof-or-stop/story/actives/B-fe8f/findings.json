@@ -1277,6 +1277,28 @@
       "resolvedReason": "Complete bounded Store reader repair: actual RED d69169e4d50065421a21bfdc0ba1ae9593bee7fe exposed projection-prefix failures=8; unified RED a0f1b76e5feef972b26bc8db41171e7d3b15cff3 exposed base=20, legacy=12 and re-signed projection CAS=9. GREEN 845023258fdae5280a68043ea30fdc4d8c74b98e authenticates unique carriers/full actual prefixes, restores signed legacy identity without granting forged terminal state, and validates exact unordered projection CAS source sets while preserving signed legacy and mixed-batch positives. edda7b58bbe9cc580a9ec6dcb9bc804037f4ed82 strengthens refusal assertions to retain the exact original open rows and prove ledger/mirror zero writes. Independent concept and coverage audited the whole base/legacy/projection/lifecycle unit; current full pinned refresh supplies GREEN, and the real finding_list still exposes all 47 historical Findings without rewriting legacy data. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-048",
+      "desc": "core/store.ts:1113,1129 with core/finding-ledger.ts:78-82: readFindings hard-fails when the Finding ledger trust key is unavailable, and that key never travels with the repository. findingLedgerKeyPath resolves the ed25519 key under gitCommonDir, i.e. inside .git, which git clone never copies, while git ls-files --error-unmatch confirms .proof-or-stop/story/actives/B-fe8f/finding-ledger.json IS tracked and does travel. store.ts:1113 loads trust via the non-creating currentFindingLedgerTrustFromWorkspace; store.ts:368 returns undefined for every carrier when trust is undefined; trustedLegacyBaseFindingCarrier also yields undefined because its inner binding lookup uses the same helper; store.ts:1129 then throws FINDING_LEDGER_AUTHORITY_INVALID on the first base finding record. A clone that creates its own key gets a different keyId and trustRootDigest, so verifyFindingLedgerReceipt fails identically. Consequence: in any clone other than the one that wrote the ledger, readFindings on a ledger-bearing Story throws instead of degrading, breaking finding_list, signature_backfill over listStoryIds, and the readFindings projection that process-fact-registry registers as a canPassReview gate consumer. Before commit 845023258f base Finding payloads were projected without trust, so the same clone still read them; this is a regression introduced by that repair. It also runs against execution-plan acceptance line 3618 that legacy Findings remain readable without bulk rewrite. Protected surfaces: lifecycle_gate, cli_primary_entrypoint, historical_evidence_integrity. Coverage gap: no regression exercises a ledger that HAS base finding records while the key is absent; runReadOnlyColdStartRegression only asserts finding_ledger_query and finding_runtime_evidence_verify refusals on an empty fixture, and runBaseFindingAuthorityRegression always has the key present. Severity: high.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Source-verified but not executed end to end. Verified by source reading plus git: the ledger file is tracked (git ls-files --error-unmatch succeeded), the key path resolves under git rev-parse --git-common-dir which is the untracked .git directory, and the store.ts path from undefined trust to the throw is unconditional. NOT executed: this session was denied every filesystem-writing probe (mkdir, cp, heredoc, node inline module), so I could not run readFindings against a copy of the real ledger under a keyless git root. I also did not exhaustively exclude a mitigation outside the files I read, such as a DONE-time exclusion of finding-ledger.json, a rebinding migration on first read in a new clone, or a policy that ledger-bearing Stories are never read from another clone. Owner reproduction: copy finding-ledger.json and findings.json plus a minimal proof-or-stop.config.json into a fresh git init directory, then call StoryStore(root).readFindings on B-fe8f via packages/main/dist/core/store.js and expect FINDING_LEDGER_AUTHORITY_INVALID. If it reproduces this becomes verified high and should block REVIEW.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T13:19:13.703Z",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "reviewRunId": "B-fe8f:RR-103",
+      "_hash": "793d98ca99767ef860346124c4b1cbc1cbdf42d9f3411b42a1b68015eafc96e4",
+      "files": [
+        "packages/main/src/core/store.ts",
+        "packages/main/src/core/finding-ledger.ts"
+      ],
+      "signatureTag": "adversarial|ts|core-store-1113",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoeszzc_x5b_35ef5424d5e64ce4b8a621e935a7bca4",
+      "ledgerCommitReceiptId": "lrc_mtoeszzd_x5b_e52bc3781227486faf3264ac5b48b6a2"
     }
   ]
 }

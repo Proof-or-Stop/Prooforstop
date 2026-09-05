@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "aba635fa940bfaa34ca47d32aa1fab50b4552fdd7eba0356d49c22fdbeab6411",
+  "committedLedgerDigest": "be029987d8e9b17c8d408d73d8122fb37d80a1cc219b085c6033cb83b56e40d4",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2030,6 +2030,36 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T13:04:20.223Z"
+    },
+    {
+      "recordId": "lr_mtoeszzc_x5b_35ef5424d5e64ce4b8a621e935a7bca4",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:4d5ec27a-f351-4189-b246-e9fad8c85083",
+      "payload": {
+        "id": "B-fe8f:F-048",
+        "desc": "core/store.ts:1113,1129 with core/finding-ledger.ts:78-82: readFindings hard-fails when the Finding ledger trust key is unavailable, and that key never travels with the repository. findingLedgerKeyPath resolves the ed25519 key under gitCommonDir, i.e. inside .git, which git clone never copies, while git ls-files --error-unmatch confirms .proof-or-stop/story/actives/B-fe8f/finding-ledger.json IS tracked and does travel. store.ts:1113 loads trust via the non-creating currentFindingLedgerTrustFromWorkspace; store.ts:368 returns undefined for every carrier when trust is undefined; trustedLegacyBaseFindingCarrier also yields undefined because its inner binding lookup uses the same helper; store.ts:1129 then throws FINDING_LEDGER_AUTHORITY_INVALID on the first base finding record. A clone that creates its own key gets a different keyId and trustRootDigest, so verifyFindingLedgerReceipt fails identically. Consequence: in any clone other than the one that wrote the ledger, readFindings on a ledger-bearing Story throws instead of degrading, breaking finding_list, signature_backfill over listStoryIds, and the readFindings projection that process-fact-registry registers as a canPassReview gate consumer. Before commit 845023258f base Finding payloads were projected without trust, so the same clone still read them; this is a regression introduced by that repair. It also runs against execution-plan acceptance line 3618 that legacy Findings remain readable without bulk rewrite. Protected surfaces: lifecycle_gate, cli_primary_entrypoint, historical_evidence_integrity. Coverage gap: no regression exercises a ledger that HAS base finding records while the key is absent; runReadOnlyColdStartRegression only asserts finding_ledger_query and finding_runtime_evidence_verify refusals on an empty fixture, and runBaseFindingAuthorityRegression always has the key present. Severity: high.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "suspected",
+        "uncertaintyReason": "Source-verified but not executed end to end. Verified by source reading plus git: the ledger file is tracked (git ls-files --error-unmatch succeeded), the key path resolves under git rev-parse --git-common-dir which is the untracked .git directory, and the store.ts path from undefined trust to the throw is unconditional. NOT executed: this session was denied every filesystem-writing probe (mkdir, cp, heredoc, node inline module), so I could not run readFindings against a copy of the real ledger under a keyless git root. I also did not exhaustively exclude a mitigation outside the files I read, such as a DONE-time exclusion of finding-ledger.json, a rebinding migration on first read in a new clone, or a policy that ledger-bearing Stories are never read from another clone. Owner reproduction: copy finding-ledger.json and findings.json plus a minimal proof-or-stop.config.json into a fresh git init directory, then call StoryStore(root).readFindings on B-fe8f via packages/main/dist/core/store.js and expect FINDING_LEDGER_AUTHORITY_INVALID. If it reproduces this becomes verified high and should block REVIEW.",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-05T13:19:13.703Z",
+        "reviewRound": "2026-09-05T13:03:05.150Z",
+        "reviewRunId": "B-fe8f:RR-103",
+        "_hash": "793d98ca99767ef860346124c4b1cbc1cbdf42d9f3411b42a1b68015eafc96e4",
+        "files": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/finding-ledger.ts"
+        ],
+        "signatureTag": "adversarial|ts|core-store-1113",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "1e5e1981f69091c9ac8261ccaa1071e17fac097b9713e6a9833eb2d2aa567a56",
+      "priorDigest": "aba635fa940bfaa34ca47d32aa1fab50b4552fdd7eba0356d49c22fdbeab6411",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T13:19:13.704Z"
     }
   ],
   "receipts": [
@@ -5638,6 +5668,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "71439132f38d7e075b3e1ce70c0381c23517bf34b8c50b8b1abe3864b6778ac3",
         "signature": "DsfsCxr2xSRO4H10xcMTxGHg9BOY7ObNbyJi6KD+j932FHbXL4O2TC8Uy6xHnu6eJfD1+zIYRWeKrhER+LoYDw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtoeszzd_x5b_e52bc3781227486faf3264ac5b48b6a2",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:4d5ec27a-f351-4189-b246-e9fad8c85083",
+      "requestDigest": "91b7a074e1847ee74487e0876ca0c1a8908376f5b40e3ba11606a535494fc829",
+      "recordIds": [
+        "lr_mtoeszzc_x5b_35ef5424d5e64ce4b8a621e935a7bca4"
+      ],
+      "priorLedgerDigest": "aba635fa940bfaa34ca47d32aa1fab50b4552fdd7eba0356d49c22fdbeab6411",
+      "committedLedgerDigest": "be029987d8e9b17c8d408d73d8122fb37d80a1cc219b085c6033cb83b56e40d4",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "writerFenceToken": "782b1032-4938-413b-8f07-ad00934fefdd",
+      "committedAt": "2026-09-05T13:19:13.704Z",
+      "replayed": false,
+      "exactRequestDigest": "37786c26e3ca8c45a9b1b79c7a2cec937ceb5a38daaa0f8f7a9099790ba2c33f",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtoeszzd_x5b_e52bc3781227486faf3264ac5b48b6a2",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:4d5ec27a-f351-4189-b246-e9fad8c85083",
+        "exactRequestDigest": "37786c26e3ca8c45a9b1b79c7a2cec937ceb5a38daaa0f8f7a9099790ba2c33f",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtoeszzc_x5b_35ef5424d5e64ce4b8a621e935a7bca4"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "aba635fa940bfaa34ca47d32aa1fab50b4552fdd7eba0356d49c22fdbeab6411",
+        "committedLedgerDigest": "be029987d8e9b17c8d408d73d8122fb37d80a1cc219b085c6033cb83b56e40d4",
+        "replayed": false,
+        "committedAt": "2026-09-05T13:19:13.704Z",
+        "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "782b1032-4938-413b-8f07-ad00934fefdd",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "e8b90e27fd0c8fdcac034b69fb7c7dae6cfb629d88f5886c7501cb9012374842",
+        "signature": "6TQBzCvakbZwHsh2eVeTqLsAht3ROhgg3ZzJqChsxNpLMHnkl6HEKKm5aaNsPx/B9E3xJTzdZ85WvhiVXKrYCg=="
       }
     }
   ]
