@@ -2541,6 +2541,25 @@
       ],
       "signatureTag": "causal-receipt-execution-time-projection",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-053",
+      "desc": "Independent quality source-executed Part E2 on current compiled code exits1: physical execution count3 versus required5. Distinct selector pairs and same-timeout/different audited provenance share causal keys, while current command-policy.ts188 and staleReexecCandidate require exact selector/type/kind/cwd/effective-timeout/provenance grouping. History a8f73da7bc3 established the refresh-specific contract; merge594908f8df removed group-consumption/cloned-group import but retained unused groups declaration, strict candidate key, and E2. Main already contains this integration defect. Pre-existing medium current-validation and documented-refresh-contract blocker. Owner explicitly selects restoring the existing strict refresh promise, not rewriting E2 to3: bind the authoritative strict refresh semantics to actual causal execution/cache identity, preserve generic U03 exact-key reuse and independent selector handling elsewhere, retain E1/E2/E3 and failure demotion.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-05T17:23:42.904Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "_hash": "34877b0c1fd5809c4a4428e12f16f7fce0212787c071a93359f83310a392554f",
+      "files": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/command-policy.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "signatureTag": "strict-refresh-execution-group-integration",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
