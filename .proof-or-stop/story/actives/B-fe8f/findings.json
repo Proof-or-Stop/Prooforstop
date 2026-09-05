@@ -1440,6 +1440,27 @@
       "resolvedReason": "Fixed in 46a37452ef07f7d87caa18e41462bf74e81f2d71. config doctor and config repair map to registered proof_or_stop_config_doctor and proof_or_stop_config_repair. Original cli-surface-smoke passed end-to-end after rebuild. Build and diff check passed. Official stale evidence refresh completed71/71 against that source in342.5seconds (metadata bc342c8). This proves bounded repair, not full standard validation, host quorum or DONE.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-055",
+      "desc": "packages/main/src/tasks/done-required-validation-smoke.ts:381 (new in the F-050 repair) builds the retired brand prefix as an expression, ['LAT','TICE_'].join(''), rather than a literal. I verified with grep that the file now contains zero literal occurrences of that retired token, so the only construction is the runtime concatenation. The surrounding assertion logic is correct and matches F-050's required repair: it asserts retired ambient spellings remain semantic while canonical spellings stay session-neutral, without restoring obsolete aliases or weakening the digest assertion. The concern is narrower and is about readability and gate visibility: the line carries no comment explaining why the prefix is assembled instead of written, so a future maintainer cannot tell whether this is deliberate residue-policy compliance or accidental obfuscation, and any literal-token residue scan over this file cannot see the token it is reasoning about. CLAUDE.md documents a sanctioned route for legitimately retaining historical brand tokens, namely the identity-cutover verifier's per-file per-token rules, which would make the exception explicit and auditable instead of invisible. Suggested bounded fix: keep the same behavior and either add a one-line comment naming the residue-policy reason, or register the literal through the sanctioned per-token mechanism. Severity: low.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The mechanical facts are verified: the concatenation exists at that line and the file contains zero literal occurrences of the retired token. What I cannot determine from the sources I read is which residue-policy reading governs. If the policy means no new literal retired tokens may appear in product runtime source, this construction complies and only the missing explanatory comment remains. If the policy means retained historical tokens must be registered with the identity-cutover verifier's per-file per-token rules, this bypasses that registration. I did not read the residue verifier implementation or scripts/verify-proof-or-stop-residue.mjs to settle which reading applies, and I ran no test, so I am not asserting a policy violation. Filed low and suspected so it is preserved and traceable without blocking; it is non-blocking under any reading and does not affect the ledger work.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T15:04:17.718Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "reviewRunId": "B-fe8f:RR-111",
+      "_hash": "3dc4f04d503d83541aac617173ed53b68c9239d7d4533cf29795db2ce68d8c4c",
+      "files": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66",
+      "ledgerCommitReceiptId": "lrc_mtoik471_bl9_072179585d174fd6b76269ca944aadf4"
     }
   ]
 }

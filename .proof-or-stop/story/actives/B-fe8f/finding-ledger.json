@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "891da7c0b893adb3d817a02a35b656beb296162821fcd8e6adf80cfef9295666",
+  "committedLedgerDigest": "32bbc1a4cd268d7479fc1aca16aba9d1b55801b6ecf57835c8db0117c85bc330",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2344,6 +2344,35 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T14:54:11.686Z"
+    },
+    {
+      "recordId": "lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:a0949f15-4d88-4862-a158-6db5659728c1",
+      "payload": {
+        "id": "B-fe8f:F-055",
+        "desc": "packages/main/src/tasks/done-required-validation-smoke.ts:381 (new in the F-050 repair) builds the retired brand prefix as an expression, ['LAT','TICE_'].join(''), rather than a literal. I verified with grep that the file now contains zero literal occurrences of that retired token, so the only construction is the runtime concatenation. The surrounding assertion logic is correct and matches F-050's required repair: it asserts retired ambient spellings remain semantic while canonical spellings stay session-neutral, without restoring obsolete aliases or weakening the digest assertion. The concern is narrower and is about readability and gate visibility: the line carries no comment explaining why the prefix is assembled instead of written, so a future maintainer cannot tell whether this is deliberate residue-policy compliance or accidental obfuscation, and any literal-token residue scan over this file cannot see the token it is reasoning about. CLAUDE.md documents a sanctioned route for legitimately retaining historical brand tokens, namely the identity-cutover verifier's per-file per-token rules, which would make the exception explicit and auditable instead of invisible. Suggested bounded fix: keep the same behavior and either add a one-line comment naming the residue-policy reason, or register the literal through the sanctioned per-token mechanism. Severity: low.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "suspected",
+        "uncertaintyReason": "The mechanical facts are verified: the concatenation exists at that line and the file contains zero literal occurrences of the retired token. What I cannot determine from the sources I read is which residue-policy reading governs. If the policy means no new literal retired tokens may appear in product runtime source, this construction complies and only the missing explanatory comment remains. If the policy means retained historical tokens must be registered with the identity-cutover verifier's per-file per-token rules, this bypasses that registration. I did not read the residue verifier implementation or scripts/verify-proof-or-stop-residue.mjs to settle which reading applies, and I ran no test, so I am not asserting a policy violation. Filed low and suspected so it is preserved and traceable without blocking; it is non-blocking under any reading and does not affect the ledger work.",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-05T15:04:17.718Z",
+        "reviewRound": "2026-09-05T14:53:05.943Z",
+        "reviewRunId": "B-fe8f:RR-111",
+        "_hash": "3dc4f04d503d83541aac617173ed53b68c9239d7d4533cf29795db2ce68d8c4c",
+        "files": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ],
+        "signatureTag": "missing|ts|packages-main-tasks",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "c42a9f3a3e89af6cd7a7f4c3c6a876d10b9cd7f975628e48625ec7f5eae34682",
+      "priorDigest": "891da7c0b893adb3d817a02a35b656beb296162821fcd8e6adf80cfef9295666",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T15:04:17.724Z"
     }
   ],
   "receipts": [
@@ -6513,6 +6542,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "e8c13d601fbfd3fdd1b6cd143d1ab9839715803d13997ae4c759de9d73f75759",
         "signature": "givj4fAB1mOsH2Is5POqMh0SZSj78HzDyQepjU271i375QOuEjX7kmaSVv1Z2izUfuv7uwbRjhn/WVrmZLbAAQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtoik471_bl9_072179585d174fd6b76269ca944aadf4",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:a0949f15-4d88-4862-a158-6db5659728c1",
+      "requestDigest": "580a209ca5d84af402ce69c93fae6adbf0519dd7e1f41e800d8a0c857357950b",
+      "recordIds": [
+        "lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66"
+      ],
+      "priorLedgerDigest": "891da7c0b893adb3d817a02a35b656beb296162821fcd8e6adf80cfef9295666",
+      "committedLedgerDigest": "32bbc1a4cd268d7479fc1aca16aba9d1b55801b6ecf57835c8db0117c85bc330",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "writerFenceToken": "bbc4d8d3-5989-49e5-b2cc-be20da15b003",
+      "committedAt": "2026-09-05T15:04:17.724Z",
+      "replayed": false,
+      "exactRequestDigest": "c23d994166111ff47472422781470b0594872bb2ac31bc3bb13382c497ad2a60",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtoik471_bl9_072179585d174fd6b76269ca944aadf4",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:a0949f15-4d88-4862-a158-6db5659728c1",
+        "exactRequestDigest": "c23d994166111ff47472422781470b0594872bb2ac31bc3bb13382c497ad2a60",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "891da7c0b893adb3d817a02a35b656beb296162821fcd8e6adf80cfef9295666",
+        "committedLedgerDigest": "32bbc1a4cd268d7479fc1aca16aba9d1b55801b6ecf57835c8db0117c85bc330",
+        "replayed": false,
+        "committedAt": "2026-09-05T15:04:17.724Z",
+        "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "bbc4d8d3-5989-49e5-b2cc-be20da15b003",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "afee3110a1bccfad3f3fb4288b49f9681cb6ca863b94dda678ee908851726853",
+        "signature": "aJI9YwUSBbXDo287epNea03dl2mPfm10VlTA8BKSpbOrOOgbnAaQgc9ljpLWnSKTYwPZtjS4mhS6uTNN6Q2nCg=="
       }
     }
   ]
