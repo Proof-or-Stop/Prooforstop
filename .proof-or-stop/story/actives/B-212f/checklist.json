@@ -777,7 +777,7 @@
           }
         ]
       },
-      "status": "pending",
+      "status": "in_progress",
       "startTime": "2026-09-05T16:59:18.671Z",
       "endTime": null,
       "verificationEvidence": [
@@ -1656,6 +1656,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Canonical implementer31351f6c67, unchanged E1/E2/E3 plus generic causal control pass; Owner tool receipts0993b46/6006220/9e7e150 cover all26 pinned intents on final source. Formal131 validation still pending."
+    },
+    {
+      "timestamp": "2026-09-05T17:40:47.805Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Resume acceptance of the preserved canonical implementer commit after its separately tracked verifier dependencies were repaired."
     }
   ]
 }
