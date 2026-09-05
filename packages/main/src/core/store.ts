@@ -999,7 +999,9 @@ export class StoryStore {
     const ledgerPath = this.findingLedgerPath(storyId);
     if (!existsSync(ledgerPath)) return data;
     const ledger = readLedger<unknown>(ledgerPath);
-    const lifecycleTrust = ledger.records.some((record) => record.recordType === 'finding_lifecycle_transition')
+    const lifecycleTrust = ledger.records.some((record) => (
+      record.recordType === 'finding_lifecycle_transition' || record.recordType === 'finding_projection'
+    ))
       ? currentFindingLedgerTrustFromWorkspace(this.projectRootValue)
       : undefined;
     const legacyLifecycleBindings = trustedLegacyLifecycleReceiptBindings(
@@ -1051,6 +1053,40 @@ export class StoryStore {
       trustedFindingRecordIds.add(record.recordId);
     }
     for (const record of ledger.records) {
+      if (record.recordType === 'finding_projection') {
+        if (!lifecycleTrust || !record.payload || typeof record.payload !== 'object') continue;
+        const payload = record.payload as Record<string, unknown>;
+        if (JSON.stringify(Object.keys(payload).sort()) !== JSON.stringify([
+          'findingId', 'findingRecordId', 'projection', 'schemaVersion',
+        ])
+          || payload.schemaVersion !== 1
+          || typeof payload.findingId !== 'string'
+          || typeof payload.findingRecordId !== 'string'
+          || !payload.projection || typeof payload.projection !== 'object'
+          || (payload.projection as Record<string, unknown>).id !== payload.findingId
+          || !trustedFindingRecordIds.has(payload.findingRecordId)) continue;
+        const carrier = (ledger.receipts as SignedLedgerCommitReceipt[]).find((candidate) => (
+          candidate.recordIds.includes(record.recordId)
+        ));
+        const signed = carrier?.findingLedgerReceipt;
+        if (!carrier || !signed || !verifyFindingLedgerReceipt(signed, lifecycleTrust)
+          || carrier.operation !== 'append_finding_projection'
+          || signed.operation !== 'append_finding_projection'
+          || signed.storyId !== storyId
+          || signed.receiptId !== carrier.receiptId
+          || !signed.recordIds.includes(record.recordId)) continue;
+        const index = data.findings.findIndex((finding) => (
+          finding.id === payload.findingId && finding.recordId === payload.findingRecordId
+        ));
+        if (index < 0) continue;
+        const prior = data.findings[index]!;
+        data.findings[index] = {
+          ...(payload.projection as FindingData['findings'][number]),
+          recordId: prior.recordId,
+          ...(prior.ledgerCommitReceiptId ? { ledgerCommitReceiptId: prior.ledgerCommitReceiptId } : {}),
+        };
+        continue;
+      }
       if (record.recordType !== 'finding_lifecycle_transition'
         || !record.payload || typeof record.payload !== 'object') continue;
       const transition = record.payload as unknown as FindingLifecycleTransition;

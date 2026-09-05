@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import {
   accessSync,
   constants,
+  chmodSync,
   existsSync,
   mkdtempSync,
   mkdirSync,
@@ -45,6 +46,7 @@ import {
   classifyMandatoryRepair,
   closeMandatoryRepair,
   createFindingLedgerHandlers,
+  createAuthoritativeFindingMutation,
   exactLedgerRecordHash,
   findingLedgerSignerFromWorkspace,
   findingLedgerTrustFromWorkspace,
@@ -95,6 +97,10 @@ import {
 import { StoryStore } from '../core/store.js';
 import { createMainRegistry } from '../registry.js';
 import { createFindingHandlers } from '../handlers/finding.js';
+import { createGapLogHandlers } from '../handlers/gap-log.js';
+import { createClusterHandlers } from '../handlers/cluster.js';
+import { createSignatureBackfillHandlers } from '../handlers/signature-backfill.js';
+import { autoResolveMissing, META_STORY_ID, upsertDrift } from '../core/audit-meta-store.js';
 import { createFindingRuntimeEvidenceHandlers, FINDING_RUNTIME_EVIDENCE_COMMANDS } from '../handlers/finding-runtime-evidence.js';
 import { FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT } from '../core/finding-runtime-evidence.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -103,6 +109,7 @@ import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.
 import {
   PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES,
   PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY,
+  PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY,
   PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY,
   getProcessFactRegistryEntry,
 } from '../core/process-fact-registry.js';
@@ -317,6 +324,206 @@ function runRuntimeCli(
     stderr: result.stderr ?? '',
     ...(result.status === 0 ? { json: parseCliJson(result.stdout ?? '') } : {}),
   };
+}
+
+async function runCliCommand(
+  repositoryRoot: string,
+  projectRoot: string,
+  command: string,
+  args: Record<string, unknown>,
+): Promise<{ status: number | null; stdout: string; stderr: string }> {
+  return new Promise((resolvePromise, reject) => {
+    const child = spawn(process.execPath, [
+      join(repositoryRoot, 'packages', 'main', 'dist', 'cli.js'),
+      command,
+      JSON.stringify(args),
+    ], {
+      cwd: projectRoot,
+      env: { ...process.env, ...RUNTIME_CLI_TEST_SESSION_ENV },
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (chunk) => { stdout += String(chunk); });
+    child.stderr.on('data', (chunk) => { stderr += String(chunk); });
+    child.on('error', reject);
+    child.on('exit', (status) => resolvePromise({ status, stdout, stderr }));
+  });
+}
+
+function contentSnapshot(root: string): string[] {
+  const rows: string[] = [];
+  const visit = (directory: string) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+      const absolute = join(directory, entry.name);
+      const relativePath = absolute.slice(root.length + 1).replaceAll('\\', '/');
+      if (entry.isDirectory()) {
+        rows.push(`d:${relativePath}`);
+        visit(absolute);
+      } else if (entry.isFile()) {
+        rows.push(`f:${relativePath}:${createHash('sha256').update(readFileSync(absolute)).digest('hex')}`);
+      } else if (entry.isSymbolicLink()) {
+        rows.push(`l:${relativePath}`);
+      }
+    }
+  };
+  visit(root);
+  return rows;
+}
+
+function readOnlySecuritySnapshot(root: string): string[] {
+  return contentSnapshot(root).filter((row) => !row.startsWith('f:.proof-or-stop/activity.jsonl:'));
+}
+
+function runReadOnlyColdStartRegression(repositoryRoot: string, scratch: string): void {
+  const root = join(scratch, 'read-only-cold-start');
+  mkdirSync(root, { recursive: true });
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives',
+    requirementsDir: 'docs/requirements', storyPrefix: 'B',
+  }, null, 2));
+  git(root, ['init', '-q', '-b', 'main']);
+  git(root, ['add', 'proof-or-stop.config.json']);
+  git(root, ['-c', 'user.name=cold-start-smoke', '-c', 'user.email=cold@local', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'cold start']);
+  const store = new StoryStore(root);
+  const storyId = 'B-COLD';
+  store.writeStory(storyId, runtimeStory(storyId));
+  const lockDir = store.runtimeLockDirPath(storyId, 'finding', 'cold-seed');
+  const lock = acquireMkdirLock(lockDir, { label: 'cold unsigned seed', requireHolderToken: true });
+  try {
+    const fence = captureMkdirLockFence(lockDir);
+    store.appendFindingLedgerTransaction(
+      storyId,
+      request(fence.writerFenceToken, 'cold:unsigned', 'finding', {
+        id: `${storyId}:F-001`, desc: 'cold unsigned seed', severity: 'low', category: 'edge', status: 'open',
+      }),
+      fence,
+    );
+  } finally {
+    lock.release();
+  }
+  const gitDir = join(root, '.git');
+  // The CLI wrapper appends its generic command audit trail even for read-only
+  // commands. Exclude only that registered activity stream; every signing,
+  // trust, Story, ledger, and git byte remains covered by this comparison.
+  const before = readOnlySecuritySnapshot(root);
+  chmodSync(gitDir, 0o555);
+  let query: ReturnType<typeof runRuntimeCli>;
+  let verifyResult: ReturnType<typeof runRuntimeCli>;
+  try {
+    query = runRuntimeCli(repositoryRoot, root, 'finding_ledger_query', { storyId }, {});
+    verifyResult = runRuntimeCli(repositoryRoot, root, 'finding_runtime_evidence_verify', {
+      storyId,
+      runtimeReceiptId: 'rer_missing_cold_start',
+      buildCommand: { executable: process.execPath, args: ['-e', ''], cwd: '.' },
+      executionCommand: { executable: process.execPath, args: ['-e', ''], cwd: '.' },
+      artifactPaths: [],
+      compilerVersion: 'cold-start',
+    }, {});
+  } finally {
+    chmodSync(gitDir, 0o755);
+  }
+  const after = readOnlySecuritySnapshot(root);
+  assert.notEqual(query!.status, 0);
+  assert.match(`${query!.stdout}\n${query!.stderr}`, /signing_key_unavailable/);
+  assert.notEqual(verifyResult!.status, 0);
+  assert.match(`${verifyResult!.stdout}\n${verifyResult!.stderr}`, /unknown_signing_key/);
+  assert.deepEqual(after, before, 'read-only query/verify changed protected filesystem state at cold start');
+  assert.equal(existsSync(join(gitDir, 'proof-or-stop-finding-ledger-v1.key')), false);
+  assert.equal(existsSync(join(gitDir, 'proof-or-stop-runtime-evidence-v1.key')), false);
+  assert.equal(existsSync(join(gitDir, 'proof-or-stop-runtime-evidence-trust-v1.json')), false);
+  console.log('query.cold_start_read_only: PASS noKey=true writeDenied=true protectedFilesystemDelta=0');
+  console.log('runtime.verify_cold_start_read_only: PASS noKey=true writeDenied=true protectedFilesystemDelta=0');
+}
+
+async function runAuthoritativeMutationRegression(repositoryRoot: string, scratch: string): Promise<void> {
+  const root = join(scratch, 'authoritative-live-mutations');
+  mkdirSync(root, { recursive: true });
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives',
+    requirementsDir: 'docs/requirements', storyPrefix: 'B',
+  }, null, 2));
+  writeFileSync(join(root, 'source.txt'), 'authoritative mutation fixture\n');
+  git(root, ['init', '-q', '-b', 'main']);
+  git(root, ['add', 'proof-or-stop.config.json', 'source.txt']);
+  git(root, ['-c', 'user.name=mutation-smoke', '-c', 'user.email=mutation@local', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', 'fixture baseline']);
+
+  const gapRuns = await Promise.all(Array.from({ length: 8 }, (_, index) => runCliCommand(
+    repositoryRoot,
+    root,
+    'gap_log',
+    {
+      category: 'missing', severity: 'medium',
+      evidence: `concurrent authoritative gap ${index}`,
+      sourceRefs: [`source-${index}.ts`],
+      evidenceState: 'verified',
+      agent: 'proof-or-stop-implementer',
+    },
+  )));
+  assert.equal(gapRuns.every((run) => run.status === 0), true, gapRuns.map((run) => run.stderr || run.stdout).join('\n'));
+  const store = new StoryStore(root);
+  const gapProjection = store.readFindings(META_STORY_ID);
+  const gapIds = gapProjection.findings.map((finding) => finding.id);
+  assert.equal(gapIds.length, 8);
+  assert.equal(new Set(gapIds).size, 8);
+  assert.deepEqual(gapIds.slice().sort(), Array.from({ length: 8 }, (_, index) => `${META_STORY_ID}:F-${String(index + 1).padStart(3, '0')}`));
+  let ledger = store.readFindingLedger<JsonValue>(META_STORY_ID);
+  assert.equal(ledger.records.filter((record) => record.recordType === 'finding').length, 8);
+
+  const ctx: HandlerContext = { root, scanRoot: root, store };
+  const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
+  const auditFinding = upsertDrift(store, 1, {
+    sectionPath: 'CLAUDE.md#authoritative', symbol: 'finding_projection', driftType: 'missing-ledger-fact',
+    desc: 'authoritative audit drift', severity: 'high',
+  }, META_STORY_ID, authoritativeMutation);
+  assert.equal(store.readFindings(META_STORY_ID).findings.find((finding) => finding.id === auditFinding.findingId)?.status, 'open');
+  const resolvedAudit = autoResolveMissing(store, 2, new Set(), META_STORY_ID, authoritativeMutation);
+  assert.deepEqual(resolvedAudit, [auditFinding.findingId]);
+  assert.equal(store.readFindings(META_STORY_ID).findings.find((finding) => finding.id === auditFinding.findingId)?.status, 'resolved');
+
+  const clusterHandlers = createClusterHandlers(ctx);
+  assert.match(clusterHandlers.finding_cluster({ storyId: META_STORY_ID, merge: gapIds.slice(0, 2) }), /Force-merged 2 findings/);
+  const cluster = store.readClusters(META_STORY_ID).clusters.at(-1)!;
+  assert.ok(cluster.clusterId);
+  let projected = store.readFindings(META_STORY_ID);
+  assert.equal(projected.findings.filter((finding) => gapIds.slice(0, 2).includes(finding.id))
+    .every((finding) => finding.clusterId === cluster.clusterId), true);
+
+  const signatureMap = join(root, 'signature-map.json');
+  writeFileSync(signatureMap, JSON.stringify({ [gapIds[0]!]: 'ledger|projection' }));
+  const backfill = createSignatureBackfillHandlers(ctx).signature_backfill({ map: signatureMap, apply: true, json: true });
+  assert.equal(JSON.parse(backfill).filled, 1);
+  assert.equal(store.readFindings(META_STORY_ID).findings.find((finding) => finding.id === gapIds[0])?.signatureTag, 'ledger|projection');
+
+  // Prove the ledger, not the compatibility mirror, owns the cluster/signature projection.
+  const shadow = store.readFindings(META_STORY_ID);
+  for (const finding of shadow.findings) {
+    if (gapIds.slice(0, 2).includes(finding.id)) delete finding.clusterId;
+    if (finding.id === gapIds[0]) {
+      delete finding.signatureTag;
+      delete finding.signatureTagSource;
+    }
+  }
+  store.writeFindings(META_STORY_ID, shadow);
+  projected = store.readFindings(META_STORY_ID);
+  assert.equal(projected.findings.find((finding) => finding.id === gapIds[0])?.signatureTag, 'ledger|projection');
+  assert.equal(projected.findings.find((finding) => finding.id === gapIds[1])?.clusterId, cluster.clusterId);
+
+  git(root, ['checkout', '-q', '-b', 'story/mutation-smoke']);
+  git(root, ['add', '.']);
+  git(root, ['-c', 'user.name=mutation-smoke', '-c', 'user.email=mutation@local', '-c', 'commit.gpgsign=false', 'commit', '-q', '-m', `resolve fixture\n\nResolves: ${cluster.clusterId}`]);
+  createFindingHandlers(ctx).finding_list({ storyId: META_STORY_ID, full: true });
+  projected = store.readFindings(META_STORY_ID);
+  assert.equal(projected.findings.filter((finding) => gapIds.slice(0, 2).includes(finding.id))
+    .every((finding) => finding.status === 'resolved'), true);
+
+  ledger = store.readFindingLedger<JsonValue>(META_STORY_ID);
+  const trust = findingLedgerTrustFromWorkspace(root);
+  assert.equal(ledger.records.filter((record) => record.recordType === 'finding_projection').length >= 4, true);
+  assert.equal((ledger.receipts as Array<typeof ledger.receipts[number] & { findingLedgerReceipt?: ReturnType<typeof appendFindingLedger> }>)
+    .filter((receipt) => receipt.operation === 'append_finding_projection')
+    .every((receipt) => !!receipt.findingLedgerReceipt && verifyFindingLedgerReceipt(receipt.findingLedgerReceipt, trust)), true);
+  console.log('finding.authoritative_live_mutations: PASS concurrentMeta=8 audit=true cluster=true clusterSync=true signatureBackfill=true status=true readAfterWrite=true');
 }
 
 function hasProtectedPathSurface(value: unknown, protectedValues: readonly string[]): boolean {
@@ -2214,6 +2421,17 @@ async function runRuntimeEvidenceMatrix(scratch: string): Promise<void> {
       gateEvidence: true,
       lifecycleAuthority: 'terminal-finding-state',
     });
+    assert.deepEqual({
+      recordType: PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY.recordType,
+      level: PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY.level,
+      gateEvidence: PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY.gateEvidence,
+      lifecycleAuthority: PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY.lifecycleAuthority,
+    }, {
+      recordType: 'finding_projection',
+      level: 'L4',
+      gateEvidence: true,
+      lifecycleAuthority: 'current-finding-projection',
+    });
     console.log('registry.story3_fact_contract: PASS');
 
     const phases = ['INIT', 'INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'];
@@ -3080,6 +3298,86 @@ if (process.argv[2] === '--ledger-worker') {
       assert.equal(structuralRejections.every((result) => !result.valid), true);
       console.log('ledger.assessment_proposal_structural_chain: PASS findingRecordId=required witness=nonempty signer=truthful dependencyDigest=exact receiptCurrent=required semanticWrites=0');
 
+      const {
+        verdict: _applicableVerdict,
+        basis: _applicableBasis,
+        owner: _applicableOwner,
+        currentWitness: _applicableWitness,
+        ...proposalEnvelope
+      } = proposalUnsignedForSmoke(proposal);
+      const signVariant = (variant: Record<string, unknown>) => signAssessmentProposal({
+        ...proposalEnvelope,
+        owner: 'meta',
+        ...variant,
+      }, proposalPair.privateKey);
+      const validVariants = {
+        preExisting: signVariant({
+          verdict: 'pre_existing_unaffected',
+          basis: 'base_head_reproduction',
+          baseHead: {
+            baseRef: 'main~1', baseResult: 'reproduced', headRef: 'HEAD', headResult: 'reproduced',
+            worsenedByStory: false, receiptIds: ['runtime-base', 'runtime-head'],
+          },
+        }),
+        outOfScope: signVariant({
+          verdict: 'out_of_scope', basis: 'decision_scope', excludedScopeProofDigest: 'scope-proof-digest',
+        }),
+        duplicate: signVariant({
+          verdict: 'duplicate', basis: 'canonical_duplicate',
+          canonicalDefectRef: {
+            canonicalDefectId: 'DEF-001', identityDigest: 'identity-digest', canonicalOwner: 'B-OWNER',
+            currentCanonicalFinding: {
+              storyId: 'B-OWNER', findingId: 'B-OWNER:F-001', recordId: 'record-owner-001', hash: 'finding-hash-owner',
+            },
+          },
+        }),
+        notReproduced: signVariant({
+          verdict: 'not_reproduced_under_current_witness', basis: 'counter_evidence',
+          currentWitness: {
+            receiptIds: ['runtime-negative'], reproduced: false,
+            commandPolicyDigest: 'command-policy', runtimeEvidenceDigest: 'runtime-evidence',
+            negativeWitnessDigest: 'negative-witness',
+          },
+        }),
+        unknown: signVariant({ verdict: 'unknown', basis: 'counter_evidence' }),
+      };
+      const verifyVariant = (candidate: Record<string, unknown>) => verifyAssessmentProposal(candidate, {
+        publicKey: proposalPair.publicKey,
+        expectedAuthorityDigest: 'assessment-authority-digest',
+        now: new Date('2030-01-01T00:30:00.000Z'),
+      });
+      assert.equal(Object.values(validVariants).every((candidate) => verifyVariant(candidate).valid), true);
+
+      const resignVariant = (candidate: Record<string, unknown>, overrides: Record<string, unknown>) =>
+        signAssessmentProposal({ ...proposalUnsignedForSmoke(candidate), ...overrides }, proposalPair.privateKey);
+      const preExistingBase = validVariants.preExisting.baseHead as Record<string, unknown>;
+      const { headRef: _missingHeadRef, ...baseHeadMissingHead } = preExistingBase;
+      const duplicateBase = validVariants.duplicate.canonicalDefectRef as Record<string, unknown>;
+      const { canonicalOwner: _missingCanonicalOwner, ...duplicateMissingOwner } = duplicateBase;
+      const negativeWitness = validVariants.notReproduced.currentWitness as Record<string, unknown>;
+      const { negativeWitnessDigest: _missingNegativeDigest, ...negativeMissingDigest } = negativeWitness;
+      const invalidVariants = [
+        resignVariant(validVariants.preExisting, { baseHead: null }),
+        resignVariant(validVariants.preExisting, { baseHead: baseHeadMissingHead }),
+        resignVariant(validVariants.preExisting, { baseHead: { ...preExistingBase, receiptIds: [] } }),
+        resignVariant(validVariants.preExisting, { baseHead: { ...preExistingBase, worsenedByStory: true } }),
+        resignVariant(validVariants.outOfScope, { excludedScopeProofDigest: null }),
+        resignVariant(validVariants.outOfScope, { excludedScopeProofDigest: '' }),
+        resignVariant(validVariants.duplicate, { canonicalDefectRef: null }),
+        resignVariant(validVariants.duplicate, { canonicalDefectRef: duplicateMissingOwner }),
+        resignVariant(validVariants.duplicate, {
+          canonicalDefectRef: { ...duplicateBase, currentCanonicalFinding: null },
+        }),
+        resignVariant(validVariants.notReproduced, { currentWitness: null }),
+        resignVariant(validVariants.notReproduced, { currentWitness: negativeMissingDigest }),
+        resignVariant(validVariants.notReproduced, {
+          currentWitness: { ...negativeWitness, receiptIds: [], reproduced: true },
+        }),
+      ];
+      assert.equal(invalidVariants.every((candidate) => !verifyVariant(candidate).valid), true);
+      assert.equal(invalidVariants.every((candidate) => verifyVariant(candidate).rejection === 'proposal_exact_union_invalid'), true);
+      console.log('ledger.assessment_non_applicable_exact_union: PASS valid=5 nullMissingInvalid=12 baseHeadNull=reject unknownApplicable=preserved');
+
       const standaloneReceipt = appendFindingLedger({
         ...baseOptions('chk003:standalone-receipt'),
         operation: 'append_route_receipt',
@@ -3623,12 +3921,14 @@ if (process.argv[2] === '--ledger-worker') {
       main.release();
     }
     console.log('ledger.lock_compatibility: PASS deadlocks=0');
+    const repositoryRoot = git(process.cwd(), ['rev-parse', '--show-toplevel']);
+    runReadOnlyColdStartRegression(repositoryRoot, scratch);
+    await runAuthoritativeMutationRegression(repositoryRoot, scratch);
     await runRuntimeEvidenceMatrix(scratch);
     runRollbackKillSwitchMatrix(scratch);
     await runCombinedConcurrencyMatrix(scratch);
     runFailClosedBoundaryMatrix(scratch);
 
-    const repositoryRoot = git(process.cwd(), ['rev-parse', '--show-toplevel']);
     runRealBfe8fLifecycleMigrationRegression(repositoryRoot, scratch);
     runBuildLockFifoRegression(repositoryRoot, scratch);
     assertRedGreenRelation(repositoryRoot);

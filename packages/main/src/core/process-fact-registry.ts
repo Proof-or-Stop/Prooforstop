@@ -134,6 +134,16 @@ export const PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY = {
   rationale: 'A current exact-signed append-only terminal transition is the canonical resolve/dismiss fact folded by readFindings before the REVIEW blocker gate. A pre-upgrade current-key transition missing only the nested exact digest remains fail-closed unless a separate current exact-signed legacy_lifecycle_receipt_binding re-attests its immutable carrier, record, source identity, and chain. Original Finding rows and historical transition bytes remain immutable.',
 } as const;
 
+export const PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY = {
+  recordType: 'finding_projection',
+  level: 'L4',
+  producer: 'handlers/finding-ledger.createAuthoritativeFindingMutation',
+  allowedConsumers: ['StoryStore.readFindings', 'storyMachine.canPassReview'],
+  gateEvidence: true,
+  lifecycleAuthority: 'current-finding-projection',
+  rationale: 'A current-key exact-signed, source-record CAS-bound append preserves live legacy Finding mutations without rewriting the immutable source row; StoryStore folds only verified projections in ledger order.',
+} as const;
+
 export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   validate: 'validation-status',
   done_required_validate: 'validation-status',
@@ -1503,6 +1513,23 @@ export const PROCESS_FACT_ARTIFACTS = [
       consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     },
     rationale: 'Only a current exact-signed finding_lifecycle_transition, or the same current-key pre-upgrade transition with a unique valid current exact-signed legacy_lifecycle_receipt_binding, carries terminal Finding authority; the binding alone and all other ledger rows retain narrower levels.',
+  },
+  {
+    name: 'artifact:finding-ledger-projection',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'gate-evidence', 'blocker-state', 'finding-state'],
+    level: 'L4',
+    producer: 'handlers/finding-ledger.createAuthoritativeFindingMutation',
+    consumerGate: 'StoryStore.readFindings projection consumed by storyMachine.canPassReview REVIEW to TEST gate',
+    artifact: {
+      name: 'finding-ledger-projection',
+      path: 'finding-ledger.json',
+      signed: true,
+      signature: 'FindingLedgerReceipt covers each immutable finding_projection record and its exact source-record/current-chain CAS binding',
+      producerCommand: 'audit/gap_log/finding_cluster/finding_list/validate/signature_backfill',
+      consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+    },
+    rationale: 'Legacy live mutation surfaces gain durable exactly-once current-state authority only through a current-key exact-signed source-bound projection; unsigned findings.json changes remain non-authoritative.',
   },
   {
     name: 'artifact:review-passes.json',

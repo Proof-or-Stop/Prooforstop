@@ -47,6 +47,7 @@ import {
   appendFindingLedger,
   bindLegacyFindingLedgerReceipts,
   canonicalHash,
+  createAuthoritativeFindingMutation,
   exactLedgerRecordHash,
   findingLedgerSignerFromWorkspace,
 } from './finding-ledger.js';
@@ -708,6 +709,7 @@ function recordReviewPass(
 
 export function createFindingHandlers(ctx: HandlerContext) {
   const { store } = ctx;
+  const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   return {
     finding_add(args: {
       storyId: string;
@@ -1003,7 +1005,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
 
     finding_list(args: { storyId: string; cluster?: boolean; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' }) {
       assertCwdInWorktree(store, args.storyId);
-      const synced = syncClusterResolves(args.storyId, store, ctx.root, ctx.log);
+      const synced = syncClusterResolves(args.storyId, store, ctx.root, ctx.log, authoritativeMutation);
       if (synced.resolved > 0) {
         ctx.log?.(`cluster-sync: auto-resolved ${synced.resolved} finding(s) before finding_list`);
       }

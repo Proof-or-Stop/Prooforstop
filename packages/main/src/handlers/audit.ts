@@ -37,6 +37,7 @@ import { runMechanicalAudit, type DriftCandidate, type SkippedEntry } from '../c
 import { stateFilePath } from '../core/audit-trigger.js';
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
+import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 
 export interface AuditArgs {
   framework?: boolean;
@@ -83,6 +84,7 @@ interface AuditRowEntry extends DriftCandidate {
 
 export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
   const { store, root } = ctx;
+  const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   return {
     audit(args: AuditArgs = {}): string | AuditResult {
       // B-a2c4: fail-fast if ctx.root is not the repo root, otherwise audit will silently write report to
@@ -154,7 +156,7 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
             driftType: d.driftType,
             desc: d.desc,
             severity: d.severity,
-          });
+          }, META_STORY_ID, authoritativeMutation);
           // Read back the finding to get firstSeenRound / lastSeenAt (audit-meta-store already wrote them)
           const data = store.readFindings(META_STORY_ID);
           const f = data.findings.find(x => x.id === r.findingId);
@@ -170,7 +172,7 @@ export function createAuditHandlers(ctx: HandlerContext): AuditHandlers {
         }
 
         // 5. autoResolveMissing
-        const resolvedIds = autoResolveMissing(store, round, seenHashes);
+        const resolvedIds = autoResolveMissing(store, round, seenHashes, META_STORY_ID, authoritativeMutation);
         const resolvedCount = resolvedIds.length;
 
         // Record this round to meta-story.events (so beginRound can increment next time)

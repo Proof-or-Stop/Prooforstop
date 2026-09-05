@@ -96,12 +96,29 @@ function trustFromPrivateKey(privateKey: string): FindingLedgerReceiptTrust {
 export function currentFindingLedgerTrustFromWorkspace(
   workspaceRoot: string,
 ): FindingLedgerReceiptTrust | undefined {
+  const signer = currentFindingLedgerSignerFromWorkspace(workspaceRoot);
+  if (!signer) return undefined;
+  const { privateKey: _privateKey, ...trust } = signer;
+  return { ...trust, algorithm: "ed25519" };
+}
+
+/** Current signer without creating directories or key material on a read path. */
+export function currentFindingLedgerSignerFromWorkspace(
+  workspaceRoot: string,
+): FindingLedgerSigner | undefined {
   const keyPath = findingLedgerKeyPath(workspaceRoot);
   if (!existsSync(keyPath)) return undefined;
   try {
     const privateKey = readFileSync(keyPath, "utf8").trim();
     if (!privateKey) return undefined;
-    return trustFromPrivateKey(privateKey);
+    const trust = trustFromPrivateKey(privateKey);
+    return {
+      privateKey,
+      publicKey: trust.publicKey,
+      keyId: trust.keyId,
+      trustRootDigest: trust.trustRootDigest,
+      keyFreshnessPolicyDigest: trust.keyFreshnessPolicyDigest,
+    };
   } catch {
     return undefined;
   }
@@ -132,8 +149,9 @@ export function findingLedgerSignerFromWorkspace(workspaceRoot: string): Finding
 }
 
 export function findingLedgerTrustFromWorkspace(workspaceRoot: string): FindingLedgerReceiptTrust {
-  const { privateKey: _privateKey, ...trust } = findingLedgerSignerFromWorkspace(workspaceRoot);
-  return { ...trust, algorithm: "ed25519" };
+  const trust = currentFindingLedgerTrustFromWorkspace(workspaceRoot);
+  if (!trust) throw new Error("finding-ledger: signing_key_unavailable");
+  return trust;
 }
 
 export interface LedgerRecord<T = JsonValue> {
@@ -284,7 +302,7 @@ const FINDING_LEDGER_CAS_KEYS = [
   "observedChainHeadHash", "predicateDigest",
 ].sort();
 const FINDING_LEDGER_OPERATIONS = new Set<FindingLedgerOperation>([
-  "append_finding", "append_finding_lifecycle_transition",
+  "append_finding", "append_finding_projection", "append_finding_lifecycle_transition",
   "append_legacy_identity_binding", "append_detector_signal",
   "append_candidate_route", "append_candidate", "append_assessment_proposal",
   "append_assessment", "append_mandatory_repair", "append_deferral_expiry_policy",

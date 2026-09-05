@@ -8082,6 +8082,22 @@ function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry
     && read('packages/main/src/handlers/finding-ledger.ts').includes("recordType: 'legacy_lifecycle_receipt_binding'")
     && read('packages/main/src/core/store.ts').includes('trustedLegacyLifecycleReceiptBindings'),
   'Story 3: resolve/dismiss lifecycle record is not wired to canonical read projection');
+  const projectionPolicy = extractConstInitializer(
+    registrySource,
+    'PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY',
+    processFactRegistryPath,
+  );
+  assert(/recordType: 'finding_projection'/.test(projectionPolicy)
+    && /level: 'L4'/.test(projectionPolicy)
+    && /gateEvidence: true/.test(projectionPolicy)
+    && /lifecycleAuthority: 'current-finding-projection'/.test(projectionPolicy),
+  'Story 3: signed Finding projection must be an explicit L4 current-state fact');
+  assert(/name: 'runtime:finding_ledger_projection_gate', level: 'L4'[^\n]+gateConsumer: 'storyMachine\.canPassReview REVIEW to TEST gate'/.test(levelRegistrySource),
+  'Story 3: Finding projection gate fact missing from level registry');
+  assert(read('packages/main/src/handlers/finding-ledger.ts').includes("operation: 'append_finding_projection'")
+    && read('packages/main/src/core/store.ts').includes("record.recordType === 'finding_projection'")
+    && read('packages/main/src/core/store.ts').includes("signed.operation !== 'append_finding_projection'"),
+  'Story 3: authoritative Finding projection is not wired to signed canonical read projection');
 }
 
 function formatProcessFactLevelRegistryEntry(entry) {

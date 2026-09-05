@@ -1707,6 +1707,7 @@ export interface FindingLedgerCommitRef {
  */
 export type FindingLedgerOperation =
   | 'append_finding'
+  | 'append_finding_projection'
   | 'append_finding_lifecycle_transition'
   | 'append_legacy_identity_binding'
   | 'append_detector_signal'

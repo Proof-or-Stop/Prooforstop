@@ -10,6 +10,7 @@ import {
   validateEnvelope,
   FINDING_LEDGER_SCHEMA_EPOCH, FINDING_LEDGER_MINIMUM_WRITER_CAPABILITY,
   FINDING_LEDGER_LOCAL_FS_CAPABILITY, FINDING_LEDGER_KEY_FRESHNESS_POLICY_DIGEST,
+  currentFindingLedgerSignerFromWorkspace, currentFindingLedgerTrustFromWorkspace,
   findingLedgerSignerFromWorkspace, findingLedgerTrustFromWorkspace,
   signFindingLedgerReceipt, verifyFindingLedgerReceipt,
   type AppendLedgerOptions, type AppendPlan, type AppendRequest,
@@ -32,6 +33,8 @@ import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.
 import { getSessionIdentity } from '../core/owner-session.js';
 import { readOwnerLease } from '../core/story-owner-lease.js';
 import { captureMkdirLockFence, withMkdirLock } from '../core/mkdir-lock.js';
+import { mainWriteLockPath, withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import {
   RUNTIME_EVIDENCE_LOCAL_STORAGE_CAPABILITY,
   createRuntimeEvidenceBlobStore,
@@ -47,6 +50,8 @@ import {
   type RuntimeReceiptTrust,
 } from '../core/runtime-evidence-receipt.js';
 import type {
+  Finding,
+  FindingData,
   FindingLedgerCasBinding,
   FindingLedgerOperation,
   FindingLedgerReceipt,
@@ -93,12 +98,31 @@ export interface LedgerAppendOptions<T extends JsonValue = JsonValue> {
   commitOptions?: AppendLedgerOptions;
 }
 
+export interface AuthoritativeFindingMutationResult<T> {
+  result: T;
+  changedFindingIds?: readonly string[];
+}
+
+export type AuthoritativeFindingMutation = <T>(
+  storyId: string,
+  mutationId: string,
+  mutate: (data: FindingData) => AuthoritativeFindingMutationResult<T>,
+) => T;
+
 function assertText(value: unknown, name: string): asserts value is string {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${name} must be a non-empty string`);
 }
 
 function exactKeys(value: object, expected: string[]): boolean {
   return JSON.stringify(Object.keys(value).sort()) === JSON.stringify(expected);
+}
+
+function nonEmptyText(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+function nonEmptyTextArray(value: unknown): value is string[] {
+  return Array.isArray(value) && value.length > 0 && value.every(nonEmptyText);
 }
 
 type PersistedCommitReceipt = LedgerCommitReceipt & {
@@ -586,6 +610,126 @@ export function appendFindingLedger<T extends JsonValue = JsonValue>(options: Le
   }, options.commitOptions);
 }
 
+function findingProjectionPayload(finding: Finding): JsonValue {
+  const projection = structuredClone(finding) as Finding;
+  delete projection.recordId;
+  delete projection.ledgerCommitReceiptId;
+  return projection as unknown as JsonValue;
+}
+
+/**
+ * Compatibility mutation adapter for live Finding writers that predate the
+ * authoritative ledger. The callback runs under the same fenced lock as the
+ * append. New legacy rows become durable `finding` facts; changes to an
+ * existing durable row become immutable full projections tied to that source
+ * record. findings.json remains only the post-commit compatibility mirror.
+ */
+export function createAuthoritativeFindingMutation(ctx: HandlerContext): AuthoritativeFindingMutation {
+  return <T>(
+    storyId: string,
+    mutationId: string,
+    mutate: (data: FindingData) => AuthoritativeFindingMutationResult<T>,
+  ): T => {
+    const run = (fence: ReturnType<typeof captureMkdirLockFence>): T => {
+      const data = ctx.store.readFindings(storyId);
+      const before = new Map(data.findings.map((finding) => [finding.id, canonicalHash(finding)]));
+      const mutation = mutate(data);
+      const selected = mutation.changedFindingIds
+        ? new Set(mutation.changedFindingIds)
+        : new Set(data.findings
+          .filter((finding) => before.get(finding.id) !== canonicalHash(finding))
+          .map((finding) => finding.id));
+      const changed = data.findings.filter((finding) => selected.has(finding.id));
+      if (changed.length === 0) return mutation.result;
+
+      const ledger = ctx.store.readFindingLedger<JsonValue>(storyId);
+      const head = ledger.records.at(-1);
+      const headId = head?.recordId ?? 'ledger:empty';
+      const headHash = head ? exactLedgerRecordHash(head) : canonicalHash([]);
+      const records = changed.map((finding) => {
+        const source = [...ledger.records].reverse().find((record) => (
+          record.recordType === 'finding'
+          && record.payload && typeof record.payload === 'object'
+          && (record.payload as Record<string, unknown>).id === finding.id
+        ));
+        if (!source) {
+          return {
+            recordType: 'finding',
+            payload: findingProjectionPayload(finding),
+          };
+        }
+        return {
+          recordType: 'finding_projection',
+          payload: {
+            schemaVersion: 1,
+            findingId: finding.id,
+            findingRecordId: source.recordId,
+            projection: findingProjectionPayload(finding),
+          } as JsonValue,
+        };
+      });
+      const sourceRecords = records
+        .filter((record) => record.recordType === 'finding_projection')
+        .map((record) => (record.payload as Record<string, unknown>).findingRecordId as string)
+        .map((recordId) => ledger.records.find((record) => record.recordId === recordId)!)
+        .filter((record, index, all) => all.findIndex((candidate) => candidate.recordId === record.recordId) === index);
+      const predicateDigest = canonicalHash({
+        schemaVersion: 1,
+        predicate: 'finding-projection-sources-current',
+        sourceRecordIds: sourceRecords.map((record) => record.recordId).sort(),
+      });
+      const identity = getSessionIdentity();
+      const signer = findingLedgerSignerFromWorkspace(ctx.root);
+      appendFindingLedger({
+        storyId,
+        store: ctx.store,
+        operation: 'append_finding_projection',
+        idempotencyKey: `finding-projection:${mutationId}:${canonicalHash(records)}`,
+        records,
+        writerSessionId: identity.sessionId,
+        writerLeaseId: readOwnerLease(ctx.store.storyDirPath(storyId))?.sessionId ?? identity.sessionId,
+        writerFenceToken: fence.writerFenceToken,
+        fence,
+        signer,
+        casBindings: sourceRecords.map((source) => ({
+          recordType: source.recordType,
+          expectedRecordId: source.recordId,
+          expectedRecordHash: exactLedgerRecordHash(source),
+          observedChainHeadId: headId,
+          observedChainHeadHash: headHash,
+          predicateDigest,
+        })),
+        ...(sourceRecords.length > 0 ? {
+          verifyPredicate: ({ ledger: current }) => ({
+            accepted: sourceRecords.every((source) => current.records.some((record) => (
+              record.recordId === source.recordId
+              && exactLedgerRecordHash(record) === exactLedgerRecordHash(source)
+            ))),
+            predicateDigest,
+          }),
+        } : {}),
+      });
+      // The ledger is authoritative. Re-read its projection so a crash between
+      // the atomic ledger rename and this mirror write remains recoverable.
+      ctx.store.writeFindings(storyId, ctx.store.readFindings(storyId));
+      return mutation.result;
+    };
+
+    if (storyId.startsWith('B-META-')) {
+      const mainRoot = resolveMainRepoRoot(ctx.root);
+      return withReentrantMainWriteLock(mainRoot, () => run(captureMkdirLockFence(mainWriteLockPath(mainRoot))), {
+        label: `authoritative finding mutation (${storyId})`,
+        onContention: 'wait',
+      });
+    }
+    const lockDir = ctx.store.runtimeLockDirPath(storyId, 'finding', 'findings');
+    return withMkdirLock(lockDir, () => run(captureMkdirLockFence(lockDir)), {
+      label: `authoritative finding mutation (${storyId})`,
+      requireHolderToken: true,
+    });
+  };
+}
+
 /**
  * Append a signed, auditable binding for legacy unsigned commit receipts.
  * Existing rows and receipts are never rewritten. Query acceptance remains
@@ -778,10 +922,49 @@ function proposalExactUnionValid(proposal: Record<string, unknown>): boolean {
       && ((witness as Record<string, unknown>).receiptIds as unknown[])
         .every((value) => typeof value === 'string' && value.trim().length > 0);
   }
-  if (verdict === 'pre_existing_unaffected') return (owner === 'meta' || owner === 'other_story') && basis === 'base_head_reproduction';
-  if (verdict === 'out_of_scope') return (owner === 'meta' || owner === 'other_story') && basis === 'decision_scope';
-  if (verdict === 'duplicate') return (owner === 'meta' || owner === 'other_story') && basis === 'canonical_duplicate';
-  if (verdict === 'not_reproduced_under_current_witness') return (owner === 'meta' || owner === 'other_story') && basis === 'counter_evidence';
+  if (verdict === 'pre_existing_unaffected') {
+    const baseHead = proposal.baseHead;
+    return (owner === 'meta' || owner === 'other_story') && basis === 'base_head_reproduction'
+      && !!baseHead && typeof baseHead === 'object'
+      && exactKeys(baseHead, ['baseRef', 'baseResult', 'headRef', 'headResult', 'receiptIds', 'worsenedByStory'])
+      && nonEmptyText((baseHead as Record<string, unknown>).baseRef)
+      && (baseHead as Record<string, unknown>).baseResult === 'reproduced'
+      && nonEmptyText((baseHead as Record<string, unknown>).headRef)
+      && (baseHead as Record<string, unknown>).headResult === 'reproduced'
+      && (baseHead as Record<string, unknown>).worsenedByStory === false
+      && nonEmptyTextArray((baseHead as Record<string, unknown>).receiptIds);
+  }
+  if (verdict === 'out_of_scope') {
+    return (owner === 'meta' || owner === 'other_story') && basis === 'decision_scope'
+      && nonEmptyText(proposal.excludedScopeProofDigest);
+  }
+  if (verdict === 'duplicate') {
+    const defect = proposal.canonicalDefectRef;
+    if ((owner !== 'meta' && owner !== 'other_story') || basis !== 'canonical_duplicate'
+      || !defect || typeof defect !== 'object'
+      || !exactKeys(defect, ['canonicalDefectId', 'canonicalOwner', 'currentCanonicalFinding', 'identityDigest'])) return false;
+    const current = (defect as Record<string, unknown>).currentCanonicalFinding;
+    return nonEmptyText((defect as Record<string, unknown>).canonicalDefectId)
+      && nonEmptyText((defect as Record<string, unknown>).identityDigest)
+      && nonEmptyText((defect as Record<string, unknown>).canonicalOwner)
+      && !!current && typeof current === 'object'
+      && exactKeys(current, ['findingId', 'hash', 'recordId', 'storyId'])
+      && Object.values(current).every(nonEmptyText);
+  }
+  if (verdict === 'not_reproduced_under_current_witness') {
+    const witness = proposal.currentWitness;
+    return (owner === 'meta' || owner === 'other_story') && basis === 'counter_evidence'
+      && !!witness && typeof witness === 'object'
+      && exactKeys(witness, [
+        'commandPolicyDigest', 'negativeWitnessDigest', 'receiptIds',
+        'reproduced', 'runtimeEvidenceDigest',
+      ])
+      && (witness as Record<string, unknown>).reproduced === false
+      && nonEmptyTextArray((witness as Record<string, unknown>).receiptIds)
+      && nonEmptyText((witness as Record<string, unknown>).commandPolicyDigest)
+      && nonEmptyText((witness as Record<string, unknown>).runtimeEvidenceDigest)
+      && nonEmptyText((witness as Record<string, unknown>).negativeWitnessDigest);
+  }
   return verdict === 'unknown' && (basis === 'direct_scope' || basis === 'counter_evidence')
     && !Object.hasOwn(proposal, 'nonBlockingProof');
 }
@@ -1021,6 +1204,7 @@ export interface FindingLedgerQueryResult {
 }
 
 export type FindingLedgerQueryRefusalCode =
+  | 'signing_key_unavailable'
   | 'ledger_missing'
   | 'ledger_digest_mismatch'
   | 'ledger_incomplete'
@@ -1337,7 +1521,12 @@ function runtimeKeyIdentity(publicKey: string): Omit<RuntimeEvidenceRegisteredKe
 
 function readRuntimeTrustRegistry(workspaceRoot: string): RuntimeEvidenceTrustRegistry {
   const registryPath = join(gitCommonDir(workspaceRoot), RUNTIME_EVIDENCE_TRUST_REGISTRY_FILE);
-  const parsed = JSON.parse(readFileSync(registryPath, 'utf8')) as RuntimeEvidenceTrustRegistry;
+  let parsed: RuntimeEvidenceTrustRegistry;
+  try {
+    parsed = JSON.parse(readFileSync(registryPath, 'utf8')) as RuntimeEvidenceTrustRegistry;
+  } catch {
+    throw new RuntimeEvidenceRefusal('unknown_signing_key');
+  }
   if (parsed.schemaVersion !== 1 || typeof parsed.currentKeyId !== 'string'
     || !Array.isArray(parsed.keys) || parsed.keys.length === 0
     || parsed.keys.some((key) => (
@@ -1702,7 +1891,8 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
     finding_ledger_query(args: FindingLedgerQueryArgs) {
       assertText(args.storyId, 'storyId');
       ctx.store.readStory(args.storyId);
-      const signer = findingLedgerSignerFromWorkspace(ctx.root);
+      const signer = currentFindingLedgerSignerFromWorkspace(ctx.root);
+      if (!signer) throw new FindingLedgerQueryRefusal('signing_key_unavailable');
       let registeredRuntimeKeys: FindingLedgerQueryTrustedKey[] = [];
       try {
         registeredRuntimeKeys = readRuntimeTrustRegistry(ctx.root).keys
@@ -1743,7 +1933,8 @@ export function createFindingLedgerHandlers(ctx: HandlerContext) {
       args.afterCanonicalBuildLockForTest?.();
       const signer = runtimeEvidenceSignerFromWorkspace(ctx.root);
       const ledgerSigner = findingLedgerSignerFromWorkspace(ctx.root);
-      const ledgerTrust = findingLedgerTrustFromWorkspace(ctx.root);
+      const ledgerTrust = currentFindingLedgerTrustFromWorkspace(ctx.root);
+      if (!ledgerTrust) throw new RuntimeEvidenceRefusal('unknown_signing_key');
       const trust = runtimeTrustFromWorkspace(ctx.root);
       const expected = runtimeExpectedState(ctx, args, trust);
       const findingLockDir = ctx.store.storyFilePath(args.storyId, 'findings.lock');

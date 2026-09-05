@@ -63,6 +63,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
+import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import type { ChecklistData, ChecklistItem, ScopeContractData, StoryInfo, TestEvidenceData, VerificationEvidence, VerificationIntentItem } from '../core/types.js';
@@ -1447,6 +1448,7 @@ function decorateAndMaybePersistStoryValidation(
 }
 
 export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
+  const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   return {
     /**
      * proof-or-stop validate [--full[=filter]] [--story=B-xxx] [--json]
@@ -1523,7 +1525,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       if (args.story) {
         assertCwdInWorktree(ctx.store, args.story);
         if (!args.noSync) {
-          const synced = syncClusterResolves(args.story, ctx.store, projectRoot, ctx.log);
+          const synced = syncClusterResolves(args.story, ctx.store, projectRoot, ctx.log, authoritativeMutation);
           if (synced.resolved > 0) {
             ctx.log?.(`cluster-sync: auto-resolved ${synced.resolved} finding(s) from commit message Resolves tags`);
           }
