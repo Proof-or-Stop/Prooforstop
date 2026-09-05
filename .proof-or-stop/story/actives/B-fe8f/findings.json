@@ -1299,6 +1299,27 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtoeszzc_x5b_35ef5424d5e64ce4b8a621e935a7bca4",
       "ledgerCommitReceiptId": "lrc_mtoeszzd_x5b_e52bc3781227486faf3264ac5b48b6a2"
+    },
+    {
+      "id": "B-fe8f:F-049",
+      "desc": "core/store.ts:339-361 receiptMatchesLedgerPrefix hashes the whole ledger prefix twice per authenticated record, and readFindings calls it once per base finding, legacy base binding, projection carrier and lifecycle transition; trustedLegacyFindingIdentityBinding and trustedLegacyLifecycleReceiptBindingSet recompute the same prefix digests, and isTrustedFindingLifecycleTransition also scans all receipts running verifyFindingLedgerReceipt inside the predicate. Because the ledger is append-only per Story, canonical serialization is quadratic in ledger length plus one ed25519 verify per carrier. readFindings is hot (finding_list, validate, session_brief, and the canPassReview projection). Correctness is unaffected and the current ledger is small; this records the new cost profile introduced by 845023258f so it is not mistaken for the pre-repair baseline. Backlog owner: docs/story/drafts/finding-ledger-nonblocking-review-followups/ CHK-003. Re-evaluate when a Story ledger grows materially or readFindings appears in a latency complaint. Severity: low.",
+      "severity": "low",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Unmeasured. I read the algorithm and its call sites but ran no benchmark, captured no timing and sized no ledger; filesystem-writing probes were denied so I could not build a large-ledger fixture. The quadratic shape is a source reading of slice plus canonicalHash inside per-record loops, not an observed regression. Backlog CHK-003 owns baseline runtime, ledger size, call counts and real latency before severity is assigned; correctness must not be weakened to optimize it.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T13:20:29.615Z",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "reviewRunId": "B-fe8f:RR-103",
+      "_hash": "ed294513969442f4525718c73b80bbbf1f6ff6f53d9c4e53879925eb827d6dac",
+      "files": [
+        "packages/main/src/core/store.ts"
+      ],
+      "signatureTag": "edge|ts|core-store-receiptmatchesledgerprefix",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoeumk1_yqj_1063d2cdac674f7ead328ae0acc34cd8",
+      "ledgerCommitReceiptId": "lrc_mtoeumk1_yqj_1a4d8971601a473db679d9ec0bf62054"
     }
   ]
 }

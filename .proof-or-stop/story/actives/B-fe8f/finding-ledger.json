@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "be029987d8e9b17c8d408d73d8122fb37d80a1cc219b085c6033cb83b56e40d4",
+  "committedLedgerDigest": "04b0c87d7ab703e30b45996b51c9637590ceb439d1555b73c4c546b7a223e41d",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2060,6 +2060,35 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T13:19:13.704Z"
+    },
+    {
+      "recordId": "lr_mtoeumk1_yqj_1063d2cdac674f7ead328ae0acc34cd8",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:27e93c8f-2753-4360-b63c-38a479d4b2f8",
+      "payload": {
+        "id": "B-fe8f:F-049",
+        "desc": "core/store.ts:339-361 receiptMatchesLedgerPrefix hashes the whole ledger prefix twice per authenticated record, and readFindings calls it once per base finding, legacy base binding, projection carrier and lifecycle transition; trustedLegacyFindingIdentityBinding and trustedLegacyLifecycleReceiptBindingSet recompute the same prefix digests, and isTrustedFindingLifecycleTransition also scans all receipts running verifyFindingLedgerReceipt inside the predicate. Because the ledger is append-only per Story, canonical serialization is quadratic in ledger length plus one ed25519 verify per carrier. readFindings is hot (finding_list, validate, session_brief, and the canPassReview projection). Correctness is unaffected and the current ledger is small; this records the new cost profile introduced by 845023258f so it is not mistaken for the pre-repair baseline. Backlog owner: docs/story/drafts/finding-ledger-nonblocking-review-followups/ CHK-003. Re-evaluate when a Story ledger grows materially or readFindings appears in a latency complaint. Severity: low.",
+        "severity": "low",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "suspected",
+        "uncertaintyReason": "Unmeasured. I read the algorithm and its call sites but ran no benchmark, captured no timing and sized no ledger; filesystem-writing probes were denied so I could not build a large-ledger fixture. The quadratic shape is a source reading of slice plus canonicalHash inside per-record loops, not an observed regression. Backlog CHK-003 owns baseline runtime, ledger size, call counts and real latency before severity is assigned; correctness must not be weakened to optimize it.",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-05T13:20:29.615Z",
+        "reviewRound": "2026-09-05T13:03:05.150Z",
+        "reviewRunId": "B-fe8f:RR-103",
+        "_hash": "ed294513969442f4525718c73b80bbbf1f6ff6f53d9c4e53879925eb827d6dac",
+        "files": [
+          "packages/main/src/core/store.ts"
+        ],
+        "signatureTag": "edge|ts|core-store-receiptmatchesledgerprefix",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "a4e3e7467ca9007b4d96dc151d612fa8808f2c9389fc039568b65ff4439343fb",
+      "priorDigest": "be029987d8e9b17c8d408d73d8122fb37d80a1cc219b085c6033cb83b56e40d4",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T13:20:29.617Z"
     }
   ],
   "receipts": [
@@ -5711,6 +5740,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "e8b90e27fd0c8fdcac034b69fb7c7dae6cfb629d88f5886c7501cb9012374842",
         "signature": "6TQBzCvakbZwHsh2eVeTqLsAht3ROhgg3ZzJqChsxNpLMHnkl6HEKKm5aaNsPx/B9E3xJTzdZ85WvhiVXKrYCg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtoeumk1_yqj_1a4d8971601a473db679d9ec0bf62054",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:27e93c8f-2753-4360-b63c-38a479d4b2f8",
+      "requestDigest": "1185606689031e45bc37a8d3172a73c4bbe9f0468171b7b9e05a015b4a3772f7",
+      "recordIds": [
+        "lr_mtoeumk1_yqj_1063d2cdac674f7ead328ae0acc34cd8"
+      ],
+      "priorLedgerDigest": "be029987d8e9b17c8d408d73d8122fb37d80a1cc219b085c6033cb83b56e40d4",
+      "committedLedgerDigest": "04b0c87d7ab703e30b45996b51c9637590ceb439d1555b73c4c546b7a223e41d",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "writerFenceToken": "6e02a66a-8ece-46ca-a316-d0f761b6002d",
+      "committedAt": "2026-09-05T13:20:29.617Z",
+      "replayed": false,
+      "exactRequestDigest": "9b99e83bf578591176d6c98bc43835fa288a4ef07503592d5a9c0b9b83328365",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtoeumk1_yqj_1a4d8971601a473db679d9ec0bf62054",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:27e93c8f-2753-4360-b63c-38a479d4b2f8",
+        "exactRequestDigest": "9b99e83bf578591176d6c98bc43835fa288a4ef07503592d5a9c0b9b83328365",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtoeumk1_yqj_1063d2cdac674f7ead328ae0acc34cd8"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "be029987d8e9b17c8d408d73d8122fb37d80a1cc219b085c6033cb83b56e40d4",
+        "committedLedgerDigest": "04b0c87d7ab703e30b45996b51c9637590ceb439d1555b73c4c546b7a223e41d",
+        "replayed": false,
+        "committedAt": "2026-09-05T13:20:29.617Z",
+        "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "6e02a66a-8ece-46ca-a316-d0f761b6002d",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "fcc143cd50581a097335ba395342c31f4b09385d9a1dc9dcb9daad2147391808",
+        "signature": "7VKfiELdKlbswXwyQiosY80pogB/eC14huzBKKd8WT/L207j2znPn+bIH/1Xt73QgdOF2zHISzIt29neE0b3BQ=="
       }
     }
   ]
