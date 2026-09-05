@@ -184,6 +184,70 @@
       },
       "readDiagnostics": [],
       "_hash": "7816a3b8a61015475835a52c13686cfe2fb8048129bd95dd91d8979a38c87d80"
+    },
+    {
+      "id": "B-212f:RP-005",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent ordinary quality review of integrated CHK-001 through CHK-004 and committed main...HEAD diff at final source 8168160d51. Full oracle and both new tests read; machine, validation executor, registry/verifier, config and smoke changes reviewed as committed diff with bounded functional context, not asserted as full-file reads. Inspected checklist intent/evidence and structured F-008 through F-026 closure families. Shared generator preserves diagnostic order, projects all active failures without rewriting reviewer facts, and avoids promise traversal after delivery rejection. Actual DONE plus explicit completedSnapshot alone preserves prior historical artifact/assurance presentation; reviewer row is informational, never fresh PASS or full historical audit. TEST snapshot input and default DONE remain strict. Complete private output matching preserves public truncation and bounded persisted tails; inspected current receipt evidence for CHK-004. Independently ran original parity, shared-predicate mutations, post-DONE snapshot smoke, and process-fact verifier --quiet: all exited 0. Original parity blob verified 0375c372d26f49c5276042b1087226069b385e52. Current finding_list reports no open findings. No newly introduced quality blocker or undelivered changed documentation promise found. No topology acceptance, Authority proof, historical reviewer replay, lifecycle completion, or external-host quorum certification is claimed by this lane.",
+      "createdAt": "2026-09-05T14:47:27.916Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-033",
+      "envelopeId": "1945dc5b59ec99609f0ceeb947dd11445b8053bd27f624421589e1042a01cf1d",
+      "writerSessionId": "sess-c5284a1be646cffb98198a1416e0b8e8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7ca162b832d1a53632fee8c80443d38b855f323693d3831f985296365afba820"
+      },
+      "readDiagnostics": [],
+      "_hash": "42c20ed9037d15fef776fcdf5be15ca520d8a27bebcc5328852b54ed7187a89b"
     }
   ]
 }
