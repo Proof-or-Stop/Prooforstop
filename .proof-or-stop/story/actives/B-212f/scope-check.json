@@ -1,16 +1,16 @@
 {
   "storyId": "B-212f",
-  "checkedAt": "2026-09-05T09:09:36.567Z",
+  "checkedAt": "2026-09-05T09:15:04.351Z",
   "features": [
     {
-      "feature": "Commit and canonically register the executable done_prepare/DONE parity RED/GREEN test.",
+      "feature": "Commit and register an executable done_prepare/DONE parity test.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "The executable fixture proves identical missing-finish and stale-diffPackHash outcomes across done_prepare and real DONE.",
+      "feature": "The executable fixture proves matching missing-finish and stale-diffPackHash outcomes on both readiness surfaces.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
@@ -24,42 +24,42 @@
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "done_prepare consumes the phase-agnostic reviewer verdict and surfaces stale_closeout_review with diff_pack_changed for a stale lane binding.",
+      "feature": "done_prepare consumes the phase-agnostic reviewer verdict and reports stale_closeout_review with diff_pack_changed for a stale lane binding.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "Only review_evidence_invalid maps to stale_closeout_review; all other reviewer verdict codes are preserved.",
+      "feature": "Only review_evidence_invalid maps to stale_closeout_review; all other reviewer verdict codes remain unchanged.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "Preflight evaluation remains read-only and leaves reviewer evidence bytes and git state unchanged.",
+      "feature": "Readiness evaluation leaves reviewer evidence bytes and git state unchanged.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "Every literal DONE blocker code is mapped to an L4 process fact and a done-oracle row.",
+      "feature": "Every literal DONE blocker code maps to an L4 process fact and a done-oracle row.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "An in-memory future_done_predicate mutation proves the parity inventory rejects an unmapped future DONE blocker.",
+      "feature": "An in-memory future_done_predicate mutation proves the inventory rejects an unmapped future blocker.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "The done_prepare decision document retains the DONE/preflight predicate-parity contract and omits the previously added out-of-scope paragraph.",
+      "feature": "The decision document retains only the DONE/preflight predicate-parity addition; the accidental unrelated paragraph is absent.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
@@ -73,14 +73,14 @@
       "source": "description"
     },
     {
-      "feature": "Public routine validation output and persisted outputTail remain bounded, while genuinely absent selectors remain rejected.",
+      "feature": "Public routine output and persisted outputTail remain bounded, while genuinely absent selectors remain rejected.",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
       "source": "description"
     },
     {
-      "feature": "Unrelated lifecycle changes, gate weakening, global-green cleanup, and remote publication remain outside the Story.",
+      "feature": "Unrelated runtime changes, weakened DONE checks, global cleanup, and remote publication remain outside the Story.",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": "Checklist exclusions and scope/execution boundaries prohibit these changes.",
@@ -258,6 +258,6 @@
     "drift": 0
   },
   "reviewRound": "2026-09-05T09:03:34.075Z",
-  "_hash": "02349c5e821fe9ae466887f2e5a4c7bf02f9c95912a40f8a49a73547b86f5c33",
+  "_hash": "e78718e4c294ccb8e741c39eed83433bebc7c455667f45429aa2bb4eba5a7da9",
   "openQuestions": []
 }
