@@ -1389,7 +1389,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/agent-prompt + handlers/review-run',
     consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
-    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes bind roleId/lane, the exact story-dispatch prompt bytes, host identity, delivered assembledPrompt, and an immutable as-of-run finding projection plus digest. Later mutable finding disposition metadata therefore cannot rewrite historical eligibility. Unsupported hosts fail closed and review_run_start supplies exactly one selected role-body render.',
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes bind roleId/lane, the exact story-dispatch prompt bytes, host identity, delivered assembledPrompt, and an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata therefore cannot rewrite historical eligibility. Unsupported hosts fail closed and review_run_start supplies exactly one selected role-body render.',
   },
   {
     name: 'artifact:review-runs.json',

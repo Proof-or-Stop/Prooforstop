@@ -5328,6 +5328,10 @@ function assertDonePreflightPredicateInventoryParity() {
     'wrong row mapping must fail against source-owned outcome identity');
   }
   try {
+    assert(registry.get('artifact:prompt-envelopes.json')?.rationale?.includes('Verification snapshots preserve optional-property absence'),
+      'Prompt Envelope snapshot fidelity must remain registered; isolation must not invalidate signed trusted-prior evidence');
+    // Includes source-executed canonical envelope/signature/trusted-prior proof:
+    // optional-key absence and malformed values are preserved, not normalized.
     runSharedDonePredicateProof(machineSource, doneOracleSource);
   } catch (error) {
     fail('executable shared DONE predicate proof: ' + (error?.message ?? String(error)));
