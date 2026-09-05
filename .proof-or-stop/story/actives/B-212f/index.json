@@ -4,7 +4,7 @@
   "title": "Make done_prepare enforce the real DONE finish-decision and reviewer-verdict predicates",
   "description": "Fix the confirmed B-aa5f done_prepare/DONE parity defect. Commit the executable RED proving that real DONE rejects a missing dev_memory_finish_decision and a stale reviewer scopeBinding.diffPackHash while the original done_prepare omitted both results; then make the unchanged test GREEN with matching missing_dev_memory_finish_decision and stale_closeout_review codes. Add the process-fact omission guard and the bounded selector-window evidence repair needed to keep this Story's own mechanical verification executable.",
   "type": "bug",
-  "phase": "DEV",
+  "phase": "REVIEW",
   "priority": "high",
   "riskSignals": [
     {
@@ -433,6 +433,15 @@
       "user": "Harmonynet",
       "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
       "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-05T15:52:07.337Z",
+      "branch": "story/B-212f",
+      "user": "Harmonynet",
+      "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
+      "agent": "main"
     }
   ],
   "worktree": {
@@ -440,5 +449,5 @@
     "branch": "story/B-212f",
     "createdAt": "2026-09-04T16:48:01.634Z"
   },
-  "currentReviewRound": "2026-09-05T14:39:40.791Z"
+  "currentReviewRound": "2026-09-05T15:52:07.337Z"
 }
