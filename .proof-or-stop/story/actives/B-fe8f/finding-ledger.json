@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "e3e1222b960f059e88c3d7eb77291edcac03659b1aedf141ea358afa44e78e51",
+  "committedLedgerDigest": "fbcbdcc9cf12504ba4d4b1b65ed9bbbbb595b9be779fefb3631321a9bcdfc601",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2145,6 +2145,33 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T13:21:44.201Z"
+    },
+    {
+      "recordId": "lr_mtoew9qc_15mc_0a04bee3b6cb43edb6a931776b4e33de",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f-baseline-gate-english-root-fixture-20260905",
+      "payload": {
+        "id": "B-fe8f:F-052",
+        "desc": "Current standard-validation blocker inherited from main. Independent default-environment node packages/main/dist/tasks/english-early-check-smoke.js passed its earlier CLI/CJK cases, then exited 1 with ENOENT reading packages/AGENTS.md (dist line316). packageRoot is actually packages/main/dist and the two-level parent calculation reaches packages instead of the repository root. This test blob equals main and the failure does not traverse the Finding authority reader. Required bounded repair: derive the correct repository root for the guide assertion without weakening English-artifact coverage or editing the guide to satisfy a wrong path. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
+        "severity": "medium",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-05T13:21:46.306Z",
+        "reviewRound": "2026-09-05T13:03:05.150Z",
+        "_hash": "3b4b56b8fb29b7d2aa9e1587f25eb5991391459dd70a5dfd10371d49a202c240",
+        "files": [
+          "packages/main/src/tasks/english-early-check-smoke.ts"
+        ],
+        "signatureTag": "edge|ts|current-standard-validation",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "6589b6ab358226645be6c3bf8676c448563d18ec008cc0f1a8880e63479d419d",
+      "priorDigest": "e3e1222b960f059e88c3d7eb77291edcac03659b1aedf141ea358afa44e78e51",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T13:21:46.308Z"
     }
   ],
   "receipts": [
@@ -5925,6 +5952,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "cd4f367ffcb67e76741dca23372dcfa55e334ef5170d81b806689393c0054919",
         "signature": "M4odqiefsav8N+t0G9Phj5pIoY41TsBOCh6ijH/VV4m5c4n6P309nLrkLJcmQNy2vDFNH0GleeDchXm5yiyIDw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtoew9qc_15mc_67eafbb02c9648a4891a0c0a571e57da",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f-baseline-gate-english-root-fixture-20260905",
+      "requestDigest": "d48d455c095b224d8f4ed791188d16ae798c95cdeb708bf7bac009fe1416c44e",
+      "recordIds": [
+        "lr_mtoew9qc_15mc_0a04bee3b6cb43edb6a931776b4e33de"
+      ],
+      "priorLedgerDigest": "e3e1222b960f059e88c3d7eb77291edcac03659b1aedf141ea358afa44e78e51",
+      "committedLedgerDigest": "fbcbdcc9cf12504ba4d4b1b65ed9bbbbb595b9be779fefb3631321a9bcdfc601",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "725f187a-a2a5-4254-89bc-463649212c62",
+      "committedAt": "2026-09-05T13:21:46.308Z",
+      "replayed": false,
+      "exactRequestDigest": "826d2edb1d0f03451e13d5c55298e8ffc871bce573a390f28b98ecdf0e1f2f1d",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtoew9qc_15mc_67eafbb02c9648a4891a0c0a571e57da",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f-baseline-gate-english-root-fixture-20260905",
+        "exactRequestDigest": "826d2edb1d0f03451e13d5c55298e8ffc871bce573a390f28b98ecdf0e1f2f1d",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtoew9qc_15mc_0a04bee3b6cb43edb6a931776b4e33de"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "e3e1222b960f059e88c3d7eb77291edcac03659b1aedf141ea358afa44e78e51",
+        "committedLedgerDigest": "fbcbdcc9cf12504ba4d4b1b65ed9bbbbb595b9be779fefb3631321a9bcdfc601",
+        "replayed": false,
+        "committedAt": "2026-09-05T13:21:46.308Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "725f187a-a2a5-4254-89bc-463649212c62",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "7e91c4effa3ab775c14d73dc71f1f52ef604a3cb5599df9673dc9c1ecfd17313",
+        "signature": "QiIwdiE6xAvU4fHD0J2r554U6B1CgrG44Ug5o9jsgA+2HE4I/EnlH68j0x8d2lVja84D7uUGoUy/+2HXAvd8CQ=="
       }
     }
   ]

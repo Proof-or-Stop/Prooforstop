@@ -1360,6 +1360,25 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtoew83t_15fd_96238524a46744ad937089fd6dbfc8b9",
       "ledgerCommitReceiptId": "lrc_mtoew83u_15fd_a3447cd983354c4c9271f78bceb417e8"
+    },
+    {
+      "id": "B-fe8f:F-052",
+      "desc": "Current standard-validation blocker inherited from main. Independent default-environment node packages/main/dist/tasks/english-early-check-smoke.js passed its earlier CLI/CJK cases, then exited 1 with ENOENT reading packages/AGENTS.md (dist line316). packageRoot is actually packages/main/dist and the two-level parent calculation reaches packages instead of the repository root. This test blob equals main and the failure does not traverse the Finding authority reader. Required bounded repair: derive the correct repository root for the guide assertion without weakening English-artifact coverage or editing the guide to satisfy a wrong path. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-05T13:21:46.306Z",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "_hash": "3b4b56b8fb29b7d2aa9e1587f25eb5991391459dd70a5dfd10371d49a202c240",
+      "files": [
+        "packages/main/src/tasks/english-early-check-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|current-standard-validation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoew9qc_15mc_0a04bee3b6cb43edb6a931776b4e33de",
+      "ledgerCommitReceiptId": "lrc_mtoew9qc_15mc_67eafbb02c9648a4891a0c0a571e57da"
     }
   ]
 }
