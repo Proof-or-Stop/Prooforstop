@@ -1241,6 +1241,57 @@
       ],
       "signatureTag": "optional-envelope-field-preservation",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-029",
+      "desc": "RI-002 wave 1 coverage corroboration of canonical B-212f:F-027, same optional-envelope-field-preservation root and no new independent family. Read-only replay on unchanged material61fc5331/Story files163103f7: verifyReviewRunPromptEnvelope for B-212f:RR-034 over stored envelopes returns {ok:true}; passing snapshotPromptEnvelopes(envelopes) returns {ok:false} with eligibilityDigest, eligibilityReasonCodes and priorPassRef mismatch. packages/main/src/core/review-run.ts:157-173 inserts absent optional eligibilityReasonCodes/findingProjection properties as undefined; prompt-contracts.ts:326-327 rejects undefined in canonical serialization, and review-incremental-context.ts:606 then skips the otherwise trusted prior. The actual collector uses these snapshots at review-run.ts:1678, explaining rejection of this lane's valid RP-003 without persisted-envelope corruption. Bounded searches of existing task/test coverage found no direct snapshotPromptEnvelopes regression asserting absent-property own keys and unchanged canonical digest/integrity/prior selection; current incremental cutoff tests do not prove that clone contract. This is verified applicable because it blocks current Story review acceptance despite the underlying pre-existing implementation. F-027 owns the repair. Add focused raw/snapshot key,digest,integrity and prior-pass-selection equivalence for legacy absent optional fields, while retaining deep mutation isolation and tamper rejection and preserving explicitly invalid values as invalid. Do not manufacture a replacement pass to hide the disagreement or redesign historical review. Prior completed full-file reads remain unchanged and reusable; newly implicated modules were inspected only at bounded relevant sections.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T15:10:59.837Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-038",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "87373b0cbf1d10a5499e4dab0349c72f32b103a205512c9207c400bb0ef9a630",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/tasks/review-incremental-context-smoke.ts"
+      ],
+      "signatureTag": "optional-envelope-field-preservation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
