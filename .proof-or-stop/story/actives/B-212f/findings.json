@@ -927,6 +927,54 @@
       ],
       "signatureTag": "completed-done-snapshot-live-overlay",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-025",
+      "desc": "Coverage corroboration of canonical B-212f:F-018 in the same done-eager-invalid-delivery-promises family, not a new root cause. packages/main/tests/red/red-done-shared-predicates.mjs:185-187 marks delivery tampered/stale only by changing reader ok/code while retaining the valid fixture deliveryCheck.docsPromises array; the early-failure assertion tests only canFinishGuard. Consequently the passing shared-consumer proof omits eager-oracle traversal of actually malformed rejected delivery content, despite the decision preMortem requiring safe incomplete-artifact handling. Fresh real-filesystem command node /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs deletes docsPromises only in the synthetic signed fixture record: current guard prints delivery_check_tampered, but current oracle throws Cannot read properties of undefined (reading filter), stack evaluateDonePredicates -> buildDoneChecklist -> buildDoneClosureRunbook, exit 1. The same fixture with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist instead prints MALFORMED_DELIVERY_ORACLE with delivery-check fail/blocking and delivery-check.json._hash source; its original parity assertions are intentionally inapplicable after inserting this earlier blocker and are not used as the witness. This directly leaves diagnostic parity and safe invalid-input behavior unproven. F-018 owns the implementation and bounded regression repair: cover missing/null/non-array docsPromises and malformed elements after rejected integrity, preserving the structured blocker and active DONE rejection. Preserve this as signed duplicate coverage corroboration of F-018.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T12:41:12.146Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "07b14fe388d835aa73dde672e752d77feda4de58f88c5f4f2af0678e08ad571f",
+      "files": [
+        "packages/main/tests/red/red-done-shared-predicates.mjs",
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "done-eager-invalid-delivery-promises",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
