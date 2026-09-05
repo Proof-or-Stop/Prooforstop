@@ -140,6 +140,50 @@
       },
       "readDiagnostics": [],
       "_hash": "8d5ba6d3f9c02c5b4eab8fa09a3cde11aeb5197b970c5e01283fb9fac819073f"
+    },
+    {
+      "id": "B-212f:RP-004",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review across CHK-001 through CHK-004 and committed material diff: no blocking concept residue or promised-but-undelivered behavior remains. The former general semantic parser is replaced by the shared lazy evaluator; its only collectLiteralDoneBlockerCodes reference is the explicit historical RED extractor, not a live verifier consumer. The F-008/F-010/F-012/F-014/F-015/F-020/F-021 whole-command read-only claim is repaired and agrees with done-prepare.ts merge/dryRun behavior. F-009 and its coverage/critic corroborations now preserve actual-DONE plus explicit-snapshot historical artifact/assurance presentation and explicitly informational reviewer status; TEST and default DONE admission remain strict, and no full historical reviewer audit is claimed. Rejected delivery contents are opaque before promise traversal, matching F-018/F-019/F-023/F-025 repairs. Read the corresponding resolution claims, source changes, registered fixtures, and current checklist intent/receipt summaries. Original parity blob remains 0375c372d26f49c5276042b1087226069b385e52; no review-run.ts material diff. Long-output evidence changes preserve bounded public output while the private receipt path consumes full output. This lane performed source/document/grep review, not fresh test execution or topology acceptance certification. Zero new findings.",
+      "createdAt": "2026-09-05T14:46:32.939Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-032",
+      "envelopeId": "99f51d06de2b2bba8337bc327261dc2af46bb82953012a244f0856bcbaa588cb",
+      "writerSessionId": "sess-30ca165d3df921e631ee7421e9be9256",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "7816a3b8a61015475835a52c13686cfe2fb8048129bd95dd91d8979a38c87d80"
     }
   ]
 }
