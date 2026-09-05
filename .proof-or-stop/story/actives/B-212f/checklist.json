@@ -501,8 +501,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T09:00:13.956Z",
       "endTime": null,
       "userSeesSnapshot": {
         "normalizedClaimDigest": "7f1816d0b22dc35d70cfbd8bdfea6d3a540b359d2ee731003473f06c0d30f73c",
@@ -765,6 +765,15 @@
       "to": "done",
       "reason": "Reopen recovery verified implementer commit 7e18814556 remains the committed CHK-002 implementation; fresh material-bound evidence will be regenerated.",
       "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:00:13.956Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed bounded evidence selector-window repair from implementer commit 8b1e7bce0a."
     }
   ]
 }
