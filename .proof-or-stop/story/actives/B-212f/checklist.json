@@ -346,9 +346,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T09:16:07.059Z",
-      "endTime": null,
+      "endTime": "2026-09-05T09:16:07.860Z",
       "userSeesSnapshot": {
         "normalizedClaimDigest": "52dbfce77407fe2644a500a5ded8c954504525ab65710a9ff4eaf69a24ed3d2a",
         "storyFilesHash": "4ae2fcae560bde8d30aa9607f58034f8500a0f90edb7818b4377b335a7f5365e",
@@ -833,6 +833,16 @@
       "action": "update",
       "from": "pending",
       "to": "in_progress",
+      "reason": "Implemented by proof-or-stop-implementer at 0bc957dad0 with the out-of-scope prose correction at 4ae0de6cdc; predicate inventory and omission guard are committed.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:07.860Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
       "reason": "Implemented by proof-or-stop-implementer at 0bc957dad0 with the out-of-scope prose correction at 4ae0de6cdc; predicate inventory and omission guard are committed.",
       "agent": "proof-or-stop-implementer"
     }
