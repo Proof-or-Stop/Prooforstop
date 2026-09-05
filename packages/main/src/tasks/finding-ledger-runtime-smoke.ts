@@ -740,6 +740,8 @@ function runProjectionReceiptBindingRegression(scratch: string): void {
   assert.equal(verifyFindingLedgerReceipt(signedReceipt, trust), true);
   const signedBytes = canonicalJson(signedReceipt);
   const failures: string[] = [];
+  const expectedSeedRows = [1, 2].map((index) => ({ id: `${storyId}:F-${index}`, status: 'open', desc: `seed-${index}` }));
+  const readFiles = [store.findingLedgerPath(storyId), store.storyFilePath(storyId, 'findings.json')];
   const candidates: Array<[string, (candidate: typeof baseline) => void]> = [
     ['payload-with-recomputed-outer-hashes', (candidate) => {
       const record = candidate.records.find((entry) => entry.recordId === batch.recordIds[0])!;
@@ -773,7 +775,7 @@ function runProjectionReceiptBindingRegression(scratch: string): void {
     writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(candidate, null, 2)}\n`);
     // The unsigned storage envelope passes; only authenticated consumption can reject this.
     assert.doesNotThrow(() => store.readFindingLedger(storyId));
-    const beforeRead = readFileSync(store.findingLedgerPath(storyId), 'utf8');
+    const beforeRead = readFiles.map((file) => readFileSync(file, 'utf8'));
     if (name === 'prior-prefix-content') {
       assert.throws(() => store.readFindings(storyId), /FINDING_LEDGER_AUTHORITY_INVALID/, 'corrupt base must fail closed before projection');
     } else {
@@ -781,8 +783,10 @@ function runProjectionReceiptBindingRegression(scratch: string): void {
       if (observed.some((finding) => finding.status !== 'open' || finding.desc.startsWith('reviewed-'))) {
         failures.push(`${name}: inconsistent projection consumed`);
       }
+      assert.deepEqual(observed.map(({ id, status, desc }) => ({ id, status, desc })), expectedSeedRows,
+        `${name}: invalid projection must preserve every original open Finding`);
     }
-    assert.equal(readFileSync(store.findingLedgerPath(storyId), 'utf8'), beforeRead, 'readFindings wrote the ledger');
+    assert.deepEqual(readFiles.map((file) => readFileSync(file, 'utf8')), beforeRead, 'readFindings wrote the ledger or mirror');
   }
   const casMutations: Array<[string, (bindings: typeof signedReceipt.casBindings) => typeof signedReceipt.casBindings]> = [
     ['missing', () => []],
@@ -810,8 +814,12 @@ function runProjectionReceiptBindingRegression(scratch: string): void {
   };
   for (const [name, change] of casMutations) {
     writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(withResignedCas(change))}\n`);
+    const beforeRead = readFiles.map((file) => readFileSync(file, 'utf8'));
     const observed = store.readFindings(storyId).findings;
     if (observed.some((finding) => finding.desc.startsWith('reviewed-'))) failures.push(`signed-cas-${name}: invalid CAS projection consumed`);
+    assert.deepEqual(observed.map(({ id, status, desc }) => ({ id, status, desc })), expectedSeedRows,
+      `signed-cas-${name}: invalid CAS must preserve every original open Finding`);
+    assert.deepEqual(readFiles.map((file) => readFileSync(file, 'utf8')), beforeRead, `signed-cas-${name}: readFindings wrote the ledger or mirror`);
   }
   writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(withResignedCas((bindings) => bindings.reverse()))}\n`);
   assert.deepEqual(store.readFindings(storyId).findings.map((finding) => finding.desc), ['reviewed-1', 'reviewed-2'], 'CAS is an exact set, not an ordering requirement');
