@@ -1681,6 +1681,56 @@
       },
       "readDiagnostics": [],
       "_hash": "d40696689895ef1b2d9c74bc116ef640ee2e8ee4d9ff78f3477148cddb794665"
+    },
+    {
+      "id": "B-fe8f:RP-048",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 25 story-level test-coverage review passed on head 6e395c0, material 781b7f2, and story-files 9dd30b0. All 71 must intents have exactly one current mechanical PASS receipt with exitCode=0 and selectorMatched=true; intent refs, execution keys, and causal receipt hashes are unique, with zero waiver or failure. The F-044 regression independently proves three default-timeout selectors share one raw execution, selector A/B keep distinct execution and causal identities over the same output digest, a missing selector receives no mechanical receipt, and timeout/provenance boundaries produce four total executions. The complete Story 3 smoke, immutable RED/GREEN relation, and process-fact contract pass, including live Finding-writer read-after-write/concurrency, cold no-key read-only refusal with zero protected-filesystem delta, and 12 malformed non-applicable proposal-union rejections. The two F-044 paths are covered by the signed scope-contract acknowledgement. No new test-coverage blocker was found; this pass does not resolve or waive existing open findings.",
+      "createdAt": "2026-09-05T11:04:49.594Z",
+      "reviewRound": "2026-09-05T10:56:02.507Z",
+      "reviewRunId": "B-fe8f:RR-091",
+      "envelopeId": "06c27ccd1e4a09453c699686e354a3536119dd6917e5c3910143e7f30562e0e0",
+      "writerSessionId": "sess-235ab1237d7b0299c6bab82e62039937",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/cluster-sync.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/cluster.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/signature-backfill.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "ee3d4a95474a5fb408001e085574e981dacd9b0376cf4cfe5a77277b7fedf54b"
     }
   ]
 }
