@@ -1443,6 +1443,55 @@
       ],
       "signatureTag": "optional-envelope-field-preservation",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-033",
+      "desc": "RI-002 wave-2 independent completeness re-attestation of F-027, with current raw observations F-031 and F-032 in the existing optional-envelope-field-preservation family. Fresh read-only RR-034 verification again returns raw ok:true and frozen snapshot ok:false with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch. No source, test, doc or config changes since my prior completed bounded review; canonical RR-045 binds unchanged material61fc5331 and Story files163103f7 and starts after all four lane terminals. I inspected the current lane observations and required-lane read coverage. The same optional-property insertion as own undefined invalidates canonical envelope integrity and drops authentic prior-pass eligibility; no new independent root is supported. Preserve original F-027 and prior wave observations. Current-wave representative F-031 and duplicate F-032 need the same bounded optional-field-preserving clone repair and exact equivalence/isolation/tamper regression coverage, not historical reviewer replay expansion. This verified medium defect remains a current gate-truth blocker even though it predates Story source changes. This is a truthful finding terminal and inventory completeness assessment, not acceptance PASS: the current acceptance basis remains unsupported and the separately persisted topology verdict is request_changes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-05T15:28:30.723Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-045",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "e978eea5b640416a175f11c56ceea611a795d862e2544b177efeb20c162b1b32",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "optional-envelope-field-preservation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
