@@ -1393,6 +1393,56 @@
       ],
       "signatureTag": "optional-envelope-field-preservation",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-032",
+      "desc": "RI-002 wave 2 coverage re-attestation of B-212f:F-029 corroborating canonical B-212f:F-027; same optional-envelope-field-preservation root, no new independent family. Fresh read-only RR-034 replay again returns raw verifyReviewRunPromptEnvelope {ok:true}, but snapshotPromptEnvelopes input returns {ok:false} with eligibilityDigest, eligibilityReasonCodes and priorPassRef mismatch. git diff --stat 2154ac3e20 HEAD across packages/main/src, packages/main/tests, scripts, config, docs and Story background/plan/checklist is empty; material61fc5331 and Story files163103f7 remain unchanged. review-run.ts:157-173 adds absent optional properties as own undefined; prompt-contracts.ts:326-327 rejects that in canonical serialization and review-incremental-context.ts:606 skips the otherwise trusted prior. The collector at review-run.ts:1678 therefore disagrees with intact persisted envelope evidence. Prior bounded task/test search found no direct snapshotPromptEnvelopes regression proving absent own-key preservation, canonical digest/integrity and prior-pass selection equivalence; unchanged tests leave that gap applicable. It directly blocks current Story reviewer/gate truth despite its pre-existing source origin. F-027 owns the bounded repair: clone/freeze actual arrays without inserting absent keys or laundering explicit invalid values, with raw/snapshot equivalence, mutation-isolation and tamper tests. No replacement PASS, historical audit redesign or source/lifecycle mutation. Recent completed full reads remain reusable on this unchanged material; newly implicated modules were read only in bounded diagnostic sections, not claimed fully read.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T15:23:55.649Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "5f9a37207f20aec60ae61f62c33cf5dc2c900757f8f28e338592c99ebd41e02a",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/review-incremental-context.ts",
+        "packages/main/src/core/prompt-contracts.ts"
+      ],
+      "signatureTag": "optional-envelope-field-preservation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
