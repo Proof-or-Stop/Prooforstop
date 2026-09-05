@@ -1379,6 +1379,27 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtoew9qc_15mc_0a04bee3b6cb43edb6a931776b4e33de",
       "ledgerCommitReceiptId": "lrc_mtoew9qc_15mc_67eafbb02c9648a4891a0c0a571e57da"
+    },
+    {
+      "id": "B-fe8f:F-053",
+      "desc": "Current standard-validation and documented CLI compatibility blocker inherited from main. Independent default-environment node packages/main/dist/tasks/cli-surface-smoke.js exited 1 at dist80: normalizeNestedSpaceAlias([lab,create,--help]) returns matched=false/cmd=lab instead of lab_create. The nested alias map lacks the six Lab mappings although docs/CLI.md1130 explicitly promises canonical lab create/run/eval/compare/promote/help and flat compatibility commands. Alias normalizer and smoke blobs equal main. Required bounded repair: restore the six declared nested mappings and prove argv/help handling while leaving Lab implementation, package publication and unrelated command families outside scope. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-05T13:21:48.231Z",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "_hash": "c0486febd761598ce7beb393c3b79c23eab635fe33b3d82bc0fc0b4d9260ac18",
+      "files": [
+        "packages/main/src/cli/alias-normalizer.ts",
+        "packages/main/src/tasks/cli-surface-smoke.ts",
+        "docs/CLI.md"
+      ],
+      "signatureTag": "missing|ts|current-standard-validation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoewb7s_15si_e10d6612b95e4168bf661a78d271ab2b",
+      "ledgerCommitReceiptId": "lrc_mtoewb7t_15si_57352435ef3a49a2acbbb3201f9afc58"
     }
   ]
 }

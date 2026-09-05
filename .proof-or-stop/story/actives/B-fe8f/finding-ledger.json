@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "fbcbdcc9cf12504ba4d4b1b65ed9bbbbb595b9be779fefb3631321a9bcdfc601",
+  "committedLedgerDigest": "a4c81f9e83c28c584cc6b4b9d77003fed3dceca315d8e284fea9a8948117d908",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2172,6 +2172,35 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T13:21:46.308Z"
+    },
+    {
+      "recordId": "lr_mtoewb7s_15si_e10d6612b95e4168bf661a78d271ab2b",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f-baseline-gate-lab-nested-alias-20260905",
+      "payload": {
+        "id": "B-fe8f:F-053",
+        "desc": "Current standard-validation and documented CLI compatibility blocker inherited from main. Independent default-environment node packages/main/dist/tasks/cli-surface-smoke.js exited 1 at dist80: normalizeNestedSpaceAlias([lab,create,--help]) returns matched=false/cmd=lab instead of lab_create. The nested alias map lacks the six Lab mappings although docs/CLI.md1130 explicitly promises canonical lab create/run/eval/compare/promote/help and flat compatibility commands. Alias normalizer and smoke blobs equal main. Required bounded repair: restore the six declared nested mappings and prove argv/help handling while leaving Lab implementation, package publication and unrelated command families outside scope. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-05T13:21:48.231Z",
+        "reviewRound": "2026-09-05T13:03:05.150Z",
+        "_hash": "c0486febd761598ce7beb393c3b79c23eab635fe33b3d82bc0fc0b4d9260ac18",
+        "files": [
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "docs/CLI.md"
+        ],
+        "signatureTag": "missing|ts|current-standard-validation",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "8d2521cb63243ac098164d87ca08e6f3cad6fc32e3bdb42141972a90a11dc343",
+      "priorDigest": "fbcbdcc9cf12504ba4d4b1b65ed9bbbbb595b9be779fefb3631321a9bcdfc601",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T13:21:48.232Z"
     }
   ],
   "receipts": [
@@ -5995,6 +6024,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "7e91c4effa3ab775c14d73dc71f1f52ef604a3cb5599df9673dc9c1ecfd17313",
         "signature": "QiIwdiE6xAvU4fHD0J2r554U6B1CgrG44Ug5o9jsgA+2HE4I/EnlH68j0x8d2lVja84D7uUGoUy/+2HXAvd8CQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtoewb7t_15si_57352435ef3a49a2acbbb3201f9afc58",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f-baseline-gate-lab-nested-alias-20260905",
+      "requestDigest": "a16d88c827f1da4b2a41ddf15411788122fb1fbd741bff4815ee535b4622abfd",
+      "recordIds": [
+        "lr_mtoewb7s_15si_e10d6612b95e4168bf661a78d271ab2b"
+      ],
+      "priorLedgerDigest": "fbcbdcc9cf12504ba4d4b1b65ed9bbbbb595b9be779fefb3631321a9bcdfc601",
+      "committedLedgerDigest": "a4c81f9e83c28c584cc6b4b9d77003fed3dceca315d8e284fea9a8948117d908",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "ae82b7ec-eada-4820-9aed-2ab846802795",
+      "committedAt": "2026-09-05T13:21:48.232Z",
+      "replayed": false,
+      "exactRequestDigest": "24dadbcd3e129f65108e2f64a6dd53902c1d800c7860c917c03ebf462491ac60",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtoewb7t_15si_57352435ef3a49a2acbbb3201f9afc58",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f-baseline-gate-lab-nested-alias-20260905",
+        "exactRequestDigest": "24dadbcd3e129f65108e2f64a6dd53902c1d800c7860c917c03ebf462491ac60",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtoewb7s_15si_e10d6612b95e4168bf661a78d271ab2b"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "fbcbdcc9cf12504ba4d4b1b65ed9bbbbb595b9be779fefb3631321a9bcdfc601",
+        "committedLedgerDigest": "a4c81f9e83c28c584cc6b4b9d77003fed3dceca315d8e284fea9a8948117d908",
+        "replayed": false,
+        "committedAt": "2026-09-05T13:21:48.232Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "ae82b7ec-eada-4820-9aed-2ab846802795",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "ea75b97b6c5aeb600cecc781a79cd135c6eaeba9e1e7d1a30456a57eed3a7b0f",
+        "signature": "VnhnDsR3RGYharVzQrfRiQ2dCuDD8P+3WrGbt4zy1BuQdTOj0UPcXSfi+yc1WU6Mp6Oi+mMTKxIuRfY2XUOhDA=="
       }
     }
   ]
