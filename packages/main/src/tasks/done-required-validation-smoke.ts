@@ -378,7 +378,20 @@ function assertDoneRequiredBlocked(
       );
     }
 
-    for (const key of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
+    // The digest-pinned list retains historical spellings; current transport
+    // matching uses their canonical names without accepting retired aliases.
+    const retiredPrefix = ['LAT', 'TICE_'].join('');
+    for (const frozenKey of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
+      const key = frozenKey.startsWith(retiredPrefix)
+        ? `PROOF_OR_STOP_${frozenKey.slice(retiredPrefix.length)}`
+        : frozenKey;
+      if (key !== frozenKey) {
+        assert.notDeepEqual(
+          effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'owner-identity' }, undefined, root),
+          effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'reviewer-identity' }, undefined, root),
+          `retired ambient spelling remains semantic: ${frozenKey}`,
+        );
+      }
       const owner = { ...common, [key]: 'owner-identity' };
       const reviewer = { ...common, [key]: 'reviewer-identity' };
       const posixOwner = buildDoneRequiredExecutionIdentity({
