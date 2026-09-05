@@ -358,6 +358,72 @@
       },
       "readDiagnostics": [],
       "_hash": "6fbccd23b3e03cda4056c54bef97dd1281838d4ab1fa0cbdd08224da586ef64a"
+    },
+    {
+      "id": "B-212f:RP-008",
+      "agent": "proof-or-stop-review-docs",
+      "note": "RI-002 wave 1 docs terminal: trusted incremental basis reports no changed or impacted files since RR-035/RP-006; git diff 78b2992 HEAD confirms no source, tests, scripts, docs, config, background, plan or checklist changes. Reuse prior truthful complete reads and the prior 9 changed exported symbols / 3 directly referenced documentation-section comparisons plus bounded closure/selector paragraphs. Decision files below were title-triaged and relevant excerpts additionally read, never claimed full reads. Current bounded review-run.ts:153-174, prompt-contracts.ts:312-332 and review-incremental-context.ts:590-614 inspections support F-027/F-028 as one optional-field snapshot family. Fresh exact read-only RR-034 reproduction returned raw ok:true and snapshot ok:false for eligibilityDigest, eligibilityReasonCodes, priorPassRef. The canonical registered defect remains an applicable gate-truth repair; this docs PASS neither resolves it nor claims Story acceptance. No additional docs-specific inconsistency or new promised behavior found; existing active-parity and limited historical-presentation wording remains accurate for unchanged implementation. No full suite rerun warranted for this unchanged-material inventory terminal.",
+      "createdAt": "2026-09-05T15:10:03.076Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-039",
+      "envelopeId": "b0f31861bc0adb5c606ad25a18e09d275c5de2955a4540ee9f449ca8ff97013b",
+      "writerSessionId": "sess-ff739d19d9399dbcb7183da81942185f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c36656a37fc4757f77b0c3d5e500797deb5bc4982460f21cc6eb910850278a07"
+      },
+      "readDiagnostics": [],
+      "_hash": "e535fe052bf318d741a963c42df6ddbc656e6f063b2e59ff2456d3758f1e3f8e"
     }
   ]
 }
