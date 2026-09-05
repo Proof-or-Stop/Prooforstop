@@ -630,11 +630,11 @@
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtlpydws_1t2z_9c1aa7237c844958b6b116f8e573ca24",
+      "ledgerCommitReceiptId": "lrc_mtlpydwt_1t2z_b063df3be35d41b9bc96cea8c2a70a5b",
       "resolvedAt": "2026-09-03T16:08:02.730Z",
       "resolvedReason": "Fixed by proof-or-stop-implementer commit bd8e37423cb30d3fae09fb2d8c743558db6c516e and independently verified in quality review run B-fe8f:RR-056. The current query recomputes the persisted carrier request digest from the committed record bundle; the complete Story 3 smoke exited 0 and printed query.carrier_request_digest_binding: PASS outerMutation=refused legacyQuery=preserved, while the signed exact-request compatibility check remained accepted only in its legacy query path.",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong",
-      "ledgerCommitReceiptId": "lrc_mtlpydwt_1t2z_b063df3be35d41b9bc96cea8c2a70a5b"
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-028",
@@ -656,11 +656,11 @@
       "signatureTag": "edge|ts|legacy-finding-terminal",
       "signatureTagSource": "auto",
       "recordId": "lr_mtlpyl9g_bfu_189c6d51e570485ca5406dff4d75f14a",
+      "ledgerCommitReceiptId": "lrc_mtlpyl9h_bfu_b3dc5948245b4cf08ba414f1c2962eec",
       "resolvedAt": "2026-09-03T16:08:11.824Z",
       "resolvedReason": "Fixed by proof-or-stop-implementer commit bd8e37423cb30d3fae09fb2d8c743558db6c516e and independently verified in quality review run B-fe8f:RR-056. The projection restores a legacy record identity only from a current trusted signed binding with exact finding hash, receipt, and chain agreement; the complete Story 3 smoke exited 0 and printed finding.lifecycle_legacy_kill_window: PASS durableTransition=1 mirrorWrite=omitted projected=resolved unsignedMirror=open.",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong",
-      "ledgerCommitReceiptId": "lrc_mtlpyl9h_bfu_b3dc5948245b4cf08ba414f1c2962eec"
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-029",
@@ -677,11 +677,11 @@
       "signatureTag": "edge|unknown|packages-main-core",
       "signatureTagSource": "auto",
       "recordId": "lr_mtlttdh0_1ls1_20f6345209a54587b9c7e7654141972a",
+      "ledgerCommitReceiptId": "lrc_mtlttdh0_1ls1_05e0b9f23e144b3081617bc5499f1c57",
       "resolvedAt": "2026-09-03T17:56:06.917Z",
       "resolvedReason": "Fixed by proof-or-stop-implementer commit cdd27da952210d8c13d56cb639927673112deaf5 and independently verified in concept review run B-fe8f:RR-060. The owner mutation first appends current-trust exact-signed legacy lifecycle receipt bindings without rewriting historical bytes, then persists the terminal transition. The complete Story 3 smoke exited 0: pre-migration legacy projection remained open, valid re-attestation restored terminal state with immutableBytes=true and replayRows=0, wrong receipt/hash/story/key/chain/partial/duplicate bindings were rejected, post-upgrade omission remained open, and the real B-fe8f corpus migrated from open projection to terminal.",
       "resolutionType": "fixed",
-      "resolveEvidenceStrength": "strong",
-      "ledgerCommitReceiptId": "lrc_mtlttdh0_1ls1_05e0b9f23e144b3081617bc5499f1c57"
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-030",
@@ -752,7 +752,7 @@
       "desc": "concept-cleanup: packages/main/src/core/audit-meta-store.ts:187,234,507; packages/main/src/handlers/cluster.ts:87,125,147; packages/main/src/core/cluster-sync.ts:106,210; and packages/main/src/handlers/signature-backfill.ts:157 retain direct mutable findings.json writers after this Story makes the append-only ledger authoritative. packages/main/src/core/store.ts:1011-1032 then replaces any same-ID mirror row with the immutable ledger payload on every read. Consequently B-META audit/gap creation still uses array-length IDs with no FindingLedgerReceipt, and clusterId/signatureTag/status updates to ledger-backed Findings are discarded on the next read instead of becoming durable, exactly-once ledger facts. This is a high-severity, current-Story acceptance blocker: Section 9.3 promises every Finding-system mutation is durable/exactly-once and explicitly includes B-META locks; migrate these live writers to a schema-neutral append/CAS record path or explicitly preserve and fold their projections, with regression coverage for read-after-write and B-META concurrent allocation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-05T09:25:25.816Z",
@@ -798,7 +798,12 @@
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
       ],
       "signatureTag": "missing|ts|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoe95ui_20ww_a9bc2b7d8853454e8366e32e0e9b0e87",
+      "resolvedAt": "2026-09-05T13:03:48.204Z",
+      "resolvedReason": "Fixed in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b: production audit/B-META, cluster, cluster-sync and signature-backfill mutations use authoritative append/CAS projections and unique allocation. The final Store authority-chain correction in 845023258fdae5280a68043ea30fdc4d8c74b98e and edda7b58bbe9cc580a9ec6dcb9bc804037f4ed82 preserves legitimate read-after-write, legacy upgrade and mixed batches. Current tool-owned full pinned refresh and its live-mutator/concurrency selectors are the GREEN evidence; these are real producer paths, not only synthetic ledger appends. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-034",
