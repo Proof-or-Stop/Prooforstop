@@ -1350,7 +1350,7 @@
       "desc": "Current standard-validation blocker inherited from main. Independent default-environment node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js exited 1: the true-hang assertion at source765 cannot find validate timeout: command 1/1 true-hang, with stderr only running validate then validate done. setupTimeoutFixture at source164 writes retired lattice.config.json, but current brand-paths accepts canonical proof-or-stop.config.json, so the intended hanging command is never configured/executed. The test and brand-paths blobs equal main; Finding changes to config.ts only add command permissions and do not alter discovery. Required bounded repair: use the canonical filename in this timeout fixture and retain the actual watchdog/kill and no-evidence assertions. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T13:21:44.199Z",
@@ -1363,7 +1363,11 @@
       "signatureTag": "edge|ts|current-standard-validation",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoew83t_15fd_96238524a46744ad937089fd6dbfc8b9",
-      "ledgerCommitReceiptId": "lrc_mtoew83u_15fd_a3447cd983354c4c9271f78bceb417e8"
+      "ledgerCommitReceiptId": "lrc_mtoew83u_15fd_a3447cd983354c4c9271f78bceb417e8",
+      "resolvedAt": "2026-09-05T14:54:05.863Z",
+      "resolvedReason": "Fixed in 46a37452ef07f7d87caa18e41462bf74e81f2d71. The true-hang fixture uses proof-or-stop.config.json; validate-progress-heartbeat-smoke passed with its original timeout assertions. Build and diff check passed. Official stale evidence refresh completed71/71 against that source in342.5seconds (metadata bc342c8). This proves bounded repair, not full standard validation, host quorum or DONE.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-052",
