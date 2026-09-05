@@ -1846,6 +1846,57 @@
       ],
       "signatureTag": "canonical-timeout-fixture-filename",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-039",
+      "desc": "machine.ts:1270 still renders background/title/description/checklist were modified instead of the domain renderer exported by init-check-gate.ts:272 and promised by its245-252 contract. Main69403365ae has the identical handwritten diagnostic at1249; B-212f changes only DONE regions, so this is pre-existing production diagnostic drift, not an extraction file-location false alarm. Independent node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs on both trees exits1: all signature shape/determinism/discrimination controls pass, M1 passes, only M2 reports rendersDomain=false and stillCarriesTheOldHandWrittenList=true (1 failed/0 broken/17 rows). Independent red-b49d4-registration-derivation.mjs also exits1 on both trees solely at EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE: the same red-b8df9 child fails without naming the newcomer. That derivative is the same family, not a new registration root. Both are configured validation blockers, making this applicable current acceptance work. Bounded repair: import/use describeInitCheckSignatureDomain in the existing mismatch message; preserve signature computation, tamper rejection and M2. Re-run both focused guards; do not weaken hashing or drop the child from derived coverage. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T16:37:04.647Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "ea1ace34da9ec6b0b8b61d166fb75476af9ada9ab29054a6e82738491a1d0025",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/init-check-gate.ts",
+        "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ],
+      "signatureTag": "init-tamper-diagnostic-domain-drift",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
