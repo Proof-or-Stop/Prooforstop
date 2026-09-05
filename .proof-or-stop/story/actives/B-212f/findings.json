@@ -48,6 +48,26 @@
       "resolvedAt": "2026-09-05T09:42:18.662Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-212f:F-003",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-171 promises an exact shared predicate guard and wrong-predicate mutation proof, but scripts/verify-process-fact-contract.mjs:4978-5001/5132-5136 compares only overlapping reference names and ignores boolean polarity and the branch containing doneBlockerRow. Independent in-memory execution inverted the real finish-decision oracle branches so missing finishDecision produced doneCheckRow(pass) while present finishDecision produced doneBlockerRow(fail); the unchanged production verifier still exited 0 and printed DONE/preflight predicate inventory parity passed plus Process-fact contract verification passed. Thus wrong-row coverage improved, but an opposite predicate with the same identifier remains false-green and F-001/F-002 closure is incomplete. Require semantic guard/branch correspondence and a polarity-inversion mutation that must fail.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-05T09:45:22.466Z",
+      "reviewRound": "2026-09-05T09:42:05.609Z",
+      "reviewRunId": "B-212f:RR-006",
+      "_hash": "f30e9d244cc3e9570cf5737276d9474e475ad43bb4ca86a0e1ce802249d15edc",
+      "files": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
