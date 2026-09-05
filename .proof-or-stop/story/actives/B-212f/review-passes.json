@@ -664,6 +664,72 @@
       },
       "readDiagnostics": [],
       "_hash": "70664fca08d161140c792716b689846bc73c5ff9419b608f10b4ad737174334a"
+    },
+    {
+      "id": "B-212f:RP-014",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Ordinary round-9 integrated docs review on material5f21d60f/story8c9a7add. Reviewed complete changed implementation/test/registry/verifier diff since prior docs terminal; unchanged prior complete reads reused truthfully, shared-predicate test current contents covered by previous complete read plus complete new diff. Prior 9 exported-symbol / 3 directly referenced documentation-section comparisons remain applicable; additionally audited changed snapshotPromptEnvelopes, new runPromptEnvelopeSnapshotProof and the updated registry promise paragraph. Snapshot symbol has no direct Markdown reference and package README fallback has no file. Decision files below were title-triaged and relevant bounded excerpts read, not claimed fully read. The registry promise matches actual conditional array cloning: absent optional keys stay absent, canonical integrity and trusted-prior selection remain equal, valid arrays/projection records are cloned/frozen, explicit malformed values are not normalized or re-signed. Focused source-executed runPromptEnvelopeSnapshotProof passed exit0 using actual serializer/envelope/run/pass-signature/prior-selector functions, including malformed/tamper rejection and mutation isolation. git diff --quiet 9b077 HEAD confirms frozen RED file unchanged. Fresh actual runtime RR-046/RR-047 raw and snapshot verification both return ok:true; historical RR-034 raw and snapshot both reject eligibilityDigest, changedFilesDigest and impactedFilesDigest, so no obsolete fresh-PASS claim. finding_list shows F-027 through F-033 resolved; this independent proof supports the bounded clone repair, not a historical audit redesign. Original active-DONE parity, historical informational limitation and whole-command read-only correction docs are unchanged and remain consistent. No additional documentation-code inconsistency or undelivered new promise found. This lane PASS does not claim Story DONE or global acceptance.",
+      "createdAt": "2026-09-05T16:00:57.673Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-049",
+      "envelopeId": "821f804e62054bd3cf27990c00c89c1c691862ae3de2bc3ea00199f4549f4260",
+      "writerSessionId": "sess-ff739d19d9399dbcb7183da81942185f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c36656a37fc4757f77b0c3d5e500797deb5bc4982460f21cc6eb910850278a07"
+      },
+      "readDiagnostics": [],
+      "_hash": "d5f15174480eecd2ececc518923ca7570d3dfa0d78ab4578b90c84ef14d94fc3"
     }
   ]
 }
