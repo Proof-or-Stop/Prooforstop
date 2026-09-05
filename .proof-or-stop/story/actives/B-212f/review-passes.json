@@ -314,6 +314,50 @@
       },
       "readDiagnostics": [],
       "_hash": "1ec7a60ddafefed5fa7b0f0670a88c50aa53de8b8d3840171934ac0af5c66e38"
+    },
+    {
+      "id": "B-212f:RP-007",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-002 wave 1 bounded concept inventory terminal. No new concept-lane blocker or concept replacement residue. Reused RR-032 complete reads only after fresh git diff 9001442..HEAD proved no changes across guides, docs, source, scripts, config, background, plan, checklist and decision; canonical incremental basis independently selected RP-004 with unchanged Story binding and no changed files. Inspected canonical F-027 in the fresh review context and bounded review-run.ts:157-173, prompt-contracts.ts:318-327 and review-incremental-context.ts:585-617. The optional-key snapshot shape changes can invalidate a previously valid legacy envelope and remove its prior-pass eligibility; this is the existing verified F-027 gate-truth family, not a new concept family. F-027 remains unresolved and requires the Owner's bounded repair; this concept terminal does not assert overall REVIEW acceptance, repair, product completion, topology certification, or full historical reviewer replay. Existing documentation already limits the snapshot presentation exception to actual DONE, and that boundary does not authorize weakening current REVIEW envelope integrity. No source or lifecycle edits and no unrelated tests executed.",
+      "createdAt": "2026-09-05T15:06:48.712Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-036",
+      "envelopeId": "858d6e18ef2b4e1a844534249ea8b19bfad47624f9257fbe21019ef6af98da24",
+      "writerSessionId": "sess-30ca165d3df921e631ee7421e9be9256",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "6fbccd23b3e03cda4056c54bef97dd1281838d4ab1fa0cbdd08224da586ef64a"
     }
   ]
 }
