@@ -649,7 +649,7 @@
       "desc": "packages/main/src/core/machine.ts:1015 reads deliveryCheck.docsPromises.filter after delivery-integrity already yielded delivery_check_tampered. The lazy guard and diagnostic stop safely, but buildDoneChecklist:327 exhausts the generator and throws TypeError on a malformed/tampered delivery artifact with docsPromises missing, replacing the previously structured blocker with an unhandled exception. Real filesystem reproduction: from this worktree run `node /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs`; it adapts the existing parity fixture by deleting docsPromises from the synthetic signed delivery record via its test Store. Current dist prints MALFORMED_DELIVERY_GUARD_REASON containing delivery_check_tampered, then MALFORMED_DELIVERY_ORACLE_THROW Cannot read properties of undefined (reading filter), stack evaluateDonePredicates -> buildDoneChecklist -> buildDoneClosureRunbook. Exact same command with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist prints MALFORMED_DELIVERY_ORACLE as delivery-check fail/blocking with delivery-check.json._hash source. Original parity assertions are intentionally inapplicable after introducing this earlier blocker; the marked output is the witness. Independent source-executed main/current build comparison produced the same structured-failure-versus-throw difference. This new shared-evaluator regression directly violates DONE/preflight diagnostic parity and the decision pre-mortem requiring safe incomplete-artifact handling. Null or non-array docsPromises and malformed promise elements belong to the same dependency-validation family. Bounded repair must avoid inspecting untrusted delivery promise contents after freshness/integrity has rejected them, while retaining the already emitted tamper/stale blocker and active DONE rejection; add executable malformed-artifact coverage without treating invalid content as a passing artifact.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T12:32:35.819Z",
@@ -689,7 +689,11 @@
         "packages/main/tests/red/red-done-shared-predicates.mjs"
       ],
       "signatureTag": "done-eager-invalid-delivery-promises",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 8168160d51: shared evaluator only traverses delivery docsPromises after deliveryCheckFreshness.ok, retaining structured tamper/stale rejection and treating rejected raw contents as opaque. Frozen shared-predicate tests at 982a3d1c12 reproduce undefined.filter on immutable 5d0abf0 and pass on the final implementation, including malformed content while active DONE remains blocked. Final shared predicate, original parity, process contract, post-DONE snapshot and flow stability commands all passed; tool-owned verification receipts were refreshed on the final material. No topology acceptance certification is claimed.",
+      "resolvedAt": "2026-09-05T14:40:44.472Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-019",
