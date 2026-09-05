@@ -780,6 +780,37 @@ function runProjectionReceiptBindingRegression(scratch: string): void {
     }
     assert.equal(readFileSync(store.findingLedgerPath(storyId), 'utf8'), beforeRead, 'readFindings wrote the ledger');
   }
+  const casMutations: Array<[string, (bindings: typeof signedReceipt.casBindings) => typeof signedReceipt.casBindings]> = [
+    ['missing', () => []],
+    ['extra', (bindings) => [...bindings, { ...bindings[0]!, expectedRecordId: 'unexpected-source' }]],
+    ['duplicate', (bindings) => [bindings[0]!, bindings[0]!]],
+    ...['recordType', 'expectedRecordId', 'expectedRecordHash', 'observedChainHeadId', 'observedChainHeadHash', 'predicateDigest']
+      .map((field): [string, (bindings: typeof signedReceipt.casBindings) => typeof signedReceipt.casBindings] => [
+        field, (bindings) => [{ ...bindings[0]!, [field]: 'wrong-bound-value' }, ...bindings.slice(1)],
+      ]),
+  ];
+  const withResignedCas = (change: typeof casMutations[number][1]) => {
+    const candidate = structuredClone(baseline);
+    const carrier = candidate.receipts.at(-1)! as typeof batch & { exactRequestDigest: string; findingLedgerReceipt: typeof signedReceipt };
+    const { signature: _signature, receiptHash: _receiptHash, ...unsigned } = carrier.findingLedgerReceipt;
+    unsigned.casBindings = change(unsigned.casBindings);
+    const requestRecords = carrier.recordIds.map((id) => candidate.records.find((record) => record.recordId === id)!)
+      .map((record) => ({ recordType: record.recordType, payload: record.payload,
+        ...(record.uniqueBindingKey ? { uniqueBindingKey: record.uniqueBindingKey } : {}) }));
+    unsigned.exactRequestDigest = canonicalHash({ storyId, operation: carrier.operation, idempotencyKey: carrier.idempotencyKey,
+      records: requestRecords, casBindings: unsigned.casBindings });
+    carrier.exactRequestDigest = unsigned.exactRequestDigest;
+    carrier.findingLedgerReceipt = signFindingLedgerReceipt(unsigned, findingLedgerSignerFromWorkspace(root));
+    assert.equal(verifyFindingLedgerReceipt(carrier.findingLedgerReceipt, trust), true);
+    return candidate;
+  };
+  for (const [name, change] of casMutations) {
+    writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(withResignedCas(change))}\n`);
+    const observed = store.readFindings(storyId).findings;
+    if (observed.some((finding) => finding.desc.startsWith('reviewed-'))) failures.push(`signed-cas-${name}: invalid CAS projection consumed`);
+  }
+  writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(withResignedCas((bindings) => bindings.reverse()))}\n`);
+  assert.deepEqual(store.readFindings(storyId).findings.map((finding) => finding.desc), ['reviewed-1', 'reviewed-2'], 'CAS is an exact set, not an ordering requirement');
   writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(baseline, null, 2)}\n`);
   mutate(storyId, 'mixed-new-and-projection', (data) => {
     data.findings[0]!.desc = 'mixed-projection';
@@ -795,6 +826,149 @@ function runProjectionReceiptBindingRegression(scratch: string): void {
   if (failures.length) console.error(`finding.projection_receipt_prefix: RED failures=${failures.length}\n${failures.join('\n')}`);
   assert.equal(failures.length, 0, 'Signed projection receipt must authenticate actual transaction prefix');
   console.log('finding.projection_receipt_prefix: PASS signedReceiptUnchanged=true tamperRejected=8 batchRows=2 mixedBatch=true readAfterWrite=true readWrites=0');
+  console.log('finding.projection_source_cas: PASS resignedInvalid=9 exactSourceSet=true tupleFields=6 unorderedSet=accepted mixedBatch=accepted');
+}
+
+function runBaseFindingAuthorityRegression(scratch: string): void {
+  const root = join(scratch, 'base-finding-authority');
+  mkdirSync(root, { recursive: true });
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
+  }));
+  git(root, ['init', '-q', '-b', 'main']);
+  const store = new StoryStore(root);
+  const storyId = 'B-BASE';
+  const signer = findingLedgerSignerFromWorkspace(root);
+  const rows: Finding[] = [1, 2].map((index) => ({
+    id: `${storyId}:F-${index}`, desc: `trusted-base-${index}`, status: 'open', severity: 'high',
+    category: 'adversarial', evidenceState: 'verified', agent: 'proof-or-stop-review-concept',
+  }));
+  const lockDir = store.storyFilePath(storyId, 'findings.lock');
+  const lock = acquireMkdirLock(lockDir, { label: 'base authority regression', requireHolderToken: true });
+  try {
+    const fence = captureMkdirLockFence(lockDir);
+    appendFindingLedger({ storyId, store, operation: 'append_finding', idempotencyKey: 'base:batch',
+      records: rows.map((finding) => ({ recordType: 'finding', payload: finding as unknown as JsonValue })),
+      writerSessionId: 'base-smoke', writerLeaseId: 'base-smoke', writerFenceToken: fence.writerFenceToken, fence, signer });
+  } finally { lock.release(); }
+  const baseline = store.readFindingLedger<JsonValue>(storyId);
+  assert.deepEqual(store.readFindings(storyId).findings.map((finding) => finding.status), ['open', 'open']);
+  const signedBytes = canonicalJson((baseline.receipts[0] as typeof baseline.receipts[number] & {
+    findingLedgerReceipt: ReturnType<typeof signFindingLedgerReceipt>;
+  }).findingLedgerReceipt);
+  const mutations: Array<[string, (candidate: typeof baseline) => void]> = [
+    ...Object.entries({ status: 'resolved', category: 'happy', evidenceState: 'disproven', agent: 'main', id: 'B-OTHER:F-1' })
+      .map(([field, value]): [string, (candidate: typeof baseline) => void] => [field, (candidate) => {
+        (candidate.records[0]!.payload as Record<string, JsonValue>)[field] = value;
+      }]),
+    ['missing-description', (candidate) => { delete (candidate.records[0]!.payload as Record<string, JsonValue>).desc; }],
+    ['null-payload', (candidate) => { candidate.records[0]!.payload = null; }],
+    ['wrong-operation', (candidate) => { candidate.receipts[0]!.operation = 'append_route_receipt'; }],
+    ['missing-carrier', (candidate) => { candidate.receipts = []; }],
+    ['duplicate-carrier', (candidate) => { candidate.receipts.push({ ...structuredClone(candidate.receipts[0]!), receiptId: 'duplicate', idempotencyKey: 'duplicate' }); }],
+  ];
+  const failures: string[] = [];
+  for (const [name, mutate] of mutations) {
+    const candidate = structuredClone(baseline);
+    mutate(candidate);
+    candidate.records.forEach((record) => { record.payloadHash = canonicalHash(record.payload); });
+    candidate.committedLedgerDigest = canonicalHash(candidate.records);
+    if (candidate.receipts.length) candidate.receipts.at(-1)!.committedLedgerDigest = candidate.committedLedgerDigest;
+    if (candidate.receipts.length) assert.equal(canonicalJson((candidate.receipts[0] as typeof baseline.receipts[number] & {
+      findingLedgerReceipt: ReturnType<typeof signFindingLedgerReceipt>;
+    }).findingLedgerReceipt), signedBytes);
+    writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(candidate)}\n`);
+    assert.doesNotThrow(() => store.readFindingLedger(storyId), `${name}: mutation must reach authority check`);
+    for (const mirror of ['empty', 'false-closed']) {
+      store.writeFindings(storyId, { findings: mirror === 'empty' ? [] : rows.map((finding) => ({ ...finding, status: 'resolved' })) });
+      const before = readFileSync(store.findingLedgerPath(storyId), 'utf8');
+      let rejected = false;
+      try { store.readFindings(storyId); } catch (error) { rejected = /FINDING_LEDGER_AUTHORITY_INVALID/.test(String(error)); }
+      if (!rejected) failures.push(`${name}/${mirror}: untrusted base returned instead of explicit fail-closed refusal`);
+      assert.equal(readFileSync(store.findingLedgerPath(storyId), 'utf8'), before);
+    }
+  }
+  writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(baseline)}\n`);
+  assert.deepEqual(store.readFindings(storyId).findings.map((finding) => finding.status), ['open', 'open']);
+  store.writeFindings('B-MIRROR-ONLY', { findings: [rows[0]!] });
+  assert.deepEqual(store.readFindings('B-MIRROR-ONLY').findings, [rows[0]!]);
+  if (failures.length) console.error(`finding.base_receipt_authority: RED failures=${failures.length}\n${failures.join('\n')}`);
+  assert.equal(failures.length, 0, 'Base Finding trust failure must never return an apparent gate result');
+  console.log('finding.base_receipt_authority: PASS tamperCases=10 mirrorControls=2 refusal=explicit signedBatch=accepted legacyMirrorOnly=accepted readWrites=0');
+}
+
+function runLegacyIdentityAuthorityRegression(scratch: string): void {
+  const root = join(scratch, 'legacy-identity-authority');
+  mkdirSync(root, { recursive: true });
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
+  }));
+  git(root, ['init', '-q', '-b', 'main']);
+  const store = new StoryStore(root);
+  const signer = findingLedgerSignerFromWorkspace(root);
+  const failures: string[] = [];
+  const terminalFields = ['resolvedAt', 'resolvedReason', 'resolutionType', 'resolveEvidenceStrength',
+    'dismissedAt', 'dismissReason', 'dismissReasonType', 'dismissEvidenceStrength'];
+  for (const terminal of ['resolved', 'dismissed'] as const) {
+    const storyId = `B-LEGACY-${terminal}`;
+    const original: Finding = { id: `${storyId}:F-1`, desc: 'authenticated original legacy finding', status: 'open', severity: 'high', category: 'missing' };
+    store.writeFindings(storyId, { findings: [original] });
+    const lockDir = store.storyFilePath(storyId, 'findings.lock');
+    const lock = acquireMkdirLock(lockDir, { label: 'legacy identity authority', requireHolderToken: true });
+    let boundOnly: ReturnType<typeof store.readFindingLedger<JsonValue>>;
+    try {
+      const fence = captureMkdirLockFence(lockDir);
+      const appendOptions = { storyId, store, writerSessionId: 'legacy-authority-smoke', writerLeaseId: 'legacy-authority-smoke',
+        writerFenceToken: fence.writerFenceToken, fence, signer };
+      const findingHash = canonicalHash(original);
+      appendFindingLedger({ ...appendOptions, operation: 'append_legacy_identity_binding', idempotencyKey: `legacy-finding-binding:${original.id}:${findingHash}`,
+        records: [{ recordType: 'legacy_identity_binding', payload: { schemaVersion: 1, bindingType: 'legacy-finding', findingId: original.id, findingHash },
+          uniqueBindingKey: `legacy-finding:${original.id}` }] });
+      boundOnly = store.readFindingLedger<JsonValue>(storyId);
+      const source = boundOnly.records[0]!;
+      const predicateDigest = canonicalHash({ schemaVersion: 1, predicate: 'finding-open-without-terminal-transition', findingId: original.id, findingRecordId: source.recordId });
+      appendFindingLedger({ ...appendOptions, operation: 'append_finding_lifecycle_transition', idempotencyKey: `finding-lifecycle:${source.recordId}:${terminal}`,
+        records: [{ recordType: 'finding_lifecycle_transition', payload: { schemaVersion: 1, transitionId: 'fixture-transition', findingId: original.id,
+          findingRecordId: source.recordId, fromStatus: 'open', toStatus: terminal, at: '2030-01-01T00:00:00Z', reason: 'signed reason' },
+          uniqueBindingKey: `finding-lifecycle:${source.recordId}` }],
+        casBindings: [{ recordType: source.recordType, expectedRecordId: source.recordId, expectedRecordHash: canonicalHash(source),
+          observedChainHeadId: source.recordId, observedChainHeadHash: canonicalHash(source), predicateDigest }],
+        verifyPredicate: () => ({ accepted: true, predicateDigest }) });
+    } finally { lock.release(); }
+    const valid = store.readFindingLedger<JsonValue>(storyId);
+    const falseClosed = { ...original, status: terminal, ...Object.fromEntries(terminalFields.map((field) => [field, 'untrusted mirror value'])) } as Finding;
+    const invalidTransition = structuredClone(valid);
+    (invalidTransition.receipts.at(-1)! as typeof valid.receipts[number] & { findingLedgerReceipt: ReturnType<typeof signFindingLedgerReceipt> }).findingLedgerReceipt.signature = 'invalid-signature';
+    for (const [name, candidate] of [['missing', boundOnly!], ['bad-signature', invalidTransition]] as const) {
+      writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(candidate)}\n`);
+      store.writeFindings(storyId, { findings: [falseClosed] });
+      const before = readFileSync(store.storyFilePath(storyId, 'findings.json'), 'utf8');
+      const projected = store.readFindings(storyId).findings[0]!;
+      if (projected.status !== 'open' || terminalFields.some((field) => Object.hasOwn(projected, field))) failures.push(`${terminal}/${name}: terminal mirror survived without trusted transition`);
+      assert.equal(readFileSync(store.storyFilePath(storyId, 'findings.json'), 'utf8'), before);
+    }
+    writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(valid)}\n`);
+    store.writeFindings(storyId, { findings: [falseClosed] });
+    assert.equal(store.readFindings(storyId).findings[0]!.status, terminal, 'valid signed terminal transition must survive mirror recovery');
+    const invalidBinding = structuredClone(boundOnly!);
+    (invalidBinding.receipts[0]! as typeof valid.receipts[number] & { findingLedgerReceipt: ReturnType<typeof signFindingLedgerReceipt> }).findingLedgerReceipt.signature = 'invalid-binding-signature';
+    const mismatchMirrors = [
+      { name: 'changed-description', rows: [{ ...falseClosed, desc: 'untrusted relabel' }], ledger: boundOnly! },
+      { name: 'changed-category', rows: [{ ...falseClosed, category: 'edge' as const }], ledger: boundOnly! },
+      { name: 'duplicate-mirror', rows: [falseClosed, falseClosed], ledger: boundOnly! },
+      { name: 'invalid-binding', rows: [falseClosed], ledger: invalidBinding },
+    ];
+    for (const candidate of mismatchMirrors) {
+      writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(candidate.ledger)}\n`);
+      store.writeFindings(storyId, { findings: candidate.rows });
+      let refused = false;
+      try { store.readFindings(storyId); } catch (error) { refused = /FINDING_LEDGER_AUTHORITY_INVALID/.test(String(error)); }
+      if (!refused) failures.push(`${terminal}/${candidate.name}: untrusted bound mirror was returned`);
+    }
+  }
+  if (failures.length) console.error(`finding.legacy_identity_authority: RED failures=${failures.length}\n${failures.join('\n')}`);
+  assert.equal(failures.length, 0, 'Legacy binding must reconstruct authenticated state or refuse');
+  console.log('finding.legacy_identity_authority: PASS normalizedTerminalCases=4 mismatchedBindingCases=8 signedTerminals=2 strippedFields=8 mirrorWrites=0');
 }
 
 function hasProtectedPathSurface(value: unknown, protectedValues: readonly string[]): boolean {
@@ -3075,11 +3249,19 @@ if (process.argv[2] === '--ledger-worker') {
 } else if (process.argv[2] === '--projection-receipt-only') {
   const scratch = mkdtempSync(join(tmpdir(), 'finding-projection-receipt-smoke-'));
   try { runProjectionReceiptBindingRegression(scratch); } finally { rmSync(scratch, { recursive: true, force: true }); }
+} else if (process.argv[2] === '--base-finding-authority-only') {
+  const scratch = mkdtempSync(join(tmpdir(), 'base-finding-authority-smoke-'));
+  try { runBaseFindingAuthorityRegression(scratch); } finally { rmSync(scratch, { recursive: true, force: true }); }
+} else if (process.argv[2] === '--legacy-identity-authority-only') {
+  const scratch = mkdtempSync(join(tmpdir(), 'legacy-identity-authority-smoke-'));
+  try { runLegacyIdentityAuthorityRegression(scratch); } finally { rmSync(scratch, { recursive: true, force: true }); }
 } else {
   const scratch = mkdtempSync(join(tmpdir(), 'finding-ledger-smoke-'));
   try {
     runProposalEnvelopeRegression(scratch);
     runProjectionReceiptBindingRegression(scratch);
+    runBaseFindingAuthorityRegression(scratch);
+    runLegacyIdentityAuthorityRegression(scratch);
     const concurrentFile = join(scratch, 'concurrent', 'finding-ledger.json');
     const concurrentLock = join(scratch, 'locks', 'normal-findings.lock');
     const workerCount = 25;
