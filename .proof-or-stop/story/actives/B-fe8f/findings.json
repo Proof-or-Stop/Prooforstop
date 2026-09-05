@@ -787,6 +787,26 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-037",
+      "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1818,2009-2026 — CHK-005:happy:1/edge coverage is not a cold-start read-only proof, confirming the F-034 root. The smoke calls findingLedgerSignerFromWorkspace before the query, while production finding_ledger_query at packages/main/src/handlers/finding-ledger.ts:1702-1722 also calls that signer and packages/main/src/core/finding-ledger.ts:111-121 creates and writes the key when missing. Therefore query.protected_read_only: PASS never exercises the no-key state or a write-denied git common directory and cannot prove the advertised read-only command makes zero filesystem mutations. Add a first-query/no-key fixture with write denial plus before/after filesystem assertions (or a deterministic no-write refusal/trust path). Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T09:29:41.108Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-080",
+      "_hash": "9a487a9509d3ac682569849c272f070e363bbc875b6ee91dea0a636cdf66d609",
+      "files": [
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+        "packages/main/src/handlers/finding-ledger.ts",
+        "packages/main/src/core/finding-ledger.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto"
     }
   ]
 }
