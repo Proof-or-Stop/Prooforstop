@@ -1399,6 +1399,140 @@
       "selectionReason": "SAFETY_REQUIRES_FULL",
       "fullContextBytes": 33580,
       "escalatedToFull": false
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-concept",
+      "storyId": "B-212f",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-212f:RR-019",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "lane": "proof-or-stop-review-concept",
+      "dispatchPromptDigest": "184eedcbff38149a386b773e40a529f82b37972ca79f059791a0c80a0ca5b0cf",
+      "hostRenderIdentityDigest": "4cbd61599ada2df6c7abb0ed4106b3b59ee1b5f4e5236f99cef61c19bee2c1e5",
+      "createdAt": "2026-09-05T12:18:25.081Z",
+      "headHash": "cdf1fba6b96bda21f63a3f46a2f3f19b1dec31c3",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "5b18366315614a3a1a31852df7ac0a6b75e5fe24d01af090d4cdcfe5fe18d1bf",
+      "roleRenderDigest": "2d7b65a7a090f2a7a96f692dfebbbed4151d64dc593c344a9fe1c02b0211e536",
+      "contextMode": "full",
+      "contextDigest": "707db1744c0b6b8b4011e1bab3506a121c8abae14ced3bd7c96b68ea03b2b693",
+      "materialHash": "d063051d78733c30a7e36459ba810649f25dcfee5448f056ae636a9a0d194c01",
+      "storyFilesHash": "48b2d628f246546cae43aa4d36b9d8bb4a0706ab5fada0e2c2d3705baf7065e2",
+      "policyHash": "04d1605d587daaf3240f9e83eb9cbe91dce824025b3ffa773afbc5d7b0ef40ba",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "5612be699c3f21c3bf0bcd7ba3ea7cf95cb657bc28d4c18e28512c25ed462194",
+      "knownExecutionEnvironmentDigest": "ac6655fb1b36d29f1aa0c0139cf4c81fea4b2a8c6a0492aa98de356377d41b03",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "ec6179606527f8f79eb7e0c771745bee296859b19d44915ddbd4abab223d54b4",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "58196385cf7b1fb50cc44e541acc771084d3f744bd75720242516e8ce4c6a821",
+      "bytes": 33118,
+      "lines": 172,
+      "estimatedTokens": 8280,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "8fe478eb424b2b4d3d5249f5582bb51f5184079802282fdd40ad4f90bac791cb",
+      "freshnessClassification": "NOT_EVALUATED",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_DOCS_V1",
+        "FULL_MISSING_TRUSTED_PRIOR_PASS",
+        "FULL_PRIVATE_IMPLEMENTATION_V1",
+        "FULL_UNKNOWN_IMPACT"
+      ],
+      "changedFilesDigest": "24e4af5aabaec6ba4f3a4bfe05fe8ca2c75c14983a147fbcd12d0885e2f88468",
+      "impactedFilesDigest": "da799fbce0fa708ba120853a85be03cf5382c4e78171bcd350d74d1d8c8ab55b",
+      "taskSemanticDigest": "727d1380481565691fabc571868bc6078a07877c166ca410eb004ed1fe3bb7c6",
+      "findingProjection": [
+        {
+          "id": "B-212f:F-001",
+          "createdAt": "2026-09-05T09:19:55.835Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "scripts/verify-process-fact-contract.mjs:4972-5034 exact-mapping mutation false-green: collectLiteralDoneOracleRowIds accepts every literal id property anywhere in done-oracle.ts, and checkDonePreflightPredicateInventory verifies only that the declared row id exists, not that the row emits the mapped blocker code or consumes the corresponding predicate. Executing the exact checker functions in memory with future_done_predicate mapped to the unrelated existing test-evidence row and artifact:delivery-check.json returned errors:[]; therefore a future DONE predicate can be added, falsely mapped to an unrelated row, and the promised omission guard still passes while done_prepare remains divergent. This directly violates CHK-003 and can make lifecycle readiness evidence misleading; require the checker/mutation test to reject wrong-row mappings by proving code-to-row/predicate correspondence, not mere set membership."
+        },
+        {
+          "id": "B-212f:F-002",
+          "createdAt": "2026-09-05T09:23:36.661Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-168 promises that DONE/preflight parity is mechanically guarded, but scripts/verify-process-fact-contract.mjs:4972-5034 collects every literal id anywhere in done-oracle.ts and checks only row-id set membership. A future literal DONE blocker can therefore be mapped to an unrelated existing row/process fact and the verifier passes without done_prepare consuming that predicate; the in-memory test at 5062-5074 covers only an entirely unmapped code. This leaves the advertised future-divergence guard incomplete and can again make DONE readiness evidence misleading. Require a wrong-row/wrong-predicate mutation to fail by mechanically binding each blocker code to the corresponding oracle predicate/row behavior. Same root cause independently registered as B-212f:F-001."
+        },
+        {
+          "id": "B-212f:F-003",
+          "createdAt": "2026-09-05T09:45:22.466Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-171 promises an exact shared predicate guard and wrong-predicate mutation proof, but scripts/verify-process-fact-contract.mjs:4978-5001/5132-5136 compares only overlapping reference names and ignores boolean polarity and the branch containing doneBlockerRow. Independent in-memory execution inverted the real finish-decision oracle branches so missing finishDecision produced doneCheckRow(pass) while present finishDecision produced doneBlockerRow(fail); the unchanged production verifier still exited 0 and printed DONE/preflight predicate inventory parity passed plus Process-fact contract verification passed. Thus wrong-row coverage improved, but an opposite predicate with the same identifier remains false-green and F-001/F-002 closure is incomplete. Require semantic guard/branch correspondence and a polarity-inversion mutation that must fail."
+        },
+        {
+          "id": "B-212f:F-004",
+          "createdAt": "2026-09-05T09:48:17.241Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: scripts/verify-process-fact-contract.mjs:4978-5137 treats a shared predicate as any identical identifier/property-access text and ignores operators, polarity, call identity, and value provenance. Executing the exact production checker in memory with machine storyId.length > 0 returning [future_done_predicate], oracle storyId.length === 0 pushing the exact doneBlockerRow(future_done_predicate, test-evidence, ...), a matching inventory entry, and an L4 gate-evidence fact returned errors:[]. The two surfaces block on mutually exclusive states. Therefore commit 2480d37f rejects the old unrelated-row mutation but still does not deliver docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-171 claim that wrong-predicate future divergence is mechanically guarded. Require a semantic same-predicate binding or an inverse-polarity mutation that the production checker must reject; lexical reference intersection is false assurance."
+        },
+        {
+          "id": "B-212f:F-005",
+          "createdAt": "2026-09-05T10:04:04.015Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:167-173 promises value-provenance equality and rejection of a different origin, but scripts/verify-process-fact-contract.mjs:5057-5084 summarizes a call only as its callee name/base and ignores ordinary arguments. Independent in-memory execution added machine blocker future_provenance_predicate guarded by readDevMemoryFinishDecision(..., storyId) and the exact mapped oracle doneBlockerRow guarded by readDevMemoryFinishDecision(root, B-wrong-story); the production verifier exited 0 and printed DONE/preflight predicate inventory parity passed and Process-fact contract verification passed. The inverse-polarity mutation now correctly fails, but same-reader/different-target provenance remains false-green, so F-003/F-004 closure and the decision-doc promise are incomplete. Bind semantically relevant call arguments (especially storyId/root inputs) or use an explicit source-owned predicate identity, and add this same-callee/different-argument mutation as a required failure."
+        },
+        {
+          "id": "B-212f:F-006",
+          "createdAt": "2026-09-05T10:06:50.013Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "scripts/verify-process-fact-contract.mjs:5057-5084 provenance mutation still false-greens: summarizeValueProvenance serializes an ordinary CallExpression as only call:<callee> and omits its arguments. I executed the production checkDonePreflightPredicateInventory functions in memory with machine provenance readDevMemoryFinishDecision(rootA, storyId) and oracle provenance readDevMemoryFinishDecision(rootB, storyId), while keeping the same future_done_predicate code, exact test-evidence row, polarity, and L4 gate-evidence mapping; the checker returned errors:[]. Thus a DONE predicate and done_prepare row can read different roots/inputs yet the verifier accepts them, contradicting docs/requirements/decisions/done-prepare-automation-execution-plan.md:167-173 that different origin cannot satisfy the contract. The committed provenance mutation at scripts/verify-process-fact-contract.mjs:5400-5408 only changes the callee shape (parameter storyId versus String(finishDecision)), so it does not kill same-callee/different-argument provenance drift. This directly leaves F-004 closure incomplete and can make DONE/preflight parity evidence misleading; require call-argument provenance normalization and an executable same-callee/different-root-or-storyId mutation that must fail."
+        },
+        {
+          "id": "B-212f:F-007",
+          "createdAt": "2026-09-05T10:07:01.819Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: scripts/verify-process-fact-contract.mjs:5013-5023 and 5135-5144 still admit two structural false greens after 1002a294. Exact in-memory execution of checkDonePreflightPredicateInventory returned no future_done_predicate errors when machine and oracle shared the same nearest Boolean(storyId) guard but were enclosed by opposite outer guards storyId.length > 0 versus === 0; findNearestBlockerBranch discards the rest of the control-flow path. It also returned no errors when the matching doneBlockerRow call sat inside rows.push but its result was discarded by a comma expression and the actually pushed row was doneCheckRow(pass); isEmittedThroughRowsPush checks only ancestry, not that the call result is the emitted row. Separately, the checker also returned errors:[] after changing readDevMemoryFinishDecision oracle arguments to process.cwd(), B-wrong, corroborating F-005 because call provenance at 5057-5084 ignores ordinary arguments. These bypasses contradict docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-173 claims for blocker-emitting branch, branch inversion, exact binding, and value origin. Require the full enclosing blocker path and direct emitted-value identity, plus same-callee/different-argument provenance coverage."
+        },
+        {
+          "id": "B-212f:F-008",
+          "createdAt": "2026-09-05T12:10:33.678Z",
+          "status": "open",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 newly describes the complete done_prepare and done_closure commands as read-only projections. That scope is false: packages/main/src/handlers/done-prepare.ts:1889-1901 skips mutation only when mergeMain=false or dryRun=true, otherwise executing gitMaybe(gitCwd, [merge, main, --no-edit]); the same document at lines 93-100 recommends mergeMain=true, refreshStale=true, validate=true, dryRun=false. Read-only is true of the shared readiness oracle and evidence inspection, not of the encompassing done_prepare command. An operator relying on this new safety statement can run a mutating command as inspection. Reproduce by reading the cited branch and comparing the new sentence to the documented recommended invocation; no merge was executed in review. Critical classification follows the canonical concept-review closing self-check for a newly added behavior promise without corresponding implementation. This is applicable to the current changed documentation and needs only wording scoped to the shared readiness projection; preserve authorized merge/refresh/validate behavior and do not expand implementation scope."
+        },
+        {
+          "id": "B-212f:F-009",
+          "createdAt": "2026-09-05T12:16:34.431Z",
+          "status": "open",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/done-oracle.ts:327,888-961,1105 regresses historical DONE snapshot projection: shared predicates evaluate live review evidence and assurance, then final projectDonePredicateRows overlays those failures even when completedSnapshot supplied valid historical assurance. Independent production-function witness `node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs` compares main 69403365ae buildDoneChecklist with current using identical DONE-phase controlled readers and historical-material snapshot: main review-escalation is pass/nonblocking; current review-escalation is fail/blocking and new stale review-verdict is fail/blocking. Active canFinishGuard remains false in both controls. Real-filesystem `node /tmp/b212f-quality-snapshot.Sx1V74/filesystem-witness.mjs` adapts only the original parity fixture phase to DONE after signing its pass: current emits review-verdict fail/blocking with stale_closeout_review/diff_pack_changed; running with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist emits no such row. Existing done-closure historical projection excludes review-verdict from its current-material revalidation allowlist, so this stale row tells an already-DONE Story to return to DEV/REVIEW. Other fixture blockers exist; no claim this row alone changes aggregate admissibility. This contradicts accepted completed-snapshot compatibility and decision pre-mortem. Bounded repair must preserve historical DONE assurance and classify current-material reviewer drift in the post-DONE projection while active TEST-to-DONE stays strict and missing/tampered historical facts remain blocking. The new shared fixture tests only missing finish-decision under completedSnapshot; existing post-done-closure-snapshot-smoke exits 1 at TEST fixture setup due newly required evidence, before its historical assertions. Repair that fixture without relaxing live gates."
+        },
+        {
+          "id": "B-212f:F-010",
+          "createdAt": "2026-09-05T12:16:51.845Z",
+          "status": "open",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: Independent docs-lane corroboration of canonical B-212f:F-008, same root and impact, not a new defect family. docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 states that done_prepare and done_closure are read-only projections. The recommended invocation at lines 93-100 sets mergeMain=true and dryRun=false, while packages/main/src/handlers/done-prepare.ts:1889-1901 skips mutation only for mergeMain=false or dryRun=true and otherwise executes git merge main --no-edit. The new command-wide read-only promise exceeds the shared readiness evaluator boundary and could cause an operator to run a mutating command as inspection. Verified by independent source/doc reads; no merge was executed. The shared evaluator and finite mutation-proof description at doc163-184 match inspected source; node packages/main/tests/red/red-done-shared-predicates.mjs independently exited 0. Repair only the changed promise wording to refer to shared readiness projection, preserving authorized merge/refresh/validate behavior. Preserve F-008 as canonical observation; inventory critic should classify this corroboration as duplicate of its live owner-bound Finding."
+        }
+      ],
+      "findingProjectionDigest": "702a7aadbd112be89200d246c46a2a12e9e8f1827eb131aa546dfbca4c0a1579",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 33118,
+      "escalatedToFull": false
     }
   ]
 }

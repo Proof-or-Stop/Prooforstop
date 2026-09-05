@@ -280,6 +280,54 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-independent",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-212f:F-011",
+      "desc": "Coverage corroboration of canonical B-212f:F-009, same completed-snapshot compatibility defect and no independent repair family: packages/main/tests/red/red-done-shared-predicates.mjs:133,260-266 keeps readStory at phase TEST and tests only a missing finish decision under completedSnapshot; it never witnesses a DONE-phase Story with valid historical assurance and stale current material. The signed decision preMortem explicitly requires preserving completion-snapshot semantics and testing snapshot/live gate behavior. Independent command node packages/main/dist/tasks/post-done-closure-snapshot-smoke.js exits 1 at TEST fixture starts DONE-ready, before any historical assertions. Independent replay of node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs executes source-extracted main 69403365ae and current buildDoneChecklist using identical DONE-phase snapshot-aware readers: main review-escalation is pass/nonblocking, current escalation and stale reviewer-verdict are fail/blocking, while active canFinishGuard remains false. Consequently current green shared-proof receipts do not establish the promised historical compatibility. Canonical F-009 already owns the implementation defect and test repair; this record supplies the required signed coverage-lane terminal and duplicate corroboration only. Retain F-009 as canonical, repair its historical fixture and coverage without weakening active TEST-to-DONE gates, then rerun snapshot and shared proofs.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T12:18:37.687Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "27b47cc4c8d52bb6da8242dc49b5acd3dc2a66da176e85a99c8532a0453e16b1",
+      "files": [
+        "packages/main/tests/red/red-done-shared-predicates.mjs",
+        "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "edge|mjs|coverage-corroboration-canonical",
+      "signatureTagSource": "auto"
     }
   ]
 }
