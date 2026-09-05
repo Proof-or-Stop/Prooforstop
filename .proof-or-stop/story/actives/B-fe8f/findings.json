@@ -1259,7 +1259,7 @@
       "desc": "Current-Story authoritative-reader receipt binding defect, found while closing F-033. core/store.ts readFindings consumes base Finding payload fields before authenticating their unique signed carrier and actual record-prefix digest; the pre-ad0 finding_projection reader likewise trusted a signed carrier without binding its bytes to the actual prefix. These fields can affect Finding status and lifecycle truth, so this is a CHK-002/CHK-006 acceptance blocker, not compatibility clustering debt. Actual isolated RED: test-only d69169e4d50065421a21bfdc0ba1ae9593bee7fe --projection-receipt-only exited1 with finding.projection_receipt_prefix: RED failures=8; fix ad0c1b79f928877e4e02fa624186d339d54cd2c2 made those cases GREEN. After that fix, the new --base-finding-authority-only regression against ad0 source exited1 with finding.base_receipt_authority: RED failures=20, covering state/shape/carrier inconsistencies under empty and falsely closed compatibility mirrors; production Store had not yet changed. Required closure: the bounded base/legacy-binding/projection/lifecycle reader unit must preserve authentic legacy and mixed-batch positives while rejecting inconsistent authority without silent row loss or untrusted mirror fallback. Implementation is in progress; neither the earlier 71/71 PASS nor the partial projection repair closes this whole Finding.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T12:20:57.557Z",
@@ -1272,7 +1272,11 @@
       "signatureTag": "adversarial|ts|current-story-authoritative",
       "signatureTagSource": "auto",
       "recordId": "lr_mtocq2c8_1i0w_286ff98e700142e8a2bee42d41afeece",
-      "ledgerCommitReceiptId": "lrc_mtocq2c9_1i0w_132dcfade52a4bcb9cec7ecb7a1499be"
+      "ledgerCommitReceiptId": "lrc_mtocq2c9_1i0w_132dcfade52a4bcb9cec7ecb7a1499be",
+      "resolvedAt": "2026-09-05T13:04:20.221Z",
+      "resolvedReason": "Complete bounded Store reader repair: actual RED d69169e4d50065421a21bfdc0ba1ae9593bee7fe exposed projection-prefix failures=8; unified RED a0f1b76e5feef972b26bc8db41171e7d3b15cff3 exposed base=20, legacy=12 and re-signed projection CAS=9. GREEN 845023258fdae5280a68043ea30fdc4d8c74b98e authenticates unique carriers/full actual prefixes, restores signed legacy identity without granting forged terminal state, and validates exact unordered projection CAS source sets while preserving signed legacy and mixed-batch positives. edda7b58bbe9cc580a9ec6dcb9bc804037f4ed82 strengthens refusal assertions to retain the exact original open rows and prove ledger/mirror zero writes. Independent concept and coverage audited the whole base/legacy/projection/lifecycle unit; current full pinned refresh supplies GREEN, and the real finding_list still exposes all 47 historical Findings without rewriting legacy data. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
