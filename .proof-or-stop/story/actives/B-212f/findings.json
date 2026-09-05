@@ -650,6 +650,53 @@
       ],
       "signatureTag": "done-eager-invalid-delivery-promises",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-019",
+      "desc": "RI-001 wave 2 independent completeness critic corroborates canonical F-018; this critic terminal adds no separate family. Fresh source read machine.ts:1006-1016 confirms delivery-integrity yields delivery_check_tampered before deliveryCheck.docsPromises.filter, and done-oracle.ts exhausts that generator. I inspected and independently executed /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs against current and main dist. Current marked output reports guard delivery_check_tampered then MALFORMED_DELIVERY_ORACLE_THROW Cannot read properties of undefined (reading filter); main gives MALFORMED_DELIVERY_ORACLE delivery-check fail/blocking with delivery-check.json._hash. Both command exit codes are 1 for different expected witness reasons: current throws, while main retains original now-inapplicable parity assertions; marked row evidence establishes the regression, not exit status alone. This is a distinct dependency-validation defect from historical snapshot overlay: active TEST malformed delivery triggers it without completedSnapshot. Preserve F-018 as canonical and repair untrusted promise access without accepting invalid evidence. Prior full bounded document/test reads remain applicable: git diff e8feacc633..a79f8c1347 is empty across those exact files and scoped material. Wave 2 raw required-lane findings and their read manifests/logs were inspected. Topology remains unsupported observe/inconclusive, separately receipted request_changes; no acceptance PASS, implementation edit, dismissal, or lifecycle change.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-05T12:35:23.254Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-026",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "5036d88337c5d624b567971b0d81207ecdd4b5d9758875d58070eeaece62173f",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/tests/red/red-done-shared-predicates.mjs"
+      ],
+      "signatureTag": "adversarial|ts|wave-independent-completeness",
+      "signatureTagSource": "auto"
     }
   ]
 }
