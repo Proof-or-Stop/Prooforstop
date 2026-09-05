@@ -4393,8 +4393,8 @@ function assertDoneOracleSameSource(): void {
   );
   assert.match(
     doneOracleSrc,
-    /const donePredicates = \[\.\.\.evaluateDonePredicates\(\{ storyId, store, projectRoot: root, gitCwd \}\)\];/,
-    'DONE preflight must evaluate shared predicates with the current root, story and git cwd',
+    /const donePredicates = completedSnapshot \? null : \[\.\.\.evaluateDonePredicates\(\{ storyId, store, projectRoot: root, gitCwd \}\)\];/,
+    'Active DONE preflight must evaluate shared predicates with the current root, story and git cwd',
   );
   assert.match(
     doneOracleSrc,
@@ -4403,9 +4403,11 @@ function assertDoneOracleSameSource(): void {
   );
   assert.match(
     doneOracleSrc,
-    /const finishDecision = donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>\(donePredicates, 'dev-memory-finish-decision'\);/,
+    /const finishDecision = donePredicates \? donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>\(donePredicates, 'dev-memory-finish-decision'\) : null;/,
     'DONE preflight finish-decision row must consume the already evaluated shared presence fact',
   );
+  assert.match(doneOracleSrc, /const completedSnapshot = store\.readStory\(storyId\)\.phase === 'DONE' \? options\.completedSnapshot : undefined;/,
+    'Historical presentation must not exempt TEST admission');
 
   // --- 1 & 3. Behavioral same-source + regression baseline ---
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-oracle-same-source-'));

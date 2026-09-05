@@ -150,7 +150,10 @@ Supported `dryRun` behavior:
 
 ### DONE Predicate Parity Contract
 
-`done_prepare` and `done_closure` are read-only projections, but readiness must
+The shared readiness projection used by `done_prepare` and `done_closure` is
+read-only. This does not make the whole `done_prepare` command read-only: its
+enabled execution steps may merge main, refresh evidence, build, and validate;
+use its supported `dryRun` mode for inspection without those effects. Readiness must
 consume the same finish-decision presence predicate and the same phase-agnostic
 `evaluateReviewVerdict` result as the real TEST-to-DONE transition. A missing or
 malformed finish-decision record therefore reports
@@ -162,16 +165,30 @@ evidence.
 
 `machine.ts` defines an ordered, lazy `evaluateDonePredicates` generator.
 The boolean DONE guard and DONE diagnostic consume its first failed result;
-the oracle consumes all results and generically projects every failure onto
+the active readiness oracle consumes all results and generically projects every failure onto
 its existing row, or appends a row when none exists. Multiple failures sharing
 a row retain every failure reason. Existing stricter preflight failures remain
-blocking, and a completed historical snapshot cannot downgrade a live failure.
+blocking. Active TEST readiness and the default DONE guard remain live-strict,
+even if a caller supplies a completed snapshot. An actual DONE story plus an
+explicit completed snapshot selects the pre-existing historical presentation,
+not a new admission attempt. It retains the established test, delivery,
+DONE-required validation and snapshot escalation/assurance checks. Their
+missing or tampered artifacts remain blocking under their existing rules.
+The newly added live finish-decision and reviewer eligibility predicates do not
+reopen completed history. Reviewer information is explicitly marked as not
+re-evaluated: it is neither a fresh PASS, current re-attestation nor a complete
+historical reviewer audit, regardless of legacy/full/incremental prompt shape
+or a removed worktree. This exception does not downgrade any active predicate.
+Broader historical reviewer audit and snapshot-context work is separately
+tracked in `docs/story/drafts/historical-reviewer-audit-snapshot-context/`;
+B-212f does not reconstruct missing historical main/base facts.
+Rejected delivery artifact contents are not traversed by dependent predicates.
 The lazy consumer retains the existing first-failure diagnostic order.
 
 The process-fact registry maps the shared generator's literal blocker codes to
 their source-owned row identities and L4 process facts. A new literal code
 requires a mapping; a new shared predicate automatically reaches the three
-consumers without adding an oracle whitelist entry. Dynamic reviewer codes
+active-admission consumers without adding an oracle whitelist entry. Dynamic reviewer codes
 remain covered by the shared `review-verdict` result.
 
 The contract verifier checks a deliberately finite adapter syntax: the guard,

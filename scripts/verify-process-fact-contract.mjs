@@ -2832,6 +2832,11 @@ function assertCloseoutTrustBoundary() {
     && machineText.includes('return firstDonePredicateFailure(context) === null;')
     && machineText.includes('return firstDonePredicateFailure({ storyId, store, projectRoot:'),
   'REVIEW→TEST and TEST→DONE boolean/reason paths must share the authoritative reviewer verdict evaluator');
+  const doneOracleText = read('packages/main/src/core/done-oracle.ts');
+  assert(doneOracleText.includes("const completedSnapshot = store.readStory(storyId).phase === 'DONE' ? options.completedSnapshot : undefined;")
+    && doneOracleText.includes('not a fresh reviewer PASS')
+    && doneOracleText.includes('full historical reviewer audit'),
+  'Only explicit completed DONE snapshots may select historical presentation, which must never claim fresh reviewer admission or a full historical audit');
   for (const token of ['review_round_missing', 'review_evidence_missing', 'review_evidence_invalid', 'review_lane_missing', 'review_quorum', 'review_finding_blocking']) {
     assert(machineText.includes(token), `shared reviewer verdict must preserve ${token}`);
   }

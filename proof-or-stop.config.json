@@ -1466,6 +1466,21 @@
         ]
       },
       {
+        "label": "B-212f CHK-003: historical DONE presentation preserves snapshot assurance without reopening live reviewer eligibility, and rejected delivery artifacts remain structured blockers",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/post-done-closure-snapshot-smoke.js"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-b49d4-harness-registration.mjs"

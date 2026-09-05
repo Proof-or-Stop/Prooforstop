@@ -1012,7 +1012,10 @@ export function* evaluateDonePredicates(context: StoryMachineContext): Generator
           ? `Cannot enter DONE: ${deliveryCheckFreshness.reason}. [${deliveryCheckFreshness.code}]`
           : null);
 
-  const unverifiedPromises = deliveryCheck?.docsPromises.filter(deliveryPromiseBlocksDone) ?? [];
+  // Rejected artifacts are opaque: eager preflight must not traverse contents
+  // after the lazy guard has already rejected their integrity predicate.
+  const unverifiedPromises = deliveryCheckFreshness.ok && deliveryCheck
+    ? deliveryCheck.docsPromises.filter(deliveryPromiseBlocksDone) : [];
   yield donePredicate('delivery-promises', 'delivery-check', unverifiedPromises, unverifiedPromises.length > 0
     ? `Cannot enter DONE: ${unverifiedPromises.length} docsPromise entries unverified and not waived: ${unverifiedPromises.map(p => p.docPath).join(', ')}. [unverified_promise] → Use delivery_waiver_add to write a waiver or re-run reviewer → Run story_advance DEV to rework and fill in` : null);
 

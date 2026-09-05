@@ -1542,8 +1542,8 @@ export const PROCESS_FACT_SIGNED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
 /**
  * L4 predicates shared by the real TEST→DONE guard and the read-only
  * done_closure/done_prepare projection. These entries make the projection's
- * consumption explicit without turning either read-only command into an
- * evidence producer.
+ * consumption explicit without making the shared read-only projection an
+ * evidence producer. The full done_prepare command can execute mutating steps.
  */
 export const PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS = [
   {
@@ -1553,7 +1553,7 @@ export const PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS = [
     level: 'L4',
     producer: 'core/machine evaluateDonePredicates ordered lazy outcomes',
     consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
-    rationale: 'The boolean DONE gate and diagnostic consume the first failed shared outcome. The oracle projects every shared failure with all failure reasons, appending missing rows and preserving stricter preflight failures; completed snapshots cannot downgrade live failures. Literal code/row identities, finite adapter syntax, and executable mutation witnesses guard this boundary without claiming arbitrary source-program semantic equivalence.',
+    rationale: 'The boolean DONE gate and diagnostic consume the first failed shared outcome. Active readiness generically projects every failure, including future predicates, and preserves stricter preflight failures. Explicit actual-DONE snapshot inspection retains the pre-existing historical artifact/assurance presentation, not a new admission attempt; reviewer eligibility is informational, never a fresh PASS or full historical audit. TEST cannot select that exception. Rejected delivery contents are not traversed. Literal code/row identities, finite adapter syntax, and executable mutations guard this boundary without claiming arbitrary TypeScript semantic equivalence.',
   },
   {
     name: 'runtime:done_finish_decision_presence',

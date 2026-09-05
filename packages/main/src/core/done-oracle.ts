@@ -324,15 +324,18 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // read-only projections stay byte-identical. `root` is still used for all
   // config/store/audit reads — ONLY git invocation cwd changes.
   const gitCwd = options.gitCwd ?? root;
-  const donePredicates = [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd })];
+  // Completed history is not a new admission attempt. Preserve its established
+  // artifact/assurance projection; only active readiness consumes live gates.
+  const completedSnapshot = store.readStory(storyId).phase === 'DONE' ? options.completedSnapshot : undefined;
+  const donePredicates = completedSnapshot ? null : [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd })];
   const suppliedSnapshotReuse = options.evidenceHashSnapshot
     ? checkEvidenceHashSnapshotReuse(options.evidenceHashSnapshot, { gitCwd, metadataRoot: root, ref: 'HEAD' })
     : null;
   const currentBinding = suppliedSnapshotReuse?.reusable
     ? options.evidenceHashSnapshot!
     : captureEvidenceHashSnapshot({ gitCwd, metadataRoot: root, ref: 'HEAD' });
-  const currentBindingMaterialHash = options.completedSnapshot?.materialHash ?? currentBinding.materialHash;
-  const currentBindingStoryFilesHash = options.completedSnapshot?.storyFilesHash ?? currentBinding.storyFilesHash;
+  const currentBindingMaterialHash = completedSnapshot?.materialHash ?? currentBinding.materialHash;
+  const currentBindingStoryFilesHash = completedSnapshot?.storyFilesHash ?? currentBinding.storyFilesHash;
 
   // Resolve workflow policy for policy-aware gates
   const config = loadConfig(root);
@@ -340,7 +343,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   const policy = resolveWorkflowPolicy(config, storyForPolicy);
 
   // 1. test evidence
-  const evidence = donePredicateValue<ReturnType<StoryStore['readTestEvidence']>>(donePredicates, 'test-evidence');
+  const evidence = donePredicates ? donePredicateValue<ReturnType<StoryStore['readTestEvidence']>>(donePredicates, 'test-evidence') : store.readTestEvidence(storyId);
   if (!evidence) {
     rows.push(doneCheckRow({
       id: 'test-evidence',
@@ -456,9 +459,9 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   }
 
   // 2. all bugs fixed
-  const bugData = donePredicateValue<ReturnType<StoryStore['readBugs']>>(donePredicates, 'bugs-fixed');
+  const bugData = donePredicates ? donePredicateValue<ReturnType<StoryStore['readBugs']>>(donePredicates, 'bugs-fixed') : store.readBugs(storyId);
   const total = bugData.bugs.length;
-  const openBugs = bugData.bugs.filter(b => b.status !== 'fixed');
+  const openBugs = bugData.bugs.filter(b => donePredicates ? b.status !== 'fixed' : b.status === 'open');
   if (openBugs.length > 0) {
     rows.push(doneCheckRow({
       id: 'bugs-fixed',
@@ -481,7 +484,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // Keep done_prepare/session preflight aligned with the real TEST→DONE guard.
   // This record's contents remain non-authoritative; its existence is the
   // lifecycle completeness predicate enforced by machine.ts.
-  const finishDecision = donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>(donePredicates, 'dev-memory-finish-decision');
+  const finishDecision = donePredicates ? donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>(donePredicates, 'dev-memory-finish-decision') : null;
   const finishDecisionRow = {
     id: 'dev-memory-finish-decision',
     status: finishDecision ? 'pass' : 'fail',
@@ -494,7 +497,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       : `proof-or-stop dev_memory_finish_decision --storyId=${storyId} --decision=captured|no-reusable-lesson|defer-with-reason`,
     source: '.proof-or-stop/dev-memory/finish-decisions/<storyId>.json',
   } satisfies Omit<DoneCheckRow, 'blocking'>;
-  rows.push(finishDecision
+  if (donePredicates) rows.push(finishDecision
     ? doneCheckRow(finishDecisionRow)
     : doneBlockerRow('missing_dev_memory_finish_decision', 'dev-memory-finish-decision', finishDecisionRow));
 
@@ -681,7 +684,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   } catch { /* ignore */ }
 
   // 6. delivery-check.json (hard gate, mirrors machine.canFinish / getGuardFailureReason)
-  const deliveryCheckFreshness = donePredicateValue<ReturnType<typeof evaluateDeliveryCheckFreshness>>(donePredicates, 'delivery-presence');
+  const deliveryCheckFreshness = donePredicates ? donePredicateValue<ReturnType<typeof evaluateDeliveryCheckFreshness>>(donePredicates, 'delivery-presence') : evaluateDeliveryCheckFreshness(storyId, store, gitCwd, root);
   const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
   if (!deliveryCheck) {
     rows.push(doneBlockerRow('missing_delivery_check', 'delivery-check', {
@@ -748,7 +751,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // 6a. Optional legacy-compatible live-smoke evidence. Missing remains the
   // delivery reviewer's decision, but a present failed transcript is a hard
   // contradiction and cannot count as successful closeout evidence.
-  const liveSmokeTranscript = donePredicateValue<ReturnType<typeof evaluateOptionalLiveSmokeTranscript>>(donePredicates, 'live-smoke-transcript');
+  const liveSmokeTranscript = donePredicates ? donePredicateValue<ReturnType<typeof evaluateOptionalLiveSmokeTranscript>>(donePredicates, 'live-smoke-transcript') : evaluateOptionalLiveSmokeTranscript(store, storyId);
   if (liveSmokeTranscript.status !== 'absent') {
     const liveSmokeRow = {
       id: 'live-smoke-transcript',
@@ -888,27 +891,37 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // Reconsume the same phase-agnostic lane verdict as the real TEST→DONE
   // guard. Review escalation and assurance are additional predicates; neither
   // substitutes for signature, run-binding, lane, finding, or diff-pack checks.
-  const reviewVerdict = donePredicateValue<ReturnType<typeof evaluateReviewVerdict>>(donePredicates, 'review-verdict');
-  const reviewVerdictCode = reviewVerdict.code === 'review_evidence_invalid'
-    ? 'stale_closeout_review'
-    : (reviewVerdict.code ?? 'review_verdict_error');
-  const reviewVerdictRow = {
-    id: 'review-verdict',
-    status: reviewVerdict.ok ? 'pass' : 'fail',
-    label: 'Reviewer verdict',
-    detail: reviewVerdict.ok
-      ? 'current reviewer verdict is valid'
-      : `${reviewVerdict.message ?? 'review verdict rejected'} [${reviewVerdictCode}]`,
-    hint: reviewVerdict.ok
-      ? 'reviewer evidence is current'
-      : 'Return to DEV/REVIEW and record current reviewer evidence before TEST',
-    source: 'review-runs.json + review-passes.json + findings.json',
-  } satisfies Omit<DoneCheckRow, 'blocking'>;
-  rows.push(reviewVerdict.ok
-    ? doneCheckRow(reviewVerdictRow)
-    : reviewVerdict.code === 'review_evidence_invalid'
-      ? doneBlockerRow('stale_closeout_review', 'review-verdict', reviewVerdictRow)
-      : doneBlockerRow(reviewVerdictCode, 'review-verdict', reviewVerdictRow));
+  if (donePredicates) {
+    const reviewVerdict = donePredicateValue<ReturnType<typeof evaluateReviewVerdict>>(donePredicates, 'review-verdict');
+    const reviewVerdictCode = reviewVerdict.code === 'review_evidence_invalid'
+      ? 'stale_closeout_review'
+      : (reviewVerdict.code ?? 'review_verdict_error');
+    const reviewVerdictRow = {
+      id: 'review-verdict',
+      status: reviewVerdict.ok ? 'pass' : 'fail',
+      label: 'Reviewer verdict',
+      detail: reviewVerdict.ok
+        ? 'current reviewer verdict is valid'
+        : `${reviewVerdict.message ?? 'review verdict rejected'} [${reviewVerdictCode}]`,
+      hint: reviewVerdict.ok
+        ? 'reviewer evidence is current'
+        : 'Return to DEV/REVIEW and record current reviewer evidence before TEST',
+      source: 'review-runs.json + review-passes.json + findings.json',
+    } satisfies Omit<DoneCheckRow, 'blocking'>;
+    rows.push(reviewVerdict.ok
+      ? doneCheckRow(reviewVerdictRow)
+      : reviewVerdict.code === 'review_evidence_invalid'
+        ? doneBlockerRow('stale_closeout_review', 'review-verdict', reviewVerdictRow)
+        : doneBlockerRow(reviewVerdictCode, 'review-verdict', reviewVerdictRow));
+  } else {
+    rows.push(doneCheckRow({
+      id: 'review-verdict', status: 'warn', label: 'Historical reviewer information',
+      detail: 'Historical DONE snapshot: live reviewer eligibility is not re-evaluated. This is not a fresh reviewer PASS, current re-attestation, or a full historical reviewer audit.',
+      hint: 'The established historical artifact and assurance checks remain below; this query does not reopen DONE.',
+      source: 'completed DONE snapshot (informational only)',
+      blocking: false,
+    }));
+  }
 
   // 6d. review escalation quorum. Ordinary documentation/decision-doc edits do
   //     not trigger this gate by themselves; the trigger is mechanical: the
@@ -916,14 +929,11 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   //     problems. When triggered, DONE requires full 3x2 host quorum or explicit
   //     degraded 3x1 fallback over the current material hash.
   {
-    const escalation = options.completedSnapshot ? evaluateReviewEscalation({
-      projectRoot: root,
-      gitCwd,
-      storyId,
-      store,
+    const escalation = donePredicates ? donePredicateValue<ReturnType<typeof evaluateReviewEscalation>>(donePredicates, 'review-escalation') : evaluateReviewEscalation({
+      projectRoot: root, gitCwd, storyId, store,
       ...(currentBindingMaterialHash ? { materialHash: currentBindingMaterialHash } : {}),
       ...(currentBindingStoryFilesHash ? { storyFilesHash: currentBindingStoryFilesHash } : {}),
-    }) : donePredicateValue<ReturnType<typeof evaluateReviewEscalation>>(donePredicates, 'review-escalation');
+    });
     const escalationBaseDetail = escalation.required
       ? `${escalation.assuranceLevel}; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}; ${renderReviewAssuranceGuidanceSummary(buildReviewEscalationGuidance(escalation, storyId))}`
       : `not required; first-round problems ${escalation.trigger.countableProblems.length}/${escalation.trigger.requiredProblemCount}`;
@@ -953,14 +963,11 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // diffs need at least one fresh local review round, while failure-signal code
   // diffs need the sticky 3x1 local floor.
   {
-    const floor = options.completedSnapshot ? evaluateReviewAssuranceFloor({
-      projectRoot: root,
-      gitCwd,
-      storyId,
-      store,
+    const floor = donePredicates ? donePredicateValue<ReturnType<typeof evaluateReviewAssuranceFloor>>(donePredicates, 'review-assurance-floor') : evaluateReviewAssuranceFloor({
+      projectRoot: root, gitCwd, storyId, store,
       ...(currentBindingMaterialHash ? { materialHash: currentBindingMaterialHash } : {}),
       ...(currentBindingStoryFilesHash ? { storyFilesHash: currentBindingStoryFilesHash } : {}),
-    }) : donePredicateValue<ReturnType<typeof evaluateReviewAssuranceFloor>>(donePredicates, 'review-assurance-floor');
+    });
     const floorBaseDetail = floor.required
       ? `${floor.assuranceLevel}; material code paths ${floor.materialCodePaths.length}; local rounds ${floor.localRounds.validRounds.length}/${floor.localRounds.requiredRounds}; ${renderReviewAssuranceGuidanceSummary(buildReviewAssuranceFloorGuidance(floor))}`
       : `not required; material code paths ${floor.materialCodePaths.length}`;
@@ -1102,7 +1109,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }));
   }
 
-  return projectDonePredicateRows(rows, donePredicates);
+  return completedSnapshot ? rows : projectDonePredicateRows(rows, donePredicates!);
 }
 
 export function renderDoneChecklist(storyId: string, rows: DoneCheckRow[]): string {
