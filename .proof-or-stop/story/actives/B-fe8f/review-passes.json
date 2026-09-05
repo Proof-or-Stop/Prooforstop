@@ -1845,6 +1845,34 @@
         "scanEscalationReason": null
       },
       "_hash": "d6e8c8982ef42feb20453f0f87f778be176c1fd6da79b7745441aee751dd2964"
+    },
+    {
+      "id": "B-fe8f:RP-052",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-002 wave 1 quality inventory on frozen material 781b7f229790ea9e1bdf0685664a01a02a1e21c2751379a5d229e4fd69a23b07 found no third distinct root family. A bounded re-signed TypeScript/JSON matrix reproduced F-045: null or numeric elements in evidenceRefs, historicalSourceRefs, protectedSurfaceEvaluation, and runtimeReceiptIds, plus null unvalidated envelope scalars, remain accepted; missing envelope fields, null array containers, top-level/nested extras on validated objects, malformed finding/source refs, and malformed currentWitness fail closed. The same matrix reproduced F-046: each approved optional dependencyBundle member—canonicalIdentityDigest, currentCanonicalFinding, and supersessionChainTipDigest—is rejected as proposal_exact_union_invalid even with the bundle digest recomputed. Adjacent implementation and checked-in smoke coverage reveal no different schema-consistency or test-coverage family. This no-new-family pass does not resolve or waive open F-045/F-046.",
+      "createdAt": "2026-09-05T11:16:21.990Z",
+      "reviewRound": "2026-09-05T10:56:02.507Z",
+      "reviewRunId": "B-fe8f:RR-096",
+      "envelopeId": "1596947ca06550e33327676358be3117e27ef3ab21bcaf2ae93a37ea4e48dbc6",
+      "writerSessionId": "sess-223e042fc7f1bc93ebc2572c1733f50e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-runs.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f2be06b0d52636448e99629fdb3b88676fc2f366aa99ec0c7bb42ea6bcd8f704"
     }
   ]
 }
