@@ -1658,7 +1658,7 @@ function staleReexecCandidate(
 ): StaleReexecCandidate | undefined {
   const resolved = resolveIntentForRef(item, intentRef);
   const pin = resolved?.intent.verification;
-  if (!resolved || !pin || !isExecutableIntentType(resolved.intent.type)) return undefined;
+  if (!resolved || !pin) return undefined;
 
   const kind = intentTypeToEvidenceKind(resolved.intent.type);
   const priorOverride = evidence?.receipt?.timeoutOverride;
