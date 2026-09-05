@@ -19,6 +19,27 @@
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-process",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-212f:F-002",
+      "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-168 promises that DONE/preflight parity is mechanically guarded, but scripts/verify-process-fact-contract.mjs:4972-5034 collects every literal id anywhere in done-oracle.ts and checks only row-id set membership. A future literal DONE blocker can therefore be mapped to an unrelated existing row/process fact and the verifier passes without done_prepare consuming that predicate; the in-memory test at 5062-5074 covers only an entirely unmapped code. This leaves the advertised future-divergence guard incomplete and can again make DONE readiness evidence misleading. Require a wrong-row/wrong-predicate mutation to fail by mechanically binding each blocker code to the corresponding oracle predicate/row behavior. Same root cause independently registered as B-212f:F-001.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-05T09:23:36.661Z",
+      "reviewRound": "2026-09-05T09:16:31.756Z",
+      "reviewRunId": "B-212f:RR-004",
+      "_hash": "3f0bf6f42362a63d97ed1aa81a5410979365a706f05c6923c71e60936b7d41d8",
+      "files": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "scripts/verify-process-fact-contract.mjs",
+        "packages/main/src/core/process-fact-registry.ts",
+        "packages/main/src/core/done-oracle.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-docs",
+      "signatureTagSource": "auto"
     }
   ]
 }
