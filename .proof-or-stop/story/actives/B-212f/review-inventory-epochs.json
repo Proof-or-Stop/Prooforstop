@@ -223,9 +223,9 @@
       "epochId": "B-212f:RI-002",
       "storyId": "B-212f",
       "reviewRound": "2026-09-05T14:39:40.791Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-05T15:04:04.962Z",
-      "updatedAt": "2026-09-05T15:18:19.633Z",
+      "updatedAt": "2026-09-05T15:30:05.702Z",
       "cutoff": {
         "headHash": "51dcfde1434bf944f0cfd25fbe1d7cbb635d57ba",
         "materialHash": "61fc533166bc8232903a987717e4934f8f40bc9d57104e4ae91e69c5aa61df19",
@@ -301,12 +301,74 @@
           "criticDigest": "e8e1ec073c6856bbfbd057b8b79e9aeaf5b2c8869001746fecd9f0f1cb4ddeda",
           "saturated": false,
           "nextRunSequenceBoundary": 40
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-05T15:18:19.633Z",
+          "completedAt": "2026-09-05T15:29:37.501Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-212f:RR-042",
+              "terminal": "pass",
+              "hostIdentity": "c223429ace50b01653308287e0a2726b31c646e31bad8ec806d944a8336d7723",
+              "promptIdentity": "37a4293b1aa8c85fc51659cff8477699ca455a7368e60d695bf0d3216a714375",
+              "evidenceIds": [
+                "B-212f:RP-009"
+              ],
+              "coverageDigest": "c275ff3b64e52b26240f6806f84503aae40499cdb072b9de8dccb9e847bb4bf8"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-212f:RR-041",
+              "terminal": "finding",
+              "hostIdentity": "c223429ace50b01653308287e0a2726b31c646e31bad8ec806d944a8336d7723",
+              "promptIdentity": "53aa9b4be3f19e1ae0d89ad80eb5879f3062a6f7c276f7c5696a7124efeab15a",
+              "evidenceIds": [
+                "B-212f:F-031"
+              ],
+              "coverageDigest": "8d8275b512e2858716203316d4e2ed33f1e9448034b57b32d2695b8d0da54c3b"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-212f:RR-043",
+              "terminal": "finding",
+              "hostIdentity": "c223429ace50b01653308287e0a2726b31c646e31bad8ec806d944a8336d7723",
+              "promptIdentity": "b9fca781207eca91bb7e311e5d3a6aeda7100d3cfaba16d9272ca894a6f226be",
+              "evidenceIds": [
+                "B-212f:F-032"
+              ],
+              "coverageDigest": "925287b2d4b3e6221f51570764f5a805e7db90ebddbb31b83cf245d759793801"
+            },
+            {
+              "lane": "proof-or-stop-review-docs",
+              "reviewRunId": "B-212f:RR-044",
+              "terminal": "pass",
+              "hostIdentity": "c8b480f1957a5acd490ff7ece4794f2e6407413397a3a7bba2bd3d3c7f7511d3",
+              "promptIdentity": "6b539ab47586a2d70940e3e072dcecad5c956847e87f5c6e9a194f3c4e3b847e",
+              "evidenceIds": [
+                "B-212f:RP-010"
+              ],
+              "coverageDigest": "ca2611269d22a14c86660f0d557b98ce16c56729bada9d8c11bc12d62dc67566"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "optional-envelope-field-preservation"
+          ],
+          "verifiedFindingSetDigest": "dff0053aa38edd5ccb110d591fd96340e8eef788ab5bffaae9353ccd9105e420",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "2dbccbff32fdc56cb7d37aaf2fbbdeeb8a697645ef3b876fd955dfb3cfb2e625",
+          "saturated": true,
+          "nextRunSequenceBoundary": 45
         }
       ],
       "baselineFindingIds": [
         "B-212f:F-027"
       ],
-      "_hash": "dc616058b3c4317328b3b1534de32df3cbe1d568d09a23506ec710be94fa9e73"
+      "receiptId": "B-212f:RI-002:RCP-001",
+      "consumedAt": "2026-09-05T15:30:05.702Z",
+      "consumedByReviewRound": "2026-09-05T14:39:40.791Z",
+      "_hash": "c47fcc8433ad71b14a1730ee2546bbcbbb23c9c789f8d2a94d13d600327bd020"
     }
   ],
   "receipts": [
@@ -337,6 +399,34 @@
       "issuedAt": "2026-09-05T12:45:04.934Z",
       "consumedAt": "2026-09-05T12:45:30.563Z",
       "_hash": "a0a906d6d38dcf975044cb821a7d7af151d35ffffd19aff03205fb1cbe66a1c7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-212f:RI-002:RCP-001",
+      "epochId": "B-212f:RI-002",
+      "storyId": "B-212f",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "cutoff": {
+        "headHash": "51dcfde1434bf944f0cfd25fbe1d7cbb635d57ba",
+        "materialHash": "61fc533166bc8232903a987717e4934f8f40bc9d57104e4ae91e69c5aa61df19",
+        "storyFilesHash": "163103f71effb594cf8f5872a1b1f267e2dc41306a670f2100d14765cb31f564"
+      },
+      "scopeDigest": "7ea63ccfb765d3cf1f4829f79fde216d523c22148dac9f6aa58544270ac2e27b",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage",
+        "proof-or-stop-review-docs"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "dff0053aa38edd5ccb110d591fd96340e8eef788ab5bffaae9353ccd9105e420",
+      "coverageDigest": "b10257d23507b7de1a0c7e440fe981192ed77d988f30db02d3a5a845745d9f03",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-05T15:29:37.501Z",
+      "consumedAt": "2026-09-05T15:30:05.702Z",
+      "_hash": "5b7ee265922c9b945d5966dc4e2e120e6f5c978ad0825ccac163b5429443fab8"
     }
   ],
   "criticReceipts": [
@@ -556,6 +646,44 @@
       ],
       "createdAt": "2026-09-05T15:17:42.001Z",
       "_hash": "e0b0468339618405aaae73b60517ac4bae1fd4b18cadd2795ff88a9d44b04d06"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-212f:RI-002:CRIT-02",
+      "epochId": "B-212f:RI-002",
+      "storyId": "B-212f",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "51dcfde1434bf944f0cfd25fbe1d7cbb635d57ba",
+        "materialHash": "61fc533166bc8232903a987717e4934f8f40bc9d57104e4ae91e69c5aa61df19",
+        "storyFilesHash": "163103f71effb594cf8f5872a1b1f267e2dc41306a670f2100d14765cb31f564"
+      },
+      "aggregateFindingSetDigest": "dff0053aa38edd5ccb110d591fd96340e8eef788ab5bffaae9353ccd9105e420",
+      "requiredLaneCoverageDigest": "e16c793214f48bc9558e169dd9791e571fcb6689d724c1cdf4fbdeb179a2bde5",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-212f:RR-045",
+      "terminalEvidenceIds": [
+        "B-212f:F-033"
+      ],
+      "readEvidenceDigest": "dd6837717c57069d3b1202189a00436b295163904a64a501c7d84807049d0e0a",
+      "findingDispositions": [
+        {
+          "findingId": "B-212f:F-031",
+          "disposition": "verified_family",
+          "familyKey": "optional-envelope-field-preservation",
+          "reason": "Independently replayed production RR-034 verification: raw envelopes return ok:true, frozen snapshot returns ok:false with eligibilityDigest, eligibilityReasonCodes and priorPassRef mismatch. Unchanged helper inserts absent optional keys as own undefined, canonical serialization rejects them and authentic prior-pass eligibility disappears. This is the same family established in RI-002 wave1 with original F-027; F-031 is only the current-wave canonical representative and does not supersede F-027. Same bounded repair, source and impact; no new family or acceptance PASS."
+        },
+        {
+          "findingId": "B-212f:F-032",
+          "disposition": "duplicate",
+          "familyKey": "optional-envelope-field-preservation",
+          "canonicalFindingId": "B-212f:F-031",
+          "reason": "The signed coverage observation identifies the identical raw-versus-snapshot verifier mismatch, helper optional-field corruption and prior-pass loss independently reproduced by this critic. Its missing equivalence/isolation/tamper regression coverage belongs to the same bounded F-027 root and repair, not an independent family. F-031 is verified current-wave canonical, forming a one-step acyclic duplicate link; preserve original F-027 and all prior observations. No material or Story-file drift and no newly discovered root."
+        }
+      ],
+      "createdAt": "2026-09-05T15:29:16.865Z",
+      "_hash": "2c9f07c8c5b133d34d82fd4a02b4b8468677e6f322b9eeefb9ee64d8f7018b9e"
     }
   ]
 }
