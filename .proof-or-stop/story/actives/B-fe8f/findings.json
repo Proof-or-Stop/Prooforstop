@@ -681,6 +681,59 @@
       "resolvedAt": "2026-09-04T12:55:51.755Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-033",
+      "desc": "concept-cleanup: packages/main/src/core/audit-meta-store.ts:187,234,507; packages/main/src/handlers/cluster.ts:87,125,147; packages/main/src/core/cluster-sync.ts:106,210; and packages/main/src/handlers/signature-backfill.ts:157 retain direct mutable findings.json writers after this Story makes the append-only ledger authoritative. packages/main/src/core/store.ts:1011-1032 then replaces any same-ID mirror row with the immutable ledger payload on every read. Consequently B-META audit/gap creation still uses array-length IDs with no FindingLedgerReceipt, and clusterId/signatureTag/status updates to ledger-backed Findings are discarded on the next read instead of becoming durable, exactly-once ledger facts. This is a high-severity, current-Story acceptance blocker: Section 9.3 promises every Finding-system mutation is durable/exactly-once and explicitly includes B-META locks; migrate these live writers to a schema-neutral append/CAS record path or explicitly preserve and fold their projections, with regression coverage for read-after-write and B-META concurrent allocation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-05T09:25:25.816Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-079",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/cluster-sync.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/cluster.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/signature-backfill.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "119b03bda40a0154e85447a7a2893b9c84bbcd59d8c0c067f8e9ba89f260f8c9",
+      "files": [
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/handlers/cluster.ts",
+        "packages/main/src/core/cluster-sync.ts",
+        "packages/main/src/handlers/signature-backfill.ts",
+        "packages/main/src/core/store.ts",
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "signatureTag": "missing|ts|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
