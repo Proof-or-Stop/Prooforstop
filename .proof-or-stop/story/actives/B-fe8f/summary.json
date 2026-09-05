@@ -1,18 +1,18 @@
 {
   "storyId": "B-fe8f",
-  "changes": "Implemented the Story 3 finding-ledger and runtime-evidence integrity foundation: append-only fenced atomic persistence, exact CAS and idempotency receipts, signed lifecycle projection, content-addressed runtime evidence, historical re-attestation, process-fact registration, and proof-or-stop package/CLI binding.",
-  "usage": "Use the repository-local CLI for an unmerged Story, for example: node packages/main/dist/cli.js finding_ledger_query --storyId=B-fe8f. Runtime evidence uses the registered finding_runtime_evidence_run and finding_runtime_evidence_verify commands.",
-  "expectedOutcome": "The RED audit prints red.audit_summary with the historical pre-fix SHA, reports only proven contract gaps, and after implementation reports gaps=0 with no genuine contract failure.",
-  "actualTranscript": "The live command node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs exited 0, printed red.audit_summary with preFixHead 0cb578583b5139977338d1cf8f7aeed0cc7685ba, gaps=0, every RED relation check PASS, and red.genuine_contract_failure:none.",
-  "outcomeDiff": "No acceptance difference: the actual transcript matched the expected audit contract and showed no remaining genuine Story 3 gap.",
-  "acceptanceVerdict": "accepted",
-  "outcomeKind": "success",
+  "changes": "Implemented the Story 3 finding-ledger and runtime-evidence foundation: fenced atomic persistence, exact CAS/idempotency receipts, content-addressed runtime evidence, live authoritative mutation adapters, non-creating read-only trust loading and exact signed proposal validation. DEV closeout is currently completing the full Store authoritative-reader trust boundary; no downstream Applicability or Identity semantics are being implemented here.",
+  "usage": "Before merge, run the worktree CLI: node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f. Use the registered finding_runtime_evidence_run and finding_runtime_evidence_verify commands for execution receipts. The global CLI reflects local main until DONE merges this Story.",
+  "expectedOutcome": "Valid Finding-system writes remain durable, uniquely identified and exactly-once; inconsistent or stale evidence cannot change authoritative Finding state. Read-only query and verification preserve the filesystem. The user receives Story 3 infrastructure, not the complete future dynamic applicability/deferral system.",
+  "actualTranscript": "At ad0c1b79, official verification_evidence_refresh_stale completed 71/71 and committed dd22f13. Targeted proposal tests rejected407 invalid cases and accepted43 legal cases; projection-prefix tests rejected8 inconsistent cases and preserved valid batches. Independent review subsequently identified missing base-Finding and legacy-mirror reader trust checks; those are being handled in DEV. No current-round TEST or DONE completion is claimed.",
+  "outcomeDiff": "Implementation and earlier targeted evidence are present, but final reader trust-boundary closure and fresh REVIEW/TEST/DONE evidence remain pending.",
+  "acceptanceVerdict": "partial",
+  "outcomeKind": "blocked",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Before the Story merges, the global proof-or-stop binary intentionally reflects current main and cannot expose unmerged worktree commands; use the repository-local CLI inside the Story worktree. The difference disappears after DONE merges the Story to main.",
-  "pitfalls": "The full validation suite is long and earlier attempts hit timeout or concurrency noise; the final official run passed 125/125 and was reused because materialHash and storyFilesHash stayed unchanged. Global and worktree CLIs share a version string, so verify realpath and use node packages/main/dist/cli.js for branch-local behavior.",
+  "limitations": "Story 3 supplies schema-neutral persistence and runtime receipts; effective assessment freshness policy and cross-story route semantics remain downstream responsibilities per plan sections9.1-9.4. Nonblocking observations have a traceable CLI-created owner at docs/story/drafts/finding-ledger-nonblocking-review-followups/; they are not signed deferrals. Corrupt authoritative-ledger reads intentionally fail closed. Performance observations remain unmeasured.",
+  "pitfalls": "Do not reuse stale material-bound evidence by assertion. Run one pinned raw command per exact execution identity and preserve separate selector receipts. The legacy RED selector token currentFails=true is explicitly a legacyPinnedNegativeControl compatibility carrier; currentGreenPasses and corrupted-relation rejection determine admissibility, not the token alone. red_evidence_create is PLAN-only and bug_report is REVIEW/TEST-only despite older help; DEV repro_probe records historical candidate evidence but is not a DONE receipt. gap_log refused an unextendable B-META provenance chain, so the permitted draft fallback preserves follow-up accounting without repairing unrelated infrastructure.",
   "phaseStats": {
     "INIT": {
       "count": 8,
@@ -27,19 +27,19 @@
       "durationMs": 26996827
     },
     "DEV": {
-      "count": 33,
-      "durationMs": 153022697
+      "count": 36,
+      "durationMs": 163394892
     },
     "REVIEW": {
-      "count": 23,
-      "durationMs": 104251459
+      "count": 25,
+      "durationMs": 108203400
     },
     "TEST": {
       "count": 2,
-      "durationMs": 202562
+      "durationMs": 59956921
     }
   },
-  "totalDurationMs": 286207783,
+  "totalDurationMs": 360286278,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-04T15:43:03.331Z",
-  "updatedAt": "2026-09-04T15:43:03.331Z"
+  "updatedAt": "2026-09-05T12:17:41.826Z"
 }
