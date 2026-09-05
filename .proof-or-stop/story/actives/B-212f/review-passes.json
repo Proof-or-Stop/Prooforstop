@@ -48,6 +48,56 @@
         "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
       },
       "_hash": "4aa2856cc4ec0d626af6f4f4cdb12dd0455165ee20dbe7123fe1878c6da50b5a"
+    },
+    {
+      "id": "B-212f:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Fresh test-coverage review passed for F-001/F-002 repair: 13/13 must intents have current mechanical selector-matched PASS receipts (material 6e3b2d8, storyFiles 5de1edd), with zero gaps and zero waivers. Direct reruns passed unchanged parity RED/GREEN, the process verifier executable unmapped/wrong-row/wrong-predicate mutations, genuine selector-absence single/batch negative controls with bounded full-output receipt semantics, and complete flow stability smoke. validate remained owner-gated and the active lease was not seized; no blocker found.",
+      "createdAt": "2026-09-05T09:46:58.244Z",
+      "reviewRound": "2026-09-05T09:42:05.609Z",
+      "reviewRunId": "B-212f:RR-007",
+      "envelopeId": "05192695fded67cfdacaf2472a5e06aad57b9aaa2427097a3cd7ebe019692c46",
+      "writerSessionId": "sess-c774defa91dd8d477117dc21d6999bda",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/findings.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          ".proof-or-stop/story/actives/B-212f/red-evidence.json",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-212f/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-212f/checklist.json",
+          ".proof-or-stop/story/actives/B-212f/pre-review-check.json",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "_hash": "e8047572844d29fabddc1d059d4f8b7000a54968ad62135fc7bfec72363ef5be"
     }
   ]
 }
