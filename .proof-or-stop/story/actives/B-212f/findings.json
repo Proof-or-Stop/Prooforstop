@@ -1600,6 +1600,54 @@
       ],
       "signatureTag": "canonical-ambient-env-fixture",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-035",
+      "desc": "english-early-check-smoke.ts:38-40 computes packageRoot as packages/main/dist from the compiled task, then repositoryRoot ascends only to packages. Line355 reads repositoryRoot/AGENTS.md and throws ENOENT after seven behavioral checks pass. Independent commands node packages/main/dist/tasks/english-early-check-smoke.js on main69403365ae and B-212f each exit1 with their respective /packages/AGENTS.md missing path. Test source is byte-unchanged from main; this is pre-existing test infrastructure, not DONE extraction regression. It now blocks configured formal validation (config command at762) and therefore this Story acceptance. Bounded repair: correct repository-root resolution only, preserve the working dist cliPath and all English behavior/doc assertions; verify from both root and Story worktree locations. Do not create misleading packages/AGENTS.md to satisfy the wrong path. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T16:36:06.608Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "5e4a8fe94d48daa420426f1539c2ece1ecb1942ed578460bc762014f59830c6c",
+      "files": [
+        "packages/main/src/tasks/english-early-check-smoke.ts"
+      ],
+      "signatureTag": "english-smoke-repository-root-depth",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
