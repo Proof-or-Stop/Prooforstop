@@ -773,7 +773,7 @@
       "desc": "doc-promise-undelivered: Final RI-001 wave 3 re-observation of the existing done-command-read-only-overclaim family B-212f:F-008/F-010/F-014/F-015, not a new defect family. Fresh bounded reads verify docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 still describes whole done_prepare and done_closure commands as read-only projections, whereas packages/main/src/handlers/done-prepare.ts:1889-1901 skips git mutation only for mergeMain=false or dryRun=true and otherwise executes git merge main --no-edit. The recommended invocation at doc93-100 enables that mutating path. Operators could rely on the new inaccurate statement to run mutation as inspection. No merge or lifecycle change was performed. git diff 45b3dff..HEAD on the document and reviewed machine/oracle/handler/validation/verifier files is empty, retaining the prior full-read basis and bounded finite-evaluator assessment; fresh paragraph and handler reads reproduce this exact outstanding issue. No distinct new documentation defect found. Repair the new wording to scope read-only behavior to readiness projection/evidence inspection; preserve authorized encompassing command behavior and all original observations. Other reported snapshot and malformed-delivery families remain separately owned and are not resolved by this documentation assessment.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-05T12:38:04.508Z",
@@ -809,7 +809,11 @@
         "packages/main/src/handlers/done-prepare.ts"
       ],
       "signatureTag": "done-command-read-only-overclaim",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in 8168160d51: documentation scopes read-only to the shared readiness projection, explicitly preserves done_prepare merge/refresh/build/validate side effects and points inspection to dryRun. Final frozen test 982a3d1c12 rejects the old whole-command claim on immutable 5d0abf0 and passes on the final implementation. Original parity test remains byte-identical. This is a wording repair, not a claim that done_prepare has become read-only.",
+      "resolvedAt": "2026-09-05T14:40:33.122Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-022",
