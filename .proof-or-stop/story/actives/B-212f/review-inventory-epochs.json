@@ -8,7 +8,7 @@
       "reviewRound": "2026-09-05T12:05:43.929Z",
       "state": "OPEN",
       "begunAt": "2026-09-05T12:12:55.376Z",
-      "updatedAt": "2026-09-05T12:12:55.376Z",
+      "updatedAt": "2026-09-05T12:28:28.983Z",
       "cutoff": {
         "headHash": "05e93cf4274858c9ddf2892df7e0860ba9a10d76",
         "materialHash": "d063051d78733c30a7e36459ba810649f25dcfee5448f056ae636a9a0d194c01",
@@ -25,11 +25,124 @@
       ],
       "initialRunSequenceBoundary": 15,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-05T12:12:55.376Z",
+          "completedAt": "2026-09-05T12:28:28.983Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-212f:RR-019",
+              "terminal": "finding",
+              "hostIdentity": "d4f952903bfe551582bcd76531fcc634de05053302fcd5b4c698ca5fdedfd06f",
+              "promptIdentity": "8fe478eb424b2b4d3d5249f5582bb51f5184079802282fdd40ad4f90bac791cb",
+              "evidenceIds": [
+                "B-212f:F-012"
+              ],
+              "coverageDigest": "d0b13bb438e49b8333f6d6d7d5be489900c2063c33dbff1739583921a3ceb3b2"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-212f:RR-018",
+              "terminal": "finding",
+              "hostIdentity": "6086049f2f20676c28a63b2463b10c6e5ca939ac3edad73190b83ae3b490f2e9",
+              "promptIdentity": "f522683bbed8c5885e5a3278689f1b6d26739fab1f94b37cae28ccb9e280003d",
+              "evidenceIds": [
+                "B-212f:F-009"
+              ],
+              "coverageDigest": "a9977b1bbc0292a825ab412c17a182dfcea6ab137b927857ceb5e3b2e99664f6"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-212f:RR-017",
+              "terminal": "finding",
+              "hostIdentity": "6086049f2f20676c28a63b2463b10c6e5ca939ac3edad73190b83ae3b490f2e9",
+              "promptIdentity": "8b19082dce282d8dddb0779ee0e64e7723b37a127b1f91fa747d6a81d70de969",
+              "evidenceIds": [
+                "B-212f:F-011"
+              ],
+              "coverageDigest": "1842af9d19039e19791595dc43cd15d45975a5fbbd8e4ef9980508d4a0f7bf8b"
+            },
+            {
+              "lane": "proof-or-stop-review-docs",
+              "reviewRunId": "B-212f:RR-016",
+              "terminal": "finding",
+              "hostIdentity": "6086049f2f20676c28a63b2463b10c6e5ca939ac3edad73190b83ae3b490f2e9",
+              "promptIdentity": "65c04f3a3238d34c5ac42ab955728cb42127f4fdd62210f93bbb6e643151a515",
+              "evidenceIds": [
+                "B-212f:F-010"
+              ],
+              "coverageDigest": "bebf955c1d46d8ddb81cd0dbab90f7b0b41e98840439a15119a60819824639c6"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "completed-done-snapshot-live-overlay",
+            "done-command-read-only-overclaim"
+          ],
+          "verifiedFindingSetDigest": "764691295c3524fb2d44a8ed17e38359e570276c0f86e73047f5a95c7b0c750d",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "4b7fffc1d7113400f66ace2eb1095c6a9a85a5cef5181b85baec493563830a38",
+          "saturated": false,
+          "nextRunSequenceBoundary": 21
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "8bb339d30e35d2de91ed17a6e6800e83fcb1f55f5c5c442d73e5670a88a8602b"
+      "_hash": "bec1f2ac53af6ded86128980b358ccfb9731302ff8ac817b91328ac49bb10a47"
     }
   ],
   "receipts": [],
-  "criticReceipts": []
+  "criticReceipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-212f:RI-001:CRIT-01",
+      "epochId": "B-212f:RI-001",
+      "storyId": "B-212f",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "05e93cf4274858c9ddf2892df7e0860ba9a10d76",
+        "materialHash": "d063051d78733c30a7e36459ba810649f25dcfee5448f056ae636a9a0d194c01",
+        "storyFilesHash": "48b2d628f246546cae43aa4d36b9d8bb4a0706ab5fada0e2c2d3705baf7065e2"
+      },
+      "aggregateFindingSetDigest": "764691295c3524fb2d44a8ed17e38359e570276c0f86e73047f5a95c7b0c750d",
+      "requiredLaneCoverageDigest": "3ae49fe162c907220831f4ddc376a117525b89c6244ee5c8a2fa8596bcf92432",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-212f:RR-021",
+      "terminalEvidenceIds": [
+        "B-212f:F-013"
+      ],
+      "readEvidenceDigest": "02ad6649617c2016e398da5e47de5a0840486a52184cfc56566a97f5ed66dfc5",
+      "findingDispositions": [
+        {
+          "findingId": "B-212f:F-009",
+          "disposition": "verified_family",
+          "familyKey": "completed-done-snapshot-live-overlay",
+          "reason": "Independent source review confirms done-oracle evaluates live predicates then overwrites snapshot-aware assurance in the final projector. Independent replay of the inspected production-function witness compares main 69403365ae and current on identical DONE historical snapshot readers: escalation changes pass/nonblocking to fail/blocking; new reviewer-verdict adds stale_closeout_review while active guard remains false in both. This directly conflicts with plan CHK-003 completed-snapshot preservation. F-009 is open verified and owner-bound to this Story; its signed quality terminal owns this bounded implementation and historical fixture repair."
+        },
+        {
+          "findingId": "B-212f:F-010",
+          "disposition": "verified_family",
+          "familyKey": "done-command-read-only-overclaim",
+          "reason": "Independent full document read confirms line 153 describes entire done_prepare as read-only, but recommended mergeMain=true/dryRun=false at 93-100 and inspected handler 1889-1901 execute git merge main. This is the same changed documentation defect originally recorded as F-008; preserve that historical observation. F-010 is the current signed docs terminal with read coverage and supplies the eligible wave family representative, not a claim F-008 disappeared. The repair is bounded wording about the shared readiness projection, preserving command mutations."
+        },
+        {
+          "findingId": "B-212f:F-011",
+          "disposition": "duplicate",
+          "familyKey": "completed-done-snapshot-live-overlay",
+          "canonicalFindingId": "B-212f:F-009",
+          "reason": "F-011 reports missing historical DONE coverage for exactly the live-overlay regression owned by F-009, whose original description already includes the broken historical smoke and its repair. I independently read the shared fixture: readStory hardcodes TEST and the snapshot case only checks missing finish decision. The replay corroborates the same assurance reversal; no distinct implementation contract or repair is required. Canonical F-009 is live verified with signed terminal/read evidence and current Story ownership; this direct link is acyclic and does not dismiss either observation."
+        },
+        {
+          "findingId": "B-212f:F-012",
+          "disposition": "duplicate",
+          "familyKey": "done-command-read-only-overclaim",
+          "canonicalFindingId": "B-212f:F-010",
+          "reason": "Independent comparison of F-012 and F-010 against the same document sentence, recommended flags, and handler branch proves identical operator risk and wording repair. F-012 reobserves historical F-008, while F-010 is the eligible current-wave signed representative with read evidence. Both remain open and preserve the original F-008 lineage; the direct duplicate link points to verified_family F-010 with current Story ownership and cannot form a cycle."
+        }
+      ],
+      "createdAt": "2026-09-05T12:24:29.749Z",
+      "_hash": "0d510281d8fbe5bd07f75eb8b68be0451cde05be929089eb0b3e46c8faccf79e"
+    }
+  ]
 }
