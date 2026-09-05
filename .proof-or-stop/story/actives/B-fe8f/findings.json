@@ -734,6 +734,21 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-034",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:1705 invokes findingLedgerSignerFromWorkspace from finding_ledger_query, while packages/main/src/core/finding-ledger.ts:111-121 creates the signing key when absent. This makes a command registered as readOnly mutate the git common directory on first query, violating CHK-005 protected read-only query semantics and causing read-only filesystems to fail for a hidden write. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T09:27:15.993Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-081",
+      "_hash": "e820a02ffff546576eeaef6382f8a827b6b08f05083ded5a167256cf29323c28",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
