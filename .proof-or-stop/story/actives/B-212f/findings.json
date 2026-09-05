@@ -1363,7 +1363,7 @@
       "desc": "RI-002 wave 2 quality terminal re-observation of canonical B-212f:F-027, also corroborated by F-028/F-029/F-030, in the same optional-envelope-field-preservation family. No new independent quality root found. Fresh exact read-only RR-034 production verifier replay still returns raw ok:true and frozen snapshot ok:false with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch. packages/main/src/core/review-run.ts:157-173 injects absent optional keys as own undefined; prompt-contracts.ts:326-327 rejects unsupported undefined and review-incremental-context.ts:606 skips valid legacy RP-001/RP-002. git diff 48d3f41..HEAD across packages/main, scripts, docs, config and Story background/plan/checklist is empty, so the previous bounded diagnosis and completed integrated CHK-001 through CHK-004 review remain applicable. Canonical current run selected SAFE_INCREMENTAL with changedFiles:[] and RP-005 as trusted prior. F-027 still requires the tiny current-Story clone-contract repair because this pre-existing issue blocks current gate truth; no fresh PASS or workaround supersession is claimed. Preserve absence and explicit invalid values while cloning/freezing actual arrays, with integrity/prior-selection equivalence and mutation-isolation regression coverage. No broad suite rerun, new implementation family, historical replay expansion, source edit, or lifecycle change.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T15:21:15.453Z",
@@ -1408,7 +1408,11 @@
         "packages/main/src/core/prompt-contracts.ts"
       ],
       "signatureTag": "optional-envelope-field-preservation",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Fixed in dd65407421 after frozen RED 9b077c1370. snapshotPromptEnvelopes now preserves optional-property absence, clones/freezes actual arrays and finding rows, and preserves explicit malformed values for fail-closed canonical rejection. The unchanged source-executed regression uses actual serializer, envelope integrity, ReviewRun/ReviewPass signatures and latestTrustedPriorPass: legacy raw integrity and RP-001 remain identical after snapshot, key sets/digests are preserved, malformed values remain rejected, and mutation isolation remains enforced. Replaying the old helper from RED commit still fails. The actual RR-034 raw/snapshot probe now agrees and rejects only legitimate current taskSemanticDigest drift; this does not assert the old run regained freshness. Original parity, shared proof, snapshot smoke, process contract, root build and 14 refreshed official verification receipts pass on final implementation. No historical replay redesign or topology acceptance certification is claimed.",
+      "resolvedAt": "2026-09-05T15:53:08.760Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-032",
