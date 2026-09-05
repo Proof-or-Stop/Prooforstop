@@ -446,7 +446,7 @@
     {
       "id": "CHK-004",
       "title": "Repair verification evidence matching for selectors beyond the persisted output window",
-      "context": "BUG-001 was reproduced while adding CHK-003 evidence: the exact process-fact verifier exits 0 and prints its selector at the end, but verification_evidence_batch_add reports receipt_selector_absent because runValidationCommand returns only the first 12000 characters. The two prior evidence-selector truncation drafts document the same root cause. This existing medium defect now directly blocks B-212f acceptance and lifecycle evidence, so the user-approved triage rule requires current-Story repair.",
+      "context": "BUG-001 was reproduced while adding CHK-003 evidence: the exact process-fact verifier exits 0 and prints its selector after the 12000-character presentation window, but verification_evidence_batch_add reports receipt_selector_absent. The two prior selector-truncation drafts document the same root cause. This false negative directly blocked B-212f mechanical acceptance evidence, so repair only the bounded command-output matching path while preserving public and persisted output limits.",
       "relatedDocs": [
         "docs/story/drafts/evidence-selector-head-truncation/background.md",
         "docs/story/drafts/evidence-executor-selector-truncation/background.md"
