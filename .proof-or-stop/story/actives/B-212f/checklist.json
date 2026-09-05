@@ -283,10 +283,11 @@
       ],
       "userSees": "The contract command prints \"DONE/preflight predicate inventory parity passed\" and \"Process-fact contract verification passed\", while the flow suite prints \"flow stability smoke passed\".",
       "excludes": [
-        "Do not broaden the Story to repair unrelated medium/low findings.",
-        "Do not dismiss or defer a finding through prose alone.",
+        "Do not weaken or bypass any DONE predicate.",
+        "Do not replace executable parity checks with source-text assertions.",
         "Do not duplicate every DONE gate implementation in a second oracle without a mechanical parity guard.",
-        "Do not change unrelated lifecycle policy."
+        "Do not broaden the verifier beyond DONE/preflight predicate inventory.",
+        "Do not change unrelated runtime behavior or documentation."
       ],
       "files": {
         "modify": [
