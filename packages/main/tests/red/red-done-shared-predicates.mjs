@@ -237,6 +237,38 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   assert.ok(projected[0].blocking && projected[0].status === 'fail');
   assert.equal(goodRows[0].status, 'pass', 'projection leaves caller presentation untouched');
   console.log('GREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected');
+
+  const snapshotState = fixture(); snapshotState.finish = null;
+  const snapshotWitness = productionConsumers(machineSource, oracleSource, snapshotState);
+  const snapshotRows = snapshotWitness.api.buildDoneChecklist('B-probe', snapshotWitness.store, 'ROOT', {
+    gitCwd: 'GIT', completedSnapshot: { materialHash: 'historical-material', storyFilesHash: 'historical-story' },
+  });
+  assert.ok(snapshotRows.some(row => row.id === 'dev-memory-finish-decision' && row.blocking && row.status === 'fail'),
+    'completedSnapshot must not downgrade a live shared failure');
+  const stricter = [{ id: 'test-evidence', status: 'fail', blocking: true, detail: 'stricter preflight', source: 'fixture', label: 'test' }];
+  const strictWitness = productionConsumers(machineSource, oracleSource, fixture());
+  const strictProjection = strictWitness.api.projectDonePredicateRows(stricter, [...strictWitness.api.evaluateDonePredicates(strictWitness.context)]);
+  assert.equal(strictProjection[0].blocking, true, 'shared pass must preserve stricter preflight failure');
+
+  // Execute actual corrupted consumer functions and confirm the behavioral
+  // assertion rejects their false pass. Shape checking alone is insufficient.
+  const runtimeMutants = [
+    ['inverted boolean outcome', future.replace('return firstDonePredicateFailure(context) === null;', 'return firstDonePredicateFailure(context) !== null;'), oracleSource],
+    ['discarded oracle projection', future, oracleSource.replace('return projectDonePredicateRows(rows, donePredicates);', 'return (projectDonePredicateRows(rows, donePredicates), rows);')],
+    ['skipped shared outcomes', future, oracleSource.replace('const donePredicates = [...evaluateDonePredicates(', 'const donePredicates = storyId.length === 0 ? [...evaluateDonePredicates(').replace('projectRoot: root, gitCwd })];', 'projectRoot: root, gitCwd })] : [];')],
+    ['inverted projector failure branch', future, oracleSource.replace('if (result.ok) continue;', 'if (!result.ok) continue;')],
+  ];
+  for (const [name, mutantMachine, mutantOracle] of runtimeMutants) {
+    assert.ok(mutantMachine !== future || mutantOracle !== oracleSource, `${name}: live mutation point`);
+    const mutant = productionConsumers(mutantMachine, mutantOracle, fixture());
+    assert.throws(() => {
+      assert.equal(mutant.api.canFinishGuard(mutant.context), false, `${name}: boolean must fail`);
+      const emitted = mutant.api.buildDoneChecklist('B-probe', mutant.store, 'ROOT', { gitCwd: 'GIT' });
+      assert.ok(emitted.some(row => row.id === 'future-done-predicate' && row.blocking && row.status === 'fail'), `${name}: oracle must fail`);
+    }, { name: 'AssertionError' }, `${name}: executable mutation must be killed`);
+  }
+  console.log('GREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure');
+  console.log('Shared DONE predicate parity passed');
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
