@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "04b0c87d7ab703e30b45996b51c9637590ceb439d1555b73c4c546b7a223e41d",
+  "committedLedgerDigest": "627d982585a28758be35f62f7025034a471d5a0c1823f4fe5c942d2fbdcf46f1",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2089,6 +2089,34 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T13:20:29.617Z"
+    },
+    {
+      "recordId": "lr_mtoew6j5_159f_593fc3b640e547078c8191bc8bb16ac0",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f-baseline-gate-transport-fixture-20260905",
+      "payload": {
+        "id": "B-fe8f:F-050",
+        "desc": "Current standard-validation blocker inherited from main, not introduced by the Finding reader repair. Independent actual command PROOF_OR_STOP_MAX_TIMEOUT_MS=7200000 PROOF_OR_STOP_IDLE_TIMEOUT_MS=1800000 node packages/main/dist/tasks/done-required-validation-smoke.js exited 1: POSIX ambient transport key is session-neutral: LATTICE_ACTIVITY_RECORD_READONLY (dist line344). The test at source381-393 iterates the frozen historical key list, while validation-command-environment.ts65-70 deliberately derives active PROOF_OR_STOP spellings and excludes retired spellings. Its explicit synthetic environment does not inherit the outer timeout settings. Both source blobs equal main. Required bounded repair: test the active transport-key contract while preserving frozen historical bytes and explicitly testing retired-name semantics; do not restore obsolete aliases or weaken the digest assertion. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
+        "severity": "medium",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-05T13:21:42.160Z",
+        "reviewRound": "2026-09-05T13:03:05.150Z",
+        "_hash": "bf526abb794e0478ed4cb44a8f78d27f444371c8080259b699f10643f3bb6bd3",
+        "files": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "signatureTag": "edge|ts|current-standard-validation",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "015d8400b5490c6ad4775a079822b06401fc9f2ff138da23aeebdaddb3958bdf",
+      "priorDigest": "04b0c87d7ab703e30b45996b51c9637590ceb439d1555b73c4c546b7a223e41d",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T13:21:42.161Z"
     }
   ],
   "receipts": [
@@ -5783,6 +5811,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "fcc143cd50581a097335ba395342c31f4b09385d9a1dc9dcb9daad2147391808",
         "signature": "7VKfiELdKlbswXwyQiosY80pogB/eC14huzBKKd8WT/L207j2znPn+bIH/1Xt73QgdOF2zHISzIt29neE0b3BQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtoew6j5_159f_1587f731a7364fddbe23e368508ee313",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f-baseline-gate-transport-fixture-20260905",
+      "requestDigest": "623dfe07be5c2d24808ddcb2a2db453dcb867f503c0010fe023c6272b4089fa7",
+      "recordIds": [
+        "lr_mtoew6j5_159f_593fc3b640e547078c8191bc8bb16ac0"
+      ],
+      "priorLedgerDigest": "04b0c87d7ab703e30b45996b51c9637590ceb439d1555b73c4c546b7a223e41d",
+      "committedLedgerDigest": "627d982585a28758be35f62f7025034a471d5a0c1823f4fe5c942d2fbdcf46f1",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "9745b740-e694-4d7e-99db-eff9cc17f4fb",
+      "committedAt": "2026-09-05T13:21:42.161Z",
+      "replayed": false,
+      "exactRequestDigest": "d7ac52c5e77d3e55dd0410b3e82db6930246cfe90795bb98887da58944ea615e",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtoew6j5_159f_1587f731a7364fddbe23e368508ee313",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f-baseline-gate-transport-fixture-20260905",
+        "exactRequestDigest": "d7ac52c5e77d3e55dd0410b3e82db6930246cfe90795bb98887da58944ea615e",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtoew6j5_159f_593fc3b640e547078c8191bc8bb16ac0"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "04b0c87d7ab703e30b45996b51c9637590ceb439d1555b73c4c546b7a223e41d",
+        "committedLedgerDigest": "627d982585a28758be35f62f7025034a471d5a0c1823f4fe5c942d2fbdcf46f1",
+        "replayed": false,
+        "committedAt": "2026-09-05T13:21:42.161Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "9745b740-e694-4d7e-99db-eff9cc17f4fb",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "6acdb0007ea708e22bc538f403856fb97971ba3ed797cbb02e11a99182cca0b1",
+        "signature": "GrFCIx/Rs9F17qqUSXcGKUCOgB9cMUIninRMtztk6AVMtBM3Hu+Ux7FkQPAyS0pVWCIo4xR5zd5XewKLwK1QCw=="
       }
     }
   ]

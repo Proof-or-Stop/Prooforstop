@@ -1320,6 +1320,26 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtoeumk1_yqj_1063d2cdac674f7ead328ae0acc34cd8",
       "ledgerCommitReceiptId": "lrc_mtoeumk1_yqj_1a4d8971601a473db679d9ec0bf62054"
+    },
+    {
+      "id": "B-fe8f:F-050",
+      "desc": "Current standard-validation blocker inherited from main, not introduced by the Finding reader repair. Independent actual command PROOF_OR_STOP_MAX_TIMEOUT_MS=7200000 PROOF_OR_STOP_IDLE_TIMEOUT_MS=1800000 node packages/main/dist/tasks/done-required-validation-smoke.js exited 1: POSIX ambient transport key is session-neutral: LATTICE_ACTIVITY_RECORD_READONLY (dist line344). The test at source381-393 iterates the frozen historical key list, while validation-command-environment.ts65-70 deliberately derives active PROOF_OR_STOP spellings and excludes retired spellings. Its explicit synthetic environment does not inherit the outer timeout settings. Both source blobs equal main. Required bounded repair: test the active transport-key contract while preserving frozen historical bytes and explicitly testing retired-name semantics; do not restore obsolete aliases or weaken the digest assertion. The user-authorized boundary is current REVIEW/TEST/DONE blockers only; this observation does not authorize general brand cleanup or work on other Stories.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-05T13:21:42.160Z",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "_hash": "bf526abb794e0478ed4cb44a8f78d27f444371c8080259b699f10643f3bb6bd3",
+      "files": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/core/validation-command-environment.ts"
+      ],
+      "signatureTag": "edge|ts|current-standard-validation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoew6j5_159f_593fc3b640e547078c8191bc8bb16ac0",
+      "ledgerCommitReceiptId": "lrc_mtoew6j5_159f_1587f731a7364fddbe23e368508ee313"
     }
   ]
 }
