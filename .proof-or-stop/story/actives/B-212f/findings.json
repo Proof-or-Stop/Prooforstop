@@ -509,6 +509,52 @@
       ],
       "signatureTag": "done-command-read-only-overclaim",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-016",
+      "desc": "packages/main/src/core/done-oracle.ts:327,888-961,1105 RI-001 wave 2 independently re-observes F-009, same completed-done-snapshot-live-overlay defect family, on unchanged material. Reran node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs: original main production buildDoneChecklist gives historical review-escalation pass/nonblocking; current gives fail/blocking and stale review-verdict fail/blocking under the identical DONE-phase snapshot-aware reader fixture. Active canFinishGuard remains false in both controls. Existing actual-filesystem witness remains /tmp/b212f-quality-snapshot.Sx1V74/filesystem-witness.mjs. No repair occurred. Preserve original F-009 and its evidence; this is a current wave observation, not a separate root cause. Historical DONE projection must preserve completed-snapshot assurance and classify current-material reviewer drift without weakening active TEST-to-DONE checks.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T12:31:52.807Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "b0062afea7366bae6765074e3167abd19ec9c48910e4b445de36052b29046677",
+      "files": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/tests/red/red-done-shared-predicates.mjs"
+      ],
+      "signatureTag": "completed-done-snapshot-live-overlay",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
