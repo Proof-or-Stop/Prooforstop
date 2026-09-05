@@ -1133,6 +1133,7 @@
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoe9nch_40d_4b71bd66c12e4961b5e3b88c3c9ee704",
+      "ledgerCommitReceiptId": "lrc_mtoe9nch_40d_395994af91dc4fff90c6d133ea585dd3",
       "resolvedAt": "2026-09-05T13:04:10.881Z",
       "resolvedReason": "Fixed by exact discriminated variant validation in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b and complete signed envelope validation in e0a79946e70ac8a026b845ff7180ec311907d72e. Correctly signed malformed variant payloads are rejected, including null required base/head proof; legitimate six-variant cases and legal optional identity bindings remain accepted. Current full pinned refresh includes proposal shape/envelope negative and positive controls. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
       "resolutionType": "fixed",
@@ -1192,7 +1193,7 @@
       "desc": "Current B-fe8f official verification_evidence_refresh_stale remains non-convergent after exact-key grouping: 58 Story intents use distinct selectors for the same expensive finding-ledger-runtime-smoke command, so the local CLI repeatedly executes the same process. The observed run exceeded 6m56s and had already restarted the full smoke; receipt files 8c817740... and a440c86e... were created minutes apart for the same command. Continuing would run the multi-minute command once per selector and block REVIEW/TEST/DONE. Preserve selector-specific match and signed receipt identities, but cache one raw command execution across identical executable/argv/cwd/timeout/material/environment/provenance and derive each selector result/receipt from that immutable raw output. Add a regression proving multiple distinct selectors cause one runner invocation and independent selector matches.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main-agent",
       "createdAt": "2026-09-05T10:40:00.518Z",
@@ -1205,7 +1206,11 @@
       "signatureTag": "adversarial.ts.verification-refresh-cross-selector-reexecution",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mto948p3_1gng_b27d375a65154cd2bb324aed9a86bd89",
-      "ledgerCommitReceiptId": "lrc_mto948p3_1gng_6913acfb50804f419f7d00551f897dfe"
+      "ledgerCommitReceiptId": "lrc_mto948p3_1gng_6913acfb50804f419f7d00551f897dfe",
+      "resolvedAt": "2026-09-05T13:04:13.038Z",
+      "resolvedReason": "Fixed in 1ef07bb8c3e14109ec345f486948780ec33cc269: exact raw execution identity is reused across selectors, while each selector is independently matched and retains its own signed receipt identity. Regression asserts 4 runner calls for 6 intents with independent positive/negative selector outcomes and identity isolation. The final full pinned refresh completed all 71 intents in one bounded run, replacing the previously nonconvergent repeated expensive command execution. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-045",
