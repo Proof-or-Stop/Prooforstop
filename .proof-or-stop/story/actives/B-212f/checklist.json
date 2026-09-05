@@ -360,8 +360,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T11:28:49.377Z",
       "endTime": null,
       "userSeesSnapshot": {
         "normalizedClaimDigest": "52dbfce77407fe2644a500a5ded8c954504525ab65710a9ff4eaf69a24ed3d2a",
@@ -958,6 +958,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Retain verified implementer commit 7e18814556; shared evaluator refinement is tracked by CHK-003.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:28:49.377Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implement approved shared evaluator and executable mutation proof after local main sync.",
       "agent": "proof-or-stop-implementer"
     }
   ]
