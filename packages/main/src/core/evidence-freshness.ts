@@ -8,12 +8,20 @@ import {
   PROOF_OR_STOP_STORY_DIR_NAMES,
   LEGACY_DOCS_STORY_DIR,
 } from './proof-or-stop-paths.js';
+import {
+  EVIDENCE_HASH_SNAPSHOT_SCHEMA,
+  isEvidenceHashSnapshotSchema,
+  type EvidenceHashSnapshotSchema,
+} from './artifact-schema.js';
+import { resolveStoryChangedFiles, resolveStoryMergeBase } from './story-aware-validation.js';
+import { isMaterialExcludedPath, isStoryMetadataPath } from './material-path-policy.js';
+export { isMaterialExcludedPath, isStoryMetadataPath };
 
 export const GIT_TREE_OUTPUT_MAX_BUFFER = 32 * 1024 * 1024;
 
 // B-d243 (host-2 soundness fix): the value currentStoryFilesHash returns for an
 // EMPTY story-owned diff (HEAD == main, or the story already resolved on main).
-// `changedStoryFilesBetween` then yields zero entries, so the hash is
+// The shared changed-file resolver then yields zero entries, so the hash is
 // sha256(''). This is NOT undefined — it is a real digest that vouches for
 // NOTHING. Treating it as a positive signal would let a delivery-check signed on
 // main (empty diff) re-match later under whole-tree drift while HEAD stays empty,
@@ -72,7 +80,7 @@ export function classifyEvidenceFreshness(
 }
 
 export interface EvidenceHashSnapshot {
-  schemaVersion: 'lattice.evidence_hash_snapshot.v1';
+  schemaVersion: EvidenceHashSnapshotSchema;
   headHash?: string;
   materialHash?: string;
   storyFilesHash?: string;
@@ -137,48 +145,6 @@ const GIT_EXEC_OPTS = {
   stdio: ['pipe', 'pipe', 'pipe'] as ['pipe', 'pipe', 'pipe'],
   maxBuffer: 1024 * 1024 * 1024,
 };
-
-/**
- * Prefixes whose paths are story METADATA and therefore EXCLUDED from
- * `storyFilesHash`.
- *
- * B-cc10 CHK-002: derived from `PROOF_OR_STOP_STORY_DIR_NAMES` (every accepted
- * state-dir spelling) rather than from the canonical name alone. The exclusion
- * must hold on BOTH sides of the state-directory rename: under the canonical name
- * so it follows the move, and under the deprecated name so archives that have not
- * been moved yet do not silently start entering the digest. Hardcoding either
- * spelling here would reintroduce the exact hazard this list guards — nothing
- * would throw, the hashes would just change meaning.
- */
-const DEFAULT_STORY_METADATA_PREFIXES = [
-  ...PROOF_OR_STOP_STORY_DIR_NAMES.map(dir => `${dir.replace(/\/actives$/, '')}/`),
-  `${LEGACY_DOCS_STORY_DIR.replace(/\/actives$/, '')}/`,
-  'docs/framework-audit/',
-].filter((value, index, all) => all.indexOf(value) === index);
-
-export function isStoryMetadataPath(path: string, projectRoot?: string): boolean {
-  const normalized = path.replace(/\\/g, '/').toLowerCase();
-  const prefixes = [...DEFAULT_STORY_METADATA_PREFIXES];
-  if (projectRoot) {
-    try {
-      const cfg = loadConfig(projectRoot);
-      const storyDir = cfg.storyDir?.replace(/\\/g, '/').toLowerCase();
-      if (storyDir) {
-        const storyDirPrefix = storyDir.endsWith('/') ? storyDir : storyDir + '/';
-        if (!prefixes.some(p => p === storyDirPrefix || storyDirPrefix.startsWith(p))) {
-          prefixes.push(storyDirPrefix);
-        }
-      }
-    } catch {
-      // config load failure → fall back to defaults
-    }
-  }
-  return prefixes.some(prefix => normalized.startsWith(prefix));
-}
-
-export function isMaterialExcludedPath(path: string, projectRoot?: string): boolean {
-  return isStoryMetadataPath(path, projectRoot) || isMaterialExcludedRuntimeArtifactPath(path);
-}
 
 /**
  * B-6666 CHK-002: the parameter IS the resolved git invocation cwd
@@ -262,7 +228,7 @@ export function captureEvidenceHashSnapshot(args: EvidenceHashSnapshotCaptureArg
   const materialHash = currentMaterialHash(gitCwd, ref, metadataRoot);
   const storyFilesHash = currentStoryFilesHash(gitCwd, ref, metadataRoot);
   return {
-    schemaVersion: 'lattice.evidence_hash_snapshot.v1',
+    schemaVersion: EVIDENCE_HASH_SNAPSHOT_SCHEMA,
     ...(headHash ? { headHash } : {}),
     ...(materialHash ? { materialHash } : {}),
     ...(storyFilesHash ? { storyFilesHash } : {}),
@@ -299,7 +265,7 @@ export function checkEvidenceHashSnapshotReuse(
     };
   }
 
-  if (snapshot.schemaVersion !== 'lattice.evidence_hash_snapshot.v1') {
+  if (!isEvidenceHashSnapshotSchema(snapshot.schemaVersion)) {
     reasons.push('snapshot schemaVersion is not supported');
   }
   if (snapshot.gitCwd !== gitCwd) reasons.push('snapshot gitCwd does not match current git cwd');
@@ -538,15 +504,9 @@ function objectIdsAtRef(gitCwd: string, ref: string): Map<string, string> {
 
 export function currentStoryFilesHash(gitCwd: string, ref = 'HEAD', metadataRoot: string = gitCwd): string | undefined {
   try {
-    const base = mergeBaseWithMain(gitCwd, ref);
-    if (!base) return undefined;
-    const objectIds = objectIdsAtRef(gitCwd, ref);
-    const entries = changedStoryFilesBetween(gitCwd, base, ref)
-      .filter(entry => !isMaterialExcludedPath(entry.path, metadataRoot))
-      .map((entry) => {
-        const objectId = entry.deleted ? undefined : objectIds.get(entry.path);
-        return `${entry.path}\0${objectId || '<deleted>'}`;
-      })
+    if (!resolveStoryMergeBase(gitCwd, ref)) return undefined;
+    const entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot)
+      .map(entry => entry.path + '\0' + (entry.blobId || '<deleted>'))
       .sort();
     return createHash('sha256').update(entries.join('\0')).digest('hex');
   } catch {

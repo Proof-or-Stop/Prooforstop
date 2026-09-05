@@ -39,18 +39,14 @@ import {
   reviewerHostRenderIdentity,
 } from '../core/prompt-role-contract-registry.js';
 import { renderCodexAgentContent } from '../init-assets.js';
-// B-cc10 F-055: resolve whichever adapter dir exists. Hardcoding the renamed one made this
-// read a path that no longer exists (ENOENT) or scan zero files.
-function adapterDirName(base: string): string {
-  return existsSync(join(base, '.proof-or-stop-codex')) ? '.proof-or-stop-codex' : '.proof-or-stop-codex';
-}
-
+import { PROOF_OR_STOP_ADAPTER_DIR } from '../core/brand-paths.js';
 
 const registry = readPromptRegistry();
 const files = listPromptTemplateFiles(registry.root);
 const projectRoot = join(registry.root, '..', '..', '..', '..');
 const loadBearingPromptFiles = new Set([
   'proof-or-stop-review-channel.md',
+  'proof-or-stop-evaluator-cli.md',
 ]);
 const requiredSafetyPhrases = [
   'Fresh-Context Fence',
@@ -540,7 +536,7 @@ function assertReviewFindingTriageMutationFailures(): void {
       `complete assembled reviewer body mutation ${index + 1} must fail even after its prefix digest is refreshed`,
     );
   }
-  for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
+  for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     const entry = registry.agents.find(candidate => candidate.agentId === roleId)!;
     for (const mode of ['legacy-full-context', 'full-envelope'] as const) {
       const completeBody = resolvePromptTemplateBody(entry, mode);
@@ -579,7 +575,13 @@ function assertReviewFindingTriageDelivery(): void {
     /[\u3400-\u9fff]/u,
     'the injected open-source REVIEW triage contract is English-only',
   );
-  for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
+  // origin/main merge: origin iterates MODULAR_REVIEWER_ROLE_IDS, which on our side has
+  // SIX entries because we added proof-or-stop-review-topology-critic; origin's frozen
+  // digest maps below hold the FIVE it knows. ACTIVE_MODULAR_REVIEWER_ROLE_IDS is exactly
+  // that five-role set (topology-critic stays a modular body), so iterating it keeps the
+  // assertion over the roles the maps actually pin instead of indexing them with a key
+  // they do not carry.
+  for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     const entry = registry.agents.find(candidate => candidate.agentId === roleId);
     assert.ok(entry, `${roleId} is registered`);
     const frozenLegacyReconstruction = restoreLegacyPromptTemplate(entry);
@@ -620,7 +622,7 @@ function assertReviewFindingTriageDelivery(): void {
       (mask & (1 << index)) === 0 ? 'legacy-full-context' : 'full-envelope',
     ]));
     const config = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles };
-    for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
+    for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
       assert.equal(occurrenceCount(resolvePromptRoleBody(roleId, config).body, reviewFindingTriageContractMarker), 1, `mixed rollout mask ${mask} delivers one contract to ${roleId}`);
     }
   }
@@ -855,7 +857,8 @@ for (const entry of registry.agents) {
   const isComplexRole = MODULAR_COMPLEX_ROLE_IDS.includes(entry.agentId as typeof MODULAR_COMPLEX_ROLE_IDS[number]);
   const expectedClaude = renderPromptEntryForHost(entry, 'claude');
   const expectedCodex = renderPromptEntryForHost(entry, 'codex');
-  if (MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
+  const canonicalSource = renderPromptEntryForHost(entry, 'claude', 'full-envelope');
+  if (ACTIVE_MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof ACTIVE_MODULAR_REVIEWER_ROLE_IDS[number])) {
     assert.match(expectedClaude, /review_run_start/, `${entry.file} Claude registry render is bootstrap-only`);
     assert.match(expectedCodex, /review_run_start/, `${entry.file} Codex registry render is bootstrap-only`);
     assert.equal(occurrenceCount(expectedClaude, reviewFindingTriageContractMarker), 0, `${entry.file} Claude bootstrap does not duplicate the runtime role contract`);
@@ -863,17 +866,21 @@ for (const entry of registry.agents) {
     assert.doesNotMatch(expectedClaude, /proofbound:modular-role-body:v1/, `${entry.file} Claude registry excludes role body`);
     assert.doesNotMatch(expectedCodex, /proofbound:modular-role-body:v1/, `${entry.file} Codex registry excludes role body`);
   } else if (!isComplexRole) {
-    assert.equal(expectedClaude, source, `${entry.file} Claude render matches template`);
+    assert.equal(expectedClaude, canonicalSource, `${entry.file} Claude render matches canonical template output`);
   }
   if (isComplexRole) {
     const legacy = restoreLegacyPromptTemplate(entry);
-    assert.equal(expectedClaude, legacy, `${entry.file} rejected rollout defaults Claude to frozen legacy bytes`);
-    assert.equal(expectedCodex, renderCodexAgentContent(legacy), `${entry.file} rejected rollout defaults Codex to frozen legacy bytes`);
+    const canonicalLegacy = legacy
+      .replace('<!-- lattice:start -->', '<!-- proof-or-stop:start -->')
+      .replace('<!-- lattice:end -->', '<!-- proof-or-stop:end -->');
+    assert.equal(expectedClaude, canonicalLegacy, `${entry.file} default full-context Claude render canonicalizes historical markers`);
+    assert.equal(expectedCodex, renderCodexAgentContent(canonicalLegacy), `${entry.file} default full-context Codex render canonicalizes historical markers`);
+    assert.match(legacy, /<!-- lattice:start -->[\s\S]*<!-- lattice:end -->/, `${entry.file} retains legacy markers only in historical reconstruction`);
     assert.equal(renderPromptEntryForHost(entry, 'claude', 'full-envelope'), source, `${entry.file} modular Claude render remains explicitly selectable`);
     assert.equal(renderPromptEntryForHost(entry, 'codex', 'full-envelope'), renderCodexAgentContent(source), `${entry.file} modular Codex render remains explicitly selectable`);
     assert.notEqual(expectedClaude, source, `${entry.file} rejected rollout cannot yield the modular Claude render`);
-  } else if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
-    assert.equal(expectedCodex, renderCodexAgentContent(source), `${entry.file} Codex render matches legacy transform`);
+  } else if (!ACTIVE_MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof ACTIVE_MODULAR_REVIEWER_ROLE_IDS[number])) {
+    assert.equal(expectedCodex, renderCodexAgentContent(canonicalSource), `${entry.file} Codex render matches canonical transform`);
   }
   if (!MODULAR_REVIEWER_ROLE_IDS.includes(entry.agentId as typeof MODULAR_REVIEWER_ROLE_IDS[number])) {
     assert.equal(occurrenceCount(expectedClaude, reviewFindingTriageContractMarker), 0, `${entry.file} Claude render receives no REVIEW triage contract`);
@@ -902,24 +909,26 @@ for (const entry of registry.agents) {
   }
   const claudeMirrorPath = join(projectRoot, '.claude', 'agents', entry.file);
   if (existsSync(claudeMirrorPath)) {
-    assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host input`);
+    assert.equal(readFileSync(claudeMirrorPath, 'utf8'), expectedClaude, `${entry.file} .claude asset matches its canonical host render`);
   }
-  const codexMirrorPath = join(projectRoot, adapterDirName(projectRoot), 'agents', entry.file);
+  const codexMirrorPath = join(projectRoot, PROOF_OR_STOP_ADAPTER_DIR, 'agents', entry.file);
   if (existsSync(codexMirrorPath)) {
-    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .proof-or-stop-codex asset matches its canonical host input`);
+    assert.equal(readFileSync(codexMirrorPath, 'utf8'), expectedCodex, `${entry.file} .proof-or-stop-codex asset matches its canonical host render`);
   }
   material.update(`${entry.file}\0${entry.templateHash}\0${entry.bytes}\n`);
 }
 assert.equal(registry.materialHash, material.digest('hex'), 'registry material hash is deterministic');
 
+assert.equal(MODULAR_REVIEWER_ROLE_IDS.length, 6, 'the migrated reviewer definition roster has exactly six roles');
 assert.deepEqual(
   [...ACTIVE_MODULAR_REVIEWER_ROLE_IDS],
-  [...MODULAR_REVIEWER_ROLE_IDS],
-  'the modular rollout roster is exactly the five active REVIEW lanes',
+  MODULAR_REVIEWER_ROLE_IDS.filter(roleId => roleId !== 'proof-or-stop-review-topology-critic'),
+  'the five active REVIEW lanes are the migrated reviewer roles other than topology critic',
 );
+assert.equal(ACTIVE_MODULAR_REVIEWER_ROLE_IDS.length, 5, 'the active REVIEW rollout roster remains exactly five lanes');
 const fullRoles = Object.fromEntries(MODULAR_REVIEWER_ROLE_IDS.map(roleId => [roleId, 'full-envelope']));
 const fullConfig = { version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: fullRoles };
-for (const roleId of MODULAR_REVIEWER_ROLE_IDS) {
+for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
   const entry = registry.agents.find(candidate => candidate.agentId === roleId)!;
   const legacy = resolvePromptRoleBody(roleId, {
     version: PROMPT_ENVELOPE_ROLLOUT_VERSION,

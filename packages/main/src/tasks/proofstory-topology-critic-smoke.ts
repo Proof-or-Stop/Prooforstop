@@ -14,7 +14,13 @@ import { adapterSessionEnv, adapterSessionId, withAdapterSessionEnv } from './ad
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
 import { createStoryDispatchHandlers } from '../handlers/story-dispatch.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
-import { extractTemplateFrontmatter, readPromptRegistry } from '../core/prompt-registry.js';
+import {
+  buildReviewerRunBootstrapBody,
+  extractTemplateFrontmatter,
+  MODULAR_ROLE_BODY_MARKER,
+  readPromptRegistry,
+  renderPromptEntryForHost,
+} from '../core/prompt-registry.js';
 import { exportPublicKeyRaw, importPrivateKeyRaw, signCanonical } from '../core/authority-signing.js';
 import {
   findRuntimeArtifactEntry,
@@ -46,6 +52,18 @@ const now = '2026-07-22T00:00:00.000Z';
 const smokeArgs = process.argv.slice(2);
 if (smokeArgs.length > 1 || (smokeArgs.length === 1 && smokeArgs[0] !== '--live-happy')) {
   throw new Error(`unsupported proofstory topology critic smoke arguments: ${smokeArgs.join(' ') || '<none>'}`);
+}
+
+function assertTopologyCriticHostBootstrap(
+  actual: string,
+  expected: string,
+  file: string,
+  host: 'Claude' | 'Codex',
+): void {
+  assert.equal(actual, expected, `${host} topology critic bootstrap matches the canonical host render`);
+  assert.equal(extractTemplateFrontmatter(actual, file).name, TOPOLOGY_CRITIC_ROLE, `${host} bootstrap preserves the topology critic role`);
+  assert.ok(actual.includes(buildReviewerRunBootstrapBody(TOPOLOGY_CRITIC_ROLE)), `${host} bootstrap delegates to the canonical review_run_start body`);
+  assert.equal(actual.includes(MODULAR_ROLE_BODY_MARKER), false, `${host} bootstrap does not embed the modular role body`);
 }
 const liveHappy = smokeArgs[0] === '--live-happy';
 
@@ -180,6 +198,16 @@ function writeDiscoveryRegistration(root: string): void {
   write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs', 'export const preReviewLiveProofRunner=true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts', 'export const topologyCriticReceipt=true;\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts', 'export const topologyConsumer=true;\n');
+  // Acceptance-basis discovery includes the rollout verifier pair in its
+  // repository snapshot even though this focused fixture does not exercise
+  // rollout behavior. Keep the scratch repository structurally complete so the
+  // topology receipt assertions test critic authority rather than snapshot
+  // absence.
+  write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout=true;\n');
+  write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutRunner=true;\n');
+  write(root, 'packages/main/src/core/machine.ts', 'export const machine=true;\n');
+  write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch=true;\n');
+  write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory=true;\n');
 }
 
 const root = mkdtempSync(join(tmpdir(), 'proofstory-topology-critic-'));
@@ -237,6 +265,7 @@ smokeSuite: try {
   const planBasisOutput = cli(root, 'acceptance_basis_generate', { storyId, json: true });
   assert.equal(JSON.parse(planBasisOutput).artifact.basis.status, 'complete', planBasisOutput);
   assert.equal(store.readTopologyCriticReceipt(storyId), null, 'Wave 2A receipt is absent before the normal PLAN to DEV transition');
+  cli(root, 'dev_memory_preflight_ack', { storyId });
   const planToDevTranscript = cli(root, 'story_advance', { storyId, phase: 'DEV' });
   assert.equal(store.readStory(storyId).phase, 'DEV', planToDevTranscript);
   assert.match(planToDevTranscript, /Acceptance topology check:[\s\S]*mode=enforce; status=pass; structuralPass=true; blocking=false/, 'normal story_advance consumes the existing Wave 2 structural gate');
@@ -288,15 +317,41 @@ smokeSuite: try {
   assert.ok(promptEntry, 'registered topology critic prompt is discoverable');
   assert.equal(extractTemplateFrontmatter(readFileSync(promptEntry!.sourcePath, 'utf8'), promptEntry!.sourcePath).name, TOPOLOGY_CRITIC_ROLE, 'real prompt parser accepts topology critic frontmatter');
   const canonicalPrompt = readFileSync(join(sourceRoot, 'templates/agents/proof-or-stop-review-topology-critic.md'), 'utf8');
-  assert.equal(readFileSync(join(repositoryRoot, '.claude/agents/proof-or-stop-review-topology-critic.md'), 'utf8'), canonicalPrompt, 'Claude prompt mirror is exact');
+  assert.equal(canonicalPrompt.includes(MODULAR_ROLE_BODY_MARKER), true, 'package canonical prompt retains the independently selected modular role body');
+  const claudePromptPath = join(repositoryRoot, '.claude/agents/proof-or-stop-review-topology-critic.md');
+  const claudeBootstrap = readFileSync(claudePromptPath, 'utf8');
   // B-cc10 F-029: assert against whichever adapter-dir spelling actually exists on disk.
   // This hardcoded the deprecated path against the REAL repo root (not a scratch fixture),
   // so after the rename the readFileSync threw ENOENT instead of comparing anything.
-  const codexMirror = ADAPTER_DIR_NAMES
+  const codexPromptPath = ADAPTER_DIR_NAMES
     .map((dir) => join(repositoryRoot, `${dir}/agents/proof-or-stop-review-topology-critic.md`))
     .find((candidate) => existsSync(candidate));
-  assert.ok(codexMirror, `no Codex prompt mirror found under any of: ${ADAPTER_DIR_NAMES.join(', ')}`);
-  assert.equal(readFileSync(codexMirror, 'utf8'), canonicalPrompt, 'Codex prompt mirror is exact');
+  assert.ok(codexPromptPath, `no Codex prompt mirror found under any of: ${ADAPTER_DIR_NAMES.join(', ')}`);
+  const codexBootstrap = readFileSync(codexPromptPath, 'utf8');
+  const expectedClaudeBootstrap = renderPromptEntryForHost(promptEntry!, 'claude');
+  const expectedCodexBootstrap = renderPromptEntryForHost(promptEntry!, 'codex');
+  assertTopologyCriticHostBootstrap(claudeBootstrap, expectedClaudeBootstrap, claudePromptPath, 'Claude');
+  assertTopologyCriticHostBootstrap(codexBootstrap, expectedCodexBootstrap, codexPromptPath, 'Codex');
+  assert.equal(
+    claudeBootstrap === codexBootstrap,
+    expectedClaudeBootstrap === expectedCodexBootstrap,
+    'host bootstrap equality follows the canonical host renderers and does not require artificial byte differences',
+  );
+  assert.notEqual(claudeBootstrap, canonicalPrompt, 'host bootstrap remains distinct from the package canonical full template');
+
+  const delegationBody = buildReviewerRunBootstrapBody(TOPOLOGY_CRITIC_ROLE);
+  assert.throws(
+    () => assertTopologyCriticHostBootstrap(claudeBootstrap.replace(delegationBody, ''), expectedClaudeBootstrap, claudePromptPath, 'Claude'),
+    'missing review_run_start delegation bites the host bootstrap contract',
+  );
+  assert.throws(
+    () => assertTopologyCriticHostBootstrap(claudeBootstrap.replace('review_run_start', 'review_run_begin'), expectedClaudeBootstrap, claudePromptPath, 'Claude'),
+    'malformed review_run_start delegation bites the host bootstrap contract',
+  );
+  assert.throws(
+    () => assertTopologyCriticHostBootstrap(`${claudeBootstrap}${canonicalPrompt}`, expectedClaudeBootstrap, claudePromptPath, 'Claude'),
+    'injecting the full modular role body bites the body-free host bootstrap contract',
+  );
 
   const topLevelFields = ['schemaVersion', 'storyId', 'criticIdentity', 'criticRole', 'criticProvenance', 'implementationProvenance', 'basisDigest', 'topologyDigest', 'scopeCheckDigest', 'scopeContractDigest', 'storyFilesHash', 'closureFilesHash', 'findingRefs', 'approvedExclusionRefs', 'verdict', 'issuedAt', 'signerPublicKey', 'signature'] as const satisfies readonly (keyof TopologyCriticReceiptV1)[];
   assert.deepEqual([...topLevelFields].sort(), Object.keys(receipt).sort(), 'receipt field inventory stays exact with the actual TopologyCriticReceiptV1 artifact');

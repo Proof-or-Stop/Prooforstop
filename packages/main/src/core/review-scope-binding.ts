@@ -21,7 +21,7 @@
  *   different scopeContractHash / diffPackHash / hunk-digest set.
  *
  *   Metadata-exclusion note: buildScopeDiffPack() reports EVERY changed file,
- *   including committed `.proof-or-stop/story/` / `docs/story/` metadata. Every
+ *   including committed `.lattice/story/` / `docs/story/` metadata. Every
  *   finding_add / review_pass_set auto-commits story metadata, so a raw
  *   diffPackHash would churn on every reviewer write and make the binding stale
  *   immediately. We therefore exclude the same material-excluded paths that

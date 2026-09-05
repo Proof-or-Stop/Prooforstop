@@ -8,11 +8,13 @@ import { dirname, join } from 'node:path';
 import {
   CLOSEOUT_ARTIFACT_POLICIES,
   CLOSEOUT_WRITE_RECEIPTS_PATH,
+  CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY,
   assertCanonicalCloseoutWrite,
   appendCloseoutWriteReceipt,
   buildCloseoutWriteReceipt,
   classifyCurrentCloseoutArtifactForReviewRetention,
   computeCompositeScopeDigest,
+  computeCloseoutWriteReceiptIntegrity,
   evaluateMetadataOnlyReviewRetention,
   latestCausallyValidCloseoutReceipt,
   readCloseoutWriteReceipts,
@@ -45,6 +47,7 @@ import { createStoryActor, evaluateReviewVerdict, getGuardFailureReason, getStat
 import type { Finding, ReviewRun } from '../core/types.js';
 import { resetConfigCache } from '../core/config.js';
 import { createProofStoryHandlers } from '../handlers/proofstory.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { createTestHandlers } from '../handlers/test.js';
 import { createTestStoryHandlers } from '../handlers/test-story.js';
 import { createDeliveryCheckHandlers } from '../handlers/delivery-check.js';
@@ -60,6 +63,7 @@ import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { createLegacyLocalOnlyDeliveryClaims } from '../core/legacy-delivery-claims-compat.js';
 import { evaluateOptionalLiveSmokeTranscript } from '../core/live-smoke-transcript-evidence.js';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 
 const legacyPromptHash = (roleId: string): string => hashReviewPrompt(resolvePromptRoleBody(roleId, {
   version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
@@ -116,6 +120,8 @@ assert.deepEqual(
     'scope-contract.json',
     'milestone-ledger.json',
     'slice-plan.json',
+    'topology-critic-receipt.json',
+    'checklist.json',
     'parent-ledger-rollup.json',
     'evidence/delivery-context-pack.json',
     'test-evidence.json',
@@ -132,6 +138,8 @@ for (const policy of CLOSEOUT_ARTIFACT_POLICIES) {
   for (const writer of policy.canonicalWriters) assert(writer in COMMAND_POLICIES, `${policy.path} writer ${writer} must be a registered CLI command`);
 }
 assert.equal(assertCanonicalCloseoutWrite('scope-contract.json', 'scope_contract_acknowledge').artifactClass, 'scope-defining');
+assert.equal(assertCanonicalCloseoutWrite('checklist.json', 'verification_evidence_refresh_stale').artifactClass, 'closeout-evidence');
+assert.throws(() => assertCanonicalCloseoutWrite('checklist.json', 'checklist_update'), /non-canonical writer.*checklist/);
 assert.throws(() => assertCanonicalCloseoutWrite('../parent-ledger-rollup.json', 'parent_ledger_rollup_set'), /untrusted closeout artifact path/);
 assert.throws(() => assertCanonicalCloseoutWrite('parent-ledger-rollup.json', 'manual-write'), /non-canonical writer.*parent-ledger-rollup/);
 console.log('PASS closeout artifact classifications: closed policy set verified');
@@ -447,6 +455,8 @@ try {
   const baselineHead = currentGitHead(repo)!;
   const baselineMaterial = currentMaterialHash(repo, 'HEAD', repo)!;
   const baselineStoryFiles = currentStoryFilesHash(repo, 'HEAD', repo)!;
+  const baselineCausalInputHashes = deriveCertificationDomainInputHashes(repo, 'HEAD', repo);
+  assert.ok(baselineCausalInputHashes, 'synthetic certification fixture must derive causal input hashes');
   const runtimeBinding = computeReviewScopeBinding({ contract: runtimeContract, diffPack: emptyDiff, ledger: runtimeLedger, slicePlan: runtimePlan })!;
   const run = {
     reviewRunId: `${runtimeStoryId}:RR-001`, storyId: runtimeStoryId, agent: 'proof-or-stop-review-quality', lane: 'proof-or-stop-review-quality',
@@ -496,6 +506,16 @@ try {
   };
   assertWriterReceipt('parent-ledger-rollup.json', 'parent_ledger_rollup_set');
 
+  writeFileSync(store.storyFilePath(runtimeStoryId, 'topology-critic-receipt.json'), '{"schemaVersion":"smoke"}\n', 'utf8');
+  assert.match(
+    autoCommitStoryMetadata(repo, runtimeStoryId, 'topology_critic_receipt_set', {
+      closeoutArtifactPaths: ['topology-critic-receipt.json'],
+    }),
+    /metadata auto-committed/,
+  );
+  assertWriterReceipt('topology-critic-receipt.json', 'topology_critic_receipt_set');
+  console.log('PASS canonical topology critic closeout lineage recorded');
+
   createTestHandlers(handlerCtx).test_add({ storyId: runtimeStoryId, command: 'true', output: 'pass', result: 'PASS' });
   assertWriterReceipt('test-evidence.json', 'test_add');
   console.log('PASS canonical test_add lineage recorded');
@@ -540,10 +560,19 @@ try {
   assert.equal(evaluateOptionalLiveSmokeTranscript(store, runtimeStoryId).status, 'valid', 'a passing capture restores valid executed evidence');
   createDeliveryContextPackHandlers(handlerCtx).delivery_context_pack({ storyId: runtimeStoryId, write: true });
   assertWriterReceipt('evidence/delivery-context-pack.json', 'delivery_context_pack');
-  persistSyntheticAdmittedWindowForTest({ store, storyId: runtimeStoryId, projectRoot: repo });
+  persistSyntheticAdmittedWindowForTest({
+    store: store,
+    storyId: runtimeStoryId,
+    projectRoot: repo,
+    causalInputHashes: baselineCausalInputHashes,
+  });
   await createDoneRequiredValidationHandlers(handlerCtx).done_required_validate({ storyId: runtimeStoryId });
   assertWriterReceipt('done-required-evidence.json', 'done_required_validate');
   console.log('PASS canonical DONE-required lineage recorded');
+  // Direct handler tests bypass the CLI ownership gate; seed the same owner
+  // lease that a real story-scoped validate command would acquire before the
+  // causal preflight probes writer availability.
+  acquireOwnerLease(store.storyDirPath(runtimeStoryId), { command: 'validate', cwd: repo });
   await createVerifierHandlers(handlerCtx).validate({ storyId: runtimeStoryId, json: true });
   assertWriterReceipt('test-evidence.json', 'validate');
   console.log('PASS canonical routine validation lineage recorded');
@@ -731,6 +760,27 @@ try {
   );
   assert.equal(retainedSummary.retainsReview, true, retainedSummary.reason);
 
+  const checklistPath = store.storyFilePath(runtimeStoryId, 'checklist.json');
+  writeFileSync(checklistPath, JSON.stringify({ items: [], refreshedBy: 'verification_evidence_refresh_stale' }), 'utf8');
+  assert.match(autoCommitStoryMetadata(repo, runtimeStoryId, 'verification_evidence_refresh_stale', {
+    closeoutArtifactPaths: ['checklist.json'],
+  }), /metadata auto-committed/);
+  assertWriterReceipt('checklist.json', 'verification_evidence_refresh_stale');
+  const retainedChecklist = classifyCurrentCloseoutArtifactForReviewRetention(
+    store, runtimeStoryId, 'checklist.json', repo, repo,
+  );
+  assert.equal(retainedChecklist.retainsReview, true, retainedChecklist.reason);
+
+  writeFileSync(checklistPath, JSON.stringify({ items: [], changedBy: 'checklist_update' }), 'utf8');
+  const nonCanonicalChecklistCommit = autoCommitStoryMetadata(repo, runtimeStoryId, 'checklist_update', {
+    closeoutArtifactPaths: ['checklist.json'],
+  });
+  assert.match(nonCanonicalChecklistCommit, /local causal closeout receipt was not issued: non-canonical writer/);
+  const rejectedChecklist = classifyCurrentCloseoutArtifactForReviewRetention(
+    store, runtimeStoryId, 'checklist.json', repo, repo,
+  );
+  assert.equal(rejectedChecklist.retainsReview, false);
+
   git(repo, ['checkout', '-b', 'source-drift', baselineHead]);
   writeFileSync(join(repo, 'src/app.ts'), 'export const stable = false;\n', 'utf8');
   git(repo, ['add', 'src/app.ts']);
@@ -878,6 +928,49 @@ try {
     wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json',
     { projectRoot: wrapperRepo, metadataRoot: wrapper },
   ), 'wrapper-root canonical command must still emit coherent causal telemetry');
+
+  // F-118: a canonical writer must continue the chain after an exact legacy
+  // lattice closeout receipt, while emitting the canonical schema for the new
+  // receipt. This uses only the isolated wrapper fixture's temporary state.
+  const wrapperReceiptPath = join(wrapperStore.storyDirPath(wrapperStoryId), CLOSEOUT_WRITE_RECEIPTS_PATH);
+  const firstWrapperReceipt = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId)).at(-1)!;
+  const { integrityHash: _legacyIntegrityHash, ...legacyReceiptPayload } = {
+    ...firstWrapperReceipt,
+    schemaVersion: CLOSEOUT_WRITE_RECEIPT_SCHEMA_LEGACY,
+  };
+  const legacyWrapperReceipt = {
+    ...legacyReceiptPayload,
+    integrityHash: computeCloseoutWriteReceiptIntegrity(legacyReceiptPayload),
+  };
+  writeFileSync(wrapperReceiptPath, `${JSON.stringify(legacyWrapperReceipt)}\n`, 'utf8');
+  writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'summary.json'), '{"round":2}\n', 'utf8');
+  assert.match(autoCommitStoryMetadata(wrapper, wrapperStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] }), /metadata auto-committed/);
+  const chainedWrapperReceipt = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId)).at(-1)!;
+  assert.equal(chainedWrapperReceipt.schemaVersion, 'proof-or-stop.closeout_write_receipt.v3');
+  assert.equal(chainedWrapperReceipt.sequence, legacyWrapperReceipt.sequence + 1, 'canonical receipt continues after legacy receipt');
+  assert.equal(chainedWrapperReceipt.previousIntegrityHash, legacyWrapperReceipt.integrityHash, 'canonical receipt links to legacy predecessor');
+
+  // F-121: an unsupported schema for the same artifact must not be ignored by
+  // either the trust reader or the auto-commit receipt predecessor selector.
+  const supportedWrapperLedger = readFileSync(wrapperReceiptPath, 'utf8');
+  const supportedWrapperHead = currentGitHead(wrapperRepo)!;
+  const unsupportedWrapperReceipt = {
+    ...chainedWrapperReceipt,
+    schemaVersion: 'proof-or-stop.closeout_write_receipt.v999',
+  };
+  writeFileSync(wrapperReceiptPath, `${supportedWrapperLedger}${JSON.stringify(unsupportedWrapperReceipt)}\n`, 'utf8');
+  assert.equal(
+    latestCausallyValidCloseoutReceipt(wrapperStore.storyDirPath(wrapperStoryId), wrapperStoryId, 'summary.json'),
+    null,
+    'unsupported receipt schemas for an artifact must fail the trusted chain closed',
+  );
+  writeFileSync(wrapperStore.storyFilePath(wrapperStoryId, 'summary.json'), '{"round":3}\n', 'utf8');
+  const refusedUnsupportedAppend = autoCommitStoryMetadata(wrapper, wrapperStoryId, 'summary_set', { closeoutArtifactPaths: ['summary.json'] });
+  assert.match(refusedUnsupportedAppend, /local causal closeout receipt was not issued: unsupported closeout receipt schema/);
+  const afterRefusal = readCloseoutWriteReceipts(wrapperStore.storyDirPath(wrapperStoryId));
+  assert.equal(afterRefusal.filter(receipt => receipt.artifactPath === 'summary.json').length, 3, 'refusal must not append a receipt after an unsupported schema');
+  git(wrapperRepo, ['reset', '--hard', supportedWrapperHead]);
+
   const canonicalRetention = evaluateReviewRunMetadataRetention(
     wrapperStore, wrapperStore.readStory(wrapperStoryId), preCloseoutRun, wrapperRepo,
     currentScopeContextForStory(wrapperStore, wrapperStoryId, wrapperRepo),

@@ -625,8 +625,13 @@ function assertRollbackDoorsEnforce(): void {
     try {
       check(`F-006: ${phase}→DEV rollback + overlap -> canReenterDevGuard FALSE`, canReenterDevGuard(context) === false);
       const reason = getGuardFailureReason(SELF_ID, store, 'DEV', root);
-      check(`F-006: ${phase}→DEV rollback -> getGuardFailureReason renders the parallel block + names peer`,
-        /overlap_declared_parallel/.test(reason ?? '') && (reason ?? '').includes(PEER_ID));
+      if (phase === 'REVIEW') {
+        check('F-006: REVIEW→DEV missing inventory fails closed before legacy parallel rendering',
+          /review inventory|review_inventory/i.test(reason ?? ''));
+      } else {
+        check('F-006: TEST→DEV rollback -> getGuardFailureReason renders the parallel block + names peer',
+          /overlap_declared_parallel/.test(reason ?? '') && (reason ?? '').includes(PEER_ID));
+      }
     } finally {
       rmSync(root, { recursive: true, force: true });
     }
@@ -643,14 +648,16 @@ function assertRollbackDoorsEnforce(): void {
       review: cleanReview(SELF_ID),
     });
     try {
-      check(`F-006: ${phase}→DEV rollback + disjoint -> canReenterDevGuard TRUE`, canReenterDevGuard(ok.context) === true);
+      check(`F-006: ${phase}→DEV rollback + disjoint -> expected inventory/legacy outcome`,
+        canReenterDevGuard(ok.context) === (phase === 'TEST'));
       const reason = getGuardFailureReason(SELF_ID, ok.store, 'DEV', ok.root);
       check(`F-006: ${phase}→DEV rollback + disjoint -> no parallel message`, !/parallel-decomposition/.test(reason ?? ''));
     } finally {
       rmSync(ok.root, { recursive: true, force: true });
     }
   }
-  // FAIL-OPEN on the rollback door: corrupt peer (gate throws) + REVIEW phase => allowed.
+  // REVIEW inventory is fail-closed even though the legacy peer/config rollback
+  // sub-gates remain fail-open for TEST→DEV.
   const fo = buildRepo({
     parallelMode: 'block',
     selfPhase: 'REVIEW',
@@ -664,9 +671,14 @@ function assertRollbackDoorsEnforce(): void {
     corruptPeerStory: true,
   });
   try {
-    check('F-006: rollback FAIL-OPEN (gate throws) -> canReenterDevGuard TRUE', canReenterDevGuard(fo.context) === true);
+    check('F-006: REVIEW inventory missing + corrupt peer -> canReenterDevGuard FALSE', canReenterDevGuard(fo.context) === false);
     const reason = getGuardFailureReason(SELF_ID, fo.store, 'DEV', fo.root);
-    check('F-006: rollback FAIL-OPEN -> getGuardFailureReason null for parallel branch', reason === null);
+    check('F-006: REVIEW inventory failure is rendered before legacy fail-open branch',
+      reason !== null && !/parallel-decomposition/.test(reason));
+    fo.store.readReviewInventoryEpochs = (() => { throw new Error('corrupt inventory json'); }) as typeof fo.store.readReviewInventoryEpochs;
+    check('F-006: unreadable REVIEW inventory artifact fails closed', canReenterDevGuard(fo.context) === false);
+    check('F-006: unreadable REVIEW inventory artifact renders recovery',
+      /inventory evidence is unreadable or invalid/.test(getGuardFailureReason(SELF_ID, fo.store, 'DEV', fo.root) ?? ''));
   } finally {
     rmSync(fo.root, { recursive: true, force: true });
   }

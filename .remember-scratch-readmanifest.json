@@ -1,0 +1,9 @@
+{
+  "storyId":"B-3f3d",
+  "reviewRunId":"RR-379",
+  "desc":"packages/main/src/handlers/reviewer-list.ts:83,168-171 -- quality: computeActiveReviewers narrows story to Pick<StoryInfo,riskSignals> & Partial<Pick<...,riskSignalsDismissed>>, which omits events, so the F-091 persistedForced replay is forced to cast (story as Partial<Pick<StoryInfo,events>>).events and then double-cast each array element via (event as {action?:string}) / (event as {reviewer?:string}) to read fields that are already fully typed on StoryEvent (action is already the literal union including 'reviewer_forced'; reviewer is already string|undefined). This is a self-inflicted typing gap from an overly narrow parameter Pick, not genuinely unknown-shaped data. Fix: widen the parameter type to Pick<StoryInfo,'riskSignals'|'events'> (events stays optional, so all 11 existing call sites -- several of which pass bare object literals like {riskSignals:[]} with no events field -- remain compatible) and use a real type predicate '(e: StoryEvent): e is StoryEvent & {action:'reviewer_forced'}' over the now well-typed array. Verified this compiles with zero casts via tsc --noEmit -p packages/main. Reproduced the author's claimed tsc rejection: the real error is TS2339 'Property events does not exist on type ...Pick<StoryInfo,riskSignalsDismissed>...' (because events is missing from the Pick), not a predicate-assignability failure against StoryEvent as the author described; the predicate itself compiles fine once events is in scope on the parameter type.",
+  "severity":"medium",
+  "category":"missing",
+  "agent":"lattice-review-quality",
+  "files":["packages/main/src/handlers/reviewer-list.ts"]
+}

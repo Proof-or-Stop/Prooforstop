@@ -1,0 +1,872 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Port the dossier client sources into packages/graph",
+      "context": "Copy src/shells/web/dossier.js verbatim from upstream HEAD, and apply the upstream diffs to app.css (585 lines of dossier styling plus the .sidrow and .dsrcover rules), app.body.html (the dossierSlot span in the drawer header) and app.js (the drawer dossier button, the relationsOf / openDossierFor / dossierPath routing helpers, the popstate listener, and the boot-time deep-link cover). The four target files are byte-identical to upstream 10b5921 in this repo, verified by shasum, so the upstream diffs apply cleanly.",
+      "relatedDocs": [
+        "packages/graph/README.md"
+      ],
+      "userSees": "ls packages/graph/src/shells/web/dossier.js prints the path, and git diff --stat shows app.css, app.js and app.body.html changed",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-09-02T08:35:22.073Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "dossier.js exists in packages/graph/src/shells/web and self-registers window.openStoryDossier",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require('fs').readFileSync('packages/graph/src/shells/web/dossier.js','utf8'); if(!s.includes('window.openStoryDossier')) throw new Error('missing window.openStoryDossier'); console.log('CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER');\"",
+              "selector": "CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER"
+            }
+          },
+          {
+            "desc": "app.body.html carries the dossierSlot span and app.js carries the openDossierFor routing helper",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require('fs'); const b=fs.readFileSync('packages/graph/src/shells/web/app.body.html','utf8'); const a=fs.readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!b.includes('dossierSlot')) throw new Error('no dossierSlot'); if(!/function openDossierFor/.test(a)) throw new Error('no openDossierFor'); console.log('CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT');\"",
+              "selector": "CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the ported dossier.js is byte-identical to the upstream source it was taken from, so nothing was re-authored during the port",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const {execFileSync}=require('child_process'),c=require('crypto'),fs=require('fs'); const up=execFileSync('git',['-C','/Users/qipan/work/repo/proof-or-stop-graph','show','HEAD:src/shells/web/dossier.js'],{maxBuffer:1e8}); const here=fs.readFileSync('packages/graph/src/shells/web/dossier.js'); const h=b=>c.createHash('sha256').update(b).digest('hex'); if(h(up)!==h(here)) throw new Error('ported file differs from upstream'); console.log('CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM '+h(here));\"",
+              "selector": "CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the port does not delete or rewrite pre-existing app.js behavior: the playback entry point still registers on window",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const a=require('fs').readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!a.includes('playbackMermaidReset')) throw new Error('playback entry point was deleted by the port'); if(!/function openDossierFor/.test(a)) throw new Error('dossier port not present, so this check is vacuous'); console.log('CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER');\"",
+              "selector": "CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/graph/src/shells/web/app.css",
+          "packages/graph/src/shells/web/app.js",
+          "packages/graph/src/shells/web/app.body.html"
+        ],
+        "create": [
+          "packages/graph/src/shells/web/dossier.js"
+        ],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/graph/src/shells/web/dossier.js",
+          "command": "node -e \"const s=require('fs').readFileSync('packages/graph/src/shells/web/dossier.js','utf8'); if(!s.includes('window.openStoryDossier')) throw new Error('missing window.openStoryDossier'); console.log('CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER');\"",
+          "result": "pass",
+          "note": "The ported dossier.js exists at the packages/graph web shell path and self-registers window.openStoryDossier, the entry point app.js calls to open the dossier over the graph. The command throws if the registration is absent, so the pass cannot be vacuous.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e3f1231556d7fb5cde8d1cfd6728d3a59338393481d3ae31ade9af40b65182ab",
+            "outputTail": "CHK001_DOSSIER_REGISTERS_OPENSTORYDOSSIER\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:48:53.031Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/graph/src/shells/web/app.js",
+          "command": "node -e \"const fs=require('fs'); const b=fs.readFileSync('packages/graph/src/shells/web/app.body.html','utf8'); const a=fs.readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!b.includes('dossierSlot')) throw new Error('no dossierSlot'); if(!/function openDossierFor/.test(a)) throw new Error('no openDossierFor'); console.log('CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT');\"",
+          "result": "pass",
+          "note": "app.body.html carries the dossierSlot span in the drawer header and app.js carries the openDossierFor routing helper. Both legs must hold; the command throws on either one missing, so it cannot pass on a partial port.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0a4508be889c6b44388828256fffdde0cc6de913b001e899c84459ecfa3b48fe",
+            "outputTail": "CHK001_DOSSIERSLOT_AND_OPENDOSSIERFOR_PRESENT\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:48:53.540Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/graph/src/shells/web/app.js",
+          "command": "node -e \"const a=require('fs').readFileSync('packages/graph/src/shells/web/app.js','utf8'); if(!a.includes('playbackMermaidReset')) throw new Error('playback entry point was deleted by the port'); if(!/function openDossierFor/.test(a)) throw new Error('dossier port not present, so this check is vacuous'); console.log('CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER');\"",
+          "result": "pass",
+          "note": "The pre-existing playback entry point still registers in app.js after the dossier port. The second leg asserts the dossier port actually landed, so this cannot pass vacuously on an unported file.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1700083a8f2cdb6572448bb6c1d4311e7f5ca667d61538d11b99dbdfee22c572",
+            "outputTail": "CHK001_PLAYBACK_SURVIVED_ALONGSIDE_DOSSIER\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:48:54.311Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/graph/src/shells/web/dossier.js",
+          "command": "node -e \"const {execFileSync}=require('child_process'),c=require('crypto'),fs=require('fs'); const up=execFileSync('git',['-C','/Users/qipan/work/repo/proof-or-stop-graph','show','HEAD:src/shells/web/dossier.js'],{maxBuffer:1e8}); const here=fs.readFileSync('packages/graph/src/shells/web/dossier.js'); const h=b=>c.createHash('sha256').update(b).digest('hex'); if(h(up)!==h(here)) throw new Error('ported file differs from upstream'); console.log('CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM '+h(here));\"",
+          "result": "pass",
+          "note": "sha256 of the ported dossier.js equals sha256 of the upstream git object HEAD:src/shells/web/dossier.js, proving nothing was re-authored during the port. Pinned against the upstream git object rather than a scratchpad copy so the check stays re-runnable.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f11869297ef3d2438f7bdc855265db6505b20ac0415498d3c184e69dd6f6c0a4",
+            "outputTail": "CHK001_DOSSIER_BYTE_IDENTICAL_TO_UPSTREAM c547472b1fec70d2b7305ea48d0da53cad0127426d4ef9e172e53e0b34f49d61\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:48:53.984Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "01f2413fb19f05ee1b8297acc97fd5f289073179236881b7c45fa4aedc7b8bab",
+        "storyFilesHash": "4ec7b5961292f9f39977235076d467752b47d826c3d1f0c454979eb369b301ff",
+        "headHash": "ea94ce800fca021acee907f9b4794e0cad464b73",
+        "attestedAt": "2026-09-02T08:35:22.258Z",
+        "materialHash": "cc9440e80d598fd4ad6a8ad4b85e5a252a22aa31b152ba5a51bfa85a5dac1145"
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Serve the /story/<id> route and include dossier.js in the built page",
+      "context": "Two upstream edits. In src/io/http.ts the / and /index.html branch also matches the regex for /story/<id> and serves the same app.html, so the deep link needs no second HTML asset. In scripts/build-web.mjs, concatenate dossier.js after playback.js, matching the existing contract that it loads after app.js and self-registers window.openStoryDossier. Note that build-web.mjs already carries an uncommitted local change, a hard failure when d3 is missing, which must be preserved.",
+      "relatedDocs": [
+        "packages/graph/README.md"
+      ],
+      "userSees": "npm --prefix packages/graph run build succeeds, and grep -c openStoryDossier packages/graph/assets/app.html prints a non-zero count",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-09-02T08:39:44.174Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "npm --prefix packages/graph run build succeeds and the built assets/app.html contains openStoryDossier",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/graph run build >/dev/null 2>&1 && grep -c openStoryDossier packages/graph/assets/app.html | awk '$1>0{print \"BUILT_APP_HTML_HAS_DOSSIER_OK\";exit 0}{print \"BUILT_APP_HTML_MISSING_DOSSIER\";exit 1}'",
+              "selector": "BUILT_APP_HTML_HAS_DOSSIER_OK"
+            }
+          },
+          {
+            "desc": "io/http.ts serves app.html for a /story/<id> path",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);if(!m){console.log(\"STORY_ROUTE_REGEX_NOT_EXTRACTED\");process.exit(1);}const re=eval(m[0]);const body=src.slice(src.indexOf(line));const servesAppHtml=/app\\.html/.test(body.slice(0,300));const ok=re.test(\"/story/B-9f2c\")&&servesAppHtml;console.log(ok?\"STORY_ROUTE_SERVES_APP_HTML_OK\":\"STORY_ROUTE_SERVES_APP_HTML_FAIL\");process.exit(ok?0:1);'",
+              "selector": "STORY_ROUTE_SERVES_APP_HTML_OK"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "a nested path such as /story/a/b does not match the dossier route and is not served the shell",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);const re=eval(m[0]);const cases=[[\"/story/B-9f2c\",true],[\"/story/a/b\",false],[\"/story/a/b/c\",false],[\"/story/\",false]];let ok=true;for(const [p,want] of cases){if(re.test(p)!==want)ok=false;}console.log(ok?\"NESTED_STORY_PATH_REJECTED_OK\":\"NESTED_STORY_PATH_REJECTED_FAIL\");process.exit(ok?0:1);'",
+              "selector": "NESTED_STORY_PATH_REJECTED_OK"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the local d3 hard-failure branch in scripts/build-web.mjs survives the port and dossier.js is concatenated after app.js, not before",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e 'const fs=require(\"fs\");const s=fs.readFileSync(\"packages/graph/scripts/build-web.mjs\",\"utf8\").split(\"\\n\");const idx=n=>s.findIndex(l=>l.includes(\"read(\\u0027\"+n+\"\\u0027)\"));const app=idx(\"app.js\"),pb=idx(\"playback.js\"),d=idx(\"dossier.js\");const ok=d>-1&&app>-1&&pb>-1&&d>app&&d>pb;console.log(ok?\"DOSSIER_CONCATENATED_AFTER_APP_JS_OK\":\"DOSSIER_LOAD_ORDER_FAIL\");process.exit(ok?0:1);'",
+              "selector": "DOSSIER_CONCATENATED_AFTER_APP_JS_OK"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/graph/src/io/http.ts",
+          "packages/graph/scripts/build-web.mjs"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "file": "packages/graph/scripts/build-web.mjs",
+          "command": "npm --prefix packages/graph run build >/dev/null 2>&1 && grep -c openStoryDossier packages/graph/assets/app.html | awk '$1>0{print \"BUILT_APP_HTML_HAS_DOSSIER_OK\";exit 0}{print \"BUILT_APP_HTML_MISSING_DOSSIER\";exit 1}'",
+          "result": "pass",
+          "note": "Rebuilds the graph browser client end to end and asserts the generated assets/app.html actually contains openStoryDossier, proving dossier.js was concatenated into the built page rather than merely present as a source file.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "90561af57bc4b697c5b45eb8de334729c1a267784dcb71428c5f7abe4e7f681c",
+            "outputTail": "\n> @proof-or-stop/graph@0.1.0 build\n> tsc && node scripts/build-web.mjs >/dev/null 2>&1 && grep packages/graph/assets/app.html | awk $1>0{print \"BUILT_APP_HTML_HAS_DOSSIER_OK\";exit 0}{print \"BUILT_APP_HTML_MISSING_DOSSIER\";exit 1}\n\nassets: app.html (486KB)\nassets: d3.min.js\nassets: mermaid.min.js\nassets: gsap.min.js\nassets: mediabunny.min.mjs\nassets: gifenc.esm.js\nassets: gif-palette.js\nassets: gif-encoder.worker.js\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:48:56.476Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "logic_test",
+          "file": "packages/graph/src/io/http.ts",
+          "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);if(!m){console.log(\"STORY_ROUTE_REGEX_NOT_EXTRACTED\");process.exit(1);}const re=eval(m[0]);const body=src.slice(src.indexOf(line));const servesAppHtml=/app\\.html/.test(body.slice(0,300));const ok=re.test(\"/story/B-9f2c\")&&servesAppHtml;console.log(ok?\"STORY_ROUTE_SERVES_APP_HTML_OK\":\"STORY_ROUTE_SERVES_APP_HTML_FAIL\");process.exit(ok?0:1);'",
+          "result": "pass",
+          "note": "Extracts the live route regex out of packages/graph/src/io/http.ts (not a hardcoded copy) and asserts /story/B-9f2c matches it and that the same branch serves app.html, so deleting or narrowing the route makes this probe fail.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "229c72f2e53bc1b869bf7649cc2ac9f1d5999b2771818c05c4dc5f6a73ca827e",
+            "outputTail": "STORY_ROUTE_SERVES_APP_HTML_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:48:56.815Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "file": "packages/graph/src/io/http.ts",
+          "command": "node -e 'const fs=require(\"fs\");const src=fs.readFileSync(\"packages/graph/src/io/http.ts\",\"utf8\");const line=src.split(\"\\n\").find(l=>l.includes(\"u.pathname\")&&l.includes(\"story\")&&l.includes(\"test(\"));if(!line){console.log(\"STORY_ROUTE_MISSING\");process.exit(1);}const m=line.match(/\\/\\^[^\\/]*\\\\\\/story[^;]*?\\/(?=\\.test)/);const re=eval(m[0]);const cases=[[\"/story/B-9f2c\",true],[\"/story/a/b\",false],[\"/story/a/b/c\",false],[\"/story/\",false]];let ok=true;for(const [p,want] of cases){if(re.test(p)!==want)ok=false;}console.log(ok?\"NESTED_STORY_PATH_REJECTED_OK\":\"NESTED_STORY_PATH_REJECTED_FAIL\");process.exit(ok?0:1);'",
+          "result": "pass",
+          "note": "Uses the same regex extracted from http.ts and asserts the nested paths /story/a/b and /story/a/b/c plus the bare /story/ do NOT match, because the pattern segment is [^/]+; only single-segment story ids are served the shell.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ec77a08d79b51763e946568f88b22c3fcd10ea93e638b0541e3028cdc7f3f29c",
+            "outputTail": "NESTED_STORY_PATH_REJECTED_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:48:57.143Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/graph/scripts/build-web.mjs",
+          "command": "node -e 'const fs=require(\"fs\");const s=fs.readFileSync(\"packages/graph/scripts/build-web.mjs\",\"utf8\").split(\"\\n\");const idx=n=>s.findIndex(l=>l.includes(\"read(\\u0027\"+n+\"\\u0027)\"));const app=idx(\"app.js\"),pb=idx(\"playback.js\"),d=idx(\"dossier.js\");const ok=d>-1&&app>-1&&pb>-1&&d>app&&d>pb;console.log(ok?\"DOSSIER_CONCATENATED_AFTER_APP_JS_OK\":\"DOSSIER_LOAD_ORDER_FAIL\");process.exit(ok?0:1);'",
+          "result": "pass",
+          "note": "Evidences the load-order half of this intent: dossier.js is concatenated strictly after both app.js and playback.js, which is load-bearing because dossier.js reads app.js top-level helpers off window. The d3 hard-failure clause of the authored intent is VOID on this branch: that change exists only as an uncommitted edit in the main checkout and is not on story/B-9f2c (grep -c 'd3 is missing' returns 0 here, and build-web.mjs is byte-identical to upstream), so there is no such branch to preserve and no evidence is fabricated for it.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e858ce0b6627b7591c8d7bda50b9d3e1cf54c7ef0211cccb8b955b41878a9371",
+            "outputTail": "DOSSIER_CONCATENATED_AFTER_APP_JS_OK\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:48:57.485Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "e8ea93d587591ffd9befc04ac074014db79ca08cb50aacf8a23e803a07afbb8a",
+        "storyFilesHash": "633b9b6da7aba95569ed63516d7f3bd98ada6ea8530873685a5779be1f66857d",
+        "headHash": "bd33780798e85e328e65f77d57131ecb7804790b",
+        "attestedAt": "2026-09-02T08:39:44.358Z",
+        "materialHash": "2f87a7f95a94269758520f0d05c0c49e326b46547c84e7ecd2f19f7489511f62"
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "Add --story=<id> to the graph command with pre-listen validation",
+      "context": "Add an optional story field to GraphArgs and to the graph entry in packages/main/src/cli/command-catalog.ts as an optional z.string(), with the default documented in the description and never expressed as .default(), per the convention already recorded on the open flag. When set, the handler opens and reports http://localhost:<port>/story/<id> instead of /. An id that is not a story in the resolved repository is refused BEFORE startServer, mirroring how an unresolvable --root is already refused in the same handler; validate against resolveStories(root).primary, which is already on the graph library surface, and name near-miss candidates in the error. Also extend the command longHelp.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "packages/main/src/cli/command-catalog.ts"
+      ],
+      "userSees": "proof-or-stop graph --story=B-9999 --no-open exits non-zero printing 'graph: B-9999 is not a story in this repository', while --story on a real id prints 'graph serving http://localhost:8731/story/<id>'",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-09-02T08:55:19.826Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "graph --story=<real id> reports and opens the /story/<id> URL rather than /",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+              "selector": "graph --story smoke passed"
+            }
+          },
+          {
+            "desc": "the story field is registered on the graph command schema as an optional string",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/cli.js graph --help",
+              "selector": "--story   string"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "graph with no --story still reports the plain / URL, byte-for-byte unchanged from before this story",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+              "selector": "graph --story smoke passed"
+            }
+          },
+          {
+            "desc": "a story id needing URL escaping is encoded in the opened URL rather than injected raw",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+              "selector": "graph --story smoke passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "an unknown --story id is refused before the server starts listening, so no port is bound",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+              "selector": "graph --story smoke passed"
+            }
+          },
+          {
+            "desc": "the validation cannot be bypassed by calling the handler directly with an argument object that never passed through the Zod schema",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+              "selector": "graph --story smoke passed"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/graph.ts",
+          "packages/main/src/cli/command-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/graph-story-flag-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+          "result": "pass",
+          "note": "Section (5) drives the real handler against an on-disk stub graph package and asserts the URL actually handed to openBrowser is http://localhost:18731/story/B-9f2c, plus startServerCalls==1. Negative control: rewriting the URL expression so the deep-link path is always taken made the task exit 1.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ad2867c85ef4c3a9d20b33fbf55ff562d7299bc6521dea4ac3b54b255ce6c2a7",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-MRhobG (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-MRhobG (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-MRhobG (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:08.714Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/dist/cli.js",
+          "command": "node packages/main/dist/cli.js graph --help",
+          "result": "pass",
+          "note": "The rendered help shows '--story   string', not '--story <any>'. The literal token 'string' is load-bearing: the help renderer detects optionality via instanceof ZodOptional, so a .default() wrapper would render the flag as required with type any. Pinning the rendered type proves the catalog registered story as an OPTIONAL z.string(). Source of the registration: packages/main/src/cli/command-catalog.ts, graph entry.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "22ded010f57d95e2ea0cc539ef8f247c26e96d4ff5146f0f55b389bb0880c28f",
+            "outputTail": "\n  proof-or-stop graph — Interactive story + evidence graph for this repository (reads story state; writes its index cache outside the repo)\n\n  Proof-or-Stop 0.3.274\n\nproof-or-stop graph [--root=<dir>] [--port=<n>] [--no-open] [--json] [--story=<id>]\n\nRead-only visualizer for the stories and evidence of a Proof-or-Stop repository:\na browsable graph plus full-text search and per-story detail.\n\nOptions:\n  --root=<dir>   Repository to read (default: nearest Proof-or-Stop root from cwd).\n  --port=<n>     HTTP port (default: 8731).\n  --no-open      Do not launch a browser.\n  --json         Print status as JSON and exit without serving.\n  --story=<id>   Open the graph on that story's dossier page (/story/<id>) instead\n                 of the root graph view (default: the root view). An id that is not\n                 a story in this repository is refused before the server listens,\n                 and the error names near-miss candidates.\n\nBehavior:\n  - Reads story state only; it never mutates story metadata, so it is allowed in\n    every phase (readOnly / destructiveRisk none).\n  - Its search index is written under the user cache directory, keyed by a hash of\n    the repository root, so running it never dirties the worktree that DONE gates\n    on a clean tree.\n  - The graph library, browser client and static assets live in the packages/graph\n    subpackage and are resolved at runtime; if they are missing, the command names\n    the missing directory and the build command instead of failing obscurely.\n  - Long-running when it serves (same shape as serve): the command stays in the\n    foreground until interrupted.\n\n  Arguments:\n    --root    string           Repository to read (default: nearest Proof-or-Stop root from cwd). \n    --port    number           HTTP port (default: 8731). \n    --open    boolean          Launch a browser once the server is listening; default true, use --no-open to suppress. \n    --json    boolean          Print status as JSON and exit without serving. \n    --story   string           Open the graph on that story's dossier page (/story/<id>); default is the root graph view. An unknown id is refused before the server listens. \n\n  Usage: proof-or-stop graph [--root=value] [--port=value] [--open] [--json] [--story=value]\n  (* = required)\n\n-> Not sure what to do next? Run proof-or-stop session_brief to recover the project context.\n\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:10.047Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+          "result": "pass",
+          "note": "Section (5) invokes the real handler with NO story argument and asserts the URL handed to openBrowser is exactly http://localhost:18732/ . Negative control run: replacing the conditional so the deep-link branch is always taken made the task exit 1 with 'without --story the URL must be unchanged'.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e4072ede08306fde06d335691534db6948b5db3889bec665765af97bdaf31332",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-6HPjo1 (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-6HPjo1 (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-6HPjo1 (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:15.918Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+          "result": "pass",
+          "note": "Section (5) serves the id 'B-9f2c#frag?q=1 x' and asserts on the URL the HANDLER produced (not a locally recomputed encode): it equals the encodeURIComponent form, and parsing it yields empty hash, empty search, a round-tripping id and exactly 3 path segments. Negative control run: deleting encodeURIComponent from the handler made the task exit 1 with 'the handler must URL-encode the id rather than interpolate it raw'.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6b717a0b0c0241767b81bbd5388bb9cb31352025736e02768c090ee5cb5e9bae",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-jGMphD (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-jGMphD (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-jGMphD (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:22.819Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+          "result": "pass",
+          "note": "Section (5) rejects an unknown id and then asserts the stub library recorded startServerCalls==0 and openedUrls==[] , i.e. nothing ever listened. Assertion uses rejectsPromptly because a regressed handler SERVES the bad id and never settles. Negative control run: removing the pre-listen check made the task exit 1 with 'did not settle within 10000ms - an unknown --story must be REFUSED, not served: the pre-listen validation is gone'.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "596e982c1f476570423aa575c0110780b8dbb1e678922d6ec34e63219e855842",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-y4qSSP (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-y4qSSP (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-y4qSSP (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:29.431Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "node packages/main/dist/tasks/graph-story-flag-smoke.js",
+          "result": "pass",
+          "note": "Section (5) calls the real handler directly with story values Zod would never pass ('', '   ', null, 7, an object, an array, true) and asserts each is refused with the SPECIFIC diagnosis. No schema is involved on that path, so it exercises the handler-entry re-validation required by CLAUDE.md Handler encoding convention. Negative control run: weakening the entry check to a bare typeof test made the task exit 1 with 'handler entry must refuse \"\" with the right diagnosis'.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "edf87d67f044b9f4256f29f49d5d2877c44021b192b0946bdd4df2bc27c7fc1b",
+            "outputTail": "  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-sb7B3M (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-sb7B3M (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-sb7B3M (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:36.700Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "d04c18c982ea10a54f03ee8e735884ac951d07553c6504d3966476d641a23511",
+        "storyFilesHash": "fa9e59a75b580c9837667e9661dc536f394b24941234ccd3907013b65929a200",
+        "headHash": "945de7bb987f9be8541f0c29dc0e5e015454356a",
+        "attestedAt": "2026-09-02T08:55:20.016Z",
+        "materialHash": "50a3a2807c75302a41f54b899aaee66d40a1ade01688262c75ef2c3dce1bd981"
+      }
+    },
+    {
+      "id": "CHK-004",
+      "title": "Document the dossier and the new flag in the repository docs",
+      "context": "Port the upstream README dossier section into packages/graph/README.md, preserving this repository's migration-specific wording: the header is proof-or-stop graph rather than proof-or-stop-graph, and the CLI section reads 'How the CLI reaches this package'. Add the /story/<id> endpoint row to the endpoint table. Then update the Story graph section of the root CLAUDE.md to list the --story flag in its flag table and mention the dossier page, so the documented command surface matches the shipped one.",
+      "relatedDocs": [
+        "CLAUDE.md",
+        "packages/graph/README.md"
+      ],
+      "userSees": "grep -n -- --story CLAUDE.md packages/graph/README.md prints matches in both files",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-09-02T09:05:59.607Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "both CLAUDE.md and packages/graph/README.md document the --story flag",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require('fs');const a=fs.readFileSync('CLAUDE.md','utf8');const b=fs.readFileSync('packages/graph/README.md','utf8');const ok=a.includes('--story=<id>')&&a.includes('--story=B-xxxx')&&b.includes('--story=B-xxxx');console.log(ok?'DOCS_STORY_FLAG_BOTH':'FAIL claude='+a.includes('--story=<id>')+' readme='+b.includes('--story=B-xxxx'));process.exit(ok?0:1)\"",
+              "selector": "DOCS_STORY_FLAG_BOTH"
+            }
+          },
+          {
+            "desc": "the README endpoint table lists the /story/<id> route",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const row=s.split('\\n').find(l=>l.startsWith('|')&&l.includes('/story/')&&l.includes('dossier'));console.log(row?'DOCS_ENDPOINT_ROW':'FAIL no /story row in endpoint table');process.exit(row?0:1)\"",
+              "selector": "DOCS_ENDPOINT_ROW"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "the README still describes the command as proof-or-stop graph and keeps its How the CLI reaches this package section after the upstream port",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const ok=s.includes('## How the CLI reaches this package')&&/\\nproof-or-stop graph\\n/.test(s);console.log(ok?'DOCS_MIGRATION_WORDING_KEPT':'FAIL section='+s.includes('## How the CLI reaches this package'));process.exit(ok?0:1)\"",
+              "selector": "DOCS_MIGRATION_WORDING_KEPT"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the README does not tell readers to run a proof-or-stop-graph binary, which this repository does not ship",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const bad=s.split('\\n').filter(l=>/(^|[\\x60$\\s])proof-or-stop-graph(\\s|\\x60|$)/.test(l));console.log(bad.length===0?'DOCS_NO_STALE_BINARY':'FAIL '+JSON.stringify(bad.slice(0,1)));process.exit(bad.length===0?0:1)\"",
+              "selector": "DOCS_NO_STALE_BINARY"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/graph/README.md",
+          "CLAUDE.md"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "docs_check",
+          "file": "CLAUDE.md",
+          "command": "node -e \"const fs=require('fs');const a=fs.readFileSync('CLAUDE.md','utf8');const b=fs.readFileSync('packages/graph/README.md','utf8');const ok=a.includes('--story=<id>')&&a.includes('--story=B-xxxx')&&b.includes('--story=B-xxxx');console.log(ok?'DOCS_STORY_FLAG_BOTH':'FAIL claude='+a.includes('--story=<id>')+' readme='+b.includes('--story=B-xxxx'));process.exit(ok?0:1)\"",
+          "result": "pass",
+          "note": "Asserts BOTH docs document the flag in one command, so removing it from either file fails the check. CLAUDE.md must carry both the flag-table row (--story=<id>) and the usage example (--story=B-xxxx); README must carry the command form.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d4a9b772626c23fc7e834c21908e9335857c1651863cc314b524fb5a7662190f",
+            "outputTail": "DOCS_STORY_FLAG_BOTH\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:37.110Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-004:happy:1",
+          "kind": "docs_check",
+          "file": "packages/graph/README.md",
+          "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const row=s.split('\\n').find(l=>l.startsWith('|')&&l.includes('/story/')&&l.includes('dossier'));console.log(row?'DOCS_ENDPOINT_ROW':'FAIL no /story row in endpoint table');process.exit(row?0:1)\"",
+          "result": "pass",
+          "note": "Requires the /story route to appear as an actual markdown TABLE row (line starts with |) mentioning the dossier, not merely as prose anywhere in the file.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "54ffab077dc44333ecaa5a2f5f863ac17c09d8cc1634b0f45f7fe64c6ea514c0",
+            "outputTail": "DOCS_ENDPOINT_ROW\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:37.501Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "docs_check",
+          "file": "packages/graph/README.md",
+          "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const ok=s.includes('## How the CLI reaches this package')&&/\\nproof-or-stop graph\\n/.test(s);console.log(ok?'DOCS_MIGRATION_WORDING_KEPT':'FAIL section='+s.includes('## How the CLI reaches this package'));process.exit(ok?0:1)\"",
+          "result": "pass",
+          "note": "Guards the pre-mortem risk that porting the upstream README would revert this repository's divergent wording: the How the CLI reaches this package section and the proof-or-stop graph invocation must both survive.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "c92ac43e14aff0b92c66de90867df761e4a2a2ea255ff4373c7a68fdad08437e",
+            "outputTail": "DOCS_MIGRATION_WORDING_KEPT\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:37.871Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "docs_check",
+          "file": "packages/graph/README.md",
+          "command": "node -e \"const s=require('fs').readFileSync('packages/graph/README.md','utf8');const bad=s.split('\\n').filter(l=>/(^|[\\x60$\\s])proof-or-stop-graph(\\s|\\x60|$)/.test(l));console.log(bad.length===0?'DOCS_NO_STALE_BINARY':'FAIL '+JSON.stringify(bad.slice(0,1)));process.exit(bad.length===0?0:1)\"",
+          "result": "pass",
+          "note": "Detects any line presenting proof-or-stop-graph as a RUNNABLE command, while deliberately allowing the legitimate cache-path mention (~/.cache/proof-or-stop-graph/). Negative control run: appending a line reading Run `proof-or-stop-graph` to start makes this probe exit 1, so it is discriminating rather than tautological.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e3c9a2b48c31598e7e72a85469c8ffbdeb309f3f0e45967c97207048b1930d76",
+            "outputTail": "DOCS_NO_STALE_BINARY\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:38.236Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "9c444e840970a4599fff902682399a4b471d6a38d3ecfcd2168aa50e5c32f323",
+        "storyFilesHash": "e47e57bc210b2b8469289385f6cecfaa9c121cb10d0194e2d1d4810bfdfe2608",
+        "headHash": "c56c0dd8d4e7dc1127da9637b1d688517e3438ce",
+        "attestedAt": "2026-09-02T09:05:59.820Z",
+        "materialHash": "b863d9373a6e379c7a26d2ecb2557d1a9f0ffc5a84def95cf3cc9930c7ed1ef5"
+      }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Wire the new graph smoke task into the repository test surfaces",
+      "context": "Closes the gap raised by the PLAN scope review. graph-command-migration.md records this as a non-obvious trap from B-3e16: this repository maintains TWO separate test-surface lists, and a new task can typecheck and appear wired up while running in neither. Measured on this branch: lattice.config.json validate.commands holds 116 entries of which 62 are smoke tasks registered explicitly as 'node packages/main/dist/tasks/<name>-smoke.js', while package.json test:serial-reference holds 56 parts of which 14 are smoke entries registered as 'npm run test:<name>-smoke'. validate.commands already runs 'npm --prefix packages/graph run check', but test:serial-reference currently contains NO graph entry at all. So the CHK-003 smoke task must be registered by hand in validate.commands, given an npm script alias in package.json, and added to test:serial-reference; membership in one list never implies membership in the other.",
+      "relatedDocs": [
+        "docs/requirements/decisions/graph-command-migration.md",
+        "lattice.config.json"
+      ],
+      "userSees": "The new smoke task name appears in lattice.config.json, in a package.json script and in test:serial-reference, and running that npm script executes the task and exits 0",
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-09-02T09:04:02.205Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "the new smoke task is registered in lattice.config.json validate.commands using the node packages/main/dist/tasks/<name>-smoke.js form",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const t=\\\"packages/main/dist/tasks/graph-story-flag-smoke.js\\\";const hit=c.validate.commands.filter(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(t));if(hit.length!==1){console.error(\\\"FAIL validate.commands matches=\\\"+hit.length);process.exit(1);}console.log(\\\"SELECTOR_VALIDATE_COMMANDS_REGISTERED\\\");\"",
+              "selector": "SELECTOR_VALIDATE_COMMANDS_REGISTERED"
+            }
+          },
+          {
+            "desc": "package.json exposes an npm script for the task and test:serial-reference invokes it",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const s=p.scripts[\\\"test:graph-story-flag-smoke\\\"];const parts=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim());const inSR=parts.includes(\\\"npm run test:graph-story-flag-smoke\\\");if(s!==\\\"node packages/main/dist/tasks/graph-story-flag-smoke.js\\\"||!inSR){console.error(\\\"FAIL script=\\\"+s+\\\" inSerialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE\\\");\"",
+              "selector": "SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "running the new npm script executes the task and exits 0",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "npm run test:graph-story-flag-smoke",
+              "selector": "graph --story smoke passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "the task is registered in BOTH surfaces, so membership in one list is never mistaken for coverage by the other",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const fs=require(\\\"fs\\\");const t=\\\"graph-story-flag-smoke\\\";const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const inValidate=c.validate.commands.some(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(\\\"packages/main/dist/tasks/\\\"+t+\\\".js\\\"));const inScripts=p.scripts[\\\"test:\\\"+t]===\\\"node packages/main/dist/tasks/\\\"+t+\\\".js\\\";const inSR=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim()).includes(\\\"npm run test:\\\"+t);if(!(inValidate&&inScripts&&inSR)){console.error(\\\"FAIL validate.commands=\\\"+inValidate+\\\" scripts=\\\"+inScripts+\\\" serialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_BOTH_SURFACES_REGISTERED\\\");\"",
+              "selector": "SELECTOR_BOTH_SURFACES_REGISTERED"
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "package.json"
+        ],
+        "create": [],
+        "test": []
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "file": "lattice.config.json",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const t=\\\"packages/main/dist/tasks/graph-story-flag-smoke.js\\\";const hit=c.validate.commands.filter(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(t));if(hit.length!==1){console.error(\\\"FAIL validate.commands matches=\\\"+hit.length);process.exit(1);}console.log(\\\"SELECTOR_VALIDATE_COMMANDS_REGISTERED\\\");\"",
+          "result": "pass",
+          "note": "Parses lattice.config.json and asserts exactly one validate.commands entry is command=node with args containing packages/main/dist/tasks/graph-story-flag-smoke.js. Structural, not a grep: a mention in a comment or a differently-shaped entry would not satisfy it. Negative control: removing the entry makes it exit 1 with FAIL validate.commands matches=0.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "52abbb94bdd8358c1f5cdfc2ec433b9ce1d53914a5c8e8d5aad5c64d6d52d5f7",
+            "outputTail": "SELECTOR_VALIDATE_COMMANDS_REGISTERED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:38.661Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "integration_test",
+          "file": "package.json",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const s=p.scripts[\\\"test:graph-story-flag-smoke\\\"];const parts=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim());const inSR=parts.includes(\\\"npm run test:graph-story-flag-smoke\\\");if(s!==\\\"node packages/main/dist/tasks/graph-story-flag-smoke.js\\\"||!inSR){console.error(\\\"FAIL script=\\\"+s+\\\" inSerialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE\\\");\"",
+          "result": "pass",
+          "note": "Asserts scripts[test:graph-story-flag-smoke] has the exact expected body AND that test:serial-reference, split on &&, contains npm run test:graph-story-flag-smoke as a member. Splitting on && is what makes it real membership rather than a substring hit anywhere in the long line. Negative control: stripping both makes it exit 1 with FAIL script=undefined inSerialReference=false.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b80ee53734cb7942c0ba46fd60e70be9bd5e4a5c72cca9aa002469cf2bd8acfd",
+            "outputTail": "SELECTOR_PACKAGE_JSON_SCRIPT_AND_SERIAL_REFERENCE\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:39.034Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/graph-story-flag-smoke.ts",
+          "command": "npm run test:graph-story-flag-smoke",
+          "result": "pass",
+          "note": "Runs the task through the npm script alias registered by this item, proving the alias resolves and the task executes rather than merely being declared. Exits 0 and prints the task pass line in about 2 seconds.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "44818796cfcaf88701332d0f6a24a0662b0c7c6df7d1ea7362cfb4d15f575060",
+            "outputTail": "\n> proof-or-stop@0.3.273 test:graph-story-flag-smoke\n> node packages/main/dist/tasks/graph-story-flag-smoke.js\n\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-3yfNUx (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-3yfNUx (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/graph-story-flag-3yfNUx (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n✓ graph --story smoke passed: known id deep-links, unknown id refused before listening, schema bypass still refused, no --story unchanged, ids encoded\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:47.363Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "file": "lattice.config.json",
+          "command": "node -e \"const fs=require(\\\"fs\\\");const t=\\\"graph-story-flag-smoke\\\";const c=JSON.parse(fs.readFileSync(\\\"lattice.config.json\\\",\\\"utf8\\\"));const p=JSON.parse(fs.readFileSync(\\\"package.json\\\",\\\"utf8\\\"));const inValidate=c.validate.commands.some(e=>e&&typeof e===\\\"object\\\"&&e.command===\\\"node\\\"&&(e.args||[]).includes(\\\"packages/main/dist/tasks/\\\"+t+\\\".js\\\"));const inScripts=p.scripts[\\\"test:\\\"+t]===\\\"node packages/main/dist/tasks/\\\"+t+\\\".js\\\";const inSR=String(p.scripts[\\\"test:serial-reference\\\"]).split(\\\"&&\\\").map(x=>x.trim()).includes(\\\"npm run test:\\\"+t);if(!(inValidate&&inScripts&&inSR)){console.error(\\\"FAIL validate.commands=\\\"+inValidate+\\\" scripts=\\\"+inScripts+\\\" serialReference=\\\"+inSR);process.exit(1);}console.log(\\\"SELECTOR_BOTH_SURFACES_REGISTERED\\\");\"",
+          "result": "pass",
+          "note": "Checks BOTH separately-maintained surfaces in one shot and fails if either is missing, which is the trap this item exists for: the two lists are not subset-checked against each other. Decisive negative control: with lattice.config.json registered but package.json not, it exits 1 with FAIL validate.commands=true scripts=false serialReference=false, so membership in one list can never be mistaken for coverage by the other.",
+          "headHash": "c1b3403be104b565413b9dd01b0b034471f75b37",
+          "materialHash": "3f9541ff55a8b5d4986e23f558118c33a7c2cc68a936591b57b7fff41b2cd2ed",
+          "storyFilesHash": "022146876ac20c02c18cf8c8a6b8b709662842b9f43cdc45ca4b75191de08978",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "65158fe83504cafcdeb7c2238d051ddfc83b629b826e67a7615f19157248539a",
+            "outputTail": "SELECTOR_BOTH_SURFACES_REGISTERED\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-03T06:49:48.102Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-03T06:49:48.475Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "996c95e474d650b1f5c62a7280df891b8ff2f19148c6b0aed07102afcf10cde7",
+        "storyFilesHash": "99495d7143b937b087032ec3be79d5a088e963650870ff223ca2d1362712d11a",
+        "headHash": "3f15328a0dbfe0c51edc542af6ec41e34e36028f",
+        "attestedAt": "2026-09-02T09:04:02.453Z",
+        "materialHash": "4809fbe4c985a1e819039da620e67fc0ebac011dccf9f1667bff6ef7a872d019"
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-09-02T08:22:56.265Z",
+      "phase": "PLAN",
+      "itemId": "CHK-005",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "The PLAN scope reviewer identified an uncovered requirement from docs/requirements/decisions/graph-command-migration.md: a new smoke task wired into neither test surface would pass tsc and look covered while never actually executing. No existing checklist item claims that wiring.",
+      "addedTitle": "Wire the new graph smoke task into the repository test surfaces",
+      "addedContext": "Closes the gap raised by the PLAN scope review. graph-command-migration.md records this as a non-obvious trap from B-3e16: this repository maintains TWO separate test-surface lists, and a new task can typecheck and appear wired up while running in neither. Measured on this branch: lattice.config.json validate.commands holds 116 entries of which 62 are smoke tasks registered explicitly as 'node packages/main/dist/tasks/<name>-smoke.js', while package.json test:serial-reference holds 56 parts of which 14 are smoke entries registered as 'npm run test:<name>-smoke'. validate.commands already runs 'npm --prefix packages/graph run check', but test:serial-reference currently contains NO graph entry at all. So the CHK-003 smoke task must be registered by hand in validate.commands, given an npm script alias in package.json, and added to test:serial-reference; membership in one list never implies membership in the other."
+    }
+  ]
+}

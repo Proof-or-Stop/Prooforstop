@@ -54,6 +54,17 @@ export interface ProofAdmissibilityConfig {
   highRiskConsumers?: Array<'DONE_REQUIRED' | 'REVIEW' | 'HANDOFF' | 'AUTHORITY_GATE_DECISION'>;
 }
 
+export type DynamicValidationModeConfig = 'off' | 'observe' | 'shadow' | 'enforce-low-risk';
+
+export interface DynamicValidationPolicyDefaults {
+  assurance?: string;
+  riskTier?: string;
+  closurePolicy?: string;
+  fullBaselineReusePolicy?: string;
+  cpuWeight?: number;
+  expectedP50Ms?: number;
+}
+
 export interface ReproFirstPreflightConfig {
   mode?: 'off' | 'warn' | 'enforce';
 }
@@ -157,18 +168,31 @@ export interface ProofOrStopConfig {
   requirementsDir: string;
   /** Approved reviewer and Story-6 complex-role rollouts. Missing roles remain byte-exact legacy-full-context. */
   promptEnvelope?: {
-    version?: 'proofbound.prompt-envelope-rollout.v1';
+    version?: 'proof-or-stop.prompt-envelope-rollout.v1' | 'proofbound.prompt-envelope-rollout.v1';
     roles?: Partial<Record<
       | 'proof-or-stop-review-behavior'
       | 'proof-or-stop-review-concept'
       | 'proof-or-stop-review-docs'
       | 'proof-or-stop-review-quality'
       | 'proof-or-stop-review-test-coverage'
+      | 'proof-or-stop-review-topology-critic'
       | 'proof-or-stop-review-story-init'
       | 'proof-or-stop-review-scope-plan'
       | 'proof-or-stop-implementer'
       | 'proof-or-stop-review-delivery'
-      | 'proof-or-stop-evaluator',
+      | 'proof-or-stop-evaluator'
+      // Deprecated keys remain readable for pre-migration configurations.
+      | 'lattice-review-behavior'
+      | 'lattice-review-concept'
+      | 'lattice-review-docs'
+      | 'lattice-review-quality'
+      | 'lattice-review-test-coverage'
+      | 'lattice-review-topology-critic'
+      | 'lattice-review-story-init'
+      | 'lattice-review-scope-plan'
+      | 'lattice-implementer'
+      | 'lattice-review-delivery'
+      | 'lattice-evaluator',
       'legacy-full-context' | 'full-envelope'
     >>;
   };
@@ -204,6 +228,10 @@ export interface ProofOrStopConfig {
   /** 项目级验证命令；没有 validate.ts/js 时由 proof-or-stop validate 使用 */
   validate?: {
     command?: string;
+    dynamic?: {
+      mode?: DynamicValidationModeConfig;
+      policyDefaults?: DynamicValidationPolicyDefaults;
+    };
     commands?: Array<string | {
       label?: string;
       command: string;
@@ -216,6 +244,8 @@ export interface ProofOrStopConfig {
       focus?: string[] | string;
     }>;
   };
+  /** Legacy config alias accepted by the verifier for dynamic validation. */
+  validation?: ProofOrStopConfig['validate'];
   /**
    * Opt-in DONE-required validation commands. Missing config is advisory only;
    * malformed opted-in config is consumed by the DONE gate as fail-closed.
@@ -325,6 +355,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'init_preflight', // B-62c8: read-only INIT→INIT_CHECK prerequisite surveyor; lists ALL prerequisites at once (vs story_advance fail-fast) + echoes the authoritative scope gate verdict; no command execution or evidence writes
     'evidence_plan', // B-09e7 (P3): read-only verification-evidence DRY planner (missing/rerun/refresh-only/fresh); no command execution or evidence writes
     'reviewer_batch', // P7: read-only reviewer-launcher PLAN producer; per-lane current-pass/scope-changed/no-receipt/blocking classification + Agent(...) launch instruction (orchestrator subagent-spawn form, not a dispatch CLI command); launches no reviewer, runs no review_run_start, writes no evidence
+    'review_run_list', // read-only compact signed ReviewRun recovery/inspection; never emits prompt bytes or writes review evidence
     'evidence_refresh', // B-4896 (P4): opt-in one-pass refresh-only orchestrator; dry default read-only, --apply re-stamps once via verification_evidence_refresh_stale; never runs a command
     'live_smoke_transcript', // B-9b5e (P5): live-smoke transcript producer; read-only status default, --capture runs ONLY the provided command, --write persists the artifact (ownership-gated); independent opt-ins
     'delivery_context_pack', // P6: delivery-review context PRODUCER (not a signer); read-only pack default, --write persists the pack artifact (ownership-gated); consumes the V1 deliveryCheckRef, never writes delivery-check.json or accepts a waiver
@@ -338,6 +369,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
     'status',        // 全局：项目全貌（story 进度 + 代码验证）
+    'graph',         // B-3e16: read-only story + evidence graph visualizer; reads story state in any phase, writes its index cache outside the repo
     'doctor',        // 全局：health 巡检，任何阶段都可以查
     'done_recover',  // 全局：显式恢复 partial-DONE（先检查 main clean / merge-tree）
     'check',         // 全局：Proof-or-Stop 管理资产/模板漂移检查；--apply/--upgrade 显式同步安全项
@@ -508,7 +540,15 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
   ],
   REVIEW: [
     'candidate_spec_route', // B-8038: current-diff rerouting for reviewer lanes
+    // B-3f3d: deadlock break. A scope-contract change during REVIEW staleness-invalidates the
+    // acceptance basis -> topology critic receipt is refused -> review-inventory cannot finalize
+    // -> REVIEW->DEV is refused -> the basis can never be regenerated. PLAN is unreachable from
+    // REVIEW (REPLAN belongs to DEV), so REVIEW is the only place left to repair it. Safe because
+    // the basis signature covers structural bindings only (scope-contract digest, closure files
+    // hash, story files hash) and never reviewer verdicts, so it cannot launder a review pass.
+    'acceptance_basis_generate',
     'review_run_start',
+    'review_inventory_begin', 'review_inventory_status', 'review_inventory_critic_set', 'review_inventory_wave_advance', 'review_inventory_finalize', 'review_inventory_cancel',
     'finding_add', 'finding_list', 'finding_resolve', 'finding_dismiss',
     'review_pass_set',
     'understanding_get', 'decision_get',

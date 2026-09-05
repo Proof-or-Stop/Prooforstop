@@ -574,7 +574,7 @@ assert.equal(isCommandAllowed('lifecycle_orchestrate', 'DONE', DEFAULT_PHASE_TOO
     // The composed reviewerBatch section is the prior layer's read-only output.
     assert.equal(report.sections.reviewerBatch!.storyId, REVIEW_STORY_ID, 'reviewerBatch section is for the story');
     assert.ok(
-      report.sections.reviewerBatch!.lanes.some((lane) => lane.lane === 'behavior'),
+      report.sections.reviewerBatch!.lanes.some((lane) => lane.lane === 'proof-or-stop-review-behavior'),
       'reviewerBatch composes the active behavior lane',
     );
 

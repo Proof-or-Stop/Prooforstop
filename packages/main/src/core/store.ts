@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
 import { dirname, join } from 'path';
 import type {
   StoryInfo, ChecklistData, BugData, TestEvidenceData, ReviewData,
@@ -17,6 +17,7 @@ import type {
   PreReviewCheckArtifactV1,
   AcceptanceRolloutArtifactV1,
   TopologyCriticReceiptV1, TopologyExclusionApprovalsDataV1,
+  CausalEvidenceReceipt,
 } from './types.js';
 import type { RedTargetBindingsFile } from './red-evidence/target-bindings.js';
 import {
@@ -31,6 +32,7 @@ import type { MilestoneCloseoutSnapshot } from './milestone-status.js';
 import type { CandidateSpecSetArtifact } from './candidate-spec-routing.js';
 import { appendProcessEvent as appendProcessEventFn, readProcessEvents as readProcessEventsFn } from './process-events.js';
 import { storyRuntimeLockPath } from './validation-execution-lock.js';
+import { acquireMkdirLock, withMkdirLock } from './mkdir-lock.js';
 import { loadConfig } from './config.js';
 import { LEGACY_DOCS_STORY_DIR, PROOF_OR_STOP_STORY_DIR_NAMES, uniqueRelPaths } from './proof-or-stop-paths.js';
 import { normalizeLegacyPhase, phaseRank } from './phase-flow.js';
@@ -45,6 +47,13 @@ import {
   emptyReviewInventoryEpochData,
   type ReviewInventoryEpochData,
 } from './review-inventory-epoch.js';
+import {
+  CAUSAL_RECEIPT_DIRECTORY,
+  CAUSAL_RECEIPT_INDEX_FILE,
+  causalDigest,
+  computeCausalReceiptHash,
+  verifyCausalEvidenceReceipt,
+} from './causal-evidence.js';
 
 type JsonCandidate<T> = {
   filePath: string;
@@ -52,6 +61,11 @@ type JsonCandidate<T> = {
 };
 
 type LegacyReceiptRefDocument = Record<string, unknown>;
+
+const causalEvidenceFlights = new Map<string, Promise<unknown>>();
+const CAUSAL_EVIDENCE_LOCK_STALE_MS = 120_000;
+const CAUSAL_EVIDENCE_LOCK_DEADLINE_MS = 7_260_000;
+const CAUSAL_EVIDENCE_LOCK_HEARTBEAT_MS = 2_000;
 
 class StoryArtifactMissingError extends Error {
   constructor(message: string) {
@@ -303,6 +317,153 @@ export class StoryStore {
 
   writeTestEvidence(storyId: string, data: TestEvidenceData): void {
     this.writeJson(storyId, 'test-evidence.json', data);
+  }
+
+  // ── CausalEvidence CAS receipts ──
+  // Receipts are runtime-owned story artifacts. They are addressed by the
+  // immutable receipt hash, while the small index maps an exact execution key
+  // to that address. A different payload can never replace either address.
+  causalEvidenceReceiptPath(storyId: string, receiptHash: string): string {
+    return join(this.storyDir(storyId), CAUSAL_RECEIPT_DIRECTORY, `${receiptHash}.json`);
+  }
+
+  private recoverOrphanedCausalEvidenceReceipt(
+    storyId: string,
+    executionKey: string,
+  ): CausalEvidenceReceipt | null {
+    const receiptsDir = this.storyFilePath(storyId, CAUSAL_RECEIPT_DIRECTORY);
+    if (!existsSync(receiptsDir)) return null;
+
+    const matches: CausalEvidenceReceipt[] = [];
+    for (const entry of readdirSync(receiptsDir, { withFileTypes: true })) {
+      if (!entry.isFile() || !entry.name.endsWith('.json')) continue;
+      const receiptHash = entry.name.slice(0, -'.json'.length);
+      try {
+        const receipt = JSON.parse(readFileSync(join(receiptsDir, entry.name), 'utf8')) as CausalEvidenceReceipt;
+        if (
+          receipt.receiptHash === receiptHash
+          && receipt.reusable
+          && verifyCausalEvidenceReceipt(receipt, executionKey)
+        ) {
+          matches.push(receipt);
+        }
+      } catch {
+        // Ignore unrelated or incomplete orphan files; only a valid, exact CAS
+        // receipt can be promoted back into the execution-key index.
+      }
+    }
+
+    if (matches.length === 0) return null;
+    if (matches.length > 1) {
+      throw new Error(`Multiple CausalEvidence receipts match execution key ${executionKey} [causal_receipt_ambiguous]`);
+    }
+
+    // An index write can fail after the immutable receipt write succeeds. Reuse
+    // that exact receipt and rebuild only its missing index entry before the
+    // caller decides whether a command needs to run.
+    const [receipt] = matches;
+    this.writeCausalEvidenceReceipt(storyId, receipt);
+    return receipt;
+  }
+
+  readCausalEvidenceReceipt(storyId: string, executionKey: string): CausalEvidenceReceipt | null {
+    const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
+    if (!existsSync(indexPath)) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey);
+    const index = JSON.parse(readFileSync(indexPath, 'utf8')) as { receipts?: Record<string, string> };
+    const receiptHash = index.receipts?.[executionKey];
+    if (!receiptHash) return this.recoverOrphanedCausalEvidenceReceipt(storyId, executionKey);
+    const receiptPath = this.causalEvidenceReceiptPath(storyId, receiptHash);
+    if (!existsSync(receiptPath)) throw new Error(`CausalEvidence receipt ${receiptHash} is missing [causal_receipt_missing]`);
+    const receipt = JSON.parse(readFileSync(receiptPath, 'utf8')) as CausalEvidenceReceipt;
+    if (receipt.receiptHash !== receiptHash || !verifyCausalEvidenceReceipt(receipt, executionKey)) {
+      throw new Error(`CausalEvidence receipt ${receiptHash} failed integrity validation [causal_receipt_tampered]`);
+    }
+    return receipt;
+  }
+
+  /**
+   * Serialize one reusable execution key across requests and Store instances.
+   * The process-local flight prevents a synchronous mkdir waiter from blocking
+   * the event loop when two requests share this process; the durable lock keeps
+   * separate processes from launching the same child concurrently.
+   */
+  async withCausalEvidenceExecution<T>(
+    storyId: string,
+    executionKey: string,
+    fn: () => Promise<T>,
+  ): Promise<T> {
+    const lockPath = this.runtimeLockDirPath(
+      storyId,
+      'causal-evidence',
+      `key-${causalDigest(executionKey)}`,
+    );
+    const existingFlight = causalEvidenceFlights.get(lockPath);
+    if (existingFlight) return await (existingFlight as Promise<T>);
+
+    const flight = Promise.resolve().then(async () => {
+      const lock = acquireMkdirLock(lockPath, {
+        label: `causal evidence ${storyId}`,
+        staleMs: CAUSAL_EVIDENCE_LOCK_STALE_MS,
+        deadlineMs: CAUSAL_EVIDENCE_LOCK_DEADLINE_MS,
+      });
+      const heartbeat = setInterval(() => {
+        try {
+          const now = new Date();
+          utimesSync(lock.lockDir, now, now);
+        } catch {
+          /* The lock remains authoritative; heartbeat is stale-reclaim liveness. */
+        }
+      }, CAUSAL_EVIDENCE_LOCK_HEARTBEAT_MS);
+      heartbeat.unref?.();
+      try {
+        return await fn();
+      } finally {
+        clearInterval(heartbeat);
+        lock.release();
+      }
+    });
+    causalEvidenceFlights.set(lockPath, flight);
+    try {
+      return await flight as T;
+    } finally {
+      if (causalEvidenceFlights.get(lockPath) === flight) causalEvidenceFlights.delete(lockPath);
+    }
+  }
+
+  writeCausalEvidenceReceipt(storyId: string, receipt: CausalEvidenceReceipt): void {
+    if (!verifyCausalEvidenceReceipt(receipt)) {
+      throw new Error('CausalEvidence receipt refused: invalid or partial receipt [causal_receipt_invalid]');
+    }
+    const indexLockPath = this.runtimeLockDirPath(storyId, 'causal-evidence-index', 'receipts');
+    withMkdirLock(indexLockPath, () => {
+      const indexPath = this.storyFilePath(storyId, CAUSAL_RECEIPT_INDEX_FILE);
+      let index: { schemaVersion: 'proofbound.causal-evidence-index.v1'; receipts: Record<string, string> } = {
+        schemaVersion: 'proofbound.causal-evidence-index.v1',
+        receipts: {},
+      };
+      if (existsSync(indexPath)) index = JSON.parse(readFileSync(indexPath, 'utf8')) as typeof index;
+      const priorHash = index.receipts[receipt.executionKey];
+      if (priorHash && priorHash !== receipt.receiptHash) {
+        throw new Error(`CausalEvidence execution key ${receipt.executionKey} already points to ${priorHash}; refusing overwrite [causal_receipt_overwrite]`);
+      }
+      const receiptPath = this.causalEvidenceReceiptPath(storyId, receipt.receiptHash);
+      const serialized = JSON.stringify(receipt, null, 2) + '\n';
+      if (existsSync(receiptPath)) {
+        const priorBytes = readFileSync(receiptPath, 'utf8');
+        if (priorBytes !== serialized) {
+          throw new Error(`CausalEvidence CAS address ${receipt.receiptHash} contains different bytes [causal_receipt_collision]`);
+        }
+      } else {
+        this.writeJsonFile(receiptPath, receipt);
+      }
+      index.receipts[receipt.executionKey] = receipt.receiptHash;
+      this.writeJsonFile(indexPath, index);
+      // Defensive check: the in-memory receipt hash is the same address that was
+      // written, and future callers cannot accidentally persist a re-hashed row.
+      if (computeCausalReceiptHash(receipt) !== receipt.receiptHash) {
+        throw new Error('CausalEvidence receipt hash changed during persistence [causal_receipt_hash_drift]');
+      }
+    }, { label: `causal evidence index ${storyId}` });
   }
 
   readDoneRequiredEvidence(storyId: string): DoneRequiredEvidenceData | null {

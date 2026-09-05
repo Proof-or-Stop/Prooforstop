@@ -109,6 +109,9 @@ const isolated = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resource
   ({ name, resources: [], tempOwnership: 'runner-owned-unique', ...options });
 const repoRead = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}, extra: ResourceClaim[] = []): FullSuiteEntry =>
   ({ name, resources: [{ class: 'git-common-dir', key: '.', access: 'shared' }, ...extra], tempOwnership: 'runner-owned-unique', ...options });
+const heavySmokeClaim = (): ResourceClaim => ({ class: 'fixed-path', key: stateDirKey('runtime', 'full-suite-heavy'), access: 'exclusive' });
+const isolatedHeavy = (name: string, options: Omit<FullSuiteEntry, 'name' | 'resources' | 'tempOwnership'> = {}): FullSuiteEntry =>
+  ({ ...isolated(name, options), resources: [heavySmokeClaim()] });
 
 // Resource policy is intentionally separate from membership authority. Membership
 // comes only from test:serial-reference; a later reference member without a policy
@@ -146,15 +149,46 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   // aborts the entire suite rather than just skipping them. Both only read the repo and
   // spawn no CLI, so repoRead is correct.
   repoRead('test:topology-signing-source-guard'), repoRead('test:signing-guard-mutation-proof'),
+  // B-9f2c: added to test:serial-reference by this story. RESOURCE_POLICY is a THIRD
+  // membership authority beyond root package.json's test:serial-reference and
+  // lattice.config.json's validate.commands -- entriesFromSerialReference fails closed
+  // on any serial-reference member with no policy entry, aborting the whole suite rather
+  // than skipping the member, so this entry is mandatory rather than optional. The task
+  // only reads the repo and spawns the CLI against temporary directories; it binds no
+  // port and holds no lock (it asserts the OPPOSITE -- that an unknown --story id is
+  // refused BEFORE any listener is created), so the plain repoRead policy is correct.
+  repoRead('test:graph-story-flag-smoke'),
   isolated('test:review-convergence-smoke'), isolated('test:review-loop-smoke'), isolated('test:delivery-context-pack-smoke'),
-  isolated('test:flow-stability-smoke', { timeoutMs: 300_000, priority: 850 }), isolated('test:review-assurance-floor-smoke'),
-  isolated('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
+  // The validation-failure checklist seed makes this smoke execute the real
+  // configured gate path. Its standalone runtime is now ~392s on the
+  // reference host, so retain parallel scheduling with a bounded 450s cap
+  // (675s after the normal concurrency headroom factor).
+  isolatedHeavy('test:flow-stability-smoke', { timeoutMs: 450_000, priority: 850 }), isolated('test:review-assurance-floor-smoke'),
+  // The intent-hardening smoke also launches a high-fan-out set of CLI child
+  // processes and shares the same process/temporary-repository pressure as the
+  // acceptance rollout.  Keep it behind the canonical heavy-smoke exclusion so
+  // either member cannot overlap the other under the default two-worker
+  // scheduler and lose child receipts to resource exhaustion.
+  isolatedHeavy('test:proofstory-intent-hardening-smoke', { timeoutMs: 300_000, priority: 900 }),
   isolated('test:scope-shrinkage-withdrawal-floor-smoke'), isolated('test:withdrawn-disposition-smoke'),
-  isolated('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
-  isolated('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
+  isolatedHeavy('test:milestone-status', { priority: 700 }), repoRead('test:global-core-realpath'),
+  // Incremental-context coverage also creates multiple validation/review
+  // subprocesses and temporary Story state.  Serialize it with the other
+  // heavy fan-out members to keep child receipts deterministic under the
+  // default two-worker scheduler.
+  isolatedHeavy('test:review-incremental-context-smoke', { timeoutMs: 180_000, priority: 800 }),
   isolated('test:review-assurance-floor-storyfileshash-smoke'), isolated('test:docs-drift-smoke'),
   isolated('test:docs-drift-wrapper-root'), isolated('test:gitroot-cwd-contract'), repoRead('test:process-fact-contract'),
   isolated('test:closeout-trust'),
+  // B-5a15:F-402. RESOURCE_POLICY is a SECOND membership authority alongside
+  // test:serial-reference (see the note above: "a member without a policy entry
+  // fails closed (unknownPolicy) before execution"). Registering the previously
+  // orphaned verifier-causal-preflight smoke in the chain without adding it here
+  // made entriesFromSerialReference throw `unknownPolicy` in main() before any
+  // test executed -- breaking the canonical `npm test` entry point outright, which
+  // is also PRECERT_TEST_IDENTITY. isolated() because the smoke spawns real CLI
+  // child processes against git fixtures in temp dirs, same shape as its neighbour.
+  isolated('test:verifier-causal-preflight'),
   repoRead('test:runtime-fact-contract', {}, [{ class: 'runtime-lock', key: stateDirKey('runtime'), access: 'shared' }]),
   repoRead('test:evidence-quality'), repoRead('test:anti-stall'), isolated('test:storydir-inside-gitroot-smoke'),
   isolated('test:gitroot-cwd-routing'), isolated('test:bare-gate-gitroot-cwd'), isolated('test:project-gitroot-cwd'),
@@ -164,9 +198,12 @@ const RESOURCE_POLICY: Record<string, FullSuiteEntry> = Object.fromEntries([
   isolated('test:experience-hint-worktree-cache'), isolated('test:done-merge-experience-refresh'),
   isolated('test:experience-coverage-gap'), isolated('test:nested-worktree-bootstrap'),
   isolated('test:e2e', { timeoutMs: 180_000 }), isolated('test:experience-arm-gate'),
-  isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { priority: 600 }),
+  // This smoke exercises a large CLI-output matrix and measures ~397s
+  // standalone on the reference host; keep the budget explicit rather than
+  // letting the default 120s cap turn it into a scheduler false negative.
+  isolated('test:experience-arm-isolation-e2e'), isolated('test:brief-output', { timeoutMs: 450_000, priority: 600 }),
   isolated('test:experiments', { priority: 500 }), isolated('test:convergence-breaker'),
-  isolated('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
+  isolatedHeavy('test:proofstory-acceptance-rollout', { timeoutMs: 300_000, priority: 1000 }),
   // B-a745 CHK-006: the Story 1 fixture suite. Membership authority is the root
   // test:serial-reference chain; this policy row is the SEPARATE mandatory mapping and
   // its absence fails the whole suite closed as unknownPolicy rather than skipping the
@@ -382,12 +419,15 @@ export function isUnderFullSuiteBudget(durationMs: number): boolean {
  * 161-164s standalone to 321.5s.
  *
  * Measured on the same machine at jobs=2: 49/49 passed, every entry inside its
- * cap, 832.8s wall clock. Budgeting one job per four logical CPUs reproduces
- * that (10 -> 2) and still scales up on a larger CI host, capped at the former
- * default of 4 so this can only reduce oversubscription, never introduce it.
+ * cap, 832.8s wall clock. The heavy smokes have enough internal fan-out that
+ * hosts up to 12 logical CPUs must stay at two workers; larger CI hosts can
+ * scale back toward one job per four logical CPUs, capped at the former
+ * default of 4.
  */
 export function defaultJobs(cpuCount: number = availableParallelism()): number {
-  return Math.max(1, Math.min(4, Math.floor(cpuCount / 4)));
+  const onePerFour = Math.floor(cpuCount / 4);
+  const hostCap = cpuCount <= 12 ? 2 : 4;
+  return Math.max(1, Math.min(hostCap, onePerFour));
 }
 
 export function shouldEnforceFullSuiteBudget(jobs: number): boolean {

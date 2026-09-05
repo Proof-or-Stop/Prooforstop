@@ -1,3 +1,4 @@
+import { parseLegacyValidationCommandString } from './validation-command-identity.js';
 import { createHash } from 'node:crypto';
 import { realpathSync } from 'node:fs';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
@@ -23,20 +24,37 @@ import {
 } from './proof-admissibility-gates.js';
 import { buildRoutineValidationIdentity } from './validation-evidence-reuse.js';
 import { digestCanonicalJson } from './digest.js';
-import { parseLegacyValidationCommandString } from './validation-command-identity.js';
 import {
   CODE_RUNTIME_ENVIRONMENT_DESCRIPTOR_ID,
   evaluateEvidenceEnvironmentGateProjection,
   projectDoneRequiredReceiptToEnvironment,
 } from './evidence/environment-contract.js';
+import {
+  DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
+  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1,
+  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2,
+  DONE_REQUIRED_EVIDENCE_SCHEMA,
+  DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY,
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
+  isDoneRequiredCommandSpecV2Schema,
+  isDoneRequiredEvidenceSchema,
+} from './artifact-schema.js';
+
+export {
+  DONE_REQUIRED_COMMAND_SPEC_SCHEMA,
+  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1,
+  DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2,
+  DONE_REQUIRED_EVIDENCE_SCHEMA,
+  DONE_REQUIRED_EVIDENCE_SCHEMA_LEGACY,
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA,
+  DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
+};
 
 export const DONE_REQUIRED_EVIDENCE_FILE = 'done-required-evidence.json';
-export const DONE_REQUIRED_EVIDENCE_SCHEMA = 'proofOrStop.done-required-evidence' as const;
 export const DONE_REQUIRED_EVIDENCE_VERSION = 1 as const;
 // v2 digests a repo-root-RELATIVE logical cwd (worktree/host portable). v1
 // digested an ABSOLUTE cwd and is still accepted for pre-existing receipts.
-export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA = 'lattice.command-spec.v2' as const;
-export const DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V1 = 'lattice.command-spec.v1' as const;
 
 const OUTPUT_TAIL_CHARS = 4000;
 const PACKAGES_MAIN_BUILD_PROOF = 'packages-main-build' as const;
@@ -488,7 +506,7 @@ function repoRelativeLogicalCwd(projectRoot: string, cwd?: string): string {
  */
 function receiptLogicalCwd(projectRoot: string, receipt: DoneRequiredCommandReceipt): string {
   const spec = receipt.commandSpec;
-  if (spec && spec.schema === DONE_REQUIRED_COMMAND_SPEC_SCHEMA && typeof spec.cwd === 'string') {
+  if (spec && isDoneRequiredCommandSpecV2Schema(spec.schema) && typeof spec.cwd === 'string') {
     return spec.cwd;
   }
   const physical = typeof receipt.cwd === 'string' && receipt.cwd ? receipt.cwd : projectRoot;
@@ -610,6 +628,12 @@ export function validateCommandSpecDigestCoverage(
       command,
       executedShape,
     );
+    // The v2 digest excludes the schema label.  This lets an old v2 receipt
+    // verify without treating its historical lattice label as a new write.
+    const expectedLegacyV2: DoneRequiredCommandSpecEnvelope = {
+      ...expectedNew,
+      schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2,
+    };
     // The LEGACY v1 branch keeps absolute-cwd reconstruction — that IS correct for
     // v1 receipts, which digested an absolute cwd and were never cross-root portable.
     const expectedLegacy = buildLegacyAbsoluteCwdCommandSpecEnvelope(projectRoot, command, executedShape);
@@ -630,7 +654,9 @@ export function validateCommandSpecDigestCoverage(
     // MIGRATION: accept a receipt whose stored envelope matches EITHER the new
     // portable v2 relative-cwd digest OR the legacy v1 absolute-cwd digest, so
     // pre-existing receipts still verify without hard-failing legacy evidence.
-    if (!matchesEnvelope(expectedNew) && !matchesEnvelope(expectedLegacy)) {
+    if (!matchesEnvelope(expectedNew)
+      && !matchesEnvelope(expectedLegacyV2)
+      && !matchesEnvelope(expectedLegacy)) {
       mismatch = true;
       reasons.push(`command-spec-digest-mismatch[${i}]: ${receipt.label}`);
     }
@@ -736,7 +762,22 @@ function validateDoneRequiredEvidenceEnvironmentProjection(
   for (let i = 0; i < evidence.receipts.length; i++) {
     const commandReceipt = evidence.receipts[i];
     try {
-      const projected = projectDoneRequiredReceiptToEnvironment(commandReceipt, {
+      // The evidence-environment adapter predates this story and only knows
+      // the historical v2 label.  Its normalized command identity excludes
+      // the schema label, so bridge the canonical label locally without
+      // changing the stored receipt or teaching that out-of-scope adapter to
+      // rewrite artifacts.  Unknown schemas still go through unchanged and
+      // fail closed there.
+      const adapterReceipt = commandReceipt.commandSpec?.schema === DONE_REQUIRED_COMMAND_SPEC_SCHEMA
+        ? {
+            ...commandReceipt,
+            commandSpec: {
+              ...commandReceipt.commandSpec,
+              schema: DONE_REQUIRED_COMMAND_SPEC_SCHEMA_LEGACY_V2,
+            },
+          }
+        : commandReceipt;
+      const projected = projectDoneRequiredReceiptToEnvironment(adapterReceipt, {
         invocationId: `done-required:${i}:${commandReceipt.commandSpec?.digest ?? 'missing'}`,
         subjectId: evidence.storyId,
         subjectDigest,
@@ -753,7 +794,10 @@ function validateDoneRequiredEvidenceEnvironmentProjection(
         consumer: 'DONE_REQUIRED',
         claim: 'done-readiness',
         checks: {
-          schemaVersion: 'lattice.done_required_evidence.v1',
+          // The environment classifier is a legacy, out-of-scope consumer;
+          // keep its non-persistent diagnostic input on the exact historical
+          // label while the evidence artifact itself is written canonically.
+          schemaVersion: DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY,
           strictShapeValid: true,
           temporalAndMaterialBindingValid: true,
           subjectMatches: true,
@@ -936,8 +980,8 @@ export function evaluateDoneRequiredEvidence(args: {
     claim: 'done-readiness',
     policy: proofPolicy,
     checks: {
-      schemaVersion: evidence?.schema === DONE_REQUIRED_EVIDENCE_SCHEMA && evidence?.version === DONE_REQUIRED_EVIDENCE_VERSION
-        ? 'lattice.done_required_evidence.v1'
+      schemaVersion: isDoneRequiredEvidenceSchema(evidence?.schema) && evidence?.version === DONE_REQUIRED_EVIDENCE_VERSION
+        ? DONE_REQUIRED_EVIDENCE_VERSIONED_SCHEMA_LEGACY
         : undefined,
       strictShapeValid: Boolean(evidence),
       semanticDigestValid: ok,
@@ -1018,7 +1062,7 @@ export function evaluateDoneRequiredEvidence(args: {
       ? { platform: args.executionIdentityContext.platform }
       : {}),
   });
-  if (evidence.schema !== DONE_REQUIRED_EVIDENCE_SCHEMA || evidence.version !== DONE_REQUIRED_EVIDENCE_VERSION) {
+  if (!isDoneRequiredEvidenceSchema(evidence.schema) || evidence.version !== DONE_REQUIRED_EVIDENCE_VERSION) {
     reasons.push('schema-version-mismatch');
   }
   if (evidence.storyId !== args.storyId) reasons.push(`storyId-mismatch: ${evidence.storyId}`);

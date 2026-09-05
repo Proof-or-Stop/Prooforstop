@@ -45,7 +45,8 @@ import {
   type StoryMachineContext,
 } from '../core/machine.js';
 import { readDevMemoryFinishDecision } from '../core/playbook-runtime-memory.js';
-import { currentGitHead, currentMaterialHash } from '../core/evidence-freshness.js';
+import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { persistFinalizedReviewInventory } from '../core/review-inventory-epoch.js';
 import { findRuntimeArtifactEntry } from '../core/runtime-artifact-registry.js';
 import type { StoryInfo } from '../core/types.js';
 import { createDevMemoryHandlers } from '../handlers/dev-memory.js';
@@ -138,6 +139,20 @@ function buildDoorRepo(storyId: string, phase: StoryInfo['phase']): { root: stri
   // Small (empty) checklist so canSkipPlanGuard's quickPath.maxChecklistItems
   // check never becomes the blocking factor under test.
   store.writeChecklist(storyId, { items: [] });
+  if (phase === 'REVIEW') {
+    const headHash = currentGitHead(root);
+    const materialHash = currentMaterialHash(root, 'HEAD', root);
+    const storyFilesHash = currentStoryFilesHash(root, 'HEAD', root);
+    if (!headHash || !materialHash || !storyFilesHash) {
+      throw new Error('dev-memory door fixture: missing HEAD/material/storyFiles hashes');
+    }
+    persistFinalizedReviewInventory({
+      store,
+      storyId,
+      reviewRound: '',
+      cutoff: { headHash, materialHash, storyFilesHash },
+    });
+  }
 
   const context: StoryMachineContext = { storyId, store, projectRoot: root };
   return { root, store, context };

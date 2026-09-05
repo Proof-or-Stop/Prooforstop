@@ -45,6 +45,7 @@ import {
   isModularReviewerRoleId,
   renderReviewerRunBootstrap,
 } from './prompt-registry.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 export {
   buildReviewerRunBootstrapBody,
   extractTemplateFrontmatter,
@@ -238,12 +239,19 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
       throw new Error(`Cannot read Proof-or-Stop agent template ${templatePath}: ${reason}.`);
     }
     const { frontmatter, name } = extractTemplateFrontmatter(raw, file);
-    // Shim filename follows the role name so Claude resolves subagent_type:<name>.
-    const shimFile = `${name}.md`;
+    const canonicalRole = canonicalAgentRoleId(name);
+    const canonicalFrontmatter = frontmatter.replace(
+      /^name:\s*.+$/m,
+      `name: ${canonicalRole}`,
+    );
+    // Shim filename follows the canonical role so fresh writers never create a
+    // legacy lattice-* asset, even when a caller still points at an old template
+    // directory during a compatibility read.
+    const shimFile = `${canonicalRole}.md`;
     const shimPath = join(globalDir, shimFile);
-    const expected = isModularReviewerRoleId(name)
-      ? renderReviewerRunBootstrap(frontmatter, name)
-      : renderAgentShim(frontmatter, name);
+    const expected = isModularReviewerRoleId(canonicalRole)
+      ? renderReviewerRunBootstrap(canonicalFrontmatter, canonicalRole)
+      : renderAgentShim(canonicalFrontmatter, canonicalRole);
 
     // Probe lstat independently so a stale symlink / broken link is detected and
     // replaced (a broken symlink reports existsSync=false but lstat succeeds).
@@ -268,7 +276,7 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
       }
       if (current === expected) {
         skipped += 1;
-        results.push({ file, shim: shimPath, role: name, outcome: 'shim ok' });
+        results.push({ file, shim: shimPath, role: canonicalRole, outcome: 'shim ok' });
         continue;
       }
     }
@@ -291,7 +299,7 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
         throw new Error(`Cannot write global agent thin-shim ${shimPath}: ${reason}.`);
       }
       replaced += 1;
-      results.push({ file, shim: shimPath, role: name, outcome: 'replaced' });
+      results.push({ file, shim: shimPath, role: canonicalRole, outcome: 'replaced' });
       continue;
     }
 
@@ -305,7 +313,7 @@ export function syncGlobalAgents(opts: SyncGlobalAgentsOptions = {}): SyncGlobal
       );
     }
     synced += 1;
-    results.push({ file, shim: shimPath, role: name, outcome: 'created' });
+    results.push({ file, shim: shimPath, role: canonicalRole, outcome: 'created' });
   }
 
   return { globalDir, templateDir, synced, skipped, replaced, files: results };

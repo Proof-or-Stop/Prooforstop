@@ -41,6 +41,7 @@ export const VERSION_SYNC_PATHS: readonly string[] = [
 ];
 
 const SEMVER_RE = /^(\d+)\.(\d+)\.(\d+)$/;
+const ACCEPTED_ROOT_PACKAGE_NAMES: ReadonlySet<string> = new Set(['proof-or-stop', 'lattice']);
 /**
  * Matches an EXPORTED PROOF_OR_STOP_CLI_VERSION declaration in proof-or-stop-brand.ts. Anchored to the
  * start of a line (`^[ \t]*` under `/m`) followed by `export const`, and applied to a
@@ -90,6 +91,40 @@ function readJsonVersion(absPath: string): string {
     throw new Error(`version-bump: ${absPath} has no string top-level "version" field`);
   }
   return parsed.version;
+}
+
+function readJsonPackageName(absPath: string, label: string): string {
+  const parsed = JSON.parse(readFileSync(absPath, 'utf-8')) as { name?: unknown };
+  if (typeof parsed.name !== 'string' || parsed.name.length === 0) {
+    throw new Error(`version-bump: ${label} has no string top-level "name" field`);
+  }
+  return parsed.name;
+}
+
+/**
+ * Root package identity is a publish-level contract, not just display metadata.
+ * Accept the pre-migration spelling while an older checkout is being read, but
+ * fail closed when package.json and either root lockfile name disagree.
+ */
+function assertRootPackageIdentity(root: string): void {
+  const packageName = readJsonPackageName(join(root, VERSION_SYNC_FILES.rootPackageJson), 'root package.json');
+  const lock = JSON.parse(readFileSync(join(root, VERSION_SYNC_FILES.rootPackageLock), 'utf-8')) as {
+    name?: unknown;
+    packages?: Record<string, { name?: unknown }>;
+  };
+  const lockName = lock.name;
+  const lockRootName = lock.packages?.['']?.name;
+  const names = [packageName, lockName, lockRootName];
+  if (typeof lockName !== 'string' || typeof lockRootName !== 'string') {
+    throw new Error('version-bump: root package identity is missing from package-lock.json');
+  }
+  if (!ACCEPTED_ROOT_PACKAGE_NAMES.has(packageName) || !names.every(name => name === packageName)) {
+    throw new Error(
+      `version-bump: root package identity is out of sync ` +
+      `(package.json=${packageName}, package-lock.json=${lockName}, package-lock.json packages[""]=${lockRootName}); ` +
+      'refusing to bump until the canonical root identity is reconciled.',
+    );
+  }
 }
 
 type JsonRecord = Record<string, unknown>;
@@ -238,6 +273,7 @@ function bumpBrandContent(content: string, from: string, to: string): string {
  * surfaces it as a loud failure instead of silently bumping an inconsistent set.
  */
 export function readSyncedVersion(root: string): string {
+  assertRootPackageIdentity(root);
   const versions = [
     { label: 'root', version: readJsonVersion(join(root, VERSION_SYNC_FILES.rootPackageJson)) },
     ...readPackageLockVersions(join(root, VERSION_SYNC_FILES.rootPackageLock), 'root lockfile', ['packages/main']),

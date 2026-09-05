@@ -1,0 +1,100 @@
+[
+  {
+    "caseId": "review-pass:scenario-1",
+    "domain": "review-pass",
+    "sentinel": true,
+    "runner": {
+      "command": "node",
+      "args": [
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "review-pass",
+        "review-pass:scenario-1"
+      ],
+      "successMarker": "PROOF_OR_STOP_DOMAIN_CASE:review-pass:scenario-1"
+    }
+  },
+  {
+    "caseId": "review-pass:scenario-2",
+    "domain": "review-pass",
+    "sentinel": true,
+    "runner": {
+      "command": "node",
+      "args": [
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "review-pass",
+        "review-pass:scenario-2"
+      ],
+      "successMarker": "PROOF_OR_STOP_DOMAIN_CASE:review-pass:scenario-2"
+    }
+  },
+  {
+    "caseId": "review-pass:scenario-3",
+    "domain": "review-pass",
+    "sentinel": true,
+    "runner": {
+      "command": "node",
+      "args": [
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "review-pass",
+        "review-pass:scenario-3"
+      ],
+      "successMarker": "PROOF_OR_STOP_DOMAIN_CASE:review-pass:scenario-3"
+    }
+  },
+  {
+    "caseId": "quorum:scenario-1",
+    "domain": "quorum",
+    "sentinel": true,
+    "runner": {
+      "command": "node",
+      "args": [
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "quorum",
+        "quorum:scenario-1"
+      ],
+      "successMarker": "PROOF_OR_STOP_DOMAIN_CASE:quorum:scenario-1"
+    }
+  },
+  {
+    "caseId": "quorum:scenario-2",
+    "domain": "quorum",
+    "sentinel": true,
+    "runner": {
+      "command": "node",
+      "args": [
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "quorum",
+        "quorum:scenario-2"
+      ],
+      "successMarker": "PROOF_OR_STOP_DOMAIN_CASE:quorum:scenario-2"
+    }
+  },
+  {
+    "caseId": "quorum:scenario-3",
+    "domain": "quorum",
+    "sentinel": true,
+    "runner": {
+      "command": "node",
+      "args": [
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "quorum",
+        "quorum:scenario-3"
+      ],
+      "successMarker": "PROOF_OR_STOP_DOMAIN_CASE:quorum:scenario-3"
+    }
+  },
+  {
+    "caseId": "quorum:scenario-4",
+    "domain": "quorum",
+    "sentinel": true,
+    "runner": {
+      "command": "node",
+      "args": [
+        "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+        "quorum",
+        "quorum:scenario-4"
+      ],
+      "successMarker": "PROOF_OR_STOP_DOMAIN_CASE:quorum:scenario-4"
+    }
+  }
+]

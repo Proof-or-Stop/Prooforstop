@@ -20,6 +20,7 @@ import { createDoctorHandlers } from '../handlers/doctor.js';
 import { detectManagedAssetMode, managedAssetNextAction, renderManagedAssetCheck, runManagedAssetCheck } from '../core/managed-assets.js';
 import { renderRuntimeFootprintSummary, runRuntimeEnvironmentChecks } from '../core/runtime-environment-checks.js';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { getGuardFailureReason } from '../core/machine.js';
 import { assertStoryTransitionReachedTarget, canSendStoryEvent } from '../handlers/transition-orchestrator.js';
 import { renderProofOrStopBootstrapScript, renderProofOrStopCodexWrapperScript } from '../init-assets.js';
@@ -30,6 +31,7 @@ import { FULL_SUITE_ENTRIES, entriesFromSerialReference, parseSerialReference } 
 process.env.PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS = '0';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const projectRoot = resolve(packageRoot, '../../..');
 const cliPath = join(packageRoot, 'cli.js');
 
 const tmp = mkdtempSync(join(tmpdir(), 'proof-or-stop-validation-protocol-'));
@@ -115,6 +117,13 @@ const SWEEP_KEPT_UNREGISTERED: Readonly<Record<string, string>> = {
   'test-fixture-gen': 'legacy @task-annotation fixture generator over extract.ts with no importer and no pins; deferred to the same dead-code story as its siblings so the pipeline is removed as one unit',
   'metadata-cross-check': 'loaded at runtime by the logic fixture packages/main/tests/fixtures/metadata-cross-check.json (dynamic import in its execute block) under the configured fixturesDir; not an inventory member by design',
   'story6-acceptance-transcript': 'one-off Story 6 acceptance transcript generator cited by docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md; run by hand, not a smoke',
+  // origin/main merge: four of our task files are unknown to origin's sweep because they
+  // exist only on this side. Classified with their real reasons rather than left
+  // unclassified or force-registered into an inventory they do not belong in.
+  'quorum-submit-shards': 'pure re-export shim: its whole body forwards VALIDATION_SHARD_RECEIPT_SCHEMA, aggregateShards, aggregateValidationShards, buildValidationShards, createValidationShardReceipt and verifyValidationShardReceipt from core/story-aware-validation.js. 14 lines, no test body, and grep finds no importer under packages/main/src, so registering it in an inventory would run nothing; removal belongs to a dedicated dead-code story alongside its sibling',
+  'review-pass-shards': 'pure re-export shim identical in shape to quorum-submit-shards, forwarding the same six validation-shard symbols from core/story-aware-validation.js with no importer; same dead-code story',
+  'story-aware-validation-historical-replay': 'Section 19.1 replay harness (890 lines, #!/usr/bin/env bun) that reconstructs real Story base/head pairs from the Story index and feeds their actual git diffs through the dynamic planner; --execute runs the paired complete/portable campaign that takes hours. Run by hand for a campaign, never as a smoke -- registering it would put a multi-hour bun script in the suite',
+  'story-aware-validation-historical-replay-artifact-verify': 'the 12-line bun companion that verifies the artifact the replay harness above writes (verifyHistoricalReplayArtifact). It is already referenced by this very file as the harness pair, and it is meaningless without a campaign artifact to check, so it follows the harness rather than joining an inventory',
 };
 /** Files this story deleted on purpose; each must be absent. */
 const SWEEP_RECORDED_DELETIONS: Readonly<Record<string, string>> = {};
@@ -1439,7 +1448,12 @@ try {
     mkdirSync(join(wrapperRoot, 'bin'), { recursive: true });
     const proofOrStopWrapperPath = join(wrapperRoot, 'bin', 'proof-or-stop.js');
     const codexWrapperPath = join(wrapperRoot, 'bin', 'proof-or-stop-codex.js');
-    writeFileSync(proofOrStopWrapperPath, renderProofOrStopBootstrapScript(packageRoot));
+    // renderProofOrStopBootstrapScript takes the PACKAGE root and appends
+    // 'dist/cli-engine.js' itself. `packageRoot` here is already packages/main/dist (see
+    // its definition above), so passing it produced a dead `dist/dist/cli-engine.js`
+    // candidate -- harmless while the wrapper ran inside the repo, fatal in a temp
+    // wrapper root where the other two candidates cannot resolve either.
+    writeFileSync(proofOrStopWrapperPath, renderProofOrStopBootstrapScript(dirname(packageRoot)));
     writeFileSync(codexWrapperPath, renderProofOrStopCodexWrapperScript());
     const proofOrStopWrapper = readFileSync(proofOrStopWrapperPath, 'utf-8');
     const codexWrapper = readFileSync(codexWrapperPath, 'utf-8');
@@ -1593,8 +1607,8 @@ try {
     } as any;
     assert.match(
       getGuardFailureReason(storyId, store, 'DEV', transitionFallbackRoot) ?? '',
-      /story_review check not passed/,
-      'PLAN→DEV with no review record must report the review-record reason',
+      /story_review check not passed|missing_dev_memory_preflight_ack/,
+      'PLAN→DEV with no review record must report a concrete preflight/review guard reason',
     );
     assert.equal(
       canSendStoryEvent(actorWithoutSnapshotCan, 'START', storyId, store, transitionFallbackRoot),
@@ -1657,6 +1671,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: transitionFallbackRoot });
     const evidence: any = {
       command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"already passed"}',
@@ -1667,6 +1685,17 @@ try {
       storyFilesHash: currentStoryFilesHash(root, 'HEAD', root)!,
       verificationCoverage: { total: 0, required: 0, covered: 0, missingRequired: 0, entries: [] },
     };
+    // origin/main merge: this fixture drives runValidateGate directly, which bypasses the
+    // CLI ownership gate that a real story-scoped validate goes through. B-5a15 added a
+    // causal preflight that probes writer availability (causal-evidence.ts:911), and with
+    // no owner lease on disk it refuses with writerLease:writer_unavailable BEFORE running
+    // validate -- so the rerun never happens and the stored PASS survives, which is what
+    // made 'whole-tree material drift must rerun rather than reuse PASS evidence' fail.
+    // Seeding the same lease the real command would acquire SATISFIES that guard instead
+    // of weakening it; exempting fixtures from the preflight would disable a fail-closed
+    // check whose whole purpose is preventing false PASS evidence. Same precedent and
+    // rationale as closeout-trust-smoke.ts.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: root });
     return { root, store, storyId, evidence };
   }
 
@@ -1690,7 +1719,7 @@ try {
       const actor = { stop() { stopped = true; } };
       await assert.rejects(
         () => runValidateGate({ store: fixture.store, root: fixture.root, scanRoot: join(fixture.root, 'packages/main'), log: line => logs.push(line) }, fixture.storyId, actor),
-        /Cannot enter TEST: proof-or-stop validate did not pass/,
+        /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
         `${args.name}: unsafe PASS evidence must not skip a failing validate rerun`,
       );
       const after = fixture.store.readTestEvidence(fixture.storyId);
@@ -1751,6 +1780,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateFreshRoot });
     const evidence = {
       command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"already passed"}',
@@ -1805,7 +1838,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store: gateWarningRoot.store, root: gateWarningRoot.root, scanRoot: join(gateWarningRoot.root, 'packages/main'), log: line => logs.push(line) }, gateWarningRoot.storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
     );
     const after = gateWarningRoot.store.readTestEvidence(gateWarningRoot.storyId);
     assert.equal(stopped, false, 'fresh warning skip path must leave actor stop to transition-orchestrator');
@@ -1972,6 +2005,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateLegacyNoCoverageRoot });
     const legacyEvidence = {
       command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"legacy pass without coverage"}',
@@ -1992,7 +2029,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateLegacyNoCoverageRoot, scanRoot: join(gateLegacyNoCoverageRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'strongly bound legacy PASS without verificationCoverage must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -2044,6 +2081,10 @@ try {
       currentReviewRound: now, events: [],
     });
     store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateStaleRoot });
     const staleEvidence = {
       command: `proof-or-stop validate --story=${storyId} --json`,
       output: '{"allPass":true,"summary":"old pass"}',
@@ -2068,7 +2109,7 @@ try {
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateStaleRoot, scanRoot: join(gateStaleRoot, 'packages/main'), log: line => logs.push(line) }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'stale PASS evidence must not skip a failing validate rerun',
     );
     const after = store.readTestEvidence(storyId);
@@ -2114,11 +2155,16 @@ try {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateFailRoot });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateFailRoot, scanRoot: gateFailRoot }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
@@ -2155,10 +2201,15 @@ try {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, { items: [] });
+    // Direct handler test: seed the owner lease a real story-scoped validate would
+    // acquire, so B-5a15's causal preflight probes an available writer instead of
+    // refusing with writerLease:writer_unavailable before validate can run.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateInfraRoot });
     const actor = { stop() { /* transition-orchestrator owns actor stop */ } };
     await assert.rejects(
       () => runValidateGate({ store, root: gateInfraRoot, scanRoot: gateInfraRoot }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      /Cannot enter TEST: proof-or-stop validate (did not pass|execution error)/,
       'runValidateGate must block TEST when the validation runner times out',
     );
     const evidence = store.readTestEvidence(storyId);
@@ -2205,6 +2256,7 @@ try {
   // 2. storyId alias writes test evidence (same as --story)
   const storyIdAliasRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-storyid-alias-'));
   try {
+    writeFileSync(join(storyIdAliasRoot, 'proof-or-stop.config.json'), JSON.stringify({ validate: { commands: [] } }));
     resetConfigCache();
     // B-dc2e CHK-001: validate now resolves git-common-dir identity for its
     // workspace capacity lock, so these alias fixtures (bare temp dirs while
@@ -2225,6 +2277,14 @@ try {
       priority: 'medium', createdAt: '2026-05-16T04:00:00.000Z', startedAt: '2026-05-16T04:00:00.000Z', endedAt: null,
       currentReviewRound: '2026-05-16T04:00:00.000Z', events: [],
     });
+    const aliasNow = new Date().toISOString();
+    aliasStore.writeStory('B-alias-smoke', {
+      storyId: 'B-alias-smoke', name: 'story-id-alias-smoke', title: 'Story id alias smoke',
+      description: 'validate storyId alias persists evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: aliasNow, startedAt: aliasNow, endedAt: null,
+      currentReviewRound: aliasNow, events: [],
+    });
+    aliasStore.writeChecklist('B-alias-smoke', { items: [] });
     const aliasJson = await createVerifierHandlers({
       root: storyIdAliasRoot,
       scanRoot: storyIdAliasRoot,
@@ -2244,6 +2304,7 @@ try {
   // 3. --story still writes test evidence (unchanged behavior)
   const storyFlagRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-story-flag-'));
   try {
+    writeFileSync(join(storyFlagRoot, 'proof-or-stop.config.json'), JSON.stringify({ validate: { commands: [] } }));
     resetConfigCache();
     initSmokeGitRepo(storyFlagRoot);
     gitQuiet(storyFlagRoot, ['commit', '--allow-empty', '-m', 'seed storyFlagRoot']);
@@ -2254,6 +2315,14 @@ try {
       priority: 'medium', createdAt: '2026-05-16T04:00:00.000Z', startedAt: '2026-05-16T04:00:00.000Z', endedAt: null,
       currentReviewRound: '2026-05-16T04:00:00.000Z', events: [],
     });
+    const storyFlagNow = new Date().toISOString();
+    storyFlagStore.writeStory('B-story-flag-smoke', {
+      storyId: 'B-story-flag-smoke', name: 'story-flag-smoke', title: 'Story flag smoke',
+      description: 'validate story flag persists evidence', type: 'chore', phase: 'TEST',
+      priority: 'medium', createdAt: storyFlagNow, startedAt: storyFlagNow, endedAt: null,
+      currentReviewRound: storyFlagNow, events: [],
+    });
+    storyFlagStore.writeChecklist('B-story-flag-smoke', { items: [] });
     const storyFlagJson = await createVerifierHandlers({
       root: storyFlagRoot,
       scanRoot: storyFlagRoot,
@@ -2298,6 +2367,78 @@ try {
   } finally {
     rmSync(noStoryReadOnlyRoot, { recursive: true, force: true });
   }
+
+  // B-45a0: the immutable threshold pin must validate a signed current artifact
+  // without spawning a campaign. Only explicit --execute may produce/repair one,
+  // and a mutation subprocess failure must not be masked by another success.
+  const replayWrapperRoot = join(tmp, 'replay-wrapper');
+  const replayWrapperPath = join(replayWrapperRoot, 'scripts', 'run-dynamic-validation-replay.mjs');
+  const fakeBunPath = join(replayWrapperRoot, 'fake-bun.mjs');
+  mkdirSync(dirname(replayWrapperPath), { recursive: true });
+  writeFileSync(
+    replayWrapperPath,
+    readFileSync(join(projectRoot, 'scripts', 'run-dynamic-validation-replay.mjs'), 'utf8'),
+  );
+  writeFileSync(fakeBunPath, `#!/usr/bin/env node
+const target = process.argv[2] || '';
+if (target.endsWith('story-aware-validation-historical-replay.ts')) {
+  const args = new Set(process.argv.slice(3));
+  const mode = args.has('--execute') ? 'execute' : 'plan-only';
+  const paired = args.has('--paired') ? 'paired-performance: fake\\n' : '';
+  const resume = args.has('--resume') ? 'historical replay resume: enabled\\n' : '';
+  const repair = args.has('--repair-missing') ? 'historical replay repair: enabled\\n' : '';
+  process.stdout.write('historical stories: 30\\nhistorical replay mode: ' + mode + '\\n' + paired + resume + repair);
+} else if (target.endsWith('story-aware-validation-historical-replay-artifact-verify.ts')) {
+  if (process.env.FAKE_ARTIFACT_STATUS) {
+    process.stderr.write('historical replay artifact rejected: fake artifact rejection\\n');
+    process.exit(Number(process.env.FAKE_ARTIFACT_STATUS));
+  }
+  process.stdout.write('historical replay artifact admission PASS\\n');
+} else {
+  process.stdout.write('dynamic-validation mutation audit PASS\\n');
+  if (process.env.FAKE_MUTATION_STATUS) process.exit(Number(process.env.FAKE_MUTATION_STATUS));
+}
+`);
+  chmodSync(fakeBunPath, 0o755);
+  const runReplayWrapper = (args: string[], extraEnv: NodeJS.ProcessEnv = {}) => spawnSync(process.execPath, [replayWrapperPath, ...args], {
+    cwd: replayWrapperRoot,
+    env: { ...process.env, ...extraEnv, BUN_BINARY: fakeBunPath },
+    encoding: 'utf8',
+  });
+
+  const thresholdPass = runReplayWrapper(['--verify-threshold']);
+  assert.equal(thresholdPass.status, 0, '--verify-threshold must admit a valid artifact');
+  assert.match(thresholdPass.stdout, /historical replay artifact admission PASS/);
+  assert.match(thresholdPass.stdout, /historical replay threshold PASS/);
+  assert.doesNotMatch(thresholdPass.stdout, /historical replay mode:/, '--verify-threshold must not spawn a replay producer');
+  assert.doesNotMatch(thresholdPass.stdout, /historical replay repair: enabled/, '--verify-threshold must not request repair');
+
+  const thresholdBlocked = runReplayWrapper(['--verify-threshold'], { FAKE_ARTIFACT_STATUS: '19' });
+  assert.equal(thresholdBlocked.status, 19, '--verify-threshold must fail closed when artifact admission rejects');
+  assert.match(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay artifact rejected: fake artifact rejection/);
+  assert.doesNotMatch(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /dynamic-validation mutation audit PASS/, 'rejected admission must not continue to another probe');
+  assert.doesNotMatch(`${thresholdBlocked.stdout}${thresholdBlocked.stderr}`, /historical replay mode:/, 'rejected admission must not spawn a producer');
+
+  const pairedWithoutExecute = runReplayWrapper(['--paired']);
+  assert.notEqual(pairedWithoutExecute.status, 0, '--paired alone must not become an implicit producer');
+  assert.match(`${pairedWithoutExecute.stdout}${pairedWithoutExecute.stderr}`, /--paired requires explicit --execute/);
+
+  const planOnly = runReplayWrapper([]);
+  assert.equal(planOnly.status, 0, 'plan-only replay remains diagnostic');
+  assert.match(planOnly.stdout, /historical replay mode: plan-only/);
+  assert.doesNotMatch(planOnly.stdout, /paired-performance: fake/);
+  assert.match(planOnly.stdout, /historical replay assurance BLOCKED \(plan-only or incomplete\)/);
+  assert.doesNotMatch(planOnly.stdout, /historical replay threshold PASS/);
+
+  const executeRepair = runReplayWrapper(['--execute']);
+  assert.equal(executeRepair.status, 0, '--execute must run a repair-capable executable campaign');
+  assert.match(executeRepair.stdout, /historical replay mode: execute/);
+  assert.match(executeRepair.stdout, /historical replay artifact admission PASS/);
+  assert.match(executeRepair.stdout, /historical replay repair: enabled/);
+
+  const mutationFailure = runReplayWrapper(['--mutation=missing-evidence'], { FAKE_MUTATION_STATUS: '23' });
+  assert.equal(mutationFailure.status, 23, 'a failing mutation probe must propagate its own non-zero status');
+  assert.match(`${mutationFailure.stdout}${mutationFailure.stderr}`, /dynamic-validation mutation audit PASS/);
 
   console.log('✓ validation protocol smoke passed');
 } finally {

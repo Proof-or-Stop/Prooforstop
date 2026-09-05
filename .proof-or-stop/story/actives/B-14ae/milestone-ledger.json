@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-14ae",
+  "state": "candidate",
+  "ledgerHash": "sha256:0fef2638d58da5113fed3ad0e1b734de3fe6d9dc6e139b5353be89676a26121a",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "U-01b-remaining-choke",
+      "claim": "TEST-admissible routine validate is official heavy certification",
+      "doneMeans": "Unscoped validate --story and runValidateGate call refuseHeavyCertificationUnlessAdmitted; --channel/--concept/--lint/--focus do not.",
+      "requiredEvidence": [
+        "logic_test",
+        "integration_test"
+      ],
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "U-01b-remaining-review-refuse",
+      "claim": "REVIEW cannot spawn the 103-command suite without an ADMITTED window",
+      "doneMeans": "A REVIEW fixture with no window running validate --story or story_advance TEST is refused with [pre_cert_window_required] and zero child suite processes.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "U-01-admit-saturated-inventory",
+      "claim": "PRE_CERT admit consumes B-3f3d saturated inventory, not completeness-only",
+      "doneMeans": "certification_window_begin rejects inventory-completeness-only receipts for TEST-suite authority and accepts only a current-hash saturated FINALIZED unconsumed receipt.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-003"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "U-01-7.1.4-item-3",
+      "claim": "Admit requires a cheap focused/adversarial check that is not the full suite",
+      "doneMeans": "evaluateCertificationWindowAdmit fails closed when the cheap-check fact is missing, and that fact is never satisfied by running validate.commands.",
+      "requiredEvidence": [
+        "logic_test"
+      ],
+      "checklistRefs": [
+        "CHK-004"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    },
+    {
+      "id": "M5",
+      "sourceRequirementId": "U-01-cc10-replay",
+      "claim": "A B-cc10-shaped loop is refused and one admitted window runs the suite at most once",
+      "doneMeans": "Replay smoke shows refuse-then-one-run-then-reuse-or-refuse-duplicate on the same frozen identity; related drift invalidates. Operator docs print the Next command.",
+      "requiredEvidence": [
+        "logic_test",
+        "docs_check"
+      ],
+      "checklistRefs": [
+        "CHK-005"
+      ],
+      "verificationIntentRefs": [],
+      "status": "planned"
+    }
+  ],
+  "createdAt": "2026-08-20T08:36:24.304Z",
+  "updatedAt": "2026-08-20T08:36:24.304Z"
+}

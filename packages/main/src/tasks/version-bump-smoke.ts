@@ -135,6 +135,26 @@ void (async () => {
     const f3lockEntry = fixture('0.9.9', { mainLockPackage: '0.9.8' });
     throws('packages/main package-lock package entry drift -> applyPatchBump throws', () => applyPatchBump(f3lockEntry));
 
+    // 3b. Root package identity must stay internally consistent while the old
+    //     root name remains readable for pre-migration checkouts.
+    const f3identity = fixture('0.9.9');
+    const identityLockPath = join(f3identity, VERSION_SYNC_FILES.rootPackageLock);
+    const identityLock = readJson(identityLockPath);
+    identityLock.packages[''].name = 'lattice';
+    writeFileSync(identityLockPath, JSON.stringify(identityLock, null, 2) + '\n');
+    throws('root package/lock identity drift -> readSyncedVersion throws', () => readSyncedVersion(f3identity));
+    const f3legacy = fixture('0.9.9');
+    const legacyPackagePath = join(f3legacy, VERSION_SYNC_FILES.rootPackageJson);
+    const legacyPackage = readJson(legacyPackagePath);
+    legacyPackage.name = 'lattice';
+    writeFileSync(legacyPackagePath, JSON.stringify(legacyPackage, null, 2) + '\n');
+    const legacyLockPath = join(f3legacy, VERSION_SYNC_FILES.rootPackageLock);
+    const legacyLock = readJson(legacyLockPath);
+    legacyLock.name = 'lattice';
+    legacyLock.packages[''].name = 'lattice';
+    writeFileSync(legacyLockPath, JSON.stringify(legacyLock, null, 2) + '\n');
+    check('legacy root package identity remains readable', readSyncedVersion(f3legacy) === '0.9.9');
+
     // 4. The bump gate matches watched CLI/runtime inputs, skips metadata-only and
     //    offline experiment harnesses. It also watches bounded CLI capability
     //    contract/proof inputs without turning all docs into bump inputs.

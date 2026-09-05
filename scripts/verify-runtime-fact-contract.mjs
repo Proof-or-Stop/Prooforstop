@@ -84,7 +84,7 @@ async function main() {
   check(!checksSource.includes('@proof-or-stop-agent/core'), 'runtime checks must not resolve retired @proof-or-stop-agent/core');
   check(!checksSource.includes('@koala-agent/core'), 'runtime checks must not resolve @koala-agent/core fallback');
   check(registrySource.includes('command -v proof-or-stop'), 'cli-entrypoint repair hint should use proof-or-stop');
-  check(!registrySource.includes('command -v proof-or-stop || command -v koala'), 'cli-entrypoint repair hint must not include koala fallback');
+  check(!registrySource.includes('command -v lattice || command -v koala'), 'cli-entrypoint repair hint must not include koala fallback');
   check(registrySource.includes('node_modules/.bin/proof-or-stop'), 'project-local-bin guidance should prefer proof-or-stop local bins');
   check(!registrySource.includes('node_modules/.bin/koala'), 'project-local-bin guidance must not include koala local bins');
   check(doctorSource.includes('runRuntimeEnvironmentChecks'), 'doctor should call runRuntimeEnvironmentChecks');
@@ -212,7 +212,7 @@ async function main() {
           globalNpmRootResolver: () => null,
         });
         check(proofOrStopOnlyPathReport.cliEntrypoint.status === 'pass', 'cli-entrypoint should pass when PATH exposes proof-or-stop only');
-        check(proofOrStopOnlyPathReport.cliEntrypoint.actual.path === proofOrStopBin, 'cli-entrypoint should resolve proof-or-stop before any legacy koala fallback');
+        check(proofOrStopOnlyPathReport.cliEntrypoint.actual.path === proofOrStopBin, 'cli-entrypoint should resolve proof-or-stop before any legacy fallback');
         check(!existsSync(join(pathBinDir, process.platform === 'win32' ? 'koala.cmd' : 'koala')), 'proof-or-stop-only PATH smoke should not create a koala binary');
       } finally {
         if (oldPath === undefined) delete process.env.PATH;
@@ -221,18 +221,18 @@ async function main() {
         else process.env.Path = oldWindowsPath;
       }
 
-      const staleKoalaName = process.platform === 'win32' ? 'koala.cmd' : 'koala';
+      const staleLatticeName = process.platform === 'win32' ? 'lattice.cmd' : 'lattice';
       const localBinDir = join(tmp, 'node_modules', '.bin');
-      const staleKoalaBin = join(localBinDir, staleKoalaName);
+      const staleLatticeBin = join(localBinDir, staleLatticeName);
       mkdirSync(localBinDir, { recursive: true });
-      writeFileSync(staleKoalaBin, 'local koala');
+      writeFileSync(staleLatticeBin, 'local lattice');
       const staleKoalaReport = checksModule.runRuntimeEnvironmentChecks(tmp, {
         commandResolver: () => null,
         globalNpmRootResolver: () => null,
       });
-      check(staleKoalaReport.projectLocalBin.status === 'pass', 'project-local-bin should ignore stale koala-only local bin');
-      check(staleKoalaReport.projectLocalBin.actual.path.endsWith(process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop'), 'project-local-bin should inspect proof-or-stop path only');
-      check(staleKoalaReport.projectLocalBin.actual.present === false, 'project-local-bin should not count koala-only local bin as present');
+      check(staleKoalaReport.projectLocalBin.status === 'pass', 'project-local-bin should ignore stale lattice-only local bin');
+      check(staleKoalaReport.projectLocalBin.actual.path.endsWith(process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop'), 'project-local-bin should inspect the canonical proof-or-stop path only');
+      check(staleKoalaReport.projectLocalBin.actual.present === false, 'project-local-bin should not count a legacy lattice-only local bin as present');
 
       const localBinName = process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop';
       const localBin = join(localBinDir, localBinName);

@@ -1,0 +1,57 @@
+{
+  "storyId": "B-14ae",
+  "name": "u01-remaining-routine-validate-precert",
+  "title": "Require a PRE_CERT window before TEST-admissible routine validate so REVIEW cannot rerun the full suite",
+  "description": "Close the remaining U-01 slice that B-1e1f and B-3f3d do not cover: treat this repo’s TEST-admissible routine `proof-or-stop validate --story` (the serial `validate.commands` suite, no --full) and `story_advance --phase=TEST`’s `runValidateGate` as official heavy certification. Refuse those entries unless a current CertificationWindow is ADMITTED or RUNNING. Keep review preflight slices and focused smokes outside the window. After B-3f3d, admit must consume a saturated review-inventory receipt rather than a completeness-only stub. Prove a B-cc10-shaped REVIEW loop cannot spawn the suite, and that one admitted window runs the suite at most once.",
+  "type": "feature",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "depends": [
+    "B-3f3d"
+  ],
+  "keywords": [
+    "U-01-remaining",
+    "TEST-admissible-validate",
+    "routine-validate-precert",
+    "B-cc10-review-loop",
+    "runValidateGate-choke"
+  ],
+  "riskSignals": [
+    {
+      "category": "State Machine/Gate",
+      "matched": "story_advance"
+    },
+    {
+      "category": "Validation Framework",
+      "matched": "proof-or-stop validate"
+    }
+  ],
+  "createdAt": "2026-08-20T08:36:24.304Z",
+  "startedAt": "2026-08-20T08:36:24.304Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-08-20T08:36:25.736Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-cc4f386439b08c59",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-08-20T08:55:28.007Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-9fd59b458149645c3a62d4864111db48",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-14ae",
+    "branch": "story/B-14ae",
+    "createdAt": "2026-08-20T08:55:21.415Z"
+  }
+}

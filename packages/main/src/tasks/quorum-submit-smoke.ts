@@ -303,6 +303,19 @@ function hostVerdictEventCount(store: StoryStore): number {
   return store.readProcessEvents(STORY_ID).filter(event => event.type === 'host_verdict').length;
 }
 
+function seedLargeCommittedProcessEvents(fixture: ReturnType<typeof makeFixture>): string {
+  const path = join(fixture.store.storyDirPath(STORY_ID), 'process-events.jsonl');
+  appendFileSync(path, `${JSON.stringify({
+    type: 'plan_updated',
+    timestamp: '2026-06-22T09:30:00.000Z',
+    padding: 'x'.repeat(1_400_000),
+  })}\n`);
+  git(fixture.root, ['add', relative(fixture.root, path)]);
+  git(fixture.root, [...COMMIT_ENV, 'commit', '-m', 'seed large process event history']);
+  assert.ok(readFileSync(path).length > 1024 * 1024, 'large process-events fixture exceeds the execFileSync default maxBuffer');
+  return path;
+}
+
 function verdictFileCount(root: string): number {
   return listVerdicts(root, 'local', STORY_ID).length;
 }
@@ -312,7 +325,7 @@ function assertQuorumRefuses(registry: ReturnType<typeof createMainRegistry>, st
   const beforeVerdicts = verdictFileCount(root);
   const handler = registry.get('quorum_submit');
   assert.ok(handler, 'quorum_submit handler is registered');
-  assert.throws(
+  const refusal = assert.throws(
     () => handler({
       storyId: STORY_ID,
       hostA: 'host-a',
@@ -322,6 +335,14 @@ function assertQuorumRefuses(registry: ReturnType<typeof createMainRegistry>, st
     /quorum_submit refuses: no current reviewer pass evidence for the required lanes/,
     label,
   );
+  const refusalText = String(refusal);
+  if (refusalText.includes('missing current pass lane(s):')) {
+    assert.match(
+      refusalText,
+      new RegExp(`missing current pass lane\\(s\\): ${REVIEW_LANES.join(', ')}`),
+      `${label}: missing-lane diagnostics use canonical reviewer lanes`,
+    );
+  }
   assert.equal(hostVerdictEventCount(store), beforeEvents, `${label}: no host_verdict process events written`);
   assert.equal(verdictFileCount(root), beforeVerdicts, `${label}: no verdict files written`);
 }
@@ -703,6 +724,41 @@ function directProcessEventAppends(): string[] {
     visit(source);
   }
   return violations;
+}
+
+const dyn5Case = process.env.PROOF_OR_STOP_DYN5_CASE;
+if (dyn5Case) {
+  const previousDyn5Cwd = process.cwd();
+  try {
+    withClearedSessionEnvironment(() => {
+      withFreshFixture((fixture) => {
+        const handler = fixture.registry.get('quorum_submit')!;
+        if (dyn5Case === 'quorum:scenario-1') {
+          recordReviewerPasses(fixture.registry);
+          const result: any = handler(quorumArgs());
+          assert.equal(result.emittedCount, 6, 'real quorum submit must emit one 3x2 verdict set');
+        } else if (dyn5Case === 'quorum:scenario-2') {
+          recordReviewerPasses(fixture.registry);
+          handler(quorumArgs());
+          assert.throws(() => handler(quorumArgs()), /verdicts already exist for runId/, 'duplicate quorum must be refused');
+        } else if (dyn5Case === 'quorum:scenario-3') {
+          assert.throws(() => handler(quorumArgs()), /no current reviewer pass evidence/, 'quorum without reviewer passes must be refused');
+        } else if (dyn5Case === 'quorum:scenario-4') {
+          recordReviewerPasses(fixture.registry);
+          const result: any = handler(quorumArgs());
+          assert.equal(result.emittedCount, 6, 'quorum floor must retain all three local rounds');
+          assert.equal(quorumFloorRounds(fixture).validRounds.length, 3, 'quorum floor must observe three valid rounds');
+        } else {
+          throw new Error(`unknown DYN-5 quorum case: ${dyn5Case}`);
+        }
+      });
+    });
+    console.log(`PROOF_OR_STOP_DOMAIN_CASE:${dyn5Case}`);
+  } finally {
+    process.chdir(previousDyn5Cwd);
+    resetConfigCache();
+  }
+  process.exit(0);
 }
 
 const previousCwd = process.cwd();
@@ -2218,6 +2274,49 @@ try {
       assert.equal(hostVerdictEventCount(fixture.store), 6);
       assert.equal(verdictFileCount(fixture.root), 6);
       assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+    });
+  });
+
+  check('atomic quorum commit hashes process-events larger than one MiB', () => {
+    withFreshFixture((fixture) => {
+      seedLargeCommittedProcessEvents(fixture);
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const result: any = fixture.registry.get('quorum_submit')!(quorumArgs());
+      assert.equal(result.emittedCount, 6);
+      assert.equal(hostVerdictEventCount(fixture.store), 6);
+      assert.notEqual(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead, 'large immutable metadata tree is installed atomically');
+      const committedHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const beforeRetryEvents = hostVerdictEventCount(fixture.store);
+      rmSync(join(fixture.root, '.lattice', 'autopilot-verdicts', STORY_ID), { recursive: true, force: true });
+      assert.throws(
+        () => fixture.registry.get('quorum_submit')!(quorumArgs()),
+        /quorum_submit refuses: verdicts already exist for runId/,
+        'the committed >1MiB process-events log remains the duplicate authority after cache deletion',
+      );
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), committedHead, 'large same-material retry writes no commit');
+      assert.equal(hostVerdictEventCount(fixture.store), beforeRetryEvents, 'large same-material retry writes no event');
+    });
+  });
+
+  check('large atomic quorum commit still rejects a post-manifest mutation', () => {
+    withFreshFixture((fixture) => {
+      const processEvents = seedLargeCommittedProcessEvents(fixture);
+      recordReviewerPasses(fixture.registry);
+      const beforeHead = git(fixture.root, ['rev-parse', 'HEAD']);
+      const handler = createQuorumSubmitHandlers(fixture.ctx, {
+        metadataCommit: {
+          afterAddBeforeCommit: () => appendFileSync(processEvents, `${JSON.stringify({
+            type: 'plan_updated',
+            timestamp: '2026-06-22T10:05:00.000Z',
+            mutation: 'post-manifest',
+          })}\n`),
+        },
+      }).quorum_submit;
+      assert.throws(() => handler(quorumArgs()), /verified metadata changed.*rolled back/s);
+      assert.equal(git(fixture.root, ['rev-parse', 'HEAD']), beforeHead);
+      assert.equal(hostVerdictEventCount(fixture.store), 0);
+      assert.equal(verdictFileCount(fixture.root), 0);
     });
   });
 

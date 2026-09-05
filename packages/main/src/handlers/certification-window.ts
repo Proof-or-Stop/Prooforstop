@@ -9,7 +9,28 @@ import {
   currentGitHead,
   currentMaterialHash,
   currentStoryFilesHash,
+  EMPTY_STORY_FILES_HASH,
 } from '../core/evidence-freshness.js';
+// B-5a15 main-merge: main deleted currentStoryFileHashEntries; this now uses main's
+// resolveStoryChangedFiles from story-aware-validation.ts. It is NOT signature- or
+// behaviour-identical, so the compensating code below is load-bearing -- do not remove it:
+//  - it THROWS with no merge base where our helper returned undefined, hence the try/catch
+//    that restores the original `return undefined` contract;
+//  - it returns `blobId` where ours returned `objectId`;
+//  - it sorts with localeCompare, which F-334 forbids for hash material. That is safe ONLY
+//    because the digest below re-sorts the joined `path\0blobId` strings with a bare
+//    .sort() (byte order), matching currentStoryFilesHash. Keep that re-sort.
+//  - it takes an extra 4th param and drops per-path dedupe; neither is reachable here.
+import { resolveStoryChangedFiles } from '../core/story-aware-validation.js';
+import {
+  CAUSAL_DEPENDENCY_DOMAINS,
+  causalDigest,
+  causalDependencyContextDigests,
+  evaluateCausalDependencies,
+  type CausalDependencyDomain,
+  type CausalDependencyNode,
+  type CausalDependencyDecision,
+} from '../core/causal-evidence.js';
 import { resolveEffectiveBlockingSeverities } from '../core/guard-utils.js';
 import { resolveGitCwd } from '../core/story-signed-workspace-resolution.js';
 import { buildVerificationCoverage } from '../core/verification.js';
@@ -37,6 +58,7 @@ import {
   PRE_CERT_INVENTORY_NOT_FINALIZED,
   type CertificationWindowAdmitFacts,
   type CertificationWindowCurrentIdentity,
+  type CertificationWindowFrozenIdentity,
   type CertificationWindowInventoryBinding,
   type CertificationWindowStatusProjection,
   type ReviewInventoryAdmitPair,
@@ -73,6 +95,162 @@ function readInventoryPair(
   }
 }
 
+const CERTIFICATION_INPUT_IDS = CAUSAL_DEPENDENCY_DOMAINS.map(domain => `certification:${domain}`);
+
+/**
+ * B-5a15 F-325: real causal edges between the certification domains.
+ *
+ * The previous shape was `dependencyIds: [CAUSAL_DEPENDENCY_DOMAINS[index - 1]]`, i.e. a
+ * straight chain following ARRAY DECLARATION ORDER. That is not a causal relationship: a
+ * test-only change invalidated build-input, manifest-semantic, integration AND
+ * review-subject, contradicting CHK-003:edge:0's requirement that each domain has a
+ * distinct invalidation boundary and only the declared dependent closure goes stale.
+ *
+ * Each entry lists the domains a node is DOWNSTREAM of, derived from what
+ * CERTIFICATION_DOMAIN_PATH_RULES actually classifies into each domain:
+ *  - build-input    (lockfiles, tsconfig, *.config.json) compiles everything -> upstream of all
+ *  - source         (packages/main/src, excl. tasks) is exercised by tests and driven by bins
+ *  - manifest-semantic (host adapter dirs) is consumed by the integration entrypoints
+ *  - test           (tests/, src/tasks/) additionally consumes integration, because 24 files
+ *                   in the test domain EXECUTE integration-domain artifacts -- e.g.
+ *                   codex-heartbeat-timeout-smoke.ts:273 runs `bin/proof-or-stop.js`. Without
+ *                   this edge a bin/ change reruns only certification-integration, then
+ *                   causalRerunComplete admits the gate while certification-test still holds
+ *                   evidence earned against the OLD bin (B-5a15 F-337).
+ *  - integration    (bin/, scripts/, .githooks/, sibling packages) additionally consumes
+ *                   review-subject, because scripts/ contains contract verifiers that read
+ *                   docs as LOAD-BEARING assertion inputs -- verify-process-fact-contract.mjs
+ *                   asserts over AGENTS.md and five docs/requirements/decisions/*.md files,
+ *                   and it is DONE-required via test:serial-reference. Omitting this edge
+ *                   under-invalidates: a docs-only edit would leave certification-integration
+ *                   reported FRESH when a real input of it changed (B-5a15 F-336).
+ *  - review-subject (docs/, AGENTS|CLAUDE|README) is terminal: nothing is built from docs
+ */
+const CERTIFICATION_DOMAIN_DEPENDENCIES: Readonly<Record<CausalDependencyDomain, readonly CausalDependencyDomain[]>> = {
+  'build-input': [],
+  'source': ['build-input'],
+  'manifest-semantic': ['build-input'],
+  'test': ['build-input', 'source', 'integration'],
+  'integration': ['build-input', 'source', 'manifest-semantic', 'review-subject'],
+  'review-subject': [],
+};
+
+// Exported for the B-5a15:F-393 regression test only. certificationDomainForPath
+// requires `matches.length === 1`, so the rules must stay mutually exclusive by
+// hand -- a second matching rule fails closed to undefined exactly like no match,
+// and aborts the whole causal-input derivation. Exporting the DATA (not the
+// classifier) lets a test assert that invariant without widening behavioural API.
+export const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDependencyDomain, RegExp]> = [
+  ['test', /^packages\/main\/(?:tests\/|src\/tasks\/)/],
+  ['build-input', /(?:^|\/)(?:package(?:-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb|tsconfig(?:\.[^/]+)?\.json|lattice\.config\.json|proof-or-stop\.config\.json)$/],
+  ['manifest-semantic', /^(?:\.proof-or-stop-codex|\.codex|\.claude)\//],
+  ['manifest-semantic', /^\.proof-or-stop\/proof-or-stop\.json$/],
+  // B-5a15: `scripts/` here anchors at the repo root, so a per-package verifier
+  // script such as packages/graph/scripts/verify-missing-assets-fail.mjs matched NO
+  // rule. Because certificationDomainForPath requires exactly one match, an unmatched
+  // path made deriveCertificationDomainInputHashes return undefined for the whole
+  // story, which blocked certification_window_begin with
+  // [pre_cert_causal_freshness_required]. Package-local scripts are integration
+  // surface for the same reason root scripts/ is: they are executable verifiers, not
+  // product source.
+  //
+  // The added alternative EXCLUDES utils and lab, which the rule above already
+  // covers wholesale. certificationDomainForPath requires `matches.length === 1`,
+  // so a path matching two rules is treated as ambiguous and returns undefined --
+  // identically to matching none. A first draft of this fix used a bare
+  // `packages/[^/]+/scripts/`, which made packages/utils/scripts/** and
+  // packages/lab/scripts/** double-match and would have broken certification for
+  // any future story touching them, while passing here only because this story
+  // touches neither. Verified by enumeration, not by inspection.
+  ['integration', /^(?:bin|scripts|\.githooks|packages\/(?:utils|lab))\//],
+  ['integration', /^packages\/(?!utils\/|lab\/)[^/]+\/scripts\//],
+  ['source', /^packages\/main\/src\/(?!tasks\/)/],
+  ['review-subject', /^(?:docs\/|(?:AGENTS|CLAUDE|README)(?:\.[^/]+)?$)/],
+];
+
+function certificationDomainForPath(path: string): CausalDependencyDomain | undefined {
+  const matches = CERTIFICATION_DOMAIN_PATH_RULES.filter(([, pattern]) => pattern.test(path));
+  return matches.length === 1 ? matches[0][0] : undefined;
+}
+
+/**
+ * Derive one stable causal input from each declared domain's story-owned
+ * files. Unknown or ambiguously classified paths deliberately return
+ * undefined so the evaluator falls back to strict whole-tree freshness.
+ */
+export function deriveCertificationDomainInputHashes(
+  gitCwd: string,
+  ref = 'HEAD',
+  metadataRoot: string = gitCwd,
+): Record<string, string> | undefined {
+  let entries;
+  try { entries = resolveStoryChangedFiles(gitCwd, ref, metadataRoot); }
+  catch { return undefined; }
+  const byDomain = new Map<CausalDependencyDomain, string[]>(
+    CAUSAL_DEPENDENCY_DOMAINS.map(domain => [domain, []]),
+  );
+  for (const entry of entries) {
+    const domain = certificationDomainForPath(entry.path);
+    if (!domain) return undefined;
+    byDomain.get(domain)!.push(`${entry.path}\0${entry.blobId || '<deleted>'}`);
+  }
+  return Object.fromEntries(CAUSAL_DEPENDENCY_DOMAINS.map(domain => [
+    `certification:${domain}`,
+    causalDigest(byDomain.get(domain)!.sort()),
+  ]));
+}
+
+export function buildCertificationDecision(
+  storyId: string,
+  current: CertificationWindowCurrentIdentity,
+  frozen?: CertificationWindowFrozenIdentity,
+): CausalDependencyDecision | undefined {
+  if (!current.materialHash || !current.storyFilesHash) return undefined;
+  const currentStoryFilesHash = current.storyFilesHash;
+  const previous = frozen ?? {
+    headHash: current.headHash ?? '',
+    materialHash: current.materialHash,
+    storyFilesHash: current.storyFilesHash,
+    causalInputHashes: current.causalInputHashes,
+    expectedMainSha: '',
+    verifierIdentity: PRECERT_VERIFIER_IDENTITY,
+    testIdentity: PRECERT_TEST_IDENTITY,
+  };
+  const emptyStoryFilesHash = previous.storyFilesHash === EMPTY_STORY_FILES_HASH
+    || current.storyFilesHash === EMPTY_STORY_FILES_HASH;
+  // CertificationWindow is the production consumer of the declared causal
+  // DAG. Its current materialization has one authoritative story-owned
+  // snapshot, so each domain is represented explicitly while the snapshot is
+  // fanned through the transitive domain graph. This keeps the production path
+  // fail-closed and observable instead of silently evaluating nodes: [].
+  const currentInputHashes = current.causalInputHashes ?? {};
+  const previousInputHashes = previous.causalInputHashes ?? {};
+  const nodes: CausalDependencyNode[] = CAUSAL_DEPENDENCY_DOMAINS.map((domain, index) => ({
+    id: `certification-${domain}`,
+    domain,
+    inputIds: [CERTIFICATION_INPUT_IDS[index]],
+    ...(CERTIFICATION_DOMAIN_DEPENDENCIES[domain].length > 0
+      ? { dependencyIds: CERTIFICATION_DOMAIN_DEPENDENCIES[domain].map(dep => `certification-${dep}`) }
+      : {}),
+    recordedInputHashes: { [CERTIFICATION_INPUT_IDS[index]]: previousInputHashes[CERTIFICATION_INPUT_IDS[index]] ?? '' },
+  }));
+  const contextDigests = causalDependencyContextDigests(nodes, currentInputHashes);
+  current.causalDependencyGraphDigest = contextDigests.dependencyGraphDigest;
+  current.causalInputHashesDigest = contextDigests.currentInputHashesDigest;
+  return evaluateCausalDependencies({
+    storyId,
+    nodes,
+    currentInputHashes,
+    previousMaterialHash: previous.materialHash,
+    currentMaterialHash: current.materialHash,
+    previousStoryFilesHash: previous.storyFilesHash,
+    currentStoryFilesHash,
+    ...(previous.headHash !== undefined ? { previousHeadHash: previous.headHash } : {}),
+    ...(current.headHash !== undefined ? { currentHeadHash: current.headHash } : {}),
+    doneRequired: emptyStoryFilesHash,
+  });
+}
+
 function collectAdmitFacts(
   ctx: HandlerContext,
   storyId: string,
@@ -87,6 +265,7 @@ function collectAdmitFacts(
   const headHash = currentGitHead(gitCwd);
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+  const identity = currentCertificationIdentity(ctx, storyId);
   const expectedMainSha = donePrepareExpectedMainSha(gitCwd);
   let missingRequiredIntents = 0;
   try {
@@ -138,6 +317,10 @@ function collectAdmitFacts(
     dirtyNonRuntimePaths,
     gitIndexReadable: isDonePrepareGitIndexReadable(gitCwd),
     evidenceTargetWritable: isEvidenceTargetWritable(ctx.store.storyDirPath(storyId)),
+    causalInputHashes: identity.causalInputHashes,
+    causalDependencyGraphDigest: identity.causalDependencyGraphDigest,
+    causalInputHashesDigest: identity.causalInputHashesDigest,
+    causalDecision: identity.causalDecision,
   };
 }
 
@@ -154,15 +337,26 @@ export function currentCertificationIdentity(
   const headHash = currentGitHead(gitCwd);
   const materialHash = currentMaterialHash(gitCwd, 'HEAD', ctx.root);
   const storyFilesHash = currentStoryFilesHash(gitCwd, 'HEAD', ctx.root);
+  const causalInputHashes = deriveCertificationDomainInputHashes(gitCwd, 'HEAD', ctx.root);
   const gitRepo = existsSync(join(gitCwd, '.git'));
-  return {
+  const identity: CertificationWindowCurrentIdentity = {
+    storyId,
     headHash,
     materialHash,
     storyFilesHash,
+    causalInputHashes,
     verifierIdentity: PRECERT_VERIFIER_IDENTITY,
     testIdentity: PRECERT_TEST_IDENTITY,
     hashUnavailable: gitRepo && (!materialHash || !storyFilesHash),
   };
+  if (!identity.hashUnavailable) {
+    const loaded = loadVerifiedCertificationWindow(ctx.store, storyId);
+    const frozen = loaded.window?.state === 'ADMITTED' || loaded.window?.state === 'RUNNING'
+      ? loaded.window.frozen
+      : undefined;
+    identity.causalDecision = buildCertificationDecision(storyId, identity, frozen);
+  }
+  return identity;
 }
 
 function inventoryBinding(pair: ReviewInventoryAdmitPair | null, consumedReceiptId?: string): CertificationWindowInventoryBinding {
@@ -186,7 +380,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
         current: currentCertificationIdentity(ctx, storyId),
       });
       if (existing.window && (existing.window.state === 'ADMITTED' || existing.window.state === 'RUNNING')) {
-        return render(projectCertificationWindowStatus(storyId, existing.window, existing.receipt));
+        return render(projectCertificationWindowStatus(storyId, existing.window, existing.receipt, existing.advisory));
       }
 
       const apis = loadReviewInventoryAdmitApis();
@@ -217,7 +411,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
 
       let consumedReceiptId = facts.inventory?.receipt?.receiptId;
       try {
-        const consumed = apis.consumeReviewInventoryReceipt(
+        const consumed = apis.consumeReviewInventoryCompletenessReceipt(
           ctx.store,
           storyId,
           facts.inventory?.epoch?.reviewRound ?? facts.inventory?.receipt?.reviewRound ?? '',
@@ -227,7 +421,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
           },
         );
         if (!consumed) {
-          throw new Error('consumeReviewInventoryReceipt returned no receipt id');
+          throw new Error('consumeReviewInventoryCompletenessReceipt returned no receipt id');
         }
         consumedReceiptId = consumed;
       } catch (error) {
@@ -249,6 +443,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
           headHash: facts.headHash ?? '',
           materialHash: facts.materialHash ?? '',
           storyFilesHash: facts.storyFilesHash ?? '',
+          causalInputHashes: facts.causalInputHashes,
           expectedMainSha: facts.expectedMainSha ?? '',
           verifierIdentity: PRECERT_VERIFIER_IDENTITY,
           testIdentity: PRECERT_TEST_IDENTITY,
@@ -267,7 +462,7 @@ export function createCertificationWindowHandlers(ctx: HandlerContext) {
         storyId,
         current: currentCertificationIdentity(ctx, storyId),
       });
-      return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt));
+      return render(projectCertificationWindowStatus(storyId, refreshed.window, refreshed.receipt, refreshed.advisory));
     },
 
     certification_window_cancel(args: { storyId: string; reason: string }): string {

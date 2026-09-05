@@ -22,6 +22,7 @@ import type {
   StoryInfo,
 } from '../core/types.js';
 import { signScopeCheck } from '../handlers/scope-check.js';
+import { canStartDevGuard, createStoryActor, evaluateDevMemoryPreflightGate, getGuardFailureReason } from '../core/machine.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -170,12 +171,26 @@ function writeDiscoveryRegistration(root: string): void {
     'export const acceptanceTopologyDispatch = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/pre-review-check.ts',
     'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/pre-review-live-proof.ts',
+    'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'scripts/run-proofstory-pre-review-live-proof.mjs',
+    'export const preReviewLiveProofRunner = true;\n');
   write(root, 'packages/main/src/core/topology-critic-receipt.ts',
     'export const topologyCriticReceipt = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/handlers/transition-orchestrator.ts',
     'export const evaluateAcceptanceTopologyForContext = () => "acceptance_topology_check";\n');
   write(root, 'scripts/verify-process-fact-contract.mjs',
     'export const acceptance_topology_check = "acceptance_basis acceptance_basis_generate transition-orchestrator PLAN to DEV structural gate";\n');
+  write(root, 'packages/main/src/core/acceptance-rollout.ts',
+    'export const acceptanceRollout = "acceptance_rollout_report verifier-owned signed flat-project rollout report";\n');
+  write(root, 'packages/main/src/core/machine.ts',
+    'export const machine = "acceptance basis lifecycle consumer";\n');
+  write(root, 'packages/main/src/core/review-inventory-epoch.ts',
+    'export const reviewInventoryEpoch = "acceptance basis review inventory binding";\n');
+  write(root, 'packages/main/src/handlers/review-inventory.ts',
+    'export const reviewInventory = "acceptance basis review inventory handler";\n');
+  write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs',
+    'export const acceptanceRolloutCohortRunner = true;\n');
 }
 
 function parseJsonOutput(output: string): any {
@@ -235,6 +250,9 @@ function exerciseFailingLifecycleMode(mode: 'observe' | 'warn' | 'enforce'): { r
       acceptanceClaim: 'The production transition consumes the same structural evaluator as the read-only check.',
     });
     run(root, 'acceptance_basis_generate', { storyId, json: true });
+    // Keep the fixture focused on the acceptance-topology outcome. The
+    // independent DEV-memory prerequisite is satisfied before this transition.
+    run(root, 'dev_memory_preflight_ack', { storyId });
     const report = parseJsonOutput(run(root, 'acceptance_topology_check', { storyId, json: true }, mode === 'enforce'));
     const previous = process.cwd();
     let coreReport;
@@ -528,7 +546,22 @@ try {
   store.writeReview(storyId, { reviews: [{ timestamp: reviewAt, issueCount: 0, blockerCount: 0, issues: [], _hash: reviewHash }] } as any);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'record clean plan review']);
+  // DEV admission now requires its independent dev-memory preflight receipt.
+  // This production-route control must satisfy it rather than asserting an
+  // obsolete PLAN→DEV bypass.
+  const preflightAck = run(root, 'dev_memory_preflight_ack', { storyId });
+  assert.match(preflightAck, /Dev-memory preflight acknowledged/);
+  assert.ok(store.readDevMemoryPreflightAck(storyId), 'DEV preflight acknowledgement is persisted before topology evidence refresh');
+  assert.equal(evaluateDevMemoryPreflightGate(storyId, store), true, 'persisted preflight acknowledgement satisfies the DEV entry predicate');
   run(root, 'acceptance_basis_generate', { storyId, json: true });
+  assert.ok(store.readDevMemoryPreflightAck(storyId), 'topology evidence refresh cannot discard the DEV preflight acknowledgement');
+  assert.equal(evaluateDevMemoryPreflightGate(storyId, store), true, 'topology evidence refresh retains a gate-valid DEV preflight acknowledgement');
+  assert.equal(canStartDevGuard({ storyId, store, projectRoot: root }), true, 'direct PLAN→DEV guard accepts the current preflight and topology fixtures');
+  assert.equal(getGuardFailureReason(storyId, store, 'DEV', root), null, 'the direct PLAN→DEV guard view accepts the current preflight and topology fixtures');
+  const actor = createStoryActor(storyId, store, 'PLAN', root);
+  actor.start();
+  assert.equal(actor.getSnapshot().can({ type: 'START' }), true, 'the restored PLAN actor preserves its store-backed DEV preflight context');
+  actor.stop();
   const advance = run(root, 'story_advance', { storyId, phase: 'DEV' });
   assert.match(advance, /advanced to DEV/);
   assert.equal(store.readStory(storyId).phase, 'DEV');

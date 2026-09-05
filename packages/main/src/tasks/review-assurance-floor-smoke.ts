@@ -316,6 +316,48 @@ function fakeDoneStore(metadataRoot: string, gitRoot: string, headHash: string, 
   createPlaybookRuntimeMemoryHandlers({ store, root: metadataRoot, scanRoot: gitRoot })
     .dev_memory_finish_decision({ storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'review-assurance-floor-smoke fixture; no lesson to capture' });
 
+  check('B-3f3d F-096/F-097: reviewer_forced replay mounts durably, ignores the auto-init writer, and tolerates a malformed reviewer', () => {
+    // B-3f3d F-096/F-097: the persisted `reviewer_forced` replay must (a) mount a real
+    // operator force durably, (b) ignore review-run.ts's ensureCurrentReviewRound events,
+    // which reuse the SAME action string but carry no `reviewer` — the non-empty check is
+    // the load-bearing disambiguation between the two writers, not incidental hygiene —
+    // and (c) stay inert rather than throwing on a malformed persisted value, since every
+    // gate consumer (canPassReviewGuard, epoch requiredLanes, quorum-submit, ...) calls this.
+    const forcedReplayStory = {
+      riskSignals: [],
+      events: [
+        { phase: 'REVIEW', action: 'reviewer_forced', timestamp: '2026-06-19T11:00:00.000Z', reason: 'auto-init', agent: 'main' },
+        { phase: 'REVIEW', action: 'reviewer_forced', timestamp: '2026-06-19T11:01:00.000Z', reviewer: 'behavior', reason: 'manual', agent: 'main' },
+        { phase: 'REVIEW', action: 'advance', timestamp: '2026-06-19T11:02:00.000Z', reviewer: 'docs', agent: 'main' },
+        { phase: 'REVIEW', action: 'reviewer_forced', timestamp: '2026-06-19T11:03:00.000Z', reviewer: 12345 as unknown as string, agent: 'main' },
+      ],
+    } as unknown as Parameters<typeof computeActiveReviewers>[0];
+    const replayed = computeActiveReviewers(forcedReplayStory, { items: [] }, null, []);
+    const replayedNames = replayed.map(row => row.name);
+    assert.ok(replayedNames.includes('behavior'), 'a persisted reviewer_forced event must durably mount its lane');
+    assert.equal(
+      replayed.find(row => row.name === 'behavior')?.forced, true,
+      'a replayed forced lane must be marked forced, not merely present',
+    );
+    assert.ok(
+      !replayedNames.includes('docs'),
+      'a non-reviewer_forced event carrying a reviewer field must not mount a lane',
+    );
+    // The auto-init writer's event carries NO `reviewer`. Two independent guards keep it
+    // inert: the `.filter(name => name.length > 0)` on the replay and the `if (!name)
+    // continue` in the mount loop. Either alone suffices, so removing just one is not
+    // observable — this asserts the OBSERVABLE property (no empty lane is ever mounted)
+    // rather than pinning a single line, and still fails if both guards were dropped.
+    assert.ok(
+      replayedNames.every(name => typeof name === 'string' && name.trim().length > 0),
+      'the reviewer_forced replay must never admit an empty lane name from the auto-init writer',
+    );
+    assert.equal(
+      replayed.filter(row => row.name === 'behavior').length, 1,
+      'replaying reviewer_forced events must not duplicate a lane',
+    );
+  });
+
   const reviewers = computeActiveReviewers(smokeStory, store.readChecklist(STORY_ID), null, ['packages/main/src/index.ts']);
   const runs: ReviewRun[] = reviewers.map((reviewer, index) => {
     const agent = `proof-or-stop-review-${reviewer.name}`;

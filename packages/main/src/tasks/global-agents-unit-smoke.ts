@@ -28,6 +28,7 @@ import {
   syncGlobalAgents,
   type GlobalAgentsFsDeps,
 } from '../core/global-agents.js';
+import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
 
 const TEMPLATE_DIR = '/pkg/templates/agents';
 const GLOBAL_DIR = '/home/tester/.claude/agents';
@@ -59,8 +60,8 @@ const TEMPLATES: Record<string, string> = {
 };
 const TEMPLATE_FILES = Object.keys(TEMPLATES).sort((a, b) => a.localeCompare(b));
 const ROLE_BY_FILE: Record<string, string> = {
-  'proof-or-stop-implementer.md': 'proof-or-stop-implementer',
-  'proof-or-stop-review-concept.md': 'proof-or-stop-review-concept',
+  'lattice-implementer.md': 'proof-or-stop-implementer',
+  'lattice-review-concept.md': 'proof-or-stop-review-concept',
 };
 
 type Node =
@@ -122,9 +123,10 @@ function makeMemFs(seed: Record<string, Node>, opts: { mkdirThrows?: boolean } =
 function expectedShim(file: string): string {
   const role = ROLE_BY_FILE[file];
   const { frontmatter } = extractTemplateFrontmatter(TEMPLATES[file], file);
+  const canonicalFrontmatter = frontmatter.replace(/^name:\s*.+$/m, `name: ${canonicalAgentRoleId(role)}`);
   return role === 'proof-or-stop-review-concept'
-    ? renderReviewerRunBootstrap(frontmatter, role)
-    : renderAgentShim(frontmatter, role);
+    ? renderReviewerRunBootstrap(canonicalFrontmatter, role)
+    : renderAgentShim(canonicalFrontmatter, role);
 }
 
 // --- resolveGlobalAgentsDir: injectable home ---
@@ -161,7 +163,7 @@ assert.match(resolveAgentTemplateDir(), /templates[\\/]agents$/, 'template dir m
   // failed BECAUSE the rename succeeded. Paired doesNotMatch keeps the shim body from
   // regressing to the deprecated bin.
   assert.match(body, /proof-or-stop agent_prompt --role=proof-or-stop-implementer/);
-  assert.doesNotMatch(body, /proof-or-stop agent_prompt --role=/);
+  assert.doesNotMatch(body, /lattice agent_prompt --role=/);
   assert.match(body, /thin pointer/);
   assert.doesNotMatch(body, /FULL ROLE BODY/);
 }

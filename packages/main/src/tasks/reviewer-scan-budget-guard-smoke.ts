@@ -542,10 +542,28 @@ function assertRealHandlerReadLogEvidencePath(): void {
   assert.equal(passEvent?.command, 'review_pass_set');
   assert.ok((passEvent?.readLog as any)?.digest, 'review_pass_set process event carries readLog digest');
 
+  // The pass-only conversion below carries different semantic evidence, so it
+  // is a distinct terminal rather than an idempotent retry of RP-001. Give it
+  // its own current-round signed ReviewRun; reusing RR-001 must correctly fail
+  // under the production conflict guard.
+  const firstRun = store.readReviewRuns(storyId).runs[0];
+  const conversionReviewRunId = `${storyId}:RR-002`;
+  const conversionStartedAt = new Date(Date.parse(firstRun.startedAt) + 1_000).toISOString();
+  const conversionRun = {
+    ...firstRun,
+    reviewRunId: conversionReviewRunId,
+    startedAt: conversionStartedAt,
+    _hash: signReviewRun(
+      storyId, conversionReviewRunId, agent, agent, firstRun.reviewRound,
+      conversionStartedAt, firstRun.headHash, firstRun.materialHash, firstRun.promptHash,
+    ),
+  };
+  store.writeReviewRuns(storyId, { runs: [firstRun, conversionRun] });
+
   handlers.finding_add({
     storyId,
     agent,
-    reviewRunId,
+    reviewRunId: conversionReviewRunId,
     desc: 'no blockers after checking behavior path',
     severity: 'low',
     category: 'happy',
@@ -564,7 +582,7 @@ function assertRealHandlerReadLogEvidencePath(): void {
     () => handlers.review_pass_set({
       storyId,
       agent,
-      reviewRunId,
+      reviewRunId: conversionReviewRunId,
       note: 'checked behavior evidence but supplied mismatched read manifest',
       readManifest: {
         filesReadFully: ['docs/requirements/decisions/a.md'],
@@ -584,7 +602,7 @@ function assertRealHandlerReadLogEvidencePath(): void {
   handlers.finding_add({
     storyId,
     agent,
-    reviewRunId,
+    reviewRunId: conversionReviewRunId,
     desc: 'implementation misses the documented read evidence persistence path',
     severity: 'high',
     category: 'missing',

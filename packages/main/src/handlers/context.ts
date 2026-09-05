@@ -16,6 +16,7 @@
 
 import { StoryStore } from '../core/store.js';
 import type { StoryPhase, StoryEvent } from '../core/types.js';
+import type { CausalPreflightFacts } from '../core/causal-evidence.js';
 import { existsSync, realpathSync } from 'fs';
 import { randomBytes } from 'crypto';
 import { gitProbe } from '../core/git-probe.js';
@@ -39,6 +40,12 @@ export interface HandlerContext {
   doneMainBuildRunner?: import('./done-effects.js').DoneMainBuildRunner;
   /** Core-owned capabilities available to optional published CLI extensions. */
   extensionRuntime?: ProofOrStopExtensionRuntime;
+  /** Test seam for causal preflight snapshots. Production probes the real workspace. */
+  causalPreflightFacts?: (input: {
+    command: string;
+    cwd: string;
+    timeoutMs?: number;
+  }) => CausalPreflightFacts;
 }
 
 const PHASE_TO_EVENT: Record<string, string> = { ...PHASE_EVENT_BY_TARGET };

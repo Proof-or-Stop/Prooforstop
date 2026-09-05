@@ -1,0 +1,210 @@
+{
+  "storyId": "B-45a0",
+  "checkedAt": "2026-08-29T05:08:14.948Z",
+  "features": [
+    {
+      "feature": "Approved design record integrity, normative Sections 1 through 27.6, current payload audit envelope, and DYN-1 observe-only versus DYN-3 authority boundary.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+    },
+    {
+      "feature": "Kickoff current-main inventory discovery, stable command identities, frozen digest, and rejection of historical counts as authority.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "StoryChangeManifest and dual-revision impact graph cover adds, modifications, deletes, renames, facts, capabilities, pins, and mandatory scope escalation.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "Every inventory command has catalog identity, source and runtime closure, risk and resource policy, and process-fact and capability bindings.",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "Deterministic additive execute, reuse, and unverified selection maintains complete inventory accounting, signed manifests, monotonicity, and fail-closed full escalation.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "DYN-1 observe instrumentation preserves full-plan order, verdict, resources, cleanup, and TEST and DONE authority boundaries while comparing against the complete oracle.",
+      "covered_by": "CHK-006",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "DYN-2 source-first per-command receipts and canonical baselines bind build, closure, ancestry, epoch, clean tree, environment, expiry, signature, and revocation.",
+      "covered_by": "CHK-007",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "DYN-2 shadow mode compares per-command and aggregate results to the complete validation oracle and revokes or escalates on mismatch.",
+      "covered_by": "CHK-008",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "DYN-3 permits only eligible local or docs Stories to use dynamic TEST authority after all twelve blocking prerequisites; unsafe changes fall back to complete validation and DONE-required remains independent.",
+      "covered_by": "CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "Operational modes, append-only enable and rollback history, structured reports, periodic baselines and audits, and honest warm/cold risk-tier performance reporting.",
+      "covered_by": "CHK-010",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "Historical replay, FI-1 through FI-5, mutation matrix, paired current-head runs, residue checks, and enforce threshold evidence.",
+      "covered_by": "CHK-011",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "DYN-4 stable weighted LPT scheduling enforces CPU capacity, resource claims, drain barriers, timeline persistence, and verdict equivalence.",
+      "covered_by": "CHK-012",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "DYN-5 safe quorum and review-pass sharding uses stable case IDs, exact coverage, end-to-end sentinels, aggregate receipts, routing checks, and residue rejection.",
+      "covered_by": "CHK-013",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "Wave 4 acceptance topology, pre-review, rollout report, and rollout admission are verifier-owned and bound to executable current-head evidence.",
+      "covered_by": "CHK-014",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/checklist.json"
+    },
+    {
+      "feature": "Complete current inventory remains the denominator: executed plus admissible reuse covers every row and final unverified, uncovered, and unmapped counts are zero.",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/understanding.json"
+    },
+    {
+      "feature": "Unknown, ambiguous, stale, revoked, malformed, dirty, protected, excluded, or uncertified conditions fail closed to execution or complete-plan escalation.",
+      "covered_by": "CHK-003, CHK-005, CHK-007, CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+    },
+    {
+      "feature": "Full validation remains fallback, high-risk policy, periodic baseline, and audit oracle; focused validation and DONE-required evidence never inherit dynamic authority.",
+      "covered_by": "CHK-006, CHK-008, CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+    },
+    {
+      "feature": "All gate-consumed facts are signed, digest-bound, ancestry-compatible, clean-tree generated, current, and mechanically verifiable.",
+      "covered_by": "CHK-007, CHK-009, CHK-014",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-45a0/decision.json"
+    },
+    {
+      "feature": "DYN-4 and DYN-5 remain separate safety-proven optimizations: they do not widen low-risk authority before their own equivalence and mutation evidence, and performance claims are population-specific.",
+      "covered_by": "CHK-010, CHK-011, CHK-012, CHK-013",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+    },
+    {
+      "feature": "No Story prose, natural-language similarity, LLM score, historical success, heuristic subtraction, or manual low-risk assertion can authorize skipping validation.",
+      "covered_by": "CHK-005, CHK-009",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+    },
+    {
+      "feature": "Unrelated product behavior changes are excluded from this Story.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "B-45a0 scope boundary",
+      "source": ".proof-or-stop/story/actives/B-45a0/scope-boundary.json"
+    },
+    {
+      "feature": "Weakening full validation, bypassing DONE-required, or treating focused receipts as dynamic authority is excluded from this Story.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "B-45a0 scope boundary and source plan non-goals",
+      "source": ".proof-or-stop/story/actives/B-45a0/scope-boundary.json"
+    },
+    {
+      "feature": "A universal 12 to 14 minute completion claim is excluded; reports must distinguish eligible, full-escalated, and pre-sharding populations.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "Source plan Section 21",
+      "source": "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+    },
+    {
+      "feature": "Unrelated framework migration outside the DYN-4 and DYN-5 implementation boundary is excluded.",
+      "covered_by": "",
+      "status": "excluded",
+      "excluded_by": "B-45a0 scope boundary",
+      "source": ".proof-or-stop/story/actives/B-45a0/scope-boundary.json"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".proof-or-stop/story/actives/B-45a0/checklist.json",
+      ".proof-or-stop/story/actives/B-45a0/decision.json",
+      ".proof-or-stop/story/actives/B-45a0/understanding.json"
+    ],
+    "filesTriagedByName": [
+      "AGENTS.md",
+      "docs/CLI.md",
+      "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+      "docs/requirements/decisions/dynamic-validation-operations.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "docs/requirements/NAV.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 24,
+    "covered": 20,
+    "excluded": 4,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "2026-08-28T19:18:13.536Z",
+  "_hash": "1d1f8a4a1b0e858d1b7c01f952bfdc2bcccdc237129e5bb58af027e5074fc81a",
+  "openQuestions": []
+}

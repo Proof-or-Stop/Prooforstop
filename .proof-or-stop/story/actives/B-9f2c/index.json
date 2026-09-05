@@ -1,0 +1,210 @@
+{
+  "storyId": "B-9f2c",
+  "name": "graph-story-dossier",
+  "title": "Migrate the graph story dossier page and add a --story deep-link flag to the graph command",
+  "description": "Port the per-story dossier page from the upstream proof-or-stop-graph repository (commits 4c3bde0, 7ecad9a, a0b14da, 1536588, all landed after the 10b5921 migration point already mirrored here) into packages/graph, and expose it from the CLI. The dossier is a full-window mission-control page for ONE story: a finding map, the seven-phase lifecycle loop, a dependency web, checklist/outcome panels, a findings feed, a dispatch swarm, a pulse chart and a wire log, all derived client-side from the existing /api/story detail. It has its own URL /story/<id>, served by the same HTTP shell as /. Upstream files: a new src/shells/web/dossier.js of 1119 lines, plus edits to app.css, app.js, app.body.html, io/http.ts, scripts/build-web.mjs and README.md. On top of the straight port, add a --story=<id> flag to the existing proof-or-stop graph command so the browser opens http://localhost:<port>/story/<id> directly instead of /. An unknown story id must be rejected BEFORE the server starts listening, following the precedent already set for --root in packages/main/src/handlers/graph.ts, where an unresolvable value is refused rather than silently serving an empty view.",
+  "type": "feature",
+  "phase": "DONE",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Data Migration/Destructive",
+      "matched": "migration"
+    }
+  ],
+  "createdAt": "2026-09-02T08:12:19.671Z",
+  "startedAt": "2026-09-02T08:12:19.671Z",
+  "endedAt": "2026-09-03T09:09:52.095Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-02T08:12:20.276Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-02T08:15:20.459Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-02T08:16:34.801Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T08:30:24.700Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T09:12:52.423Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-02T13:55:45.548Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T14:21:54.930Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T14:25:10.299Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-02T15:50:18.705Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T16:27:47.683Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T16:31:20.416Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-02T16:40:38.055Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-02T17:23:16.724Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-02T17:27:13.311Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-02T18:02:21.175Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T03:23:31.443Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T03:25:44.738Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-03T07:38:25.447Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-03T07:43:58.222Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-03T08:26:56.855Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-09-03T09:09:52.095Z",
+      "branch": "story/B-9f2c",
+      "user": "Pan Qi",
+      "sessionId": "graph-dossier-1788336363",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-09-03T07:43:58.222Z"
+}
