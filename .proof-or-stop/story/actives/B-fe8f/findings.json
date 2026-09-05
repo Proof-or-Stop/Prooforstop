@@ -832,7 +832,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:729-786 only validates the discriminant key name for non-applicable proposal variants; pre_existing_unaffected, out_of_scope, duplicate, and not_reproduced payloads are not shape-checked. A signed pre_existing_unaffected proposal with baseHead:null was mechanically accepted by verifyAssessmentProposal as valid, so append_assessment_proposal can persist a malformed exact-union proposal without the required base/head reproduction proof. This directly violates CHK-003 and can become unsafe input to later applicability consumers. Severity: high.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T09:29:09.522Z",
@@ -840,7 +840,12 @@
       "reviewRunId": "B-fe8f:RR-081",
       "_hash": "b30ef200d6522e9faa43b8c955decb757f1b8a87fce24e8f4a4809058bb9e2f9",
       "signatureTag": "adversarial|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoe9li8_2uz_5a2b0568a79a4a86816c9bf05035d5e2",
+      "resolvedAt": "2026-09-05T13:04:08.496Z",
+      "resolvedReason": "Fixed by exact discriminated variant validation in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b and complete signed envelope validation in e0a79946e70ac8a026b845ff7180ec311907d72e. Correctly signed malformed variant payloads are rejected, including null required base/head proof; legitimate six-variant cases and legal optional identity bindings remain accepted. Current full pinned refresh includes proposal shape/envelope negative and positive controls. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-036",
@@ -1170,6 +1175,7 @@
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoe9jsd_1rw_621d83ce0f494b51b82676c2f5f37d3a",
+      "ledgerCommitReceiptId": "lrc_mtoe9jsd_1rw_39179a6482c34212bc5dcee611bdf3b0",
       "resolvedAt": "2026-09-05T13:04:06.271Z",
       "resolvedReason": "Fixed in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b: read-only query/runtime verification uses non-creating trust loads. Cold-start no-key and write-denied filesystem controls verify deterministic no-write behavior and before/after filesystem invariance. Current tool-owned full pinned refresh supplies the GREEN receipts. Original observations and their re-attestations remain in the ledger; no severity downgrade or dismissal is used. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
       "resolutionType": "fixed",
