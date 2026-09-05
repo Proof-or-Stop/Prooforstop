@@ -3,7 +3,7 @@
   "changes": "Implemented the execution plan Section9.3 ledger/runtime foundation: fenced durable append batches, idempotent receipt replay, exact-record CAS, signed source/artifact/runtime bindings, protected read-only query, migration and fail-closed reader authority. Final follow-up46a37452ef07 repairs three existing mandatory test fixtures and eight documented nested CLI aliases in four files; no trust-portability or Dynamic Applicability policy expansion.",
   "usage": "From the Story worktree use node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f for the signed ledger/runtime scorecard. Use official Finding and runtime evidence CLI commands rather than editing protected records. After installation the public executable is proof-or-stop.",
   "expectedOutcome": "Deliver the Section9.3 Finding ledger/runtime integrity foundation with genuine RED/GREEN evidence, fresh lifecycle verification, independent review and a local main merge.",
-  "actualTranscript": "Source commit46a37452ef07 passed build and the existing done-required-validation, validate-progress-heartbeat, english-early-check and cli-surface suites. Official verification_evidence_refresh_stale completed71/71 in342.5seconds; metadata bc342c8. Current rollout admission check passed after report regeneration. The Story has entered REVIEW round27; final review, standard validation, actual host quorum, TEST/DONE and local merge remain pending.",
+  "actualTranscript": "The four-file source repair46a37452ef07 is committed. The original four focused suites passed in the implementer tool sessions; the first three preceded the final two config-alias value changes, and the final cli-surface run followed them. Official71/71 intent evidence was refreshed at source46a3745 in342.5seconds, metadata bc342c8. Round27 signed lanes are RP063 concept, RP064 coverage, RP065 Claude quality. Both actual Codex and Claude reviewers completed three bounded current-source checks. Standard validation, signed cross-host quorum, TEST/DONE and local main merge remain pending.",
   "outcomeDiff": "Core implementation and focused checks are complete, but lifecycle delivery and local main merge are not yet complete.",
   "acceptanceVerdict": "partial",
   "outcomeKind": "blocked",
@@ -11,8 +11,8 @@
     "ran": [],
     "skipped": []
   },
-  "limitations": "This is the ledger/runtime foundation, not the later Identity/Lineage or Dynamic Applicability system. Supported trust/writer model is the canonical shared local repository and linked worktrees; a new clone without the trusted key must fail closed. F048 remains high/suspected and tracked by keyed-ledgers-survive-reclone; F049 remains low/suspected and tracked by finding-ledger-nonblocking-review-followups CHK003. These drafts are compatibility accounting, not signed deferrals or repair proof. Pre-review topology evidence remains observe/inconclusive/nonblocking, not a passed topology proof. Downstream Story creation was not performed by this closeout.",
-  "pitfalls": "Use the repository-local CLI for unmerged ledger support: the globally installed pre-Story build falsely rejects finding-ledger.json closeout retention. Long Claude read-event commands triggered shell safety confirmation; a narrowly approved interactive retry persisted genuine review evidence without Owner impersonation. Serialize reviewer metadata commits and validation: an earlier run executed commands but its later causal preflight refused after HEAD/index drift, so it was not a complete validation receipt. The current source changes require CLI-directed evidence refresh; never relabel older hashes as current.",
+  "limitations": "This is the ledger/runtime foundation, not the later Identity/Lineage or Dynamic Applicability system. Supported trust/writer model is the canonical shared local repository and linked worktrees; a new clone without the trusted key must fail closed. F048 remains high/suspected and tracked by keyed-ledgers-survive-reclone; F049 remains low/suspected and tracked by finding-ledger-nonblocking-review-followups CHK003. These drafts are compatibility accounting, not signed deferrals or repair proof. Pre-review topology evidence remains observe/inconclusive/nonblocking, not a passed topology proof. Downstream Story creation was not performed by this closeout. F055 remains low/suspected: a test-prefix construction needs policy/readability clarification, not a reproduced functional or acceptance failure. Accountable subsequent triage owner is the existing docs/story/drafts/finding-ledger-nonblocking-review-followups backlog; the original structured observation is B-fe8f:F-055. Preserve its source/reasoning and re-evaluate if actual residue-policy failure or gate-truth impact is reproduced. gap_log refused invalid_binding_shape, so no B-META receipt or signed deferral is claimed. This assigns the preserved observation to existing follow-up triage, not to current source repair.",
+  "pitfalls": "Use the repository-local CLI for unmerged ledger support: the globally installed pre-Story build falsely rejects finding-ledger.json closeout retention. Long Claude read-event commands triggered shell safety confirmation; a narrowly approved interactive retry persisted genuine review evidence without Owner impersonation. Serialize reviewer metadata commits and validation: an earlier run executed commands but its later causal preflight refused after HEAD/index drift, so it was not a complete validation receipt. The current source changes require CLI-directed evidence refresh; never relabel older hashes as current. The F055 gap_log attempt was refused by the unrelated existing B-META provenance chain; it was not bypassed or repaired.",
   "phaseStats": {
     "INIT": {
       "count": 8,
@@ -32,14 +32,14 @@
     },
     "REVIEW": {
       "count": 27,
-      "durationMs": 113844509
+      "durationMs": 116045667
     },
     "TEST": {
       "count": 2,
       "durationMs": 59956921
     }
   },
-  "totalDurationMs": 369723823,
+  "totalDurationMs": 371924981,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-04T15:43:03.331Z",
-  "updatedAt": "2026-09-05T14:54:59.371Z"
+  "updatedAt": "2026-09-05T15:31:40.529Z"
 }
