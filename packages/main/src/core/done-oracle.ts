@@ -261,6 +261,23 @@ function doneCheckRow(row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean
   };
 }
 
+/**
+ * Bind a machine-readable DONE blocker to the exact oracle row that renders
+ * the same failed predicate. The process-fact contract verifier reads these
+ * call sites, so pointing an inventory entry at an unrelated existing row is
+ * no longer enough to claim DONE/preflight parity.
+ */
+function doneBlockerRow(
+  blockerCode: string,
+  oracleRowId: string,
+  row: Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean; detail: string },
+): DoneCheckRow {
+  if (row.id !== oracleRowId) {
+    throw new Error(`DONE blocker [${blockerCode}] expected oracle row ${oracleRowId}, received ${row.id}`);
+  }
+  return doneCheckRow(row);
+}
+
 function donePrepareCommand(storyId: string): string {
   return `proof-or-stop done_prepare '{"storyId":"${storyId}","mergeMain":true,"refreshStale":true,"validate":true}'`;
 }
@@ -437,7 +454,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // This record's contents remain non-authoritative; its existence is the
   // lifecycle completeness predicate enforced by machine.ts.
   const finishDecision = readDevMemoryFinishDecision(root, storyId);
-  rows.push(doneCheckRow({
+  const finishDecisionRow = {
     id: 'dev-memory-finish-decision',
     status: finishDecision ? 'pass' : 'fail',
     label: 'Dev-memory finish decision',
@@ -448,7 +465,10 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ? 'finish decision recorded'
       : `proof-or-stop dev_memory_finish_decision --storyId=${storyId} --decision=captured|no-reusable-lesson|defer-with-reason`,
     source: '.proof-or-stop/dev-memory/finish-decisions/<storyId>.json',
-  }));
+  } satisfies Omit<DoneCheckRow, 'blocking'>;
+  rows.push(finishDecision
+    ? doneCheckRow(finishDecisionRow)
+    : doneBlockerRow('missing_dev_memory_finish_decision', 'dev-memory-finish-decision', finishDecisionRow));
 
   // 3. git working tree clean (B-4b22: category-aware via dirty-gate-policy)
   // B-6666 CHK-001: read git status from the resolved gitCwd, not bare root.
@@ -636,7 +656,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   const deliveryCheckFreshness = evaluateDeliveryCheckFreshness(storyId, store, gitCwd, root);
   const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
   if (!deliveryCheck) {
-    rows.push(doneCheckRow({
+    rows.push(doneBlockerRow('missing_delivery_check', 'delivery-check', {
       id: 'delivery-check',
       status: 'fail',
       label: 'delivery-check',
@@ -646,7 +666,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
     }));
   } else {
     if (deliveryCheckFreshness.code === 'delivery_check_tampered') {
-      rows.push(doneCheckRow({
+      rows.push(doneBlockerRow('delivery_check_tampered', 'delivery-check', {
         id: 'delivery-check',
         status: 'fail',
         label: 'delivery-check',
@@ -655,7 +675,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         source: 'delivery-check.json._hash',
       }));
     } else if (deliveryCheckFreshness.code === 'stale_delivery_check') {
-      rows.push(doneCheckRow({
+      rows.push(doneBlockerRow('stale_delivery_check', 'delivery-check', {
         id: 'delivery-check',
         status: 'fail',
         label: 'delivery-check',
@@ -664,13 +684,13 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         source: 'delivery-check.json.materialHash',
       }));
     } else {
-      const unverified = deliveryCheck.docsPromises.filter(deliveryPromiseBlocksDone);
-      if (unverified.length > 0) {
-        rows.push(doneCheckRow({
+      const unverifiedPromises = deliveryCheck.docsPromises.filter(deliveryPromiseBlocksDone);
+      if (unverifiedPromises.length > 0) {
+        rows.push(doneBlockerRow('unverified_promise', 'delivery-check', {
           id: 'delivery-check',
           status: 'fail',
           label: 'delivery-check',
-          detail: `${unverified.length} docsPromise entries are unverified and not waived`,
+          detail: `${unverifiedPromises.length} docsPromise entries are unverified and not waived`,
           hint: 'Use delivery_waiver_add to write a waiver, or re-run the proof-or-stop-review-delivery reviewer to add verification evidence',
           source: 'delivery-check.json.docsPromises',
         }));
@@ -702,7 +722,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   // contradiction and cannot count as successful closeout evidence.
   const liveSmokeTranscript = evaluateOptionalLiveSmokeTranscript(store, storyId);
   if (liveSmokeTranscript.status !== 'absent') {
-    rows.push(doneCheckRow({
+    const liveSmokeRow = {
       id: 'live-smoke-transcript',
       status: liveSmokeTranscript.ok ? 'pass' : 'fail',
       label: 'live-smoke transcript',
@@ -712,7 +732,10 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
         : 'Re-run proof-or-stop live_smoke_transcript with a passing command and --write',
       source: 'evidence/live-smoke-transcript.json',
       blocking: !liveSmokeTranscript.ok,
-    }));
+    } satisfies Omit<DoneCheckRow, 'blocking'> & { blocking?: boolean };
+    rows.push(liveSmokeTranscript.ok
+      ? doneCheckRow(liveSmokeRow)
+      : doneBlockerRow('live_smoke_transcript_failed', 'live-smoke-transcript', liveSmokeRow));
   }
 
   // 6b. declared-artifacts referenced (B-cf60 CHK-003): every entry's
@@ -846,7 +869,7 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
   const reviewVerdictCode = reviewVerdict.code === 'review_evidence_invalid'
     ? 'stale_closeout_review'
     : (reviewVerdict.code ?? 'review_verdict_error');
-  rows.push(doneCheckRow({
+  const reviewVerdictRow = {
     id: 'review-verdict',
     status: reviewVerdict.ok ? 'pass' : 'fail',
     label: 'Reviewer verdict',
@@ -857,7 +880,12 @@ export function buildDoneChecklist(storyId: string, store: StoryStore, root: str
       ? 'reviewer evidence is current'
       : 'Return to DEV/REVIEW and record current reviewer evidence before TEST',
     source: 'review-runs.json + review-passes.json + findings.json',
-  }));
+  } satisfies Omit<DoneCheckRow, 'blocking'>;
+  rows.push(reviewVerdict.ok
+    ? doneCheckRow(reviewVerdictRow)
+    : reviewVerdict.code === 'review_evidence_invalid'
+      ? doneBlockerRow('stale_closeout_review', 'review-verdict', reviewVerdictRow)
+      : doneBlockerRow(reviewVerdictCode, 'review-verdict', reviewVerdictRow));
 
   // 6d. review escalation quorum. Ordinary documentation/decision-doc edits do
   //     not trigger this gate by themselves; the trigger is mechanical: the

@@ -1520,8 +1520,10 @@ export interface DonePreflightPredicateInventoryEntry {
 /**
  * Every literal machine-readable blocker code in machine.ts's
  * `targetPhase === 'DONE'` branch must be represented here. The source-first
- * process-fact verifier checks this inventory against both machine.ts and the
- * literal row ids in done-oracle.ts, then mutation-proves omission detection.
+ * process-fact verifier checks this inventory against machine.ts and an exact
+ * row-local doneBlockerRow binding in done-oracle.ts that is controlled by a
+ * shared predicate guard, then mutation-proves omission, wrong-row, and
+ * wrong-predicate detection.
  */
 export const DONE_PREFLIGHT_PREDICATE_INVENTORY = [
   {

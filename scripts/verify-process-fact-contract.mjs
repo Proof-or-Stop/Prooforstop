@@ -4947,26 +4947,58 @@ function collectLiteralDoneBlockerCodes(machineSource) {
   }
 
   const codes = new Set();
-  const collectFromText = (text) => {
-    for (const match of text.matchAll(/\[([a-z][a-z0-9_]*)\]/g)) codes.add(match[1]);
+  const guardRefsByCode = new Map();
+  const collectFromText = (text, node) => {
+    for (const match of text.matchAll(/\[([a-z][a-z0-9_]*)\]/g)) {
+      codes.add(match[1]);
+      const refs = guardRefsByCode.get(match[1]) || new Set();
+      for (const ref of collectEnclosingGuardReferences(node, sourceFile, doneBranches[0])) refs.add(ref);
+      guardRefsByCode.set(match[1], refs);
+    }
   };
   const visitLiteral = (node) => {
     if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
-      collectFromText(node.text);
+      collectFromText(node.text, node);
       return;
     }
     if (ts.isTemplateExpression(node)) {
-      collectFromText(node.head.text);
+      collectFromText(node.head.text, node);
       for (const span of node.templateSpans) {
         visitLiteral(span.expression);
-        collectFromText(span.literal.text);
+        collectFromText(span.literal.text, span.literal);
       }
       return;
     }
     ts.forEachChild(node, visitLiteral);
   };
   visitLiteral(doneBranches[0]);
-  return { codes, errors: [] };
+  return { codes, guardRefsByCode, errors: [] };
+}
+
+function collectConditionReferences(expression, sourceFile) {
+  const refs = new Set();
+  const visit = (node) => {
+    if (ts.isPropertyAccessExpression(node)) {
+      refs.add(node.getText(sourceFile).replace(/\s+/g, ''));
+      return;
+    }
+    if (ts.isIdentifier(node)) refs.add(node.text);
+    ts.forEachChild(node, visit);
+  };
+  visit(expression);
+  return refs;
+}
+
+function collectEnclosingGuardReferences(node, sourceFile, stopNode) {
+  const refs = new Set();
+  for (let current = node.parent; current && current !== stopNode; current = current.parent) {
+    if (ts.isIfStatement(current)) {
+      for (const ref of collectConditionReferences(current.expression, sourceFile)) refs.add(ref);
+    } else if (ts.isConditionalExpression(current)) {
+      for (const ref of collectConditionReferences(current.condition, sourceFile)) refs.add(ref);
+    }
+  }
+  return refs;
 }
 
 function collectLiteralDoneOracleRowIds(doneOracleSource) {
@@ -4986,6 +5018,66 @@ function collectLiteralDoneOracleRowIds(doneOracleSource) {
   return rowIds;
 }
 
+function collectDoneOracleBlockerBindings(doneOracleSource) {
+  const sourceFile = ts.createSourceFile(doneOraclePath, doneOracleSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const byCode = new Map();
+  const guardRefsByCode = new Map();
+  const errors = [];
+  const buildFunctions = sourceFile.statements.filter(node => (
+    ts.isFunctionDeclaration(node)
+    && node.name?.text === 'buildDoneChecklist'
+  ));
+  if (buildFunctions.length !== 1 || !buildFunctions[0].body) {
+    return {
+      byCode,
+      guardRefsByCode,
+      errors: [`${doneOraclePath}: expected exactly one buildDoneChecklist function with a body, found ${buildFunctions.length}`],
+    };
+  }
+  const isEmittedThroughRowsPush = (node) => {
+    for (let current = node.parent; current && current !== buildFunctions[0].body; current = current.parent) {
+      if (
+        ts.isCallExpression(current)
+        && ts.isPropertyAccessExpression(current.expression)
+        && current.expression.expression.getText(sourceFile) === 'rows'
+        && current.expression.name.text === 'push'
+      ) return true;
+    }
+    return false;
+  };
+  const visit = (node) => {
+    if (
+      ts.isCallExpression(node)
+      && ts.isIdentifier(node.expression)
+      && node.expression.text === 'doneBlockerRow'
+    ) {
+      const [codeNode, rowIdNode] = node.arguments;
+      const codeIsLiteral = codeNode && (ts.isStringLiteral(codeNode) || ts.isNoSubstitutionTemplateLiteral(codeNode));
+      if (codeIsLiteral) {
+        if (!isEmittedThroughRowsPush(node)) {
+          errors.push(`${doneOraclePath}: DONE blocker [${codeNode.text}] must be emitted through rows.push from buildDoneChecklist`);
+          ts.forEachChild(node, visit);
+          return;
+        }
+        const rowIdIsLiteral = rowIdNode && (ts.isStringLiteral(rowIdNode) || ts.isNoSubstitutionTemplateLiteral(rowIdNode));
+        if (!rowIdIsLiteral) {
+          errors.push(`${doneOraclePath}: DONE blocker [${codeNode.text}] must bind a literal oracle row id at its doneBlockerRow call site`);
+        } else {
+          const rows = byCode.get(codeNode.text) || new Set();
+          rows.add(rowIdNode.text);
+          byCode.set(codeNode.text, rows);
+          const refs = guardRefsByCode.get(codeNode.text) || new Set();
+          for (const ref of collectEnclosingGuardReferences(node, sourceFile, sourceFile)) refs.add(ref);
+          guardRefsByCode.set(codeNode.text, refs);
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(buildFunctions[0].body);
+  return { byCode, guardRefsByCode, errors };
+}
+
 /**
  * Pure contract checker shared by the real-source assertion and the in-memory
  * future-predicate mutation proof below.
@@ -4995,6 +5087,8 @@ function checkDonePreflightPredicateInventory({ machineSource, doneOracleSource,
   const extracted = collectLiteralDoneBlockerCodes(machineSource);
   errors.push(...extracted.errors);
   const oracleRowIds = collectLiteralDoneOracleRowIds(doneOracleSource);
+  const oracleBlockerBindings = collectDoneOracleBlockerBindings(doneOracleSource);
+  errors.push(...oracleBlockerBindings.errors);
   const byCode = new Map();
 
   for (const mapping of mappings) {
@@ -5031,6 +5125,27 @@ function checkDonePreflightPredicateInventory({ machineSource, doneOracleSource,
     }
     if (!oracleRowIds.has(mapping.oracleRowId)) {
       errors.push(`${doneOraclePath}: DONE blocker [${code}] maps to missing oracle row ${mapping.oracleRowId}`);
+    }
+    if (!oracleBlockerBindings.byCode.get(code)?.has(mapping.oracleRowId)) {
+      errors.push(`${doneOraclePath}: DONE blocker [${code}] has no row-local blocker binding to ${mapping.oracleRowId}`);
+    }
+    const machineGuardRefs = extracted.guardRefsByCode.get(code) || new Set();
+    const oracleGuardRefs = oracleBlockerBindings.guardRefsByCode.get(code) || new Set();
+    const sharedGuardRefs = [...machineGuardRefs].filter(ref => oracleGuardRefs.has(ref));
+    if (sharedGuardRefs.length === 0) {
+      errors.push(`${doneOraclePath}: DONE blocker [${code}] row ${mapping.oracleRowId} does not consume a shared machine/oracle predicate guard`);
+    }
+  }
+  for (const [code, rowIds] of oracleBlockerBindings.byCode) {
+    const mapping = byCode.get(code);
+    if (!mapping) {
+      errors.push(`${doneOraclePath}: row-local DONE blocker binding [${code}] has no done-preflight mapping`);
+      continue;
+    }
+    for (const rowId of rowIds) {
+      if (rowId !== mapping.oracleRowId) {
+        errors.push(`${doneOraclePath}: DONE blocker [${code}] is bound to oracle row ${rowId}, but the inventory maps ${mapping.oracleRowId}`);
+      }
     }
   }
 
@@ -5071,6 +5186,52 @@ function assertDonePreflightPredicateInventoryParity() {
   assert(
     mutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('no done-preflight mapping')),
     'DONE preflight inventory mutation must reject an unmapped [future_done_predicate] through the production-source check function',
+  );
+
+  const wrongRowMappings = [
+    ...mappings,
+    {
+      blockerCode: 'future_done_predicate',
+      processFactName: 'artifact:delivery-check.json',
+      oracleRowId: 'test-evidence',
+    },
+  ];
+  const wrongRowMutationErrors = checkDonePreflightPredicateInventory({
+    machineSource: mutatedMachineSource,
+    doneOracleSource,
+    mappings: wrongRowMappings,
+    registry,
+  });
+  assert(
+    wrongRowMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('row-local blocker binding')),
+    'DONE preflight inventory mutation must reject [future_done_predicate] mapped to an unrelated existing oracle row',
+  );
+
+  const finishDecisionMarker = '[missing_dev_memory_finish_decision]';
+  assert(machineSource.includes(finishDecisionMarker), `${machinePath}: wrong-predicate mutation point missing`);
+  const wrongPredicateMachineSource = machineSource.replace(
+    finishDecisionMarker,
+    `${finishDecisionMarker} [future_done_predicate]`,
+  );
+  const rowsMarker = '  const rows: DoneCheckRow[] = [];';
+  assert(doneOracleSource.includes(rowsMarker), `${doneOraclePath}: wrong-predicate mutation point missing`);
+  const wrongPredicateOracleSource = doneOracleSource.replace(
+    rowsMarker,
+    `${rowsMarker}\n  if (options.completedSnapshot) {\n    rows.push(doneBlockerRow('future_done_predicate', 'test-evidence', { id: 'test-evidence', status: 'fail', label: 'mutation', detail: 'mutation', source: 'mutation' }));\n  }`,
+  );
+  const wrongPredicateMutationErrors = checkDonePreflightPredicateInventory({
+    machineSource: wrongPredicateMachineSource,
+    doneOracleSource: wrongPredicateOracleSource,
+    mappings: wrongRowMappings,
+    registry,
+  });
+  assert(
+    !wrongPredicateMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('row-local blocker binding')),
+    'wrong-predicate mutation fixture must first establish an exact row-local [future_done_predicate] binding',
+  );
+  assert(
+    wrongPredicateMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('shared machine/oracle predicate guard')),
+    'DONE preflight inventory mutation must reject a row-local [future_done_predicate] binding guarded by an unrelated oracle predicate',
   );
 
   if (
