@@ -749,6 +749,21 @@
       "_hash": "e820a02ffff546576eeaef6382f8a827b6b08f05083ded5a167256cf29323c28",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-035",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:729-786 only validates the discriminant key name for non-applicable proposal variants; pre_existing_unaffected, out_of_scope, duplicate, and not_reproduced payloads are not shape-checked. A signed pre_existing_unaffected proposal with baseHead:null was mechanically accepted by verifyAssessmentProposal as valid, so append_assessment_proposal can persist a malformed exact-union proposal without the required base/head reproduction proof. This directly violates CHK-003 and can become unsafe input to later applicability consumers. Severity: high.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T09:29:09.522Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-081",
+      "_hash": "b30ef200d6522e9faa43b8c955decb757f1b8a87fce24e8f4a4809058bb9e2f9",
+      "signatureTag": "adversarial|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
