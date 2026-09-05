@@ -1,38 +1,25 @@
 {
   "storyId": "B-212f",
-  "checkedAt": "2026-09-04T16:47:57.081Z",
-  "reviewRound": "",
-  "agentId": "proof-or-stop-review-story-init@fallback",
-  "issues": [],
-  "agentResults": [
+  "checkedAt": "2026-09-05T08:29:28.843Z",
+  "reviewRound": "2026-09-05T08:26:08.024Z",
+  "agentId": "proof-or-stop-review-story-init",
+  "issues": [
     {
-      "agentId": "proof-or-stop-review-story-init@fallback",
-      "checkedAt": "2026-09-04T16:47:57.081Z",
-      "issues": []
-    },
-    {
-      "agentId": "product-reviewer@fallback",
-      "checkedAt": "2026-09-04T16:47:57.081Z",
-      "issues": []
+      "severity": "high",
+      "desc": "Background/checklist scope-policy conflict: Conversational Texture says critical or high defects stay in this Story without an applicability condition, while corrected CHK-003 requires applicability and gate impact to be assessed separately and permits a verified non-applicable critical/high defect to leave only with strong nonblocking proof plus a traceable owner/route. Because the background is a controlling INIT truth source, this unconditional wording can re-authorize unrelated scope expansion. Align the background with CHK-003 before INIT_CHECK. CHK-004 itself is appropriately bounded to BUG-001 because that medium defect directly blocks B-212f verification evidence and lifecycle acceptance."
     }
   ],
-  "fallback": {
-    "mode": "fallback",
-    "reason": "Independent INIT subagents cannot be launched under the current host policy without explicit user authorization. I manually verified the four-section background, all three checklist items, exact executable RED controls, candidate GREEN relation, explicit scope and execution boundaries, no gate weakening, no evidence fabrication, no remote push, and the required evidence-backed defect-triage rule.",
-    "evidenceRefs": [
-      "repro-probe:rp-mtn2kjzu-pap3kp",
-      "repro-review:rr-mtn2kqun-vcqatu",
-      "red-green-relation:rgr-mtn2ppnx-h2nqoj",
-      "red-green-evaluation:rgre-mtn2ptyg-asgnhf",
-      ".proof-or-stop/story/actives/B-212f/scope-boundary.json",
-      ".proof-or-stop/story/actives/B-212f/execution-boundary.json",
-      ".proof-or-stop/story/actives/B-212f/scope-freeze-check.json"
-    ],
-    "actor": "Harmonynet",
-    "session": "sess-98d02a93a118a7f4d0a06d9380ca324d",
-    "attestedAt": "2026-09-04T16:47:57.081Z",
-    "headHash": "fb6349382e8f93a03525d3a6a69f1fba69ea6dfb",
-    "materialHash": "e4090a460ce4fe5114eff3834d93aa7660e41ed053a2666d95a7d3969f1dd0e2"
-  },
-  "_hash": "efd75d832f050e923b3138f28a513a1d3c976e86f46cdd561535b20cd3c05a5d"
+  "agentResults": [
+    {
+      "agentId": "proof-or-stop-review-story-init",
+      "checkedAt": "2026-09-05T08:29:28.843Z",
+      "issues": [
+        {
+          "severity": "high",
+          "desc": "Background/checklist scope-policy conflict: Conversational Texture says critical or high defects stay in this Story without an applicability condition, while corrected CHK-003 requires applicability and gate impact to be assessed separately and permits a verified non-applicable critical/high defect to leave only with strong nonblocking proof plus a traceable owner/route. Because the background is a controlling INIT truth source, this unconditional wording can re-authorize unrelated scope expansion. Align the background with CHK-003 before INIT_CHECK. CHK-004 itself is appropriately bounded to BUG-001 because that medium defect directly blocks B-212f verification evidence and lifecycle acceptance."
+        }
+      ]
+    }
+  ],
+  "_hash": "f3fbad471802a0f4428adeb9e6c85f4cad1d70d17fa1957ce4d9400f9afbe9e3"
 }
