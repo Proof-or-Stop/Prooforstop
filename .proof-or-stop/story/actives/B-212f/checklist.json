@@ -349,7 +349,30 @@
         "headHash": "0bc957dad0ddf368be2b753b6e8235f632236ff6",
         "attestedAt": "2026-09-04T21:17:08.805Z",
         "materialHash": "74bbe9329c9d40136bfdee5d8ac35474d9166c7d069b8b9a01c753fbcde8b584"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Local repository CLI executes the current Story executor and sees the process-fact summary beyond the legacy head window.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "897b09b9c34bff4c95cfa23758aaf27d909f84e8a31b221296b579b296918c4f",
+            "outputTail": "status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist gate=validate verification freshness gate artifact=checklist.json\n- verification_intent_repair [L2/command] producer=handlers/checklist\n- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard\n- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match\n- verification_run [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\n- workflow_explain [L0/command] producer=core/config\n- workflow_set [L1/command] producer=core/config\n- workflow_show [L0/command] producer=core/config\nPrompt drift scan: 35 reviewer prompt files checked\n\nProcess Fact Inventory\n- phase advance\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/transition-orchestrator.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/core/machine.ts\n- review_run_start\n  packages/main/src/core/owner-session-adapters.ts\n  packages/main/src/handlers/story-dispatch.ts\n  packages/main/src/handlers/review-run.ts\n  packages/main/src/cli/command-catalog.ts\n- finding_add\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n- flow fact policy\n  packages/main/src/core/flow-fact-policy.ts\n  packages/main/src/core/process-fact-registry.ts\n- finding evidenceState gate dimension\n  packages/main/src/core/advisory.ts\n  packages/main/src/core/machine.ts\n  packages/main/src/core/types.ts\n- gap_log\n  packages/main/src/handlers/gap-log.ts\n  packages/main/src/core/audit-meta-store.ts\n  packages/main/src/registry.ts\n- review_pass_set\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/review-pass-provenance.ts\n  packages/main/src/core/finding-verify.ts\n- verification evidence\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/core/verification.ts\n  packages/main/src/core/machine.ts\n- init check\n  packages/main/src/handlers/init-check.ts\n  packages/main/src/core/init-check-gate.ts\n  packages/main/src/core/machine.ts\n- scope anti-expansion\n  packages/main/src/core/machine.ts\n  packages/main/src/handlers/story-create.ts\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/handlers/story-query.ts\n  packages/main/src/handlers/scope-anti-expansion.ts\n  packages/main/src/core/scope-anti-expansion.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/command-policy.ts\n  packages/main/src/handlers/worktree.ts\n  packages/main/src/core/process-fact-registry.ts\n  packages/main/src/core/lifecycle-registry.ts\n- scope check\n  packages/main/src/handlers/scope-check.ts\n  packages/main/src/handlers/story-review.ts\n- delivery check\n  packages/main/src/handlers/delivery-check.ts\n  packages/main/src/core/machine.ts\n- REVIEW/TEST/DONE gates\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/handlers/review-preflight.ts\n  packages/main/src/core/machine.ts\n- lifecycle registry\n  packages/main/src/core/lifecycle-registry.ts\n  packages/main/src/core/phase-flow.ts\n  packages/main/src/handlers/context.ts\n  packages/main/src/tasks/flow-stability-smoke.ts\n- CLI schema\n  packages/main/src/cli/command-catalog.ts\n  packages/main/src/core/config.ts\n\nProcess fact contract verified\nProcess-fact contract verification passed\n",
+            "selectorMatched": true,
+            "selector": "Process-fact contract verification passed",
+            "executedAt": "2026-09-05T08:18:52.248Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "da38137ad3737296679a7a73e3f3b1cf1c556f8a",
+          "materialHash": "ffdbd9afade1fc3f2f057c492b82b16a36aa78b9b7d1a0466e22a5bcfca85d50",
+          "storyFilesHash": "0d8ea937d9d4f58d71827d2c3a51c5ae145ede572b058e06c13875e28165e090",
+          "timestamp": "2026-09-05T08:18:52.535Z"
+        }
+      ]
     },
     {
       "id": "CHK-004",
