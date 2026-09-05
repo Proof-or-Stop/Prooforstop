@@ -833,8 +833,65 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "pending",
       "startTime": "2026-09-05T17:09:47.986Z",
+      "endTime": null
+    },
+    {
+      "id": "CHK-007",
+      "title": "Restore the documented stale-refresh execution grouping and receipt timestamps",
+      "context": "F-052 and F-053 are distinct pre-existing blockers exposed by the unchanged Part E controls after CHK-006 repaired earlier fixture and alias failures. One signed causal execution is projected with invented per-intent timestamps. The strict refresh-specific grouping established by a8f73da7bc3 and current command policy was partially lost in merge594908f8df, so the real five-key fixture executes only three identities. Preserve the current strict refresh behavior rather than changing public semantics to match the accidental runtime. Generic causal batching outside refresh retains its existing semantics.",
+      "relatedDocs": [
+        "AGENTS.md#two-layer-process-fact-contract",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md"
+      ],
+      "userSees": "The unchanged E1, E2 and E3 guard smoke assertions pass: shared exact refresh identities retain one signed execution timestamp, distinct strict refresh identities execute separately, and failing rows remain non-mechanical.",
+      "excludes": [
+        "Change E2's five-execution expectation to three.",
+        "Relax immutable pins, selector checks, signed receipt provenance, timeout safeguards or failure demotion.",
+        "Change generic causal batching semantics outside the explicit refresh context.",
+        "Add caller-authored execution identity or receipt authority."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Existing exact-key and distinct-key runtime controls prove strict refresh grouping and signed execution timestamp projection.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "The unchanged failing-command, pinless, selector, timeout and provenance controls remain enforced by the same complete guard smoke.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
       "endTime": null
     }
   ],
@@ -1271,6 +1328,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Owner starts exact F-050/F-051 repairs while CHK-005 awaits its dependent verifier results."
+    },
+    {
+      "timestamp": "2026-09-05T17:24:24.911Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "pending",
+      "reason": "Repair08680744ba is committed and CLI verifier passes; complete guard verification remains blocked by F-052/F-053, assigned separately to CHK-007."
     }
   ]
 }

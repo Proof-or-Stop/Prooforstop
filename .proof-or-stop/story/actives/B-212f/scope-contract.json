@@ -152,10 +152,30 @@
       "phase": "DEV",
       "headHash": "c93a7a96d503d4dc147d756636016de31b01c6d0",
       "materialHash": "1fa82ba2d323186745a78f97bed55ee574d575c1bb1d19d0052c93fa60ba30c2"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-052/F-053 require bounded correction of signed execution-time projection and restoration of the current strict refresh identity contract. CHK-007 preserves unchanged E1/E2/E3 controls and generic causal behavior; no new caller authority or broad framework rewrite.",
+      "timestamp": "2026-09-05T17:24:24.396Z",
+      "paths": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/core/process-fact-registry.ts",
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "3d48a3db2c713f3964857de3c893c3395ea0a382",
+      "materialHash": "aea56623f4de0f0f74ff4e2e7dd41ffba7f28cfdb398bff53d8c86c01665e3f7"
     }
   ],
   "createdAt": "2026-09-04T20:34:07.555Z",
-  "updatedAt": "2026-09-05T17:09:46.512Z",
+  "updatedAt": "2026-09-05T17:24:24.396Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
