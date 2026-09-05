@@ -502,8 +502,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T09:16:08.710Z",
       "endTime": null,
       "userSeesSnapshot": {
         "normalizedClaimDigest": "7f1816d0b22dc35d70cfbd8bdfea6d3a540b359d2ee731003473f06c0d30f73c",
@@ -844,6 +844,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implemented by proof-or-stop-implementer at 0bc957dad0 with the out-of-scope prose correction at 4ae0de6cdc; predicate inventory and omission guard are committed.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:08.710Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 8b1e7bce0a; private full-output selector matching remains bounded at public and persisted surfaces.",
       "agent": "proof-or-stop-implementer"
     }
   ]
