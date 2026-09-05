@@ -321,10 +321,32 @@
       "phase": "DEV",
       "headHash": "92a74dee07e5068a7000c3d69a69ce01f571cfde",
       "materialHash": "6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Bounded current lifecycle acceptance repairs for registered verified findings B-fe8f:F-050 through F-053. Three existing mandatory verification fixtures use retired environment/config names or an incorrect compiled repository root; the public Lab nested aliases are documented but absent. Preserve all assertions and current production authority boundaries. Change only these four files to restore the demonstrated mandatory validation paths; no global brand migration or trust portability expansion.",
+      "timestamp": "2026-09-05T14:35:45.192Z",
+      "paths": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "62486c1cb6ca0da192481ce755e272607af0cd09",
+      "materialHash": "6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b"
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-05T12:59:05.718Z",
+  "updatedAt": "2026-09-05T14:35:45.193Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -393,6 +415,10 @@
     "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
     "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md": "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
     "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json": "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json",
-    "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json": "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json"
+    "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json": "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts"
   }
 }

@@ -233,9 +233,9 @@
       "epochId": "B-fe8f:RI-003",
       "storyId": "B-fe8f",
       "reviewRound": "2026-09-05T13:03:05.150Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-05T14:23:27.375Z",
-      "updatedAt": "2026-09-05T14:23:27.375Z",
+      "updatedAt": "2026-09-05T14:35:13.791Z",
       "cutoff": {
         "headHash": "dd5b2baa69b30791d698c86158f8cad79f9200d5",
         "materialHash": "6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b",
@@ -249,9 +249,59 @@
       ],
       "initialRunSequenceBoundary": 103,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-05T14:23:27.375Z",
+          "completedAt": "2026-09-05T14:34:37.576Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-fe8f:RR-104",
+              "terminal": "pass",
+              "hostIdentity": "08d7167a9a715c5731c3d90b5336f606dbe122472c32e68a17c6e0d38eeb1824",
+              "promptIdentity": "1f7e9acd813a9ae08eceb39903dec406d4d9157e57cbbfc51fb7bd9b20c410e2",
+              "evidenceIds": [
+                "B-fe8f:RP-059"
+              ],
+              "coverageDigest": "4ce04ff1016f92baae181ff78986f6b5dbf4254c12dcc722bef477f5246cdd0b"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-fe8f:RR-105",
+              "terminal": "pass",
+              "hostIdentity": "88ab433e0f0ac5747f7ee3c19456812a0816436efd15f41ffac4a30711072cb2",
+              "promptIdentity": "1929437bd88c5795c2724f4c53385e487126a0f474249769df4ce6e4742971d6",
+              "evidenceIds": [
+                "B-fe8f:RP-060"
+              ],
+              "coverageDigest": "fb9c9701b048502bacfc29a4e87d61f6b1ef0686d8b27723dd869dc64a4a236d"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-fe8f:RR-106",
+              "terminal": "pass",
+              "hostIdentity": "88ab433e0f0ac5747f7ee3c19456812a0816436efd15f41ffac4a30711072cb2",
+              "promptIdentity": "159f4db65c9269a232e522b41fb4a0cfc18047f426cbceef2a79e6c94269c309",
+              "evidenceIds": [
+                "B-fe8f:RP-061"
+              ],
+              "coverageDigest": "53ca6c8573c06c9911affcd09de9cef9dee5385e2e3a9235ba2efc0786271e4e"
+            }
+          ],
+          "verifiedFindingFamilies": [],
+          "verifiedFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "67f5fc9c620b18f5815d4715318d7026aac35c913e1581bb955ae7c686516a17",
+          "saturated": true,
+          "nextRunSequenceBoundary": 108
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "9373e1e320ca3ff6cc7e49254cc69a82433d153f5f37322de987652f1bf40420"
+      "receiptId": "B-fe8f:RI-003:RCP-001",
+      "consumedAt": "2026-09-05T14:35:13.791Z",
+      "consumedByReviewRound": "2026-09-05T13:03:05.150Z",
+      "_hash": "ae14c56fee0ebc6c7176b94a4aa28c3d4b51d9c963c1d6bd096d949d86cbf698"
     }
   ],
   "receipts": [
@@ -326,6 +376,33 @@
       "issuedAt": "2026-09-05T11:33:34.109Z",
       "consumedAt": "2026-09-05T11:34:36.232Z",
       "_hash": "4da0d57976f2264a8d1809036e7f5de6ba2434049b547cae5e70631ca96c7d61"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-fe8f:RI-003:RCP-001",
+      "epochId": "B-fe8f:RI-003",
+      "storyId": "B-fe8f",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "cutoff": {
+        "headHash": "dd5b2baa69b30791d698c86158f8cad79f9200d5",
+        "materialHash": "6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b",
+        "storyFilesHash": "e418ebc542f9ff424c08bc382f7f8094ea89028c7ebacae48545dd6d50596aed"
+      },
+      "scopeDigest": "cb8a3c96645806fbf80e9507530391f14d6624f6959e01b2bfa5cee4f23bf245",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 1,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "8715a34de363690f1b59c275ac1620a234eb9d0846dd05a63863883882622b85",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-05T14:34:37.576Z",
+      "consumedAt": "2026-09-05T14:35:13.791Z",
+      "_hash": "c67692b76b97fea2d058e285461abc6f0528c92d671f90181fd9fecb5c3a973d"
     }
   ],
   "criticReceipts": [
@@ -439,6 +516,30 @@
       "findingDispositions": [],
       "createdAt": "2026-09-05T11:32:56.078Z",
       "_hash": "15fe7ad28b1dd773aebf48620a54a7d4e7a9f7b2c6bb374544d2e33b38ec59a7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-fe8f:RI-003:CRIT-01",
+      "epochId": "B-fe8f:RI-003",
+      "storyId": "B-fe8f",
+      "reviewRound": "2026-09-05T13:03:05.150Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "dd5b2baa69b30791d698c86158f8cad79f9200d5",
+        "materialHash": "6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b",
+        "storyFilesHash": "e418ebc542f9ff424c08bc382f7f8094ea89028c7ebacae48545dd6d50596aed"
+      },
+      "aggregateFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "requiredLaneCoverageDigest": "963ce161a7027e89fdec4c70e91962dbe2b1b78ea5c53880ecfd3eb1fe0b4557",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-fe8f:RR-108",
+      "terminalEvidenceIds": [
+        "B-fe8f:RP-062"
+      ],
+      "readEvidenceDigest": "e77619a231fa6866b30d884eae7e759eab10437ef575834e18c6397f0e7eeff2",
+      "findingDispositions": [],
+      "createdAt": "2026-09-05T14:34:12.710Z",
+      "_hash": "cb061f38f5289e09f1956a307205d65685bce222b03d1166f2d565d5eb57d3f5"
     }
   ]
 }
