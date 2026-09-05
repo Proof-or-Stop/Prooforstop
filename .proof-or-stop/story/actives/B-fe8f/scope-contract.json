@@ -301,10 +301,30 @@
         "verificationRefresh.executionKeyGrouping",
         "story.B_fe8f"
       ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These three CLI-created draft files implement the user-required evidence-backed accounting for nonblocking review observations without implementing those observations in B-fe8f. gap_log refused the existing unrelated B-META provenance chain, so the repository guide explicitly permits a traceable draft/backlog fallback. The draft preserves evidence, uncertainty, later ownership and escalation triggers; it is not a signed applicability assessment, deferral receipt or expansion of the current implementation scope.",
+      "timestamp": "2026-09-05T12:59:05.718Z",
+      "paths": [
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json",
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json",
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "92a74dee07e5068a7000c3d69a69ce01f571cfde",
+      "materialHash": "6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b"
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-05T10:20:34.371Z",
+  "updatedAt": "2026-09-05T12:59:05.718Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -370,6 +390,9 @@
     "packages/main/src/handlers/gap-log.ts": "packages/main/src/handlers/gap-log.ts",
     "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
     "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
-    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md": "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+    "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json": "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json",
+    "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json": "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json"
   }
 }
