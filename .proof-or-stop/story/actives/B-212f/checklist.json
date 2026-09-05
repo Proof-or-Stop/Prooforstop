@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Commit the reviewed executable done_prepare/DONE parity RED and register it",
       "context": "Candidate probe rp-mtn2kjzu-pap3kp and red review rr-mtn2kqun-vcqatu bind the exact executable design; red/green relation rgr-mtn2ppnx-h2nqoj and passing evaluation rgre-mtn2ptyg-asgnhf bind the same command to current-main RED and isolated-candidate GREEN. Before implementation, the test exits 1 because the real DONE guard rejects missing dev_memory_finish_decision and stale scopeBinding.diffPackHash while buildDoneClosureRunbook has neither blocker row. The already-run GREEN candidate proves the unchanged test can pass after the parity fix, but DEV must commit this test and rerun it in the Story worktree.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T11:28:42.223Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md#command-contract",
@@ -918,6 +918,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "proof-or-stop-implementer commit 1002a29499cca1a0a57d4cd5ec9a561156076665 repairs F-003/F-004 with branch-polarity semantic signatures, source provenance, and three executable inverse mutations.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:28:42.223Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Retain verified implementer commit 414e02135b; shared evaluator refinement is tracked by CHK-003.",
       "agent": "proof-or-stop-implementer"
     }
   ]
