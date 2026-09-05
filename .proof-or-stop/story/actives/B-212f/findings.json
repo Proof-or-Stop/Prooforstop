@@ -200,7 +200,7 @@
       "desc": "packages/main/src/core/done-oracle.ts:327,888-961,1105 regresses historical DONE snapshot projection: shared predicates evaluate live review evidence and assurance, then final projectDonePredicateRows overlays those failures even when completedSnapshot supplied valid historical assurance. Independent production-function witness `node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs` compares main 69403365ae buildDoneChecklist with current using identical DONE-phase controlled readers and historical-material snapshot: main review-escalation is pass/nonblocking; current review-escalation is fail/blocking and new stale review-verdict is fail/blocking. Active canFinishGuard remains false in both controls. Real-filesystem `node /tmp/b212f-quality-snapshot.Sx1V74/filesystem-witness.mjs` adapts only the original parity fixture phase to DONE after signing its pass: current emits review-verdict fail/blocking with stale_closeout_review/diff_pack_changed; running with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist emits no such row. Existing done-closure historical projection excludes review-verdict from its current-material revalidation allowlist, so this stale row tells an already-DONE Story to return to DEV/REVIEW. Other fixture blockers exist; no claim this row alone changes aggregate admissibility. This contradicts accepted completed-snapshot compatibility and decision pre-mortem. Bounded repair must preserve historical DONE assurance and classify current-material reviewer drift in the post-DONE projection while active TEST-to-DONE stays strict and missing/tampered historical facts remain blocking. The new shared fixture tests only missing finish-decision under completedSnapshot; existing post-done-closure-snapshot-smoke exits 1 at TEST fixture setup due newly required evidence, before its historical assertions. Repair that fixture without relaxing live gates.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T12:16:34.431Z",
@@ -240,7 +240,11 @@
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
       ],
       "signatureTag": "edge|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed the introduced historical snapshot regression in 8168160d51 under the explicitly human-approved narrow boundary: only actual DONE plus completedSnapshot preserves prior artifact/assurance presentation and labels reviewer status informational, not fresh PASS or full historical audit. TEST plus a supplied snapshot and default DONE guard remain live-strict. Final tests 982a3d1c12 and 15497d063b reproduce blocked versus local-admissible on immutable 5d0abf0 and pass after repair; post-done-closure-snapshot-smoke also passes and is registered in routine validation. Full historical reviewer replay is not claimed as implemented: traceable future capability is docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md. Original observations remain preserved; topology diagnostics are not asserted to be acceptance PASS.",
+      "resolvedAt": "2026-09-05T14:40:34.400Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-010",
