@@ -833,8 +833,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T17:09:47.986Z",
       "endTime": null
     }
   ],
@@ -1262,6 +1262,15 @@
       "from": "in_progress",
       "to": "pending",
       "reason": "Implementation61ea99033b is committed; full pinned verification is blocked by separately tracked F-050/F-051 and CHK-006. Keep one item in progress without claiming CHK-005 acceptance."
+    },
+    {
+      "timestamp": "2026-09-05T17:09:47.986Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Owner starts exact F-050/F-051 repairs while CHK-005 awaits its dependent verifier results."
     }
   ]
 }
