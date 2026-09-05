@@ -1716,6 +1716,55 @@
       ],
       "signatureTag": "pinned-nondefault-intent-refresh-recovery",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-037",
+      "desc": "cli-surface-smoke.ts:93-123 still requires lab create/run/eval/help normalization to retired lab_* commands. The unchanged active NESTED_SPACE_ALIASES map contains no Lab entries. Independent node packages/main/dist/tasks/cli-surface-smoke.js on main69403365ae and B-212f each exit1 at the same first assertion: actual matched:false versus expected matched:true and lab_create. Both implicated source files are unchanged from main. This stale test contract now blocks configured formal validation (config2222), so it is applicable acceptance maintenance despite pre-existing origin. Bounded test-only repair: exercise positive nested normalization with supported commands while retaining explicit negative assertions for retired Lab aliases, including redundant bin token paths. Do not restore retired commands or silently remove parser coverage. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T16:36:35.569Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-051",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "21facee391bc1b7908abb4475f9d1f45e003448577ea22cdfd3750d8caf66d0f",
+      "files": [
+        "packages/main/src/tasks/cli-surface-smoke.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "signatureTag": "retired-lab-alias-smoke-expectation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
