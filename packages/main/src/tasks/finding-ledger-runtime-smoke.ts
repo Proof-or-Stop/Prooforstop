@@ -300,7 +300,8 @@ function runProposalEnvelopeRegression(scratch: string): void {
   let invalidCount = 0;
   let validCount = 0;
   {
-    const check = (name: string, unsigned: Record<string, unknown>, valid: boolean, recomputeBundle = true) => {
+    const check = (name: string, unsigned: Record<string, unknown>, valid: boolean, recomputeBundle = true,
+      tamperSigned?: (candidate: Record<string, unknown>) => void) => {
       const input = structuredClone(unsigned);
       if (recomputeBundle && input.dependencyBundle && typeof input.dependencyBundle === 'object'
         && !Array.isArray(input.dependencyBundle)) {
@@ -309,6 +310,7 @@ function runProposalEnvelopeRegression(scratch: string): void {
       }
       // Re-sign the mutant so rejection cannot be explained by a stale signature.
       const candidate = signAssessmentProposal(input, pair.privateKey);
+      tamperSigned?.(candidate);
       const verified = verifyAssessmentProposal(candidate, options);
       const store = new StoryStore(join(scratch, 'proposal-envelope', String(validCount + invalidCount)));
       const lockDir = store.storyFilePath(storyId, 'findings.lock');
@@ -346,12 +348,16 @@ function runProposalEnvelopeRegression(scratch: string): void {
       else target[path.at(-1)!] = value;
       return copy;
     };
-    const invalidValues = [null, 7, [], {}, ''];
+    const invalidValues = [null, 7, [], {}, '', ' '];
     const requiredText = ['proposalId', 'findingHash', 'findingVersion', 'issuedAt', 'expiresAt', 'freshnessPolicyVersion',
       'reviewRunId', 'reviewRound', 'scopeDigest', 'headHash', 'materialHash', 'storyFilesHash', 'assessedBy'];
     for (const field of requiredText) {
       for (const value of invalidValues) check(`scalar:${field}:${JSON.stringify(value)}`, mutate([field], value), false);
       check(`scalar:${field}:missing`, mutate([field], undefined, baseline, true), false);
+    }
+    for (const field of ['proposalDigest', 'proposalSignature']) {
+      for (const value of invalidValues) check(`signed:${field}`, baseline, false, true, (candidate) => { candidate[field] = value; });
+      check(`signed:${field}:missing`, baseline, false, true, (candidate) => { delete candidate[field]; });
     }
     for (const field of ['findingRef', 'dependencyBundle', 'proposalSigner']) {
       for (const value of [null, 7, []]) check(`object:${field}:${JSON.stringify(value)}`, mutate([field], value), false);
@@ -376,6 +382,9 @@ function runProposalEnvelopeRegression(scratch: string): void {
       for (const value of invalidValues) check(`sourceFinding:${field}`, mutate(['dependencyBundle', 'sourceFinding', field], value), false);
       check(`sourceFinding:${field}:missing`, mutate(['dependencyBundle', 'sourceFinding', field], undefined, baseline, true), false);
     }
+    for (const value of [null, 7, [], {}]) check('sourceFinding:shape', mutate(['dependencyBundle', 'sourceFinding'], value), false);
+    for (const value of invalidValues) check('bundle:digest:type', mutate(['dependencyBundle', 'digest'], value), false, false);
+    check('bundle:digest:missing', mutate(['dependencyBundle', 'digest'], undefined, baseline, true), false, false);
     for (const value of [null, '7200', 0, -1, Number.NaN, Number.POSITIVE_INFINITY]) check('maxAgeSeconds', mutate(['maxAgeSeconds'], value), false);
     for (const field of ['schemaVersion', 'evaluationScope', 'owner']) {
       for (const value of [null, 99, [], {}, 'invalid']) check(`enum:${field}`, mutate([field], value, variants[5]), false);
@@ -384,7 +393,7 @@ function runProposalEnvelopeRegression(scratch: string): void {
     for (const scope of ['target_story', 'canonical_owner', 'repository_release']) check(`evaluationScope:${scope}`, { ...baseline, evaluationScope: scope }, true);
     const sparse = new Array(1);
     for (const field of ['evidenceRefs', 'runtimeReceiptIds']) {
-      for (const value of [null, {}, 'ref', [null], [7], [''], sparse]) check(`array:${field}`, mutate([field], value), false);
+      for (const value of [null, {}, 'ref', [null], [7], [''], ['valid', null], [null, 'valid'], sparse]) check(`array:${field}`, mutate([field], value), false);
     }
     const surfaces = ['data_integrity', 'security_or_privacy', 'package_publish_or_clean_install',
       'cli_primary_entrypoint', 'agent_resolution', 'historical_evidence_integrity', 'lifecycle_gate'];
@@ -394,6 +403,8 @@ function runProposalEnvelopeRegression(scratch: string): void {
     };
     for (const field of ['historicalSourceRefs', 'protectedSurfaceEvaluation']) {
       for (const value of [null, {}, 'entry', [null], [7], [{}], sparse]) check(`array:${field}`, mutate([field], value), false);
+      const validEntry = nested[field as 'historicalSourceRefs' | 'protectedSurfaceEvaluation'][0];
+      for (const value of [[validEntry, null], [null, validEntry]]) check(`array:${field}:mixed`, mutate([field], value), false);
     }
     for (const field of ['storyId', 'findingId', 'recordId', 'sourceFindingHash', 'canonicalSourceKey']) {
       for (const value of invalidValues) check(`historical:${field}`, mutate(['historicalSourceRefs', 0, field], value, nested), false);
@@ -405,7 +416,7 @@ function runProposalEnvelopeRegression(scratch: string): void {
       for (const value of [null, 7, [], {}, '', 'invalid']) check(`protected:${field}`, mutate(['protectedSurfaceEvaluation', 0, field], value, nested), false);
       check(`protected:${field}:missing`, mutate(['protectedSurfaceEvaluation', 0, field], undefined, nested, true), false);
     }
-    for (const value of [null, {}, 'ref', [null], [7], [''], sparse]) check('protected:evidenceRefs', mutate(['protectedSurfaceEvaluation', 0, 'evidenceRefs'], value, nested), false);
+    for (const value of [null, {}, 'ref', [null], [7], [''], ['valid', null], [null, 'valid'], sparse]) check('protected:evidenceRefs', mutate(['protectedSurfaceEvaluation', 0, 'evidenceRefs'], value, nested), false);
     check('protected:evidenceRefs:missing', mutate(['protectedSurfaceEvaluation', 0, 'evidenceRefs'], undefined, nested, true), false);
     check('protected:unknown-field', mutate(['protectedSurfaceEvaluation', 0, 'unknownField'], 'x', nested), false);
     for (const surface of surfaces) for (const state of ['clear', 'known_risk', 'unknown']) {
@@ -416,6 +427,9 @@ function runProposalEnvelopeRegression(scratch: string): void {
         evidenceRefs: [], runtimeReceiptIds: [], historicalSourceRefs: [], protectedSurfaceEvaluation: [] }, true);
       if (variant.currentWitness) check(`variant:${String(variant.verdict)}:sparse-witness`, mutate(['currentWitness', 'receiptIds'], sparse, variant), false);
       if (variant.baseHead) check('variant:preExisting:sparse-baseHead', mutate(['baseHead', 'receiptIds'], sparse, variant), false);
+      for (const field of ['currentWitness', 'baseHead', 'canonicalDefectRef']) {
+        if (variant[field]) check(`variant:${String(variant.verdict)}:array-as-${field}`, { ...variant, [field]: Object.assign([], variant[field]) }, false);
+      }
     }
     const optionalBundle = { canonicalIdentityDigest: 'canonical-identity', currentCanonicalFinding: current, supersessionChainTipDigest: 'chain-tip' };
     const optionalNames = Object.keys(optionalBundle) as Array<keyof typeof optionalBundle>;

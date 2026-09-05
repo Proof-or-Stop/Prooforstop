@@ -122,7 +122,16 @@ function nonEmptyText(value: unknown): value is string {
 }
 
 function nonEmptyTextArray(value: unknown): value is string[] {
-  return Array.isArray(value) && value.length > 0 && value.every(nonEmptyText);
+  return denseArrayOf(value, nonEmptyText) && value.length > 0;
+}
+
+/** Array.every skips holes, which JSON persistence would turn into signed nulls. */
+function denseArrayOf(value: unknown, elementValid: (element: unknown) => boolean): value is unknown[] {
+  if (!Array.isArray(value) || Object.keys(value).length !== value.length) return false;
+  for (let index = 0; index < value.length; index++) {
+    if (!Object.hasOwn(value, index) || !elementValid(value[index])) return false;
+  }
+  return true;
 }
 
 type PersistedCommitReceipt = LedgerCommitReceipt & {
@@ -852,6 +861,24 @@ const PROPOSAL_VARIANT_KEYS: Record<string, string[]> = {
   not_reproduced_under_current_witness: ['currentWitness'],
   unknown: [],
 };
+const PROPOSAL_ENVELOPE_TEXT_KEYS = [
+  'proposalId', 'findingHash', 'findingVersion', 'issuedAt', 'expiresAt',
+  'freshnessPolicyVersion', 'reviewRunId', 'reviewRound', 'scopeDigest', 'headHash',
+  'materialHash', 'storyFilesHash', 'assessedBy', 'proposalDigest', 'proposalSignature',
+];
+const PROPOSAL_PROTECTED_SURFACES = [
+  'data_integrity', 'security_or_privacy', 'package_publish_or_clean_install',
+  'cli_primary_entrypoint', 'agent_resolution', 'historical_evidence_integrity', 'lifecycle_gate',
+];
+
+function proposalObjectShape(value: unknown, required: string[], optional: string[] = []): value is Record<string, unknown> {
+  return !!value && typeof value === 'object' && !Array.isArray(value)
+    && exactKeys(value, [...required, ...optional.filter((key) => Object.hasOwn(value, key))].sort());
+}
+
+function proposalTextObject(value: unknown, required: string[], optional: string[] = []): value is Record<string, string> {
+  return proposalObjectShape(value, required, optional) && Object.values(value).every(nonEmptyText);
+}
 
 function proposalUnsigned(proposal: Record<string, unknown>): Record<string, unknown> {
   const { proposalDigest: _digest, proposalSignature: _signature, ...unsigned } = proposal;
@@ -874,65 +901,64 @@ function proposalExactUnionValid(proposal: Record<string, unknown>): boolean {
   const verdict = typeof proposal.verdict === 'string' ? proposal.verdict : '';
   const variant = PROPOSAL_VARIANT_KEYS[verdict];
   if (!variant || !exactKeys(proposal, [...PROPOSAL_ENVELOPE_KEYS, ...variant].sort())) return false;
+  if (!PROPOSAL_ENVELOPE_TEXT_KEYS.every((key) => nonEmptyText(proposal[key]))) return false;
   const signer = proposal.proposalSigner;
-  if (!signer || typeof signer !== 'object'
-    || !exactKeys(signer, ['actorId', 'algorithm', 'authorityDigest', 'keyId', 'trustRootDigest'])) return false;
+  if (!proposalTextObject(signer, ['actorId', 'algorithm', 'authorityDigest', 'keyId', 'trustRootDigest'])) return false;
   const findingRef = proposal.findingRef;
-  if (!findingRef || typeof findingRef !== 'object'
-    || !exactKeys(findingRef, ['findingId', 'recordId', 'storyId'])
-    || Object.values(findingRef).some((value) => typeof value !== 'string' || !value.trim())) return false;
-  const dependencyBundle = proposal.dependencyBundle;
-  if (!dependencyBundle || typeof dependencyBundle !== 'object'
-    || !exactKeys(dependencyBundle, [
-      'digest', 'ledgerSnapshotDigest', 'proofPolicyDigest',
-      'reviewerAuthorityPolicyDigest', 'sourceFinding',
-    ])) return false;
-  const bundle = dependencyBundle as Record<string, unknown>;
+  if (!proposalTextObject(findingRef, ['findingId', 'recordId', 'storyId'])) return false;
+  const bundle = proposal.dependencyBundle;
+  if (!proposalObjectShape(bundle, [
+    'digest', 'ledgerSnapshotDigest', 'proofPolicyDigest', 'reviewerAuthorityPolicyDigest', 'sourceFinding',
+  ], ['canonicalIdentityDigest', 'currentCanonicalFinding', 'supersessionChainTipDigest'])) return false;
+  if (!['digest', 'proofPolicyDigest', 'reviewerAuthorityPolicyDigest', 'ledgerSnapshotDigest']
+    .every((key) => nonEmptyText(bundle[key]))) return false;
+  for (const key of ['canonicalIdentityDigest', 'supersessionChainTipDigest']) {
+    if (Object.hasOwn(bundle, key) && !nonEmptyText(bundle[key])) return false;
+  }
+  if (Object.hasOwn(bundle, 'currentCanonicalFinding')
+    && !proposalTextObject(bundle.currentCanonicalFinding, ['findingId', 'hash', 'recordId', 'storyId'])) return false;
   const sourceFinding = bundle.sourceFinding;
-  if (!sourceFinding || typeof sourceFinding !== 'object'
-    || !exactKeys(sourceFinding, ['findingId', 'hash', 'recordId', 'storyId', 'version'])
-    || Object.values(sourceFinding).some((value) => typeof value !== 'string' || !value.trim())) return false;
+  if (!proposalTextObject(sourceFinding, ['findingId', 'hash', 'recordId', 'storyId', 'version'])) return false;
   const { digest: bundleDigest, ...unsignedBundle } = bundle;
-  if (typeof bundleDigest !== 'string' || bundleDigest !== canonicalHash(unsignedBundle)
-    || bundle.proofPolicyDigest === '' || bundle.reviewerAuthorityPolicyDigest === ''
-    || bundle.ledgerSnapshotDigest === ''
-    || (sourceFinding as Record<string, unknown>).storyId !== (findingRef as Record<string, unknown>).storyId
-    || (sourceFinding as Record<string, unknown>).findingId !== (findingRef as Record<string, unknown>).findingId
-    || (sourceFinding as Record<string, unknown>).recordId !== (findingRef as Record<string, unknown>).recordId
-    || (sourceFinding as Record<string, unknown>).hash !== proposal.findingHash
-    || (sourceFinding as Record<string, unknown>).version !== proposal.findingVersion) return false;
+  if (bundleDigest !== canonicalHash(unsignedBundle)
+    || sourceFinding.storyId !== findingRef.storyId
+    || sourceFinding.findingId !== findingRef.findingId
+    || sourceFinding.recordId !== findingRef.recordId
+    || sourceFinding.hash !== proposal.findingHash
+    || sourceFinding.version !== proposal.findingVersion) return false;
   if (proposal.schemaVersion !== 1
-    || !['target_story', 'canonical_owner', 'repository_release'].includes(String(proposal.evaluationScope))
-    || !Array.isArray(proposal.evidenceRefs)
-    || !Array.isArray(proposal.historicalSourceRefs)
-    || !Array.isArray(proposal.protectedSurfaceEvaluation)
-    || !Array.isArray(proposal.runtimeReceiptIds)
+    || typeof proposal.evaluationScope !== 'string'
+    || !['target_story', 'canonical_owner', 'repository_release'].includes(proposal.evaluationScope)
+    || typeof proposal.owner !== 'string'
+    || !['current_story', 'meta', 'other_story', 'unowned'].includes(proposal.owner)
+    || !denseArrayOf(proposal.evidenceRefs, nonEmptyText)
+    || !denseArrayOf(proposal.runtimeReceiptIds, nonEmptyText)
+    || !denseArrayOf(proposal.historicalSourceRefs, (entry) => proposalTextObject(entry,
+      ['findingId', 'recordId', 'storyId', 'sourceFindingHash'], ['canonicalSourceKey']))
+    || !denseArrayOf(proposal.protectedSurfaceEvaluation, (entry) => (
+      proposalObjectShape(entry, ['surface', 'state', 'evidenceRefs'])
+      && typeof entry.surface === 'string' && PROPOSAL_PROTECTED_SURFACES.includes(entry.surface)
+      && typeof entry.state === 'string' && ['clear', 'known_risk', 'unknown'].includes(entry.state)
+      && denseArrayOf(entry.evidenceRefs, nonEmptyText)
+    ))
     || typeof proposal.maxAgeSeconds !== 'number'
+    || !Number.isFinite(proposal.maxAgeSeconds)
     || proposal.maxAgeSeconds <= 0) return false;
   const owner = proposal.owner;
   const basis = proposal.basis;
   if (verdict === 'applicable') {
     const witness = proposal.currentWitness;
     return owner === 'current_story' && (basis === 'introduced_by_diff' || basis === 'direct_scope')
-      && !!witness && typeof witness === 'object'
-      && exactKeys(witness, ['receiptIds', 'reproduced'])
-      && (witness as Record<string, unknown>).reproduced === true
-      && Array.isArray((witness as Record<string, unknown>).receiptIds)
-      && ((witness as Record<string, unknown>).receiptIds as unknown[]).length > 0
-      && ((witness as Record<string, unknown>).receiptIds as unknown[])
-        .every((value) => typeof value === 'string' && value.trim().length > 0);
+      && proposalObjectShape(witness, ['receiptIds', 'reproduced'])
+      && witness.reproduced === true && nonEmptyTextArray(witness.receiptIds);
   }
   if (verdict === 'pre_existing_unaffected') {
     const baseHead = proposal.baseHead;
     return (owner === 'meta' || owner === 'other_story') && basis === 'base_head_reproduction'
-      && !!baseHead && typeof baseHead === 'object'
-      && exactKeys(baseHead, ['baseRef', 'baseResult', 'headRef', 'headResult', 'receiptIds', 'worsenedByStory'])
-      && nonEmptyText((baseHead as Record<string, unknown>).baseRef)
-      && (baseHead as Record<string, unknown>).baseResult === 'reproduced'
-      && nonEmptyText((baseHead as Record<string, unknown>).headRef)
-      && (baseHead as Record<string, unknown>).headResult === 'reproduced'
-      && (baseHead as Record<string, unknown>).worsenedByStory === false
-      && nonEmptyTextArray((baseHead as Record<string, unknown>).receiptIds);
+      && proposalObjectShape(baseHead, ['baseRef', 'baseResult', 'headRef', 'headResult', 'receiptIds', 'worsenedByStory'])
+      && nonEmptyText(baseHead.baseRef) && baseHead.baseResult === 'reproduced'
+      && nonEmptyText(baseHead.headRef) && baseHead.headResult === 'reproduced'
+      && baseHead.worsenedByStory === false && nonEmptyTextArray(baseHead.receiptIds);
   }
   if (verdict === 'out_of_scope') {
     return (owner === 'meta' || owner === 'other_story') && basis === 'decision_scope'
@@ -941,29 +967,21 @@ function proposalExactUnionValid(proposal: Record<string, unknown>): boolean {
   if (verdict === 'duplicate') {
     const defect = proposal.canonicalDefectRef;
     if ((owner !== 'meta' && owner !== 'other_story') || basis !== 'canonical_duplicate'
-      || !defect || typeof defect !== 'object'
-      || !exactKeys(defect, ['canonicalDefectId', 'canonicalOwner', 'currentCanonicalFinding', 'identityDigest'])) return false;
-    const current = (defect as Record<string, unknown>).currentCanonicalFinding;
-    return nonEmptyText((defect as Record<string, unknown>).canonicalDefectId)
-      && nonEmptyText((defect as Record<string, unknown>).identityDigest)
-      && nonEmptyText((defect as Record<string, unknown>).canonicalOwner)
-      && !!current && typeof current === 'object'
-      && exactKeys(current, ['findingId', 'hash', 'recordId', 'storyId'])
-      && Object.values(current).every(nonEmptyText);
+      || !proposalObjectShape(defect, ['canonicalDefectId', 'canonicalOwner', 'currentCanonicalFinding', 'identityDigest'])) return false;
+    return nonEmptyText(defect.canonicalDefectId) && nonEmptyText(defect.identityDigest)
+      && nonEmptyText(defect.canonicalOwner)
+      && proposalTextObject(defect.currentCanonicalFinding, ['findingId', 'hash', 'recordId', 'storyId']);
   }
   if (verdict === 'not_reproduced_under_current_witness') {
     const witness = proposal.currentWitness;
     return (owner === 'meta' || owner === 'other_story') && basis === 'counter_evidence'
-      && !!witness && typeof witness === 'object'
-      && exactKeys(witness, [
+      && proposalObjectShape(witness, [
         'commandPolicyDigest', 'negativeWitnessDigest', 'receiptIds',
         'reproduced', 'runtimeEvidenceDigest',
       ])
-      && (witness as Record<string, unknown>).reproduced === false
-      && nonEmptyTextArray((witness as Record<string, unknown>).receiptIds)
-      && nonEmptyText((witness as Record<string, unknown>).commandPolicyDigest)
-      && nonEmptyText((witness as Record<string, unknown>).runtimeEvidenceDigest)
-      && nonEmptyText((witness as Record<string, unknown>).negativeWitnessDigest);
+      && witness.reproduced === false && nonEmptyTextArray(witness.receiptIds)
+      && nonEmptyText(witness.commandPolicyDigest) && nonEmptyText(witness.runtimeEvidenceDigest)
+      && nonEmptyText(witness.negativeWitnessDigest);
   }
   return verdict === 'unknown' && (basis === 'direct_scope' || basis === 'counter_evidence')
     && !Object.hasOwn(proposal, 'nonBlockingProof');
