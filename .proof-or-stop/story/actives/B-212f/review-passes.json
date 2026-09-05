@@ -622,6 +622,48 @@
       },
       "readDiagnostics": [],
       "_hash": "5609e76344a772051ef401556e620a802800bc0fd64738bbc741b5de7b9b6291"
+    },
+    {
+      "id": "B-212f:RP-013",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Ordinary round-9 coverage review passed for CHK-001 through CHK-004 and their integrated change: 14 must intents, 14 current mechanical passing receipts with matching selectors/material5f21d60f/storyFiles8c9a7add, zero must gaps and zero waivers. Independently reviewed the complete focused delta since prior completed full reads: optional-array snapshot repair, source-executed real serializer/signature/trusted-prior proof and registry/verifier integration. Six valid shapes preserve own keys, integrity, digest and prior selection; 14 malformed field cases remain invalid and untrusted; array/row isolation and tamper rejection are asserted. Current shared proof and process-fact verifier pass; the exact unchanged test blob9c88c4dbf4 replayed against pre-repair helper9b077c1370 fails at legacy snapshot integrity with snapshotPrior null, validating closure of canonical F027 and corroborating coverage F029/F032. Fresh RR047 actual raw and snapshot envelope verification both succeed. RR034 raw/snapshot now agree on rejection for current eligibilityDigest/changedFilesDigest/impactedFilesDigest drift; old-run freshness is not asserted. Original parity blob0375c372 unchanged from414e02135b; fresh filesystem parity and historical snapshot smoke both pass, including read-only evidence/git-state checks. Approved boundary remains strict active TEST/default DONE admission, with actual DONE plus explicit completedSnapshot retaining historical informational reviewer presentation, not fresh PASS/full historical audit. No acceptance-topology certification or overall Story completion is claimed. Prior unchanged complete reads reused with newly added proof read in full through its delta; newly implicated core modules reviewed in bounded sections, not claimed full-file reads. No new coverage finding.",
+      "createdAt": "2026-09-05T15:57:49.159Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-047",
+      "envelopeId": "125316143ed61d41a55d83ad6a4377fcc8ffc301d2672a89e7e86a3d43c481f6",
+      "writerSessionId": "sess-6ff749093aec60d12c24f8501f82f122",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "70664fca08d161140c792716b689846bc73c5ff9419b608f10b4ad737174334a"
     }
   ]
 }
