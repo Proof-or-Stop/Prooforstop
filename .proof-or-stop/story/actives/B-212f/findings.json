@@ -1765,6 +1765,87 @@
       ],
       "signatureTag": "retired-lab-alias-smoke-expectation",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-038",
+      "desc": "RI-003 wave 1 verified family canonical-timeout-fixture-filename, distinct from the ambient-env assertion family. packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:159-181 setupTimeoutFixture writes retired lattice.config.json, while current core/brand-paths.ts:9 CONFIG_FILENAMES recognizes only proof-or-stop.config.json. Therefore assertTrueHangFailsClosedWithNamedDiagnostics at source line 765 never runs its intended true-hang command and fails its timeout stderr assertion. Exact bounded source-extracted write/git/commitAll/setupTimeoutFixture/runCli/runValidate functions were executed against both actual main 69403365 and current B-212f CLIs, with caller PROOF_OR_STOP_MAX_TIMEOUT_MS unset and set to 31090000. All four original-filename controls returned exit 0, allPass:true, commands:[], stderr only running validate / validate done, and details explicitly saying no configured validation commands were found. Renaming only the temporary fixture config to proof-or-stop.config.json in the same matrix produced allPass:false, one true-hang result with timedOut:true and timeoutMs:1000, named stderr matching validate timeout: command 1/1 true-hang: command=... args=... timeoutMs=1000 elapsedMs=..., and the expected details diagnostic. Actual command durations were approximately 1041-1049 ms. This demonstrates loaded-command absence, not failed watchdog scheduling, generic environment contamination or a B-212f executor regression. runCli:234-247 strips the inherited max and pins 120000 before spawning, so the outer 31090000 override cannot cause this failure. Tests and relevant brand/config helpers are byte-unchanged versus main; git diff e611a05 HEAD confirms prior integrated material reads remain current. This verified medium pre-existing fixture defect directly blocks configured current-Story validation and requires only the canonical filename test repair, preserving command-presence and timeout assertions. Do not restore retired runtime config aliases or expand into unrelated compatibility redesign. Older migration read-both prose does not override the current canonical runtime specified by the repository operating guide. Prior full reads reused; newly implicated modules/test sections were read boundedly and not declared full. Both main/head diagnostic matrices ran before this fresh canonical inventory terminal on unchanged material; all temporary fixtures were cleaned. No production, Story-phase or owner writes were made, and no acceptance claim is issued.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-05T16:36:47.495Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-052",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c1bdf1f16a842e9b692ee5147dae7651e98ef1914e8021db8fd7669cf2f079fe"
+      },
+      "readDiagnostics": [],
+      "_hash": "07404243fe46d7fc92a2e0032c9bf20fc212d511284796f5d8ae43dbe764f448",
+      "files": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/core/brand-paths.ts",
+        "packages/main/src/core/config.ts",
+        "packages/main/src/core/brand-env.ts",
+        "proof-or-stop.config.json",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "canonical-timeout-fixture-filename",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
