@@ -12609,6 +12609,477 @@
       "incrementalContextBytes": 47504,
       "escalatedToFull": true,
       "escalationReason": "FULL_CHEAPER_OR_EQUAL"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-topology-critic",
+      "storyId": "B-212f",
+      "dispatchKind": "story-dispatch",
+      "dispatchPromptDigest": "2f18c5bb4d012cdd4147a0338d021312058a5e05f8820bc63f4e08f97b083fce",
+      "createdAt": "2026-09-05T16:52:57.342Z",
+      "headHash": "9071b711aae68c6771d2b08e9992a903b68660c0",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "76db5cf02d1e02e5963fb50373e32536affac18e927d916f26d11ac0928f066c",
+      "roleRenderDigest": "48b3cee1e50a8ec8a2755e93ea80bea882cdc40106d5974a915d5979dc5f189b",
+      "contextMode": "full",
+      "contextDigest": "ef54f8202cee1e0969289ad6048d82df25ce00f05a5fadeb36578ad6a8b483c9",
+      "materialHash": "5f21d60f876149ae07175707c662798e5c550344fe4f36522a1c1b9541efdd63",
+      "storyFilesHash": "8c9a7add4e6019248cc962b818deff3f14d2cd7d1b6a15c5538122a321357d6f",
+      "policyHash": "04d1605d587daaf3240f9e83eb9cbe91dce824025b3ffa773afbc5d7b0ef40ba",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "34c172456c78ed56b5d1da75fb2238e7ae886f0c27ec50a0a2b77e933bdb33f2",
+      "knownExecutionEnvironmentDigest": "ac6655fb1b36d29f1aa0c0139cf4c81fea4b2a8c6a0492aa98de356377d41b03",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "b5a5d366f23b29f3e3d42053e075fa2f32551cddcc237cd3f6ccad6fbfe71630",
+      "commandPolicyDigest": "722b924abcff385e3f5dc79d2826fc75661c348e98569212653d9d985fc13242",
+      "assembledPromptDigest": "dcdd2531a79a0f688ef103d3eebb64bb3f7a1ad590543fb511a3b5a3a9751e31",
+      "bytes": 28406,
+      "lines": 128,
+      "estimatedTokens": 7102,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "700b45e39afeb2b3185a03d2fdbef7cdf74480ded309f28051a0f3b6a755a9e8"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-topology-critic",
+      "storyId": "B-212f",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-212f:RR-059",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "lane": "proof-or-stop-review-topology-critic",
+      "dispatchPromptDigest": "2f18c5bb4d012cdd4147a0338d021312058a5e05f8820bc63f4e08f97b083fce",
+      "hostRenderIdentityDigest": "50d6651baf3726c91757c9bc61e1af9da2903ca1d99c5277b452a5ab85e79a04",
+      "createdAt": "2026-09-05T16:53:22.754Z",
+      "headHash": "9071b711aae68c6771d2b08e9992a903b68660c0",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "76db5cf02d1e02e5963fb50373e32536affac18e927d916f26d11ac0928f066c",
+      "roleRenderDigest": "48b3cee1e50a8ec8a2755e93ea80bea882cdc40106d5974a915d5979dc5f189b",
+      "contextMode": "full",
+      "contextDigest": "ef54f8202cee1e0969289ad6048d82df25ce00f05a5fadeb36578ad6a8b483c9",
+      "materialHash": "5f21d60f876149ae07175707c662798e5c550344fe4f36522a1c1b9541efdd63",
+      "storyFilesHash": "8c9a7add4e6019248cc962b818deff3f14d2cd7d1b6a15c5538122a321357d6f",
+      "policyHash": "04d1605d587daaf3240f9e83eb9cbe91dce824025b3ffa773afbc5d7b0ef40ba",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "22ffc716cbed3943f91bab531a22e27cba9b7f3b095117975b06b03c607c6402",
+      "knownExecutionEnvironmentDigest": "ac6655fb1b36d29f1aa0c0139cf4c81fea4b2a8c6a0492aa98de356377d41b03",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "8c03004d68cc67a38f87030a085a07094aba4cc5a41a334f009bd19b24a68f73",
+      "commandPolicyDigest": "722b924abcff385e3f5dc79d2826fc75661c348e98569212653d9d985fc13242",
+      "assembledPromptDigest": "dcdd2531a79a0f688ef103d3eebb64bb3f7a1ad590543fb511a3b5a3a9751e31",
+      "bytes": 28406,
+      "lines": 128,
+      "estimatedTokens": 7102,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "a68ef5a77f9c6b21eaaf20dcfadbe1a5100f0dd99f65645c97857e9a7a85564a",
+      "freshnessClassification": "NOT_EVALUATED",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_DOCS_V1",
+        "FULL_MISSING_TRUSTED_PRIOR_PASS",
+        "FULL_PRIVATE_IMPLEMENTATION_V1",
+        "FULL_UNKNOWN_IMPACT"
+      ],
+      "changedFilesDigest": "c369ac85f96e36c0fb09926fc90d6dd70ebb3efb5decb330b1a7f99dc8183324",
+      "impactedFilesDigest": "d177c87667cd96c8d11ed406d05cfce5b6f06dcdc609900f68fdd68899ca1f69",
+      "taskSemanticDigest": "727d1380481565691fabc571868bc6078a07877c166ca410eb004ed1fe3bb7c6",
+      "findingProjection": [
+        {
+          "id": "B-212f:F-001",
+          "createdAt": "2026-09-05T09:19:55.835Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "scripts/verify-process-fact-contract.mjs:4972-5034 exact-mapping mutation false-green: collectLiteralDoneOracleRowIds accepts every literal id property anywhere in done-oracle.ts, and checkDonePreflightPredicateInventory verifies only that the declared row id exists, not that the row emits the mapped blocker code or consumes the corresponding predicate. Executing the exact checker functions in memory with future_done_predicate mapped to the unrelated existing test-evidence row and artifact:delivery-check.json returned errors:[]; therefore a future DONE predicate can be added, falsely mapped to an unrelated row, and the promised omission guard still passes while done_prepare remains divergent. This directly violates CHK-003 and can make lifecycle readiness evidence misleading; require the checker/mutation test to reject wrong-row mappings by proving code-to-row/predicate correspondence, not mere set membership."
+        },
+        {
+          "id": "B-212f:F-002",
+          "createdAt": "2026-09-05T09:23:36.661Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-168 promises that DONE/preflight parity is mechanically guarded, but scripts/verify-process-fact-contract.mjs:4972-5034 collects every literal id anywhere in done-oracle.ts and checks only row-id set membership. A future literal DONE blocker can therefore be mapped to an unrelated existing row/process fact and the verifier passes without done_prepare consuming that predicate; the in-memory test at 5062-5074 covers only an entirely unmapped code. This leaves the advertised future-divergence guard incomplete and can again make DONE readiness evidence misleading. Require a wrong-row/wrong-predicate mutation to fail by mechanically binding each blocker code to the corresponding oracle predicate/row behavior. Same root cause independently registered as B-212f:F-001."
+        },
+        {
+          "id": "B-212f:F-003",
+          "createdAt": "2026-09-05T09:45:22.466Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-171 promises an exact shared predicate guard and wrong-predicate mutation proof, but scripts/verify-process-fact-contract.mjs:4978-5001/5132-5136 compares only overlapping reference names and ignores boolean polarity and the branch containing doneBlockerRow. Independent in-memory execution inverted the real finish-decision oracle branches so missing finishDecision produced doneCheckRow(pass) while present finishDecision produced doneBlockerRow(fail); the unchanged production verifier still exited 0 and printed DONE/preflight predicate inventory parity passed plus Process-fact contract verification passed. Thus wrong-row coverage improved, but an opposite predicate with the same identifier remains false-green and F-001/F-002 closure is incomplete. Require semantic guard/branch correspondence and a polarity-inversion mutation that must fail."
+        },
+        {
+          "id": "B-212f:F-004",
+          "createdAt": "2026-09-05T09:48:17.241Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: scripts/verify-process-fact-contract.mjs:4978-5137 treats a shared predicate as any identical identifier/property-access text and ignores operators, polarity, call identity, and value provenance. Executing the exact production checker in memory with machine storyId.length > 0 returning [future_done_predicate], oracle storyId.length === 0 pushing the exact doneBlockerRow(future_done_predicate, test-evidence, ...), a matching inventory entry, and an L4 gate-evidence fact returned errors:[]. The two surfaces block on mutually exclusive states. Therefore commit 2480d37f rejects the old unrelated-row mutation but still does not deliver docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-171 claim that wrong-predicate future divergence is mechanically guarded. Require a semantic same-predicate binding or an inverse-polarity mutation that the production checker must reject; lexical reference intersection is false assurance."
+        },
+        {
+          "id": "B-212f:F-005",
+          "createdAt": "2026-09-05T10:04:04.015Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:167-173 promises value-provenance equality and rejection of a different origin, but scripts/verify-process-fact-contract.mjs:5057-5084 summarizes a call only as its callee name/base and ignores ordinary arguments. Independent in-memory execution added machine blocker future_provenance_predicate guarded by readDevMemoryFinishDecision(..., storyId) and the exact mapped oracle doneBlockerRow guarded by readDevMemoryFinishDecision(root, B-wrong-story); the production verifier exited 0 and printed DONE/preflight predicate inventory parity passed and Process-fact contract verification passed. The inverse-polarity mutation now correctly fails, but same-reader/different-target provenance remains false-green, so F-003/F-004 closure and the decision-doc promise are incomplete. Bind semantically relevant call arguments (especially storyId/root inputs) or use an explicit source-owned predicate identity, and add this same-callee/different-argument mutation as a required failure."
+        },
+        {
+          "id": "B-212f:F-006",
+          "createdAt": "2026-09-05T10:06:50.013Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "adversarial",
+          "desc": "scripts/verify-process-fact-contract.mjs:5057-5084 provenance mutation still false-greens: summarizeValueProvenance serializes an ordinary CallExpression as only call:<callee> and omits its arguments. I executed the production checkDonePreflightPredicateInventory functions in memory with machine provenance readDevMemoryFinishDecision(rootA, storyId) and oracle provenance readDevMemoryFinishDecision(rootB, storyId), while keeping the same future_done_predicate code, exact test-evidence row, polarity, and L4 gate-evidence mapping; the checker returned errors:[]. Thus a DONE predicate and done_prepare row can read different roots/inputs yet the verifier accepts them, contradicting docs/requirements/decisions/done-prepare-automation-execution-plan.md:167-173 that different origin cannot satisfy the contract. The committed provenance mutation at scripts/verify-process-fact-contract.mjs:5400-5408 only changes the callee shape (parameter storyId versus String(finishDecision)), so it does not kill same-callee/different-argument provenance drift. This directly leaves F-004 closure incomplete and can make DONE/preflight parity evidence misleading; require call-argument provenance normalization and an executable same-callee/different-root-or-storyId mutation that must fail."
+        },
+        {
+          "id": "B-212f:F-007",
+          "createdAt": "2026-09-05T10:07:01.819Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: scripts/verify-process-fact-contract.mjs:5013-5023 and 5135-5144 still admit two structural false greens after 1002a294. Exact in-memory execution of checkDonePreflightPredicateInventory returned no future_done_predicate errors when machine and oracle shared the same nearest Boolean(storyId) guard but were enclosed by opposite outer guards storyId.length > 0 versus === 0; findNearestBlockerBranch discards the rest of the control-flow path. It also returned no errors when the matching doneBlockerRow call sat inside rows.push but its result was discarded by a comma expression and the actually pushed row was doneCheckRow(pass); isEmittedThroughRowsPush checks only ancestry, not that the call result is the emitted row. Separately, the checker also returned errors:[] after changing readDevMemoryFinishDecision oracle arguments to process.cwd(), B-wrong, corroborating F-005 because call provenance at 5057-5084 ignores ordinary arguments. These bypasses contradict docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-173 claims for blocker-emitting branch, branch inversion, exact binding, and value origin. Require the full enclosing blocker path and direct emitted-value identity, plus same-callee/different-argument provenance coverage."
+        },
+        {
+          "id": "B-212f:F-008",
+          "createdAt": "2026-09-05T12:10:33.678Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 newly describes the complete done_prepare and done_closure commands as read-only projections. That scope is false: packages/main/src/handlers/done-prepare.ts:1889-1901 skips mutation only when mergeMain=false or dryRun=true, otherwise executing gitMaybe(gitCwd, [merge, main, --no-edit]); the same document at lines 93-100 recommends mergeMain=true, refreshStale=true, validate=true, dryRun=false. Read-only is true of the shared readiness oracle and evidence inspection, not of the encompassing done_prepare command. An operator relying on this new safety statement can run a mutating command as inspection. Reproduce by reading the cited branch and comparing the new sentence to the documented recommended invocation; no merge was executed in review. Critical classification follows the canonical concept-review closing self-check for a newly added behavior promise without corresponding implementation. This is applicable to the current changed documentation and needs only wording scoped to the shared readiness projection; preserve authorized merge/refresh/validate behavior and do not expand implementation scope."
+        },
+        {
+          "id": "B-212f:F-009",
+          "createdAt": "2026-09-05T12:16:34.431Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/done-oracle.ts:327,888-961,1105 regresses historical DONE snapshot projection: shared predicates evaluate live review evidence and assurance, then final projectDonePredicateRows overlays those failures even when completedSnapshot supplied valid historical assurance. Independent production-function witness `node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs` compares main 69403365ae buildDoneChecklist with current using identical DONE-phase controlled readers and historical-material snapshot: main review-escalation is pass/nonblocking; current review-escalation is fail/blocking and new stale review-verdict is fail/blocking. Active canFinishGuard remains false in both controls. Real-filesystem `node /tmp/b212f-quality-snapshot.Sx1V74/filesystem-witness.mjs` adapts only the original parity fixture phase to DONE after signing its pass: current emits review-verdict fail/blocking with stale_closeout_review/diff_pack_changed; running with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist emits no such row. Existing done-closure historical projection excludes review-verdict from its current-material revalidation allowlist, so this stale row tells an already-DONE Story to return to DEV/REVIEW. Other fixture blockers exist; no claim this row alone changes aggregate admissibility. This contradicts accepted completed-snapshot compatibility and decision pre-mortem. Bounded repair must preserve historical DONE assurance and classify current-material reviewer drift in the post-DONE projection while active TEST-to-DONE stays strict and missing/tampered historical facts remain blocking. The new shared fixture tests only missing finish-decision under completedSnapshot; existing post-done-closure-snapshot-smoke exits 1 at TEST fixture setup due newly required evidence, before its historical assertions. Repair that fixture without relaxing live gates."
+        },
+        {
+          "id": "B-212f:F-010",
+          "createdAt": "2026-09-05T12:16:51.845Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: Independent docs-lane corroboration of canonical B-212f:F-008, same root and impact, not a new defect family. docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 states that done_prepare and done_closure are read-only projections. The recommended invocation at lines 93-100 sets mergeMain=true and dryRun=false, while packages/main/src/handlers/done-prepare.ts:1889-1901 skips mutation only for mergeMain=false or dryRun=true and otherwise executes git merge main --no-edit. The new command-wide read-only promise exceeds the shared readiness evaluator boundary and could cause an operator to run a mutating command as inspection. Verified by independent source/doc reads; no merge was executed. The shared evaluator and finite mutation-proof description at doc163-184 match inspected source; node packages/main/tests/red/red-done-shared-predicates.mjs independently exited 0. Repair only the changed promise wording to refer to shared readiness projection, preserving authorized merge/refresh/validate behavior. Preserve F-008 as canonical observation; inventory critic should classify this corroboration as duplicate of its live owner-bound Finding."
+        },
+        {
+          "id": "B-212f:F-011",
+          "createdAt": "2026-09-05T12:18:37.687Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "Coverage corroboration of canonical B-212f:F-009, same completed-snapshot compatibility defect and no independent repair family: packages/main/tests/red/red-done-shared-predicates.mjs:133,260-266 keeps readStory at phase TEST and tests only a missing finish decision under completedSnapshot; it never witnesses a DONE-phase Story with valid historical assurance and stale current material. The signed decision preMortem explicitly requires preserving completion-snapshot semantics and testing snapshot/live gate behavior. Independent command node packages/main/dist/tasks/post-done-closure-snapshot-smoke.js exits 1 at TEST fixture starts DONE-ready, before any historical assertions. Independent replay of node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs executes source-extracted main 69403365ae and current buildDoneChecklist using identical DONE-phase snapshot-aware readers: main review-escalation is pass/nonblocking, current escalation and stale reviewer-verdict are fail/blocking, while active canFinishGuard remains false. Consequently current green shared-proof receipts do not establish the promised historical compatibility. Canonical F-009 already owns the implementation defect and test repair; this record supplies the required signed coverage-lane terminal and duplicate corroboration only. Retain F-009 as canonical, repair its historical fixture and coverage without weakening active TEST-to-DONE gates, then rerun snapshot and shared proofs."
+        },
+        {
+          "id": "B-212f:F-012",
+          "createdAt": "2026-09-05T12:19:25.993Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: Fresh RI-001 concept-lane re-observation of canonical B-212f:F-008; same defect and impact, not a new repair family. On current frozen candidate cdf1fba, docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 still describes the complete done_prepare command as a read-only projection, whereas its recommended defaults at 93-100 enable mergeMain and disable dryRun. packages/main/src/handlers/done-prepare.ts:1890-1901 skips merge only when mergeMain=false or dryRun=true and otherwise executes git merge main --no-edit. Independent fresh line reads confirm the command-wide safety statement remains false and could induce a mutating invocation as inspection. git diff 83dd5c53e1 HEAD across guides, scoped source/tests/config, background, plan and checklist is empty; this re-observation has the same material and Story-file bindings as the original review. F-008 remains open/verified in current finding_list output. Correct only the new sentence to scope read-only to the shared readiness projection; preserve merge/refresh/validate behavior. Critical classification follows the canonical concept closing self-check for an undelivered behavior promise. Preserve F-008 as canonical; this inventory terminal is a duplicate candidate for the completeness critic and does not prove repair or authorize scope expansion. No source change or merge was executed."
+        },
+        {
+          "id": "B-212f:F-013",
+          "createdAt": "2026-09-05T12:23:56.682Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "Independent inventory completeness critic corroboration of live canonical B-212f:F-009, not a new repair family. Current done-oracle.ts:327 evaluates live shared predicates before historical options; lines 921-961 separately compute snapshot-aware assurance but line 1105 finally overlays live failures. I read both scoped decision documents, background, plan, and both committed parity tests; plan CHK-003 explicitly requires completed-snapshot behavior. I inspected and independently executed node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs: source-extracted main 69403365ae gives review-escalation pass/nonblocking for identical DONE-phase historical snapshot readers, while current gives review-escalation fail/blocking and review-verdict stale_closeout_review fail/blocking; active canFinishGuard stays false in both. The shared parity test hardcodes TEST and only supplies completedSnapshot with missing finish decision, so it does not establish historical assurance compatibility. Preserve F-009 as canonical and require its bounded implementation/fixture repair with strict active TEST-to-DONE behavior preserved. Inventory completeness is not acceptance: acceptance_topology_check is observe/inconclusive/unsupported and pre_review_check_read is observe/inconclusive; separate topology critic request_changes receipt has independent provenance. No code, scope, or lifecycle changes performed."
+        },
+        {
+          "id": "B-212f:F-014",
+          "createdAt": "2026-09-05T12:30:12.442Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: RI-001 wave 2 re-observation of the existing done-command-read-only-overclaim family, historical observation B-212f:F-008 and signed corroboration B-212f:F-010. No new defect family is asserted. Fresh inspection confirms docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 still labels the complete done_prepare command read-only, whereas recommended defaults at 93-100 enable mergeMain with dryRun=false and packages/main/src/handlers/done-prepare.ts:1890-1901 executes git merge main --no-edit in that branch. The false command-wide inspection promise can lead an operator to invoke a mutating command believing it read-only. Correct only the changed sentence to refer to the shared readiness projection; do not remove authorized merge/refresh/validate behavior. Critical severity follows the canonical concept closing self-check for an undelivered behavior promise. Current finding_list still reports F-008/F-010 open. Fresh git diff 83dd5c53e1 HEAD across guides, story background/plan/checklist, docs, packages/main, scripts and config is empty. Rechecked shared lazy consumer and final projection code and searched the former parser identifiers; the sole collectLiteralDoneBlockerCodes reference remains in the explicit historical RED helper. No independent additional concept defect was discovered by these bounded checks. This signed wave terminal proposes duplicate classification in the existing family, preserves original observations, and does not claim resolution, PASS, or complete historical snapshot compatibility. No source edit or merge executed."
+        },
+        {
+          "id": "B-212f:F-015",
+          "createdAt": "2026-09-05T12:30:15.885Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: RI-001 wave 2 independently re-observes the unchanged done-command-read-only-overclaim family from B-212f:F-010 and canonical B-212f:F-008. docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 still calls complete done_prepare and done_closure commands read-only projections; its recommended invocation at93-100 enables mergeMain without dryRun. Fresh read of packages/main/src/handlers/done-prepare.ts:1889-1901 confirms mutation is skipped only for mergeMain=false or dryRun=true, otherwise git merge main --no-edit runs. This overstates the shared readiness projection boundary and may lead operators to invoke mutation as inspection. No merge was executed during review. git diff cdf1fba..HEAD on the reviewed document, machine, oracle, handler, validation executor and verifier was empty, so full prior reads remain applicable; fresh bounded reads and node packages/main/tests/red/red-done-shared-predicates.mjs again exited0 and support the finite evaluator description at163-184. No distinct new docs defect found. Repair only the new read-only wording; preserve existing command behavior. Retain F008/F010 observations and classify this same-root re-observation through inventory critic without claiming a new defect family or repair."
+        },
+        {
+          "id": "B-212f:F-016",
+          "createdAt": "2026-09-05T12:31:52.807Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/done-oracle.ts:327,888-961,1105 RI-001 wave 2 independently re-observes F-009, same completed-done-snapshot-live-overlay defect family, on unchanged material. Reran node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs: original main production buildDoneChecklist gives historical review-escalation pass/nonblocking; current gives fail/blocking and stale review-verdict fail/blocking under the identical DONE-phase snapshot-aware reader fixture. Active canFinishGuard remains false in both controls. Existing actual-filesystem witness remains /tmp/b212f-quality-snapshot.Sx1V74/filesystem-witness.mjs. No repair occurred. Preserve original F-009 and its evidence; this is a current wave observation, not a separate root cause. Historical DONE projection must preserve completed-snapshot assurance and classify current-material reviewer drift without weakening active TEST-to-DONE checks."
+        },
+        {
+          "id": "B-212f:F-017",
+          "createdAt": "2026-09-05T12:32:24.973Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "RI-001 wave 2 re-attestation of B-212f:F-011, corroborating canonical B-212f:F-009 in the same completed-done-snapshot-live-overlay family; no independent repair family. Material remains d063051d and Story files 48b2d628, with no source/config/test/decision change since the prior coverage review. packages/main/tests/red/red-done-shared-predicates.mjs:133-149,260-266 still holds readStory at TEST and its completedSnapshot test exercises only finish=null; snapshot-aware historical-valid/live-stale assurance and the DONE-phase runbook are absent. Fresh node packages/main/tests/red/red-done-shared-predicates.mjs passes its 15 cases, but fresh node packages/main/dist/tasks/post-done-closure-snapshot-smoke.js exits 1 at TEST fixture starts DONE-ready before historical assertions. Fresh node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs executes identical snapshot-aware DONE fixtures against source-extracted main 69403365ae/current buildDoneChecklist: historical escalation is pass/nonblocking on main and fail/blocking currently, with new stale reviewer-verdict blocking; active canFinishGuard still rejects in the control. Thus green shared-proof receipts still do not establish the signed decision preMortem promise to preserve completion-snapshot compatibility. Canonical F-009 owns the bounded implementation and fixture repair; preserve F-011 and this independent signed corroboration, repair historical-valid/live-stale tests without weakening active TEST-to-DONE or missing/tampered evidence checks, and classify this as duplicate corroboration against F-009."
+        },
+        {
+          "id": "B-212f:F-018",
+          "createdAt": "2026-09-05T12:32:35.819Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/machine.ts:1015 reads deliveryCheck.docsPromises.filter after delivery-integrity already yielded delivery_check_tampered. The lazy guard and diagnostic stop safely, but buildDoneChecklist:327 exhausts the generator and throws TypeError on a malformed/tampered delivery artifact with docsPromises missing, replacing the previously structured blocker with an unhandled exception. Real filesystem reproduction: from this worktree run `node /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs`; it adapts the existing parity fixture by deleting docsPromises from the synthetic signed delivery record via its test Store. Current dist prints MALFORMED_DELIVERY_GUARD_REASON containing delivery_check_tampered, then MALFORMED_DELIVERY_ORACLE_THROW Cannot read properties of undefined (reading filter), stack evaluateDonePredicates -> buildDoneChecklist -> buildDoneClosureRunbook. Exact same command with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist prints MALFORMED_DELIVERY_ORACLE as delivery-check fail/blocking with delivery-check.json._hash source. Original parity assertions are intentionally inapplicable after introducing this earlier blocker; the marked output is the witness. Independent source-executed main/current build comparison produced the same structured-failure-versus-throw difference. This new shared-evaluator regression directly violates DONE/preflight diagnostic parity and the decision pre-mortem requiring safe incomplete-artifact handling. Null or non-array docsPromises and malformed promise elements belong to the same dependency-validation family. Bounded repair must avoid inspecting untrusted delivery promise contents after freshness/integrity has rejected them, while retaining the already emitted tamper/stale blocker and active DONE rejection; add executable malformed-artifact coverage without treating invalid content as a passing artifact."
+        },
+        {
+          "id": "B-212f:F-019",
+          "createdAt": "2026-09-05T12:35:23.254Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "RI-001 wave 2 independent completeness critic corroborates canonical F-018; this critic terminal adds no separate family. Fresh source read machine.ts:1006-1016 confirms delivery-integrity yields delivery_check_tampered before deliveryCheck.docsPromises.filter, and done-oracle.ts exhausts that generator. I inspected and independently executed /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs against current and main dist. Current marked output reports guard delivery_check_tampered then MALFORMED_DELIVERY_ORACLE_THROW Cannot read properties of undefined (reading filter); main gives MALFORMED_DELIVERY_ORACLE delivery-check fail/blocking with delivery-check.json._hash. Both command exit codes are 1 for different expected witness reasons: current throws, while main retains original now-inapplicable parity assertions; marked row evidence establishes the regression, not exit status alone. This is a distinct dependency-validation defect from historical snapshot overlay: active TEST malformed delivery triggers it without completedSnapshot. Preserve F-018 as canonical and repair untrusted promise access without accepting invalid evidence. Prior full bounded document/test reads remain applicable: git diff e8feacc633..a79f8c1347 is empty across those exact files and scoped material. Wave 2 raw required-lane findings and their read manifests/logs were inspected. Topology remains unsupported observe/inconclusive, separately receipted request_changes; no acceptance PASS, implementation edit, dismissal, or lifecycle change."
+        },
+        {
+          "id": "B-212f:F-020",
+          "createdAt": "2026-09-05T12:37:59.885Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: RI-001 final wave 3 re-observation of existing family done-command-read-only-overclaim (F-008 original observation; F-010 and F-014 corroborations), not a new root or repair family. Fresh source/doc reads still show docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 describing the complete done_prepare command as read-only while recommended defaults at 93-100 enable mergeMain with dryRun=false; packages/main/src/handlers/done-prepare.ts:1890-1901 consequently executes git merge main --no-edit. The command-wide safety statement can induce a mutating invocation as inspection. Correct only the changed wording to scope read-only to the shared readiness projection, preserving authorized merge/refresh/validate behavior. Critical severity follows the canonical concept closing self-check for an undelivered behavior promise. Current finding_list confirms the cited observations remain open and verified. git diff 83dd5c53e1 HEAD across guides, background/plan/checklist, docs, packages/main, scripts and config is empty, consistent with the frozen material binding. Fresh search of removed parser identifiers finds only the explicit historical RED helper reference; no independent additional concept defect was discovered by the bounded audit. Record as existing-family duplicate candidate for the completeness critic. No PASS, repair, snapshot-compatibility assurance, source edit, or lifecycle advancement is claimed."
+        },
+        {
+          "id": "B-212f:F-021",
+          "createdAt": "2026-09-05T12:38:04.508Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: Final RI-001 wave 3 re-observation of the existing done-command-read-only-overclaim family B-212f:F-008/F-010/F-014/F-015, not a new defect family. Fresh bounded reads verify docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 still describes whole done_prepare and done_closure commands as read-only projections, whereas packages/main/src/handlers/done-prepare.ts:1889-1901 skips git mutation only for mergeMain=false or dryRun=true and otherwise executes git merge main --no-edit. The recommended invocation at doc93-100 enables that mutating path. Operators could rely on the new inaccurate statement to run mutation as inspection. No merge or lifecycle change was performed. git diff 45b3dff..HEAD on the document and reviewed machine/oracle/handler/validation/verifier files is empty, retaining the prior full-read basis and bounded finite-evaluator assessment; fresh paragraph and handler reads reproduce this exact outstanding issue. No distinct new documentation defect found. Repair the new wording to scope read-only behavior to readiness projection/evidence inspection; preserve authorized encompassing command behavior and all original observations. Other reported snapshot and malformed-delivery families remain separately owned and are not resolved by this documentation assessment."
+        },
+        {
+          "id": "B-212f:F-022",
+          "createdAt": "2026-09-05T12:40:14.896Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/done-oracle.ts:327,888-961,1105 RI-001 wave 3 independently re-observes the existing F-009/F-016 completed-done-snapshot-live-overlay family on unchanged source. node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs again prints main historical review-escalation pass/nonblocking and current review-escalation fail/blocking plus stale review-verdict fail/blocking for identical DONE-phase snapshot-aware reader state. Active canFinishGuard still rejects live stale evidence in both controls. No implementation repair occurred. Preserve the original observations and root identity; this is the final-wave terminal observation, not an additional root cause. Historical DONE projection must preserve historical assurance and distinguish current-material reviewer drift while active TEST-to-DONE remains strict. The shared-predicate suite still passes, so it still does not catch the promised completed-snapshot compatibility regression."
+        },
+        {
+          "id": "B-212f:F-023",
+          "createdAt": "2026-09-05T12:40:17.696Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/machine.ts:1015 RI-001 wave 3 independently re-observes existing F-018 done-eager-invalid-delivery-promises family. Reran actual filesystem/dist witness node /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs: guard reason remains delivery_check_tampered, oracle still throws Cannot read properties of undefined (reading filter) in evaluateDonePredicates -> buildDoneChecklist -> buildDoneClosureRunbook. Bounded source-executed production-consumer variants additionally confirm missing docsPromises, null, and non-array object all throw; empty-array tampered control produces a structured fail row; missing test-evidence early guard reads only test evidence and returns false. These are variants of F-018, not additional roots. No repair occurred. Retain the integrity blocker and avoid traversing already rejected untrusted delivery contents while preserving lazy active-DONE rejection; add malformed dependency coverage. No new independent quality defect family found in this final-wave bounded audit."
+        },
+        {
+          "id": "B-212f:F-024",
+          "createdAt": "2026-09-05T12:40:26.395Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "RI-001 wave 3 coverage re-attestation of F-011/F-017, canonical B-212f:F-009, same completed-done-snapshot-live-overlay family and no new root cause. Source material and Story files remain unchanged. packages/main/tests/red/red-done-shared-predicates.mjs:133-149,260-266 still uses a TEST-phase reader and tests only finish=null under completedSnapshot, omitting historical-valid/live-stale DONE assurance. Fresh node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs again compares source-extracted main 69403365ae/current buildDoneChecklist using identical DONE-phase snapshot-aware readers: main escalation pass/nonblocking becomes current escalation fail/blocking plus stale review-verdict fail/blocking; active canFinishGuard remains false. The unchanged post-done-closure-snapshot smoke already reproduced exit 1 at initial TEST readiness before historical assertions in this review session. Therefore the signed decision requirement to preserve completion-snapshot compatibility remains unsupported by the passing shared proof. Preserve original F-009/F-011/F-017 observations; classify this terminal as duplicate corroboration of canonical F-009. Its bounded repair must cover completed historical assurance and keep active TEST-to-DONE strict."
+        },
+        {
+          "id": "B-212f:F-025",
+          "createdAt": "2026-09-05T12:41:12.146Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "Coverage corroboration of canonical B-212f:F-018 in the same done-eager-invalid-delivery-promises family, not a new root cause. packages/main/tests/red/red-done-shared-predicates.mjs:185-187 marks delivery tampered/stale only by changing reader ok/code while retaining the valid fixture deliveryCheck.docsPromises array; the early-failure assertion tests only canFinishGuard. Consequently the passing shared-consumer proof omits eager-oracle traversal of actually malformed rejected delivery content, despite the decision preMortem requiring safe incomplete-artifact handling. Fresh real-filesystem command node /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs deletes docsPromises only in the synthetic signed fixture record: current guard prints delivery_check_tampered, but current oracle throws Cannot read properties of undefined (reading filter), stack evaluateDonePredicates -> buildDoneChecklist -> buildDoneClosureRunbook, exit 1. The same fixture with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist instead prints MALFORMED_DELIVERY_ORACLE with delivery-check fail/blocking and delivery-check.json._hash source; its original parity assertions are intentionally inapplicable after inserting this earlier blocker and are not used as the witness. This directly leaves diagnostic parity and safe invalid-input behavior unproven. F-018 owns the implementation and bounded regression repair: cover missing/null/non-array docsPromises and malformed elements after rejected integrity, preserving the structured blocker and active DONE rejection. Preserve this as signed duplicate coverage corroboration of F-018."
+        },
+        {
+          "id": "B-212f:F-026",
+          "createdAt": "2026-09-05T12:44:05.724Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "RI-001 wave 3 completeness critic independently re-observes canonical F-009, current-wave representative F-022, in existing completed-done-snapshot-live-overlay family; no new root is asserted. Fresh node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs again yields main historical review-escalation pass/nonblocking and current fail/blocking with stale reviewer-verdict, while active guard remains false. Independently verified empty git diff a79f8c1347..HEAD across guides, bounded full-read background/plan/decision docs/tests and scoped material preserves prior complete read basis. Fresh machine.ts:1006-1016 and parity-doc:153 reads also confirm existing malformed-delivery and wording families remain, and all six required-lane raw observations F-020 through F-025 have current read manifests and mechanical logs. The F-025 coverage detail identifies missing malformed-content cases for F-018, not another implementation defect. Preserve F-009 and all historical corroborations; implementation and fixture repair remain required. This terminal signs inventory reading only: no acceptance PASS, source repair, finding dismissal, or lifecycle transition. Fresh topology and pre-review diagnostics remain observe/inconclusive/unsupported, separately receipted request_changes with independent provenance."
+        },
+        {
+          "id": "B-212f:F-027",
+          "createdAt": "2026-09-05T15:03:21.104Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/core/review-run.ts:157-173 snapshotPromptEnvelopes adds own findingProjection: undefined (and similarly eligibilityReasonCodes when absent) to legacy envelopes without those optional keys. canonicalJsonStringify at prompt-contracts.ts:326-327 rejects unsupported undefined; verifyPromptEnvelopeIntegrity therefore changes from true on stored RR-005/RR-007 to false on their frozen snapshots, despite identical JSON.stringify output and valid signatures. latestTrustedPriorPass at review-incremental-context.ts:606 skips the otherwise valid RP-001/RP-002. Current RR-034 bound its full review to RP-002: raw as-of recomputation returns prior RP-002 and original eligibilityDigest 53af317992823bcff9e2a7cf0eb660b2d8903efe168f0aab73ea89918983f1ca; snapshot recomputation returns prior null and 7c0aa82e90d49156f17af40a6ea65b979048a5c81ca07d26385afe8a70f34820. This makes the actual REVIEW-to-TEST collector reject RP-003 with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch although write-time raw verification accepts it. Independently compared all current passes: only RP-003 coverage fails snapshot verification; RP-004 concept, RP-005 quality, RP-006 docs pass both paths. Stored envelopes are intact; git diff 2154ac3e20..HEAD shows only appended envelopes. git diff main..HEAD is empty for the three implicated source files, so the implementation defect predates B-212f. Medium reflects a false rejection rather than false acceptance, but it is verified applicable because it currently blocks this Story acceptance and makes gate truth disagree with valid persisted evidence; require bounded current-Story repair, not workaround-based deferral. A new coverage pass could mechanically supersede the old issue through current policy but would not repair the defect. Preserve absent optional properties when cloning/freezing present arrays; test unchanged integrity/digest, raw/snapshot prior selection, and mutation isolation. No historical reviewer replay redesign. Reproduction from the Story worktree: node --input-type=module -e 'import {StoryStore} from \"./packages/main/dist/core/store.js\"; import {snapshotPromptEnvelopes,verifyReviewRunPromptEnvelope} from \"./packages/main/dist/core/review-run.js\"; const s=new StoryStore(process.cwd()),id=\"B-212f\",r=s.readReviewRuns(id).runs.find(r=>r.reviewRunId===\"B-212f:RR-034\"),e=s.readPromptEnvelopes(id).envelopes; console.log(\"raw\",verifyReviewRunPromptEnvelope(s,r,e)); console.log(\"snapshot\",verifyReviewRunPromptEnvelope(s,r,snapshotPromptEnvelopes(e)));' Expected current output: raw {ok:true}; snapshot {ok:false,reason:Prompt Envelope incremental eligibility fields do not match authoritative recomputation: eligibilityDigest, eligibilityReasonCodes, priorPassRef}. Existing full reads in the signed manifest remain unchanged since RR-033; new implicated modules and Story reviewer evidence were inspected through bounded code sections and read-only runtime queries, not claimed as full-file reads."
+        },
+        {
+          "id": "B-212f:F-028",
+          "createdAt": "2026-09-05T15:07:04.507Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-002 wave 1 quality terminal corroboration of canonical B-212f:F-027; same defect family, not a new root. packages/main/src/core/review-run.ts:157-173 inserts absent optional findingProjection as own undefined in frozen legacy envelopes; prompt-contracts.ts:326-327 rejects it and review-incremental-context.ts:606 skips otherwise valid RP-001/RP-002. Fresh execution of the exact read-only reproduction recorded in F-027 again returns raw RR-034 envelope verification ok:true and snapshot ok:false with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch. Prior raw-vs-snapshot checks and signed records prove only current coverage RP-003 fails this path; RP-004/RP-005/RP-006 pass both. Current finding_list confirms canonical F-027 remains open and verified. git diff 2b1a99cba8..HEAD across packages/main, scripts, docs, config and Story background/plan/checklist is empty, preserving recent complete reads and integrated CHK-001 through CHK-004 assessment. Implicated helper modules are also unchanged from main; this pre-existing defect nevertheless directly blocks current TEST acceptance and gate truth, so bounded current-Story repair remains required. Preserve optional-field absence during immutable cloning and test raw/snapshot identity plus mutation isolation. No historical reviewer replay scope expansion, workaround PASS, disposition fabrication, implementation repair or lifecycle advance. Signed full-read manifest reuses unchanged reads; implicated modules were inspected in bounded diagnostic sections, not asserted fully read."
+        },
+        {
+          "id": "B-212f:F-029",
+          "createdAt": "2026-09-05T15:10:59.837Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-002 wave 1 coverage corroboration of canonical B-212f:F-027, same optional-envelope-field-preservation root and no new independent family. Read-only replay on unchanged material61fc5331/Story files163103f7: verifyReviewRunPromptEnvelope for B-212f:RR-034 over stored envelopes returns {ok:true}; passing snapshotPromptEnvelopes(envelopes) returns {ok:false} with eligibilityDigest, eligibilityReasonCodes and priorPassRef mismatch. packages/main/src/core/review-run.ts:157-173 inserts absent optional eligibilityReasonCodes/findingProjection properties as undefined; prompt-contracts.ts:326-327 rejects undefined in canonical serialization, and review-incremental-context.ts:606 then skips the otherwise trusted prior. The actual collector uses these snapshots at review-run.ts:1678, explaining rejection of this lane's valid RP-003 without persisted-envelope corruption. Bounded searches of existing task/test coverage found no direct snapshotPromptEnvelopes regression asserting absent-property own keys and unchanged canonical digest/integrity/prior selection; current incremental cutoff tests do not prove that clone contract. This is verified applicable because it blocks current Story review acceptance despite the underlying pre-existing implementation. F-027 owns the repair. Add focused raw/snapshot key,digest,integrity and prior-pass-selection equivalence for legacy absent optional fields, while retaining deep mutation isolation and tamper rejection and preserving explicitly invalid values as invalid. Do not manufacture a replacement pass to hide the disagreement or redesign historical review. Prior completed full-file reads remain unchanged and reusable; newly implicated modules were inspected only at bounded relevant sections."
+        },
+        {
+          "id": "B-212f:F-030",
+          "createdAt": "2026-09-05T15:17:06.939Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "Independent RI-002 wave-1 completeness corroboration of canonical F-027 and lane observations F-028/F-029, family optional-envelope-field-preservation. I independently ran the read-only StoryStore RR-034 verification against raw envelopes and snapshotPromptEnvelopes(envelopes): raw returns ok:true, snapshot returns ok:false with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch. Source review confirms snapshotPromptEnvelopes creates absent optional properties as own undefined; canonical JSON integrity rejects unsupported undefined, so latestTrustedPriorPass drops an otherwise authentic prior pass. The implicated modules are unchanged against main, but this verified medium false-rejection directly blocks current reviewer/gate truth and needs bounded current-Story repair. Preserve actual optional property presence and explicit invalid values while cloning/freezing actual arrays and nested projection entries, with exact regression coverage for integrity and prior-pass selection plus mutation isolation. No historical reviewer audit replay expansion is required. This is the same root as F-027, not a distinct family. All four required lanes completed before RR-040; this finding records truthful request-changes/read evidence, not acceptance PASS or inventory acceptance. The topology request-changes receipt remains incomplete-basis/unsupported; it does not certify acceptance."
+        },
+        {
+          "id": "B-212f:F-031",
+          "createdAt": "2026-09-05T15:21:15.453Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-002 wave 2 quality terminal re-observation of canonical B-212f:F-027, also corroborated by F-028/F-029/F-030, in the same optional-envelope-field-preservation family. No new independent quality root found. Fresh exact read-only RR-034 production verifier replay still returns raw ok:true and frozen snapshot ok:false with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch. packages/main/src/core/review-run.ts:157-173 injects absent optional keys as own undefined; prompt-contracts.ts:326-327 rejects unsupported undefined and review-incremental-context.ts:606 skips valid legacy RP-001/RP-002. git diff 48d3f41..HEAD across packages/main, scripts, docs, config and Story background/plan/checklist is empty, so the previous bounded diagnosis and completed integrated CHK-001 through CHK-004 review remain applicable. Canonical current run selected SAFE_INCREMENTAL with changedFiles:[] and RP-005 as trusted prior. F-027 still requires the tiny current-Story clone-contract repair because this pre-existing issue blocks current gate truth; no fresh PASS or workaround supersession is claimed. Preserve absence and explicit invalid values while cloning/freezing actual arrays, with integrity/prior-selection equivalence and mutation-isolation regression coverage. No broad suite rerun, new implementation family, historical replay expansion, source edit, or lifecycle change."
+        },
+        {
+          "id": "B-212f:F-032",
+          "createdAt": "2026-09-05T15:23:55.649Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-002 wave 2 coverage re-attestation of B-212f:F-029 corroborating canonical B-212f:F-027; same optional-envelope-field-preservation root, no new independent family. Fresh read-only RR-034 replay again returns raw verifyReviewRunPromptEnvelope {ok:true}, but snapshotPromptEnvelopes input returns {ok:false} with eligibilityDigest, eligibilityReasonCodes and priorPassRef mismatch. git diff --stat 2154ac3e20 HEAD across packages/main/src, packages/main/tests, scripts, config, docs and Story background/plan/checklist is empty; material61fc5331 and Story files163103f7 remain unchanged. review-run.ts:157-173 adds absent optional properties as own undefined; prompt-contracts.ts:326-327 rejects that in canonical serialization and review-incremental-context.ts:606 skips the otherwise trusted prior. The collector at review-run.ts:1678 therefore disagrees with intact persisted envelope evidence. Prior bounded task/test search found no direct snapshotPromptEnvelopes regression proving absent own-key preservation, canonical digest/integrity and prior-pass selection equivalence; unchanged tests leave that gap applicable. It directly blocks current Story reviewer/gate truth despite its pre-existing source origin. F-027 owns the bounded repair: clone/freeze actual arrays without inserting absent keys or laundering explicit invalid values, with raw/snapshot equivalence, mutation-isolation and tamper tests. No replacement PASS, historical audit redesign or source/lifecycle mutation. Recent completed full reads remain reusable on this unchanged material; newly implicated modules were read only in bounded diagnostic sections, not claimed fully read."
+        },
+        {
+          "id": "B-212f:F-033",
+          "createdAt": "2026-09-05T15:28:30.723Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-002 wave-2 independent completeness re-attestation of F-027, with current raw observations F-031 and F-032 in the existing optional-envelope-field-preservation family. Fresh read-only RR-034 verification again returns raw ok:true and frozen snapshot ok:false with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch. No source, test, doc or config changes since my prior completed bounded review; canonical RR-045 binds unchanged material61fc5331 and Story files163103f7 and starts after all four lane terminals. I inspected the current lane observations and required-lane read coverage. The same optional-property insertion as own undefined invalidates canonical envelope integrity and drops authentic prior-pass eligibility; no new independent root is supported. Preserve original F-027 and prior wave observations. Current-wave representative F-031 and duplicate F-032 need the same bounded optional-field-preserving clone repair and exact equivalence/isolation/tamper regression coverage, not historical reviewer replay expansion. This verified medium defect remains a current gate-truth blocker even though it predates Story source changes. This is a truthful finding terminal and inventory completeness assessment, not acceptance PASS: the current acceptance basis remains unsupported and the separately persisted topology verdict is request_changes."
+        },
+        {
+          "id": "B-212f:F-034",
+          "createdAt": "2026-09-05T16:35:52.919Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-003 wave 1 verified family canonical-ambient-env-fixture. packages/main/src/tasks/done-required-validation-smoke.ts:380-413 iterates the frozen VALIDATION_TRANSPORT_ENV_KEY_LIST and incorrectly expects retired LATTICE_ACTIVITY_RECORD_READONLY and other LATTICE-prefixed keys to be ambient session-neutral. validation-command-environment.ts:66-72 intentionally derives canonical PROOF_OR_STOP aliases while excluding retired names from active matching; the frozen inventory/digest is past-evidence data, not the active key set. Exact actual smoke executions on main69403365 and current B-212f, both with PROOF_OR_STOP_MAX_TIMEOUT_MS absent and with31090000, all exit1 at compiled344 with POSIX ambient transport key is session-neutral: LATTICE_ACTIVITY_RECORD_READONLY. Repro commands: node packages/main/dist/tasks/done-required-validation-smoke.js and node /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/tasks/done-required-validation-smoke.js, repeated with that single outer timeout assignment. Source lines318-324 construct a bounded environment containing PATH/CI/LANG/LC_ALL/NODE_OPTIONS, so caller timeout is not an input to this assertion. Independent effectiveValidationCommandEnvironment controls show retired activity key ambientEqual:false, canonical activity key ambientEqual:true, CODEX_THREAD_ID ambientEqual:true; explicit overlays remain unequal for all three. Tests/helpers are unchanged versus main and source unchanged since prior signed docs read (git diff e611a05 HEAD across code/tests/docs/config/Story plan/background/checklist empty). This pre-existing medium test-contract defect currently blocks configured B-212f validation, hence requires bounded current-Story repair rather than global-green expansion or restoring retired runtime behavior. Repair only test inputs to canonical active spellings, preserve frozen list/digest and legitimate host identity filtering, retain retired-key semantic controls, Windows case behavior and explicit-overlay coverage. Earlier read-both migration prose is not permission to change current canonical runtime; no separate docs rewrite is requested. Prior complete reads reused, implicated test inspected at bounded sections; decisions title-triaged with relevant excerpts, never claimed full. No source, lifecycle or owner mutation; diagnostic temporary fixtures cleaned."
+        },
+        {
+          "id": "B-212f:F-035",
+          "createdAt": "2026-09-05T16:36:06.608Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "english-early-check-smoke.ts:38-40 computes packageRoot as packages/main/dist from the compiled task, then repositoryRoot ascends only to packages. Line355 reads repositoryRoot/AGENTS.md and throws ENOENT after seven behavioral checks pass. Independent commands node packages/main/dist/tasks/english-early-check-smoke.js on main69403365ae and B-212f each exit1 with their respective /packages/AGENTS.md missing path. Test source is byte-unchanged from main; this is pre-existing test infrastructure, not DONE extraction regression. It now blocks configured formal validation (config command at762) and therefore this Story acceptance. Bounded repair: correct repository-root resolution only, preserve the working dist cliPath and all English behavior/doc assertions; verify from both root and Story worktree locations. Do not create misleading packages/AGENTS.md to satisfy the wrong path. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes."
+        },
+        {
+          "id": "B-212f:F-036",
+          "createdAt": "2026-09-05T16:36:24.624Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/handlers/checklist.ts:1661: staleReexecCandidate rejects an already-pinned docs/manual intent through isExecutableIntentType, although verification_evidence_refresh_stale at lines 3112-3129 deliberately accepts every immutable pin. WHY: after metadata-only refresh demotes a current pinned docs receipt, async recovery skips its command before enforceAndStampEvidence, leaving mechanical:false with no receipt; the same command on a cli intent re-earns exitCode:0, selectorMatched:true evidence. Actual witness on current production dd65407421: node packages/main/dist/tasks/verification-run-and-guard-smoke.js exits 1 at compiled partB:320 (source:365), B4 pinned docs verifier re-earns mechanical authority, false !== true. Bounded source-executed Part B instrumentation showed INT-DOC reason pinned command was not re-run here, while INT-REEXEC using identical node -e console.log MARKER_OK pin recovered; Refreshed 4/4 is metadata refresh, not proof that all commands executed. Baseline 69403365 and current HEAD have identical handler blob 33043eb2df6c34a76efc820ccb8f73a9b72cfbb4 and smoke blob 0c5d85406d6bbf87252067534b022dc737c9d530: pre-existing, not introduced or worsened by B-212f/F027. Medium because this is fail-closed recovery loss, not forged successful evidence; nevertheless it directly blocks required current validation. Owner confirmed current-Story repair responsibility; no deferral, gate bypass, or historical audit expansion is claimed. Minimal repair candidate: admit already-pinned docs/manual candidates while preserving exact pin, selector, timeout provenance, stamping and failed/pinless demotion safeguards. RR-050 SAFE_INCREMENTAL reused trusted RR-046/RP-011 unchanged complete read basis, with fresh empty implementation/Story-input diff and exact bounded runtime/source witnesses. Manifest/read events preserve the prior actual full and filename-triage reads on identical source, not a claim to have re-read every file during this inventory. RI-003 wave 1 first distinct root, not F027 corroboration."
+        },
+        {
+          "id": "B-212f:F-037",
+          "createdAt": "2026-09-05T16:36:35.569Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "cli-surface-smoke.ts:93-123 still requires lab create/run/eval/help normalization to retired lab_* commands. The unchanged active NESTED_SPACE_ALIASES map contains no Lab entries. Independent node packages/main/dist/tasks/cli-surface-smoke.js on main69403365ae and B-212f each exit1 at the same first assertion: actual matched:false versus expected matched:true and lab_create. Both implicated source files are unchanged from main. This stale test contract now blocks configured formal validation (config2222), so it is applicable acceptance maintenance despite pre-existing origin. Bounded test-only repair: exercise positive nested normalization with supported commands while retaining explicit negative assertions for retired Lab aliases, including redundant bin token paths. Do not restore retired commands or silently remove parser coverage. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes."
+        },
+        {
+          "id": "B-212f:F-038",
+          "createdAt": "2026-09-05T16:36:47.495Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-003 wave 1 verified family canonical-timeout-fixture-filename, distinct from the ambient-env assertion family. packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:159-181 setupTimeoutFixture writes retired lattice.config.json, while current core/brand-paths.ts:9 CONFIG_FILENAMES recognizes only proof-or-stop.config.json. Therefore assertTrueHangFailsClosedWithNamedDiagnostics at source line 765 never runs its intended true-hang command and fails its timeout stderr assertion. Exact bounded source-extracted write/git/commitAll/setupTimeoutFixture/runCli/runValidate functions were executed against both actual main 69403365 and current B-212f CLIs, with caller PROOF_OR_STOP_MAX_TIMEOUT_MS unset and set to 31090000. All four original-filename controls returned exit 0, allPass:true, commands:[], stderr only running validate / validate done, and details explicitly saying no configured validation commands were found. Renaming only the temporary fixture config to proof-or-stop.config.json in the same matrix produced allPass:false, one true-hang result with timedOut:true and timeoutMs:1000, named stderr matching validate timeout: command 1/1 true-hang: command=... args=... timeoutMs=1000 elapsedMs=..., and the expected details diagnostic. Actual command durations were approximately 1041-1049 ms. This demonstrates loaded-command absence, not failed watchdog scheduling, generic environment contamination or a B-212f executor regression. runCli:234-247 strips the inherited max and pins 120000 before spawning, so the outer 31090000 override cannot cause this failure. Tests and relevant brand/config helpers are byte-unchanged versus main; git diff e611a05 HEAD confirms prior integrated material reads remain current. This verified medium pre-existing fixture defect directly blocks configured current-Story validation and requires only the canonical filename test repair, preserving command-presence and timeout assertions. Do not restore retired runtime config aliases or expand into unrelated compatibility redesign. Older migration read-both prose does not override the current canonical runtime specified by the repository operating guide. Prior full reads reused; newly implicated modules/test sections were read boundedly and not declared full. Both main/head diagnostic matrices ran before this fresh canonical inventory terminal on unchanged material; all temporary fixtures were cleaned. No production, Story-phase or owner writes were made, and no acceptance claim is issued."
+        },
+        {
+          "id": "B-212f:F-039",
+          "createdAt": "2026-09-05T16:37:04.647Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "machine.ts:1270 still renders background/title/description/checklist were modified instead of the domain renderer exported by init-check-gate.ts:272 and promised by its245-252 contract. Main69403365ae has the identical handwritten diagnostic at1249; B-212f changes only DONE regions, so this is pre-existing production diagnostic drift, not an extraction file-location false alarm. Independent node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs on both trees exits1: all signature shape/determinism/discrimination controls pass, M1 passes, only M2 reports rendersDomain=false and stillCarriesTheOldHandWrittenList=true (1 failed/0 broken/17 rows). Independent red-b49d4-registration-derivation.mjs also exits1 on both trees solely at EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE: the same red-b8df9 child fails without naming the newcomer. That derivative is the same family, not a new registration root. Both are configured validation blockers, making this applicable current acceptance work. Bounded repair: import/use describeInitCheckSignatureDomain in the existing mismatch message; preserve signature computation, tamper rejection and M2. Re-run both focused guards; do not weaken hashing or drop the child from derived coverage. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes."
+        },
+        {
+          "id": "B-212f:F-040",
+          "createdAt": "2026-09-05T16:37:30.152Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "scripts/verify-process-fact-contract.mjs:695: read() reads process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION, but packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:1631 supplies PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION. WHY: canonical drop-acceptance-basis-prompt and handler source mutations are never applied; the verifier succeeds rather than proving the mutation is killed. The smoke initializes contractMutationOutput empty, only captures child output on exception, and therefore fails its line1638 diagnostic assertion with an empty string after successful child exit, not after a timeout or absent F027 proof module. Actual bounded witness on dd65407421: spawnSync(process.execPath,[scripts/verify-process-fact-contract.mjs,--quiet],{env:{...process.env,PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION:drop-acceptance-basis-prompt},encoding:utf8,maxBuffer:4194304}) returned status0, signal:null, no spawn error, stdout3387 bytes, stderr0; the identical child with LATTICE_PROCESS_FACT_CONTRACT_MUTATION returned status1, signal:null, stdout3313 bytes, stderr265 bytes containing Process fact contract failed: acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, structured seal binding, signed receipt verification, and canonical freshness consumption. Baseline 69403365 and current HEAD acceptance smoke share blob 73df2d21e633b0aa380ab2159ab5cd419a85c452; complete verifier read() function is byte-identical, SHA256 7a5a4e058cfec1634501ddd4dc8751de1dfa0f76f4d4dbb9f2610bdad534825d. Pre-existing, not introduced or worsened by B-212f/F027. Medium test-contract defect, independently blocks required current validation and prevents the intended adversarial proof; no unsupported production corruption claim. Owner confirmed bounded current-Story repair responsibility, not deferral or waiver. Minimal repair candidate: consume the canonical mutation variable consistently in read(), adding legacy fallback only if separately required, and preserve meaningful child exit/status diagnostics. RR-050 SAFE_INCREMENTAL reuses trusted RR-046/RP-011 prior actual full/triage reads on unchanged source, confirmed by fresh empty diff plus exact bounded child/source witnesses. RI-003 wave1 distinct second root, independent of pinned-docs refresh and F027."
+        },
+        {
+          "id": "B-212f:F-041",
+          "createdAt": "2026-09-05T16:37:45.145Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "validation-tier-planner-smoke.ts:450-491 explicitly requires maintaining its fixed commandSetDigest when validate.commands changes, but line491 still pins main inventory511e19067cbd9cdc45ef05813957167d0494044365fe690af13adbaf373bafb1. Independent actual configuredValidationCommands -> buildValidationCommandInventory queries yield main69403365ae count128/digest511e19067cbd9cdc45ef05813957167d0494044365fe690af13adbaf373bafb1 versus B-212f count131/digeste1b85f5c0ecd1cbdf95c62e442eeabe398ce44b5f55cf36c17d03f953f682e86. Both have no declared cwd, no absolute warnings and all cwdRelative values dot. The config diff adds exactly B-212f CHK001 parity, CHK003 shared proof and historical snapshot smoke; planner, verifier and inventory code are unchanged. Thus the stale test pin is an introduced Story maintenance omission, independently distinguished from the three pre-existing families. It blocks formal validation. Bounded repair: repin to the verified fixed e1b85f5c value and annotate the B-212f checklist registrations per existing policy. Preserve fixed expected digest, no-cwd assertions and absolute warning checks; never calculate expected dynamically or remove any inventory entry. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes."
+        },
+        {
+          "id": "B-212f:F-042",
+          "createdAt": "2026-09-05T16:40:08.050Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-003 wave 1 concept corroboration of canonical F-038, family canonical-timeout-fixture-filename; no new root. Fresh source reads show validate-progress-heartbeat-smoke.ts:162 writes lattice.config.json, while brand-paths.ts:4-9 supplies only proof-or-stop.config.json and config.ts:714/770 derives active config search from that list. The test at source765 requires a configured true-hang timeout diagnostic, so its retired filename prevents that intended command from being loaded. F-038 records the exact main/current original-versus-canonical filename runtime matrix; this lane independently verifies the source mismatch and read that structured evidence, without claiming to rerun the matrix. Fresh git diff main...HEAD across the implicated fixture and brand resolver is empty. Fresh git diff ceb89fa..HEAD across prior fully read guides/docs, material source/tests/config, Story background/plan/checklist/decision/scope contract is empty, preserving prior complete-read basis and the narrow acceptance boundary. This existing stale fixture is now a configured validation blocker, requiring the Owner's bounded canonical-filename repair; preserve command-presence, timeout and named-diagnostic assertions, and do not restore retired runtime aliases. Also inspected F-034 through F-041 as registered observations; their separate families remain with their canonical owners and this terminal neither dismisses them nor claims successful validation. No implementation/lifecycle changes or full suite reruns; no new acceptance, scope expansion or product-completion claim."
+        },
+        {
+          "id": "B-212f:F-043",
+          "createdAt": "2026-09-05T16:45:39.839Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-003 wave1 independent critic corroboration of F-041 validation-inventory-fixed-pin-maintenance. I independently evaluated configuredValidationCommands -> buildValidationCommandInventory: current count131, digest e1b85f5c0ecd1cbdf95c62e442eeabe398ce44b5f55cf36c17d03f953f682e86, no declared cwd and all normalized cwdRelative dot. Source smoke line491 still pins511e1906; main/head config diff contains exactly the three B-212f registrations, so this is introduced fixed-pin maintenance omission, not permission for dynamic expected values or removing tests. It directly blocks current formal validation and needs bounded current-Story repair. For inventory completeness I inspected F-034 through F-042, all four lanes' signed read coverage, and every failed-command output in the frozen test-evidence.json at2026-09-05T16:22:02.145Z, binding material5f21d60f/story8c9a7add. The artifact records complete131 commands and9 required failures, not a PASS. Independent bounded source inspection supports eight existing registered roots F-034 through F-041; F-042 duplicates F-038. The red-b49d4 failed attribution row names the red-b8df9 child whose sole failure is M2 handwritten INIT tamper diagnostic, so those two failed commands share F-039 rather than another registration root. Other observed failures align with pinned-docs refresh filtering, canonical timeout fixture filename, retired ambient env expectation, repository-root depth, retired Lab alias expectation and canonical mutation-variable propagation. Main/head source checks establish the pre-existing seven roots separately from the introduced pin omission. No broad proof reruns, implementation or lifecycle changes; this terminal corroborates F-041 and preserves originals, not a new family or acceptance credential. Current unsupported acceptance basis receives only a separately checked request_changes topology receipt."
+        },
+        {
+          "id": "B-212f:F-044",
+          "createdAt": "2026-09-05T16:49:00.877Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-003 wave 2 corroboration of canonical B-212f:F-036 only; no new defect family and no acceptance PASS. packages/main/src/handlers/checklist.ts:1661 still excludes already-pinned docs/manual intents from staleReexecCandidate, so async refresh at lines3112-3129 does not rerun them and cannot restore mechanical receipts. Fresh source inspection confirms the exact guard unchanged; git diff 810bec8..HEAD over production/test/script/config and Story background/plan/checklist inputs is empty. The previously executed actual Part B witness preserved in F-036 remains applicable on identical production dd65407421/material5f21d60f876149ae07175707c662798e5c550344fe4f36522a1c1b9541efdd63: INT-DOC mechanical:false/no receipt, identical CLI pin succeeds, direct smoke exits1 at B4. No suite or baseline rerun was performed for this corroboration. finding_list freshly confirms canonical F-036 is verified/open under RR-050, preserving its current Owner repair responsibility and original baseline evidence. F-040 was also freshly read and remains independently verified/open; scripts/verify-process-fact-contract.mjs:695 still reads legacy mutation environment variable. This terminal does not merge that separate root into F-036 or claim either issue repaired. Fresh RR-055 uses canonical full/FULL_CHEAPER_OR_EQUAL context; previously validated actual full and filename-triage reads are reused on identical source, with current delta and original Finding checks, as requested. No new quality family found in this bounded unchanged-material wave. Existing blockers remain; final family/zero-new classification belongs to the independent inventory critic, not this corroboration prose."
+        },
+        {
+          "id": "B-212f:F-045",
+          "createdAt": "2026-09-05T16:49:49.385Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-003 wave 2 docs discovery corroboration of canonical F-034, not a new family. finding_list confirms F-034 and F-038 remain open and verified. git diff 0344f48 HEAD across code/tests/scripts/docs/config and Story background/plan/checklist is empty; canonical RR-057 binds unchanged material 5f21d60f and Story files 8c9a7add. Prior truthful complete reads and independently executed main/head controls from RR-052 remain applicable; no suite or baseline matrix repeated. done-required-validation-smoke.ts:380-413 still incorrectly exercises frozen retired transport names as the active key set; validation-command-environment.ts:66-72 intentionally maps canonical PROOF_OR_STOP aliases. Main 69403365 and head both fail the exact assertion with caller timeout absent or 31090000; the fixture environment excludes that knob. Prior controls show canonical host identity remains neutral and explicit overlays semantic. F-034 still requires the bounded current-Story test repair, preserving frozen digest and legitimate host identity. No new docs root found in this bounded delta; F-038 remains separately unresolved. This signed read-evidence terminal requests changes; it does not declare acceptance or substitute a PASS. Decisions were title-triaged with bounded relevant excerpts, not full reads; unchanged prior full-file reads reused. No implementation, phase or owner changes."
+        },
+        {
+          "id": "B-212f:F-046",
+          "createdAt": "2026-09-05T16:49:53.786Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-003 wave2 coverage re-attestation of canonical B-212f:F-041, same validation-inventory-fixed-pin-maintenance family, no new independent coverage root. Fresh actual configuredValidationCommands -> buildValidationCommandInventory query returns count131 and digest e1b85f5c0ecd1cbdf95c62e442eeabe398ce44b5f55cf36c17d03f953f682e86, zero declared cwd, no absolute warning and all cwdRelative dot; validation-tier-planner-smoke.ts:450-491 still requires fixed pin511e1906 per the documented maintenance contract. Exact empty git diff358fd7e..HEAD across implementation/tests/scripts/docs/config and Story background/plan/checklist confirms no repair and preserves prior completed reads and main/current reproduction evidence. F-035 English repository-root error, F-037 retired Lab alias expectations and F-039 INIT diagnostic domain mismatch remain open and applicable as previously reproduced; red-b49d4 remains derivative of F-039, not a ninth root. Inspected registered F-034 through F-043 and the critic grouping: eight canonical families F-034..F-041; F-042/F-043 corroborate existing roots. Newly reviewed other-lane observations are attributed to their evidence, not claimed as this lane's fresh matrix executions. No additional family supported by this bounded unchanged-material delta/inventory review. Preserve the exact fixed-pin guard, original parity RED and all malformed/tamper controls; owner repair must not replace the expected digest dynamically, restore retired aliases or suppress child coverage. This is a signed finding terminal, not a coverage or acceptance PASS, and it does not dismiss any existing blocker. Fourteen intent receipts remain audited on unchanged material5f21d60f/story8c9a7add, but formal validation remains failed. Prior full-file reads reused truthfully; newly implicated modules only inspected at bounded relevant sections. No source, owner or lifecycle changes; no full suite or baseline matrix rerun."
+        },
+        {
+          "id": "B-212f:F-047",
+          "createdAt": "2026-09-05T16:50:50.010Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-003 wave 2 docs discovery corroboration of canonical F-038, not an additional family. Unchanged-material comparison and live finding_list preserve F-038 and F-034 as open verified defects. Canonical RR-057 binds material 5f21d60f and Story files 8c9a7add; prior integrated complete reads and bounded source inspections remain current. setupTimeoutFixture at validate-progress-heartbeat-smoke.ts:159-181 still writes retired lattice.config.json, whereas brand-paths.ts:9 recognizes only proof-or-stop.config.json. The previously independently executed exact fixture/runCli matrix against main 69403365 and head, with caller timeout absent or 31090000, returned allPass:true with commands:[] for the retired filename; renaming only temporary fixture config produced the expected true-hang 1000 ms timeout and named diagnostics in every control. runCli strips the caller max and pins 120000, so no outer-budget or production-executor defect is inferred. No suites or baseline matrices repeated in wave 2. F-038 requires canonical fixture filename repair with command-presence/timeout assertions retained; F-034 remains a separate unresolved ambient-key fixture repair. No new docs root found in the bounded delta, no retired-runtime compatibility restoration requested. This is signed corroborating discovery read evidence and request-changes, not acceptance or a false PASS. Decisions title-triaged with bounded excerpts, unchanged prior full-file reads reused truthfully; no implementation, phase or owner changes."
+        },
+        {
+          "id": "B-212f:F-048",
+          "createdAt": "2026-09-05T16:52:06.724Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "RI-003 wave 2 concept discovery corroboration of canonical F-038, same canonical-timeout-fixture-filename family and no new root. Fresh numbered source read confirms validate-progress-heartbeat-smoke.ts:164 writes lattice.config.json (the precise write line; prior F-042 cited the nearby temporary-root line162), while brand-paths.ts:4-9 permits only proof-or-stop.config.json. Previously inspected config.ts consumes that canonical list; the unchanged timeout assertion cannot exercise its intended configured command through the retired filename. Current finding_list confirms F-038 and wave-1 F-042 remain open. Fresh git diff fbe5fd5..HEAD is empty across guides, docs, source/tests/scripts/config and Story background/plan/checklist/decision/scope contract, so prior complete reads and source analysis remain current. Reviewed bounded wave-entry summaries: F-043/F-046 retain F-041, F-044 retains F-036 and F-045 retains F-034; no additional concept-lane root emerged. Preserve all canonical validation blockers and the narrow current-Story test repair: change the timeout fixture filename, preserve command-presence and named-timeout assertions, and do not restore retired runtime aliases. This final discovery-wave terminal does not assert implementation repair, successful validation, acceptance or product completion. No test suites, source edits, phase changes or Owner disposition writes performed."
+        }
+      ],
+      "findingProjectionDigest": "3dd4db3ed95686ec99b385c9812f41b9aa3afa88f0d5d1cbf0470467b7dacf85",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 28406,
+      "escalatedToFull": false
     }
   ]
 }
