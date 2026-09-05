@@ -158,9 +158,9 @@
       "epochId": "B-fe8f:RI-002",
       "storyId": "B-fe8f",
       "reviewRound": "2026-09-05T10:56:02.507Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-05T11:09:56.536Z",
-      "updatedAt": "2026-09-05T11:09:56.536Z",
+      "updatedAt": "2026-09-05T11:34:36.232Z",
       "cutoff": {
         "headHash": "5a0f9880092e4fd0c0b664f52fa736ba628ca5ec",
         "materialHash": "781b7f229790ea9e1bdf0685664a01a02a1e21c2751379a5d229e4fd69a23b07",
@@ -174,9 +174,59 @@
       ],
       "initialRunSequenceBoundary": 93,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-05T11:09:56.536Z",
+          "completedAt": "2026-09-05T11:33:34.109Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-fe8f:RR-099",
+              "terminal": "pass",
+              "hostIdentity": "ff066e7358d7cebd8daa9e67ba52e81f1ad15a8019f0b6395f44b88171f54d12",
+              "promptIdentity": "7c694f47e36599177a90e589a620c9999a9c918f1642266fe7325b25ce384aab",
+              "evidenceIds": [
+                "B-fe8f:RP-054"
+              ],
+              "coverageDigest": "d5a4018a1b91a80e7aefd7d356d44af4f519fd31a773a8e42328739f4bad0d2e"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-fe8f:RR-098",
+              "terminal": "pass",
+              "hostIdentity": "ae448e0ff2cdee24a3490ad4b06c687edf299fc26d2623463713368eeef1e4d8",
+              "promptIdentity": "2e8c6b10b443e0762e3db2c52aa48d0df85292b978bb86eb601d567dc3dc38f4",
+              "evidenceIds": [
+                "B-fe8f:RP-053"
+              ],
+              "coverageDigest": "b4da51b1bc2563e4609f0fb37c647b0e6498a8286ca184c105dd78ef1d4fca12"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-fe8f:RR-094",
+              "terminal": "pass",
+              "hostIdentity": "bd1aa3c9d1505464a2e896eededc6d4d021359c1b940f71cab2272d566983fb2",
+              "promptIdentity": "3a540f92b72184fa18174f68a404c1d852275d8422c20be505f7482fc3e7532a",
+              "evidenceIds": [
+                "B-fe8f:RP-050"
+              ],
+              "coverageDigest": "3994b6cf24a883b509a2ca2b57b177fd7e69248694496dcbebe30a0ced75815c"
+            }
+          ],
+          "verifiedFindingFamilies": [],
+          "verifiedFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "bb024a7e35837e16e0b89700ee00a866d905c2a74b4c737dae3322e79201c12e",
+          "saturated": true,
+          "nextRunSequenceBoundary": 100
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "e13af537d08eec22de94a3fc54d98595a346c9b64922be67d0745afd3458b5dd"
+      "receiptId": "B-fe8f:RI-002:RCP-001",
+      "consumedAt": "2026-09-05T11:34:36.232Z",
+      "consumedByReviewRound": "2026-09-05T10:56:02.507Z",
+      "_hash": "835c3340ebf111f4040504b208561947504cb426fca3a6f938cb9b880714114c"
     }
   ],
   "receipts": [
@@ -224,6 +274,33 @@
       "issuedAt": "2026-09-05T09:46:29.821Z",
       "consumedAt": "2026-09-05T09:47:08.469Z",
       "_hash": "8d91d726396211cf7c4454005d6c1258fb17f980483ea4b04c9b8e8fb395ba2c"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-fe8f:RI-002:RCP-001",
+      "epochId": "B-fe8f:RI-002",
+      "storyId": "B-fe8f",
+      "reviewRound": "2026-09-05T10:56:02.507Z",
+      "cutoff": {
+        "headHash": "5a0f9880092e4fd0c0b664f52fa736ba628ca5ec",
+        "materialHash": "781b7f229790ea9e1bdf0685664a01a02a1e21c2751379a5d229e4fd69a23b07",
+        "storyFilesHash": "9dd30b0a3de9e21a49f8d777fbafdc597eadffacb08f6d63d5564f5fc4f2c8ee"
+      },
+      "scopeDigest": "2385998b5fc546f3a0ad013755cc7b0e304fe1fe0b6fc6fa13e39666e9a270a6",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 1,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "b84ef6e065769f630e07243f06f962ce19577b5a0b340890346ae7d88c38c724",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-05T11:33:34.109Z",
+      "consumedAt": "2026-09-05T11:34:36.232Z",
+      "_hash": "4da0d57976f2264a8d1809036e7f5de6ba2434049b547cae5e70631ca96c7d61"
     }
   ],
   "criticReceipts": [
@@ -313,6 +390,30 @@
       "findingDispositions": [],
       "createdAt": "2026-09-05T09:46:04.063Z",
       "_hash": "122762e85f47f966cbf88848bff3e103cc2382e32cbc0b24661a30109b1e4de0"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-fe8f:RI-002:CRIT-01",
+      "epochId": "B-fe8f:RI-002",
+      "storyId": "B-fe8f",
+      "reviewRound": "2026-09-05T10:56:02.507Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "5a0f9880092e4fd0c0b664f52fa736ba628ca5ec",
+        "materialHash": "781b7f229790ea9e1bdf0685664a01a02a1e21c2751379a5d229e4fd69a23b07",
+        "storyFilesHash": "9dd30b0a3de9e21a49f8d777fbafdc597eadffacb08f6d63d5564f5fc4f2c8ee"
+      },
+      "aggregateFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "requiredLaneCoverageDigest": "5ebe93ede9a8627b89a3e4a5358beb09f5f60014c5acc9a7acbf8befac94da69",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-fe8f:RR-100",
+      "terminalEvidenceIds": [
+        "B-fe8f:RP-055"
+      ],
+      "readEvidenceDigest": "d9ed80ba04df3fe3b464ffeeced9f5506cb1f266783da600c6632df03d6e5282",
+      "findingDispositions": [],
+      "createdAt": "2026-09-05T11:32:56.078Z",
+      "_hash": "15fe7ad28b1dd773aebf48620a54a7d4e7a9f7b2c6bb374544d2e33b38ec59a7"
     }
   ]
 }
