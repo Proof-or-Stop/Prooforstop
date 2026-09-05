@@ -1,18 +1,18 @@
 {
   "storyId": "B-fe8f",
-  "changes": "Implemented the Story 3 finding-ledger and runtime-evidence foundation: fenced atomic persistence, exact CAS/idempotency receipts, content-addressed runtime evidence, live authoritative mutation adapters, non-creating read-only trust loading and exact signed proposal validation. DEV closeout is currently completing the full Store authoritative-reader trust boundary; no downstream Applicability or Identity semantics are being implemented here.",
-  "usage": "Before merge, run the worktree CLI: node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f. Use the registered finding_runtime_evidence_run and finding_runtime_evidence_verify commands for execution receipts. The global CLI reflects local main until DONE merges this Story.",
-  "expectedOutcome": "Valid Finding-system writes remain durable, uniquely identified and exactly-once; inconsistent or stale evidence cannot change authoritative Finding state. Read-only query and verification preserve the filesystem. The user receives Story 3 infrastructure, not the complete future dynamic applicability/deferral system.",
-  "actualTranscript": "At ad0c1b79, official verification_evidence_refresh_stale completed 71/71 and committed dd22f13. Targeted proposal tests rejected407 invalid cases and accepted43 legal cases; projection-prefix tests rejected8 inconsistent cases and preserved valid batches. Independent review subsequently identified missing base-Finding and legacy-mirror reader trust checks; those are being handled in DEV. No current-round TEST or DONE completion is claimed.",
-  "outcomeDiff": "Implementation and earlier targeted evidence are present, but final reader trust-boundary closure and fresh REVIEW/TEST/DONE evidence remain pending.",
+  "changes": "Implemented the execution plan Section9.3 ledger/runtime foundation: fenced durable append batches, idempotent receipt replay, exact-record CAS, signed source/artifact/runtime bindings, protected read-only query, migration and fail-closed reader authority. Final follow-up46a37452ef07 repairs three existing mandatory test fixtures and eight documented nested CLI aliases in four files; no trust-portability or Dynamic Applicability policy expansion.",
+  "usage": "From the Story worktree use node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f for the signed ledger/runtime scorecard. Use official Finding and runtime evidence CLI commands rather than editing protected records. After installation the public executable is proof-or-stop.",
+  "expectedOutcome": "Deliver the Section9.3 Finding ledger/runtime integrity foundation with genuine RED/GREEN evidence, fresh lifecycle verification, independent review and a local main merge.",
+  "actualTranscript": "Source commit46a37452ef07 passed build and the existing done-required-validation, validate-progress-heartbeat, english-early-check and cli-surface suites. Official verification_evidence_refresh_stale completed71/71 in342.5seconds; metadata bc342c8. Current rollout admission check passed after report regeneration. The Story has entered REVIEW round27; final review, standard validation, actual host quorum, TEST/DONE and local merge remain pending.",
+  "outcomeDiff": "Core implementation and focused checks are complete, but lifecycle delivery and local main merge are not yet complete.",
   "acceptanceVerdict": "partial",
   "outcomeKind": "blocked",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Story 3 supplies schema-neutral persistence and runtime receipts; effective assessment freshness policy and cross-story route semantics remain downstream responsibilities per plan sections9.1-9.4. Nonblocking observations have a traceable CLI-created owner at docs/story/drafts/finding-ledger-nonblocking-review-followups/; they are not signed deferrals. Corrupt authoritative-ledger reads intentionally fail closed. Performance observations remain unmeasured.",
-  "pitfalls": "Do not reuse stale material-bound evidence by assertion. Run one pinned raw command per exact execution identity and preserve separate selector receipts. The legacy RED selector token currentFails=true is explicitly a legacyPinnedNegativeControl compatibility carrier; currentGreenPasses and corrupted-relation rejection determine admissibility, not the token alone. red_evidence_create is PLAN-only and bug_report is REVIEW/TEST-only despite older help; DEV repro_probe records historical candidate evidence but is not a DONE receipt. gap_log refused an unextendable B-META provenance chain, so the permitted draft fallback preserves follow-up accounting without repairing unrelated infrastructure.",
+  "limitations": "This is the ledger/runtime foundation, not the later Identity/Lineage or Dynamic Applicability system. Supported trust/writer model is the canonical shared local repository and linked worktrees; a new clone without the trusted key must fail closed. F048 remains high/suspected and tracked by keyed-ledgers-survive-reclone; F049 remains low/suspected and tracked by finding-ledger-nonblocking-review-followups CHK003. These drafts are compatibility accounting, not signed deferrals or repair proof. Pre-review topology evidence remains observe/inconclusive/nonblocking, not a passed topology proof. Downstream Story creation was not performed by this closeout.",
+  "pitfalls": "Use the repository-local CLI for unmerged ledger support: the globally installed pre-Story build falsely rejects finding-ledger.json closeout retention. Long Claude read-event commands triggered shell safety confirmation; a narrowly approved interactive retry persisted genuine review evidence without Owner impersonation. Serialize reviewer metadata commits and validation: an earlier run executed commands but its later causal preflight refused after HEAD/index drift, so it was not a complete validation receipt. The current source changes require CLI-directed evidence refresh; never relabel older hashes as current.",
   "phaseStats": {
     "INIT": {
       "count": 8,
@@ -27,19 +27,19 @@
       "durationMs": 26996827
     },
     "DEV": {
-      "count": 36,
-      "durationMs": 163394892
+      "count": 37,
+      "durationMs": 167191328
     },
     "REVIEW": {
-      "count": 25,
-      "durationMs": 108203400
+      "count": 27,
+      "durationMs": 113844509
     },
     "TEST": {
       "count": 2,
       "durationMs": 59956921
     }
   },
-  "totalDurationMs": 360286278,
+  "totalDurationMs": 369723823,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-04T15:43:03.331Z",
-  "updatedAt": "2026-09-05T12:17:41.826Z"
+  "updatedAt": "2026-09-05T14:54:59.371Z"
 }
