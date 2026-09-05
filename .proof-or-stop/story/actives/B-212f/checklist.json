@@ -502,9 +502,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T08:42:09.626Z",
-      "endTime": null,
+      "endTime": "2026-09-05T08:42:10.419Z",
       "userSeesSnapshot": {
         "normalizedClaimDigest": "7f1816d0b22dc35d70cfbd8bdfea6d3a540b359d2ee731003473f06c0d30f73c",
         "storyFilesHash": "0d8ea937d9d4f58d71827d2c3a51c5ae145ede572b058e06c13875e28165e090",
@@ -699,6 +699,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Reopen recovery: resume the already committed bounded acceptance-blocker repair for complete private output matching with bounded public/persisted output."
+    },
+    {
+      "timestamp": "2026-09-05T08:42:10.419Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified that implementer commit 8b1e7bce0a remains present and is the committed implementation for CHK-004; fresh tool-owned intent evidence will now be regenerated.",
+      "agent": "proof-or-stop-implementer"
     }
   ]
 }
