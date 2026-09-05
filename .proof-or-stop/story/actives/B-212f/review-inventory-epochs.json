@@ -8,7 +8,7 @@
       "reviewRound": "2026-09-05T12:05:43.929Z",
       "state": "OPEN",
       "begunAt": "2026-09-05T12:12:55.376Z",
-      "updatedAt": "2026-09-05T12:28:28.983Z",
+      "updatedAt": "2026-09-05T12:36:09.733Z",
       "cutoff": {
         "headHash": "05e93cf4274858c9ddf2892df7e0860ba9a10d76",
         "materialHash": "d063051d78733c30a7e36459ba810649f25dcfee5448f056ae636a9a0d194c01",
@@ -85,10 +85,72 @@
           "criticDigest": "4b7fffc1d7113400f66ace2eb1095c6a9a85a5cef5181b85baec493563830a38",
           "saturated": false,
           "nextRunSequenceBoundary": 21
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-05T12:28:28.983Z",
+          "completedAt": "2026-09-05T12:36:09.733Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-212f:RR-022",
+              "terminal": "finding",
+              "hostIdentity": "351e4655ba863cabe3b3d108a4aa5d24e0ec1409c2f53f8a00b1c291dced81df",
+              "promptIdentity": "b3ac328dcd75cb0617577b712490b56880cc32a8921f03e535e62c833cb83567",
+              "evidenceIds": [
+                "B-212f:F-014"
+              ],
+              "coverageDigest": "4c9d040b0439ebfa736807770313e2d4819c45aa50a11c8a1283d00ec0cc455d"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-212f:RR-023",
+              "terminal": "finding",
+              "hostIdentity": "351e4655ba863cabe3b3d108a4aa5d24e0ec1409c2f53f8a00b1c291dced81df",
+              "promptIdentity": "c6fce22862a1397819d17a89f1c78b02793de60150836d8f9b65230d669fd054",
+              "evidenceIds": [
+                "B-212f:F-016",
+                "B-212f:F-018"
+              ],
+              "coverageDigest": "7118c3094514a2decd0da5e465c5f669923873b4734a2923da37482bc7743e73"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-212f:RR-025",
+              "terminal": "finding",
+              "hostIdentity": "6b883750b743ed780250f3f1c188ff6890846bb33f3ef2d3c37a684906908043",
+              "promptIdentity": "7a0aa1be11f200595fd508f57cd04d45e2a3519476fad38d868b9690fadc984f",
+              "evidenceIds": [
+                "B-212f:F-017"
+              ],
+              "coverageDigest": "d256d2a7e9fde701c926882916d62f8f6027d98d6ea46fef013dc97e997d41f9"
+            },
+            {
+              "lane": "proof-or-stop-review-docs",
+              "reviewRunId": "B-212f:RR-024",
+              "terminal": "finding",
+              "hostIdentity": "351e4655ba863cabe3b3d108a4aa5d24e0ec1409c2f53f8a00b1c291dced81df",
+              "promptIdentity": "41086602bf01770714a3d60a09de76c88f9e9926029a49bc992b7da9bbe63b3f",
+              "evidenceIds": [
+                "B-212f:F-015"
+              ],
+              "coverageDigest": "72a2748c24017a1ab4b5c6ab0df9b74be60ca917805e9814ba3e60a2e9526c00"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "completed-done-snapshot-live-overlay",
+            "done-command-read-only-overclaim",
+            "done-eager-invalid-delivery-promises"
+          ],
+          "verifiedFindingSetDigest": "1e3d4562b595dcb275ce10eb07c66d4d5578dd045b9cc7d399198b2db8e8646c",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "1f2473279e6a1799882fdbe74189e6e089046f681264f4b3faa30ed69e243d32",
+          "saturated": false,
+          "nextRunSequenceBoundary": 26
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "bec1f2ac53af6ded86128980b358ccfb9731302ff8ac817b91328ac49bb10a47"
+      "_hash": "11d367c1ae1c051f540509066cfe4492a5e818f2671d386feeaa41d51e1eab1e"
     }
   ],
   "receipts": [],
@@ -143,6 +205,63 @@
       ],
       "createdAt": "2026-09-05T12:24:29.749Z",
       "_hash": "0d510281d8fbe5bd07f75eb8b68be0451cde05be929089eb0b3e46c8faccf79e"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-212f:RI-001:CRIT-02",
+      "epochId": "B-212f:RI-001",
+      "storyId": "B-212f",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "05e93cf4274858c9ddf2892df7e0860ba9a10d76",
+        "materialHash": "d063051d78733c30a7e36459ba810649f25dcfee5448f056ae636a9a0d194c01",
+        "storyFilesHash": "48b2d628f246546cae43aa4d36b9d8bb4a0706ab5fada0e2c2d3705baf7065e2"
+      },
+      "aggregateFindingSetDigest": "1e3d4562b595dcb275ce10eb07c66d4d5578dd045b9cc7d399198b2db8e8646c",
+      "requiredLaneCoverageDigest": "ffaf934727828936e44d0aa3486ad7873ae644dabecb810e05c42ea95ac456bb",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-212f:RR-026",
+      "terminalEvidenceIds": [
+        "B-212f:F-019"
+      ],
+      "readEvidenceDigest": "226d8700abfcf2f455dc147275b8c140db25b6d3504589c83a1ea5705267830c",
+      "findingDispositions": [
+        {
+          "findingId": "B-212f:F-014",
+          "disposition": "verified_family",
+          "familyKey": "done-command-read-only-overclaim",
+          "reason": "Fresh line reads still contradict the command-wide read-only sentence with recommended mergeMain=true/dryRun=false and the previously independently inspected actual git merge branch. Full bounded prior reads are unchanged by the verified empty material diff. F-014 is a signed current-wave concept terminal with read coverage and is the current representative of the already accepted family; preserve historical F-008/F-010 lineage and bounded wording repair."
+        },
+        {
+          "findingId": "B-212f:F-015",
+          "disposition": "duplicate",
+          "familyKey": "done-command-read-only-overclaim",
+          "canonicalFindingId": "B-212f:F-014",
+          "reason": "F-015 and F-014 point to the identical sentence, recommended flags, actual merge behavior, operator impact and wording repair. Both signed current-wave records remain open in this owner-bound Story. The direct link to verified-family F-014 is acyclic, retains F-008/F-010 history, and adds no distinct defect."
+        },
+        {
+          "findingId": "B-212f:F-016",
+          "disposition": "verified_family",
+          "familyKey": "completed-done-snapshot-live-overlay",
+          "reason": "Prior independent production-function replay established historical escalation reversal and new stale reviewer-verdict row; current empty scoped-material diff proves the same implementation and fixtures remain. F-016 independently reruns the identical main/current witness and has current signed quality read coverage. It is the wave representative of existing family F-009, not a new root; completed-snapshot compatibility remains a bounded repair obligation."
+        },
+        {
+          "findingId": "B-212f:F-017",
+          "disposition": "duplicate",
+          "familyKey": "completed-done-snapshot-live-overlay",
+          "canonicalFindingId": "B-212f:F-016",
+          "reason": "The coverage observation still concerns the absent DONE historical-valid/live-stale case for the same overlay defect. Its hardcoded TEST fixture and missing historical coverage were independently read in full and remain unchanged. Canonical current-wave F-016 owns the same runtime and fixture repair with original F-009 preserved. Both are live signed records with read coverage; this direct link is acyclic."
+        },
+        {
+          "findingId": "B-212f:F-018",
+          "disposition": "verified_family",
+          "familyKey": "done-eager-invalid-delivery-promises",
+          "reason": "Independently inspected and replayed actual filesystem malformed-delivery witness against current and main dist. Current guard returns delivery_check_tampered then the exhaustive oracle consumer throws reading undefined.filter; main emits a structured delivery-check fail/blocking row. Source machine.ts:1006-1016 yields integrity rejection then dereferences rejected docsPromises, and done-oracle spreads the generator. This active TEST invalid-artifact crash needs dependency-validation repair independently of snapshot policy or doc wording, so it is a new family. F-018 is live signed quality evidence in the current owner-bound Story; preserve strict invalid-evidence rejection and add malformed-content coverage."
+        }
+      ],
+      "createdAt": "2026-09-05T12:35:55.820Z",
+      "_hash": "42069346bb64521e745046213f58ef39cf5d8584744ef47aa188c3eb66a32617"
     }
   ]
 }

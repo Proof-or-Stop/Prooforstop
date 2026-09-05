@@ -697,6 +697,52 @@
       ],
       "signatureTag": "adversarial|ts|wave-independent-completeness",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-212f:F-020",
+      "desc": "doc-promise-undelivered: RI-001 final wave 3 re-observation of existing family done-command-read-only-overclaim (F-008 original observation; F-010 and F-014 corroborations), not a new root or repair family. Fresh source/doc reads still show docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 describing the complete done_prepare command as read-only while recommended defaults at 93-100 enable mergeMain with dryRun=false; packages/main/src/handlers/done-prepare.ts:1890-1901 consequently executes git merge main --no-edit. The command-wide safety statement can induce a mutating invocation as inspection. Correct only the changed wording to scope read-only to the shared readiness projection, preserving authorized merge/refresh/validate behavior. Critical severity follows the canonical concept closing self-check for an undelivered behavior promise. Current finding_list confirms the cited observations remain open and verified. git diff 83dd5c53e1 HEAD across guides, background/plan/checklist, docs, packages/main, scripts and config is empty, consistent with the frozen material binding. Fresh search of removed parser identifiers finds only the explicit historical RED helper reference; no independent additional concept defect was discovered by the bounded audit. Record as existing-family duplicate candidate for the completeness critic. No PASS, repair, snapshot-compatibility assurance, source edit, or lifecycle advancement is claimed.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-05T12:37:59.885Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "af46fe5bbf6da20e62fbc3a34e6ef4552c2a3690f250fe75d31a6099b0a8139a",
+      "files": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-final",
+      "signatureTagSource": "auto"
     }
   ]
 }
