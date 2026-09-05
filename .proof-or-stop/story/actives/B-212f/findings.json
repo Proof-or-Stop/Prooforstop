@@ -190,6 +190,53 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-212f:F-009",
+      "desc": "packages/main/src/core/done-oracle.ts:327,888-961,1105 regresses historical DONE snapshot projection: shared predicates evaluate live review evidence and assurance, then final projectDonePredicateRows overlays those failures even when completedSnapshot supplied valid historical assurance. Independent production-function witness `node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs` compares main 69403365ae buildDoneChecklist with current using identical DONE-phase controlled readers and historical-material snapshot: main review-escalation is pass/nonblocking; current review-escalation is fail/blocking and new stale review-verdict is fail/blocking. Active canFinishGuard remains false in both controls. Real-filesystem `node /tmp/b212f-quality-snapshot.Sx1V74/filesystem-witness.mjs` adapts only the original parity fixture phase to DONE after signing its pass: current emits review-verdict fail/blocking with stale_closeout_review/diff_pack_changed; running with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist emits no such row. Existing done-closure historical projection excludes review-verdict from its current-material revalidation allowlist, so this stale row tells an already-DONE Story to return to DEV/REVIEW. Other fixture blockers exist; no claim this row alone changes aggregate admissibility. This contradicts accepted completed-snapshot compatibility and decision pre-mortem. Bounded repair must preserve historical DONE assurance and classify current-material reviewer drift in the post-DONE projection while active TEST-to-DONE stays strict and missing/tampered historical facts remain blocking. The new shared fixture tests only missing finish-decision under completedSnapshot; existing post-done-closure-snapshot-smoke exits 1 at TEST fixture setup due newly required evidence, before its historical assertions. Repair that fixture without relaxing live gates.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T12:16:34.431Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "6db20aec851e4fba44e00053a0379fdae2d7340281ee6a0afbe308e96708c164",
+      "files": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/tests/red/red-done-shared-predicates.mjs",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto"
     }
   ]
 }

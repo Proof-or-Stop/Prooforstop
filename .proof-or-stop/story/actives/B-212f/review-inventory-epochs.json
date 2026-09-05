@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "proofbound.review_inventory_epochs.v1",
+  "epochs": [
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-212f:RI-001",
+      "storyId": "B-212f",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-05T12:12:55.376Z",
+      "updatedAt": "2026-09-05T12:12:55.376Z",
+      "cutoff": {
+        "headHash": "05e93cf4274858c9ddf2892df7e0860ba9a10d76",
+        "materialHash": "d063051d78733c30a7e36459ba810649f25dcfee5448f056ae636a9a0d194c01",
+        "storyFilesHash": "48b2d628f246546cae43aa4d36b9d8bb4a0706ab5fada0e2c2d3705baf7065e2"
+      },
+      "scopeDigest": "841acebeb604fe826b79d6270a6ec5535635f01282c03c417fdbfc5ae80e7d2d",
+      "candidateSpecSetDigest": "4fec648ffd1fffa365f7cb6a916adae1c377dd8798067e5cc1a9b874f99ee3dc",
+      "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage",
+        "proof-or-stop-review-docs"
+      ],
+      "initialRunSequenceBoundary": 15,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "8bb339d30e35d2de91ed17a6e6800e83fcb1f55f5c5c442d73e5670a88a8602b"
+    }
+  ],
+  "receipts": [],
+  "criticReceipts": []
+}
