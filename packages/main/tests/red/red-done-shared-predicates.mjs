@@ -255,7 +255,6 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   const runtimeMutants = [
     ['inverted boolean outcome', future.replace('return firstDonePredicateFailure(context) === null;', 'return firstDonePredicateFailure(context) !== null;'), oracleSource],
     ['discarded oracle projection', future, oracleSource.replace('return projectDonePredicateRows(rows, donePredicates);', 'return (projectDonePredicateRows(rows, donePredicates), rows);')],
-    ['skipped shared outcomes', future, oracleSource.replace('const donePredicates = [...evaluateDonePredicates(', 'const donePredicates = storyId.length === 0 ? [...evaluateDonePredicates(').replace('projectRoot: root, gitCwd })];', 'projectRoot: root, gitCwd })] : [];')],
     ['inverted projector failure branch', future, oracleSource.replace('if (result.ok) continue;', 'if (!result.ok) continue;')],
   ];
   for (const [name, mutantMachine, mutantOracle] of runtimeMutants) {
@@ -267,6 +266,12 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
       assert.ok(emitted.some(row => row.id === 'future-done-predicate' && row.blocking && row.status === 'fail'), `${name}: oracle must fail`);
     }, { name: 'AssertionError' }, `${name}: executable mutation must be killed`);
   }
+  const skippedOracle = oracleSource.replace('const donePredicates = [...evaluateDonePredicates(', 'const donePredicates = storyId.length === 0 ? [...evaluateDonePredicates(')
+    .replace('projectRoot: root, gitCwd })];', 'projectRoot: root, gitCwd })] : [];');
+  assert.notEqual(skippedOracle, oracleSource);
+  const skipped = productionConsumers(future, skippedOracle, fixture());
+  assert.throws(() => skipped.api.buildDoneChecklist('B-probe', skipped.store, 'ROOT', { gitCwd: 'GIT' }),
+    /Missing shared DONE predicate result: test-evidence/, 'skipped outcomes must explicitly fail closed before rendering');
   console.log('GREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure');
   console.log('Shared DONE predicate parity passed');
 }
