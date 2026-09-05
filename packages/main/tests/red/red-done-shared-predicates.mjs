@@ -36,7 +36,14 @@ export function checkSharedDoneAdapterSources(machineSource, oracleSource) {
     '{ return firstDonePredicateFailure(context) === null; }', 'canFinishGuard');
   same(functionNode(machineSource, 'firstDonePredicateFailure')?.body?.getText(),
     '{ for (const result of evaluateDonePredicates(context)) { if (!result.ok) return result; } return null; }', 'firstDonePredicateFailure');
+  same(functionNode(machineSource, 'donePredicate')?.body?.getText(),
+    '{ return { id, oracleRowId, value, ok: failureReason === null, failureReason }; }', 'donePredicate');
   const reason = functionNode(machineSource, 'getGuardFailureReason');
+  const phaseDispatch = reason?.body?.statements.map(node => ts.isIfStatement(node)
+    ? tokens(node.expression.getText()) : tokens(node.getText()));
+  const expectedDispatch = ['INIT_CHECK', 'PLAN', 'DEV', 'REVIEW', 'TEST', 'DONE'].map(phase => tokens(`targetPhase === '${phase}'`));
+  expectedDispatch.push(tokens('return null;'));
+  if (JSON.stringify(phaseDispatch) !== JSON.stringify(expectedDispatch)) errors.push('DONE diagnostic: phase dispatch skeleton changed');
   const done = reason?.body?.statements.filter(node => ts.isIfStatement(node)
     && tokens(node.expression.getText()) === tokens("targetPhase === 'DONE'")) ?? [];
   if (done.length !== 1) errors.push('DONE diagnostic: expected one direct DONE branch');
@@ -58,6 +65,17 @@ export function checkSharedDoneAdapterSources(machineSource, oracleSource) {
   if (build?.body) ts.forEachChild(build.body, visit);
   if (returns.length !== 1 || returns[0] !== build?.body?.statements.at(-1)) errors.push('oracle return: expected exactly one final return');
   else same(returns[0].getText(), 'return projectDonePredicateRows(rows, donePredicates);', 'oracle return');
+  const checkReferences = node => {
+    if (ts.isIdentifier(node) && node.text === 'donePredicates') {
+      const parent = node.parent;
+      const declarationName = ts.isVariableDeclaration(parent) && parent.name === node;
+      const consumed = ts.isCallExpression(parent)
+        && ['donePredicateValue', 'projectDonePredicateRows'].includes(parent.expression.getText());
+      if (!declarationName && !consumed) errors.push('oracle outcomes: shared results may only be read by the value accessor or final projector');
+    }
+    ts.forEachChild(node, checkReferences);
+  };
+  if (build?.body) checkReferences(build.body);
   const imports = parse(oracleSource).statements.filter(ts.isImportDeclaration);
   if (!imports.some(node => node.moduleSpecifier.text === './machine.js'
     && node.importClause?.namedBindings && ts.isNamedImports(node.importClause.namedBindings)
@@ -150,9 +168,9 @@ function productionConsumers(machineSource, oracleSource, state) {
   return { api: exported, store, calls, context: { storyId: 'B-probe', store, projectRoot: 'ROOT', gitCwd: 'GIT' } };
 }
 
-export function runSharedDonePredicateProof(machineSource = readFileSync(machinePath, 'utf8'), oracleSource = readFileSync(oraclePath, 'utf8')) {
+export function runSharedDonePredicateProof(machineSource = readFileSync(machinePath, 'utf8'), oracleSource = readFileSync(oraclePath, 'utf8'), verifierSource = readFileSync(verifierPath, 'utf8')) {
   if (!functionNode(machineSource, 'evaluateDonePredicates')) {
-    legacyBypassWitness(readFileSync(verifierPath, 'utf8'));
+    legacyBypassWitness(verifierSource);
     throw new Error('shared evaluator absent; historical bypass witnesses above prove the remaining defect');
   }
   assert.deepEqual(checkSharedDoneAdapterSources(machineSource, oracleSource), []);
@@ -224,6 +242,7 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
     ['opposite outer path', oracleSource.replace('const donePredicates = [...evaluateDonePredicates(', 'const donePredicates = storyId.length === 0 ? [...evaluateDonePredicates(').replace('projectRoot: root, gitCwd })];', 'projectRoot: root, gitCwd })] : [];')],
     ['discarded projection result', oracleSource.replace('return projectDonePredicateRows(rows, donePredicates);', 'return (projectDonePredicateRows(rows, donePredicates), rows);')],
     ['early return before projection', oracleSource.replace('const rows: DoneCheckRow[] = [];', 'const rows: DoneCheckRow[] = []; if (storyId) return rows;')],
+    ['cleared shared outcomes', oracleSource.replace('return projectDonePredicateRows(rows, donePredicates);', 'donePredicates.length = 0; return projectDonePredicateRows(rows, donePredicates);')],
   ];
   for (const [name, mutant] of adapterMutants) {
     assert.notEqual(mutant, oracleSource, `${name}: live mutation point`);
@@ -249,6 +268,12 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   const strictWitness = productionConsumers(machineSource, oracleSource, fixture());
   const strictProjection = strictWitness.api.projectDonePredicateRows(stricter, [...strictWitness.api.evaluateDonePredicates(strictWitness.context)]);
   assert.equal(strictProjection[0].blocking, true, 'shared pass must preserve stricter preflight failure');
+  const multiple = strictWitness.api.projectDonePredicateRows(stricter, [
+    { id: 'first', oracleRowId: 'test-evidence', ok: false, failureReason: '[future_first_blocker]' },
+    { id: 'second', oracleRowId: 'test-evidence', ok: false, failureReason: '[future_second_blocker]' },
+  ]);
+  assert.ok(multiple[0].detail.includes('stricter preflight') && multiple[0].detail.includes('future_first_blocker') && multiple[0].detail.includes('future_second_blocker'),
+    'all shared blocker codes remain observable when predicates reuse an already failing row');
 
   // Execute actual corrupted consumer functions and confirm the behavioral
   // assertion rejects their false pass. Shape checking alone is insufficient.
