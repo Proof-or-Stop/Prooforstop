@@ -78,7 +78,7 @@
       "desc": "doc-promise-undelivered: scripts/verify-process-fact-contract.mjs:4978-5137 treats a shared predicate as any identical identifier/property-access text and ignores operators, polarity, call identity, and value provenance. Executing the exact production checker in memory with machine storyId.length > 0 returning [future_done_predicate], oracle storyId.length === 0 pushing the exact doneBlockerRow(future_done_predicate, test-evidence, ...), a matching inventory entry, and an L4 gate-evidence fact returned errors:[]. The two surfaces block on mutually exclusive states. Therefore commit 2480d37f rejects the old unrelated-row mutation but still does not deliver docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-171 claim that wrong-predicate future divergence is mechanically guarded. Require a semantic same-predicate binding or an inverse-polarity mutation that the production checker must reject; lexical reference intersection is false assurance.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T09:48:17.241Z",
@@ -92,7 +92,11 @@
         "packages/main/src/core/process-fact-registry.ts"
       ],
       "signatureTag": "missing|mjs|promise-undelivered-scripts",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by proof-or-stop-implementer commit 1002a29499cca1a0a57d4cd5ec9a561156076665. The checker now compares normalized blocker-emitting branch semantics including polarity and root-value provenance, in addition to exact code-to-row and rows.push emission. The old checker was proven RED by inverted real branches, opposite-polarity same-name predicates, and same-text/different-provenance mutations; owner then reran process-fact and parity commands and refreshed all 13 receipts.",
+      "resolvedAt": "2026-09-05T10:01:53.428Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
