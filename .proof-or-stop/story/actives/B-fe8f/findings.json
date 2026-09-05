@@ -807,6 +807,21 @@
       ],
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-038",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:1852 invokes findingLedgerTrustFromWorkspace from the read-only finding_runtime_evidence_verify command, while packages/main/src/core/finding-ledger.ts:134-135 delegates to findingLedgerSignerFromWorkspace, which creates the signing key when absent. This gives a second read-only verification surface an undeclared filesystem write and can fail on a read-only workspace before it verifies otherwise valid evidence. It is the CHK-004 counterpart of F-034 and should share the same non-creating trust-loader fix. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T09:30:19.730Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-081",
+      "_hash": "f68ff3a601f7161e009e17af58a56065aa8916bce7a92e74f45e9ae1a4b25e3c",
+      "signatureTag": "missing|unknown|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
