@@ -32,17 +32,17 @@ Register the two consumed predicates as L4 process facts, update scripts/verify-
 
 The verifier must enforce a generic omission contract: extract every literal machine-readable blocker code in the targetPhase DONE branch in machine.ts, require each code to have an explicit mapping to a done-oracle row in the process-fact registry, require each mapped row to exist in done-oracle.ts, and run an in-memory mutation self-check that inserts future_done_predicate and confirms the inventory rejects it until mapped. This converts the future-predicate promise into a concrete mechanical rule instead of merely pinning the two current predicates. The dynamic reviewer-verdict-code branch remains represented by the shared review-verdict row and its explicit contract entry.
 
-Remove the accidentally added normative defect-triage paragraph from docs/requirements/decisions/done-prepare-automation-execution-plan.md. This deliverable documents DONE/preflight parity only; it does not define or amend Finding disposition policy.
+Remove the accidentally added out-of-scope paragraph from docs/requirements/decisions/done-prepare-automation-execution-plan.md so the retained section documents predicate parity only.
 
 Verification:
 - node scripts/verify-process-fact-contract.mjs prints DONE/preflight predicate inventory parity passed and Process-fact contract verification passed.
 - Its in-memory future_done_predicate mutation is rejected by the same inventory function used on repository sources.
 - npm --prefix packages/main run test:flow-stability-smoke prints flow stability smoke passed.
 - The executable parity test remains GREEN after all contract and documentation changes.
-- The done_prepare decision document contains the parity contract and no Story-authored Finding disposition rules.
+- The done_prepare decision document contains the predicate-parity contract without the removed out-of-scope paragraph.
 
 Rollback:
-- Revert registry, verifier, flow-smoke, and parity documentation changes together if the mechanical contract is incorrect; do not restore the unrelated Finding-policy paragraph.
+- Revert registry, verifier, flow-smoke, and parity documentation changes together if the mechanical contract is incorrect; do not restore the removed out-of-scope paragraph.
 
 ## CHK-004
 
