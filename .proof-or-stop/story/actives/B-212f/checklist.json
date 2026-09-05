@@ -197,9 +197,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T08:42:06.435Z",
-      "endTime": null,
+      "endTime": "2026-09-05T08:42:07.232Z",
       "userSeesSnapshot": {
         "normalizedClaimDigest": "106bcf0c684825c7ede14e868a905a057a8c002631f4f5ae40b5867b9be45de1",
         "storyFilesHash": "1a3fec54a8521f83d4ccbdf42981df15fa0f16c85ebff314b868931130d4d4ba",
@@ -661,6 +661,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Reopen recovery: resume the already committed implementer work that reuses the real DONE predicates in done-oracle."
+    },
+    {
+      "timestamp": "2026-09-05T08:42:07.232Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified that implementer commit 7e18814556 remains present and is the committed implementation for CHK-002; fresh tool-owned intent evidence will now be regenerated.",
+      "agent": "proof-or-stop-implementer"
     }
   ]
 }
