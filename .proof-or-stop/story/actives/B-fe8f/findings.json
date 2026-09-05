@@ -811,7 +811,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:1705 invokes findingLedgerSignerFromWorkspace from finding_ledger_query, while packages/main/src/core/finding-ledger.ts:111-121 creates the signing key when absent. This makes a command registered as readOnly mutate the git common directory on first query, violating CHK-005 protected read-only query semantics and causing read-only filesystems to fail for a hidden write. Severity: medium.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T09:27:15.993Z",
@@ -819,7 +819,12 @@
       "reviewRunId": "B-fe8f:RR-081",
       "_hash": "e820a02ffff546576eeaef6382f8a827b6b08f05083ded5a167256cf29323c28",
       "signatureTag": "missing|unknown|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoe9b4s_21t9_c281eef5c6264ed38b623d341e00c458",
+      "resolvedAt": "2026-09-05T13:03:55.051Z",
+      "resolvedReason": "Fixed in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b: read-only query/runtime verification uses non-creating trust loads. Cold-start no-key and write-denied filesystem controls verify deterministic no-write behavior and before/after filesystem invariance. Current tool-owned full pinned refresh supplies the GREEN receipts. Original observations and their re-attestations remain in the ledger; no severity downgrade or dismissal is used. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-035",
@@ -954,6 +959,7 @@
       "signatureTag": "missing|ts|wave-attestation-fe8f",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoe99nr_21il_007afdbad4fa4654a0d111542b0d1fee",
+      "ledgerCommitReceiptId": "lrc_mtoe99nr_21il_d16521864e6844c78165535aa0737906",
       "resolvedAt": "2026-09-05T13:03:53.139Z",
       "resolvedReason": "Fixed in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b: production audit/B-META, cluster, cluster-sync and signature-backfill mutations use authoritative append/CAS projections and unique allocation. The final Store authority-chain correction in 845023258fdae5280a68043ea30fdc4d8c74b98e and edda7b58bbe9cc580a9ec6dcb9bc804037f4ed82 preserves legitimate read-after-write, legacy upgrade and mixed batches. Current tool-owned full pinned refresh and its live-mutator/concurrency selectors are the GREEN evidence; these are real producer paths, not only synthetic ledger appends. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
       "resolutionType": "fixed",
