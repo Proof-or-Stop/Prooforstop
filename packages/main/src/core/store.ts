@@ -335,6 +335,28 @@ function trustedLegacyLifecycleReceiptBindings(
     .map(([digest, entries]) => [digest, entries[0]!]));
 }
 
+/** Bind the signed transaction to its complete persisted prefix, including batches. */
+function receiptAuthenticatesLedgerPrefix(
+  ledger: LedgerEnvelope<unknown>,
+  carrier: SignedLedgerCommitReceipt,
+  signed: FindingLedgerReceipt,
+): boolean {
+  if (signed.recordIds.length === 0
+    || canonicalHash(carrier.recordIds) !== canonicalHash(signed.recordIds)) return false;
+  const firstIndex = ledger.records.findIndex((record) => record.recordId === signed.recordIds[0]);
+  if (firstIndex < 0) return false;
+  const endIndex = firstIndex + signed.recordIds.length;
+  const batch = ledger.records.slice(firstIndex, endIndex);
+  if (canonicalHash(batch.map((record) => record.recordId)) !== canonicalHash(signed.recordIds)) return false;
+  const expectedPriorDigest = canonicalHash(ledger.records.slice(0, firstIndex));
+  const expectedCommittedDigest = canonicalHash(ledger.records.slice(0, endIndex));
+  return batch.every((record) => record.priorDigest === expectedPriorDigest)
+    && carrier.priorLedgerDigest === expectedPriorDigest
+    && signed.priorLedgerDigest === expectedPriorDigest
+    && carrier.committedLedgerDigest === expectedCommittedDigest
+    && signed.committedLedgerDigest === expectedCommittedDigest;
+}
+
 function isTrustedFindingLifecycleTransition(
   ledger: LedgerEnvelope<unknown>,
   storyId: string,
@@ -374,13 +396,7 @@ function isTrustedFindingLifecycleTransition(
     || (signed.exactRequestDigest !== undefined
       && signed.exactRequestDigest !== carrier.exactRequestDigest)) return false;
 
-  const recordsBefore = ledger.records.slice(0, recordIndex);
-  const recordsThrough = ledger.records.slice(0, recordIndex + 1);
-  const expectedPriorDigest = canonicalHash(recordsBefore);
-  const expectedCommittedDigest = canonicalHash(recordsThrough);
-  if (record.priorDigest !== expectedPriorDigest
-    || signed.priorLedgerDigest !== expectedPriorDigest
-    || signed.committedLedgerDigest !== expectedCommittedDigest) return false;
+  if (!receiptAuthenticatesLedgerPrefix(ledger, carrier, signed)) return false;
 
   const source = ledger.records[sourceIndex]!;
   const priorHead = ledger.records[recordIndex - 1]!;
@@ -1065,16 +1081,26 @@ export class StoryStore {
           || !payload.projection || typeof payload.projection !== 'object'
           || (payload.projection as Record<string, unknown>).id !== payload.findingId
           || !trustedFindingRecordIds.has(payload.findingRecordId)) continue;
-        const carrier = (ledger.receipts as SignedLedgerCommitReceipt[]).find((candidate) => (
+        const carriers = (ledger.receipts as SignedLedgerCommitReceipt[]).filter((candidate) => (
           candidate.recordIds.includes(record.recordId)
         ));
+        if (carriers.length !== 1) continue;
+        const carrier = carriers[0]!;
         const signed = carrier?.findingLedgerReceipt;
         if (!carrier || !signed || !verifyFindingLedgerReceipt(signed, lifecycleTrust)
           || carrier.operation !== 'append_finding_projection'
           || signed.operation !== 'append_finding_projection'
           || signed.storyId !== storyId
           || signed.receiptId !== carrier.receiptId
-          || !signed.recordIds.includes(record.recordId)) continue;
+          || signed.idempotencyKey !== carrier.idempotencyKey
+          || signed.committedAt !== carrier.committedAt
+          || signed.writerSessionId !== carrier.writerSessionId
+          || signed.writerFenceToken !== carrier.writerFenceToken
+          || signed.replayed !== false || carrier.replayed !== false
+          || typeof signed.exactRequestDigest !== 'string'
+          || signed.exactRequestDigest !== carrier.exactRequestDigest
+          || !signed.recordIds.includes(record.recordId)
+          || !receiptAuthenticatesLedgerPrefix(ledger, carrier, signed)) continue;
         const index = data.findings.findIndex((finding) => (
           finding.id === payload.findingId && finding.recordId === payload.findingRecordId
         ));
