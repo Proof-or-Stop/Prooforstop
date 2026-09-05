@@ -1,12 +1,12 @@
 {
   "schemaVersion": "lattice.scope_freeze_check.v1",
   "storyId": "B-212f",
-  "checkedAt": "2026-09-05T08:29:59.305Z",
+  "checkedAt": "2026-09-05T08:33:14.763Z",
   "mode": "correctness_fix",
   "status": "pass",
-  "scopeBoundaryHash": "f8db8d2451776b8d4477d737f9b1276ab9cd8c9046cd41879a84b4ff8da1ac5b",
-  "executionBoundaryHash": "a5f5defccc749204892d56a9115ae6288e58f41066486de31f6ddbea49b9d83b",
-  "freshnessHash": "a087c38d6b2193dd7ed95e058a74d73c748db52a1114e1a51730877ae22921c5",
+  "scopeBoundaryHash": "5584fe267f154f5b72cac702e355ac787ae902dab7e8d8267c1a793b84099655",
+  "executionBoundaryHash": "c8c1733845165ffe496450c4759633562972fb90c54f7e2c7f38608ea473b63a",
+  "freshnessHash": "e114701373c68d87be674eef5cea21f73679003e7c1fd74ec6aff27ebe8b6d75",
   "effectiveExcludedKeywords": [
     "Authority",
     "customerKeyRef",
@@ -15,7 +15,7 @@
     "Do not push any branch or local main to a remote.",
     "Do not reimplement or duplicate B-c86f dev-memory materialHash/storyFilesHash classification work.",
     "Do not relax DONE, reviewer, freshness, signature, scope-binding, or delivery gates.",
-    "Do not repair unrelated medium/low defects in this Story; retain reproduction, evidence, impact, recommendation, and a traceable later route.",
+    "Do not repair otherwise eligible unrelated nonblocking low/medium defects in this Story; retain reproduction, evidence, impact, recommendation, and a traceable later route.",
     "Layer4",
     "repair UX"
   ],
@@ -51,13 +51,13 @@
       "excluded": true
     },
     {
-      "keyword": "Do not repair unrelated medium/low defects in this Story; retain reproduction, evidence, impact, recommendation, and a traceable later route.",
+      "keyword": "Do not repair otherwise eligible unrelated nonblocking low/medium defects in this Story; retain reproduction, evidence, impact, recommendation, and a traceable later route.",
       "source": "scopeBoundary.excluded",
-      "text": "Do not repair unrelated medium/low defects in this Story; retain reproduction, evidence, impact, recommendation, and a traceable later route.",
+      "text": "Do not repair otherwise eligible unrelated nonblocking low/medium defects in this Story; retain reproduction, evidence, impact, recommendation, and a traceable later route.",
       "excluded": true
     }
   ],
   "repeatDiscardOverlaps": [],
   "issues": [],
-  "_hash": "7e7df44ad4b0252f55d496caa6ab4a094d80e5e9589f01ef0f496f39eb15b1ee"
+  "_hash": "838fc87c0edd64a0731d0209560d035e7c12fd4573cc9ca651337a434bf719e2"
 }

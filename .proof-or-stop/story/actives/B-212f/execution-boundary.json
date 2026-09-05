@@ -6,11 +6,13 @@
     "git commit *",
     "git diff *",
     "git status *",
+    "node bin/proof-or-stop.js *",
     "node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js",
     "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
     "node scripts/verify-process-fact-contract.mjs",
     "npm --prefix packages/main run build",
     "npm --prefix packages/main run test:flow-stability-smoke",
+    "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
     "npm run test:closeout-trust",
     "proof-or-stop *"
   ],
@@ -27,27 +29,21 @@
     "packages/main/src/core/done-transition-prerequisites.ts",
     "packages/main/src/core/machine.ts",
     "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/validation-executor.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
     "packages/main/tests/red/red-done-prepare-done-parity.mjs",
     "proof-or-stop.config.json",
     "scripts/verify-process-fact-contract.mjs"
   ],
-  "excludedCommands": [
-    "git checkout -- *",
-    "git push *",
-    "git reset --hard *",
-    "rm -rf *"
-  ],
+  "excludedCommands": [],
   "excludedTools": [
     "remote publication"
   ],
-  "excludedPaths": [
-    ".proof-or-stop/story/actives/B-c86f",
-    "packages/main/src/core/runtime-artifact-registry.ts"
-  ],
-  "confirmedBy": "main-agent",
-  "confirmationNote": "Only the Story worktree may receive implementation changes. The existing temporary clone is intake/design evidence. New defects follow the user-confirmed severity/applicability rule: current repair for major or acceptance/gate blockers; structured traceable deferral for nonblocking medium/low defects; no global-green scope expansion.",
-  "createdAt": "2026-09-04T14:50:34.494Z",
-  "updatedAt": "2026-09-04T14:50:34.494Z",
-  "_hash": "a5f5defccc749204892d56a9115ae6288e58f41066486de31f6ddbea49b9d83b"
+  "excludedPaths": [],
+  "confirmedBy": "jek",
+  "confirmationNote": "Only the Story worktree may receive implementation changes. The existing temporary clone is intake/design evidence. New defects are classified by applicability and gate impact: current repair for verified applicable critical/high defects and verified current-Story acceptance or gate-truth blockers; strong proof plus a traceable owner is required to route a non-applicable critical/high defect; otherwise eligible unrelated nonblocking low/medium defects retain structured evidence and a later route. No global-green scope expansion.",
+  "createdAt": "2026-09-05T08:33:09.226Z",
+  "updatedAt": "2026-09-05T08:33:09.226Z",
+  "_hash": "c8c1733845165ffe496450c4759633562972fb90c54f7e2c7f38608ea473b63a"
 }
