@@ -262,11 +262,11 @@
       "q": "Should the new normative defect-triage paragraph be removed from the done_prepare decision document, or should the Story explicitly restore policy-amendment scope? Current PLAN and ProofStory explicitly exclude defining or amending Finding disposition policy.",
       "evidence": "The changed decision document says: \"Defects found while maintaining this contract are triaged before scope changes\" and then prescribes current repair, routing, reassessment, and prose-deferral behavior, while plan.md says: \"This deliverable does not define or amend Finding disposition policy.\"",
       "sourcePointers": [
-        "docs/requirements/decisions/done-prepare-automation-execution-plan.md:173",
-        ".proof-or-stop/story/actives/B-212f/plan.md:33",
-        ".proof-or-stop/story/actives/B-212f/understanding.json:16",
-        ".proof-or-stop/story/actives/B-212f/proofstory.json:76"
-      ]
+        ".proof-or-stop/story/actives/B-212f/plan.md#CHK-003",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "resolution": "The current PLAN explicitly requires CHK-003 to remove the accidentally added normative defect-triage paragraph from the done_prepare decision document. The retained documentation is limited to DONE/preflight predicate parity and does not define or amend Finding disposition policy.",
+      "resolvedAt": "2026-09-05T08:57:15.877Z"
     }
   ]
 }
