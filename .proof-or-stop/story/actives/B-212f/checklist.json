@@ -346,9 +346,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T09:16:07.059Z",
-      "endTime": "2026-09-05T09:16:07.860Z",
+      "endTime": "2026-09-05T09:38:50.606Z",
       "userSeesSnapshot": {
         "normalizedClaimDigest": "52dbfce77407fe2644a500a5ded8c954504525ab65710a9ff4eaf69a24ed3d2a",
         "storyFilesHash": "4ae2fcae560bde8d30aa9607f58034f8500a0f90edb7818b4377b335a7f5365e",
@@ -874,6 +874,16 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Reopen for verified review Findings B-212f:F-001 and B-212f:F-002: add a wrong-row/wrong-predicate RED and make the omission guard prove exact blocker-to-oracle correspondence.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:38:50.606Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "proof-or-stop-implementer commit 2480d37f8b1cd4845c0bb79415cc68c9314c8dba repaired verified Findings B-212f:F-001/F-002 with executable wrong-row and wrong-predicate mutations plus exact blocker-to-oracle correspondence.",
       "agent": "proof-or-stop-implementer"
     }
   ]
