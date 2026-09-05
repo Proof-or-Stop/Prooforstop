@@ -822,6 +822,60 @@
       "_hash": "f68ff3a601f7161e009e17af58a56065aa8916bce7a92e74f45e9ae1a4b25e3c",
       "signatureTag": "missing|unknown|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-039",
+      "desc": "RI-001 wave 1 re-attestation of B-fe8f:F-036 on unchanged frozen material 0d6a1ddb: packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1513-1590,3599-3625 still tests synthetic direct ledger/B-META lock writes but does not execute audit-meta-store, cluster, cluster-sync, or signature-backfill Finding mutations. The live paths at packages/main/src/core/audit-meta-store.ts:165-204,460-526, packages/main/src/handlers/cluster.ts:75-147, packages/main/src/core/cluster-sync.ts:207-210, and packages/main/src/handlers/signature-backfill.ts:136-158 still write findings.json directly. Thus CHK-002/CHK-006 and green.story3_matrix still lack command-level proof that all Finding-system mutations are durable/exactly-once. Severity: high.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T09:33:41.707Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-083",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/cluster-sync.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/cluster.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/signature-backfill.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "fbc15d98b7913a900772209a1ed5ee805cfb2618dc790f2785ddd1e6dd720b43",
+      "files": [
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/handlers/cluster.ts",
+        "packages/main/src/core/cluster-sync.ts",
+        "packages/main/src/handlers/signature-backfill.ts"
+      ],
+      "signatureTag": "missing|ts|wave-attestation-fe8f",
+      "signatureTagSource": "auto"
     }
   ]
 }
