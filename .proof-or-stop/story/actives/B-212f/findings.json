@@ -5,7 +5,7 @@
       "desc": "scripts/verify-process-fact-contract.mjs:4972-5034 exact-mapping mutation false-green: collectLiteralDoneOracleRowIds accepts every literal id property anywhere in done-oracle.ts, and checkDonePreflightPredicateInventory verifies only that the declared row id exists, not that the row emits the mapped blocker code or consumes the corresponding predicate. Executing the exact checker functions in memory with future_done_predicate mapped to the unrelated existing test-evidence row and artifact:delivery-check.json returned errors:[]; therefore a future DONE predicate can be added, falsely mapped to an unrelated row, and the promised omission guard still passes while done_prepare remains divergent. This directly violates CHK-003 and can make lifecycle readiness evidence misleading; require the checker/mutation test to reject wrong-row mappings by proving code-to-row/predicate correspondence, not mere set membership.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T09:19:55.835Z",
@@ -18,7 +18,11 @@
         "packages/main/src/core/done-oracle.ts"
       ],
       "signatureTag": "adversarial|mjs|scripts-verify-process",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by proof-or-stop-implementer commit 2480d37f8b1cd4845c0bb79415cc68c9314c8dba. Executable mutations now prove an unrelated existing row and a row-local wrong predicate are both rejected; exact blocker-to-oracle correspondence is checked. Owner reran node scripts/verify-process-fact-contract.mjs and node packages/main/tests/red/red-done-prepare-done-parity.mjs successfully, then refreshed all pinned verification evidence.",
+      "resolvedAt": "2026-09-05T09:42:17.520Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-002",
