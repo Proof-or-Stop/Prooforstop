@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "a4c81f9e83c28c584cc6b4b9d77003fed3dceca315d8e284fea9a8948117d908",
+  "committedLedgerDigest": "0dc2e2e6cbf3836543ea8616d5a0cb6f74d63fc7fa6a5b28b1ebbb9e7b4f3370",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2201,6 +2201,34 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T13:21:48.232Z"
+    },
+    {
+      "recordId": "lr_mtohpkqf_1asa_9156199730414addbd5598937f3fe5bc",
+      "recordType": "finding",
+      "idempotencyKey": "B-fe8f-config-nested-alias-20260905",
+      "payload": {
+        "id": "B-fe8f:F-054",
+        "desc": "The same required cli-surface-smoke proceeds past the repaired Lab aliases and then fails at its existing config doctor invocation: node bin/proof-or-stop.js config doctor --json exits 1 with Unknown command: lattice_config_doctor. Owner independently reproduced that exact failure and config repair --help exits 1 with Unknown command: lattice_config_repair. alias-normalizer.ts lines81-82 map these public nested aliases to retired handler IDs while command-catalog.ts1512/1516 registers proof_or_stop_config_doctor and proof_or_stop_config_repair; docs/CLI.md86 promises config doctor. This is a verified current mandatory-validation/CLI compatibility blocker, not permission for broad brand cleanup. Bounded repair: update only these two existing values in the already authorized alias-normalizer.ts, preserve handler behavior and all smoke assertions, then rerun the existing suite.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-05T14:40:32.821Z",
+        "reviewRound": "2026-09-05T13:03:05.150Z",
+        "_hash": "0503519b8479b947e1d93d7e40cac160226f886fe9a425a4408f002e663e2a87",
+        "files": [
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "signatureTag": "doc-promise-undelivered|ts|same-required-surface",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "4139eb1c37dfc5a73d5defd005e2846c33474bdc7327bd8d710f5aba7e77ae4b",
+      "priorDigest": "a4c81f9e83c28c584cc6b4b9d77003fed3dceca315d8e284fea9a8948117d908",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-05T14:40:32.823Z"
     }
   ],
   "receipts": [
@@ -6067,6 +6095,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "ea75b97b6c5aeb600cecc781a79cd135c6eaeba9e1e7d1a30456a57eed3a7b0f",
         "signature": "VnhnDsR3RGYharVzQrfRiQ2dCuDD8P+3WrGbt4zy1BuQdTOj0UPcXSfi+yc1WU6Mp6Oi+mMTKxIuRfY2XUOhDA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtohpkqf_1asa_48781d626e6643bfb83a10e4f0a1d942",
+      "operation": "append_finding",
+      "idempotencyKey": "B-fe8f-config-nested-alias-20260905",
+      "requestDigest": "ce43515fde45fa0d88afe7daf44521fcba62dc576ddc70004ed7ef28ab9abc7a",
+      "recordIds": [
+        "lr_mtohpkqf_1asa_9156199730414addbd5598937f3fe5bc"
+      ],
+      "priorLedgerDigest": "a4c81f9e83c28c584cc6b4b9d77003fed3dceca315d8e284fea9a8948117d908",
+      "committedLedgerDigest": "0dc2e2e6cbf3836543ea8616d5a0cb6f74d63fc7fa6a5b28b1ebbb9e7b4f3370",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "7699893c-19d6-4621-ae18-06c863194a1f",
+      "committedAt": "2026-09-05T14:40:32.823Z",
+      "replayed": false,
+      "exactRequestDigest": "b0b78d12a649f3b111294d9134c9fe82a3a25137f02bd83ed559a011714bb96f",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtohpkqf_1asa_48781d626e6643bfb83a10e4f0a1d942",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "B-fe8f-config-nested-alias-20260905",
+        "exactRequestDigest": "b0b78d12a649f3b111294d9134c9fe82a3a25137f02bd83ed559a011714bb96f",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtohpkqf_1asa_9156199730414addbd5598937f3fe5bc"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "a4c81f9e83c28c584cc6b4b9d77003fed3dceca315d8e284fea9a8948117d908",
+        "committedLedgerDigest": "0dc2e2e6cbf3836543ea8616d5a0cb6f74d63fc7fa6a5b28b1ebbb9e7b4f3370",
+        "replayed": false,
+        "committedAt": "2026-09-05T14:40:32.823Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "7699893c-19d6-4621-ae18-06c863194a1f",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "3685c3b7f90636bc13e17e11dbe82e57619c1a004c82f17cdbbbfc4f5620059c",
+        "signature": "qEUaxmTaT561n2CKhVsY2RvepnjHD0Frmg5hpKkw47UqbhyzaTpGAs+VVuW+eNrpoFDStU1m6reZ6AHOmIiWCw=="
       }
     }
   ]
