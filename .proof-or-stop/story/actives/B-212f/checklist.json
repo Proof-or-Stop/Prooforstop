@@ -777,9 +777,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T16:59:18.671Z",
-      "endTime": null,
+      "endTime": "2026-09-05T17:40:48.825Z",
       "verificationEvidence": [
         {
           "intentRef": "CHK-005:happy:0",
@@ -973,7 +973,14 @@
           "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
           "timestamp": "2026-09-05T17:34:42.644Z"
         }
-      ]
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "f7cda645e4d75257c772a14da949c31836d086a7cf085968b6c459d0c0e82f83",
+        "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+        "headHash": "b4f76a06919954354fd443a4b13befc497870251",
+        "attestedAt": "2026-09-05T17:40:49.275Z",
+        "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2"
+      }
     },
     {
       "id": "CHK-006",
@@ -1665,6 +1672,15 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Resume acceptance of the preserved canonical implementer commit after its separately tracked verifier dependencies were repaired."
+    },
+    {
+      "timestamp": "2026-09-05T17:40:48.825Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer61ea99033b and08680744ba are preserved with final dependency repair31351f6c67. Owner real batches0993b46/6006220/9e7e150 verify all26 pins; dry-run freshness reports no stale evidence. Original parity/shared and strict E controls retained; formal131 validation pending."
     }
   ]
 }
