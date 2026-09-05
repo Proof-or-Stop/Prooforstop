@@ -710,6 +710,93 @@ async function runAuthoritativeMutationRegression(repositoryRoot: string, scratc
   console.log('finding.authoritative_live_mutations: PASS concurrentMeta=8 audit=true cluster=true clusterSync=true signatureBackfill=true status=true readAfterWrite=true');
 }
 
+function runProjectionReceiptBindingRegression(scratch: string): void {
+  const root = join(scratch, 'projection-receipt-binding');
+  mkdirSync(root, { recursive: true });
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: '.', rootDir: '.', storyDir: '.proof-or-stop/story/actives',
+    requirementsDir: 'docs/requirements', storyPrefix: 'B',
+  }));
+  git(root, ['init', '-q', '-b', 'main']);
+  const store = new StoryStore(root);
+  const storyId = 'B-PROJECTION';
+  const mutate = createAuthoritativeFindingMutation({ root, scanRoot: root, store });
+  mutate(storyId, 'seed', (data) => {
+    data.findings.push(...[1, 2].map((index): Finding => ({
+      id: `${storyId}:F-${index}`, desc: `seed-${index}`, status: 'open', severity: 'high', category: 'missing',
+    })));
+    return { result: undefined };
+  });
+  mutate(storyId, 'two-projections', (data) => {
+    data.findings.forEach((finding, index) => { finding.desc = `reviewed-${index + 1}`; });
+    return { result: undefined };
+  });
+  const baseline = store.readFindingLedger<JsonValue>(storyId);
+  const batch = baseline.receipts.at(-1)!;
+  assert.equal(batch.recordIds.length, 2);
+  assert.deepEqual(store.readFindings(storyId).findings.map((finding) => finding.desc), ['reviewed-1', 'reviewed-2']);
+  const trust = findingLedgerTrustFromWorkspace(root);
+  const signedReceipt = (batch as typeof batch & { findingLedgerReceipt: ReturnType<typeof signFindingLedgerReceipt> }).findingLedgerReceipt;
+  assert.equal(verifyFindingLedgerReceipt(signedReceipt, trust), true);
+  const signedBytes = canonicalJson(signedReceipt);
+  const failures: string[] = [];
+  const candidates: Array<[string, (candidate: typeof baseline) => void]> = [
+    ['payload-with-recomputed-outer-hashes', (candidate) => {
+      const record = candidate.records.find((entry) => entry.recordId === batch.recordIds[0])!;
+      const payload = record.payload as Record<string, JsonValue>;
+      payload.projection = { ...payload.projection as Record<string, JsonValue>, status: 'resolved' };
+      record.payloadHash = canonicalHash(record.payload);
+      candidate.committedLedgerDigest = canonicalHash(candidate.records);
+      candidate.receipts.at(-1)!.committedLedgerDigest = candidate.committedLedgerDigest;
+    }],
+    ['prior-prefix-content', (candidate) => {
+      candidate.records[0]!.payload = { ...candidate.records[0]!.payload as Record<string, JsonValue>, desc: 'altered-source' };
+      candidate.records[0]!.payloadHash = canonicalHash(candidate.records[0]!.payload);
+      candidate.committedLedgerDigest = canonicalHash(candidate.records);
+      candidate.receipts.at(-1)!.committedLedgerDigest = candidate.committedLedgerDigest;
+    }],
+    ['outer-prior-digest', (candidate) => { candidate.receipts.at(-1)!.priorLedgerDigest = '0'.repeat(64); }],
+    ['outer-record-subset', (candidate) => { candidate.receipts.at(-1)!.recordIds = [batch.recordIds[0]!]; }],
+    ['outer-record-order', (candidate) => { candidate.receipts.at(-1)!.recordIds.reverse(); }],
+    ['outer-idempotency', (candidate) => { candidate.receipts.at(-1)!.idempotencyKey = 'different-transaction'; }],
+    ['outer-writer', (candidate) => { candidate.receipts.at(-1)!.writerSessionId = 'different-writer'; }],
+    ['duplicate-carrier', (candidate) => {
+      candidate.receipts.push({ ...structuredClone(candidate.receipts.at(-1)!), receiptId: 'duplicate-carrier', idempotencyKey: 'duplicate-carrier' });
+    }],
+  ];
+  for (const [name, alter] of candidates) {
+    const candidate = structuredClone(baseline);
+    alter(candidate);
+    assert.equal(canonicalJson((candidate.receipts.find((receipt) => receipt.receiptId === batch.receiptId) as typeof batch & {
+      findingLedgerReceipt: ReturnType<typeof signFindingLedgerReceipt>;
+    }).findingLedgerReceipt), signedBytes, `${name}: fixture changed signed receipt`);
+    writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(candidate, null, 2)}\n`);
+    // The unsigned storage envelope passes; only authenticated consumption can reject this.
+    assert.doesNotThrow(() => store.readFindingLedger(storyId));
+    const beforeRead = readFileSync(store.findingLedgerPath(storyId), 'utf8');
+    const observed = store.readFindings(storyId).findings;
+    if (observed.some((finding) => finding.status !== 'open' || finding.desc.startsWith('reviewed-'))) {
+      failures.push(`${name}: inconsistent projection consumed`);
+    }
+    assert.equal(readFileSync(store.findingLedgerPath(storyId), 'utf8'), beforeRead, 'readFindings wrote the ledger');
+  }
+  writeFileSync(store.findingLedgerPath(storyId), `${JSON.stringify(baseline, null, 2)}\n`);
+  mutate(storyId, 'mixed-new-and-projection', (data) => {
+    data.findings[0]!.desc = 'mixed-projection';
+    data.findings.push({ id: `${storyId}:F-3`, desc: 'new-in-mixed-batch', status: 'open', severity: 'medium', category: 'missing' });
+    return { result: undefined };
+  });
+  const mixed = store.readFindingLedger<JsonValue>(storyId);
+  const mixedReceipt = mixed.receipts.at(-1)!;
+  assert.deepEqual(mixedReceipt.recordIds.map((id) => mixed.records.find((record) => record.recordId === id)!.recordType),
+    ['finding_projection', 'finding']);
+  assert.deepEqual(store.readFindings(storyId).findings.map((finding) => finding.desc),
+    ['mixed-projection', 'reviewed-2', 'new-in-mixed-batch']);
+  if (failures.length) console.error(`finding.projection_receipt_prefix: RED failures=${failures.length}\n${failures.join('\n')}`);
+  assert.equal(failures.length, 0, 'Signed projection receipt must authenticate actual transaction prefix');
+  console.log('finding.projection_receipt_prefix: PASS signedReceiptUnchanged=true tamperRejected=8 batchRows=2 mixedBatch=true readAfterWrite=true readWrites=0');
+}
+
 function hasProtectedPathSurface(value: unknown, protectedValues: readonly string[]): boolean {
   if (typeof value === 'string') return protectedValues.some((candidate) => candidate && value.includes(candidate));
   if (Array.isArray(value)) return value.some((item) => hasProtectedPathSurface(item, protectedValues));
@@ -2985,10 +3072,14 @@ if (process.argv[2] === '--ledger-worker') {
 } else if (process.argv[2] === '--proposal-envelope-only') {
   const scratch = mkdtempSync(join(tmpdir(), 'finding-proposal-envelope-smoke-'));
   try { runProposalEnvelopeRegression(scratch); } finally { rmSync(scratch, { recursive: true, force: true }); }
+} else if (process.argv[2] === '--projection-receipt-only') {
+  const scratch = mkdtempSync(join(tmpdir(), 'finding-projection-receipt-smoke-'));
+  try { runProjectionReceiptBindingRegression(scratch); } finally { rmSync(scratch, { recursive: true, force: true }); }
 } else {
   const scratch = mkdtempSync(join(tmpdir(), 'finding-ledger-smoke-'));
   try {
     runProposalEnvelopeRegression(scratch);
+    runProjectionReceiptBindingRegression(scratch);
     const concurrentFile = join(scratch, 'concurrent', 'finding-ledger.json');
     const concurrentLock = join(scratch, 'locks', 'normal-findings.lock');
     const workerCount = 25;
