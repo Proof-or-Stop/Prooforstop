@@ -4,9 +4,9 @@
       "id": "CHK-001",
       "title": "Commit the reviewed executable done_prepare/DONE parity RED and register it",
       "context": "Candidate probe rp-mtn2kjzu-pap3kp and red review rr-mtn2kqun-vcqatu bind the exact executable design; red/green relation rgr-mtn2ppnx-h2nqoj and passing evaluation rgre-mtn2ptyg-asgnhf bind the same command to current-main RED and isolated-candidate GREEN. Before implementation, the test exits 1 because the real DONE guard rejects missing dev_memory_finish_decision and stale scopeBinding.diffPackHash while buildDoneClosureRunbook has neither blocker row. The already-run GREEN candidate proves the unchanged test can pass after the parity fix, but DEV must commit this test and rerun it in the Story worktree.",
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T08:42:04.713Z",
-      "endTime": null,
+      "endTime": "2026-09-05T08:42:05.536Z",
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md#command-contract",
         "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md#target-capability"
@@ -642,6 +642,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Reopen recovery: resume the already committed implementer work for the executable RED/parity fixture and validation registration."
+    },
+    {
+      "timestamp": "2026-09-05T08:42:05.536Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified that implementer commit 414e02135b remains present and is the committed implementation for CHK-001; fresh tool-owned intent evidence will now be regenerated.",
+      "agent": "proof-or-stop-implementer"
     }
   ]
 }
