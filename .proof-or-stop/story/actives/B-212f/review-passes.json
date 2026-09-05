@@ -248,6 +248,72 @@
       },
       "readDiagnostics": [],
       "_hash": "42c20ed9037d15fef776fcdf5be15ca520d8a27bebcc5328852b54ed7187a89b"
+    },
+    {
+      "id": "B-212f:RP-006",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Independent docs review: extracted 102 raw declaration tokens and narrowed to 9 changed exported APIs/types/constants. Compared 3 directly symbol-referenced documentation sections (DONE parity, dev-memory Non-Goals, playbook M8), plus bounded command/closure paragraphs and draft backgrounds. Remaining changed exports have no direct doc reference; no package README exists for fallback. Decisions entries marked triaged were title-triaged; relevant excerpts were additionally read, not whole files, per canonical narrow-input rule. Audited all four checklist titles/userSees, committed source/test/config diff, and reverse promises: active admission consumes all shared outcomes; actual DONE plus explicit snapshot retains existing artifact/assurance checks and informational reviewer row without fresh PASS or complete historical audit; whole done_prepare may mutate while projection is read-only; finite adapter/mutation claims match executable proof. Selector receipt repair retains bounded public output and full private matching/digest input. Both separate drafts preserve unresolved provenance/audit scope without claiming repair. node packages/main/tests/red/red-done-shared-predicates.mjs completed exit 0 with Shared DONE predicate parity passed. No documentation-code blocker found.",
+      "createdAt": "2026-09-05T14:52:11.078Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-035",
+      "envelopeId": "010cb92d28e99909bd3c2ee8b1e78adfe814f69221ad3c263e6bbcbfc137347e",
+      "writerSessionId": "sess-ff739d19d9399dbcb7183da81942185f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c36656a37fc4757f77b0c3d5e500797deb5bc4982460f21cc6eb910850278a07"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ec7a60ddafefed5fa7b0f0670a88c50aa53de8b8d3840171934ac0af5c66e38"
     }
   ]
 }
