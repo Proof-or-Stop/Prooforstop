@@ -1422,7 +1422,7 @@
       "desc": "The same required cli-surface-smoke proceeds past the repaired Lab aliases and then fails at its existing config doctor invocation: node bin/proof-or-stop.js config doctor --json exits 1 with Unknown command: lattice_config_doctor. Owner independently reproduced that exact failure and config repair --help exits 1 with Unknown command: lattice_config_repair. alias-normalizer.ts lines81-82 map these public nested aliases to retired handler IDs while command-catalog.ts1512/1516 registers proof_or_stop_config_doctor and proof_or_stop_config_repair; docs/CLI.md86 promises config doctor. This is a verified current mandatory-validation/CLI compatibility blocker, not permission for broad brand cleanup. Bounded repair: update only these two existing values in the already authorized alias-normalizer.ts, preserve handler behavior and all smoke assertions, then rerun the existing suite.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T14:40:32.821Z",
@@ -1435,7 +1435,11 @@
       "signatureTag": "doc-promise-undelivered|ts|same-required-surface",
       "signatureTagSource": "auto",
       "recordId": "lr_mtohpkqf_1asa_9156199730414addbd5598937f3fe5bc",
-      "ledgerCommitReceiptId": "lrc_mtohpkqf_1asa_48781d626e6643bfb83a10e4f0a1d942"
+      "ledgerCommitReceiptId": "lrc_mtohpkqf_1asa_48781d626e6643bfb83a10e4f0a1d942",
+      "resolvedAt": "2026-09-05T14:54:11.685Z",
+      "resolvedReason": "Fixed in 46a37452ef07f7d87caa18e41462bf74e81f2d71. config doctor and config repair map to registered proof_or_stop_config_doctor and proof_or_stop_config_repair. Original cli-surface-smoke passed end-to-end after rebuild. Build and diff check passed. Official stale evidence refresh completed71/71 against that source in342.5seconds (metadata bc342c8). This proves bounded repair, not full standard validation, host quorum or DONE.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
