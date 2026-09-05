@@ -116,6 +116,16 @@ assert.deepEqual(
 );
 assert.deepEqual(normalizeNestedSpaceAlias(['dispatch', 'status', '{}']).argv, ['dispatch_status', '{}']);
 assert.deepEqual(normalizeNestedSpaceAlias(['host', 'list']).argv, ['host_list']);
+function assertCurrentConfigAliases(): void {
+  const observed = Object.fromEntries(['doctor', 'repair'].map(action => [action,
+    normalizeNestedSpaceAlias(['proof-or-stop', 'config', action, '--help']).argv,
+  ]));
+  assert.deepEqual(observed, {
+    doctor: ['proof_or_stop_config_doctor', '--help'],
+    repair: ['proof_or_stop_config_repair', '--help'],
+  }, 'config aliases must target the current registered commands');
+}
+assertCurrentConfigAliases();
 for (const prefix of [[], ['proof-or-stop'], ['lattice']]) {
   for (const action of ['create', 'run', 'eval', 'help', 'unknown']) {
     assert.equal(normalizeNestedSpaceAlias([...prefix, 'lab', action, '--help']).matched, false,
@@ -181,6 +191,9 @@ const configDoctor = runJson<{ schemaVersion: string; migration: { cliFirst: boo
 ]);
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
+const configRepairHelp = runCli(['proof-or-stop', 'config', 'repair', '--help']);
+assert.match(configRepairHelp, /--setGitRoot|--set-git-root/, 'nested repair reaches its registered argument contract');
+assert.match(configRepairHelp, /--confirm/, 'repair help preserves the explicit write-confirmation boundary');
 
 const conduitExplain = runJson<{ schemaVersion: string; authorityChanged: boolean }>([
   'proof-or-stop',
