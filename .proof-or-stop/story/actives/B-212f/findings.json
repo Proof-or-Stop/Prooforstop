@@ -2065,6 +2065,54 @@
       ],
       "signatureTag": "canonical-timeout-fixture-filename",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-043",
+      "desc": "RI-003 wave1 independent critic corroboration of F-041 validation-inventory-fixed-pin-maintenance. I independently evaluated configuredValidationCommands -> buildValidationCommandInventory: current count131, digest e1b85f5c0ecd1cbdf95c62e442eeabe398ce44b5f55cf36c17d03f953f682e86, no declared cwd and all normalized cwdRelative dot. Source smoke line491 still pins511e1906; main/head config diff contains exactly the three B-212f registrations, so this is introduced fixed-pin maintenance omission, not permission for dynamic expected values or removing tests. It directly blocks current formal validation and needs bounded current-Story repair. For inventory completeness I inspected F-034 through F-042, all four lanes' signed read coverage, and every failed-command output in the frozen test-evidence.json at2026-09-05T16:22:02.145Z, binding material5f21d60f/story8c9a7add. The artifact records complete131 commands and9 required failures, not a PASS. Independent bounded source inspection supports eight existing registered roots F-034 through F-041; F-042 duplicates F-038. The red-b49d4 failed attribution row names the red-b8df9 child whose sole failure is M2 handwritten INIT tamper diagnostic, so those two failed commands share F-039 rather than another registration root. Other observed failures align with pinned-docs refresh filtering, canonical timeout fixture filename, retired ambient env expectation, repository-root depth, retired Lab alias expectation and canonical mutation-variable propagation. Main/head source checks establish the pre-existing seven roots separately from the introduced pin omission. No broad proof reruns, implementation or lifecycle changes; this terminal corroborates F-041 and preserves originals, not a new family or acceptance credential. Current unsupported acceptance basis receives only a separately checked request_changes topology receipt.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-05T16:45:39.839Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-054",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "0c45c1fe5bcd12043887590009cec7ff30499fa5af4aa5376a54a66a67e2b4ad",
+      "files": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "validation-inventory-fixed-pin-maintenance",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
