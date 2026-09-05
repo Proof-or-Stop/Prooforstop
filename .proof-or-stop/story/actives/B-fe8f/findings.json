@@ -1217,7 +1217,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:873-911 — proposalExactUnionValid checks exact top-level and selected nested key sets but does not validate most envelope leaf or array-element shapes. On current committed HEAD, correctly re-signed proposals with reviewRunId:null, evidenceRefs:[null], historicalSourceRefs:[null], protectedSurfaceEvaluation:[null], or runtimeReceiptIds:[null] each return {valid:true} from verifyAssessmentProposal; appendAssessmentProposal therefore persists all but the separately asserted proposalId case. This violates the FindingAssessmentProposal envelope and CHK-003 exact-union fail-closed contract, allowing malformed signed input to become Story 2 verifier/query material. Severity: high.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T11:07:13.887Z",
@@ -1227,7 +1227,11 @@
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoa390g_obi_44b5f588d27e4e7ab0759da9d99b965e",
-      "ledgerCommitReceiptId": "lrc_mtoa390h_obi_50197141b57a4955ab7cf20b43a79104"
+      "ledgerCommitReceiptId": "lrc_mtoa390h_obi_50197141b57a4955ab7cf20b43a79104",
+      "resolvedAt": "2026-09-05T13:04:15.364Z",
+      "resolvedReason": "RED test-only 57c362e005b03b933f92a44a9a03f8cec990167a produced 141 envelope-contract failures. GREEN e0a79946e70ac8a026b845ff7180ec311907d72e validates signed leaf/array/nested shapes and exact optional dependency fields/digest. Focused GREEN reports invalid=407 legal=43, all 8 dependency-optional combinations, all 6 variants, legal empty envelope arrays and sparse-array rejection; current full pinned refresh re-executed the complete smoke. This is contract validation, not Story1 applicability semantics. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-046",
