@@ -70,7 +70,81 @@
         "headHash": "414e02135bdae86f899b3c574bf348970b07bcc1",
         "attestedAt": "2026-09-04T20:58:39.824Z",
         "materialHash": "7e3c95c5e8b697114daa3daca78aa5505f2ab0736387fee0a39996daedc6eb7d"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "Post-fix parity regression proves both missing finish decision and stale reviewer diff-pack rejection.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes",
+            "executedAt": "2026-09-05T08:18:02.909Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:bead907bb42868bf94ed67003c19301b33f96075d4b76fb40e28a39b080e04cd",
+            "causalReceiptHash": "6bbebd55b068338dcd29198ad4b92d25c33c777962055c1c9775f74d9fced830",
+            "commandReruns": 0
+          },
+          "headHash": "86bdb4dee82a719e8c1ceeb69136178a9b832f95",
+          "materialHash": "c67ab2166319eb510e8fee1f7e5b0b88f2dc8d83480035013236d4de6b79eb56",
+          "storyFilesHash": "0d8ea937d9d4f58d71827d2c3a51c5ae145ede572b058e06c13875e28165e090",
+          "timestamp": "2026-09-05T08:18:06.443Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "Real DONE control rejects precisely the stale diffPackHash fixture.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN control: real DONE rejects the stale lane diffPackHash",
+            "executedAt": "2026-09-05T08:18:03.891Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:bead907bb42868bf94ed67003c19301b33f96075d4b76fb40e28a39b080e04cd",
+            "causalReceiptHash": "6bbebd55b068338dcd29198ad4b92d25c33c777962055c1c9775f74d9fced830",
+            "commandReruns": 0
+          },
+          "headHash": "86bdb4dee82a719e8c1ceeb69136178a9b832f95",
+          "materialHash": "c67ab2166319eb510e8fee1f7e5b0b88f2dc8d83480035013236d4de6b79eb56",
+          "storyFilesHash": "0d8ea937d9d4f58d71827d2c3a51c5ae145ede572b058e06c13875e28165e090",
+          "timestamp": "2026-09-05T08:18:06.443Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "The previously RED done_prepare reviewer freshness assertion is GREEN after implementation.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review",
+            "executedAt": "2026-09-05T08:18:04.796Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:bead907bb42868bf94ed67003c19301b33f96075d4b76fb40e28a39b080e04cd",
+            "causalReceiptHash": "6bbebd55b068338dcd29198ad4b92d25c33c777962055c1c9775f74d9fced830",
+            "commandReruns": 0
+          },
+          "headHash": "86bdb4dee82a719e8c1ceeb69136178a9b832f95",
+          "materialHash": "c67ab2166319eb510e8fee1f7e5b0b88f2dc8d83480035013236d4de6b79eb56",
+          "storyFilesHash": "0d8ea937d9d4f58d71827d2c3a51c5ae145ede572b058e06c13875e28165e090",
+          "timestamp": "2026-09-05T08:18:06.443Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -141,7 +215,57 @@
         "headHash": "7e188145568bbbf05f09f0ad1313f3536d0208a0",
         "attestedAt": "2026-09-04T21:04:21.134Z",
         "materialHash": "d81e690512633bda40c683cd67d9ed656dceb77b09e556bd19f07699e0ce0e20"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "done_prepare and real DONE now share missing_dev_memory_finish_decision.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN parity: done_prepare oracle rejects the missing finish decision with the same code",
+            "executedAt": "2026-09-05T08:18:05.522Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:bead907bb42868bf94ed67003c19301b33f96075d4b76fb40e28a39b080e04cd",
+            "causalReceiptHash": "6bbebd55b068338dcd29198ad4b92d25c33c777962055c1c9775f74d9fced830",
+            "commandReruns": 0
+          },
+          "headHash": "86bdb4dee82a719e8c1ceeb69136178a9b832f95",
+          "materialHash": "c67ab2166319eb510e8fee1f7e5b0b88f2dc8d83480035013236d4de6b79eb56",
+          "storyFilesHash": "0d8ea937d9d4f58d71827d2c3a51c5ae145ede572b058e06c13875e28165e090",
+          "timestamp": "2026-09-05T08:18:06.443Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "done_prepare maps the phase-agnostic reviewer verdict to stale_closeout_review.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review",
+            "executedAt": "2026-09-05T08:18:06.234Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:bead907bb42868bf94ed67003c19301b33f96075d4b76fb40e28a39b080e04cd",
+            "causalReceiptHash": "6bbebd55b068338dcd29198ad4b92d25c33c777962055c1c9775f74d9fced830",
+            "commandReruns": 0
+          },
+          "headHash": "86bdb4dee82a719e8c1ceeb69136178a9b832f95",
+          "materialHash": "c67ab2166319eb510e8fee1f7e5b0b88f2dc8d83480035013236d4de6b79eb56",
+          "storyFilesHash": "0d8ea937d9d4f58d71827d2c3a51c5ae145ede572b058e06c13875e28165e090",
+          "timestamp": "2026-09-05T08:18:06.443Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
