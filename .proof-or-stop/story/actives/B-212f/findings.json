@@ -603,6 +603,53 @@
       ],
       "signatureTag": "edge|mjs|wave-attestation-212f",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-212f:F-018",
+      "desc": "packages/main/src/core/machine.ts:1015 reads deliveryCheck.docsPromises.filter after delivery-integrity already yielded delivery_check_tampered. The lazy guard and diagnostic stop safely, but buildDoneChecklist:327 exhausts the generator and throws TypeError on a malformed/tampered delivery artifact with docsPromises missing, replacing the previously structured blocker with an unhandled exception. Real filesystem reproduction: from this worktree run `node /tmp/b212f-quality-snapshot.Sx1V74/malformed-delivery-witness.mjs`; it adapts the existing parity fixture by deleting docsPromises from the synthetic signed delivery record via its test Store. Current dist prints MALFORMED_DELIVERY_GUARD_REASON containing delivery_check_tampered, then MALFORMED_DELIVERY_ORACLE_THROW Cannot read properties of undefined (reading filter), stack evaluateDonePredicates -> buildDoneChecklist -> buildDoneClosureRunbook. Exact same command with DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist prints MALFORMED_DELIVERY_ORACLE as delivery-check fail/blocking with delivery-check.json._hash source. Original parity assertions are intentionally inapplicable after introducing this earlier blocker; the marked output is the witness. Independent source-executed main/current build comparison produced the same structured-failure-versus-throw difference. This new shared-evaluator regression directly violates DONE/preflight diagnostic parity and the decision pre-mortem requiring safe incomplete-artifact handling. Null or non-array docsPromises and malformed promise elements belong to the same dependency-validation family. Bounded repair must avoid inspecting untrusted delivery promise contents after freshness/integrity has rejected them, while retaining the already emitted tamper/stale blocker and active DONE rejection; add executable malformed-artifact coverage without treating invalid content as a passing artifact.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T12:32:35.819Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-023",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd85e1e69fe30ab1fcc67f2b372235937946498edb0ac2b18a50fc87e6199309",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/tests/red/red-done-shared-predicates.mjs"
+      ],
+      "signatureTag": "done-eager-invalid-delivery-promises",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
