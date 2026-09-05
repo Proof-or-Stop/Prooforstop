@@ -12609,6 +12609,431 @@
       "fullContextBytes": 51109,
       "incrementalContextBytes": 31654,
       "escalatedToFull": false
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-topology-critic",
+      "storyId": "B-fe8f",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-fe8f:RR-100",
+      "reviewRound": "2026-09-05T10:56:02.507Z",
+      "lane": "proof-or-stop-review-topology-critic",
+      "dispatchPromptDigest": "3f1d876e9f94b8b696e6b76f632cd205c53c8e80058e31084b92ff50783dbd1a",
+      "hostRenderIdentityDigest": "50d6651baf3726c91757c9bc61e1af9da2903ca1d99c5277b452a5ab85e79a04",
+      "createdAt": "2026-09-05T11:31:42.676Z",
+      "headHash": "23754d73a862a69c849a16bc14c217d215cbbc32",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "76db5cf02d1e02e5963fb50373e32536affac18e927d916f26d11ac0928f066c",
+      "roleRenderDigest": "48b3cee1e50a8ec8a2755e93ea80bea882cdc40106d5974a915d5979dc5f189b",
+      "contextMode": "full",
+      "contextDigest": "46cdb0751ea5b970df110d8fccbd0e850ee339ca359327147853c8188b3e2808",
+      "materialHash": "781b7f229790ea9e1bdf0685664a01a02a1e21c2751379a5d229e4fd69a23b07",
+      "storyFilesHash": "9dd30b0a3de9e21a49f8d777fbafdc597eadffacb08f6d63d5564f5fc4f2c8ee",
+      "policyHash": "0bd8725524138197cb6692e35affe87c86c010b3fc331ab74740a5f591e71add",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "2b7d5e0786e95fac0e8e937579917d41ca3197cdc6b20da6d47dfdc3aa30d494",
+      "knownExecutionEnvironmentDigest": "ac6655fb1b36d29f1aa0c0139cf4c81fea4b2a8c6a0492aa98de356377d41b03",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "dd359564b36c7893881390756629614ae9daa298f63153d33a691942b9b3f507",
+      "commandPolicyDigest": "722b924abcff385e3f5dc79d2826fc75661c348e98569212653d9d985fc13242",
+      "assembledPromptDigest": "340e42cf55b684b157b65fe5a76074062bf1bacae9bd14ee59e656b5e5cddd1f",
+      "bytes": 48084,
+      "lines": 128,
+      "estimatedTokens": 12021,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "5b1f68aa6a774c50de7e45532f48972c31571ea68fb42f32689387620bcd5a06",
+      "priorPassRef": "B-fe8f:RP-047",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "f70574cd22aa1fff6fb5a6b02a08a17c51c02280750781f71be59db1b41d6a3f",
+      "impactedFilesDigest": "c474e250201a7885f1c522cba8c5a082a3951614d906561256f725a67c63affd",
+      "taskSemanticDigest": "166b68c3bf34000579ce79dd85dcf59caeb85ee20e85ad8f53c92795f243d911",
+      "findingProjection": [
+        {
+          "id": "B-fe8f:F-001",
+          "createdAt": "2026-09-01T13:21:14.399Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: packages/main/src/handlers/finding-runtime-evidence.ts:1-12 claims a Finding-owned two-command runtime-evidence handler facade, but line 7 aliases createFindingLedgerHandlers wholesale; that factory also returns finding_ledger_query, while the facade itself is consumed only by the immutable RED test and is not wired by packages/main/src/registry.ts or exported by packages/main/src/index.ts/package exports. The acknowledged expansion therefore does not establish the promised narrow/public runtime command boundary and can leak Ledger Query responsibility if later registered. Replace the alias with a narrow wrapper that returns exactly finding_runtime_evidence_run and finding_runtime_evidence_verify and wire/export the intended boundary, or remove the public-boundary promise/expansion with proof that the direct registered ledger handler is the canonical contract."
+        },
+        {
+          "id": "B-fe8f:F-002",
+          "createdAt": "2026-09-01T13:26:18.128Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding.ts:569 display-ID allocation still uses findings.length + 1, so a sparse legacy set such as F-001/F-003 allocates F-003 again; lines 632-634 then find the old row by display ID and neither replace nor append when recordId differs, silently hiding the newly durable ledger record from readFindings. This preserves the historical ID-reuse/vanishing-row failure despite globally unique recordIds."
+        },
+        {
+          "id": "B-fe8f:F-003",
+          "createdAt": "2026-09-01T16:00:31.146Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/store.ts:486-499 overwrites a matching findings.json row with the original append-only ledger finding payload whenever recordId matches. finding_resolve only updates findings.json at handlers/finding.ts:821-843 and appends no ledger status mutation. At HEAD 591642d, commits e93c480 and 591642d are finding_resolve metadata commits, yet proof-or-stop finding_list --storyId=B-fe8f --json still returns F-001 and F-002 status=open. Thus resolution/dismissal is reverted on read, making user output and lifecycle consumers observe stale open state and invalidating exactly-once historical correction. Add append-only status-transition records/current projection plus a regression that resolves and rereads a ledger-backed Finding."
+        },
+        {
+          "id": "B-fe8f:F-004",
+          "createdAt": "2026-09-01T16:02:29.921Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding.ts:821-843 — finding_resolve still mutates only the findings.json compatibility mirror via readFindings/writeFindings and never appends a fenced ledger status-transition/successor record. The repository itself now demonstrates the lost update: commit e93c480257 resolves F-001, then commit 591642d288 resolves F-002 while reverting F-001 from resolved back to open; current finding_list confirms F-001 is open. This violates Story 3 objective that every Finding-system mutation be durable/exactly-once and lets concurrent closeouts resurrect a gate-consumed finding. Route resolve/dismiss status transitions through one append-only, idempotent fenced ledger transaction, derive the compatibility projection from the ledger, and add a concurrent two-finding resolve regression proving both resolutions survive and replay returns the original transition IDs."
+        },
+        {
+          "id": "B-fe8f:F-005",
+          "createdAt": "2026-09-01T16:05:12.124Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/transition-orchestrator.ts:131-155 — the new dependency gate releases a prerequisite solely when dependency.phase === DONE; it never proves the dependency branch is merged into local main/current baseline. packages/main/src/core/partial-done-recovery.ts:123-151 explicitly models the real failure state phase=DONE while story/<id> is not an ancestor of main, so phase alone is not the accepted DONE-and-merged contract. The smoke fixture compounds this by directly writeStory(... phase:DONE) and calling the dependency released, which cannot prove merged-state behavior. A partial-DONE dependency can therefore authorize dependent DEV before its APIs exist on main. Fail closed on both canonical DONE and a mechanical merge/ancestry (or equivalent signed merged-capability) proof, and mutate the merge fact independently in the dependency regression."
+        },
+        {
+          "id": "B-fe8f:F-006",
+          "createdAt": "2026-09-01T16:06:51.543Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:632-858 / current B-fe8f ledger — the delivered public query does not work against the Story that produced it: `proof-or-stop finding_ledger_query --storyId=B-fe8f` on current HEAD fails closed with `finding-ledger-query:ledger_receipt_unsigned`. The smoke proves only fresh synthetic ledgers, while B-fe8f contains earlier in-Story ledger receipts that the final verifier cannot consume. CHK-005 promises a stable signed query for ledger/CAS/idempotency/runtime/migration inputs and Story 2 depends on that public port; an unreadable canonical ledger cannot satisfy it. Add a bounded append-only migration/legacy-binding path (without rewriting committed semantic bytes), prove the current real B-fe8f ledger becomes queryable, and retain negative rejection for genuinely unsigned/tampered post-migration rows."
+        },
+        {
+          "id": "B-fe8f:F-007",
+          "createdAt": "2026-09-01T16:08:59.022Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:386-417,432-481 validates only the proposal top-level key set and shallow variant shape. It never requires FindingRef.recordId, the required dependencyBundle members, non-empty current witness receipts, or a truthful proposalSigner algorithm/keyId/trustRoot; receipt currentness rejects only the explicit boolean false, so an omitted result is accepted. Repro after rebuilding dist: a correctly Ed25519-signed proposal with findingRef missing recordId, dependencyBundle={}, currentWitness.receiptIds=[], and proposalSigner.algorithm=\"rsa\"/empty keyId/trustRoot returns {valid:true}. This contradicts the immutable exact-union, named signer/trust, dependency-bundle, and non-current-receipt fail-closed contract."
+        },
+        {
+          "id": "B-fe8f:F-008",
+          "createdAt": "2026-09-01T16:09:11.992Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:886-927,1107-1124,1131-1147,1232-1251 derives both the runtime signer and its fresh key status solely from the same invocation environment. A caller can generate a new keypair, set PROOF_OR_STOP_RUNTIME_EVIDENCE_PRIVATE_KEY/PUBLIC_KEY, mint a receipt, and have that same unpersisted key treated as current; it can also omit the caller-controlled revoked-key env to remove revocation. finding_ledger_query additionally accepts caller-supplied trustedKeys. The production smoke itself generates a fresh key at tasks/finding-ledger-runtime-smoke.ts:808-838 and immediately persists a valid receipt, proving there is no independent repository trust/rotation registry. This makes signer freshness and revocation self-asserted rather than verifier-derived."
+        },
+        {
+          "id": "B-fe8f:F-009",
+          "createdAt": "2026-09-01T16:09:23.713Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:994-1005,1131-1165 checks the canonical proper-lockfile mutex once, then runs build/execution under a different Story runtime mkdir lock. The canonical mutex is neither acquired nor rechecked at commit. Deterministic repro: pause the adapter inside its buildCommand after the initial check, acquire scripts/build-lock.mjs withBuildLock(root), resume while holding that canonical lock through CLI exit; finding_runtime_evidence_run exits 0 and persists a runtime_evidence_receipt. Thus a build that starts in the check-to-run window is accepted, so the build-in-progress refusal is not one atomic boundary with receipt production."
+        },
+        {
+          "id": "B-fe8f:F-010",
+          "createdAt": "2026-09-01T16:09:41.036Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding.ts:561-652 makes the ledger/mirror append idempotent, but lines 677-705 unconditionally append reviewer_finding and recompute/write metrics after every replay, outside the ledger transaction and without the idempotency key. Focused synthetic-repo repro calls finding_add twice with identical bytes and idempotencyKey: the ledger has 1 record/1 receipt while process-events contains 2 reviewer_finding rows. Therefore CLI retry is not exactly-once across its durable audit side effects and can make the event history disagree with the canonical transaction count."
+        },
+        {
+          "id": "B-fe8f:F-011",
+          "createdAt": "2026-09-01T16:09:54.840Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/evidence/artifact-store.ts:59-66,83-103 performs realpath containment once, then reuses the unresolved logical dir for exists/read, openSync(temp), renameSync(destination), and directory fsync. There is no held directory descriptor, no no-follow/openat-style operation, and no lock covering the containment check through publication. A local symlink/directory swap after line 85 therefore makes the later path components resolve outside the project even though the initial check passed; the current smoke at tasks/finding-ledger-runtime-smoke.ts:1134-1148 covers only a symlink already present before the check. This leaves the required symlink-swap/path-escape fail-closed boundary unproved and permits out-of-root blob publication in the race window."
+        },
+        {
+          "id": "B-fe8f:F-012",
+          "createdAt": "2026-09-01T16:11:12.447Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "CHK-001 has no admissible current GREEN receipt. At HEAD 723f2ab, the immutable RED blob is still 1b913dab2f52e904afc1b7b1870a3a98be0739bc, but its pinned command `node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs` exits 1 at line 212 because the accepted sparse allocator no longer matches the pre-GREEN length-based sentinel. The GREEN smoke explicitly expects that non-zero exit at finding-ledger-runtime-smoke.ts:467-483, while all 13 CHK-001 verificationEvidence rows say result=pass/fresh for the direct RED command; CHK-001:happy:2 is additionally mechanical=false with no receipt. `proof-or-stop evidence_plan` nevertheless classifies all 71 rows fresh. Repair the intent/evidence relation with an executable superseding current command and per-intent exitCode=0/selectorMatched=true receipts; do not restamp the old output or weaken the immutable RED."
+        },
+        {
+          "id": "B-fe8f:F-013",
+          "createdAt": "2026-09-01T16:11:39.320Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "CHK-006:happy:5 proves only an already-installed global binary, not the publishable package. Independent clean-install repro `npm pack ./packages/main --ignore-scripts` followed by `npm install <proof-or-stop-core-0.3.270.tgz>` fails E404 for `@lattice/lab@0.3.65`. packages/main/package.json:126 still depends on the retired package name and packages/lab/package.json:2 still declares `@lattice/lab`; the registry has neither that package nor `@proof-or-stop/lab`. Therefore the changed CLI cannot be clean-installed and no installed CLI gate can execute from the produced tarball. Rename/publish or bundle/link the lab dependency under the accepted proof-or-stop namespace, update lockfiles, and add a temp-directory pack+clean-install+`proof-or-stop --version` plus Story-3 command-availability smoke."
+        },
+        {
+          "id": "B-fe8f:F-014",
+          "createdAt": "2026-09-01T23:31:21.519Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "CHK-001:happy:2 still lacks the executable receipt explicitly required by resolved F-012. .lattice/story/actives/B-fe8f/checklist.json records this must intent as kind=docs_check, mechanical=false, with no receipt/exitCode/selectorMatched, while F-012 resolvedReason claims all 13 RED receipts are fresh. Independent current execution of `node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs` exits 0 and prints `red.production_unchanged: PASS`, so the test exists but its result is not bound to this intent. This leaves only 70/71 mechanical current receipts and makes the strong resolution claim false. Record this selector through the mechanical verification path and require exitCode=0/selectorMatched=true; retain the immutable historical RED binding."
+        },
+        {
+          "id": "B-fe8f:F-015",
+          "createdAt": "2026-09-01T23:33:42.056Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "F-011 remains semantically open: packages/main/src/core/evidence/artifact-store.ts:158-170 and 169-175 revalidate the runtime blob directory by pathname and then separately call openSync/renameSync/readFileSync by pathname; every validation descriptor is closed inside statIdentity, so no directory descriptor or lock spans validation through publication. A directory-to-symlink swap in the interval after assertRuntimeBlobDirectoryIdentity returns and before openSync or renameSync can therefore redirect creation/publication outside the project; the post-rename check can only report after the external write and cannot undo it. The regression at packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1449-1455 swaps inside beforePublish, before the final identity assertion, so it does not exercise this remaining check-to-use window. Preserve a directory capability/descriptor across open+publish (or provide an equivalent serialized primitive with no path re-resolution), and add a deterministic interleaving after validation/before pathname use proving outsideWrites=0."
+        },
+        {
+          "id": "B-fe8f:F-016",
+          "createdAt": "2026-09-01T23:34:42.158Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "F-004 lifecycle Authority is not closed: StoryStore.readFindings in packages/main/src/core/store.ts:484-549 consumes finding_lifecycle_transition rows after only core readLedger/validateEnvelope, but validateEnvelope in packages/main/src/core/finding-ledger.ts:289-340 verifies structural hashes/raw receipts and never requires or verifies the signed findingLedgerReceipt. A temp StoryStore repro appended a high/open finding and an unsigned raw append_finding_lifecycle_transition through appendFindingLedgerTransaction; readFindings projected status=resolved with transitionReceiptSigned=false. Because storyMachine/guard-utils consume this projection, unsigned persistence bytes can suppress a REVIEW blocker despite process-fact-registry declaring the transition L4 signed terminal authority. Make the gate projection fail closed unless the carrier receipt is signed/trusted, exact-operation/current-chain bound, and covers the transition/source CAS; add unsigned, bad-signature, and tampered-transition gate regressions in addition to the existing sequential replay test."
+        },
+        {
+          "id": "B-fe8f:F-017",
+          "createdAt": "2026-09-02T00:58:53.856Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/store.ts:572 — ledger-authoritative Finding can be shadowed by unsigned findings.json bytes when the mirror row reuses the signed Finding id but deletes or changes recordId. readFindings finds the id, skips replacement because recordId mismatches, and returns the forged terminal status; reproduction built current HEAD, created one signed open ledger Finding, rewrote only its compatibility mirror to status=resolved while deleting recordId, and observed {status:resolved,recordId:null,ledgerRows:1}. This restores the lifecycle-authority bypass fixed in F016 and can make REVIEW/TEST gates consume an unsigned closure."
+        },
+        {
+          "id": "B-fe8f:F-018",
+          "createdAt": "2026-09-02T01:02:31.558Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:206 — idempotent replay trusts persisted exactRequestDigest even though that field is neither covered by FindingLedgerReceipt signature nor recomputed from the signed record bundle. Reproduction on current build: append same-key payload {v:1}, mutate only receipts[0].exactRequestDigest to the canonical digest for {v:2}, then replay same-key {v:2}; appendFindingLedger returns success with the original receipt while persisted payload remains {v:1}. This violates the explicit conflicting-bytes fail-closed contract and lets ledger-file tampering relabel a different request as an accepted replay."
+        },
+        {
+          "id": "B-fe8f:F-019",
+          "createdAt": "2026-09-02T08:20:41.612Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "quality-cleanup: packages/main/src/core/finding-runtime-evidence.ts:10 exports FINDING_RUNTIME_EVIDENCE_ADAPTER_CONTRACT and packages/main/src/handlers/finding-runtime-evidence.ts:24 exports FINDING_RUNTIME_EVIDENCE_COMMANDS, but neither constant is imported or referenced anywhere else in the repo (grep across packages/main src/tests/scripts finds zero consumers) — dead code, not used to enforce or document any live contract check."
+        },
+        {
+          "id": "B-fe8f:F-020",
+          "createdAt": "2026-09-02T14:50:24.244Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "quality-cleanup: packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:5266 (commit dd45caa2ea) adds an unconditional process.stderr.write dumping raw dynamicBindingBuildFiles Map entries (filtered for finding|runtime-evidence|artifact-store) plus repoUnique/repoDuplicates arrays, immediately before assertTypeProgramInstrumentation(). It is not gated behind a verbose/debug flag and is not part of the pinned success-selector contract on line 5276 (a separate stdout write) -- this reads as leftover ad-hoc calibration output the author used while deriving the new DYNAMIC_BINDING_BUILD_CEILING=811 value, still present after the ceiling bump landed. Every future run of this smoke, including full validate, will permanently emit this diagnostic noise to stderr. Note: an earlier finding_add attempt for this exact issue (2026-09-02T14:49:12.770Z) was auto-normalized into review-pass B-fe8f:RP-011 solely because that draft happened to contain the literal token PASS (a framework flow-fact-policy artifact, unrelated to this story); this call rephrases to file it correctly as an open finding."
+        },
+        {
+          "id": "B-fe8f:F-021",
+          "createdAt": "2026-09-02T20:04:32.556Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/store.ts:574-581 — verified high integrity blocker: the ledger-authority join replaces only the first findings.json row returned by findIndex, so a duplicate unsigned mirror row with the same Finding id survives. Independent temp-project reproduction after a signed lifecycle resolution returned {count:2,statuses:[\"resolved\",\"open\"],recordIds:[\"<ledger-record>\",null]}; the stray unsigned open/high row can still be consumed by REVIEW gate filtering and falsely re-block a canonically resolved Finding. Ledger authority must collapse/remove every mirror row sharing a ledger-backed display id while preserving only distinct mirror-only legacy ids, and regression evidence must cover duplicate same-id rows both before and after a signed terminal transition."
+        },
+        {
+          "id": "B-fe8f:F-022",
+          "createdAt": "2026-09-02T21:37:24.201Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/store.ts:108-114 and packages/main/src/core/finding-ledger.ts:270-322 — verified L4 lifecycle-authority blocker: StoryStore accepts a current-key signed FindingLedgerReceipt that omits exactRequestDigest as long as the unsigned persistence carrier has any 64-hex exactRequestDigest. Independent temp-project reproduction created a valid signed lifecycle resolution, removed exactRequestDigest from the nested signed receipt, re-signed the legacy-shaped receipt with the current registered key, and preserved the raw carrier field; verifyFindingLedgerReceipt returned true and readFindings projected the high Finding as resolved: {rawCarrierHasExactRequestDigest:true,signedCarrierHasExactRequestDigest:false,resignedReceiptVerifies:true,projectedStatus:\"resolved\"}. Thus the gate consumes a transition whose exact request digest is not signed, contradicting F-018 resolution and the exact signed/raw carrier boundary. Require exactRequestDigest on the signed lifecycle receipt and exact equality to the carrier (legacy receipt compatibility may remain query-only), plus a lifecycle projection mutation test proving signed-field omission stays open."
+        },
+        {
+          "id": "B-fe8f:F-023",
+          "createdAt": "2026-09-02T23:20:16.068Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:1370-1371 — high integrity blocker: verifyRuntimeReceiptCarrier accepts a current-key signed append_runtime_receipt carrier that omits exactRequestDigest whenever the unsigned persistence carrier still contains any digest. An isolated full-receipt reproduction returned {runtimeCurrent:true,carrierAccepted:true,wouldReturnVerified:true,rawCarrierHasExactRequestDigest:true,signedCarrierHasExactRequestDigest:false}; finding_runtime_evidence_verify calls this predicate at lines 1558-1564 before returning verified, so the L3 gate-eligible runtime consumer admits a carrier whose exact request binding is not signed. Require the signed exactRequestDigest to be present and equal to the raw carrier (retain legacy compatibility only in finding_ledger_query), and add the missing current-key re-sign/omission regression beside runtime.carrier_trust_chain."
+        },
+        {
+          "id": "B-fe8f:F-024",
+          "createdAt": "2026-09-03T01:27:00.461Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:1358-1375 — high integrity blocker: verifyRuntimeReceiptCarrier validates the nested signed receipt operation but never requires receipt.operation === carrier.operation and never recomputes or otherwise validates the outer carrier requestDigest against its persisted request. A full valid RuntimeEvidenceReceipt/current-key ledger reproduction returned {runtimeCurrent:true,carrierAccepted:true,wouldReturnVerified:true} after changing only outer operation from append_runtime_receipt to append_finding, and the same all-true result after changing only outer requestDigest; finding_runtime_evidence_verify composes exactly those two predicates before returning verified, while finding_ledger_query rejects the operation mismatch. packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1494-1584 covers nested signature and signed exactRequestDigest omission but not either outer-field mutation. Require the runtime consumer to reject signed/raw operation mismatch and bind the raw requestDigest to the persisted request, with end-to-end regressions for both tamper cases."
+        },
+        {
+          "id": "B-fe8f:F-025",
+          "createdAt": "2026-09-03T10:57:50.094Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:356 hard-codes red.relation_evaluate currentFails=true even though lines 277-280 assert the current GREEN module import succeeds and the integrated GREEN smoke reports currentPasses=true. This makes executable RED/GREEN evidence self-contradictory after GREEN and can mislead lifecycle/audit consumers; derive the current state from the executed currentGreen result or emit a phase-correct currentPasses=true statement."
+        },
+        {
+          "id": "B-fe8f:F-026",
+          "createdAt": "2026-09-03T12:12:37.809Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:94-97,380-395 — CHK-001:edge:3 current-state regression coverage is not fail-closed. legacyPinnedNegativeControl eligibility omits currentGreenPasses, while simulatedCurrentRegression checks only the new currentGreenPasses token. A source-extracted mechanical probe of the committed renderer returned oldSelectorStillMatchesWhenCurrentGreenFails=true. Therefore the immutable old selector can still match a rendered currentGreenPasses=false state through nested compatibility text instead of requiring current GREEN success. Include currentGreenPasses in legacy-selector eligibility and add a negative assertion that the old selector is absent for the simulated current failure, while preserving the existing corrupted-relation-acceptance rejection control."
+        },
+        {
+          "id": "B-fe8f:F-027",
+          "createdAt": "2026-09-03T13:44:30.870Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:902-923 does not validate the persisted outer requestDigest for a current signed ledger receipt. Independent current-build repro cloned the B-fe8f ledger, changed only receipts[index].requestDigest to 64 zeroes, and queryFindingLedger still returned accepted=true (original=bab7..., mutated=0000...). The query checks the signed receipt, operation, record IDs and exactRequestDigest, but never recomputes requestDigest from the committed carrier. The existing incomplete-tamper matrix at packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1643-1660 mutates other fields only. This violates CHK-005 and Section 9.3 stable read-only scorecard tamper refusal: an unsigned carrier identity field can be relabelled without rejection."
+        },
+        {
+          "id": "B-fe8f:F-028",
+          "createdAt": "2026-09-03T13:44:42.080Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "Legacy Finding terminal transitions are not crash-recoverable. packages/main/src/handlers/finding.ts:169-202 durably appends a legacy_identity_binding and assigns finding.recordId only in the in-memory compatibility mirror; lines 263-287 then durably append the signed lifecycle transition before the caller rewrites findings.json. If the process dies in that window, packages/main/src/core/store.ts:564-586 projects recordIds only from recordType=finding, not legacy_identity_binding, while lines 603-607 require candidate.recordId === transition.findingRecordId. An isolated current-build StoryStore repro deliberately omitted the post-transition mirror write and returned {durableTransitionRows:1,mirrorRecordId:null,projectedStatus:\"open\"}. Thus an acknowledged resolved/dismissed legacy Finding reappears open after crash, violating the Section 9.3 crash/retry and exactly-once lifecycle contract; add recovery projection for the signed legacy binding and a kill-window regression."
+        },
+        {
+          "id": "B-fe8f:F-029",
+          "createdAt": "2026-09-03T16:11:14.382Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/store.ts:580-647 and the current B-fe8f ledger — direct Story 3 acceptance blocker after the 0.3.273 main sync and F-027/F-028 resolution: both proof-or-stop finding_list and node bin/proof-or-stop.js finding_list now project B-fe8f:F-001 through B-fe8f:F-016 as open high/verified. Merge commit 6ecd0d817d introduced their findings.json rows as resolved, but readFindings replaces each mirror row with the original open ledger Finding and then rejects its historical lifecycle transition because the outer carrier has exactRequestDigest while the signed findingLedgerReceipt omits that field. Resolving F-027/F-028 consequently persisted the reopened projection. session_brief reports zero reviewer blockers only because prior-round policy downgrades these rows; it does not restore their durable terminal history. This violates Section 9.3 exactly-once/crash-recovery and stable current-ledger semantics, and shows the synthetic legacy kill-window regression does not cover the real pre-upgrade signed-transition corpus. Add an append-only trusted migration/re-attestation or current signed successor path and a real B-fe8f regression proving prior terminal states survive upgrade/main-sync without admitting unsigned lifecycle authority."
+        },
+        {
+          "id": "B-fe8f:F-030",
+          "createdAt": "2026-09-04T07:49:29.909Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1312-1317 — version-proof false failure after 9d44c9f980: assertVersionSync says later Stories may advance the repository patch, but still requires the globally installed CLI version to equal readSyncedVersion(repositoryRoot) from this behind Story worktree. On the current committed review state the worktree/local CLI is 0.3.274, global/main CLI is 0.3.275, and `node packages/main/dist/tasks/finding-ledger-runtime-smoke.js` exits 1 with `installed CLI version 0.3.275 differs from current 0.3.274` after all preceding Story 3 matrices pass. This makes the accepted version proof non-convergent under the normal later-main-bump condition it claims to support; retain the Git-derived proof that B-fe8f made exactly one patch bump, but do not require a behind worktree and the independently advancing installed main CLI to be identical."
+        },
+        {
+          "id": "B-fe8f:F-031",
+          "createdAt": "2026-09-04T07:49:57.654Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1312-1317 — current Round 19 acceptance blocker: commit 9d44c9f980 replaces the old 0.3.273 hard pin with `installedVersion === readSyncedVersion(repositoryRoot)`, but that still makes the Story smoke non-replayable whenever the long-lived Story worktree is behind an unrelated main/global CLI patch. Fresh execution of `node packages/main/dist/tasks/finding-ledger-runtime-smoke.js` on the current committed Story exited 1 after all preceding ledger/runtime/adversarial selectors, with `AssertionError: installed CLI version 0.3.275 differs from current 0.3.274`. The 71 evidence rows are structurally marked fresh/mechanical, yet all 58 rows backed by this command now lack a currently passing mechanical reproduction. Preserve proof that B-fe8f itself bumped exactly once and that each tested artifact reports its own authoritative version, but do not require a global installed CLI from newer main to equal an intentionally behind Story checkout; add a committed negative/control regression for the behind-main/global-ahead topology and refresh the affected receipts."
+        },
+        {
+          "id": "B-fe8f:F-032",
+          "createdAt": "2026-09-04T07:50:23.169Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1312-1317 makes the new main-bump-tolerant version proof depend on the independently moving global installation: it requires installedVersion === readSyncedVersion(storyWorktree). Verified on the current committed diff: the worktree five-point version and repo-local CLI are 0.3.274, while proof-or-stop --version became 0.3.275 after main advanced; the complete Story 3 smoke then exits nonzero with installed CLI version 0.3.275 differs from current 0.3.274. This directly defeats commit 9d44c9f980 intent to keep the long-lived Story smoke valid across unrelated main patch bumps and makes validation timing-dependent. Preserve the historical exact patch+1 and five-point worktree checks, but compare installed CLI against the appropriate main/installed binding or otherwise permit a demonstrably newer synchronized main patch without accepting an older/stale installation; add a deterministic ahead-main regression."
+        },
+        {
+          "id": "B-fe8f:F-033",
+          "createdAt": "2026-09-05T09:25:25.816Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "concept-cleanup: packages/main/src/core/audit-meta-store.ts:187,234,507; packages/main/src/handlers/cluster.ts:87,125,147; packages/main/src/core/cluster-sync.ts:106,210; and packages/main/src/handlers/signature-backfill.ts:157 retain direct mutable findings.json writers after this Story makes the append-only ledger authoritative. packages/main/src/core/store.ts:1011-1032 then replaces any same-ID mirror row with the immutable ledger payload on every read. Consequently B-META audit/gap creation still uses array-length IDs with no FindingLedgerReceipt, and clusterId/signatureTag/status updates to ledger-backed Findings are discarded on the next read instead of becoming durable, exactly-once ledger facts. This is a high-severity, current-Story acceptance blocker: Section 9.3 promises every Finding-system mutation is durable/exactly-once and explicitly includes B-META locks; migrate these live writers to a schema-neutral append/CAS record path or explicitly preserve and fold their projections, with regression coverage for read-after-write and B-META concurrent allocation."
+        },
+        {
+          "id": "B-fe8f:F-034",
+          "createdAt": "2026-09-05T09:27:15.993Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:1705 invokes findingLedgerSignerFromWorkspace from finding_ledger_query, while packages/main/src/core/finding-ledger.ts:111-121 creates the signing key when absent. This makes a command registered as readOnly mutate the git common directory on first query, violating CHK-005 protected read-only query semantics and causing read-only filesystems to fail for a hidden write. Severity: medium."
+        },
+        {
+          "id": "B-fe8f:F-035",
+          "createdAt": "2026-09-05T09:29:09.522Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:729-786 only validates the discriminant key name for non-applicable proposal variants; pre_existing_unaffected, out_of_scope, duplicate, and not_reproduced payloads are not shape-checked. A signed pre_existing_unaffected proposal with baseHead:null was mechanically accepted by verifyAssessmentProposal as valid, so append_assessment_proposal can persist a malformed exact-union proposal without the required base/head reproduction proof. This directly violates CHK-003 and can become unsafe input to later applicability consumers. Severity: high."
+        },
+        {
+          "id": "B-fe8f:F-036",
+          "createdAt": "2026-09-05T09:29:25.838Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1513-1590,3599-3625 — CHK-002/CHK-006 missing coverage confirming the F-033 root: the combined/B-META fixtures append directly to finding-ledger.json and check lock compatibility, but never execute the live Finding mutators in packages/main/src/core/audit-meta-store.ts:165-204,460-526, packages/main/src/handlers/cluster.ts:75-147, packages/main/src/core/cluster-sync.ts:207-210, or packages/main/src/handlers/signature-backfill.ts:136-158. Those paths still write findings.json directly (including array-length B-META IDs and cluster/signature/status mutations), while Store projects same-ID ledger payloads over the mirror. Consequently the current 71/71 selector PASS and green.story3_matrix do not prove the Section 9.3/Story objective that every Finding-system mutation is durable and exactly-once. Add real command-level concurrent B-META allocation and read-after-write regressions for audit, cluster, cluster-sync and signature-backfill paths; current acceptance remains unproven. Severity: high."
+        },
+        {
+          "id": "B-fe8f:F-037",
+          "createdAt": "2026-09-05T09:29:41.108Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1818,2009-2026 — CHK-005:happy:1/edge coverage is not a cold-start read-only proof, confirming the F-034 root. The smoke calls findingLedgerSignerFromWorkspace before the query, while production finding_ledger_query at packages/main/src/handlers/finding-ledger.ts:1702-1722 also calls that signer and packages/main/src/core/finding-ledger.ts:111-121 creates and writes the key when missing. Therefore query.protected_read_only: PASS never exercises the no-key state or a write-denied git common directory and cannot prove the advertised read-only command makes zero filesystem mutations. Add a first-query/no-key fixture with write denial plus before/after filesystem assertions (or a deterministic no-write refusal/trust path). Severity: medium."
+        },
+        {
+          "id": "B-fe8f:F-038",
+          "createdAt": "2026-09-05T09:30:19.730Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:1852 invokes findingLedgerTrustFromWorkspace from the read-only finding_runtime_evidence_verify command, while packages/main/src/core/finding-ledger.ts:134-135 delegates to findingLedgerSignerFromWorkspace, which creates the signing key when absent. This gives a second read-only verification surface an undeclared filesystem write and can fail on a read-only workspace before it verifies otherwise valid evidence. It is the CHK-004 counterpart of F-034 and should share the same non-creating trust-loader fix. Severity: medium."
+        },
+        {
+          "id": "B-fe8f:F-039",
+          "createdAt": "2026-09-05T09:33:41.707Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI-001 wave 1 re-attestation of B-fe8f:F-036 on unchanged frozen material 0d6a1ddb: packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1513-1590,3599-3625 still tests synthetic direct ledger/B-META lock writes but does not execute audit-meta-store, cluster, cluster-sync, or signature-backfill Finding mutations. The live paths at packages/main/src/core/audit-meta-store.ts:165-204,460-526, packages/main/src/handlers/cluster.ts:75-147, packages/main/src/core/cluster-sync.ts:207-210, and packages/main/src/handlers/signature-backfill.ts:136-158 still write findings.json directly. Thus CHK-002/CHK-006 and green.story3_matrix still lack command-level proof that all Finding-system mutations are durable/exactly-once. Severity: high."
+        },
+        {
+          "id": "B-fe8f:F-040",
+          "createdAt": "2026-09-05T09:34:07.150Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "RI-001 wave 1 re-attestation of B-fe8f:F-037 on unchanged frozen material 0d6a1ddb: packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1818,2009-2026 creates/loads the ledger signer before exercising finding_ledger_query, while production packages/main/src/handlers/finding-ledger.ts:1702-1722 calls findingLedgerSignerFromWorkspace and packages/main/src/core/finding-ledger.ts:111-121 writes a new key when absent. The query.protected_read_only selector therefore still lacks a cold-start no-key and write-denied-filesystem test, so CHK-005 does not prove the registered read-only command performs no mutation or has deterministic no-write behavior. Severity: medium."
+        },
+        {
+          "id": "B-fe8f:F-041",
+          "createdAt": "2026-09-05T09:35:18.880Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:1705 and packages/main/src/core/finding-ledger.ts:111-121 — RI-001 wave-1 re-observation of root B-fe8f:F-034 on unchanged frozen Story material: the read-only finding_ledger_query path still calls the creating signer loader, so a cold query performs an undeclared key write and can fail solely because the workspace is read-only. This is the same defect as F-034, not a new root. Severity: medium."
+        },
+        {
+          "id": "B-fe8f:F-042",
+          "createdAt": "2026-09-05T09:35:40.274Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:729-786 — RI-001 wave-1 re-observation of root B-fe8f:F-035 on unchanged frozen Story material: non-applicable assessment proposal variants still validate the discriminant but not the variant payload shape, so the previously demonstrated signed pre_existing_unaffected proposal with baseHead:null remains accepted instead of failing closed. This is the same defect as F-035, not a new root. Severity: high."
+        },
+        {
+          "id": "B-fe8f:F-043",
+          "createdAt": "2026-09-05T09:35:45.396Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:1852 and packages/main/src/core/finding-ledger.ts:134-135 — RI-001 wave-1 re-observation of root B-fe8f:F-038 on unchanged frozen Story material: the read-only finding_runtime_evidence_verify path still reaches the creating signer loader through findingLedgerTrustFromWorkspace, causing an undeclared write before verification. This is the same defect as F-038, not a new root. Severity: medium."
+        },
+        {
+          "id": "B-fe8f:F-044",
+          "createdAt": "2026-09-05T10:40:00.518Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "Current B-fe8f official verification_evidence_refresh_stale remains non-convergent after exact-key grouping: 58 Story intents use distinct selectors for the same expensive finding-ledger-runtime-smoke command, so the local CLI repeatedly executes the same process. The observed run exceeded 6m56s and had already restarted the full smoke; receipt files 8c817740... and a440c86e... were created minutes apart for the same command. Continuing would run the multi-minute command once per selector and block REVIEW/TEST/DONE. Preserve selector-specific match and signed receipt identities, but cache one raw command execution across identical executable/argv/cwd/timeout/material/environment/provenance and derive each selector result/receipt from that immutable raw output. Add a regression proving multiple distinct selectors cause one runner invocation and independent selector matches."
+        },
+        {
+          "id": "B-fe8f:F-045",
+          "createdAt": "2026-09-05T11:07:13.887Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:873-911 — proposalExactUnionValid checks exact top-level and selected nested key sets but does not validate most envelope leaf or array-element shapes. On current committed HEAD, correctly re-signed proposals with reviewRunId:null, evidenceRefs:[null], historicalSourceRefs:[null], protectedSurfaceEvaluation:[null], or runtimeReceiptIds:[null] each return {valid:true} from verifyAssessmentProposal; appendAssessmentProposal therefore persists all but the separately asserted proposalId case. This violates the FindingAssessmentProposal envelope and CHK-003 exact-union fail-closed contract, allowing malformed signed input to become Story 2 verifier/query material. Severity: high."
+        },
+        {
+          "id": "B-fe8f:F-046",
+          "createdAt": "2026-09-05T11:09:08.360Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "packages/main/src/handlers/finding-ledger.ts:884-889 — dependencyBundle is exact-keyed to only the five always-required members, but docs/requirements/decisions/dynamic-finding-system-execution-plan.md:1030-1032 explicitly permits canonicalIdentityDigest, currentCanonicalFinding, and supersessionChainTipDigest. A correctly re-signed applicable proposal containing canonicalIdentityDigest with a recomputed bundle digest returns proposal_exact_union_invalid on current HEAD. This rejects valid Story 2 identity/supersession-bound proposals at the shared verifier port and makes the implemented exact union narrower than the approved contract. Severity: medium."
+        }
+      ],
+      "findingProjectionDigest": "bab1e8dec781be7536c55c4f0f5a92d17cb4a0e38c78cdd4f1a61f0a0132d455",
+      "reviewBasisDigest": "f4169432d5c5478adfc2fa871a7ced81da6c534bbb6e264a2fd680e251f4b5c6",
+      "incrementalContextDigest": "dba919a2ed7136a50632e1b4a1c374722eedeb604f3f7ab8fdd015d0d06a953a",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 48084,
+      "incrementalContextBytes": 49035,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
     }
   ]
 }
