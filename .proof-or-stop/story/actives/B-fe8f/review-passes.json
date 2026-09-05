@@ -1776,6 +1776,45 @@
         "scanEscalationReason": null
       },
       "_hash": "40af76cf2270aa372ab9577ceb94bd59847e174fd56c9c97e9216ef844a09240"
+    },
+    {
+      "id": "B-fe8f:RP-050",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-002 wave 1 test-coverage no-new-family pass on frozen material 781b7f229790ea9e1bdf0685664a01a02a1e21c2751379a5d229e4fd69a23b07 and story-files 9dd30b0a3de9e21a49f8d777fbafdc597eadffacb08f6d63d5564f5fc4f2c8ee. The 71/71 must intents retain unique current mechanical PASS evidence with zero waiver or failure. Bounded source and executable verifier probes confirm two already registered families: F-045 has no checked-in negative matrix for malformed envelope leaves/array elements and currently accepts reviewRunId:null plus null elements in evidenceRefs, historicalSourceRefs, protectedSurfaceEvaluation, and runtimeReceiptIds; F-046 has no checked-in positive matrix for permitted dependencyBundle identity/supersession members and currently rejects a correctly signed canonicalIdentityDigest bundle as proposal_exact_union_invalid. The existing smoke covers only the earlier five valid verdict variants and twelve invalid variant-payload cases. Adjacent envelope, union, receipt, freshness, and CHK-003 selector inspection found no third distinct test-defect family. This pass records no new family only and does not resolve or waive F-045/F-046 or any earlier open finding.",
+      "createdAt": "2026-09-05T11:14:33.643Z",
+      "reviewRound": "2026-09-05T10:56:02.507Z",
+      "reviewRunId": "B-fe8f:RR-094",
+      "envelopeId": "3a540f92b72184fa18174f68a404c1d852275d8422c20be505f7482fc3e7532a",
+      "writerSessionId": "sess-235ab1237d7b0299c6bab82e62039937",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-inventory-epochs.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "389b547efccd6c61b03de7cb9c39243598285e4a74f2de4b57e0873dc5f38771"
     }
   ]
 }
