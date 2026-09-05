@@ -1,107 +1,140 @@
 {
   "storyId": "B-212f",
-  "checkedAt": "2026-09-05T09:15:04.351Z",
+  "checkedAt": "2026-09-05T11:27:39.574Z",
   "features": [
     {
-      "feature": "Commit and register an executable done_prepare/DONE parity test.",
+      "feature": "Retain and register the reviewed executable parity RED unchanged, and require current-Story GREEN evidence rather than candidate evidence.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": ".proof-or-stop/story/actives/B-212f/background.md"
     },
     {
-      "feature": "The executable fixture proves matching missing-finish and stale-diffPackHash outcomes on both readiness surfaces.",
-      "covered_by": "CHK-001",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "description"
-    },
-    {
-      "feature": "done_prepare consumes the real finish-decision presence predicate and reports missing_dev_memory_finish_decision.",
+      "feature": "Missing finish-decision state blocks both real DONE and done_prepare with missing_dev_memory_finish_decision.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
+      "source": "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "done_prepare consumes the phase-agnostic reviewer verdict and reports stale_closeout_review with diff_pack_changed for a stale lane binding.",
+      "feature": "A stale reviewer diffPackHash blocks both surfaces, preserving diff_pack_changed and mapping only review_evidence_invalid to stale_closeout_review.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
+      "source": "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
     },
     {
-      "feature": "Only review_evidence_invalid maps to stale_closeout_review; all other reviewer verdict codes remain unchanged.",
+      "feature": "done_prepare inspection remains read-only and does not rewrite reviewer evidence or git state.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
+      "source": ".proof-or-stop/story/actives/B-212f/original-intent-snapshot.json"
     },
     {
-      "feature": "Readiness evaluation leaves reviewer evidence bytes and git state unchanged.",
-      "covered_by": "CHK-002",
-      "status": "covered",
-      "excluded_by": null,
-      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
-    },
-    {
-      "feature": "Every literal DONE blocker code maps to an L4 process fact and a done-oracle row.",
+      "feature": "One ordered lazy evaluator in machine.ts is the executable source consumed by canFinishGuard, the DONE failure diagnostic, and done-oracle using the same root, git cwd, and Story ID.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
+      "source": ".proof-or-stop/story/actives/B-212f/decision.json"
     },
     {
-      "feature": "An in-memory future_done_predicate mutation proves the inventory rejects an unmapped future blocker.",
+      "feature": "The shared evaluator preserves existing DONE predicate meaning, first-failure order, diagnostic codes, and lazy early-return behavior.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
     },
     {
-      "feature": "The decision document retains only the DONE/preflight predicate-parity addition; the accidental unrelated paragraph is absent.",
+      "feature": "Generic final oracle projection overlays or appends every shared failure, including a future evaluator entry, without a manual row whitelist.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "Retire the failed general source-semantic equivalence parser; retain only blocker-code inventory and exact structural checks for the supported thin consumers.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "Every reachable literal shared DONE blocker code is registered as a process fact and omitted registration fails the canonical verifier.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/checklist.json"
+    },
+    {
+      "feature": "Executable consumer and mutation proof covers passing state, every failure, future blockers, wrong root or Story inputs, skipped outer conditions, inverted outcomes, discarded blocker values, and failure order.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/intent-collision.json"
+    },
+    {
+      "feature": "Stricter preflight-only freshness rows and completed-snapshot behavior remain intact after shared projection.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-212f/plan.md"
+    },
+    {
+      "feature": "The controlling done_prepare decision document is updated to the shared-evaluator contract and no longer claims arbitrary TypeScript source-semantic equivalence.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
     },
     {
       "feature": "Selectors beyond the 12000-character presentation window are matched and digested from complete private command output.",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": "docs/story/drafts/evidence-selector-head-truncation/background.md"
     },
     {
-      "feature": "Public routine output and persisted outputTail remain bounded, while genuinely absent selectors remain rejected.",
+      "feature": "Public routine output and persisted outputTail remain bounded, while genuinely absent selectors still fail closed.",
       "covered_by": "CHK-004",
       "status": "covered",
       "excluded_by": null,
-      "source": "description"
+      "source": "docs/story/drafts/evidence-executor-selector-truncation/background.md"
     },
     {
-      "feature": "Unrelated runtime changes, weakened DONE checks, global cleanup, and remote publication remain outside the Story.",
+      "feature": "Gate weakening, evidence fabrication or rebinding, B-c86f classification work, unrelated cleanup, aggregate-module expansion, and remote publication remain outside this Story.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Checklist exclusions and scope/execution boundaries prohibit these changes.",
-      "source": "decisions:decisions/done-prepare-automation-execution-plan.md"
+      "excluded_by": "Checklist exclusions, decision alternatives, scope contract protected files, and execution boundary prohibit these changes.",
+      "source": ".proof-or-stop/story/actives/B-212f/scope-boundary.json"
+    },
+    {
+      "feature": "The user-supplied defect-handling rules remain execution-scoping conduct and do not introduce a product Finding-disposition or lifecycle-policy feature.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Background Conversational Texture separates session conduct from implementation deliverables; no checklist item or allowed implementation path grants that product scope.",
+      "source": ".proof-or-stop/story/actives/B-212f/background.md"
     }
   ],
   "readManifest": {
     "filesReadFully": [
       ".proof-or-stop/story/actives/B-212f/background.md",
       ".proof-or-stop/story/actives/B-212f/candidate-spec-set.json",
+      ".proof-or-stop/story/actives/B-212f/checklist.json",
       ".proof-or-stop/story/actives/B-212f/decision.json",
       ".proof-or-stop/story/actives/B-212f/execution-boundary.json",
+      ".proof-or-stop/story/actives/B-212f/intent-collision.json",
+      ".proof-or-stop/story/actives/B-212f/original-intent-snapshot.json",
       ".proof-or-stop/story/actives/B-212f/plan.md",
       ".proof-or-stop/story/actives/B-212f/proofstory.json",
       ".proof-or-stop/story/actives/B-212f/scope-boundary.json",
+      ".proof-or-stop/story/actives/B-212f/scope-contract.json",
       ".proof-or-stop/story/actives/B-212f/understanding.json",
       "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
-      "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+      "docs/story/drafts/evidence-selector-head-truncation/background.md"
     ],
     "filesTriagedByName": [
-      ".proof-or-stop/story/actives/B-212f/checklist.json",
       "docs/requirements/decisions/annotation-system.md",
       "docs/requirements/decisions/authority-client-role.md",
       "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
@@ -237,11 +270,13 @@
       "docs/requirements/decisions/verification-context-pack.md",
       "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md",
       "packages/main/src/core/done-oracle.ts",
+      "packages/main/src/core/machine.ts",
       "packages/main/src/core/process-fact-registry.ts",
       "packages/main/src/core/validation-executor.ts",
       "packages/main/src/tasks/flow-stability-smoke.ts",
       "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
       "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+      "packages/main/tests/red/red-done-shared-predicates.mjs",
       "proof-or-stop.config.json",
       "scripts/verify-process-fact-contract.mjs"
     ],
@@ -250,14 +285,14 @@
     "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
   },
   "summary": {
-    "total": 12,
-    "covered": 11,
-    "excluded": 1,
+    "total": 16,
+    "covered": 14,
+    "excluded": 2,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-09-05T09:03:34.075Z",
-  "_hash": "e78718e4c294ccb8e741c39eed83433bebc7c455667f45429aa2bb4eba5a7da9",
+  "reviewRound": "2026-09-05T10:01:39.984Z",
+  "_hash": "00f14ac33b7a7118c7ca50bd378b411425058375f8b044ac7330376984cdc347",
   "openQuestions": []
 }

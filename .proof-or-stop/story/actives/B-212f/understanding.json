@@ -7,7 +7,8 @@
     "The original done_prepare omitted both predicate results, so it could recommend DONE immediately before DONE failed closed.",
     "Candidate GREEN is intake evidence only; current-Story delivery requires committed code and tool-owned receipts.",
     "Source inspection confirmed machine.ts does not import done-oracle.ts, so done-oracle can reuse the exported reviewer verdict without introducing a machine-to-oracle cycle.",
-    "BUG-001 reproduced that selector matching used runValidationCommand's 12000-character presentation window, directly blocking B-212f evidence even though the command exited zero and printed its selector later."
+    "BUG-001 reproduced that selector matching used runValidationCommand's 12000-character presentation window, directly blocking B-212f evidence even though the command exited zero and printed its selector later.",
+    "The human approved shared predicates after F-005/F-006/F-007 proved a source-semantic parser accepted wrong inputs, skipped outer branches and discarded blocker results."
   ],
   "constraints": [
     "Preserve every existing DONE predicate and fail-closed reviewer freshness behavior.",
@@ -15,7 +16,8 @@
     "Register the executable RED in proof-or-stop.config.json and update process-fact enforcement.",
     "Keep the deliverable limited to DONE/preflight parity, its omission guard, and the bounded evidence-selector repair.",
     "Keep public routine validation output and persisted evidence tails bounded while selector matching and evidence digests consume complete output.",
-    "Do not push remotely."
+    "Do not push remotely.",
+    "Use one lazy ordered DONE evaluator in machine.ts and generic final oracle projection; structural checks cover only thin consumer adapters, with executable behavioral and mutation proof."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -27,7 +29,9 @@
     "packages/main/tests/red/red-done-prepare-done-parity.mjs",
     "scripts/verify-process-fact-contract.mjs",
     "proof-or-stop.config.json",
-    "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "packages/main/src/core/machine.ts",
+    "packages/main/tests/red/red-done-shared-predicates.mjs"
   ],
-  "timestamp": "2026-09-05T09:07:46.271Z"
+  "timestamp": "2026-09-05T11:16:30.200Z"
 }

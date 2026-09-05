@@ -2,57 +2,24 @@
 
 ## CHK-001
 
-Materialize the already reviewed executable parity test at packages/main/tests/red/red-done-prepare-done-parity.mjs. Preserve both reviewed RED parity assertions unchanged, then add the missing read-only acceptance checks: capture reviewer evidence bytes and git status immediately before and after buildDoneClosureRunbook evaluates the stale pass, and assert byte-for-byte/state equality. Register the exact command in proof-or-stop.config.json so validation owns it. Run it against the untouched Story baseline and retain the expected two-parity-failure RED before editing production code; the new read-only controls may already pass and do not replace the two RED assertions.
-
-Verification:
-- The control assertions prove real DONE rejects both invalid states.
-- The two parity assertions fail only because done_prepare lacks the two rows.
-- The read-only assertions prove runbook evaluation does not rewrite reviewer evidence or git state.
-- The test is registered and is not a source-string-only check.
-
-Rollback:
-- Revert only the test and its configuration registration if the fixture is shown not to reproduce the reviewed behavior; do not weaken either asserted DONE outcome.
+Retain the committed packages/main/tests/red/red-done-prepare-done-parity.mjs byte-for-byte. Historical RED proves both original failures; current GREEN must prove missing finish decision, stale reviewer diffPackHash, exact codes and read-only evidence/git state. Keep its config registration.
 
 ## CHK-002
 
-Update packages/main/src/core/done-oracle.ts to call readDevMemoryFinishDecision and evaluateReviewVerdict while assembling the shared checklist consumed by done_closure and done_prepare. Add one finish-decision row and one reviewer-verdict row. Map review_evidence_invalid to stale_closeout_review and preserve every other reviewer verdict code. Keep the inspection path read-only.
-
-Verification:
-- Missing finish decision produces missing_dev_memory_finish_decision on both surfaces.
-- Live diff-pack drift produces diff_pack_changed and stale_closeout_review on both surfaces.
-- Reviewer evidence bytes and git state remain unchanged by runbook evaluation.
-- Combined execution proves the registered RED, both shared predicates, and the read-only guarantee in one fixture.
-
-Rollback:
-- Revert the two checklist rows and imports as one unit if they introduce a lifecycle regression; the real DONE predicates in machine.ts remain protected and unchanged.
+Preserve both parity outcomes through shared predicate consumption. Missing finish decision produces missing_dev_memory_finish_decision. Only review_evidence_invalid maps to stale_closeout_review; preserve other codes. CHK-003 supersedes the original duplicated assembly and machine.ts protection, expressly approved by the human after convergence freeze.
 
 ## CHK-003
 
-Register the two consumed predicates as L4 process facts, update scripts/verify-process-fact-contract.mjs, extend flow-stability coverage, and amend the done_prepare decision document so the supported contract states that readiness consumes the same finish-decision and reviewer-verdict predicates as DONE.
+Export one ordered lazy DONE evaluator from machine.ts. Move existing predicates into it without weakening their meaning. canFinishGuard and the DONE failure diagnostic consume the same evaluator and preserve early-return/diagnostic precedence. done-oracle consumes results for the same root, git cwd and Story ID. Generic final projection overlays or appends every shared failure, including future entries. Preserve stricter preflight-only freshness rows and completed-snapshot behavior.
 
-The verifier must enforce a generic omission contract: extract every literal machine-readable blocker code in the targetPhase DONE branch in machine.ts, require each code to have an explicit mapping to a done-oracle row in the process-fact registry, require each mapped row to exist in done-oracle.ts, and run an in-memory mutation self-check that inserts future_done_predicate and confirms the inventory rejects it until mapped. This converts the future-predicate promise into a concrete mechanical rule instead of merely pinning the two current predicates. The dynamic reviewer-verdict-code branch remains represented by the shared review-verdict row and its explicit contract entry.
+Remove the failed general source-semantic parser. Inventory literal blocker codes in the shared evaluator reachable from the thin DONE consumer. Require registered process facts and check exact supported thin consumer shapes. These checks do not claim equivalence of arbitrary TypeScript expressions. Generic projection requires no manual whitelist for a future blocker.
 
-Remove the accidentally added out-of-scope paragraph from docs/requirements/decisions/done-prepare-automation-execution-plan.md so the retained section documents predicate parity only.
+Add packages/main/tests/red/red-done-shared-predicates.mjs, register through the verifier or config, and execute actual production consumers under controlled reader fixtures. Test passing state, each failure, early return and diagnostic order; retain unchanged real-filesystem parity RED. Required mutations: future evaluator blocker, wrong root/Story inputs, skipped outer conditions, inverted outcomes and discarded blocker values. Capture RED before implementation and unchanged-test GREEN afterward.
 
-Verification:
-- node scripts/verify-process-fact-contract.mjs prints DONE/preflight predicate inventory parity passed and Process-fact contract verification passed.
-- Its in-memory future_done_predicate mutation is rejected by the same inventory function used on repository sources.
-- npm --prefix packages/main run test:flow-stability-smoke prints flow stability smoke passed.
-- The executable parity test remains GREEN after all contract and documentation changes.
-- The done_prepare decision document contains the predicate-parity contract without the removed out-of-scope paragraph.
+Update registry, verifier, relevant flow tests and controlling decision documentation. Existing commands and selectors stay pinned; the new command node packages/main/tests/red/red-done-shared-predicates.mjs prints Shared DONE predicate parity passed. Refresh changed-material receipts through the CLI and obtain independent review of architecture and mutation results.
 
-Rollback:
-- Revert registry, verifier, flow-smoke, and parity documentation changes together if the mechanical contract is incorrect; do not restore the removed out-of-scope paragraph.
+Rollback: revert evaluator, projection and associated proof changes as a coherent unit if compatibility fails; preserve original parity assertions.
 
 ## CHK-004
 
-Repair the tool-executed verification path that matched selectors against the 12000-character runValidationCommand presentation window. Keep the public routine-validation result bounded, but give the private pinned-evidence consumer complete ANSI-stripped output for selector matching and digest calculation. Continue persisting only the existing 4000-character outputTail. Extend packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts with RED/GREEN coverage for a marker beyond the presentation window, digest binding to complete output, bounded persisted tail, genuine selector absence, and unchanged routine-output bounding.
-
-Verification:
-- Before the fix, the long-output fixture fails with INT-BEYOND-WINDOW [receipt_selector_absent].
-- After the fix, npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke prints tool-executed evidence receipt smoke passed.
-- The stored outputTail remains exactly bounded while the digest and selector result bind complete output.
-- A genuinely absent selector is still rejected and public routine validation output remains capped.
-
-Rollback:
-- Revert validation-executor.ts and the corresponding smoke assertions together if private complete-output capture changes public validation behavior or persistence bounds.
+Retain the committed complete-private-output selector repair. The receipt smoke must accept selectors beyond 12000 characters, reject genuine absence, hash full output, and keep public output and persisted outputTail bounded. Existing command stays npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke.

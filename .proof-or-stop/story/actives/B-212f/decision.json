@@ -1,71 +1,75 @@
 {
   "principles": [
-    "One lifecycle fact must have one executable predicate and every readiness surface must consume it.",
-    "Preflight must fail closed with the same stable machine-readable code as DONE.",
-    "Readiness inspection must remain read-only and must never repair reviewer evidence.",
-    "The fix and its tests must remain narrowly bound to the proven mismatch."
+    "Each DONE predicate has one executable definition consumed by all readiness surfaces.",
+    "Keep stable blocker codes, first-failure diagnostics, and read-only evidence inspection.",
+    "Use executable consumer tests for behavior and bounded structural checks for the thin shared entry points.",
+    "Keep the change limited to DONE/preflight parity and its directly blocking evidence repair."
   ],
   "drivers": [
-    "The existing real DONE predicates are already exported or directly reusable.",
-    "The reviewed behavior test proves two concrete divergence paths without relying on source-text assertions.",
-    "Process-fact policy requires registry and verifier coverage whenever gate evidence consumption changes."
+    "Review mutations proved source-semantic inference could falsely accept different inputs, outer guards, and discarded results.",
+    "The human approved a shared predicate design after the convergence freeze.",
+    "Existing predicates and public behavior already have executable RED/GREEN coverage."
   ],
   "options": [
     {
-      "name": "Reuse existing predicates in done-oracle",
+      "name": "Shared lazy evaluator in machine.ts",
       "pros": [
-        "Smallest behavioral change",
-        "Keeps reviewer semantics sourced from evaluateReviewVerdict",
-        "Preserves done_prepare runbook architecture"
+        "One ordered definition for gate, diagnostics, and oracle",
+        "Avoids new module cycles",
+        "Generic projection carries future failures automatically"
       ],
       "cons": [
-        "Adds explicit core dependencies to done-oracle and requires careful error-code mapping"
+        "Requires a bounded change to the formerly protected DONE branch and careful compatibility tests"
       ]
     },
     {
-      "name": "Duplicate finish and reviewer checks in done_prepare",
+      "name": "Extend the source-semantic parser",
       "pros": [
-        "Localized edit in the preflight handler",
-        "Avoids adding imports to done-oracle"
+        "Keeps machine implementation untouched"
       ],
       "cons": [
-        "Creates a second implementation that can drift again",
-        "Violates the same-source process-fact requirement"
+        "Requires interpreting arbitrary control flow and value provenance",
+        "Verified bypasses make this assurance unreliable and repeated expansion unbounded"
       ]
     },
     {
-      "name": "Extract a new aggregate DONE predicate module",
+      "name": "Extract a new aggregate module",
       "pros": [
-        "Could centralize more DONE logic over time",
-        "Can produce one aggregate verdict API"
+        "Separates evaluator from state-machine wiring"
       ],
       "cons": [
-        "Substantially expands scope beyond the two proven predicates",
-        "Raises regression risk and requires broader lifecycle refactoring"
+        "Requires moving reviewer dependencies or introducing a module cycle",
+        "Adds a file and migration surface without improving this bounded proof"
       ]
     }
   ],
-  "chosen": "Reuse existing predicates in done-oracle",
-  "rationale": "Directly reuse readDevMemoryFinishDecision and evaluateReviewVerdict while building the shared DONE checklist. This is the smallest design that removes semantic duplication, gives done_prepare the real verdict, preserves its read-only behavior, and leaves unrelated DONE predicates unchanged.",
+  "chosen": "Shared lazy evaluator in machine.ts",
+  "rationale": "The human-authorized replan replaces the failed parser with a shared ordered evaluator exported by machine.ts. Thin machine consumers preserve early failure behavior; the oracle generically consumes every result. The verifier inventories the shared source reachable from DONE and checks explicit thin adapters, while executable tests establish behavior and mutation rejection.",
   "preMortem": [
     {
-      "scenario": "The new review row maps every reviewer failure to stale_closeout_review.",
-      "trigger": "A missing round or blocking finding is evaluated.",
-      "consequence": "done_prepare emits the wrong recovery code and diverges from DONE again.",
-      "mitigation": "Map only review_evidence_invalid to stale_closeout_review and preserve every other evaluateReviewVerdict code verbatim; test the stale hash case exactly."
+      "scenario": "Aggregation eagerly reads downstream artifacts after an early failure.",
+      "trigger": "Missing test evidence with incomplete legacy artifacts.",
+      "consequence": "Existing safe failures throw or change precedence.",
+      "mitigation": "Use lazy ordered evaluation and test first-failure diagnostics and read calls."
     },
     {
-      "scenario": "done_prepare changes reviewer evidence while checking freshness.",
-      "trigger": "The stale diffPackHash fixture is evaluated.",
-      "consequence": "Preflight fabricates freshness or changes git state.",
-      "mitigation": "Keep buildDoneChecklist read-only and assert reviewer evidence bytes plus git status are unchanged."
+      "scenario": "Oracle silently drops a newly added shared predicate.",
+      "trigger": "A new evaluator result has no presentation row.",
+      "consequence": "Preflight misses a real DONE blocker.",
+      "mitigation": "Generic final projection appends missing failures; execute future-predicate mutation against actual consumers."
     },
     {
-      "scenario": "The behavior test exists but is omitted from validation.",
-      "trigger": "A future refactor removes one row while ordinary tests still pass.",
-      "consequence": "The original mismatch regresses unnoticed.",
-      "mitigation": "Register the executable test in proof-or-stop.config.json and add process-fact verifier and flow-stability checks."
+      "scenario": "Adapters change input target or discard failures.",
+      "trigger": "Wrong root/story argument, outer skip, or discarded emitted row.",
+      "consequence": "Consumers see different states or report false readiness.",
+      "mitigation": "Check exact thin adapter shapes and execute mutations with captured reader inputs and final rows."
+    },
+    {
+      "scenario": "Refactor changes completion-snapshot or stricter preflight semantics.",
+      "trigger": "Wrapper root, completed snapshot, delivery or review assurance evaluation.",
+      "consequence": "Compatibility regression or readiness weakening.",
+      "mitigation": "Preserve existing extra preflight rows and test wrapper-root, snapshot and live gate behavior."
     }
   ],
-  "timestamp": "2026-09-04T20:33:49.319Z"
+  "timestamp": "2026-09-05T11:15:07.136Z"
 }

@@ -69,11 +69,12 @@
         "CHK-003:happy:0",
         "CHK-003:edge:0",
         "CHK-003:adversarial:0",
-        "CHK-003:adversarial:1"
+        "CHK-003:adversarial:1",
+        "CHK-003:adversarial:2"
       ],
       "milestoneIds": [],
-      "acceptanceClaim": "Registry, verifier, flow-stability coverage, and decision documentation mechanically prevent current or future machine-coded DONE predicates from being absent from the preflight oracle.",
-      "note": "Covers the two-layer process-fact contract and generic omission mutation proof."
+      "acceptanceClaim": "One shared ordered DONE evaluator feeds the machine guard, failure diagnostic and final oracle projection; inventory and executable consumer/mutation checks reject missing future registration and divergent adapters.",
+      "note": "Human-authorized shared evaluator replan; covers wrong targets, skipped conditions, discarded values and future predicate propagation."
     },
     {
       "id": "AB-EVIDENCE-SELECTOR",
@@ -91,7 +92,7 @@
     }
   ],
   "diagnosticGaps": [],
-  "note": "All four checklist items are bound: the DONE/preflight parity RED and implementation, the mechanical omission guard, and the bounded selector-window repair required for tool-owned acceptance evidence.",
+  "note": "Four existing outcomes remain bound; CHK-003 uses shared evaluator consumption and executable adapter mutation proof after the approved replan.",
   "createdAt": "2026-09-04T20:34:25.284Z",
-  "updatedAt": "2026-09-05T09:08:26.417Z"
+  "updatedAt": "2026-09-05T11:16:46.401Z"
 }
