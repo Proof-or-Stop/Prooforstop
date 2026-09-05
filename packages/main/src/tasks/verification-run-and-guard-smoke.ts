@@ -390,7 +390,7 @@ async function partC(): Promise<void> {
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin the immutable verifier',
     });
 
-    const addBlob = (o: Record<string, unknown>) => `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify(o)}`;
+    const addBlob = (o: Record<string, unknown>) => `node bin/proof-or-stop.js verification_evidence_add ${JSON.stringify(o)}`;
 
     // C1: DENY — mismatched --command (JSON-blob form). selector matches; only command differs.
     const denyCmd = guardVerdict(env, {
@@ -400,7 +400,7 @@ async function partC(): Promise<void> {
 
     // C2: DENY — mismatched --selector (--k=v form). No --command; only the selector differs.
     const denySel = guardVerdict(env, {
-      commandString: `node bin/proofOrStop.js verification_evidence_add --storyId=${env.storyId} --itemId=CHK-001 --intentRef=INT-PIN --selector=WRONG_SELECTOR --note=x`,
+      commandString: `node bin/proof-or-stop.js verification_evidence_add --storyId=${env.storyId} --itemId=CHK-001 --intentRef=INT-PIN --selector=WRONG_SELECTOR --note=x`,
     });
     assert.equal(denySel.verdict, 'deny', 'C2: mismatched --selector (--k=v) is DENIED');
 
@@ -412,7 +412,7 @@ async function partC(): Promise<void> {
 
     // C4: ALLOW — verification_run derives its command from the pin (nothing to mismatch).
     const allowRun = guardVerdict(env, {
-      commandString: `node bin/proofOrStop.js verification_run --storyId=${env.storyId} --intentRef=INT-PIN`,
+      commandString: `node bin/proof-or-stop.js verification_run --storyId=${env.storyId} --intentRef=INT-PIN`,
     });
     assert.equal(allowRun.verdict, 'allow', 'C4: verification_run is ALLOWED');
 
@@ -488,8 +488,8 @@ async function partD(): Promise<string> {
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin for the hook e2e',
     });
 
-    const mismatchCmd = `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: DIFFERENT_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e mismatch' })}`;
-    const matchCmd = `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: PASS_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e match' })}`;
+    const mismatchCmd = `node bin/proof-or-stop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: DIFFERENT_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e mismatch' })}`;
+    const matchCmd = `node bin/proof-or-stop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: PASS_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e match' })}`;
 
     // D1: Claude Bash matcher — FULLY asserted (the real emitted tool_name is `Bash`).
     assert.equal(runHook(CLAUDE_HOOK, env.root, 'Bash', mismatchCmd), 2, 'D1: Claude Bash hook exits 2 (deny) on a mismatched evidence write');
