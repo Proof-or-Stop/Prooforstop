@@ -4,26 +4,30 @@
   "facts": [
     "The reviewed RED runs done_prepare/buildDoneClosureRunbook and the real DONE guard on equivalent fixtures.",
     "The real DONE guard already uses readDevMemoryFinishDecision and evaluateReviewVerdict.",
-    "Current done_prepare omits both predicate results, so it can recommend DONE immediately before DONE fails closed.",
-    "Candidate GREEN proves feasibility but is intake evidence only and must be rerun in this Story.",
-    "Source inspection confirms machine.ts does not import done-oracle.ts, so done-oracle can reuse the exported reviewer verdict without introducing a machine-to-oracle cycle."
+    "The original done_prepare omitted both predicate results, so it could recommend DONE immediately before DONE failed closed.",
+    "Candidate GREEN is intake evidence only; current-Story delivery requires committed code and tool-owned receipts.",
+    "Source inspection confirmed machine.ts does not import done-oracle.ts, so done-oracle can reuse the exported reviewer verdict without introducing a machine-to-oracle cycle.",
+    "BUG-001 reproduced that selector matching used runValidationCommand's 12000-character presentation window, directly blocking B-212f evidence even though the command exited zero and printed its selector later."
   ],
   "constraints": [
     "Preserve every existing DONE predicate and fail-closed reviewer freshness behavior.",
     "Do not refresh, re-sign, rebind, fabricate, or mutate review evidence.",
     "Register the executable RED in proof-or-stop.config.json and update process-fact enforcement.",
-    "Repair scope only for major, acceptance-blocking, or gate-truth defects; evidence-route unrelated nonblocking medium/low defects.",
+    "Classify defects by applicability and gate impact: repair verified applicable critical/high defects and verified current-Story blockers; route only with evidence and traceable ownership when policy permits.",
+    "Keep public routine validation output and persisted evidence tails bounded while selector matching and evidence digests consume complete output.",
     "Do not push remotely."
   ],
   "unknowns": [],
   "touchpoints": [
     "packages/main/src/core/done-oracle.ts",
     "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/validation-executor.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
     "packages/main/tests/red/red-done-prepare-done-parity.mjs",
     "scripts/verify-process-fact-contract.mjs",
     "proof-or-stop.config.json",
     "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
   ],
-  "timestamp": "2026-09-04T20:33:31.986Z"
+  "timestamp": "2026-09-05T08:35:18.521Z"
 }

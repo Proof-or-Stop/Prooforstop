@@ -451,7 +451,7 @@
         "docs/story/drafts/evidence-selector-head-truncation/background.md",
         "docs/story/drafts/evidence-executor-selector-truncation/background.md"
       ],
-      "userSees": "Long-output executable evidence succeeds when its selector appears after character 12000, while the persisted receipt tail stays bounded and truly absent selectors still fail closed.",
+      "userSees": "The terminal prints \"tool-executed evidence receipt smoke passed\"; the long-output selector is accepted, a genuinely absent selector still reports \"receipt_selector_absent\", and the persisted outputTail remains bounded.",
       "excludes": [
         "Changing routine validation artifact size limits",
         "Raising the 12000-character validation receipt ceiling",

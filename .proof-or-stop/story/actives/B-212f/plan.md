@@ -30,9 +30,9 @@ Rollback:
 
 Register the two consumed predicates as L4 process facts, update scripts/verify-process-fact-contract.mjs, extend flow-stability coverage, and amend the done_prepare decision document so the supported contract states that readiness consumes the same finish-decision and reviewer-verdict predicates as DONE.
 
-The verifier must also enforce a generic omission contract: extract every literal machine-readable blocker code in machine.ts's targetPhase DONE branch, require each code to have an explicit mapping to a done-oracle row in the process-fact registry, require each mapped row to exist in done-oracle.ts, and run an in-memory mutation self-check that inserts future_done_predicate and confirms the inventory rejects it until mapped. This converts the broad future-predicate promise into a concrete mechanical rule instead of merely pinning the two current predicates. The dynamic reviewer-verdict-code branch remains represented by the shared review-verdict row and its explicit contract entry.
+The verifier must also enforce a generic omission contract: extract every literal machine-readable blocker code in the targetPhase DONE branch in machine.ts, require each code to have an explicit mapping to a done-oracle row in the process-fact registry, require each mapped row to exist in done-oracle.ts, and run an in-memory mutation self-check that inserts future_done_predicate and confirms the inventory rejects it until mapped. This converts the future-predicate promise into a concrete mechanical rule instead of merely pinning the two current predicates. The dynamic reviewer-verdict-code branch remains represented by the shared review-verdict row and its explicit contract entry.
 
-During implementation and review, classify every new defect before scope changes. Repair a critical/high, safety, data-integrity, destructive-compatibility, acceptance-blocking, or lifecycle-gate-truth defect in this Story. For an unrelated nonblocking medium/low defect, retain reproduction, evidence, impact, recommendation, and a traceable finding/gap/backlog owner; do not expand scope. Reassess immediately if later evidence raises severity or makes it blocking.
+During implementation and review, classify every new defect by applicability and gate impact before changing scope. Repair a verified applicable critical/high defect, and repair any verified defect introduced or worsened by this Story or directly blocking its acceptance, core result, compatibility promise, protected surface, or lifecycle-gate truth. A verified non-applicable critical/high defect may leave only with strong current-gate nonblocking evidence and a traceable owner or route. For an otherwise eligible unrelated nonblocking low/medium defect, retain reproduction, evidence, impact, recommendation, and a traceable finding/gap/backlog owner; do not expand scope. Reassess immediately if later evidence changes applicability or gate impact.
 
 Verification:
 - node scripts/verify-process-fact-contract.mjs prints DONE/preflight predicate inventory parity passed and Process-fact contract verification passed.
@@ -42,3 +42,16 @@ Verification:
 
 Rollback:
 - Revert registry, verifier, flow-smoke, and documentation changes together if the mechanical contract is incorrect; never retain documentation that claims enforcement without the matching executable guard.
+
+## CHK-004
+
+Repair the tool-executed verification path that matched selectors against the 12000-character runValidationCommand presentation window. Keep the public routine-validation result bounded, but give the private pinned-evidence consumer complete ANSI-stripped output for selector matching and digest calculation. Continue persisting only the existing 4000-character outputTail. Extend packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts with RED/GREEN coverage for a marker beyond the presentation window, digest binding to complete output, bounded persisted tail, genuine selector absence, and unchanged routine-output bounding.
+
+Verification:
+- Before the fix, the long-output fixture fails with INT-BEYOND-WINDOW [receipt_selector_absent].
+- After the fix, npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke prints tool-executed evidence receipt smoke passed.
+- The stored outputTail remains exactly bounded while the digest and selector result bind complete output.
+- A genuinely absent selector is still rejected and public routine validation output remains capped.
+
+Rollback:
+- Revert validation-executor.ts and the corresponding smoke assertions together if private complete-output capture changes public validation behavior or persistence bounds.
