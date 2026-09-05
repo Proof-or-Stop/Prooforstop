@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Commit the reviewed executable done_prepare/DONE parity RED and register it",
       "context": "Candidate probe rp-mtn2kjzu-pap3kp and red review rr-mtn2kqun-vcqatu bind the exact executable design; red/green relation rgr-mtn2ppnx-h2nqoj and passing evaluation rgre-mtn2ptyg-asgnhf bind the same command to current-main RED and isolated-candidate GREEN. Before implementation, the test exits 1 because the real DONE guard rejects missing dev_memory_finish_decision and stale scopeBinding.diffPackHash while buildDoneClosureRunbook has neither blocker row. The already-run GREEN candidate proves the unchanged test can pass after the parity fix, but DEV must commit this test and rerun it in the Story worktree.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T09:00:09.905Z",
       "endTime": null,
       "relatedDocs": [
         "docs/requirements/decisions/done-prepare-automation-execution-plan.md#command-contract",
@@ -727,6 +727,15 @@
       "to": "done",
       "reason": "Implementer commit 4ae0de6cdc removes the misplaced Finding-policy paragraph while preserving the DONE/preflight parity contract; process-fact verifier passed.",
       "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:00:09.905Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed executable RED/parity fixture and validation registration from implementer commit 414e02135b."
     }
   ]
 }
