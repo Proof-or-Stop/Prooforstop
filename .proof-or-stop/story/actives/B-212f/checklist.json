@@ -540,8 +540,8 @@
           }
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-05T11:53:54.549Z",
       "endTime": null,
       "userSeesSnapshot": {
         "normalizedClaimDigest": "7f1816d0b22dc35d70cfbd8bdfea6d3a540b359d2ee731003473f06c0d30f73c",
@@ -1002,6 +1002,16 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Implemented and committed by proof-or-stop-implementer at 5d0abf0edda6c3128da953c932223ec28e4310ac. Shared evaluator replaces disproven parser; final frozen test e61291fd92 passes, original parity remains unchanged, build/process-fact/flow smoke pass.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:53:54.549Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Restore already implemented bounded selector repair after main merge f23f3d70ca; merged build and evidence-receipt smoke passed.",
       "agent": "proof-or-stop-implementer"
     }
   ]
