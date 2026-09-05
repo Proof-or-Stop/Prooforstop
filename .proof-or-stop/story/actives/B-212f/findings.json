@@ -1292,6 +1292,55 @@
       ],
       "signatureTag": "optional-envelope-field-preservation",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-030",
+      "desc": "Independent RI-002 wave-1 completeness corroboration of canonical F-027 and lane observations F-028/F-029, family optional-envelope-field-preservation. I independently ran the read-only StoryStore RR-034 verification against raw envelopes and snapshotPromptEnvelopes(envelopes): raw returns ok:true, snapshot returns ok:false with eligibilityDigest, eligibilityReasonCodes, priorPassRef mismatch. Source review confirms snapshotPromptEnvelopes creates absent optional properties as own undefined; canonical JSON integrity rejects unsupported undefined, so latestTrustedPriorPass drops an otherwise authentic prior pass. The implicated modules are unchanged against main, but this verified medium false-rejection directly blocks current reviewer/gate truth and needs bounded current-Story repair. Preserve actual optional property presence and explicit invalid values while cloning/freezing actual arrays and nested projection entries, with exact regression coverage for integrity and prior-pass selection plus mutation isolation. No historical reviewer audit replay expansion is required. This is the same root as F-027, not a distinct family. All four required lanes completed before RR-040; this finding records truthful request-changes/read evidence, not acceptance PASS or inventory acceptance. The topology request-changes receipt remains incomplete-basis/unsupported; it does not certify acceptance.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-05T15:17:06.939Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-040",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "cebe7172ce939826a41f050ef7cef8f23972fdb074cc43fa25c6a55f87640629",
+      "files": [
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/core/review-incremental-context.ts"
+      ],
+      "signatureTag": "optional-envelope-field-preservation",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
