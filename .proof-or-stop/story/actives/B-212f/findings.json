@@ -374,6 +374,52 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-fresh",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-212f:F-013",
+      "desc": "Independent inventory completeness critic corroboration of live canonical B-212f:F-009, not a new repair family. Current done-oracle.ts:327 evaluates live shared predicates before historical options; lines 921-961 separately compute snapshot-aware assurance but line 1105 finally overlays live failures. I read both scoped decision documents, background, plan, and both committed parity tests; plan CHK-003 explicitly requires completed-snapshot behavior. I inspected and independently executed node /tmp/b212f-quality-snapshot.Sx1V74/reproduce.mjs: source-extracted main 69403365ae gives review-escalation pass/nonblocking for identical DONE-phase historical snapshot readers, while current gives review-escalation fail/blocking and review-verdict stale_closeout_review fail/blocking; active canFinishGuard stays false in both. The shared parity test hardcodes TEST and only supplies completedSnapshot with missing finish decision, so it does not establish historical assurance compatibility. Preserve F-009 as canonical and require its bounded implementation/fixture repair with strict active TEST-to-DONE behavior preserved. Inventory completeness is not acceptance: acceptance_topology_check is observe/inconclusive/unsupported and pre_review_check_read is observe/inconclusive; separate topology critic request_changes receipt has independent provenance. No code, scope, or lifecycle changes performed.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-05T12:23:56.682Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-021",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "8a2e3e95f27f69e4a52375f620a5b2fbeceb0b016a0bbde117a818b74d9a080a",
+      "files": [
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/tests/red/red-done-shared-predicates.mjs"
+      ],
+      "signatureTag": "edge|ts|independent-inventory-completeness",
+      "signatureTagSource": "auto"
     }
   ]
 }
