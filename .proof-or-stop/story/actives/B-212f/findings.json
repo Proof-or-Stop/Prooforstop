@@ -68,6 +68,27 @@
       ],
       "signatureTag": "missing|md|promise-undelivered-docs",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-212f:F-004",
+      "desc": "doc-promise-undelivered: scripts/verify-process-fact-contract.mjs:4978-5137 treats a shared predicate as any identical identifier/property-access text and ignores operators, polarity, call identity, and value provenance. Executing the exact production checker in memory with machine storyId.length > 0 returning [future_done_predicate], oracle storyId.length === 0 pushing the exact doneBlockerRow(future_done_predicate, test-evidence, ...), a matching inventory entry, and an L4 gate-evidence fact returned errors:[]. The two surfaces block on mutually exclusive states. Therefore commit 2480d37f rejects the old unrelated-row mutation but still does not deliver docs/requirements/decisions/done-prepare-automation-execution-plan.md:163-171 claim that wrong-predicate future divergence is mechanically guarded. Require a semantic same-predicate binding or an inverse-polarity mutation that the production checker must reject; lexical reference intersection is false assurance.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T09:48:17.241Z",
+      "reviewRound": "2026-09-05T09:42:05.609Z",
+      "reviewRunId": "B-212f:RR-008",
+      "_hash": "fa33cbdb979757d71c4788f69d3d6652f91c24272f8a09033f09b9ed542511c7",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/core/done-oracle.ts",
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "signatureTag": "missing|mjs|promise-undelivered-scripts",
+      "signatureTagSource": "auto"
     }
   ]
 }
