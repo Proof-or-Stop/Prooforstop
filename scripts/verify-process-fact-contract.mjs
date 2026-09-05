@@ -4947,13 +4947,14 @@ function collectLiteralDoneBlockerCodes(machineSource) {
   }
 
   const codes = new Set();
-  const guardRefsByCode = new Map();
+  const semanticGuardsByCode = new Map();
   const collectFromText = (text, node) => {
     for (const match of text.matchAll(/\[([a-z][a-z0-9_]*)\]/g)) {
       codes.add(match[1]);
-      const refs = guardRefsByCode.get(match[1]) || new Set();
-      for (const ref of collectEnclosingGuardReferences(node, sourceFile, doneBranches[0])) refs.add(ref);
-      guardRefsByCode.set(match[1], refs);
+      const guards = semanticGuardsByCode.get(match[1]) || new Set();
+      const guard = collectSemanticBlockerGuard(node, sourceFile, doneBranches[0]);
+      if (guard) guards.add(guard);
+      semanticGuardsByCode.set(match[1], guards);
     }
   };
   const visitLiteral = (node) => {
@@ -4972,33 +4973,130 @@ function collectLiteralDoneBlockerCodes(machineSource) {
     ts.forEachChild(node, visitLiteral);
   };
   visitLiteral(doneBranches[0]);
-  return { codes, guardRefsByCode, errors: [] };
+  return { codes, semanticGuardsByCode, errors: [] };
 }
 
-function collectConditionReferences(expression, sourceFile) {
-  const refs = new Set();
+function unwrapPredicateExpression(node) {
+  let current = node;
+  while (ts.isParenthesizedExpression(current)) current = current.expression;
+  return current;
+}
+
+function normalizePredicateExpression(node, sourceFile, negate = false) {
+  const expression = unwrapPredicateExpression(node);
+  if (ts.isPrefixUnaryExpression(expression) && expression.operator === ts.SyntaxKind.ExclamationToken) {
+    return normalizePredicateExpression(expression.operand, sourceFile, !negate);
+  }
+  if (ts.isBinaryExpression(expression)) {
+    const operator = expression.operatorToken.getText(sourceFile);
+    const inverseOperators = new Map([
+      ['===', '!=='], ['!==', '==='], ['==', '!='], ['!=', '=='],
+      ['>', '<='], ['<=', '>'], ['<', '>='], ['>=', '<'],
+    ]);
+    if (operator === '&&' || operator === '||') {
+      const normalizedOperator = negate ? (operator === '&&' ? '||' : '&&') : operator;
+      return `(${normalizePredicateExpression(expression.left, sourceFile, negate)}${normalizedOperator}${normalizePredicateExpression(expression.right, sourceFile, negate)})`;
+    }
+    const normalizedOperator = negate ? inverseOperators.get(operator) : operator;
+    if (normalizedOperator) {
+      return `(${expression.left.getText(sourceFile).replace(/\s+/g, '')}${normalizedOperator}${expression.right.getText(sourceFile).replace(/\s+/g, '')})`;
+    }
+  }
+  const text = expression.getText(sourceFile).replace(/\s+/g, '');
+  return negate ? `!(${text})` : text;
+}
+
+function nodeIsWithin(node, container) {
+  return node.pos >= container.pos && node.end <= container.end;
+}
+
+function findNearestBlockerBranch(node, stopNode) {
+  for (let current = node.parent; current && current !== stopNode; current = current.parent) {
+    if (ts.isIfStatement(current)) {
+      if (nodeIsWithin(node, current.thenStatement)) return { condition: current.expression, blockerWhen: true };
+      if (current.elseStatement && nodeIsWithin(node, current.elseStatement)) return { condition: current.expression, blockerWhen: false };
+    } else if (ts.isConditionalExpression(current)) {
+      if (nodeIsWithin(node, current.whenTrue)) return { condition: current.condition, blockerWhen: true };
+      if (nodeIsWithin(node, current.whenFalse)) return { condition: current.condition, blockerWhen: false };
+    }
+  }
+  return null;
+}
+
+function collectGuardRootIdentifiers(expression) {
+  const roots = new Set();
   const visit = (node) => {
     if (ts.isPropertyAccessExpression(node)) {
-      refs.add(node.getText(sourceFile).replace(/\s+/g, ''));
+      visit(node.expression);
       return;
     }
-    if (ts.isIdentifier(node)) refs.add(node.text);
+    if (ts.isIdentifier(node)) {
+      roots.add(node.text);
+      return;
+    }
     ts.forEachChild(node, visit);
   };
   visit(expression);
-  return refs;
+  return roots;
 }
 
-function collectEnclosingGuardReferences(node, sourceFile, stopNode) {
-  const refs = new Set();
-  for (let current = node.parent; current && current !== stopNode; current = current.parent) {
-    if (ts.isIfStatement(current)) {
-      for (const ref of collectConditionReferences(current.expression, sourceFile)) refs.add(ref);
-    } else if (ts.isConditionalExpression(current)) {
-      for (const ref of collectConditionReferences(current.condition, sourceFile)) refs.add(ref);
+function collectValueDeclarations(sourceFile) {
+  const declarations = new Map();
+  const visit = (node) => {
+    if ((ts.isVariableDeclaration(node) || ts.isParameter(node)) && ts.isIdentifier(node.name)) {
+      const entries = declarations.get(node.name.text) || [];
+      entries.push(node);
+      declarations.set(node.name.text, entries);
     }
-  }
-  return refs;
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return declarations;
+}
+
+function summarizeValueProvenance(identifier, referenceNode, sourceFile, declarations, seen = new Set()) {
+  if (seen.has(identifier)) return `cycle:${identifier}`;
+  const candidates = (declarations.get(identifier) || [])
+    .filter(declaration => declaration.pos <= referenceNode.pos)
+    .sort((a, b) => b.pos - a.pos);
+  const declaration = candidates[0];
+  if (!declaration) return `symbol:${identifier}`;
+  if (ts.isParameter(declaration)) return `parameter:${identifier}`;
+  if (!declaration.initializer) return `uninitialized:${identifier}`;
+  const nextSeen = new Set(seen);
+  nextSeen.add(identifier);
+  const summarize = (node) => {
+    const value = unwrapPredicateExpression(node);
+    if (ts.isIdentifier(value)) {
+      return summarizeValueProvenance(value.text, declaration, sourceFile, declarations, nextSeen);
+    }
+    if (ts.isPropertyAccessExpression(value)) {
+      return `${summarize(value.expression)}.property:${value.name.text}`;
+    }
+    if (ts.isCallExpression(value)) {
+      const callee = value.expression;
+      const calleeName = ts.isPropertyAccessExpression(callee) ? callee.name.text : callee.getText(sourceFile).replace(/\s+/g, '');
+      const base = ts.isPropertyAccessExpression(callee) ? `:${summarize(callee.expression)}` : '';
+      const callbacks = (calleeName === 'filter' || calleeName === 'some' || calleeName === 'every')
+        ? value.arguments.filter(ts.isIdentifier).map(argument => `:callback:${argument.text}`).join('')
+        : '';
+      return `call:${calleeName}${base}${callbacks}`;
+    }
+    return `expression:${value.getText(sourceFile).replace(/\s+/g, '')}`;
+  };
+  return summarize(declaration.initializer);
+}
+
+function collectSemanticBlockerGuard(node, sourceFile, stopNode) {
+  const branch = findNearestBlockerBranch(node, stopNode);
+  if (!branch) return null;
+  const normalizedExpression = normalizePredicateExpression(branch.condition, sourceFile, !branch.blockerWhen);
+  const declarations = collectValueDeclarations(sourceFile);
+  const provenance = [...collectGuardRootIdentifiers(branch.condition)]
+    .sort()
+    .map(identifier => `${identifier}<-${summarizeValueProvenance(identifier, node, sourceFile, declarations)}`)
+    .join(',');
+  return `${normalizedExpression}::${provenance}`;
 }
 
 function collectLiteralDoneOracleRowIds(doneOracleSource) {
@@ -5021,7 +5119,7 @@ function collectLiteralDoneOracleRowIds(doneOracleSource) {
 function collectDoneOracleBlockerBindings(doneOracleSource) {
   const sourceFile = ts.createSourceFile(doneOraclePath, doneOracleSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   const byCode = new Map();
-  const guardRefsByCode = new Map();
+  const semanticGuardsByCode = new Map();
   const errors = [];
   const buildFunctions = sourceFile.statements.filter(node => (
     ts.isFunctionDeclaration(node)
@@ -5030,7 +5128,7 @@ function collectDoneOracleBlockerBindings(doneOracleSource) {
   if (buildFunctions.length !== 1 || !buildFunctions[0].body) {
     return {
       byCode,
-      guardRefsByCode,
+      semanticGuardsByCode,
       errors: [`${doneOraclePath}: expected exactly one buildDoneChecklist function with a body, found ${buildFunctions.length}`],
     };
   }
@@ -5066,16 +5164,17 @@ function collectDoneOracleBlockerBindings(doneOracleSource) {
           const rows = byCode.get(codeNode.text) || new Set();
           rows.add(rowIdNode.text);
           byCode.set(codeNode.text, rows);
-          const refs = guardRefsByCode.get(codeNode.text) || new Set();
-          for (const ref of collectEnclosingGuardReferences(node, sourceFile, sourceFile)) refs.add(ref);
-          guardRefsByCode.set(codeNode.text, refs);
+          const guards = semanticGuardsByCode.get(codeNode.text) || new Set();
+          const guard = collectSemanticBlockerGuard(node, sourceFile, buildFunctions[0].body);
+          if (guard) guards.add(guard);
+          semanticGuardsByCode.set(codeNode.text, guards);
         }
       }
     }
     ts.forEachChild(node, visit);
   };
   visit(buildFunctions[0].body);
-  return { byCode, guardRefsByCode, errors };
+  return { byCode, semanticGuardsByCode, errors };
 }
 
 /**
@@ -5129,11 +5228,11 @@ function checkDonePreflightPredicateInventory({ machineSource, doneOracleSource,
     if (!oracleBlockerBindings.byCode.get(code)?.has(mapping.oracleRowId)) {
       errors.push(`${doneOraclePath}: DONE blocker [${code}] has no row-local blocker binding to ${mapping.oracleRowId}`);
     }
-    const machineGuardRefs = extracted.guardRefsByCode.get(code) || new Set();
-    const oracleGuardRefs = oracleBlockerBindings.guardRefsByCode.get(code) || new Set();
-    const sharedGuardRefs = [...machineGuardRefs].filter(ref => oracleGuardRefs.has(ref));
-    if (sharedGuardRefs.length === 0) {
-      errors.push(`${doneOraclePath}: DONE blocker [${code}] row ${mapping.oracleRowId} does not consume a shared machine/oracle predicate guard`);
+    const machineSemanticGuards = extracted.semanticGuardsByCode.get(code) || new Set();
+    const oracleSemanticGuards = oracleBlockerBindings.semanticGuardsByCode.get(code) || new Set();
+    const sharedSemanticGuards = [...machineSemanticGuards].filter(guard => oracleSemanticGuards.has(guard));
+    if (sharedSemanticGuards.length === 0) {
+      errors.push(`${doneOraclePath}: DONE blocker [${code}] row ${mapping.oracleRowId} has no matching semantic blocker guard (normalized expression, polarity, emitting branch, and value provenance)`);
     }
   }
   for (const [code, rowIds] of oracleBlockerBindings.byCode) {
@@ -5230,8 +5329,83 @@ function assertDonePreflightPredicateInventoryParity() {
     'wrong-predicate mutation fixture must first establish an exact row-local [future_done_predicate] binding',
   );
   assert(
-    wrongPredicateMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('shared machine/oracle predicate guard')),
+    wrongPredicateMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('semantic blocker guard')),
     'DONE preflight inventory mutation must reject a row-local [future_done_predicate] binding guarded by an unrelated oracle predicate',
+  );
+
+  const finishDecisionBranch = `rows.push(finishDecision
+    ? doneCheckRow(finishDecisionRow)
+    : doneBlockerRow('missing_dev_memory_finish_decision', 'dev-memory-finish-decision', finishDecisionRow));`;
+  assert(doneOracleSource.includes(finishDecisionBranch), `${doneOraclePath}: finish-decision polarity mutation point missing`);
+  const invertedFinishDecisionOracleSource = doneOracleSource.replace(
+    finishDecisionBranch,
+    `rows.push(finishDecision
+    ? doneBlockerRow('missing_dev_memory_finish_decision', 'dev-memory-finish-decision', finishDecisionRow)
+    : doneCheckRow(finishDecisionRow));`,
+  );
+  const invertedFinishDecisionErrors = checkDonePreflightPredicateInventory({
+    machineSource,
+    doneOracleSource: invertedFinishDecisionOracleSource,
+    mappings,
+    registry,
+  });
+  assert(
+    !invertedFinishDecisionErrors.some(message => message.includes('[missing_dev_memory_finish_decision]') && message.includes('row-local blocker binding')),
+    'finish-decision polarity mutation fixture must retain the exact row-local blocker binding',
+  );
+  assert(
+    invertedFinishDecisionErrors.some(message => message.includes('[missing_dev_memory_finish_decision]') && message.includes('semantic blocker guard')),
+    'DONE preflight inventory mutation must reject an inverted finish-decision blocker branch',
+  );
+
+  const provenanceMachineSource = machineSource.replace(
+    marker,
+    `${marker}\n    if (storyId.length > 0) return 'Cannot enter DONE. [future_done_predicate]';`,
+  );
+  const provenanceOracleSource = doneOracleSource.replace(
+    rowsMarker,
+    `${rowsMarker}\n  if (storyId.length === 0) {\n    rows.push(doneBlockerRow('future_done_predicate', 'test-evidence', { id: 'test-evidence', status: 'fail', label: 'mutation', detail: 'mutation', source: 'mutation' }));\n  }`,
+  );
+  const provenanceMutationErrors = checkDonePreflightPredicateInventory({
+    machineSource: provenanceMachineSource,
+    doneOracleSource: provenanceOracleSource,
+    mappings: wrongRowMappings,
+    registry,
+  });
+  assert(
+    !provenanceMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('row-local blocker binding')),
+    'operator/polarity mutation fixture must retain the exact row-local blocker binding',
+  );
+  assert(
+    provenanceMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('semantic blocker guard')),
+    'DONE preflight inventory mutation must reject storyId.length > 0 versus storyId.length === 0 predicate provenance',
+  );
+
+  const machineFinishDecisionDeclaration = '    const finishDecision = readDevMemoryFinishDecision(projectRoot ?? process.cwd(), storyId);';
+  const oracleFinishDecisionDeclaration = '  const finishDecision = readDevMemoryFinishDecision(root, storyId);';
+  assert(machineSource.includes(machineFinishDecisionDeclaration), `${machinePath}: value-provenance mutation point missing`);
+  assert(doneOracleSource.includes(oracleFinishDecisionDeclaration), `${doneOraclePath}: value-provenance mutation point missing`);
+  const valueProvenanceMachineSource = machineSource.replace(
+    machineFinishDecisionDeclaration,
+    `${machineFinishDecisionDeclaration}\n    const provenanceProbe = storyId;\n    if (provenanceProbe.length > 0) return 'Cannot enter DONE. [future_done_predicate]';`,
+  );
+  const valueProvenanceOracleSource = doneOracleSource.replace(
+    oracleFinishDecisionDeclaration,
+    `${oracleFinishDecisionDeclaration}\n  const provenanceProbe = String(finishDecision);\n  if (provenanceProbe.length > 0) {\n    rows.push(doneBlockerRow('future_done_predicate', 'test-evidence', { id: 'test-evidence', status: 'fail', label: 'mutation', detail: 'mutation', source: 'mutation' }));\n  }`,
+  );
+  const valueProvenanceMutationErrors = checkDonePreflightPredicateInventory({
+    machineSource: valueProvenanceMachineSource,
+    doneOracleSource: valueProvenanceOracleSource,
+    mappings: wrongRowMappings,
+    registry,
+  });
+  assert(
+    !valueProvenanceMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('row-local blocker binding')),
+    'value-provenance mutation fixture must retain the exact row-local blocker binding',
+  );
+  assert(
+    valueProvenanceMutationErrors.some(message => message.includes('[future_done_predicate]') && message.includes('semantic blocker guard')),
+    'DONE preflight inventory mutation must reject identical guard text backed by different value provenance',
   );
 
   if (

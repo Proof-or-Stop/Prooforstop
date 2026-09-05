@@ -164,11 +164,14 @@ This parity is mechanically guarded. The process-fact registry inventories each
 literal machine-readable blocker code in `machine.ts`'s
 `targetPhase === 'DONE'` branch and maps it to both an L4 process fact and a
 row-local `doneBlockerRow` binding in `done-oracle.ts`. The verifier also proves
-that the machine blocker and oracle binding share a predicate guard, so naming
-an unrelated existing row cannot satisfy the contract. The source-first
+that the machine blocker and oracle binding use the same normalized boolean
+expression, polarity, blocker-emitting branch, and value provenance. Naming an
+unrelated existing row, inverting a branch, or reusing an identifier under a
+different operator or origin cannot satisfy the contract. The source-first
 contract verifier rejects a new literal DONE code until that mapping and exact
-binding exist, and mutation-proves unmapped, wrong-row, and wrong-predicate
-`future_done_predicate` cases in memory. Dynamic
+binding exist, and mutation-proves unmapped, wrong-row, inverted-branch,
+wrong-operator, and wrong-provenance `future_done_predicate` cases in memory.
+Dynamic
 codes returned by `evaluateReviewVerdict` remain covered by the shared
 `review-verdict` row and its explicit phase-agnostic process fact rather than by
 pretending that they are static literals.
