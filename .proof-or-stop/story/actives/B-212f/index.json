@@ -2,9 +2,9 @@
   "storyId": "B-212f",
   "name": "done-prepare-done-gate-parity",
   "title": "Make done_prepare enforce the real DONE finish-decision and reviewer-verdict predicates",
-  "description": "Fix the confirmed done_prepare/DONE predicate-parity defect exposed by B-aa5f. The Story commits the reviewed executable RED proving that real DONE rejects a missing dev_memory_finish_decision and a stale reviewer scopeBinding.diffPackHash while done_prepare omits both blocker rows, then implements a shared or mechanically parity-guarded predicate path so the unchanged test becomes GREEN with matching missing_dev_memory_finish_decision and stale_closeout_review codes. The temporary GREEN candidate is design evidence only, not delivery evidence. During development, classify every new defect by applicability and gate impact before changing scope: repair a verified applicable critical/high defect and any verified defect introduced or worsened by this Story or directly blocking acceptance, the core result, a protected surface, compatibility, or lifecycle-gate truth. A verified non-applicable critical/high defect may leave this Story only with strong current-gate nonblocking evidence and a traceable owner or route. Otherwise eligible nonblocking low/medium defects retain reproduction, evidence, impact, recommendation, and a traceable later owner through finding/gap/backlog; reassess immediately if later evidence changes applicability or gate impact.",
+  "description": "Fix the confirmed B-aa5f done_prepare/DONE parity defect. Commit the executable RED proving that real DONE rejects a missing dev_memory_finish_decision and a stale reviewer scopeBinding.diffPackHash while the original done_prepare omitted both results; then make the unchanged test GREEN with matching missing_dev_memory_finish_decision and stale_closeout_review codes. Add the process-fact omission guard and the bounded selector-window evidence repair needed to keep this Story's own mechanical verification executable. This Story does not amend the Dynamic Finding System execution plan or its lifecycle gate predicates.",
   "type": "bug",
-  "phase": "REVIEW",
+  "phase": "INIT",
   "priority": "high",
   "riskSignals": [
     {
@@ -123,6 +123,33 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-09-05T08:47:30.075Z",
+      "branch": "story/B-212f",
+      "user": "Harmonynet",
+      "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-05T08:48:56.366Z",
+      "branch": "story/B-212f",
+      "user": "Harmonynet",
+      "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-05T08:49:07.212Z",
+      "branch": "story/B-212f",
+      "user": "Harmonynet",
+      "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT",
+      "action": "advance",
+      "timestamp": "2026-09-05T08:49:19.216Z",
       "branch": "story/B-212f",
       "user": "Harmonynet",
       "sessionId": "sess-d184193f3e14ffa928c14e3eb2f7644a",
