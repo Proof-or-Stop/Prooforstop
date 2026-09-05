@@ -2309,6 +2309,85 @@
       ],
       "signatureTag": "validation-inventory-fixed-pin-maintenance",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-212f:F-047",
+      "desc": "RI-003 wave 2 docs discovery corroboration of canonical F-038, not an additional family. Unchanged-material comparison and live finding_list preserve F-038 and F-034 as open verified defects. Canonical RR-057 binds material 5f21d60f and Story files 8c9a7add; prior integrated complete reads and bounded source inspections remain current. setupTimeoutFixture at validate-progress-heartbeat-smoke.ts:159-181 still writes retired lattice.config.json, whereas brand-paths.ts:9 recognizes only proof-or-stop.config.json. The previously independently executed exact fixture/runCli matrix against main 69403365 and head, with caller timeout absent or 31090000, returned allPass:true with commands:[] for the retired filename; renaming only temporary fixture config produced the expected true-hang 1000 ms timeout and named diagnostics in every control. runCli strips the caller max and pins 120000, so no outer-budget or production-executor defect is inferred. No suites or baseline matrices repeated in wave 2. F-038 requires canonical fixture filename repair with command-presence/timeout assertions retained; F-034 remains a separate unresolved ambient-key fixture repair. No new docs root found in the bounded delta, no retired-runtime compatibility restoration requested. This is signed corroborating discovery read evidence and request-changes, not acceptance or a false PASS. Decisions title-triaged with bounded excerpts, unchanged prior full-file reads reused truthfully; no implementation, phase or owner changes.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-05T16:50:50.010Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-057",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/core/brand-env.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c1bdf1f16a842e9b692ee5147dae7651e98ef1914e8021db8fd7669cf2f079fe"
+      },
+      "readDiagnostics": [],
+      "_hash": "fdc4d8e4c8a333215cd3772171ca7f1ee4f7b21a4711a5aa40bb01bf79f2bfd8",
+      "files": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/core/brand-paths.ts",
+        "packages/main/src/core/config.ts",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "signatureTag": "canonical-timeout-fixture-filename",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
