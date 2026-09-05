@@ -237,6 +237,49 @@
       ],
       "signatureTag": "edge|ts|packages-main-core",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-212f:F-010",
+      "desc": "doc-promise-undelivered: Independent docs-lane corroboration of canonical B-212f:F-008, same root and impact, not a new defect family. docs/requirements/decisions/done-prepare-automation-execution-plan.md:153 states that done_prepare and done_closure are read-only projections. The recommended invocation at lines 93-100 sets mergeMain=true and dryRun=false, while packages/main/src/handlers/done-prepare.ts:1889-1901 skips mutation only for mergeMain=false or dryRun=true and otherwise executes git merge main --no-edit. The new command-wide read-only promise exceeds the shared readiness evaluator boundary and could cause an operator to run a mutating command as inspection. Verified by independent source/doc reads; no merge was executed. The shared evaluator and finite mutation-proof description at doc163-184 match inspected source; node packages/main/tests/red/red-done-shared-predicates.mjs independently exited 0. Repair only the changed promise wording to refer to shared readiness projection, preserving authorized merge/refresh/validate behavior. Preserve F-008 as canonical observation; inventory critic should classify this corroboration as duplicate of its live owner-bound Finding.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-docs",
+      "createdAt": "2026-09-05T12:16:51.845Z",
+      "reviewRound": "2026-09-05T12:05:43.929Z",
+      "reviewRunId": "B-212f:RR-016",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "2f590211c6a7cecfeb61d50307de6191bb5574b9fc703c6830d7143b685cd2d7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a868eb5cfc16b0b9f24921282651853c3a56377184da7dc5e76daedf686f9ec8",
+      "files": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-independent",
+      "signatureTagSource": "auto"
     }
   ]
 }
