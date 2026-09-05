@@ -291,6 +291,7 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
     'completedSnapshot must not downgrade a live shared failure');
   for (const phase of ['TEST', 'DONE']) {
     const historical = fixture(); historical.phase = phase;
+    historical.bugs.bugs = [{ id: 'legacy-status', status: 'unknown' }];
     historical.historicalEscalation = historical.escalation;
     historical.historicalFloor = historical.floor;
     historical.review = { ok: false, code: 'review_evidence_invalid', message: 'diff_pack_changed' };
@@ -300,6 +301,8 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
     const options = { gitCwd: 'GIT', completedSnapshot: { materialHash: 'historical-material', storyFilesHash: 'historical-story' } };
     const rows = h.api.buildDoneChecklist('B-probe', h.store, 'ROOT', options);
     const oracleReviewCalls = h.calls.filter(call => call[0] === 'review').length;
+    assert.equal(rows.find(row => row.id === 'bugs-fixed')?.blocking, phase === 'TEST',
+      `${phase}: legacy bug statuses retain historical presentation while active admission requires fixed`);
     for (const id of ['review-verdict', 'review-escalation', 'review-assurance-floor']) {
       const row = rows.find(row => row.id === id);
       assert.equal(row?.blocking, phase === 'TEST', `${phase}: ${id} uses the correct material domain`);
