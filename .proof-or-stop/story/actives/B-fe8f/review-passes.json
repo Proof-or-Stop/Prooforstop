@@ -2323,6 +2323,60 @@
       },
       "readDiagnostics": [],
       "_hash": "2ba916887cb76db27880b9509031d60f8c1805d2ba8283bf42f0f2828c53f81e"
+    },
+    {
+      "id": "B-fe8f:RP-063",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Round27 concept re-attestation at source 46a37452ef07 (run material 7f63da116907): PASS with no new applicable blocker. Current-host check 1 verified the exact four-file 25+/6- repair, its signed scope acknowledgement, and zero Store/finding-ledger/handler delta. Check 2 matched F050-F054 closure claims to the repaired failure surfaces and inspected 71 current mechanical evidence rows bound to source 46a37452; I did not run or claim the Owner's standalone smokes, build, refresh, full validation, quorum, TEST or DONE. Check 3 verified the six documented Lab aliases and two registered config aliases, preserved Story3 persistence/non-authority boundaries, and found no false deferral claim: F048/F049 remain suspected nonblocking with traceable compatibility-accounting routes. The summary is accurately partial. Read-only Wave4 checks observed topology inconclusive/nonblocking, pre-review PR_ARTIFACT_TAMPERED in observe/read-only/nonblocking mode, and current rollout report/policy PASS; these diagnostics are not represented as passed topology evidence.",
+      "createdAt": "2026-09-05T15:02:29.894Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "reviewRunId": "B-fe8f:RR-109",
+      "envelopeId": "7283a5c16f15edbc655b5f050f36531e404753c1389dff0a2b2024deec8fdfa1",
+      "writerSessionId": "sess-364c4a3ba0734cddb1cc1966c22c7ef6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/decision.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/summary.json",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json",
+          "packages/main/src/cli/alias-normalizer.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "docs/CLI.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/background.md",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/checklist.json",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": "Canonical RR-109 required full Story context; the current source change was bounded to four files, so previously reviewed Story3 source was re-attested incrementally while the complete current scope/closure/Wave4 surfaces were checked."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lifecycle-artifact-scope.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "12556a948472316b514d4ec3d6f1f28b6d82e3dab8aa2d98198df570a4e20f4c"
+      },
+      "readDiagnostics": [],
+      "_hash": "edc3bbb30993341d50da9715108204ddcef0e65f24f18c39eb1741dbe6d94973"
     }
   ]
 }
