@@ -1013,6 +1013,49 @@
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-043",
+      "desc": "packages/main/src/handlers/finding-ledger.ts:1852 and packages/main/src/core/finding-ledger.ts:134-135 — RI-001 wave-1 re-observation of root B-fe8f:F-038 on unchanged frozen Story material: the read-only finding_runtime_evidence_verify path still reaches the creating signer loader through findingLedgerTrustFromWorkspace, causing an undeclared write before verification. This is the same defect as F-038, not a new root. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-05T09:35:45.396Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-084",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/handlers/finding-ledger.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "2493c123a8e0bc48fae35691c28c7aaa367a1d8db5d12749dcccce9dd5723d78",
+      "files": [
+        "packages/main/src/handlers/finding-ledger.ts",
+        "packages/main/src/core/finding-ledger.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto"
     }
   ]
 }
