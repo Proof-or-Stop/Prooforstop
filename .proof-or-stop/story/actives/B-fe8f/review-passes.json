@@ -2377,6 +2377,49 @@
       },
       "readDiagnostics": [],
       "_hash": "edc3bbb30993341d50da9715108204ddcef0e65f24f18c39eb1741dbe6d94973"
+    },
+    {
+      "id": "B-fe8f:RP-064",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 27 story-level coverage PASS under the canonical full-context reviewer envelope. Reviewed all CHK-001 through CHK-006 intent/evidence mappings and reused the actual prior unchanged-source reads of background, plan, RED verifier, Section 9.3 and the bounded ledger/runtime/Store four-reader unit. Compared the frozen title/context/verificationIntent contract with edda7b58: unchanged; every item retains happy, edge and adversarial must intents. Current production strict coverage computation reports 71/71 covered, zero missing required intents and zero waivers, with material freshness true for 7f63da116907c4906ab5213e2fa1d91e6d186697c73f8d07c3a0e48ab40e09e3. Independently verified all 71 exact causal receipt identities and signatures bound to source 46a37452ef07f7d87caa18e41462bf74e81f2d71: zero invalid, 13 RED-verifier receipts and 58 full-smoke receipts. The official refresh is reused; I did not rerun build or the full suite. Read the complete edda-to-46a source delta: four files, canonical fixture config discovery, compiled repository-root correction, transport-key test canonicalization plus retained retired-name negative assertion, six Lab nested aliases and two config alias values. Original timeout, POSIX/Windows casing, explicit-overlay and English-recursion assertions remain intact. Independently executed read-only compiled alias checks for all eight mappings with and without the binary namespace, preserving help/probe argv and rejecting unknown Lab verbs: 16 positive controls passed, no writes. Read current structured F050-F054 fixed/verified resolutions. Execution provenance is explicitly layered: implementer reported actual original exec outputs for done-required-validation-smoke session84489/chunk551116, validate-progress-heartbeat-smoke session90982/chunk7981bf, english-early-check-smoke session65371/chunk84728a, and final cli-surface-smoke session70176/chunk388383, all exit0. The first three ran before the final two config-alias value fixes; the final complete CLI suite ran after those fixes and rebuild. No separately persisted focused logs or CLI-signed focused receipts were supplied, and I do not claim to have directly observed those original tool calls or to substitute the 71 intent receipts for those four suite receipts. Source review and my independent current alias controls corroborate the bounded repair; the Owner still must execute formal standard validation. F048 and F049 remain open/suspected with their original observations and routes unchanged: no cross-clone trust recovery or performance fix is claimed, and compatibility drafts are not signed deferral. Current intent_coverage_check has no gaps; acceptance_rollout_check is current pass/enforce with no diagnostics, but its six-pair cohort full-3x2 is not this Story actual independent-host quorum. This is no full standard-validation, TEST, host-quorum or DONE claim. No new coverage Finding and no source, scope, finding status or owner mutation. Bounded specification passages were read, not the whole decision corpus; the manifest distinguishes actual prior full reads from filename/title triage. After this terminal I stop all metadata and Git writes for Owner serialized validation.",
+      "createdAt": "2026-09-05T15:03:06.025Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "reviewRunId": "B-fe8f:RR-110",
+      "envelopeId": "5b9c13454edbdb37b0776f699f25cd3cf0b654f8c40b477cfb9c2dd2fa5da819",
+      "writerSessionId": "sess-6d2c0609b0d0cdcf53060e334118e702",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/background.md",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2c551a03e168ddf3a288e032575e926e0005714011f101e07fb6d88e29df425a"
+      },
+      "readDiagnostics": [],
+      "_hash": "ccae62d2e071492eae5627fc1cc82e321ffa4aa9715967cef6d7253726d9c96e"
     }
   ]
 }
