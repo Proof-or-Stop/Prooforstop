@@ -540,9 +540,9 @@
           }
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-05T11:53:54.549Z",
-      "endTime": null,
+      "endTime": "2026-09-05T11:53:55.532Z",
       "userSeesSnapshot": {
         "normalizedClaimDigest": "7f1816d0b22dc35d70cfbd8bdfea6d3a540b359d2ee731003473f06c0d30f73c",
         "storyFilesHash": "0d8ea937d9d4f58d71827d2c3a51c5ae145ede572b058e06c13875e28165e090",
@@ -1012,6 +1012,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Restore already implemented bounded selector repair after main merge f23f3d70ca; merged build and evidence-receipt smoke passed.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:53:55.532Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Verified implementer commit8b1e7bce0a and merge f23f3d70ca retain complete private output selector/digest with bounded public and persisted windows. Current merged build and evidence-receipt smoke passed; tool-owned receipts will be refreshed on committed material.",
       "agent": "proof-or-stop-implementer"
     }
   ]
