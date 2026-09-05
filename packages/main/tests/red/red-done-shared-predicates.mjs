@@ -3,7 +3,8 @@
 // the integration witness; this test isolates propagation and adapter wiring.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 import ts from 'typescript';
@@ -18,6 +19,137 @@ const functionText = (text, name) => {
   assert.ok(node?.body, `missing production function ${name}`);
   return node.getText();
 };
+
+// F027: execute the real serializer, envelope integrity, signatures and prior
+// selector, without importing a potentially stale dist build. Keep these pure
+// modules in the same realm: canonical JSON deliberately rejects foreign object
+// prototypes. No review eligibility, integrity, or signature result is mocked.
+export function runPromptEnvelopeSnapshotProof(reviewSource = readFileSync('packages/main/src/core/review-run.ts', 'utf8')) {
+  const nativeRequire = createRequire(import.meta.url);
+  const modules = new Map();
+  const load = path => {
+    path = resolve(path);
+    if (modules.has(path)) return modules.get(path);
+    const exports = {};
+    modules.set(path, exports);
+    const source = ts.transpileModule(readFileSync(path, 'utf8'), {
+      compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+    }).outputText;
+    const require = specifier => specifier.startsWith('.')
+      ? load(resolve(dirname(path), specifier.replace(/\.js$/, '.ts')))
+      : nativeRequire(specifier);
+    new Function('exports', 'require', source)(exports, require);
+    return exports;
+  };
+  const contracts = load('packages/main/src/core/prompt-contracts.ts');
+  const bindings = {
+    ...contracts,
+    ...load('packages/main/src/core/digest.ts'),
+    ...load('packages/main/src/core/agent-role-identity.ts'),
+    createHash: nativeRequire('node:crypto').createHash,
+  };
+  const envelopeSource = readFileSync('packages/main/src/core/prompt-envelope.ts', 'utf8');
+  const passSource = readFileSync('packages/main/src/core/finding-verify.ts', 'utf8');
+  const incrementalSource = readFileSync('packages/main/src/core/review-incremental-context.ts', 'utf8');
+  const constantText = (source, name) => parse(source).statements.find(node => ts.isVariableStatement(node)
+    && node.declarationList.declarations.some(declaration => declaration.name.getText() === name)).getText();
+  const parts = [constantText(reviewSource, 'REVIEW_RUN_SALT'), constantText(passSource, 'REVIEW_PASS_SALT')];
+  for (const [source, names] of [
+    [reviewSource, ['snapshotPromptEnvelopes', 'signReviewRun', 'verifyReviewRun']],
+    [envelopeSource, ['promptEnvelopeSemanticValue', 'computePromptEnvelopeId', 'verifyPromptEnvelopeIntegrity']],
+    [passSource, ['signReviewPass', 'verifyReviewPass']],
+    [incrementalSource, ['verdictTime', 'latestTrustedPriorPass']],
+  ]) for (const name of names) parts.push(functionText(source, name));
+  parts.push('export { latestTrustedPriorPass };');
+  const compiled = ts.transpileModule(parts.join('\n'), {
+    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
+  }).outputText;
+  const api = {};
+  new Function(...Object.keys(bindings), 'exports', compiled)(...Object.values(bindings), api);
+  const digest = 'a'.repeat(64);
+  const assembledPrompt = 'F027 signed prior reviewer prompt';
+  const role = 'proof-or-stop-review-test-coverage';
+  const envelope = {
+    schemaVersion: 'proof-or-stop.prompt-envelope.v1', envelopeId: digest,
+    roleId: role, lane: role, storyId: 'B-probe', dispatchKind: 'review-run',
+    reviewRunId: 'B-probe:RR-001', reviewRound: 'round-1', createdAt: '2026-09-05T00:00:00.000Z',
+    headHash: 'b'.repeat(40), materialHash: digest, storyFilesHash: digest,
+    runtimeContractVersion: '1', roleContractVersion: '1', contextMode: 'full', eligibilityDecision: 'full',
+    assemblerVersion: '1', dispatchProtocolVersion: '1', tokenEstimatorVersion: '1', bytes: 10, lines: 1, estimatedTokens: 3,
+    ...Object.fromEntries(['runtimeSemanticDigest', 'runtimeRenderDigest', 'roleSemanticDigest', 'roleRenderDigest',
+      'contextDigest', 'eligibilityDigest', 'knownExecutionEnvironmentDigest', 'launcherSpecDigest', 'commandPolicyDigest',
+      'dispatchPromptDigest', 'hostRenderIdentityDigest'].map(key => [key, digest])),
+    assembledPromptDigest: contracts.domainSeparatedDigest('assembled-prompt.raw-utf8.v1', assembledPrompt),
+  };
+  const seal = value => ({ ...value, envelopeId: api.computePromptEnvelopeId(value) });
+  const prior = value => {
+    const run = {
+      storyId: value.storyId, reviewRunId: value.reviewRunId, agent: role, lane: role, reviewRound: value.reviewRound,
+      startedAt: value.createdAt, headHash: value.headHash, materialHash: value.materialHash,
+      storyFilesHash: value.storyFilesHash, promptHash: value.assembledPromptDigest, envelopeId: value.envelopeId, assembledPrompt,
+    };
+    run._hash = api.signReviewRun(run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound,
+      run.startedAt, run.headHash, run.materialHash, run.promptHash, undefined, undefined, run.storyFilesHash, run.envelopeId);
+    const pass = {
+      id: 'RP-001', agent: role, note: 'signed prior pass', createdAt: '2026-09-05T00:01:00.000Z',
+      reviewRound: run.reviewRound, reviewRunId: run.reviewRunId, envelopeId: run.envelopeId, writerSessionId: 'fixture-reviewer',
+    };
+    pass._hash = api.signReviewPass(value.storyId, pass.id, role, pass.note, pass.createdAt, pass.reviewRound,
+      pass.reviewRunId, undefined, undefined, undefined, { writerSessionId: pass.writerSessionId }, pass.envelopeId);
+    assert.equal(api.verifyReviewRun(run), true, 'fixture has a real valid run signature');
+    assert.equal(api.verifyReviewPass(value.storyId, pass), true, 'fixture has a real envelope-bound pass signature');
+    return envelopes => api.latestTrustedPriorPass({}, value.storyId, role, [pass], [run], undefined, undefined, envelopes)?.pass.id ?? null;
+  };
+  const projection = [{ id: 'F-001', createdAt: envelope.createdAt, status: 'resolved', severity: 'low', category: 'missing', desc: 'fixture' }];
+  const withProjection = rows => ({ findingProjection: rows,
+    findingProjectionDigest: contracts.domainSeparatedDigest('prompt-finding-projection.v1', rows) });
+  for (const [name, optional] of [
+    ['legacy absent fields', { schemaVersion: 'proofbound.prompt-envelope.v1' }],
+    ['current absent fields', {}], ['absent projection', { eligibilityReasonCodes: [] }],
+    ['absent reasons', withProjection([])],
+    ['empty arrays', { eligibilityReasonCodes: [], ...withProjection([]) }],
+    ['populated arrays', { eligibilityReasonCodes: ['SAFETY_REQUIRES_FULL'], ...withProjection(projection) }],
+  ]) {
+    const raw = seal({ ...envelope, ...optional });
+    const select = prior(raw);
+    assert.equal(api.verifyPromptEnvelopeIntegrity(raw), true, `${name}: raw integrity control`);
+    assert.equal(select([raw]), 'RP-001', `${name}: raw trusted-prior control`);
+    const snapshot = api.snapshotPromptEnvelopes([raw]);
+    const observed = { rawIntegrity: true, rawPrior: 'RP-001', snapshotIntegrity: api.verifyPromptEnvelopeIntegrity(snapshot[0]), snapshotPrior: select(snapshot) };
+    console.log(`F027 ${name}: ${JSON.stringify(observed)}`);
+    assert.equal(observed.snapshotIntegrity, true, `${name}: snapshot must preserve canonical envelope integrity`);
+    assert.equal(observed.snapshotPrior, 'RP-001', `${name}: snapshot must preserve trusted prior selection`);
+    assert.equal(api.computePromptEnvelopeId(snapshot[0]), raw.envelopeId, `${name}: semantic digest unchanged`);
+    assert.deepEqual(Reflect.ownKeys(snapshot[0]), Reflect.ownKeys(raw), `${name}: absence is not own undefined`);
+    assert.ok(Object.isFrozen(snapshot) && Object.isFrozen(snapshot[0]));
+    assert.notEqual(snapshot[0], raw);
+    for (const key of ['eligibilityReasonCodes', 'findingProjection']) if (Array.isArray(raw[key])) {
+      assert.notEqual(snapshot[0][key], raw[key]);
+      assert.ok(Object.isFrozen(snapshot[0][key]));
+      assert.throws(() => snapshot[0][key].push('mutation'), TypeError);
+      if (key === 'findingProjection' && raw[key].length) {
+        assert.notEqual(snapshot[0][key][0], raw[key][0]);
+        assert.ok(Object.isFrozen(snapshot[0][key][0]));
+        raw[key][0].desc = 'store changed after snapshot';
+        assert.equal(snapshot[0][key][0].desc, 'fixture');
+      }
+      raw[key].push('store changed after snapshot');
+      assert.equal(api.verifyPromptEnvelopeIntegrity(snapshot[0]), true, `${name}: store mutation cannot alter snapshot`);
+    }
+  }
+  for (const key of ['eligibilityReasonCodes', 'findingProjection']) for (const bad of [undefined, null, 'invalid', 42, [null], [undefined], [42]]) {
+    const raw = { ...seal(envelope), [key]: bad };
+    const snapshot = api.snapshotPromptEnvelopes([raw]);
+    assert.ok(Object.hasOwn(snapshot[0], key), `${key}: explicit malformed property must not disappear`);
+    assert.deepEqual(snapshot[0][key], bad, `${key}: malformed value must not be sanitized`);
+    assert.equal(api.verifyPromptEnvelopeIntegrity(raw), false);
+    assert.equal(api.verifyPromptEnvelopeIntegrity(snapshot[0]), false, `${key}: malformed snapshot fails closed`);
+    assert.equal(prior(raw)(snapshot), null, `${key}: malformed envelope cannot become a trusted prior`);
+  }
+  const tampered = { ...seal(envelope), contextDigest: 'c'.repeat(64) };
+  assert.equal(api.verifyPromptEnvelopeIntegrity(api.snapshotPromptEnvelopes([tampered])[0]), false, 'snapshot cannot re-sign tampered evidence');
+  console.log('F027 prompt-envelope snapshot preserves absent fields, signatures, trusted prior and mutation isolation');
+}
 const tokens = text => {
   const scanner = ts.createScanner(ts.ScriptTarget.Latest, true, ts.LanguageVariant.Standard, text);
   const result = [];
@@ -371,6 +503,7 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   assert.doesNotMatch(readFileSync('docs/requirements/decisions/done-prepare-automation-execution-plan.md', 'utf8'),
     /`done_prepare` and `done_closure` are read-only projections/,
     'documentation must not claim the mutating done_prepare command is read-only');
+  runPromptEnvelopeSnapshotProof();
   console.log('Shared DONE predicate parity passed');
 }
 
