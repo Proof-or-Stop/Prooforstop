@@ -57,10 +57,14 @@ export function checkSharedDoneAdapterSources(machineSource, oracleSource) {
   else {
     const supported = [
       'const donePredicates = [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd })];',
-      'const donePredicates = [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd }, { completedSnapshot: options.completedSnapshot })];',
+      'const donePredicates = completedSnapshot ? null : [...evaluateDonePredicates({ storyId, store, projectRoot: root, gitCwd })];',
     ];
     if (!supported.some(source => tokens(source) === tokens(declaration[0].getText()))) errors.push('oracle inputs: shared DONE adapter shape changed');
   }
+  const historical = build?.body?.statements.find(node => ts.isVariableStatement(node)
+    && node.declarationList.declarations.some(entry => entry.name.getText() === 'completedSnapshot'));
+  if (historical) same(historical.getText(),
+    "const completedSnapshot = store.readStory(storyId).phase === 'DONE' ? options.completedSnapshot : undefined;", 'historical boundary');
   const returns = [];
   const visit = node => {
     if (ts.isFunctionLike(node)) return;
@@ -69,13 +73,18 @@ export function checkSharedDoneAdapterSources(machineSource, oracleSource) {
   };
   if (build?.body) ts.forEachChild(build.body, visit);
   if (returns.length !== 1 || returns[0] !== build?.body?.statements.at(-1)) errors.push('oracle return: expected exactly one final return');
-  else same(returns[0].getText(), 'return projectDonePredicateRows(rows, donePredicates);', 'oracle return');
+  else same(returns[0].getText(), historical
+    ? 'return completedSnapshot ? rows : projectDonePredicateRows(rows, donePredicates!);'
+    : 'return projectDonePredicateRows(rows, donePredicates);', 'oracle return');
   const checkReferences = node => {
     if (ts.isIdentifier(node) && node.text === 'donePredicates') {
       const parent = node.parent;
       const declarationName = ts.isVariableDeclaration(parent) && parent.name === node;
-      const consumed = ts.isCallExpression(parent)
-        && ['donePredicateValue', 'projectDonePredicateRows'].includes(parent.expression.getText());
+      const call = ts.isNonNullExpression(parent) ? parent.parent : parent;
+      const consumed = ts.isCallExpression(call)
+        && ['donePredicateValue', 'projectDonePredicateRows'].includes(call.expression.getText())
+        || ts.isConditionalExpression(parent) && parent.condition === node
+        || ts.isIfStatement(parent) && parent.expression === node;
       if (!declarationName && !consumed) errors.push('oracle outcomes: shared results may only be read by the value accessor or final projector');
     }
     ts.forEachChild(node, checkReferences);
@@ -245,13 +254,20 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   assert.ok(futureRows.some(row => row.id === 'future-done-predicate' && row.blocking && row.status === 'fail' && row.detail.includes('future_done_predicate')));
   console.log('GREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row');
 
+  const projectionCall = `projectDonePredicateRows(rows, donePredicates${oracleSource.includes('donePredicates!') ? '!' : ''})`;
+  const discardedOracle = oracleSource.replace(projectionCall, `(${projectionCall}, rows)`);
+  const skippedOracle = oracleSource.replace('const donePredicates = ', 'const donePredicates = storyId.length === 0 ? ')
+    .replace(' })];', ' })] : [];');
   const adapterMutants = [
     ['wrong root', oracleSource.replace('projectRoot: root, gitCwd', "projectRoot: 'WRONG', gitCwd")],
     ['wrong story', oracleSource.replace('evaluateDonePredicates({ storyId, store', "evaluateDonePredicates({ storyId: 'B-wrong', store")],
-    ['opposite outer path', oracleSource.replace('const donePredicates = [...evaluateDonePredicates(', 'const donePredicates = storyId.length === 0 ? [...evaluateDonePredicates(').replace(' })];', ' })] : [];')],
-    ['discarded projection result', oracleSource.replace('return projectDonePredicateRows(rows, donePredicates);', 'return (projectDonePredicateRows(rows, donePredicates), rows);')],
+    ['opposite outer path', skippedOracle],
+    ['discarded projection result', discardedOracle],
     ['early return before projection', oracleSource.replace('const rows: DoneCheckRow[] = [];', 'const rows: DoneCheckRow[] = []; if (storyId) return rows;')],
-    ['cleared shared outcomes', oracleSource.replace('return projectDonePredicateRows(rows, donePredicates);', 'donePredicates.length = 0; return projectDonePredicateRows(rows, donePredicates);')],
+    ['cleared shared outcomes', oracleSource.replace(projectionCall, `(donePredicates!.length = 0, ${projectionCall})`)],
+    ...(oracleSource.includes('const completedSnapshot =') ? [
+      ['historical exemption escaped into TEST', oracleSource.replace("phase === 'DONE' ? options.completedSnapshot", "phase === 'TEST' ? options.completedSnapshot")],
+    ] : []),
   ];
   for (const [name, mutant] of adapterMutants) {
     assert.notEqual(mutant, oracleSource, `${name}: live mutation point`);
@@ -275,7 +291,6 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
     'completedSnapshot must not downgrade a live shared failure');
   for (const phase of ['TEST', 'DONE']) {
     const historical = fixture(); historical.phase = phase;
-    historical.historicalReview = { ok: true, advisories: ['Historical DONE snapshot; current material drift'] };
     historical.historicalEscalation = historical.escalation;
     historical.historicalFloor = historical.floor;
     historical.review = { ok: false, code: 'review_evidence_invalid', message: 'diff_pack_changed' };
@@ -284,20 +299,40 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
     const h = productionConsumers(machineSource, oracleSource, historical);
     const options = { gitCwd: 'GIT', completedSnapshot: { materialHash: 'historical-material', storyFilesHash: 'historical-story' } };
     const rows = h.api.buildDoneChecklist('B-probe', h.store, 'ROOT', options);
+    const oracleReviewCalls = h.calls.filter(call => call[0] === 'review').length;
     for (const id of ['review-verdict', 'review-escalation', 'review-assurance-floor']) {
       const row = rows.find(row => row.id === id);
       assert.equal(row?.blocking, phase === 'TEST', `${phase}: ${id} uses the correct material domain`);
     }
     assert.equal(h.api.canFinishGuard(h.context), false, `${phase}: default guard remains live-strict`);
     const injected = productionConsumers(future, oracleSource, historical);
-    assert.ok(injected.api.buildDoneChecklist('B-probe', injected.store, 'ROOT', options)
-      .some(row => row.id === 'future-done-predicate' && row.blocking), `${phase}: historical projection forwards future predicates`);
-    historical.historicalReview = { ok: false, code: 'review_evidence_invalid', message: 'invalid signature after material drift' };
+    assert.equal(injected.api.buildDoneChecklist('B-probe', injected.store, 'ROOT', options)
+      .some(row => row.id === 'future-done-predicate' && row.blocking), phase === 'TEST', `${phase}: future admission predicates are generic, historical presentation is not admission`);
+    if (phase === 'DONE') {
+      assert.equal(oracleReviewCalls, 0, 'historical query must not silently rerun live reviewer eligibility');
+      const info = rows.find(row => row.id === 'review-verdict');
+      assert.equal(info.status, 'warn');
+      assert.match(info.detail, /not a fresh reviewer PASS/);
+    }
+    historical.review = { ok: false, code: 'review_evidence_invalid', message: 'invalid signature after material drift' };
     const invalid = productionConsumers(machineSource, oracleSource, historical);
-    assert.ok(invalid.api.buildDoneChecklist('B-probe', invalid.store, 'ROOT', options)
-      .some(row => row.id === 'review-verdict' && row.blocking), `${phase}: integrity rejection is never blanket downgraded`);
+    assert.equal(invalid.api.buildDoneChecklist('B-probe', invalid.store, 'ROOT', options)
+      .some(row => row.id === 'review-verdict' && row.blocking), phase === 'TEST', `${phase}: historical row is not a newly asserted reviewer audit`);
+    historical.historicalEscalation = { ...historical.historicalEscalation, ok: false, required: true, reason: 'missing historical host evidence' };
+    const missing = productionConsumers(machineSource, oracleSource, historical);
+    assert.ok(missing.api.buildDoneChecklist('B-probe', missing.store, 'ROOT', options)
+      .some(row => row.id === 'review-escalation' && row.blocking), `${phase}: existing assurance integrity remains blocking`);
   }
-  console.log('GREEN historical DONE projection: snapshot assurance, strict TEST, integrity blockers and generic future predicate');
+  console.log('GREEN historical DONE presentation: original assurance preserved; no new reviewer PASS/audit; TEST future predicates remain strict');
+  if (oracleSource.includes('const completedSnapshot =')) {
+    const escaped = productionConsumers(future, oracleSource.replace("phase === 'DONE' ? options.completedSnapshot", "phase === 'TEST' ? options.completedSnapshot"), fixture());
+    assert.throws(() => {
+      const rows = escaped.api.buildDoneChecklist('B-probe', escaped.store, 'ROOT', {
+        gitCwd: 'GIT', completedSnapshot: { materialHash: 'historical-material' },
+      });
+      assert.ok(rows.some(row => row.id === 'future-done-predicate' && row.blocking), 'TEST must consume every future admission predicate');
+    }, { name: 'AssertionError' }, 'executable historical-phase escape mutation is killed');
+  }
   const stricter = [{ id: 'test-evidence', status: 'fail', blocking: true, detail: 'stricter preflight', source: 'fixture', label: 'test' }];
   const strictWitness = productionConsumers(machineSource, oracleSource, fixture());
   const strictProjection = strictWitness.api.projectDonePredicateRows(stricter, [...strictWitness.api.evaluateDonePredicates(strictWitness.context)]);
@@ -313,7 +348,7 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
   // assertion rejects their false pass. Shape checking alone is insufficient.
   const runtimeMutants = [
     ['inverted boolean outcome', future.replace('return firstDonePredicateFailure(context) === null;', 'return firstDonePredicateFailure(context) !== null;'), oracleSource],
-    ['discarded oracle projection', future, oracleSource.replace('return projectDonePredicateRows(rows, donePredicates);', 'return (projectDonePredicateRows(rows, donePredicates), rows);')],
+    ['discarded oracle projection', future, discardedOracle],
     ['inverted projector failure branch', future, oracleSource.replace('if (result.ok) continue;', 'if (!result.ok) continue;')],
   ];
   for (const [name, mutantMachine, mutantOracle] of runtimeMutants) {
@@ -325,8 +360,6 @@ export function runSharedDonePredicateProof(machineSource = readFileSync(machine
       assert.ok(emitted.some(row => row.id === 'future-done-predicate' && row.blocking && row.status === 'fail'), `${name}: oracle must fail`);
     }, { name: 'AssertionError' }, `${name}: executable mutation must be killed`);
   }
-  const skippedOracle = oracleSource.replace('const donePredicates = [...evaluateDonePredicates(', 'const donePredicates = storyId.length === 0 ? [...evaluateDonePredicates(')
-    .replace(' })];', ' })] : [];');
   assert.notEqual(skippedOracle, oracleSource);
   const skipped = productionConsumers(future, skippedOracle, fixture());
   assert.throws(() => skipped.api.buildDoneChecklist('B-probe', skipped.store, 'ROOT', { gitCwd: 'GIT' }),

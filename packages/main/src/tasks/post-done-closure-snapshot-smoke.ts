@@ -26,10 +26,10 @@ import { runDoneRequiredValidation } from '../core/done-required-validation.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
-import { signReviewRun, verifyReviewRun, buildReviewRunWorkspaceBinding, hashReviewPrompt, collectReviewerEvidenceState, evaluatePersistedReviewToTestIndexTransition, evaluateReviewRunMetadataRetention } from '../core/review-run.js';
+import { signReviewRun, buildReviewRunWorkspaceBinding, hashReviewPrompt, collectReviewerEvidenceState } from '../core/review-run.js';
 import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
-import { signReviewPass, signFinding } from '../core/finding-verify.js';
-import { computeReviewScopeBinding, signReviewScopeBinding } from '../core/review-scope-binding.js';
+import { signReviewPass } from '../core/finding-verify.js';
+import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
 import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
 import { evaluateReviewVerdict } from '../core/machine.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
@@ -307,52 +307,10 @@ function resignRun(run: ReviewRun): ReviewRun {
     assert.equal(doneRunbook.blockers.find((row) => row.id === 'delivery-check')?.status, 'warn');
     assert.equal(doneRunbook.blockers.find((row) => row.id === 'done-required-validation')?.status, 'warn');
     assert.equal(doneRunbook.blockers.find((row) => row.id === 'review-escalation')?.status, 'pass');
-    assert.equal(doneRunbook.blockers.find((row) => row.id === 'review-verdict')?.status, 'warn', 'historical reviewer drift is an explicit advisory');
+    assert.equal(doneRunbook.blockers.find((row) => row.id === 'review-verdict')?.status, 'warn', 'historical reviewer eligibility is explicitly not re-evaluated');
     assert.equal(evaluateReviewVerdict({ storyId: STORY_ID, store, projectRoot: root, gitCwd: root }).ok, false,
       'default reviewer verdict stays live-strict even for DONE');
-    const savedPasses = store.readReviewPasses(STORY_ID);
-    for (const mutate of [
-      () => { store.writeReviewPasses(STORY_ID, { passes: [] }); },
-      () => { const passes = structuredClone(savedPasses); passes.passes[0].note += 'tampered'; store.writeReviewPasses(STORY_ID, passes); },
-    ]) {
-      mutate();
-      assert.ok(buildDoneClosureRunbook(ctx, STORY_ID).blockers.some(row => row.id === 'review-verdict' && row.blocking),
-        'historical projection cannot hide missing or tampered passes after drift');
-      store.writeReviewPasses(STORY_ID, savedPasses);
-    }
     const savedRuns = store.readReviewRuns(STORY_ID);
-    const tamperedRuns = structuredClone(savedRuns);
-    tamperedRuns.runs[0].scopeBinding!.reviewedIntentRefs = ['tampered-but-outer-run-signature-stays-valid'];
-    assert.ok(verifyReviewRun(tamperedRuns.runs[0]), 'control: nested scope tamper is masked behind freshness, not the outer run signature');
-    store.writeReviewRuns(STORY_ID, tamperedRuns);
-    assert.ok(buildDoneClosureRunbook(ctx, STORY_ID).blockers.some(row => row.id === 'review-verdict' && row.blocking),
-      'scope signature rejection survives historical material drift');
-    store.writeReviewRuns(STORY_ID, savedRuns);
-    assert.equal(buildDoneClosureRunbook(ctx, STORY_ID).blockers.find(row => row.id === 'review-verdict')?.status, 'warn', 'restored signatures restore historical advisory');
-    // More than the verdict's five rendered messages: validation must inspect
-    // every record, never classify a truncated diagnostic string as authority.
-    const manyPasses = structuredClone(savedPasses);
-    for (let i = 5; i < 8; i += 1) {
-      const pass = { ...savedPasses.passes[0], id: `RP-${i}` };
-      pass._hash = signReviewPass(STORY_ID, pass.id, pass.agent, pass.note, pass.createdAt, pass.reviewRound!, pass.reviewRunId);
-      manyPasses.passes.push(pass);
-    }
-    manyPasses.passes.at(-1)!.note += 'late-corruption';
-    store.writeReviewPasses(STORY_ID, manyPasses);
-    assert.ok(buildDoneClosureRunbook(ctx, STORY_ID).blockers.some(row => row.id === 'review-verdict' && row.blocking),
-      'late corrupted evidence cannot be hidden by the first five drift observations');
-    store.writeReviewPasses(STORY_ID, savedPasses);
-    const finding = { id: 'F-historical', desc: 'Signed open acceptance blocker', severity: 'high' as const, category: 'adversarial' as const,
-      status: 'open' as const, agent: savedRuns.runs[0].lane, createdAt: NOW, reviewRound: 'round-1', reviewRunId: savedRuns.runs[0].reviewRunId };
-    store.writeFindings(STORY_ID, { findings: [{ ...finding,
-      _hash: signFinding(STORY_ID, finding.id, finding.desc, finding.severity, NOW, 'round-1', finding.reviewRunId) }] });
-    assert.ok(buildDoneClosureRunbook(ctx, STORY_ID).blockers.some(row => row.id === 'review-verdict' && row.reason.includes('review_finding_blocking') && row.blocking),
-      'historical drift cannot hide a signed open blocking finding');
-    store.writeFindings(STORY_ID, { findings: [] });
-    const mismatchOptions = { completedSnapshot: { materialHash: 'different-snapshot', storyFilesHash } };
-    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root, mismatchOptions as Parameters<typeof collectReviewerEvidenceState>[3]).invalid.length > 0,
-      'matching empty story hash is no signal and cannot bridge a mismatched material snapshot');
-
     const retiredRoot = join(root, '.retired-review-worktree');
     git(root, ['worktree', 'add', '--detach', retiredRoot, savedRuns.runs[0].headHash]);
     const relocatedRuns = { runs: savedRuns.runs.map(run => resignRun({ ...run, workspaceBinding: buildReviewRunWorkspaceBinding({
@@ -361,32 +319,33 @@ function resignRun(run: ReviewRun): ReviewRun {
     }) })) };
     git(root, ['worktree', 'remove', retiredRoot]);
     store.writeReviewRuns(STORY_ID, relocatedRuns);
-    assert.equal(buildDoneClosureRunbook(ctx, STORY_ID).blockers.find(row => row.id === 'review-verdict')?.status, 'warn',
-      'actual removed signed workspace and metadata roots preserve verified historical evidence');
     assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.length > 0,
       'default collector still rejects a retired live workspace');
-    for (const mutate of [
-      (run: ReviewRun) => { run.workspaceBinding!.metadataRoot += '-tampered'; return run; },
-      (run: ReviewRun) => { run.storyId = 'B-wrong-story'; return resignRun(run); },
-      (run: ReviewRun) => { run.promptHash = 'changed-role-prompt'; return resignRun(run); },
-      (run: ReviewRun) => { run.envelopeId = 'missing-historical-envelope'; return resignRun(run); },
-      (run: ReviewRun) => {
-        run.headHash = '1'.repeat(40);
-        run.workspaceBinding = buildReviewRunWorkspaceBinding({ ...run.workspaceBinding!, headHash: run.headHash });
-        return resignRun(run);
-      },
-      (run: ReviewRun) => {
-        run.materialHash = 'not-the-signed-head-material';
-        run.workspaceBinding = buildReviewRunWorkspaceBinding({ ...run.workspaceBinding!, materialHash: run.materialHash });
-        return resignRun(run);
-      },
-    ]) {
-      const invalid = structuredClone(relocatedRuns); invalid.runs[0] = mutate(invalid.runs[0]);
-      store.writeReviewRuns(STORY_ID, invalid);
-      assert.ok(buildDoneClosureRunbook(ctx, STORY_ID).blockers.some(row => row.id === 'review-verdict' && row.blocking),
-        'historical relocation rejects tampered binding, wrong Story, missing signed commit or mismatched signed material');
+    // Historical presentation deliberately does not adjudicate live legacy,
+    // full or incremental reviewer eligibility. Unsupported/invalid shapes
+    // below are NOT accepted evidence: the row must remain informational and
+    // never claim a reviewer PASS, while the live admission reader still fails.
+    for (const mode of ['legacy', 'full', 'incremental']) {
+      const historicalRuns = structuredClone(relocatedRuns);
+      if (mode !== 'legacy') {
+        historicalRuns.runs[0].envelopeId = `unavailable-${mode}-historical-envelope`;
+        historicalRuns.runs[0].assembledPrompt = `${mode} historical eligibility is not replayed`;
+      }
+      store.writeReviewRuns(STORY_ID, historicalRuns);
+      const info = buildDoneClosureRunbook(ctx, STORY_ID).blockers.find(row => row.id === 'review-verdict');
+      assert.equal(info?.status, 'warn', `${mode}: historical reviewer is informational`);
+      assert.equal(info?.blocking, false);
+      assert.match(info?.reason ?? '', /not a fresh reviewer PASS/);
+      assert.match(info?.reason ?? '', /not re-evaluated/);
+      assert.equal(evaluateReviewVerdict({ storyId: STORY_ID, store, projectRoot: root, gitCwd: root }).ok, false,
+        `${mode}: default live reviewer admission stays strict`);
     }
     store.writeReviewRuns(STORY_ID, savedRuns);
+    const readRuns = store.readReviewRuns.bind(store);
+    store.readReviewRuns = () => { throw new Error('historical reviewer storage intentionally unavailable'); };
+    assert.equal(buildDoneClosureRunbook(ctx, STORY_ID).blockers.find(row => row.id === 'review-verdict')?.status, 'warn',
+      'historical presentation does not silently attempt a new reviewer audit');
+    store.readReviewRuns = readRuns;
 
     const savedDelivery = store.readDeliveryCheck(STORY_ID)!;
     for (const docsPromises of [undefined, null, {}, [null], [3]]) {
@@ -422,47 +381,6 @@ function resignRun(run: ReviewRun): ReviewRun {
       .some(row => row.id === 'review-verdict' && row.blocking), 'TEST cannot opt into historical reviewer projection');
     assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.length > 0, 'default collection is current-material strict');
 
-    // Exercise composite-scope metadata retention separately from the legacy
-    // fixture above, with a real immutable REVIEW index and canonical DONE
-    // cleanup. The production metadata checker must still reject all other
-    // index edits and unreceipted artifacts after current material drift.
-    const reviewedIndex: StoryInfo = { ...unfinished, phase: 'REVIEW', events: [],
-      worktree: { path: 'retired-story-worktree', branch: `story/${STORY_ID}`, createdAt: NOW } };
-    store.writeStory(STORY_ID, reviewedIndex);
-    const indexPath = `.proof-or-stop/story/actives/${STORY_ID}/index.json`;
-    git(root, ['add', '-f', indexPath]); git(root, ['commit', '-m', 'signed REVIEW index']);
-    const retainedRun = structuredClone(savedRuns.runs[0]);
-    retainedRun.headHash = currentGitHead(root)!;
-    retainedRun.materialHash = currentMaterialHash(root, 'HEAD', root)!;
-    retainedRun.storyFilesHash = currentStoryFilesHash(root, 'HEAD', root) ?? undefined;
-    retainedRun.scopeBinding!.compositeScopeDigest = 'stable-composite-fixture';
-    retainedRun.scopeBinding!.bindingHash = signReviewScopeBinding(retainedRun.scopeBinding!);
-    const retained = resignRun(retainedRun);
-    const historicalSnapshot = { materialHash: retained.materialHash, storyFilesHash: retained.storyFilesHash };
-    const completedIndex: StoryInfo = { ...reviewedIndex, phase: 'DONE', endedAt: NOW, worktree: undefined,
-      events: [{ phase: 'TEST', action: 'advance', timestamp: NOW }, { phase: 'DONE', action: 'advance', timestamp: NOW }] };
-    store.writeStory(STORY_ID, completedIndex);
-    const indexCheck = evaluatePersistedReviewToTestIndexTransition as (...args: unknown[]) => { ok: boolean };
-    assert.equal(indexCheck(root, indexPath, retained, completedIndex).ok, false, 'default index retention is TEST-only');
-    assert.equal(indexCheck(root, indexPath, retained, completedIndex, historicalSnapshot).ok, true, 'canonical historical DONE index and worktree removal are retained');
-    assert.equal(indexCheck(root, indexPath, retained, { ...completedIndex, title: 'unauthorized changed title' }, historicalSnapshot).ok, false,
-      'historical index does not exempt arbitrary stable-field edits');
-    assert.equal(indexCheck(root, indexPath, retained, { ...completedIndex, worktree: { ...reviewedIndex.worktree!, path: 'replacement' } }, historicalSnapshot).ok, false,
-      'historical index permits worktree removal, not worktree substitution');
-    git(root, ['add', '-f', indexPath]); git(root, ['commit', '-m', 'canonical DONE index']);
-    writeFileSync(join(root, 'packages/main/src/index.ts'), 'export const value = 3;\n');
-    git(root, ['add', 'packages/main/src/index.ts']); git(root, ['commit', '-m', 'post-DONE material drift']);
-    const scopeContext = { scopeContractHash: retained.scopeBinding!.scopeContractHash!, diffPackHash: retained.scopeBinding!.diffPackHash!,
-      hunkDigests: retained.scopeBinding!.reviewedHunkDigests, compositeScopeDigest: 'stable-composite-fixture' };
-    const retentionCheck = evaluateReviewRunMetadataRetention as (...args: unknown[]) => { ok: boolean; reasons: string[] };
-    assert.equal(retentionCheck(store, completedIndex, retained, root, scopeContext).ok, false, 'default metadata retention remains live-strict');
-    const historicalRetention = retentionCheck(store, completedIndex, retained, root, scopeContext, historicalSnapshot);
-    assert.equal(historicalRetention.ok, true, `historical retention preserves canonical cleanup: ${historicalRetention.reasons}`);
-    const summaryPath = `.proof-or-stop/story/actives/${STORY_ID}/summary.json`;
-    writeFileSync(join(root, summaryPath), '{"tampered":true}\n');
-    git(root, ['add', '-f', summaryPath]); git(root, ['commit', '-m', 'unreceipted closeout artifact mutation']);
-    assert.equal(retentionCheck(store, completedIndex, retained, root, scopeContext, historicalSnapshot).ok, false,
-      'historical material drift never skips closeout artifact integrity/lineage');
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();
