@@ -842,6 +842,7 @@
       "signatureTag": "adversarial|unknown|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoe9li8_2uz_5a2b0568a79a4a86816c9bf05035d5e2",
+      "ledgerCommitReceiptId": "lrc_mtoe9li9_2uz_a358f1947da14e29afcaccbc2d8033ac",
       "resolvedAt": "2026-09-05T13:04:08.496Z",
       "resolvedReason": "Fixed by exact discriminated variant validation in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b and complete signed envelope validation in e0a79946e70ac8a026b845ff7180ec311907d72e. Correctly signed malformed variant payloads are rejected, including null required base/head proof; legitimate six-variant cases and legal optional identity bindings remain accepted. Current full pinned refresh includes proposal shape/envelope negative and positive controls. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
       "resolutionType": "fixed",
@@ -1095,7 +1096,7 @@
       "desc": "packages/main/src/handlers/finding-ledger.ts:729-786 — RI-001 wave-1 re-observation of root B-fe8f:F-035 on unchanged frozen Story material: non-applicable assessment proposal variants still validate the discriminant but not the variant payload shape, so the previously demonstrated signed pre_existing_unaffected proposal with baseHead:null remains accepted instead of failing closed. This is the same defect as F-035, not a new root. Severity: high.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T09:35:40.274Z",
@@ -1130,7 +1131,12 @@
         "packages/main/src/handlers/finding-ledger.ts"
       ],
       "signatureTag": "adversarial|ts|packages-main-handlers",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtoe9nch_40d_4b71bd66c12e4961b5e3b88c3c9ee704",
+      "resolvedAt": "2026-09-05T13:04:10.881Z",
+      "resolvedReason": "Fixed by exact discriminated variant validation in cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b and complete signed envelope validation in e0a79946e70ac8a026b845ff7180ec311907d72e. Correctly signed malformed variant payloads are rejected, including null required base/head proof; legitimate six-variant cases and legal optional identity bindings remain accepted. Current full pinned refresh includes proposal shape/envelope negative and positive controls. Final pinned-refresh evidence commit: 92a74dee07e5068a7000c3d69a69ce01f571cfde; 71/71 refreshed in 351.0 seconds against edda7b58.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-043",
