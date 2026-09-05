@@ -876,6 +876,58 @@
       ],
       "signatureTag": "missing|ts|wave-attestation-fe8f",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-fe8f:F-040",
+      "desc": "RI-001 wave 1 re-attestation of B-fe8f:F-037 on unchanged frozen material 0d6a1ddb: packages/main/src/tasks/finding-ledger-runtime-smoke.ts:1818,2009-2026 creates/loads the ledger signer before exercising finding_ledger_query, while production packages/main/src/handlers/finding-ledger.ts:1702-1722 calls findingLedgerSignerFromWorkspace and packages/main/src/core/finding-ledger.ts:111-121 writes a new key when absent. The query.protected_read_only selector therefore still lacks a cold-start no-key and write-denied-filesystem test, so CHK-005 does not prove the registered read-only command performs no mutation or has deterministic no-write behavior. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-05T09:34:07.150Z",
+      "reviewRound": "2026-09-05T09:19:48.861Z",
+      "reviewRunId": "B-fe8f:RR-083",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "packages/main/src/core/audit-meta-store.ts",
+          "packages/main/src/core/cluster-sync.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/cluster.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/signature-backfill.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "6eeeabcd839f3d6b8bbfdf6bdf7ef02bd8e71e8c909dede294bff7c3ffd46498"
+      },
+      "readDiagnostics": [],
+      "_hash": "0a24086e3089f8a0ad6ba1c44a7498295efcc0efb6033863c68141109195d00c",
+      "files": [
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+        "packages/main/src/handlers/finding-ledger.ts",
+        "packages/main/src/core/finding-ledger.ts"
+      ],
+      "signatureTag": "missing|ts|wave-attestation-fe8f",
+      "signatureTagSource": "auto"
     }
   ]
 }
