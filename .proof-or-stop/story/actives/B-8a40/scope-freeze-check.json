@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-8a40",
+  "checkedAt": "2026-09-06T16:15:59.276Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "586fc55802e4236b1ba3743102e3ec1df471e3d4f47e8666887c8d3ec70b18bc",
+  "executionBoundaryHash": "2b2284d1b418fb5699c0d81eec86f125370965619a0a487cc7f7bec82aa54be7",
+  "freshnessHash": "5a4f71397f89ca6c57f4ffe1a9596cd2fcbd1451205499d5396384684c9ef9b3",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "B-bcae metadata writes",
+    "customerKeyRef",
+    "General language parser",
+    "Layer4",
+    "Lifecycle state machine",
+    "repair UX",
+    "Unrelated policy files"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "B-bcae metadata writes",
+      "source": "scopeBoundary.excluded",
+      "text": "B-bcae metadata writes",
+      "excluded": true
+    },
+    {
+      "keyword": "General language parser",
+      "source": "checklist.excludes",
+      "text": "A general language parser or exact sentence allowlist",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "General language parser",
+      "source": "scopeBoundary.excluded",
+      "text": "General language parser",
+      "excluded": true
+    },
+    {
+      "keyword": "Lifecycle state machine",
+      "source": "scopeBoundary.excluded",
+      "text": "Lifecycle state machine",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated policy files",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated policy files",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "35c537b7ebd915783003ce552cb94e92ebcfc59d24e0402601ae52c4bef437c2"
+}

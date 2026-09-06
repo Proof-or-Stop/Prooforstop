@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-8a40",
+  "mode": "correctness_fix",
+  "allowed": [
+    "Focused full-context smoke",
+    "Local merge before B-bcae resumes",
+    "Prompt-envelope classifier"
+  ],
+  "excluded": [
+    "B-bcae metadata writes",
+    "General language parser",
+    "Lifecycle state machine",
+    "Unrelated policy files"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "User authorized this bounded supporting repair on 2026-09-06 until B-bcae reaches DONE.",
+  "createdAt": "2026-09-06T16:15:18.648Z",
+  "updatedAt": "2026-09-06T16:15:18.648Z",
+  "_hash": "586fc55802e4236b1ba3743102e3ec1df471e3d4f47e8666887c8d3ec70b18bc"
+}

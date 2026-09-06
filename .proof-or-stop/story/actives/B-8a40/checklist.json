@@ -1,0 +1,159 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Implement and verify the bounded classifier repair",
+      "context": "Port the test-first work from immutable commits 30f1f5e1da and 12363ef512. Immutable review evidence at commit 0becd913c2 defines the original adjacent, causal, ownership, direct-outside, and benign-intervening witnesses. Also cover the later read-only probes beginning Accordingly, For that reason, and So, and make the broad-filter mutant fail independently for every witness rather than stopping at the first escape.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "userSees": "The focused smoke prints exactly \"prompt full-context envelope smoke PASS\" after exercising the exact B-bcae text, the full unsafe matrix, and both dynamic mutants across every active reviewer role.",
+      "excludes": [
+        "Live B-bcae reviewer writes from this supporting Story",
+        "Lifecycle transition changes",
+        "A general language parser or exact sentence allowlist",
+        "Unrelated policy changes",
+        "Files outside the classifier and focused smoke"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The exact current B-bcae Story description, captured through the canonical CLI and frozen byte-for-byte in the focused smoke, assembles an integrity-valid full REVIEW envelope for every active modular reviewer role without a pre-digest safety error.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A second safe wording with equivalent sentence boundaries assembles an integrity-valid envelope for every active modular reviewer role, proving the result is not an exact-sentence allowlist.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake as out of scope.\" Expected result: validation must reject this input.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. It is out of scope.\" Expected result: validation must reject this input.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Consequently, the issue is out of scope.\" Expected result: validation must reject this input.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Therefore another Story owns it.\" Expected result: validation must reject this input.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. The work is outside this Story.\" Expected result: validation must reject this input.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Evidence is preserved. It proves the work is out of scope.\" Expected result: validation must reject this input.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. Accordingly, the issue is out of scope.\" Expected result: validation must reject this input.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. For that reason, the work is outside this Story.\" Expected result: validation must reject this input.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Negative fixture: \"No parent Finding is closed by this intake. So another Story owns it.\" Expected result: validation must reject this input.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutate the built production module by removing the bounded safe narrowing, execute both safe fixtures across every active modular reviewer role while retaining the complete unsafe fixture matrix, and prove contract tests fail for the mutation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "Mutate the built production module to reproduce broad negative-segment deletion, assert every unsafe witness independently across every active modular reviewer role, and prove the guard rejects the mutation without short-circuiting after one escaped witness.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
