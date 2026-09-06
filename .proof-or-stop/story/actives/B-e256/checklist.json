@@ -351,18 +351,27 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "proof-or-stop doctor reports a resolved passing global-core-realpath fact with verified realpath, version, observed mode and executable state through a host-independent contract marker",
+            "desc": "Doctor emits the host-independent global-core pass marker only after the resolved package and PATH-selected command agree and the host executable contract is verified",
             "type": "cli",
             "priority": "must",
             "verification": {
               "command": "node packages/main/dist/cli.js doctor",
               "selector": "contract: global-core-realpath-pass"
             }
+          },
+          {
+            "desc": "The cross-platform fixture validates POSIX executable access and an actual representative Windows npm command shim instead of treating Windows executable state as unconditional",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/global-core-realpath.test.mjs",
+              "selector": "ok global-core-realpath"
+            }
           }
         ],
         "edge": [
           {
-            "desc": "When no global proof-or-stop is on PATH the row is informational (not a warning) and names how to link one",
+            "desc": "When the global package is absent the row is informational and names how to link one",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -371,8 +380,17 @@
             }
           },
           {
-            "desc": "packages/main/tests/global-core-realpath.test.mjs keeps passing canonical, drift and non-git cases and covers platform-specific executable semantics",
-            "type": "cli",
+            "desc": "When the global package exists but no proof-or-stop command resolves on PATH, doctor does not emit the pass marker and provides a host-valid relink command",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/global-core-realpath.test.mjs",
+              "selector": "ok global-core-realpath"
+            }
+          },
+          {
+            "desc": "The fixture cannot emit the must selector after a zero-assertion or whole-suite capability skip; non-link Windows assertions still execute",
+            "type": "logic",
             "priority": "must",
             "verification": {
               "command": "node packages/main/tests/global-core-realpath.test.mjs",
@@ -382,7 +400,25 @@
         ],
         "adversarial": [
           {
-            "desc": "Realpath drift warns with an exact host-shell repoint command; POSIX non-executable targets get chmod while Windows treats mode as display-only and validates the npm command-shim contract",
+            "desc": "Realpath drift renders exact host-shell remediation: POSIX uses quoted shell commands and Windows uses an encoded PowerShell LiteralPath payload that preserves spaces, apostrophes, and percent tokens",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/global-core-realpath.test.mjs",
+              "selector": "ok global-core-realpath"
+            }
+          },
+          {
+            "desc": "Final or intermediate bin-target symlink escapes and realpath probe failures remain non-pass with resolved-path or errno evidence",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/global-core-realpath.test.mjs",
+              "selector": "ok global-core-realpath"
+            }
+          },
+          {
+            "desc": "A missing, unreadable, or target-mismatched Windows npm command shim remains non-pass and never emits the healthy contract marker",
             "type": "logic",
             "priority": "must",
             "verification": {
