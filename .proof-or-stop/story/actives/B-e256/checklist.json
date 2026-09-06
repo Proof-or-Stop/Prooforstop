@@ -31,7 +31,7 @@
             }
           },
           {
-            "desc": "node packages/main/tests/red/red-global-cli-exec-bit.mjs (evidence pack copy until CHK-002 commits it) exits 0 with the GREEN summary",
+            "desc": "The registered red regression exits zero with the GREEN summary after the promotion repair",
             "type": "cli",
             "priority": "must",
             "verification": {
@@ -42,7 +42,7 @@
         ],
         "edge": [
           {
-            "desc": "promoteDist on a package whose bin target is absent (first build, partial fixture) completes without throwing and restores nothing",
+            "desc": "A package whose declared bin target is absent completes without throwing and restores nothing",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -51,19 +51,28 @@
             }
           },
           {
-            "desc": "A second build right after the chmod takes the content-bound fast path (verifyBuildBinding passes), proving mode bits are not part of the binding digest",
+            "desc": "A second build after restoration may take the content-bound fast path because mode bits are outside the byte-content binding digest",
             "type": "cli",
             "priority": "should"
           }
         ],
         "adversarial": [
           {
-            "desc": "A package.json with no bin field, or an unreadable package.json, leaves promoteDist behaviour byte-identical to before (no throw, no chmod)",
+            "desc": "A package manifest with no bin field, syntactically invalid JSON, or ENOENT remains a benign empty-bin case",
             "type": "logic",
             "priority": "must",
             "verification": {
               "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
               "selector": "GREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing"
+            }
+          },
+          {
+            "desc": "A non-absence package manifest read failure propagates and aborts promotion before the old dist is evicted",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
+              "selector": "GREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction"
             }
           }
         ]
