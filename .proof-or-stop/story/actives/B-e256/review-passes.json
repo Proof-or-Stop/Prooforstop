@@ -438,6 +438,41 @@
         "scanEscalationReason": null
       },
       "_hash": "7211df892f3b74be3d81929cc9070a53b11fa231421aa4e52f89dc635f4e64cb"
+    },
+    {
+      "id": "B-e256:RP-017",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No NEW verified concept-deletion or residual-reference finding family beyond existing F-006/F-007. Reviewed the frozen main...HEAD candidate, checked deleted/replaced identifiers repository-wide, confirmed the retained globalNpmRootResolver is explicitly documented legacy compatibility, verified both build scripts use shared promoteDist, and verified the current signed acceptance rollout PASS is full-3x2 across codex-cli and claude-cli with no rollout diagnostics.",
+      "createdAt": "2026-09-06T13:36:06.450Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-027",
+      "envelopeId": "a5e672cba64e592dbe081d145912b0e22ad05a2a7b43480a5b825b70c4fb9162",
+      "writerSessionId": "sess-181fd0aa3e124111e5bb4023eb7b0ed6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "4abd0b5117dbe9067524b6236daa32f3c88b3af4a6a7f9cf1c7d59b057dcd0cc"
     }
   ]
 }
