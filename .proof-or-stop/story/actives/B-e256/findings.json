@@ -946,6 +946,65 @@
       ],
       "signatureTag": "edge|json|quality-win32-pinned",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e256:F-026",
+      "desc": "test-coverage-win32-global-core-contract: .proof-or-stop/story/actives/B-e256/checklist.json:365-381 pins three CHK-003 must intents to `node packages/main/tests/global-core-realpath.test.mjs`, but packages/main/tests/global-core-realpath.test.mjs:107-110 unconditionally creates a directory symlink with no Windows capability probe and :201-217 universally requires a 0644 target to be non-executable with a `chmod +x` remediation. Production packages/main/src/core/runtime-environment-checks.ts:667-672 explicitly short-circuits the executable access probe to true on win32 because Windows has no POSIX execute-bit contract. Read-only probes verified both failure paths: with simulated win32 and symlink support the test exits 1 at line 211 because status is pass, and with simulated EPERM symlink denial it terminates at line 110. Therefore `ok global-core-realpath` is unreachable on affected Windows hosts and no evidence covers the Windows npm .cmd/shim doctor contract. This is distinct from F-024/F-025, which cover CHK-001 and red-global-cli-exec-bit. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T17:24:34.623Z",
+      "reviewRound": "2026-09-06T16:52:33.065Z",
+      "reviewRunId": "B-e256:RR-084",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "4e17037b2b2cef050198d08d46ea32c0828c0335f8ba18c22a2b280e8f770c50",
+      "files": [
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/proofstory.json",
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs"
+      ],
+      "signatureTag": "edge|json|test-coverage-win32",
+      "signatureTagSource": "auto"
     }
   ]
 }
