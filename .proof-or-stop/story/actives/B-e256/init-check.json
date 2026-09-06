@@ -1,13 +1,18 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-06T16:12:58.075Z",
+  "checkedAt": "2026-09-06T16:13:24.300Z",
   "reviewRound": "2026-09-06T15:32:14.385Z",
-  "agentId": "proof-or-stop-review-story-init",
+  "agentId": "proof-or-stop-product-reviewer",
   "issues": [
     {
-      "id": "INIT-SEQ-001",
+      "id": "I-1",
       "severity": "high",
-      "desc": "The reopen does not yet replace the stale post-promotion model across the authoritative Story scope. plan.md, CHK-001 context, and summary.json correctly require validation/chmod on staging before evicting the current dist, but scope-boundary.json still allows restoring bits after promoting dist; index.json description twice describes restoreBinExecutableBits after promotion; and understanding.json still describes the GREEN candidate as restoring after promotion. This contradiction can admit the unsafe ordering that replaces a working dist before a permission failure is known. Keep the existing files/exclusions unchanged, but correct these remaining Story truth surfaces to staging-before-eviction and rerun both INIT reviewers."
+      "desc": "The reopened product scope is still internally inconsistent about the crash-safety invariant. plan.md and CHK-001 correctly require restoring executable bits on the staging tree before the current dist is evicted, but scope-boundary.json still authorizes restoring them after promoting dist, and understanding.json repeats the obsolete post-promotion candidate as a fact without marking it superseded. Because the scope boundary is an authoritative INIT artifact, this can reintroduce the exact failure mode the reopen is meant to remove. Correct the allowed scope and current understanding to staging-before-eviction, then refresh the scope-freeze evidence."
+    },
+    {
+      "id": "I-2",
+      "severity": "medium",
+      "desc": "background.md preserves the four required headings but remains generic repro-intake boilerplate: it never states the actual user-visible failure (a rebuilt global proof-or-stop command becomes non-executable), the doctor diagnostic value, or the staging-before-eviction safety choice. The checklist preserves the intended user outcome, so this is not scope expansion, but the product background should name that concrete problem and corrected solution model for future maintainers."
     }
   ],
   "agentResults": [
@@ -21,7 +26,23 @@
           "desc": "The reopen does not yet replace the stale post-promotion model across the authoritative Story scope. plan.md, CHK-001 context, and summary.json correctly require validation/chmod on staging before evicting the current dist, but scope-boundary.json still allows restoring bits after promoting dist; index.json description twice describes restoreBinExecutableBits after promotion; and understanding.json still describes the GREEN candidate as restoring after promotion. This contradiction can admit the unsafe ordering that replaces a working dist before a permission failure is known. Keep the existing files/exclusions unchanged, but correct these remaining Story truth surfaces to staging-before-eviction and rerun both INIT reviewers."
         }
       ]
+    },
+    {
+      "agentId": "proof-or-stop-product-reviewer",
+      "checkedAt": "2026-09-06T16:13:24.300Z",
+      "issues": [
+        {
+          "id": "I-1",
+          "severity": "high",
+          "desc": "The reopened product scope is still internally inconsistent about the crash-safety invariant. plan.md and CHK-001 correctly require restoring executable bits on the staging tree before the current dist is evicted, but scope-boundary.json still authorizes restoring them after promoting dist, and understanding.json repeats the obsolete post-promotion candidate as a fact without marking it superseded. Because the scope boundary is an authoritative INIT artifact, this can reintroduce the exact failure mode the reopen is meant to remove. Correct the allowed scope and current understanding to staging-before-eviction, then refresh the scope-freeze evidence."
+        },
+        {
+          "id": "I-2",
+          "severity": "medium",
+          "desc": "background.md preserves the four required headings but remains generic repro-intake boilerplate: it never states the actual user-visible failure (a rebuilt global proof-or-stop command becomes non-executable), the doctor diagnostic value, or the staging-before-eviction safety choice. The checklist preserves the intended user outcome, so this is not scope expansion, but the product background should name that concrete problem and corrected solution model for future maintainers."
+        }
+      ]
     }
   ],
-  "_hash": "1a84c48eb617292eab363a77c7ac7c50a422cbfe7385d4dd0332ba665168b0dc"
+  "_hash": "a08cd96a2054d71a47b29383917b4c8d596b743f8588f1f08a1c8e4cd4b8b297"
 }
