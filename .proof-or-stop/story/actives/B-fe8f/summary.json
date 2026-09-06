@@ -1,10 +1,10 @@
 {
   "storyId": "B-fe8f",
-  "changes": "Implemented Section 9.3 Finding Ledger and Runtime Evidence Integrity: durable fenced append batches, idempotent replay, exact-record CAS, signed source/artifact/runtime binding, protected query and fail-closed readers. User-authorized closeout repairs preserve RED/GREEN: F056 uses the shared seven-field INIT_CHECK signature-domain renderer (e8b35c09b96bfa363940a795f24d7c012be5fb67); F055 explains the retired-prefix negative control (826ea187224bf510c801834cac9e8928ad29041c); F057 safely distinguishes causal preflight refusal branches (RED c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6, GREEN e23615ad1605e7126094de46d959341d9c407415). Main synchronization retains shared DONE predicates, full-output pinned evidence and receipt-keyed import isolation alongside B-fe8f raw-result reuse with independent selector verdicts.",
+  "changes": "Implemented Section 9.3 Finding Ledger and Runtime Evidence Integrity: durable fenced append batches, idempotent replay, exact-record CAS, signed source/artifact/runtime binding, protected query and fail-closed readers. User-authorized closeout repairs preserve RED/GREEN: F056 uses the shared seven-field INIT_CHECK signature-domain renderer (e8b35c09b96bfa363940a795f24d7c012be5fb67); F055 explains the retired-prefix negative control (826ea187224bf510c801834cac9e8928ad29041c); F057 safely distinguishes causal preflight refusal branches (RED c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6, GREEN e23615ad1605e7126094de46d959341d9c407415). Main synchronization retains shared DONE predicates, full-output pinned evidence and receipt-keyed import isolation alongside B-fe8f raw-result reuse with independent selector verdicts. BUG-CERT-001 additionally repairs the current PRE_CERT admission blocker in two scoped files: disjoint sibling build-input rules and exact historical migration-tombstone classification without dropping hash inputs or re-enabling retired runtime paths (RED0fafd2dac95b9d2fb6a694173756679515f4790b, GREEN9754c4b3174ca1e36b3748539f417ebaab93dac5).",
   "usage": "From the Story worktree use node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f for the signed ledger/runtime scorecard. Use official Finding and runtime evidence CLI commands rather than editing protected records. After installation the public executable is proof-or-stop.",
   "expectedOutcome": "Deliver the Section9.3 Finding ledger/runtime integrity foundation with genuine RED/GREEN evidence, fresh lifecycle verification, independent review and a local main merge.",
-  "actualTranscript": "B-fe8f is in TEST. Current implementation source2086edd40124c0fa2df88b3e0b39001f2414f52e retains the Section9.3 foundation and user-authorized closeout repairs. Full CLI evidence reads verified71/71 mechanical PASS with actual command receipts and fresh structural bindings; six checklist items are done. Genuine final validate completed132/132 with allPass=true, zero failed/unknown codes and no causal_preflight_refused on2026-09-06; raw stdout/stderr and passive observations are in /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/. The TEST gate explicitly reused that PASS with trusted-story-metadata-descendant lineage instead of repeating132 commands. F055-F060 were resolved through official REVIEW commands with original RED and exact GREEN references. Independent Round28 passes are RR117/RP070 concept, RR116/RP071 coverage and native Claude RR118/RP072 quality. Actual local Claude/Codex host evidence now verifies fullQuorum3/3, invalid0, assuranceLevel full-3x2 (2cdb9836829dadffe670a5fda3bf8939293a8a9f); these are official bulk local records, not six additional reviews or production authority. Current protected query live execution succeeded and reported signed ledger rows without exposing protected paths; an empty runtime receipt set does not prove runtime freshness. F057 closure proves safe discriminating diagnostics plus current operational recovery, not the exact historical refusal cause. DONE-required validation, independent delivery sign-off and local-main delivery remain pending. Canonical live-smoke capture at2026-09-06T15:26:56.755Z executed the unchanged RED/relation harness, exit0: historicalBaselineFails=true,currentGreenPasses=true,currentCorruptedRelationRejected=true,assertionUnchanged=true,gaps=0. It matches the authored first checklist transcript; the preceding live-query artifact remains preserved in Git history.",
-  "outcomeDiff": "Scoped implementation and current routine verification are delivered in the worktree; final DONE-required and delivery gates plus merge to local main remain pending.",
+  "actualTranscript": "Current implementation source9754c4b3174ca1e36b3748539f417ebaab93dac5 includes the previously reviewed foundation and BUG-CERT-001's bounded current-DONE blocker repair. The same full certification-window-smoke exited1 on RED then0 on GREEN; real Git fixtures preserve8historical deleted/renamed-oldside inputs, sibling build-input blob/deletion drift, and9live/unknown/near-miss refusals. Production B-fe8f now derives6domain hashes over56changed-file entries with all8historical tombstone paths retained. Logs: /tmp/bfe8f-cert-path.dPFrjS/. Required retired-authority guard exited0. Official evidence refresh completed392.6seconds; full CLI checklist read verified71/71 mechanical PASS, receipt.exitCode0, selectorMatched=true and causalReceiptHash present, all bound to material ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d and storyFiles15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607. Six checklist items are done. The prior source2086edd completed132/132 routine validation and Round28 realClaude/Codex review/quorum, but those results are historical after the new source change, not current PASS. Its original stdout/stderr remain /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/. New current-source review, certification admission, routine/DONE-required validation, delivery and local-main merge remain pending. BUG-CERT-001 is fixed in code but its formal bug_update must occur in REVIEW/TEST. F055-F060 prior official resolutions and RED/GREEN remain preserved; F057 never claims the exact old refusal cause is known.",
+  "outcomeDiff": "Scoped implementation and71current mechanical evidence rows pass; current-source review, certification admission, routine and DONE-required validation, independent delivery and local main merge remain pending.",
   "acceptanceVerdict": "partial",
   "outcomeKind": "blocked",
   "realMachineCoverage": {
@@ -27,8 +27,8 @@
       "durationMs": 26996827
     },
     "DEV": {
-      "count": 38,
-      "durationMs": 173974322
+      "count": 39,
+      "durationMs": 175518558
     },
     "REVIEW": {
       "count": 28,
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 3,
-      "durationMs": 60591241
+      "durationMs": 60922833
     }
   },
-  "totalDurationMs": 458109133,
+  "totalDurationMs": 459984961,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -47,10 +47,10 @@
     "cumulativePassedCases": 0
   },
   "bugStats": {
-    "found": 0,
+    "found": 1,
     "fixed": 0,
-    "open": 0
+    "open": 1
   },
   "createdAt": "2026-09-04T15:43:03.331Z",
-  "updatedAt": "2026-09-06T15:28:04.680Z"
+  "updatedAt": "2026-09-06T15:59:20.509Z"
 }
