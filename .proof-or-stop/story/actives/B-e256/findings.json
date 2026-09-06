@@ -1326,6 +1326,63 @@
       ],
       "signatureTag": "cross-platform-acceptance-contract",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-e256:F-032",
+      "desc": "quality-win32-cmd-percent-expansion: packages/main/src/core/runtime-environment-checks.ts:703-707 claims that wrapping a Windows path in double quotes is sufficient for cmd.exe and leaves the path bytes unchanged. cmd.exe expands `%VariableName%` tokens on command lines, including quoted arguments, while `%` is legal in Windows file and directory names. A valid canonical root such as `C:\\repo\\%TEMP%\\core` is therefore rendered at :710-717 as `cd /d \"C:\\repo\\%TEMP%\\core\" && npm link` or an equivalent `npm --prefix` command and targets the environment-expanded path instead of the literal checkout. packages/main/tests/global-core-realpath.test.mjs:1229-1279 covers spaces but no percent-delimited component, so its simulated win32 assertions cannot catch this. F-028 exact cmd.exe remediation is therefore not fully closed. Render a command that preserves literal percent characters for the intended cmd.exe usage and add a percent-path fixture. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T19:18:09.260Z",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "reviewRunId": "B-e256:RR-095",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/decision.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/finding-ledger.json",
+          ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-e256/scope-check.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "9cd7796619623b005a68d779f224c46264b31d216a898d0a52d3c6c6f6d333a7",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs"
+      ],
+      "signatureTag": "windows-doctor-remediation-command-portability",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
