@@ -2006,6 +2006,67 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbvsff_10tl_10fdbb7c38dd4ec6ab22b6e69534f1d9",
       "ledgerCommitReceiptId": "lrc_mtqbvsff_10tl_7f91b19eb5a74c81a7c7a6c27f4ed3b0"
+    },
+    {
+      "id": "B-e256:F-043",
+      "desc": "packages/main/tests/red/red-global-cli-exec-bit.mjs:109-119 claims to verify build-pipeline wiring by concatenating build-main-with-binding.mjs with promote-dist.mjs and searching for any chmod/bin text, while its ordering assertion inspects only promote-dist.mjs. It never asserts that build-main or build-utils imports/calls promoteDist and never executes either wrapper. A current-test temporary fixture kept the real promote-dist.mjs and a healthy executable live dist but replaced both build wrappers with `// deliberately unwired build wrapper`; with `RED_REPO_ROOT` bound to that fixture, the registered regression exited 0, printed `pipeline staging restore hook present: true`, emitted `contract: global-cli-bin-target-restored`, and printed the final GREEN summary. Thus CHK-001:happy:0 and CHK-002:happy:0 mechanical selectors can remain green after the actual build-to-promotion connection is removed; build-utils is not inspected at all. Add a structural assertion for both wrapper imports/calls or an end-to-end wrapper probe. This is distinct from F-041's Windows unreadable-shim branch and from the production defects F-037-F-042. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T21:49:29.608Z",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "reviewRunId": "B-e256:RR-122",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/scope-contract.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e67efe771773900180594742478ee0fc274896f71a616e5fad8ae3aef7ace0a6",
+      "files": [
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        "scripts/build-main-with-binding.mjs",
+        "scripts/build-utils-with-binding.mjs",
+        "scripts/promote-dist.mjs",
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ],
+      "signatureTag": "test-coverage-build-wrapper-promote-wiring-false-green",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqch215_1v8k_18a1dbe594db46c3bcac66ad02280211",
+      "ledgerCommitReceiptId": "lrc_mtqch215_1v8k_4a56e723e1704fa98c51128a0f2f634b"
     }
   ]
 }
