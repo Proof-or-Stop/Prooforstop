@@ -1430,9 +1430,9 @@
       "epochId": "B-8a40:RI-008",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T19:49:59.446Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-06T20:16:24.819Z",
-      "updatedAt": "2026-09-06T20:29:04.779Z",
+      "updatedAt": "2026-09-06T20:37:15.467Z",
       "cutoff": {
         "headHash": "fb94c7ffe53eea1645a0afb7731237a88d888d06",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1555,6 +1555,64 @@
           "criticDigest": "0cfc4cd8f6c2101bd8188e82a60d2c74b2311c99fc34cab0b78a3de6966431be",
           "saturated": false,
           "nextRunSequenceBoundary": 94
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T20:29:04.779Z",
+          "completedAt": "2026-09-06T20:37:14.966Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-095",
+              "terminal": "finding",
+              "hostIdentity": "fb3b8ec9968891b53bfd299afb08cc4f657696e0f718c9521117744fb693c6f6",
+              "promptIdentity": "7fc00f33034d3df6f2d74eedc96459af0750910739d11f0f71c217db62b30922",
+              "evidenceIds": [
+                "B-8a40:F-050"
+              ],
+              "coverageDigest": "2b33710e995f1b7880b188baf68432cd81739997e0b7efa0bc0a9b0d6374cb78"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-097",
+              "terminal": "finding",
+              "hostIdentity": "fb3b8ec9968891b53bfd299afb08cc4f657696e0f718c9521117744fb693c6f6",
+              "promptIdentity": "9744081e66fc783a5a514009e48396106f03ec71566708cface1715f2491c4f3",
+              "evidenceIds": [
+                "B-8a40:F-052"
+              ],
+              "coverageDigest": "7565eac4fa356099e0e6431268570daec4445a81fddfb84a6bf23e9657be3676"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-096",
+              "terminal": "finding",
+              "hostIdentity": "fb3b8ec9968891b53bfd299afb08cc4f657696e0f718c9521117744fb693c6f6",
+              "promptIdentity": "6df76feee136ced0c3ae75dcd41faa6869b19190cb2614108750f9d9a5554bc6",
+              "evidenceIds": [
+                "B-8a40:F-051"
+              ],
+              "coverageDigest": "0432fdaacbffb94d69d6b3ffc7482d68efe9e328ec512a020dcf90f66f10b8a3"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-deferral-explicit-target-cross-segment-bypass",
+            "prompt-envelope-deferral-state-local-antecedent-false-positive",
+            "prompt-envelope-positive-dismissal-evidence-unrelated-scope-whole-source-false-positive",
+            "prompt-envelope-severity-passive-outcome-first-cross-segment-bypass",
+            "prompt-envelope-severity-state-local-antecedent-false-positive",
+            "prompt-envelope-signed-disposition-state-local-antecedent-false-positive",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering",
+            "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive"
+          ],
+          "verifiedFindingSetDigest": "2e68170d6adbb2c9ac460202bbf5aa868cd6153c13ac55f46847f5f39a1f035d",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "dd2fda407882b677549152af44523e8c7065e834b11d230e04e3c008fcd61c84",
+          "saturated": false,
+          "nextRunSequenceBoundary": 98
         }
       ],
       "baselineFindingIds": [
@@ -1566,7 +1624,48 @@
         "B-8a40:F-046",
         "B-8a40:F-047"
       ],
-      "_hash": "cb27ffbe1f56bf521093e901a20d7012d8c88b48342c391028b5085726822f66"
+      "cancelledAt": "2026-09-06T20:37:15.467Z",
+      "cancelReason": "Replan the bounded classifier around the remaining explicit-target, local-antecedent, and passive-state blockers after review inventory budget exhaustion.",
+      "terminalRunSequenceBoundary": 98,
+      "_hash": "c4d0eddb9ab9b0f12b3b15556748dbf3651709e26f246b55347cdc5105c6416b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-8a40:RI-009",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T20:37:16.566Z",
+      "updatedAt": "2026-09-06T20:37:16.566Z",
+      "cutoff": {
+        "headHash": "15bea5826231986a422d2df77c26aa27c6e83e22",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "scopeDigest": "b25c58aa8c04c3813be843f50fc2f8e57553d979afb606f988fa1eba4136cb24",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 98,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-8a40:F-041",
+        "B-8a40:F-042",
+        "B-8a40:F-043",
+        "B-8a40:F-044",
+        "B-8a40:F-045",
+        "B-8a40:F-046",
+        "B-8a40:F-047",
+        "B-8a40:F-048",
+        "B-8a40:F-049",
+        "B-8a40:F-050",
+        "B-8a40:F-051",
+        "B-8a40:F-052"
+      ],
+      "_hash": "e43363b821ddd04c1547fd289d75227e356a591af8dfeb76d742d5c2f92cfac9"
     }
   ],
   "receipts": [
@@ -2903,6 +3002,49 @@
       ],
       "createdAt": "2026-09-06T20:28:53.320Z",
       "_hash": "ebeafd92cab0fd7f92d6744a3d880b15527308d3b0f7c3bcf85e4b87e0295b70"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-008:CRIT-03",
+      "epochId": "B-8a40:RI-008",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "fb94c7ffe53eea1645a0afb7731237a88d888d06",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "2e68170d6adbb2c9ac460202bbf5aa868cd6153c13ac55f46847f5f39a1f035d",
+      "requiredLaneCoverageDigest": "0e3865b791d3ea5b7eab030acef89f3b0c36d3df22179441d69fa5f461398194",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-098",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-055"
+      ],
+      "readEvidenceDigest": "8b1f4852739fc2ac17cb4dea719654c0f3bc5c0a5267c16375c2ae374d628b68",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-050",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-deferral-explicit-target-cross-segment-bypass",
+          "reason": "Independent bounded classifier/gate family: deferral cross-segment detection accepts only pronoun-led continuations, so an explicitly named Finding, issue, defect, or work target bypasses the helper even though the equivalent same-segment authority is rejected. It needs neither F-036 evidence-aside persistence nor F-046 ambiguous local antecedence, and remains within one source leaf unlike F-045."
+        },
+        {
+          "findingId": "B-8a40:F-051",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-signed-disposition-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family: hasCrossSegmentDispositionAssignment keeps a signed-disposition inspection antecedent live past a new substantive local antecedent. Although the symptom resembles F-046/F-047, it uses a separate signed-disposition inspection and assignment state machine and differs from F-039 terminal-state vocabulary."
+        },
+        {
+          "findingId": "B-8a40:F-052",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-passive-outcome-first-cross-segment-bypass",
+          "reason": "Independent bounded classifier/gate family: cross-segment severity authority recognizes active pronoun or authority-noun-first continuations but misses passive and outcome-first equivalents. This is distinct from F-047's false-positive stale severity state, F-045's cross-leaf split, and F-050's deferral target grammar."
+        }
+      ],
+      "createdAt": "2026-09-06T20:36:51.479Z",
+      "_hash": "fe1e37325091d6fd253980979a8ddb077b2b5b147fb62dd3b643ffc8f3396451"
     }
   ]
 }
