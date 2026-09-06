@@ -1582,6 +1582,54 @@
       "resolvedReason": "The registration parent now supplies a private .git directory, but the B-fe8f RED leaf still recognized only the earlier symlink layout and incorrectly attempted Story-store access in the isolated mirror. RED parent /tmp/bfe8f-sameenv-registration.p7sGmj/registration-derivation.log showed 1 RED / 25 GREEN while the real-worktree leaf passed. Fix 2086edd40124c0fa2df88b3e0b39001f2414f52e recognizes only the supported preserve-symlinks-main private-Git layout with regular HEAD/index/alternates, config symlink and absent commondir; includes positive and rejection controls. Layout selection is explicitly not authority or isolation proof. Original baseline binding, live-worktree official RED/relation checks, and parent raw-index/stages/HEAD invariants are preserved. GREEN parent 26/26 in /tmp/bfe8f-f058-f060-green.gcmW8Z/. Final genuine CLI validation completed on 2026-09-06: 132/132 commands have code=0, aggregate allPass=true; full original output /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-fe8f:F-061",
+      "desc": "packages/main/src/handlers/certification-window.ts:189 uses a deprecated brand literal as a path DECISION: entry.path.startsWith('.lattice/'). This is the BUG-CERT-002 root reported by the DONE-required root suite. Verified from source: scripts/verify-proof-or-stop-residue.mjs CHECK 4 scans product runtime source with isBrandDecisionResidue and skips only **/tasks/**, so handlers/ is in scope, and its FAIL text at :627-633 is 'a DEPRECATED brand literal is used as a path DECISION'. The regex constant HISTORICAL_STORY_MIGRATION_PATH at :186 is a declaration, which that check's own comment says the detector does not flag, so the violation is specifically the :189 comparison. IMPORTANT FOR THE REPAIR: the guard's remediation text points at the brand-paths read-both helpers, but they do not fit here. brand-paths.ts:1-10 declares canonical-only identities (STATE_DIR_NAMES = ['.proof-or-stop']) and normalizeForCompare at :12-18 only normalizes separators and leading/trailing slashes with no legacy folding, so isStateDirPath('.lattice/...') is false. Swapping :189 to isStateDirPath would make the tombstone branch never fire; every legacy tombstone would then fall through to certificationDomainForPath, match no rule, return undefined, and the whole derivation would refuse, re-blocking certification. A blind application of the prescribed remedy therefore converts BUG-CERT-002 into a regression of BUG-CERT-001. Bounded candidate directions for the Owner (I am not repairing and no source repair is authorized until DEV): express the deprecated-spelling recognition as a constant or declaration the detector already does not flag, or obtain a narrow approved exemption for this single decision site. Either must preserve the previously verified restriction that only exact legacy deleted or rename-old-side tombstones are hashed (path regex AND blobId '<deleted>' AND deleted-or-renamed-with-oldPath equal to path) and that live and unknown retired-namespace paths still refuse. Disclosure: my prior pass RP-075 on RR-121 reviewed this file for dead code, type safety, catch handling and doc promises but did not run the brand-residue policy against the newly added literal; RP-075 stands as recorded and this finding is the correction. Severity: medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T16:32:23.952Z",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "reviewRunId": "B-fe8f:RR-126",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "scripts/verify-proof-or-stop-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "05243ca2918b0a74c40f1b8903809f97b8b95cc768d4fd654367fdfe8e4ee04d",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "scripts/verify-proof-or-stop-residue.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-handlers",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d",
+      "ledgerCommitReceiptId": "lrc_mtq159qq_uw5_666a3620058345e7aaa35c5fffbd5a79"
     }
   ]
 }

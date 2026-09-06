@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "7e6efb3f513d8cecaef936999f3d1744a5011997c752c52793fd9344685e7e07",
+  "committedLedgerDigest": "81268250840b13fb3b5891d29e0c5f2563b445989d2552e1f7585e7424d30bf7",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2648,6 +2648,62 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T14:53:39.009Z"
+    },
+    {
+      "recordId": "lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:73edadda-4b81-45b6-8681-39d99cd23a88",
+      "payload": {
+        "id": "B-fe8f:F-061",
+        "desc": "packages/main/src/handlers/certification-window.ts:189 uses a deprecated brand literal as a path DECISION: entry.path.startsWith('.lattice/'). This is the BUG-CERT-002 root reported by the DONE-required root suite. Verified from source: scripts/verify-proof-or-stop-residue.mjs CHECK 4 scans product runtime source with isBrandDecisionResidue and skips only **/tasks/**, so handlers/ is in scope, and its FAIL text at :627-633 is 'a DEPRECATED brand literal is used as a path DECISION'. The regex constant HISTORICAL_STORY_MIGRATION_PATH at :186 is a declaration, which that check's own comment says the detector does not flag, so the violation is specifically the :189 comparison. IMPORTANT FOR THE REPAIR: the guard's remediation text points at the brand-paths read-both helpers, but they do not fit here. brand-paths.ts:1-10 declares canonical-only identities (STATE_DIR_NAMES = ['.proof-or-stop']) and normalizeForCompare at :12-18 only normalizes separators and leading/trailing slashes with no legacy folding, so isStateDirPath('.lattice/...') is false. Swapping :189 to isStateDirPath would make the tombstone branch never fire; every legacy tombstone would then fall through to certificationDomainForPath, match no rule, return undefined, and the whole derivation would refuse, re-blocking certification. A blind application of the prescribed remedy therefore converts BUG-CERT-002 into a regression of BUG-CERT-001. Bounded candidate directions for the Owner (I am not repairing and no source repair is authorized until DEV): express the deprecated-spelling recognition as a constant or declaration the detector already does not flag, or obtain a narrow approved exemption for this single decision site. Either must preserve the previously verified restriction that only exact legacy deleted or rename-old-side tombstones are hashed (path regex AND blobId '<deleted>' AND deleted-or-renamed-with-oldPath equal to path) and that live and unknown retired-namespace paths still refuse. Disclosure: my prior pass RP-075 on RR-121 reviewed this file for dead code, type safety, catch handling and doc promises but did not run the brand-residue policy against the newly added literal; RP-075 stands as recorded and this finding is the correction. Severity: medium.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-06T16:32:23.952Z",
+        "reviewRound": "2026-09-06T16:01:27.770Z",
+        "reviewRunId": "B-fe8f:RR-126",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-fe8f/background.md",
+            ".proof-or-stop/story/actives/B-fe8f/plan.md",
+            "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+            ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+            "packages/main/src/core/brand-paths.ts",
+            "packages/main/src/handlers/certification-window.ts",
+            "scripts/verify-proof-or-stop-residue.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+        },
+        "readDiagnostics": [],
+        "_hash": "05243ca2918b0a74c40f1b8903809f97b8b95cc768d4fd654367fdfe8e4ee04d",
+        "files": [
+          "packages/main/src/handlers/certification-window.ts",
+          "scripts/verify-proof-or-stop-residue.mjs"
+        ],
+        "signatureTag": "missing|ts|packages-main-handlers",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "61eb62c4f333a84cb73259449442d6e94786f54824d617285de23fc3da91542b",
+      "priorDigest": "7e6efb3f513d8cecaef936999f3d1744a5011997c752c52793fd9344685e7e07",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T16:32:23.954Z"
     }
   ],
   "receipts": [
@@ -7387,6 +7443,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "4cf17b02212a91e4d1edd1637c2e4a45d1188cc8f5d789d8795377f3cf078ce9",
         "signature": "fcqB21bqZKxpnXjs+a2L24Qcph9HBs63Q7sM2Pv7laIv2e4AYT7JbehjZgDrQ+E9mAn0Gx2NyS117bAx8ZDUCg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtq159qq_uw5_666a3620058345e7aaa35c5fffbd5a79",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:73edadda-4b81-45b6-8681-39d99cd23a88",
+      "requestDigest": "5a7f36cb9580f3cfc3c275758546c222fa9dc473219164cb4060dae1a16a7ee6",
+      "recordIds": [
+        "lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d"
+      ],
+      "priorLedgerDigest": "7e6efb3f513d8cecaef936999f3d1744a5011997c752c52793fd9344685e7e07",
+      "committedLedgerDigest": "81268250840b13fb3b5891d29e0c5f2563b445989d2552e1f7585e7424d30bf7",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "writerFenceToken": "a80c074d-6613-48ac-b176-026eaf68a281",
+      "committedAt": "2026-09-06T16:32:23.954Z",
+      "replayed": false,
+      "exactRequestDigest": "b0ffdd626ed0be5c0f1e4814ccd5a1c4af19456f661e2743e74b474aafc4eb1e",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtq159qq_uw5_666a3620058345e7aaa35c5fffbd5a79",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:73edadda-4b81-45b6-8681-39d99cd23a88",
+        "exactRequestDigest": "b0ffdd626ed0be5c0f1e4814ccd5a1c4af19456f661e2743e74b474aafc4eb1e",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "7e6efb3f513d8cecaef936999f3d1744a5011997c752c52793fd9344685e7e07",
+        "committedLedgerDigest": "81268250840b13fb3b5891d29e0c5f2563b445989d2552e1f7585e7424d30bf7",
+        "replayed": false,
+        "committedAt": "2026-09-06T16:32:23.954Z",
+        "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "a80c074d-6613-48ac-b176-026eaf68a281",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "4ca5e47bb546fc3f3f17175d27ef9398779cad5c6af82b5be163f23670e30530",
+        "signature": "oELJHw/WkqbRdso3dH/eqASdASmKvzDypLm/gmZGmQ6e75rwKvCFeVgBQHh6NTeJW5UElsxnT830ay4Xq3BzBg=="
       }
     }
   ]
