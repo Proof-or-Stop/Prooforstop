@@ -3168,6 +3168,51 @@
       },
       "readDiagnostics": [],
       "_hash": "5db998379a4195f9cd19541410a51a2b45880bcc023a47baec7b124624f67e08"
+    },
+    {
+      "id": "B-fe8f:RP-083",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Current REVIEW round2026-09-06T17:00:19.197Z independent Story-level coverage review, source2bee7e31e2561365f507f1780fa72f07cbd51fd1. Read the complete canonical current full-context prompt and all six frozen intent groups. Prior actual integrated Story3 ledger/runtime/Store-reader and red-harness reads were reused only after git diff confirmed those files and fully read Story truth inputs unchanged; current certification smoke was reviewed through its prior complete read plus the complete current diff. Full checklist_get CLI read confirms71/71 tool-owned mechanical PASS on2bee7e31. Independent production strict coverage/freshness reports71covered,missing0,waiver0, no stale entries. Independently verified every causal receipt signature, execution-key binding, receiptHash, Story, pass status, exitCode0 and selectorMatchedtrue; all bind current material29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6/storyFilesc0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8. Reviewed the exact two-file certification handler/smoke delta: anchored build-root classification plus exact historical-tombstone branch, with no scanner, whitelist, runtime namespace alias or policy edits. Verified git diff55c9f4e9..2bee7e31 for certification-window-smoke.ts is empty, so RED/GREEN use unchanged assertions. New real-Git tests reject six unknown build-like namespaces, preserve56 current root/package/entrypoint/integration build inputs with exact actual-blob digest, and add eight retired nested package/tsconfig added/modified/renamed/deleted refusals. Prior48 sibling-build/six nearby controls, eight exact tombstones including four deletions/four rename-old-sides, blob/deletion/domain drift and all nine original negative cases remain. Inspected original red-certification.log: exactly the six unknown namespace admissions fail, with final aggregate assertion error; green-certification.log reaches all five regression-group passes and the final aggregate PASS. Do not use its earlier legacy PASS line as a completion marker. Inspected red-residue.log, green-residue.log, green-residue-inject.log, green-retired-guard.log and green-current-derivation.log under /tmp/bfe8f-cert002.ONPs6H/. These focused logs are attributed original executions, not invented CLI-signed focused receipts. Independently executed the lightweight npm run test:proof-or-stop-residue now: exit0 in0.33s with every guard category PASS. Independently derived current actualGit inputs:56entries, eight historical tombstones, four deleted/four rename-oldside, all deleted blobs, complete six-domain hashes and exact historical digest. intent_coverage_check gaps0; acceptance_rollout_check current receipt/enforce/PASS/nonblocking/no diagnostics. Rollout admission is not actual current independent-host quorum. Read F061/F062 actual fixed resolution records and checked them against the delta and RED/GREEN evidence; both remain resolved, not dismissed/deferred. F048/F049 remain open suspected with the existing supported-local trust-root boundary and accountable drafts unchanged. No additional coverage Finding identified. The focused certification smoke is separate from71intent receipts and root/132suite inventories; current full132 and DONE-required root validation remain pending, and old2086 aggregatePASS is historical only. No heavy suite/build/refresh rerun, source/checklist/scope/phase/lease/quorum or finding-disposition mutation by this reviewer. All writes stop after this terminal.",
+      "createdAt": "2026-09-06T17:14:09.938Z",
+      "reviewRound": "2026-09-06T17:00:19.197Z",
+      "reviewRunId": "B-fe8f:RR-134",
+      "envelopeId": "f801ffc24c53d8c1de994c19f3c83a511222be20cf1d0c0eacf6227515d59a9b",
+      "writerSessionId": "sess-6d2c0609b0d0cdcf53060e334118e702",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/background.md",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c2b59a44777504bbb955631ab45930942fc95a514d2803eb5eeb16207a7258c8"
+      },
+      "readDiagnostics": [],
+      "_hash": "4aae8693334220080d90add746ed68ae91a3d0305b0c4f54165be912a37ab10b"
     }
   ]
 }
