@@ -392,9 +392,9 @@
       "epochId": "B-8a40:RI-003",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T17:43:17.573Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-06T17:44:00.814Z",
-      "updatedAt": "2026-09-06T18:02:16.594Z",
+      "updatedAt": "2026-09-06T18:09:03.706Z",
       "cutoff": {
         "headHash": "c58167c08b37831ec1793e5cb8060864dcc58ce1",
         "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
@@ -513,10 +513,104 @@
           "criticDigest": "f165c3af9b507c8f10ccf4ea71eeb779462c6f7792d0216b0bfe1ddd63a88af5",
           "saturated": false,
           "nextRunSequenceBoundary": 33
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T18:02:16.594Z",
+          "completedAt": "2026-09-06T18:09:03.002Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-034",
+              "terminal": "finding",
+              "hostIdentity": "a8f42c7a4a9fa09fe0690e762f39775295117643483d5c49821821b01add6e4f",
+              "promptIdentity": "bc75b446d59294cbf573392cf26f0e7b4094df16ad44aa9681451cdadc5d5d34",
+              "evidenceIds": [
+                "B-8a40:F-020"
+              ],
+              "coverageDigest": "0054853f569841e4277b52e885ea86a84cc97c891adc0c2d647127247e909a34"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-035",
+              "terminal": "finding",
+              "hostIdentity": "a8f42c7a4a9fa09fe0690e762f39775295117643483d5c49821821b01add6e4f",
+              "promptIdentity": "c43e2d6f704583b36c7b8b224849ed42ba583af15b5510e3ec1b5c7ccf1b5afe",
+              "evidenceIds": [
+                "B-8a40:F-021"
+              ],
+              "coverageDigest": "70b7e60c76e5e67d16579af7045f1a7406b1b245a7004f35eb34e805cae02828"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-036",
+              "terminal": "pass",
+              "hostIdentity": "a8f42c7a4a9fa09fe0690e762f39775295117643483d5c49821821b01add6e4f",
+              "promptIdentity": "5b99438c02e5ab9806baab0631d2812145c837e71838f2f97936318efb8844e7",
+              "evidenceIds": [
+                "B-8a40:RP-019"
+              ],
+              "coverageDigest": "9c64c6334b92da8cec56c7880c5a81946ae5ce5400fe1fb610f5fc55139524c4"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-active-voice-negative-observation-bypass",
+            "prompt-envelope-cross-leaf-direct-coreference-bypass",
+            "prompt-envelope-cross-source-local-antecedent-false-positive",
+            "prompt-envelope-double-negation-polarity-bypass",
+            "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+            "prompt-envelope-negative-quantifier-number-agreement-gap",
+            "prompt-envelope-rendered-structural-leaf-authority-injection",
+            "prompt-envelope-same-leaf-unrelated-exclusion-false-positive"
+          ],
+          "verifiedFindingSetDigest": "8ebf0656ab587a51b783943f89df6efc7da0f45d56ef878d9ebd626000e3f7dd",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "6b2c2c156a8728b2b7500e191f8483e49238c942807fafec5faab2c2168a6702",
+          "saturated": false,
+          "nextRunSequenceBoundary": 37
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "4e56b9d1c580471e6ae6c78efeb6d7f4ecf4c9865ec253bb39ed6ae6a5bd6a7a"
+      "cancelledAt": "2026-09-06T18:09:03.706Z",
+      "cancelReason": "Replan the classifier around all verified semantic and evidence families after the second review inventory budget exhaustion.",
+      "terminalRunSequenceBoundary": 37,
+      "_hash": "847498af9d787fdb0901162f03696740ad9b8f5d048b6d4be7525ac793ee1210"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-8a40:RI-004",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T18:09:04.936Z",
+      "updatedAt": "2026-09-06T18:09:04.936Z",
+      "cutoff": {
+        "headHash": "2aa009f9b95895dfa299e6929c2ee1a9e4e46e53",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "scopeDigest": "7220b13ea87f043afe60045b89ddf80029939a9eaf68df90e74062810c3e9753",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 37,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-8a40:F-012",
+        "B-8a40:F-013",
+        "B-8a40:F-014",
+        "B-8a40:F-015",
+        "B-8a40:F-016",
+        "B-8a40:F-017",
+        "B-8a40:F-018",
+        "B-8a40:F-019",
+        "B-8a40:F-020",
+        "B-8a40:F-021"
+      ],
+      "_hash": "6bbf6d610098a4f33fbcb35d678d20d17271ad6af9409c1f6327a406f12582a2"
     }
   ],
   "receipts": [
@@ -916,6 +1010,43 @@
       ],
       "createdAt": "2026-09-06T18:01:55.012Z",
       "_hash": "0e2eb0114e311d5d457c4e0e43eb91955d93a0b34d063a6f734f1a1863ef7365"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-003:CRIT-03",
+      "epochId": "B-8a40:RI-003",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "c58167c08b37831ec1793e5cb8060864dcc58ce1",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "aggregateFindingSetDigest": "8ebf0656ab587a51b783943f89df6efc7da0f45d56ef878d9ebd626000e3f7dd",
+      "requiredLaneCoverageDigest": "652989f69fbb7c054452ce2dba7e7ed8fd5a31ec4d37814b64967d25deeb3a98",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-037",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-020"
+      ],
+      "readEvidenceDigest": "6998de6918f98f705aee9b5ddccfcb373daf3838ac2a5163f86d365ad6c03a83",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-020",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-negative-quantifier-number-agreement-gap",
+          "reason": "Independent family: negative-dismissal recognition is hard-coded to the determiner no and singular Finding is-style agreement, so equivalent not-a-single and zero/plural propositions diverge into false-positive and fail-open outcomes. This is distinct from F-014 active-voice observation shape and F-005 modifier or word-order limits because the passive proposition retains canonical ordering and fails on quantifier and number agreement."
+        },
+        {
+          "findingId": "B-8a40:F-021",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+          "reason": "Independent family: verificationIntent is included in authority scanning, but a leading Inject or Mutate verb plus a trailing failure assertion exempts the entire multi-sentence leaf as meta-safe, laundering unrelated authority text in the middle. This is distinct from F-019, where structural leaves are omitted from scanning entirely, and the before/after outcome controls isolate the blanket whole-leaf exemption."
+        }
+      ],
+      "createdAt": "2026-09-06T18:07:42.647Z",
+      "_hash": "8fcb6d33e3bbf18a42840bb6b56f1f60bbe5dbed264b59cf851f09643ed70b70"
     }
   ]
 }
