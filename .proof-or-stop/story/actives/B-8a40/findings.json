@@ -392,7 +392,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:1001-1039 validates every Story, checklist, and verification-intent string leaf independently and never relates controlled concepts across leaves of the same assembled Task Context. An unsafe authority assertion can therefore be split at a causal boundary so each leaf is individually unclassified while the reviewer receives the complete relationship. Independent reproduction against the committed built public assembleFullPromptEnvelope API set story.description to No parent Finding is closed by this intake. and checklist.CHK-001.context to Accordingly, the issue is out of scope. All five active modular reviewer roles ADMITTED an envelope, although the serialized Task Context tells the reviewer that the negative dismissal observation is the reason for the out-of-scope conclusion. This is distinct from F-001 and F-003, which evade distance or vocabulary inside one source leaf, and from F-002, F-004, F-005, and F-006, which are false positives. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 injects each complete representative into one surface at a time; it has no cross-leaf matrix, so the focused smoke and every mechanical evidence receipt remain PASS. The related decision requires the Task Context authority guard to compare normalized concepts, their semantic relationship, and assertion polarity before envelope digests are minted; a per-leaf-only oracle does not protect that full-context boundary. Add cross-leaf Story-to-checklist, checklist-to-userSees, and checklist-to-verificationIntent causal split witnesses across every active role, and make unsafe relationship classification operate on a location-preserving combined source without allowing unrelated safe leaves to launder or falsely join. Severity high because Story-authored Task Context can still publish unsafe applicability authority while all declared verification evidence stays green.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T17:02:16.423Z",
@@ -428,7 +428,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-cross-source-leaf-authority-split",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added location-preserving combined Task Context classification and cross-leaf Story, checklist, user-visible, and verification-intent witnesses.",
+      "resolvedAt": "2026-09-06T17:43:50.235Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-010",
