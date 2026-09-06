@@ -2206,6 +2206,64 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqgj0lv_om8_d67cc56679be4f679c1cccc227057a9e",
       "ledgerCommitReceiptId": "lrc_mtqgj0lw_om8_664ceb043b2d498e87da26447f16c028"
+    },
+    {
+      "id": "B-e256:F-046",
+      "desc": "ProofStory acceptance topology omits a current must intent that its own acceptance claim promises. .proof-or-stop/story/actives/B-e256/proofstory.json:42-58 binds 15 verificationIntentRefs but omits CHK-001:edge:0, even though checklist.json declares that absent-bin-target behavior priority=must and AC-001 at proofstory.json:60 explicitly claims missing targets remain benign. packages/main/src/core/proofstory.ts:2141-2174 derives REVIEW completeness only from effective binding verificationIntentRefs (plus milestones), so removing or staling CHK-001:edge:0 evidence would not produce review_completeness_missing_evidence. The current receipt passes, but the signed acceptance topology does not machine-bind this promised must behavior. Add CHK-001:edge:0 to AC-001 and refresh dependent acceptance artifacts. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T23:43:44.561Z",
+      "reviewRound": "2026-09-06T23:38:10.157Z",
+      "reviewRunId": "B-e256:RR-140",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3b89c5ebc61fd3ca49c704ecedbd19dca1f7cb71e8212c315c1159f046a03557",
+      "files": [
+        ".proof-or-stop/story/actives/B-e256/proofstory.json",
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        "packages/main/src/core/proofstory.ts"
+      ],
+      "signatureTag": "proofstory-acceptance-omits-promised-must-intent",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqgjzcj_1g24_f974f24f73f441c3a02a081e547dfe3f",
+      "ledgerCommitReceiptId": "lrc_mtqgjzcj_1g24_b3d525e4b8714febb79425fa87e0bedd"
     }
   ]
 }
