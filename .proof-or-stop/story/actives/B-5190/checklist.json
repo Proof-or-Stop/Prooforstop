@@ -2,13 +2,13 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Admit the reproduced explicit-negative context while preserving fail-closed triage authority checks",
+      "title": "Admit the reproduced explicit-negative context while preserving unsafe triage rejection",
       "context": "Add a focused prompt-envelope regression for the exact B-bcae-shaped safe input across every active modular reviewer role, retain representative positive and ambiguous rejection controls, then implement the smallest classifier change that makes only the safe case pass.",
       "relatedDocs": [
         "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
         "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
       ],
-      "userSees": "A Story containing the reproduced explicit-negative context can start every required REVIEW lane, while unsafe triage-authority context is still rejected.",
+      "userSees": "A Story containing the reproduced explicit-negative context can start every required REVIEW lane, while unsafe lifecycle triage context is still rejected.",
       "excludes": [
         "Changing Story phase transitions",
         "Adding a general natural-language parser",
@@ -40,7 +40,7 @@
         ],
         "edge": [
           {
-            "desc": "The same smoke retains representative affirmative and ambiguous joined-clause cases and verifies that each remains rejected before an envelope digest is minted.",
+            "desc": "The same smoke retains representative affirmative and ambiguous joined-clause directives and verifies that each remains rejected before an envelope digest is minted.",
             "type": "logic",
             "priority": "must",
             "verification": {
@@ -51,7 +51,7 @@
         ],
         "adversarial": [
           {
-            "desc": "A mutation that removes the bounded explicit-negative allowance makes the reproduced safe fixture fail while the unsafe controls stay rejected, proving the GREEN result depends on the intended narrowing.",
+            "desc": "A mutation that removes the bounded explicit-negative allowance makes the reproduced safe fixture fail while unsafe controls stay rejected, proving the GREEN result depends on the intended narrowing.",
             "type": "logic",
             "priority": "must",
             "verification": {

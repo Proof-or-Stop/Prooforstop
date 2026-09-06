@@ -1,10 +1,10 @@
 {
   "storyId": "B-5190",
   "name": "review-triage-negative-context-false-red",
-  "title": "Allow explicit negative review context without weakening triage-authority rejection",
-  "description": "A reproducible prompt-envelope classifier false positive blocks every reviewer lane of B-bcae before a reviewRunId can be issued. The triggering text is an explicit negative statement followed by ordinary defect-scope guidance, but the current whole-source relation scan treats the combination as an affirmative authority claim. Narrow the classifier only for structurally explicit negative assertions, keep all positive authority and ambiguous joined-clause cases fail-closed, and add regression coverage for every active modular reviewer role. This supporting lifecycle repair is authorized by the user on 2026-09-06 and must merge locally before B-bcae resumes. No unrelated prompt policy, Story workflow, or Finding semantics are in scope.",
+  "title": "Allow explicit negative REVIEW context while retaining unsafe-context rejection",
+  "description": "A reproducible prompt-envelope classifier false positive blocks every reviewer lane of B-bcae before a reviewRunId can be issued. The triggering text is an explicit negative statement followed by ordinary defect-scope guidance, but the current whole-source relation scan treats the combination as an affirmative lifecycle triage rule. Narrow the classifier only for structurally explicit negative assertions, keep positive and ambiguous joined-clause directives fail-closed, and add regression coverage for every active modular reviewer role. This supporting review-gate repair is authorized by the user on 2026-09-06 and must merge locally before B-bcae resumes. No unrelated prompt policy, Story workflow, or triage semantics are in scope.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "prompt-envelope",
@@ -25,6 +25,20 @@
       "user": "Harmonynet",
       "sessionId": "sess-0f347f45023d90c0cf383608a5bcd467",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-06T15:17:09.963Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-0f347f45023d90c0cf383608a5bcd467",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-5190",
+    "branch": "story/B-5190",
+    "createdAt": "2026-09-06T15:16:59.179Z"
+  }
 }
