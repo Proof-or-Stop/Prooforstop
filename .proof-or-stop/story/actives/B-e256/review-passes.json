@@ -1878,6 +1878,49 @@
       },
       "readDiagnostics": [],
       "_hash": "370b09af8d9c36ac643d99409b6727c159090333dbf95543f684c95b2ac759e7"
+    },
+    {
+      "id": "B-e256:RP-051",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-004 wave 1 test-coverage terminal: reviewed all 12 verification intents and current evidence (10 must, 0 must gaps, 0 waivers) on the frozen cutoff. F-023 already records the complete Windows/POSIX executable-mode portability family: the registered red test's unconditional 0o111 assumptions and missing Windows shim/platform contract. F-022 is the separately tracked pre-/post-promotion wording family; its affected assertions are otherwise exercised by the existing staging-before-eviction and old-dist-preservation cases. No genuinely distinct untracked coverage family was found. This pass does not override or resolve F-022/F-023.",
+      "createdAt": "2026-09-06T16:32:33.079Z",
+      "reviewRound": "2026-09-06T16:23:39.403Z",
+      "reviewRunId": "B-e256:RR-076",
+      "envelopeId": "c4e1f05fc59691d20afbe04686d12890e1ec30b981ab9c83cbc709757c6ba670",
+      "writerSessionId": "sess-f34da2028100952c764f50c203f4ad14",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/test-evidence.json",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "fcc03c10cd5b139982bf6ea7ca2858fef3d8c983d91725c3cb3dd2bd9213e495"
     }
   ]
 }
