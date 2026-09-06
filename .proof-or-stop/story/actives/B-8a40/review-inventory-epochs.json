@@ -583,7 +583,7 @@
       "reviewRound": "2026-09-06T17:43:17.573Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T18:09:04.936Z",
-      "updatedAt": "2026-09-06T18:16:07.294Z",
+      "updatedAt": "2026-09-06T18:22:47.134Z",
       "cutoff": {
         "headHash": "2aa009f9b95895dfa299e6929c2ee1a9e4e46e53",
         "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
@@ -653,6 +653,65 @@
           "criticDigest": "8b8498efa4d640bd73582fc6743d2db2ac5314ff24a09a20cfb42c731f7faa16",
           "saturated": false,
           "nextRunSequenceBoundary": 41
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T18:16:07.294Z",
+          "completedAt": "2026-09-06T18:22:47.134Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-042",
+              "terminal": "finding",
+              "hostIdentity": "6d95d06c82c3a2a39467ca36748e52ecf08a3a646688450d4d8634812e16a48d",
+              "promptIdentity": "cedde221da75e94c0b9fcde938147433fad9bbb3637641fef0aa2b6ff8e47207",
+              "evidenceIds": [
+                "B-8a40:F-023",
+                "B-8a40:F-025"
+              ],
+              "coverageDigest": "2eab06a8090e1590af0800e0b542ff7c781f3d84d5dce37d75c9c9469f7e5643"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-044",
+              "terminal": "finding",
+              "hostIdentity": "6d95d06c82c3a2a39467ca36748e52ecf08a3a646688450d4d8634812e16a48d",
+              "promptIdentity": "6301cc8641287c6d898a6d1bb10a2b962a0a5669643a43a0ac146b1b232a1cd2",
+              "evidenceIds": [
+                "B-8a40:F-024"
+              ],
+              "coverageDigest": "690796de192cac8ee726b0dfe3738d5a07a810fb6d3974a554e3d4342aa46681"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-043",
+              "terminal": "pass",
+              "hostIdentity": "6d95d06c82c3a2a39467ca36748e52ecf08a3a646688450d4d8634812e16a48d",
+              "promptIdentity": "dc1ad7c7019ff22e95f778fb2d0fe6db2a2eae60737b1661081fec4e35a401f6",
+              "evidenceIds": [
+                "B-8a40:RP-024"
+              ],
+              "coverageDigest": "f8e681e9cb514b8854b431029193e08a0f1b48e2c927d74367e4ac88b78e40b7"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-active-voice-negative-observation-bypass",
+            "prompt-envelope-approved-segment-open-body-laundering",
+            "prompt-envelope-cross-leaf-direct-coreference-bypass",
+            "prompt-envelope-cross-source-local-antecedent-false-positive",
+            "prompt-envelope-double-negation-polarity-bypass",
+            "prompt-envelope-interrogative-wrapper-authority-laundering",
+            "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+            "prompt-envelope-negative-quantifier-number-agreement-gap",
+            "prompt-envelope-quoted-fixture-greedy-span-laundering",
+            "prompt-envelope-rendered-structural-leaf-authority-injection",
+            "prompt-envelope-same-leaf-unrelated-exclusion-false-positive"
+          ],
+          "verifiedFindingSetDigest": "627cc77046f84bfc5504f604c861f75ca9b0249f27bfdd00f81b5eb5711fdaa3",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "ce5b5b7400dae98436917dbf8d3d494dc1df2a9ac43d7a0a5a76d9165af512f6",
+          "saturated": false,
+          "nextRunSequenceBoundary": 45
         }
       ],
       "baselineFindingIds": [
@@ -667,7 +726,7 @@
         "B-8a40:F-020",
         "B-8a40:F-021"
       ],
-      "_hash": "077548d45d062d52b426b88b323b2ce592177e78bd7e49600e24d7bad67ccc3f"
+      "_hash": "e14c2c6676a5f0758b6d53ac331fbb2af09ae2486be92989956cb431af63fa4a"
     }
   ],
   "receipts": [
@@ -1197,6 +1256,50 @@
       ],
       "createdAt": "2026-09-06T18:15:47.247Z",
       "_hash": "23d41130e0369fce1cd5ffd3f98e43ae3323b4fc743933c57053cd606e8f9d92"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-004:CRIT-02",
+      "epochId": "B-8a40:RI-004",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "2aa009f9b95895dfa299e6929c2ee1a9e4e46e53",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "aggregateFindingSetDigest": "627cc77046f84bfc5504f604c861f75ca9b0249f27bfdd00f81b5eb5711fdaa3",
+      "requiredLaneCoverageDigest": "b373d62a65e53baec4a42ac2c9f3964c7115e0aa41d22d572d7bef7da79799ba",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-045",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-025"
+      ],
+      "readEvidenceDigest": "b661cd70804478e07f67a2f755d89b199a5fb4a55754099d8b7c8f9be4e57f7c",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-023",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-quoted-fixture-greedy-span-laundering",
+          "reason": "Canonical family by creation lineage: isExplicitFailClosedQuotedFixture greedily spans from the first opener to the last quote, leaving unquoted interstitial authority inside the whole-leaf exemption. F-023 was created before F-024 and directly isolates the same quote-pair selection defect."
+        },
+        {
+          "findingId": "B-8a40:F-024",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-quoted-fixture-greedy-span-laundering",
+          "canonicalFindingId": "B-8a40:F-023",
+          "reason": "Duplicate of earlier F-023: both exploit the same greedy first-to-last quoted-fixture span and whole-leaf meta-safe exemption. F-024 preserves independent all-role direct, single-fixture, and post-outcome controls but does not add a distinct mechanism."
+        },
+        {
+          "findingId": "B-8a40:F-025",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-approved-segment-open-body-laundering",
+          "reason": "Independent family: unconstrained bodies in approved per-segment predicates delete an authority-bearing segment before controlled and fallback scans. It is distinct from F-021 through F-024 whole-leaf meta-safe predicates because the laundering occurs during per-segment filtering and can survive fixes to those wrappers."
+        }
+      ],
+      "createdAt": "2026-09-06T18:22:25.767Z",
+      "_hash": "3d7ae611ac879eea564883f0a93df4811c8609bb12fc4e6daff241486fd5f20b"
     }
   ]
 }
