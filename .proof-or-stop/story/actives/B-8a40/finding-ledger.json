@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "36fee377781c274fbdabf131634e99558b4f2ada99444a1a03659abcdfd76b88",
+  "committedLedgerDigest": "49bfb12da7be73ba1c391f11fa6c5dc3327734e5ed1fe32832e253a87514f8ad",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -506,6 +506,62 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T21:07:50.130Z"
+    },
+    {
+      "recordId": "lr_mtqb9vu8_10b8_b18cf51635ce4bb18b69ee8819338ad0",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:ea1a7d72-1be5-4ead-961a-fd5a739360bb",
+      "payload": {
+        "id": "B-8a40:F-066",
+        "desc": "packages/main/src/core/prompt-envelope.ts:864-892 recognizes a safe negative-mutation verification intent only when `continuations.length === 1` and that sole continuation matches the proof grammar; two independently valid proof sentences fall through to normal authority classification. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED `Inject wording that lets severity determine Story scope. Prove semantic validation rejects it.`, but all five REJECTED the semantically equivalent and stronger `Inject wording that lets severity determine Story scope. Prove semantic validation rejects it. Verify contract tests fail closed.` The second sentence adds corroborating fail-closed evidence and no authority claim; only the exact one-continuation cardinality flips the result, after which the deliberately unsafe mutation body is mistaken for delivered Task Context authority. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts exercises single proof continuations and gap-log boundary continuations but no one/two-proof-sentence boundary. This is distinct from F-021, which is a fail-open caused by overly broad whole-leaf mutation exemption, and from F-058/F-060/F-064, which impose character, action-list, or modifier limits in other safe grammars. Parse every complete proof-only continuation or structurally bind the mutation body to its expected rejection without an arbitrary sentence-count ceiling, while retaining tests where any continuation itself publishes authority. Severity high because ordinary multi-assertion verification intent wording prevents every REVIEW role from starting.",
+        "severity": "high",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-06T21:15:55.375Z",
+        "reviewRound": "2026-09-06T19:49:59.446Z",
+        "reviewRunId": "B-8a40:RR-116",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "2f0cca2fab1085cfc3eef7dae38f1b3bd2e61ec5da2bf5d8de08426ca6755ab8",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "negative-mutation-proof-continuation-count-false-positive",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "1176ddbe482ef08375ba637b9cf5ffb004520eba58faffa18ef1bbba29d4f53d",
+      "priorDigest": "36fee377781c274fbdabf131634e99558b4f2ada99444a1a03659abcdfd76b88",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T21:15:55.376Z"
     }
   ],
   "receipts": [
@@ -894,6 +950,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "aad1b931f01f1625a982dae33f3f5d97d2063a251005d26e3173a3369e323ebb",
         "signature": "3h7QvIcs5uHA6PtQhj+WCUrOuj7rDmWwFwPg0W3Y24PBbp7zDCKn5cQAnMf5OJ2OxpwoKiI2FGB7TUToIHamAA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqb9vu8_10b8_9c032d0bdf614f0292a38beb2e770751",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:ea1a7d72-1be5-4ead-961a-fd5a739360bb",
+      "requestDigest": "c9c711c49e4c70c8aa55e9b8986a36bf5d1662b813fa6f7eb5e9e3db0d40b8e8",
+      "recordIds": [
+        "lr_mtqb9vu8_10b8_b18cf51635ce4bb18b69ee8819338ad0"
+      ],
+      "priorLedgerDigest": "36fee377781c274fbdabf131634e99558b4f2ada99444a1a03659abcdfd76b88",
+      "committedLedgerDigest": "49bfb12da7be73ba1c391f11fa6c5dc3327734e5ed1fe32832e253a87514f8ad",
+      "writerSessionId": "sess-603208b3ae7f13b889e99830d80831a0",
+      "writerFenceToken": "57f89f26-8c40-469a-853d-e1e3dc127891",
+      "committedAt": "2026-09-06T21:15:55.376Z",
+      "replayed": false,
+      "exactRequestDigest": "3fc70bbf4bedcf2b4466d7245107811842e8555e1597583d954577641817511a",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqb9vu8_10b8_9c032d0bdf614f0292a38beb2e770751",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:ea1a7d72-1be5-4ead-961a-fd5a739360bb",
+        "exactRequestDigest": "3fc70bbf4bedcf2b4466d7245107811842e8555e1597583d954577641817511a",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqb9vu8_10b8_b18cf51635ce4bb18b69ee8819338ad0"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "36fee377781c274fbdabf131634e99558b4f2ada99444a1a03659abcdfd76b88",
+        "committedLedgerDigest": "49bfb12da7be73ba1c391f11fa6c5dc3327734e5ed1fe32832e253a87514f8ad",
+        "replayed": false,
+        "committedAt": "2026-09-06T21:15:55.376Z",
+        "writerSessionId": "sess-603208b3ae7f13b889e99830d80831a0",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "57f89f26-8c40-469a-853d-e1e3dc127891",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "df1a7307fed2b5248702b5bb3c1bfb6a47868ef74ecb6677d973d1e96669a90c",
+        "signature": "wiWvj0GEEySqY7cnoUNj6BAYNBEpay5u0oYj3WgmAvWnK8Y+Ns+gI5xcWN52VW5UI7A4EwBmG0jPMAsvcUUrAw=="
       }
     }
   ]

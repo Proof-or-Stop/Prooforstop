@@ -3154,6 +3154,54 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqazhf6_14gf_ea6634623a0541448a8dfa2785015a48",
       "ledgerCommitReceiptId": "lrc_mtqazhf6_14gf_f79dff6841ab4e3bac5647034bf9954f"
+    },
+    {
+      "id": "B-8a40:F-066",
+      "desc": "packages/main/src/core/prompt-envelope.ts:864-892 recognizes a safe negative-mutation verification intent only when `continuations.length === 1` and that sole continuation matches the proof grammar; two independently valid proof sentences fall through to normal authority classification. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED `Inject wording that lets severity determine Story scope. Prove semantic validation rejects it.`, but all five REJECTED the semantically equivalent and stronger `Inject wording that lets severity determine Story scope. Prove semantic validation rejects it. Verify contract tests fail closed.` The second sentence adds corroborating fail-closed evidence and no authority claim; only the exact one-continuation cardinality flips the result, after which the deliberately unsafe mutation body is mistaken for delivered Task Context authority. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts exercises single proof continuations and gap-log boundary continuations but no one/two-proof-sentence boundary. This is distinct from F-021, which is a fail-open caused by overly broad whole-leaf mutation exemption, and from F-058/F-060/F-064, which impose character, action-list, or modifier limits in other safe grammars. Parse every complete proof-only continuation or structurally bind the mutation body to its expected rejection without an arbitrary sentence-count ceiling, while retaining tests where any continuation itself publishes authority. Severity high because ordinary multi-assertion verification intent wording prevents every REVIEW role from starting.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T21:15:55.375Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-116",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "2f0cca2fab1085cfc3eef7dae38f1b3bd2e61ec5da2bf5d8de08426ca6755ab8",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "negative-mutation-proof-continuation-count-false-positive",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqb9vu8_10b8_b18cf51635ce4bb18b69ee8819338ad0",
+      "ledgerCommitReceiptId": "lrc_mtqb9vu8_10b8_9c032d0bdf614f0292a38beb2e770751"
     }
   ]
 }

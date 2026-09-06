@@ -1862,7 +1862,7 @@
       "reviewRound": "2026-09-06T19:49:59.446Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T20:58:58.374Z",
-      "updatedAt": "2026-09-06T20:58:58.374Z",
+      "updatedAt": "2026-09-06T21:11:49.402Z",
       "cutoff": {
         "headHash": "bf56998b0e61b174788c37937795e78b970787bc",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1876,7 +1876,81 @@
       ],
       "initialRunSequenceBoundary": 111,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T20:58:58.374Z",
+          "completedAt": "2026-09-06T21:11:49.402Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-114",
+              "terminal": "finding",
+              "hostIdentity": "107df5580d6cd1743026f04c5d264c9c9d671ff289978cb50d5108dfe2f51b11",
+              "promptIdentity": "81d892421b6ba2e2f07608bec34aba5cb7362f892e0293b0178531fae511c8c1",
+              "evidenceIds": [
+                "B-8a40:F-062",
+                "B-8a40:F-063",
+                "B-8a40:F-064",
+                "B-8a40:F-065"
+              ],
+              "coverageDigest": "6860645590d45b6e7557fd11e7ef31c96d6719b63ca20f40ba7ac66e54c882d6"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-112",
+              "terminal": "finding",
+              "hostIdentity": "107df5580d6cd1743026f04c5d264c9c9d671ff289978cb50d5108dfe2f51b11",
+              "promptIdentity": "54d79cca2cf8c67e58f61b8bb2a00ad3862bfaff842cebcbc1c42415a1c9800f",
+              "evidenceIds": [
+                "B-8a40:F-060"
+              ],
+              "coverageDigest": "9e29546f9a949bc4b4474fc7648bcd44a1dae580377bf57cde0358210be44214"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-113",
+              "terminal": "finding",
+              "hostIdentity": "107df5580d6cd1743026f04c5d264c9c9d671ff289978cb50d5108dfe2f51b11",
+              "promptIdentity": "d6fb45c48e08147a463fc7d92c384ee74eac8a03127ab572b3d65079d9277d62",
+              "evidenceIds": [
+                "B-8a40:F-061"
+              ],
+              "coverageDigest": "a8d645e7270068afaf6e525c47971e7d78c0f6361a2b0f058e033cf5249d6be0"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-compatibility-schema-default-span-padding-bypass",
+            "prompt-envelope-controlled-relation-prohibition-polarity-slice-false-positive",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-deferral-explicit-target-cross-segment-bypass",
+            "prompt-envelope-deferral-state-local-antecedent-false-positive",
+            "prompt-envelope-positive-dismissal-evidence-unrelated-scope-whole-source-false-positive",
+            "prompt-envelope-rejected-authority-wrapper-claim-length-false-positive",
+            "prompt-envelope-retired-verdict-affirmative-relation-span-bypass",
+            "prompt-envelope-retired-verdict-negative-span-false-positive",
+            "prompt-envelope-reviewer-disposition-actor-span-padding-bypass",
+            "prompt-envelope-reviewer-disposition-prohibition-action-count-false-positive",
+            "prompt-envelope-severity-deferral-fixed-span-padding-bypass",
+            "prompt-envelope-severity-outcome-continuation-modifier-bound-bypass",
+            "prompt-envelope-severity-passive-outcome-first-cross-segment-bypass",
+            "prompt-envelope-severity-persistent-antecedent-modifier-bound-bypass",
+            "prompt-envelope-severity-state-local-antecedent-false-positive",
+            "prompt-envelope-signed-disposition-negative-continuation-modifier-bound-false-positive",
+            "prompt-envelope-signed-disposition-state-local-antecedent-false-positive",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering",
+            "prompt-envelope-unknown-applicability-joined-span-padding-bypass",
+            "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive"
+          ],
+          "verifiedFindingSetDigest": "2a2dc7921a83fecf68fd415d4535339a1b124a6f3c7fdac2cd5480a33512fa05",
+          "newVerifiedFindingCount": 23,
+          "criticDigest": "1400ce8d6ee860b1ff20e8b110ee1c9a791617090dac85e1e113d8a6189e91cf",
+          "saturated": false,
+          "nextRunSequenceBoundary": 115
+        }
+      ],
       "baselineFindingIds": [
         "B-8a40:F-041",
         "B-8a40:F-042",
@@ -1898,7 +1972,7 @@
         "B-8a40:F-058",
         "B-8a40:F-059"
       ],
-      "_hash": "f8e13782de525eb8544f740d594e80cdae06e3b0ad862d67c2c73830642b74c4"
+      "_hash": "bd81f1045afa1fa9049dfc8918a3224eebb48bd09be6ff995eed8e2ffc9cd201"
     }
   ],
   "receipts": [
@@ -3469,6 +3543,183 @@
       ],
       "createdAt": "2026-09-06T20:57:52.483Z",
       "_hash": "918aeea6af273efabdb90ae83fa519912679932303d326625a78194cdf3370a5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-010:CRIT-01",
+      "epochId": "B-8a40:RI-010",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "bf56998b0e61b174788c37937795e78b970787bc",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "2a2dc7921a83fecf68fd415d4535339a1b124a6f3c7fdac2cd5480a33512fa05",
+      "requiredLaneCoverageDigest": "f1eb4ed46ff3d0b4a39fbb52aa618f8db9912c9b74388efecb35ed7e9ca72768",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-115",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-062"
+      ],
+      "readEvidenceDigest": "05d298f031fb9ab8691f148e37944d621f1710008e41b12fdcc5ee3d73b49655",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-041",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+          "reason": "Independent bounded classifier/gate family: structural leaves are now enumerated, unlike F-019, but the whitespace-free path-shape exemption runs before hyphen and underscore semantic normalization, allowing encoded dismissal, reviewer-disposition, and schema-authority assertions."
+        },
+        {
+          "findingId": "B-8a40:F-042",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+          "reason": "Canonical current-material family: approved inventory and subordinate wrappers remain open-bodied behind the same finite authority-action blacklist, so unlisted verbs such as publishes and enacts bypass the residual classifier. This is an incomplete-closure mechanism after earlier open-body findings, not F-041 encoding or F-043 linkage."
+        },
+        {
+          "findingId": "B-8a40:F-043",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-topic-break-explicit-coreference-laundering",
+          "reason": "Independent bounded classifier/gate family: an unconditional topic-break exemption severs an otherwise rejected relation even when the later sentence explicitly corefers to the Finding. This is separate from unrelated-object false joins because the target is explicit and the laundering occurs in relation linkage."
+        },
+        {
+          "findingId": "B-8a40:F-044",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+          "canonicalFindingId": "B-8a40:F-042",
+          "reason": "Direct non-circular duplicate of earlier F-042: both exercise the same open approved-wrapper capture guarded by TRIAGE_INVENTORY_AUTHORITY_ACTION and bypass it with unlisted authority-action verbs. Preserve F-044's additional deem, makes, and entrusts witnesses and its dismissal/disposition controls."
+        },
+        {
+          "findingId": "B-8a40:F-045",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+          "reason": "Independent bounded classifier/gate family: full Task Context composition tracks only negative-dismissal relations, allowing equivalent prohibited severity-to-scope, unknown-to-routing, deferral-to-transfer, and signed-disposition-to-binding propositions when their continuations move to another trusted leaf."
+        },
+        {
+          "findingId": "B-8a40:F-046",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-deferral-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family. Unlike F-012, the stale join occurs in the deferral continuation state rather than cross-source negative-dismissal composition. Unlike F-036, which loses deferral state too early across evidence-only prose, F-046 retains it too long across a substantive nearer antecedent and falsely binds the later pronoun. Preserve direct unsafe, evidence-aside, and local-antecedent controls."
+        },
+        {
+          "findingId": "B-8a40:F-047",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family. It shares the local-antecedent rebinding symptom with F-046 but executes through hasCrossSegmentSeverityAuthority and its separate persistent severity/flattened-authority-noun grammar; F-046 executes through the deferral controlled-relation state. Preserve both direct unsafe, evidence-aside, and local-antecedent witnesses."
+        },
+        {
+          "findingId": "B-8a40:F-048",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive",
+          "reason": "Independent bounded classifier/gate family: the dedicated unknown-applicability whole-source concatenation treats any later generic routing token as a controlled relation without causal linkage, coreference, or anaphora. This differs from F-046/F-047 persistent pronoun states and from F-012/F-016 dismissal composition; preserve unrelated operational-routing and genuinely unsafe route controls."
+        },
+        {
+          "findingId": "B-8a40:F-049",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-positive-dismissal-evidence-unrelated-scope-whole-source-false-positive",
+          "reason": "Independent bounded classifier/gate family: the dismissal-family whole-source join concatenates an affirmative finding_dismiss audit-evidence record with an unrelated later scope statement without causal linkage or coreference. F-016/F-017 depend on standalone negative-dismissal filtering and same-leaf ordering, while F-048 executes through the separate unknown-applicability family. Preserve the positive audit record, unrelated scope, local-only, and direct unsafe controls."
+        },
+        {
+          "findingId": "B-8a40:F-050",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-deferral-explicit-target-cross-segment-bypass",
+          "reason": "Independent bounded classifier/gate family: deferral cross-segment detection accepts only pronoun-led continuations, so an explicitly named Finding, issue, defect, or work target bypasses the helper even though the equivalent same-segment authority is rejected. It needs neither F-036 evidence-aside persistence nor F-046 ambiguous local antecedence, and remains within one source leaf unlike F-045."
+        },
+        {
+          "findingId": "B-8a40:F-051",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-signed-disposition-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family: hasCrossSegmentDispositionAssignment keeps a signed-disposition inspection antecedent live past a new substantive local antecedent. Although the symptom resembles F-046/F-047, it uses a separate signed-disposition inspection and assignment state machine and differs from F-039 terminal-state vocabulary."
+        },
+        {
+          "findingId": "B-8a40:F-052",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-passive-outcome-first-cross-segment-bypass",
+          "reason": "Independent bounded classifier/gate family: cross-segment severity authority recognizes active pronoun or authority-noun-first continuations but misses passive and outcome-first equivalents. This is distinct from F-047's false-positive stale severity state, F-045's cross-leaf split, and F-050's deferral target grammar."
+        },
+        {
+          "findingId": "B-8a40:F-053",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-unknown-applicability-joined-span-padding-bypass",
+          "reason": "Independent bounded classifier/gate family: the unknown-applicability relation imposes a 320-character joined-span ceiling, so explicit coreference or causal linkage fails open after evidence-only padding. F-048 is the opposite within-bound false-positive on unrelated routing, while F-001/F-003 use the separate negative-dismissal horizon grammar; preserve short unsafe, long unsafe, causal-padding, and unrelated-safe controls."
+        },
+        {
+          "findingId": "B-8a40:F-054",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-deferral-fixed-span-padding-bypass",
+          "reason": "Independent bounded classifier/gate family: severity and deferral controlled relations use their own 260 and 280 character maximum spans, so neutral same-sentence modifiers erase otherwise exact propositions. This is separate from F-053's unknown-applicability joined-span path and from earlier negative-dismissal horizons."
+        },
+        {
+          "findingId": "B-8a40:F-055",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-reviewer-disposition-actor-span-padding-bypass",
+          "reason": "Independent bounded classifier/gate family: unauthorized reviewer disposition minting depends on the default-bounded actor-to-disposition hasConceptPair, so a grammatical modifier beyond 240 characters suppresses an exact recognized actor, action, and disposition relation. Unlike F-054 it is an actor/action/disposition authority prerequisite, not a severity or deferral controlled outcome."
+        },
+        {
+          "findingId": "B-8a40:F-056",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-compatibility-schema-default-span-padding-bypass",
+          "canonicalFindingId": "B-8a40:F-059",
+          "reason": "Duplicate of corrective F-059: the observation, compatibility/schema consumers, default 240-character hasConceptPair mechanism, and witnesses are identical. F-056's mechanical read evidence is invalid because its decisions-doc readEvents path contains a typographical mismatch; preserve that record and diagnostics, while valid signed-read F-059 is the direct non-circular canonical."
+        },
+        {
+          "findingId": "B-8a40:F-057",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-persistent-antecedent-modifier-bound-bypass",
+          "reason": "Independent bounded classifier/gate family: the persistent severity antecedent permits at most three modifier words, so a fourth modifier drops live state before otherwise canonical evidence-aside and pronoun continuations. This differs from F-052 continuation word order and F-054 character-span padding."
+        },
+        {
+          "findingId": "B-8a40:F-058",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-rejected-authority-wrapper-claim-length-false-positive",
+          "reason": "Independent bounded classifier/gate family: a safe, atomic rejected-authority wrapper becomes a false-positive solely after its single claim crosses 240 characters. This is a safe-wrapper truncation failure, not the unsafe-assertion fail-open concept-pair padding in F-054 through F-056 or the earlier wrapper-laundering families."
+        },
+        {
+          "findingId": "B-8a40:F-059",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-compatibility-schema-default-span-padding-bypass",
+          "reason": "Canonical valid-read family: compatibility-CLI deferral authority and Story-authored schema changes depend on the default 240-character hasConceptPair horizon, while the residual schema regex also requires an adjacent Story noun and change verb. F-059 corrects F-056's readEvents typo and carries clean signed read evidence."
+        },
+        {
+          "findingId": "B-8a40:F-060",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-reviewer-disposition-prohibition-action-count-false-positive",
+          "reason": "Independent bounded classifier family: the explicit reviewer-disposition prohibition grammar accepts no more than six recognized actions, so the seventh action alone turns an otherwise complete negative list into a false block. This is a cardinality ceiling, distinct from F-040 negative-quantifier syntax, F-037 actor/action vocabulary, and F-058 wrapper character length."
+        },
+        {
+          "findingId": "B-8a40:F-061",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-retired-verdict-negative-span-false-positive",
+          "reason": "Independent bounded classifier family: the retired-vocabulary branch recognizes genuine explicit negation only inside its own 48-character pre-verdict window, causing long but single-clause negative migration guidance to false-block. This is separate from F-062 affirmative relation-span laundering and from F-065 generic controlled-relation polarity slices."
+        },
+        {
+          "findingId": "B-8a40:F-062",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-retired-verdict-affirmative-relation-span-bypass",
+          "reason": "Independent bounded classifier family: an unsafe affirmative retired-alias/current-verdict proposition exceeds the 180-character relation bridge while an unrelated leading prohibition incorrectly supplies explicit-rejection polarity. This is the inverse gate error and a separate conjunction of relation horizon plus clause-scoping from F-061 genuine-negative false-block."
+        },
+        {
+          "findingId": "B-8a40:F-063",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-outcome-continuation-modifier-bound-bypass",
+          "reason": "Independent bounded classifier family: the persistent severity continuation beginning with the factor permits only two adverbs before its decision verb, so a third modifier drops an unchanged unsafe severity-to-scope proposition. F-057 bounds modifiers before the antecedent noun, while F-052 changes passive/outcome-first order; preserve the distinct two/three-word witness."
+        },
+        {
+          "findingId": "B-8a40:F-064",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-signed-disposition-negative-continuation-modifier-bound-false-positive",
+          "reason": "Independent bounded classifier family: after a signed-disposition inspection antecedent, the safe negative coreferent continuation accepts only two disposition modifiers and falsely assigns authority at the third. It is distinct from F-051 stale local-antecedent state, F-039 synonym coverage, and F-040 direct negative-quantifier forms."
+        },
+        {
+          "findingId": "B-8a40:F-065",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-controlled-relation-prohibition-polarity-slice-false-positive",
+          "reason": "Independent bounded classifier family: generic controlled relations use fixed 160-character prefix and 48-character suffix polarity slices, so neutral clause-local padding separates an explicit prohibition token from an otherwise in-span relation and creates a false block. This differs from F-054 concept-pair span loss and from F-061 retired-verdict-specific negative fallback."
+        }
+      ],
+      "createdAt": "2026-09-06T21:11:26.267Z",
+      "_hash": "ebaceaa292307164fe907a4a124b09c4d01f4b28639099b641558a397002f87c"
     }
   ]
 }

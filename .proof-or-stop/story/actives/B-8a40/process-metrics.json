@@ -1,13 +1,13 @@
 {
   "storyId": "B-8a40",
-  "generatedAt": "2026-09-06T21:07:50.284Z",
+  "generatedAt": "2026-09-06T21:15:55.522Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 1,
     "reviewRounds": 1,
-    "findings": 65,
+    "findings": 66,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -27,7 +27,7 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": 0.609,
+          "value": 0.6,
           "unit": "ratio",
           "confidence": "medium",
           "sources": [
@@ -227,7 +227,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 116,
+          "value": 120,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -276,7 +276,7 @@
           "note": "express channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 30,
+          "value": 31,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -317,7 +317,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 65,
+          "value": 66,
           "unit": "count",
           "confidence": "high",
           "sources": [
