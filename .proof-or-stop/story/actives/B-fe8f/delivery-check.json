@@ -1,86 +1,128 @@
 {
   "storyId": "B-fe8f",
-  "checkedAt": "2026-09-04T15:53:57.889Z",
-  "headHash": "b5b532dac6e2cc4fe25d0e6477b612a875c1de4d",
-  "materialHash": "4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2",
-  "storyFilesHash": "1016081edd126aa4239610b0f1cb8c65bfb2a43e3634bd71bc9a776d3e1096ff",
-  "reviewRound": "2026-09-04T13:13:30.995Z",
+  "checkedAt": "2026-09-06T18:06:40.971Z",
+  "headHash": "14ce3328e82bd8ef193cfd4e1970ce9dea6387c0",
+  "materialHash": "29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6",
+  "storyFilesHash": "c0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8",
+  "reviewRound": "2026-09-06T17:00:19.197Z",
   "agentId": "proof-or-stop-review-delivery",
   "docsPromises": [
     {
-      "docPath": ".proof-or-stop/story/actives/B-fe8f/background.md#Key-Insights-and-Solution-Tradeoffs",
-      "promise": "Audit existing locks and transactions first, reproduce only genuine remaining gaps, and keep semantic identity and applicability outside this Story.",
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Shared atomic transactions preserve opaque Finding-system records without granting semantic authority.",
       "status": "verified",
-      "verifiedBy": "git diff review plus independent RED harness",
-      "evidence": "RED harness exited 0 with red.audit_summary, red.no_fabricated_race, red.primitive_scope, historicalBaselineFails=true, currentGreenPasses=true, and assertionUnchanged=true; diff remains limited to Story 3 ledger/runtime/query/lifecycle integration."
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. core/finding-ledger.ts planAppend/writeLedgerAtomic; handlers/finding-ledger.ts appendFindingLedger and manifested append helpers; focused mixed-transactions and persistence-non-authority assertions passed."
     },
     {
-      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-002",
-      "promise": "Provide fenced exactly-once Finding ledger writes with collision-resistant IDs, idempotent replay, durable fsync/rename, crash recovery, stale-writer refusal, and lock compatibility.",
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Exact referenced-record and current-chain CAS can commit a standalone receipt or an atomic multi-record bundle.",
       "status": "verified",
-      "verifiedBy": "source inspection and independent full GREEN smoke",
-      "evidence": "Smoke exit 0: 100 unique appends, 100 exact replays with zero rows, file and directory fsync plus atomic rename, crash halfVisible=0, staleWrites=0, and deadlocks=0."
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. handlers/finding-ledger.ts:540 compares record type/hash, chain ID/hash and callback predicate before planAppend; stale-CAS, atomic bundle, revoke/apply and callback-crash assertions passed with zero partial writes."
     },
     {
-      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-003",
-      "promise": "Provide exact-record CAS and signed FindingLedgerReceipt consumers, atomic assessment proposal persistence, and append-only mandatory-repair and expiry-policy records.",
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Durable record IDs are independent of mutable array length.",
       "status": "verified",
-      "verifiedBy": "source inspection and independent full GREEN smoke",
-      "evidence": "Smoke exit 0: signedFields=complete, exact_record_cas committed, stale CAS semanticWrites=0, assessment proposal rows=1 plus receipt rows=1, replay unchanged, rejection matrix green, and manifested records append-only/idempotent/halfVisible=0."
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. core/finding-ledger.ts allocateRecordId uses time, process and random identity; focused concurrent_unique_appends passed with 100 rows/100 unique IDs; sparse-display-ID regression passed."
     },
     {
-      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-004",
-      "promise": "Provide content-addressed RuntimeEvidenceReceipt signing and verification through real CLI adapters with source, command, environment, toolchain, trust, realpath, artifact stability, and build-lock binding.",
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Idempotent retry preserves original record and receipt IDs and conflicting bytes fail explicitly.",
       "status": "verified",
-      "verifiedBy": "source inspection and independent full GREEN smoke",
-      "evidence": "Smoke exit 0: content-addressed blobs and signature valid; real run/verify adapters green; freshness, privacy, trust, symlink, realpath, TOCTOU, canonical build-lock, tamper, replay, and crash/retry matrices all reject unsafe states."
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. appendFindingLedger verifies signed exact request bindings before replay; receipt replay and idempotency relabel mutations passed; 100 key replays produced zero new rows."
     },
     {
-      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-005",
-      "promise": "Register separate Story 3 persistence/runtime process facts, expose a signed protected read-only query without protected paths, preserve persistence non-authority, and enforce the declared Story dependency boundary.",
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Interrupted transactions recover without half-visible records and stale writers cannot publish.",
       "status": "verified",
-      "verifiedBy": "registry diff, independent process-fact verifier, and independent full GREEN smoke",
-      "evidence": "Process Fact Contract exited 0; query rows are signed with pathsExposed=0; registry non-authority mutations accepted=0 and lifecycleDelta=0; forbidden imports accepted=0; dependency gate and merged release matrix pass with zero failed-transition writes."
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. core/finding-ledger.ts recoverLedger/writeLedgerAtomic and core/mkdir-lock.ts captureMkdirLockFence publishAtomically; crash, stale-fence interleaving and combined concurrency assertions passed."
     },
     {
-      "docPath": ".proof-or-stop/story/actives/B-fe8f/plan.md#CHK-006",
-      "promise": "Turn every genuine RED GREEN without weakening the assertion and prove the combined concurrency, tamper, rollback, migration, dependency, package-install, and version-binding matrix.",
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "The writer boundary supports canonical local filesystems with fenced temp-write/fsync/rename and refuses unsupported capability or schema epochs.",
       "status": "verified",
-      "verifiedBy": "independent RED harness, full GREEN smoke, version commands, and clean package install fixture",
-      "evidence": "RED harness and GREEN smoke exited 0; final markers Finding ledger integrity, Runtime evidence integrity, and green.story3_matrix all PASS; version_sync patchIncrement=1 with local/global CLI 0.3.275 and current-main binding; clean install confirms @proof-or-stop/core plus @proof-or-stop/lab with bundled=false and registryFetch=false."
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. core/finding-ledger.ts validateWriter and writeLedgerAtomic; durable_commit asserted file fsync, rename and directory fsync; capability/fail-closed fixtures accepted zero unsupported writes."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "RuntimeEvidenceReceipt has a signer/verifier and real registered build/execution adapter.",
+      "status": "verified",
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. core/runtime-evidence-receipt.ts createRuntimeEvidenceReceipt/verifyRuntimeEvidenceCurrent; handlers/finding-runtime-evidence.ts facade, registry.ts and command-catalog.ts registrations; real CLI run and verify adapters passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Runtime receipt identity binds artifacts to source HEAD/material, environment, build/execution commands and output.",
+      "status": "verified",
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. verifyRuntimeEvidenceCurrent compares source, material, command digests, environment, toolchain and artifact state; freshness and carrier-trust mutation fixtures rejected all exercised stale and substituted inputs."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Content-addressed command/output/environment/manifest blobs enforce canonicalization, realpath and current key trust.",
+      "status": "verified",
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. core/evidence/artifact-store.ts digest-checked private blob storage and core/runtime-evidence-receipt.ts blob/current verification; blob substitution, symlink-swap, environment privacy, unknown/revoked/expired key and tamper fixtures passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Build-in-progress and pre/during/post artifact mutation refuse runtime evidence.",
+      "status": "verified",
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. handlers/finding-ledger.ts canonical build mutex plus executeRuntimeEvidence snapshots; canonical-lock interleaving, artifact stability, byte-restoration TOCTOU and post-run mutation fixtures passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Process facts distinguish persistence integrity from gate-eligible runtime input and later semantic authority.",
+      "status": "verified",
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. core/process-fact-registry.ts Story3 L2 persistence policies and L3 runtime-input policy with explicit L4 Finding projections; focused registry command/phase/non-authority/dependency mutation assertions passed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity",
+      "promise": "Public queries provide deterministic signed ledger/CAS/idempotency/runtime/migration rows without protected paths.",
+      "status": "verified",
+      "verifiedBy": "Independent current source inspection and focused executable tests",
+      "evidence": "Existing requirement text; implementation reviewed in current main...HEAD diff. handlers/finding-ledger.ts queryFindingLedger verifies carrier chain and signs five deterministic row categories; query cold-start read-only, determinism, incomplete/tamper refusal and path-leakage assertions passed."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs exited 0; audit, official RED evidence, relation creation/evaluation, mutation isolation, binding refusal, and no-fabricated-race selectors all passed."
+      "transcript": "Independently ran node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs: exit 0. Historical baseline fails, current GREEN passes, corrupted relation is rejected, immutable assertion remains bound, and no fabricated race is introduced."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "node packages/main/dist/tasks/finding-ledger-runtime-smoke.js exited 0; 100 concurrent unique appends, 100 exact replays, durable fsync/rename, crash recovery, stale fence, and lock compatibility passed."
+      "transcript": "Independently ran node packages/main/dist/tasks/finding-ledger-runtime-smoke.js. Assertions cover 100 unique concurrent rows, 100 zero-new-row replays, durable fsync/rename, mixed writes, unique legacy binding, stale writer rejection and crash recovery. The complete focused ledger/runtime command finished with exit 0 and Finding ledger integrity: PASS, Runtime evidence integrity: PASS, green.story3_matrix: PASS."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "The same real-machine smoke verified signed receipt completeness, exact CAS, zero-write stale CAS, assessment proposal atomicity/replay/rejection, baseline bundles, mandatory repair, expiry policy, and revoke/apply serialization."
+      "transcript": "Same independent focused run asserts signed receipt fields and exact request binding, original-ID replay, zero-write stale CAS, standalone-receipt preservation, atomic baseline/manifest bundles, proposal union/signature/expiry rejection, mandatory-repair/expiry records and serialized revoke/apply. The complete focused ledger/runtime command finished with exit 0 and Finding ledger integrity: PASS, Runtime evidence integrity: PASS, green.story3_matrix: PASS."
     },
     {
       "featureId": "CHK-004",
-      "transcript": "The same real-machine smoke executed the registered runtime run/verify adapters and passed blob, source/material/command/environment/toolchain/trust, artifact stability, realpath/symlink/TOCTOU, build-lock, tamper, replay, and crash recovery checks."
+      "transcript": "Same independent focused run executes production finding_runtime_evidence_run and finding_runtime_evidence_verify CLI adapters; asserts content-addressed blobs, environment privacy, current trust/carrier binding, canonical build mutex, pre/during/post artifact stability, symlink and TOCTOU rejection, crash/replay identity. The complete focused ledger/runtime command finished with exit 0 and Finding ledger integrity: PASS, Runtime evidence integrity: PASS, green.story3_matrix: PASS."
     },
     {
       "featureId": "CHK-005",
-      "transcript": "node scripts/verify-process-fact-contract.mjs exited 0; the full smoke additionally passed signed query, deterministic scorecard, no path leakage, persistence non-authority, command/phase policy, forbidden import, and lifecycle dependency matrices."
+      "transcript": "Same independent focused run asserts signed deterministic protected-query rows, zero filesystem writes on cold reads, incomplete/tampered carrier refusal, process-fact and command-phase policy mutations, forbidden dependency imports, and DONE-plus-merged prerequisite gate fixtures. The complete focused ledger/runtime command finished with exit 0 and Finding ledger integrity: PASS, Runtime evidence integrity: PASS, green.story3_matrix: PASS."
     },
     {
       "featureId": "CHK-006",
-      "transcript": "The final full smoke exited 0 after green.red_green_relation_evaluate, version_sync, clean_pack_install, rollback_kill_switch, combined_concurrency, tamper_matrix, and dependency_scorecard_boundary; all three aggregate integrity markers passed."
+      "transcript": "Same independent focused run verifies unchanged RED/GREEN relation, combined concurrency, rollback/fail-closed and mutation matrix, historical Finding migration, FIFO build lock, synchronized local/current-main installed version binding and clean offline package installation. Also independently ran certification-window-smoke exit 0: sibling build inputs and historical deleted/renamed metadata classify uniquely while unknown/live retired paths refuse. The complete focused ledger/runtime command finished with exit 0 and Finding ledger integrity: PASS, Runtime evidence integrity: PASS, green.story3_matrix: PASS."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "Six delivery promises are independently mapped to committed implementation and executable evidence. RED and GREEN commands both exit 0, adversarial and crash/concurrency paths are covered, package/version behavior is verified, and no unresolved TODO/FIXME/HACK was introduced in the Story material diff."
+    "summary": "Independent delivery review covers the twelve existing Section 9.3 deliverables and six checklist items using current implementation and fresh focused execution. No unsupported promise or new unresolved TODO/FIXME/HACK was identified in the bounded material change. Review-process narratives and prior reviewer/test-evidence conclusions were not used as delivery proof; user approval and overall DONE readiness are separate."
   },
-  "_hash": "bececaf8664978db05c23ad6f10b2c05eaca7f13d4e85f957747ae5bf4a3decf"
+  "_hash": "6d94c875aa76046052ccb2473bb68f53a975d5ef9ee3386cff1761796df93e3d"
 }
