@@ -1522,6 +1522,7 @@
       "signatureTag": "doctor-bin-target-realpath-escape",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbcp2p_19r8_6a6996d4ae9743d8a30b0630f2fd0866",
+      "ledgerCommitReceiptId": "lrc_mtqbcp2p_19r8_5c45a43928a743678f84434e70129743",
       "resolvedAt": "2026-09-06T21:18:06.588Z",
       "resolvedReason": "Commit d65767d4b16e resolves the final bin target realpath, rejects final and intermediate symlink escapes outside the canonical package, and preserves realpath errno diagnostics; CHK-003 adversarial:1 passes.",
       "resolutionType": "fixed",
@@ -1532,7 +1533,7 @@
       "desc": "doc-promise-undelivered: .proof-or-stop/story/actives/B-e256/checklist.json:356-361 promises that when no global proof-or-stop is on PATH the global-core row is informational and names how to link one, but packages/main/src/core/runtime-environment-checks.ts:772-950 never consults context.cliEntrypoint and instead classifies presence only from npm root -g plus the package entry. The purported edge regression at packages/main/tests/global-core-realpath.test.mjs:159-169 and :310-349 injects a fake commandResolver while merely emptying the npm global root, so it does not exercise the promised no-PATH premise. A current built-candidate temporary probe with commandResolver=()=>null and a healthy canonical package under the global npm root produced cli-entrypoint=warn but global-core-realpath=pass, remediation=null, and the resolved-install contract marker instead of the promised informational link guidance. This is a distinct PATH-vs-global-package presence contract gap, not F-029 shim validation or F-031 platform wording. Align the intent with package-presence semantics or make the global-core row consume PATH presence, and test the actual premise. severity: critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T19:33:15.088Z",
@@ -1585,7 +1586,12 @@
         "packages/main/tests/global-core-realpath.test.mjs"
       ],
       "signatureTag": "doctor-path-vs-global-package-presence-contract",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqbcq3y_1a1t_b4065c30493a444cb7f0cea414e871ee",
+      "resolvedAt": "2026-09-06T21:18:07.938Z",
+      "resolvedReason": "Commit d65767d4b16e makes a missing PATH-selected proof-or-stop command non-pass with relink remediation even when the package exists; CHK-003 edge:1 exercises the actual premise and full validate passes.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-036",
