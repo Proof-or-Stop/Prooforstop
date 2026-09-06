@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "32bbc1a4cd268d7479fc1aca16aba9d1b55801b6ecf57835c8db0117c85bc330",
+  "committedLedgerDigest": "8afbae55867773587b98722716d7cf81229069e82c426f4a949c47f91ca64e1e",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2373,6 +2373,34 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-05T15:04:17.724Z"
+    },
+    {
+      "recordId": "lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a",
+      "recordType": "finding",
+      "idempotencyKey": "bfe8f-init-signature-domain-message-20260906",
+      "payload": {
+        "id": "B-fe8f:F-056",
+        "desc": "Mandatory validation registration-derivation fails EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE because its verdict-shapes target fails M2. Direct reproduction: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs exits 1 with rendersDomain=false stillCarriesTheOldHandWrittenList=true. The actual INIT_CHECK hash-mismatch guard in machine.ts hardcodes four fields, omitting storyId, reviewRound and reviewer verdict from the seven-component signed domain. main has the same defect; not introduced by B-fe8f, but the configured mandatory validate command prevents acceptance. Repair only the existing import and error-message renderer; preserve signature logic, rejection conditions and tests. The separate heartbeat full-run failure passes on isolated rerun and causal preflight refusal remains under diagnosis.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-06T00:58:24.737Z",
+        "reviewRound": "2026-09-05T14:53:05.943Z",
+        "_hash": "3a8eaa57386035475a5bf566050c00c785e3f04b672b438173f415fb66be3763",
+        "files": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "signatureTag": "doc-code-drift|ts|mandatory-validation-registration",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "c2933e87aebaa3b40e275175d94e36ecac2da26a72eaec47599557eae911860f",
+      "priorDigest": "32bbc1a4cd268d7479fc1aca16aba9d1b55801b6ecf57835c8db0117c85bc330",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T00:58:24.739Z"
     }
   ],
   "receipts": [
@@ -6585,6 +6613,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "afee3110a1bccfad3f3fb4288b49f9681cb6ca863b94dda678ee908851726853",
         "signature": "aJI9YwUSBbXDo287epNea03dl2mPfm10VlTA8BKSpbOrOOgbnAaQgc9ljpLWnSKTYwPZtjS4mhS6uTNN6Q2nCg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtp3s5lv_1ft3_7787b5ad2a60490eb44af7c8555ffa29",
+      "operation": "append_finding",
+      "idempotencyKey": "bfe8f-init-signature-domain-message-20260906",
+      "requestDigest": "bad64047fd11296717787b16829a6311e7431a2fb3f331e8187c74e3a877d656",
+      "recordIds": [
+        "lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a"
+      ],
+      "priorLedgerDigest": "32bbc1a4cd268d7479fc1aca16aba9d1b55801b6ecf57835c8db0117c85bc330",
+      "committedLedgerDigest": "8afbae55867773587b98722716d7cf81229069e82c426f4a949c47f91ca64e1e",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "828e8f7f-6feb-4889-9ddc-8e890b1493d1",
+      "committedAt": "2026-09-06T00:58:24.739Z",
+      "replayed": false,
+      "exactRequestDigest": "bdc1e0b241887eda067e6efa772129a9c4e408c291daeea877618cac2dda0808",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtp3s5lv_1ft3_7787b5ad2a60490eb44af7c8555ffa29",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "bfe8f-init-signature-domain-message-20260906",
+        "exactRequestDigest": "bdc1e0b241887eda067e6efa772129a9c4e408c291daeea877618cac2dda0808",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "32bbc1a4cd268d7479fc1aca16aba9d1b55801b6ecf57835c8db0117c85bc330",
+        "committedLedgerDigest": "8afbae55867773587b98722716d7cf81229069e82c426f4a949c47f91ca64e1e",
+        "replayed": false,
+        "committedAt": "2026-09-06T00:58:24.739Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "828e8f7f-6feb-4889-9ddc-8e890b1493d1",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "c3d22eeb3fefb2638dd4c94d940990bd59361e90bf7955d5a898c07c178e56ee",
+        "signature": "7+fYBYB1FmNkNuvGqeEaZxFLvFJe76ssxZE5XzqfBFZCGrOwEwgIyJGzbyMZVmGLNqFys4ragm723CCZBG+nAw=="
       }
     }
   ]

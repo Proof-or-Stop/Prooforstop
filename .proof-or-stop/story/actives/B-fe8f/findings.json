@@ -1461,6 +1461,26 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66",
       "ledgerCommitReceiptId": "lrc_mtoik471_bl9_072179585d174fd6b76269ca944aadf4"
+    },
+    {
+      "id": "B-fe8f:F-056",
+      "desc": "Mandatory validation registration-derivation fails EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE because its verdict-shapes target fails M2. Direct reproduction: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs exits 1 with rendersDomain=false stillCarriesTheOldHandWrittenList=true. The actual INIT_CHECK hash-mismatch guard in machine.ts hardcodes four fields, omitting storyId, reviewRound and reviewer verdict from the seven-component signed domain. main has the same defect; not introduced by B-fe8f, but the configured mandatory validate command prevents acceptance. Repair only the existing import and error-message renderer; preserve signature logic, rejection conditions and tests. The separate heartbeat full-run failure passes on isolated rerun and causal preflight refusal remains under diagnosis.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-06T00:58:24.737Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "_hash": "3a8eaa57386035475a5bf566050c00c785e3f04b672b438173f415fb66be3763",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+      ],
+      "signatureTag": "doc-code-drift|ts|mandatory-validation-registration",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a",
+      "ledgerCommitReceiptId": "lrc_mtp3s5lv_1ft3_7787b5ad2a60490eb44af7c8555ffa29"
     }
   ]
 }
