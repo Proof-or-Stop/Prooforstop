@@ -99,11 +99,14 @@
       "q": "Should the corrected CHK-001 and CHK-003 verification intents plus ProofStory AC-001 explicitly supersede the remaining unqualified POSIX examples in understanding.json and plan.md, or must those planning artifacts be reworded before DEV?",
       "evidence": "understanding.json.outcome says dist/cli.js has mode 0755 without a POSIX qualifier, and plan.md verification/remediation uses ls -la and chmod +x generically; current checklist.json and proofstory.json instead define POSIX executable bits versus Windows npm command-shim semantics and cmd.exe-valid remediation.",
       "sourcePointers": [
-        ".proof-or-stop/story/actives/B-e256/understanding.json",
         ".proof-or-stop/story/actives/B-e256/plan.md",
-        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/understanding.json",
+        "CHK-001",
+        "CHK-003",
         ".proof-or-stop/story/actives/B-e256/proofstory.json"
-      ]
+      ],
+      "resolution": "The planning artifacts must be reworded rather than treating the corrected checklist as an implicit supersession. Commit e5a5e83c87 now states the POSIX executable-bit contract and the Windows npm-shim/cmd.exe contract explicitly in both understanding.json and plan.md, matching CHK-001, CHK-003, and ProofStory AC-001.",
+      "resolvedAt": "2026-09-06T18:12:23.372Z"
     }
   ]
 }
