@@ -188,7 +188,7 @@ import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { tmpdir } from 'node:os';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -280,8 +280,10 @@ const sweepLegacyProbeDebris = () => {
 };
 
 /**
- * A PRIVATE MIRROR of the repository root, built from symlinks so it is
- * byte-faithful and costs no copying. `writableFiles` are the only paths the
+ * A PRIVATE MIRROR of the repository root, mostly built from symlinks so it is
+ * byte-faithful. Git administration is never linked: each mirror owns its refs,
+ * HEAD and index, with read-only object lookup through an alternates file.
+ * No source Git config, credentials or hooks are copied. `writableFiles` are the only paths the
  * caller may write: each is left absent (the caller creates it) and every
  * ancestor directory is materialized as a REAL directory whose other entries are
  * symlinks to the real ones. `materializeDirs` does the same for a directory the
@@ -322,7 +324,7 @@ function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs
     const inCopiedDir = copied.has(relDir);
     for (const entry of readdirSync(relDir === '' ? repoRoot : join(repoRoot, relDir))) {
       const childRel = relDir === '' ? entry : `${relDir}/${entry}`;
-      if (skip.has(childRel)) continue;
+      if (childRel === '.git' || skip.has(childRel)) continue;
       const src = join(repoRoot, childRel);
       const dest = join(root, childRel);
       if (mustBeReal.has(childRel)) {
@@ -338,7 +340,29 @@ function makeMirror(prefix, { writableFiles = [], materializeDirs = [], copyDirs
     }
   };
   walk('');
+  initializePrivateGit(root, repoRoot);
   return root;
+}
+
+function initializePrivateGit(root, sourceRoot) {
+  const source = gitIdentity(sourceRoot);
+  const format = gitText(sourceRoot, ['rev-parse', '--show-object-format']);
+  gitRead(root, ['init', '--quiet', '--template=', `--object-format=${format}`]);
+  const admin = join(root, '.git');
+  const objects = realpathSync(gitText(sourceRoot, ['rev-parse', '--path-format=absolute', '--git-path', 'objects']));
+  writeFileSync(join(admin, 'objects', 'info', 'alternates'), `${objects}\n`);
+  // for-each-ref includes packed refs without linking either refs or packed-refs.
+  const refs = gitText(sourceRoot, ['for-each-ref', '--format=%(objectname) %(refname)']);
+  if (refs) gitRead(root, ['update-ref', '--stdin'], refs.split('\n').map(line => {
+    const [object, ref] = line.split(' ');
+    return `update ${ref} ${object}\n`;
+  }).join(''));
+  copyFileSync(join(source.admin, 'HEAD'), join(admin, 'HEAD'));
+  copyFileSync(source.index, join(admin, 'index'));
+  // A split index refers to a sharedindex.<hash> companion, which must also be
+  // PRIVATE. Its bytes are copied, never shared or converted via the real index.
+  const shared = gitText(sourceRoot, ['rev-parse', '--path-format=absolute', '--shared-index-path']);
+  if (shared) copyFileSync(resolve(sourceRoot, shared), join(admin, basename(shared)));
 }
 
 // ── row reporting ───────────────────────────────────────────────────────────
@@ -352,14 +376,15 @@ const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
 
 // Local Git discovery must follow each fixture's own .git, never an inherited
 // repository/index override that also leaks into fixtures created by children.
-const localGitEnvironment = () => {
-  const env = { ...process.env, GIT_OPTIONAL_LOCKS: '0' };
+const localGitEnvironment = (inherited = process.env) => {
+  const env = { ...inherited, GIT_OPTIONAL_LOCKS: '0' };
   for (const key of ['GIT_DIR', 'GIT_COMMON_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE',
     'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES']) delete env[key];
   return env;
 };
-const gitRead = (root, args) => execFileSync('git', ['--no-optional-locks', ...args], {
+const gitRead = (root, args, input) => execFileSync('git', ['--no-optional-locks', ...args], {
   cwd: root, env: localGitEnvironment(), maxBuffer: 64 * 1024 * 1024,
+  ...(input !== undefined ? { input } : {}),
 });
 const gitText = (root, args) => gitRead(root, args).toString('utf8').trim();
 function gitIdentity(root) {
@@ -388,6 +413,7 @@ function requirePrivateGit(mirror, source) {
 const REAL_GIT_BEFORE = gitSnapshot(repoRoot);
 let isolationMirror = null;
 let sharedAdminControl = null;
+let splitMirror = null;
 try {
   // Deterministic RED on the old symlink mirror, before ANY index-write probe.
   isolationMirror = makeMirror('red-b49d4-index-isolation-', { copyDirs: [RED_DIR_REL] });
@@ -410,8 +436,33 @@ try {
   assert.deepEqual(gitSnapshot(repoRoot), REAL_GIT_BEFORE, 'private index mutation cannot affect real Git state');
   writeFileSync(identity.index, savedIndex);
   assert.deepEqual(gitSnapshot(isolationMirror), before, 'private index restoration is exact');
+
+  // Exercise packed refs and split-index companions using ONLY disposable Git
+  // administration. Ordinary nested fixtures must discover their own index even
+  // if an outer caller supplied repository/index overrides.
+  gitRead(isolationMirror, ['pack-refs', '--all']);
+  gitRead(isolationMirror, ['update-index', '--split-index']);
+  const sharedIndex = gitText(isolationMirror, ['rev-parse', '--path-format=absolute', '--shared-index-path']);
+  assert.ok(sharedIndex, 'split-index control actually creates a companion');
+  splitMirror = mkdtempSync(join(tmpdir(), 'red-b49d4-split-index-'));
+  initializePrivateGit(splitMirror, isolationMirror);
+  const splitIdentity = requirePrivateGit(splitMirror, gitIdentity(isolationMirror));
+  assert.equal(gitSnapshot(splitMirror).stagesDigest, before.stagesDigest, 'split-index snapshot preserves stages');
+  assert.equal(gitText(splitMirror, ['rev-parse', 'HEAD']), before.head, 'split-index snapshot preserves HEAD');
+  assert.equal(gitText(splitMirror, ['for-each-ref', '--format=%(objectname) %(refname)']),
+    gitText(isolationMirror, ['for-each-ref', '--format=%(objectname) %(refname)']), 'packed refs remain readable and exact');
+  const copiedShared = gitText(splitMirror, ['rev-parse', '--path-format=absolute', '--shared-index-path']);
+  assert.notEqual(realpathSync(copiedShared), realpathSync(sharedIndex), 'split-index companion is private');
+  assert.equal(sha256(readFileSync(copiedShared)), sha256(readFileSync(sharedIndex)), 'split-index companion bytes are faithful');
+  const nestedEnv = localGitEnvironment({ ...process.env, GIT_INDEX_FILE: identity.index,
+    GIT_DIR: identity.admin, GIT_COMMON_DIR: identity.common, GIT_WORK_TREE: isolationMirror });
+  assert.equal(nestedEnv.GIT_INDEX_FILE, undefined, 'never export a parent index into nested fixtures');
+  const nestedIndex = execFileSync('git', ['rev-parse', '--path-format=absolute', '--git-path', 'index'],
+    { cwd: splitMirror, env: nestedEnv, encoding: 'utf8' }).trim();
+  assert.equal(realpathSync(nestedIndex), splitIdentity.index, 'nested Git resolves its own index despite caller overrides');
   console.log('GREEN private Git index isolation');
 } finally {
+  if (splitMirror !== null) rmSync(splitMirror, { recursive: true, force: true });
   if (isolationMirror !== null) rmSync(isolationMirror, { recursive: true, force: true });
   if (sharedAdminControl !== null) rmSync(sharedAdminControl, { recursive: true, force: true });
 }
