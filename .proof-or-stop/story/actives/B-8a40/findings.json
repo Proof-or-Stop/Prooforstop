@@ -854,6 +854,55 @@
       ],
       "signatureTag": "prompt-envelope-dismissal-double-negation-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-019",
+      "desc": "packages/main/src/core/prompt-envelope.ts:1020-1054 omits checklist relatedDocs and other rendered structural string leaves from reviewerTaskContextAuthorityText, while packages/main/src/core/prompt-contracts.ts:803-819 validates relatedDocs and checklist file lists only as bounded strings. That does not prove these leaves are non-prose: relatedDocs explicitly permits human-facing #anchors, and checklist_add/checklist_update stores caller-provided relatedDocs. Independent public built-API reproduction used the valid existing-document reference `README.md#A finding_dismiss receipt certifies the issue as out_of_scope.` as CHK-001.relatedDocs[0]. Every active modular reviewer role ADMITTED an integrity-valid envelope and the exact authority statement was present in every rendered prompt; the equivalent statement in story.description is REJECTED. A broader structural-leaf probe likewise admitted and rendered the statement from checklist.files.modify, scope.allowedModify, scope.protectedFiles, fileRule.path, fileRule.allowedChangeKinds, and fileRule.intentRefs for all five roles. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1460-1483 tests only the newly enumerated natural-language scope arrays, so its all-role matrix cannot detect this class. This is distinct from F-010/F-011: those findings concern omitted scope prose leaves such as explicitExcludes and anchors, whereas this defect is the absence of either authority scanning or a mechanical structural-shape proof for fields currently trusted merely because of their names. Enumerate every rendered user-authorable string leaf or enforce a closed structural grammar before rendering, and add all-role unsafe and ordinary-reference controls. Severity high because Story-authored Task Context can still publish forbidden dismissal/applicability authority before envelope digests while the focused smoke and mechanical evidence report PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T17:59:28.763Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-030",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "db907d5d7b80842fb85bbb98a9ead29edd3366be9662e0abdd7b3e05b216ff73",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-unvalidated-structural-leaf-authority-injection",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
