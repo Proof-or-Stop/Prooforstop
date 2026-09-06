@@ -1959,7 +1959,7 @@ function compactFactDetail(result: RuntimeFactCheckResult): string {
     const executable = actual?.executable === null || actual?.executable === undefined ? 'unverified' : actual.executable ? 'yes' : 'no';
     const unverifiable = typeof actual?.verification === 'string' && actual.verification !== 'ok' ? ` unverifiable=${actual.verification}` : '';
     const verificationError = actual?.verificationErrorCode ? ` error=${actual.verificationErrorCode}` : '';
-    return `${actual.realpath} version=${actual?.compiledVersion ?? actual?.version ?? 'unknown'} mode=${mode} executable=${executable}${unverifiable}${verificationError}`;
+    return `${actual.realpath} version=${actual?.compiledVersion ?? 'unknown'} mode=${mode} executable=${executable}${unverifiable}${verificationError}`;
   }
   if (result.outputKey === 'projectLocalBin') {
     const actual = result.actual as any;

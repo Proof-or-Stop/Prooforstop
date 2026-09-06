@@ -10,7 +10,7 @@
 //
 // This module imports ONLY node: built-ins, so it adds no third-party dependency to
 // its callers' fresh-checkout footprint.
-import { chmodSync, lstatSync, readFileSync, renameSync, rmSync } from 'node:fs';
+import { chmodSync, lstatSync, readFileSync, realpathSync, renameSync, rmSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, sep } from 'node:path';
 
 export function promoteDist(dist, staging, trash) {
@@ -93,17 +93,27 @@ export function restoreBinExecutableBits(tree, dist = tree) {
   // npm accepts both `bin: { name: "path" }` and the `bin: "path"` shorthand; only the paths matter.
   const targets = typeof bin === 'string' ? [bin] : typeof bin === 'object' && bin !== null ? Object.values(bin) : [];
   const restored = [];
+  let realTree;
   for (const rel of targets) {
     if (typeof rel !== 'string') continue;
     const underDist = relative(dist, join(packageRoot, rel));
     if (underDist === '' || underDist === '..' || underDist.startsWith(`..${sep}`) || isAbsolute(underDist)) continue; // not inside the promoted tree
     const target = join(tree, underDist);
     try {
-      // lstat is deliberate: stat would follow an in-tree symlink and let a
-      // malformed staging tree chmod a referent outside the promoted tree.
+      // lstat rejects a symlink at the final path. realpath containment is a
+      // separate, necessary check: an intermediate directory component can be
+      // a symlink whose final referent still looks like a regular file.
       const targetStat = lstatSync(target);
       if (!targetStat.isFile()) {
         const error = new Error(`bin target is not a regular file`);
+        error.code = 'EINVAL';
+        throw error;
+      }
+      realTree ??= realpathSync(tree);
+      const realTarget = realpathSync(target);
+      const underRealTree = relative(realTree, realTarget);
+      if (underRealTree === '' || underRealTree === '..' || underRealTree.startsWith(`..${sep}`) || isAbsolute(underRealTree)) {
+        const error = new Error(`bin target resolves outside the promoted tree`);
         error.code = 'EINVAL';
         throw error;
       }

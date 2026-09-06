@@ -971,6 +971,9 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
     const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
     assert.ok(warnings.includes('compiled runtime version could not be verified: compiled runtime version probe timed out after 5000ms'), `got: ${warnings}`);
     assert.ok(warnings.includes(`rebuild and relink: ${rebuild} && ${relink}`), `got: ${warnings}`);
+    const row = globalCoreRow(report);
+    assert.ok(row.includes('version=unknown'), `a failed compiled-version probe must render unknown, got: ${row}`);
+    assert.ok(!row.includes('version=0.0.0'), `the compact row must not substitute the manifest version after probe failure, got: ${row}`);
   } finally {
     rmSync(base, { recursive: true, force: true });
   }

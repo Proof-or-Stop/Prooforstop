@@ -131,6 +131,22 @@ function withTempPackage(fn) {
 }
 const CLI_BODY = '#!/usr/bin/env node\nconsole.log("hello from a rebuilt bin target");\n';
 
+// Windows may deny symlink creation unless Developer Mode or the relevant
+// privilege is enabled. Treat only that host capability limitation as a skip;
+// every other construction failure remains a test failure.
+function tryCreateFixtureSymlink(target, path, type, label) {
+  try {
+    symlinkSync(target, path, type);
+    return true;
+  } catch (error) {
+    if (process.platform === 'win32' && ['EPERM', 'EACCES', 'ENOSYS'].includes(error?.code)) {
+      console.log(`${label}: Windows symlink capability unavailable (${error.code}) — skipped`);
+      return false;
+    }
+    throw error;
+  }
+}
+
 // (a) 0644 bin target becomes executable, content byte-identical, returned list is ['dist/cli.js']
 expect('hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored', () => {
   assert.notEqual(restoreBinExecutableBits, null, 'restoreBinExecutableBits is not available (see the export case above)');
@@ -252,10 +268,39 @@ expect('hermetic (c5): an in-tree symlink cannot chmod a referent outside the pr
     const outside = join(pkgRoot, 'outside.js');
     writeFileSync(outside, CLI_BODY);
     chmodSync(outside, 0o644);
-    symlinkSync(outside, join(dist, 'cli.js'));
+    if (!tryCreateFixtureSymlink(outside, join(dist, 'cli.js'), 'file', 'hermetic (c5)')) return;
     writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: 'dist/cli.js' }));
     assert.throws(() => restoreBinExecutableBits(dist), (error) => error?.code === 'EINVAL' && /not a regular file/.test(error.message));
     assert.equal(statSync(outside).mode & 0o777, 0o644, 'outside referent permissions must remain unchanged');
+  });
+});
+
+expect('hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree', () => {
+  assert.notEqual(promoteDist, null, 'promoteDist is not available');
+  withTempPackage((pkgRoot, dist) => {
+    const staging = join(pkgRoot, 'dist.staging');
+    const trash = join(pkgRoot, 'dist.trash');
+    const outside = join(pkgRoot, 'outside');
+    mkdirSync(join(dist, 'linked'), { recursive: true });
+    writeFileSync(join(dist, 'linked', 'cli.js'), CLI_BODY);
+    chmodSync(join(dist, 'linked', 'cli.js'), 0o755);
+    mkdirSync(staging, { recursive: true });
+    mkdirSync(outside, { recursive: true });
+    const outsideTarget = join(outside, 'cli.js');
+    writeFileSync(outsideTarget, CLI_BODY);
+    chmodSync(outsideTarget, 0o644);
+    const symlinkType = process.platform === 'win32' ? 'junction' : 'dir';
+    if (!tryCreateFixtureSymlink(outside, join(staging, 'linked'), symlinkType, 'hermetic (c6)')) return;
+    writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: 'dist/linked/cli.js' }));
+
+    assert.throws(
+      () => promoteDist(dist, staging, trash),
+      (error) => error?.code === 'EINVAL' && /resolves outside the promoted tree/.test(error.message),
+    );
+    assert.equal(statSync(outsideTarget).mode & 0o777, 0o644, 'outside referent permissions must remain unchanged');
+    assert.equal(readFileSync(join(dist, 'linked', 'cli.js'), 'utf8'), CLI_BODY, 'old dist must remain untouched');
+    assert.ok(existsSync(staging), 'malformed staging tree must not be promoted');
+    assert.ok(!existsSync(trash), 'old dist must not be evicted');
   });
 });
 
