@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "0fb823201bc85dba31a1f0aeba21de1e6201ee582af3e79bf32cb451b8d8a61e",
+  "committedLedgerDigest": "e735d727ed4e75a9f2fcecf70f6ab7a1e89edab112873184dbbbca4b7ddae797",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2429,6 +2429,33 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T13:05:42.861Z"
+    },
+    {
+      "recordId": "lr_mtpvydqb_1729_91e7b7c320a24b0cab486f5032fdcce7",
+      "recordType": "finding",
+      "idempotencyKey": "bfe8f-post-main-e1-temp-index-environment",
+      "payload": {
+        "id": "B-fe8f:F-058",
+        "desc": "Current mandatory validation fails because the B-fe8f E1/E2 temporary Git-index drift witness inherits GIT_OPTIONAL_LOCKS=0 while asserting that git status refreshes the temporary index. Source baseline 55d5e34c6f360ef23e790a6c445bfb8b9a86e997, unchanged material 0a92206b63a96526e12de317bf80507df9e43c102e323db53073313f81ac1e4c. Real validate command9 and one same-environment isolated rerun exit1 at E1: verifier refreshed git index identity during the shared execution; its one-execution assertion passed. RED log /tmp/bfe8f-sameenv-refresh-smoke.TP5rOk/verification-run-and-guard-smoke.log. Repair only the temporary child Git environment, preserve every existing receipt/count/selector/drift assertion and formal validation GIT_OPTIONAL_LOCKS=0. This directly blocks B-fe8f acceptance and remains current-Story work.",
+        "severity": "medium",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-06T14:07:04.448Z",
+        "reviewRound": "2026-09-05T14:53:05.943Z",
+        "_hash": "ebac620ba0cdfbbe8ddce3125537a7764b9578516dafc4c70dbbebe1b4880945",
+        "files": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "signatureTag": "edge|ts|current-mandatory-validation",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "ad44b2c41538f90693a207e9c67bd43e7f139a0d1b971384213acc302a1307b6",
+      "priorDigest": "0fb823201bc85dba31a1f0aeba21de1e6201ee582af3e79bf32cb451b8d8a61e",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T14:07:04.451Z"
     }
   ],
   "receipts": [
@@ -6727,6 +6754,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "3755f1502d97259b76546244155b3e1731918396cf6993f1f962ce4158f1934e",
         "signature": "dbgJuJ3jNAMA9LSpwRMmEtrNTQGzDq+6bhI92GPAXqbmwREJ0fovnLD920gnp1ekylEllyDo9MZnSIfEFWLWDw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtpvydqb_1729_716c16dd76a741b4b293896943c6e1a5",
+      "operation": "append_finding",
+      "idempotencyKey": "bfe8f-post-main-e1-temp-index-environment",
+      "requestDigest": "eae81936597ec55aa058b26380057a6bcb9740b5423a386376a2c96f100a086f",
+      "recordIds": [
+        "lr_mtpvydqb_1729_91e7b7c320a24b0cab486f5032fdcce7"
+      ],
+      "priorLedgerDigest": "0fb823201bc85dba31a1f0aeba21de1e6201ee582af3e79bf32cb451b8d8a61e",
+      "committedLedgerDigest": "e735d727ed4e75a9f2fcecf70f6ab7a1e89edab112873184dbbbca4b7ddae797",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "9cbfdccf-43d3-47c2-9b31-7d7b35640014",
+      "committedAt": "2026-09-06T14:07:04.451Z",
+      "replayed": false,
+      "exactRequestDigest": "d39d1eaaf56b5a0e1dd2976f35b97da272c2ed6d5c271657b25aec0660f5ffd1",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtpvydqb_1729_716c16dd76a741b4b293896943c6e1a5",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "bfe8f-post-main-e1-temp-index-environment",
+        "exactRequestDigest": "d39d1eaaf56b5a0e1dd2976f35b97da272c2ed6d5c271657b25aec0660f5ffd1",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtpvydqb_1729_91e7b7c320a24b0cab486f5032fdcce7"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "0fb823201bc85dba31a1f0aeba21de1e6201ee582af3e79bf32cb451b8d8a61e",
+        "committedLedgerDigest": "e735d727ed4e75a9f2fcecf70f6ab7a1e89edab112873184dbbbca4b7ddae797",
+        "replayed": false,
+        "committedAt": "2026-09-06T14:07:04.451Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "9cbfdccf-43d3-47c2-9b31-7d7b35640014",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "d467a829a2ecaf30bcc7ecc0d601e4a5a24e96f44dbc3fd86a1c482d1f7cb2de",
+        "signature": "oScVANVNTPSPq1lSsc/AiLoWOufpFCFU0+VCHs7qRdIcfrYgvMJ2t7FoDnBL0GMg9ZYyBOK48vIPjOJuE5pkAA=="
       }
     }
   ]

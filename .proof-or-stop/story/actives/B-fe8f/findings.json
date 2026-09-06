@@ -1501,6 +1501,25 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606",
       "ledgerCommitReceiptId": "lrc_mtptrgzx_p4m_6a56be98b108482199efcc093037115c"
+    },
+    {
+      "id": "B-fe8f:F-058",
+      "desc": "Current mandatory validation fails because the B-fe8f E1/E2 temporary Git-index drift witness inherits GIT_OPTIONAL_LOCKS=0 while asserting that git status refreshes the temporary index. Source baseline 55d5e34c6f360ef23e790a6c445bfb8b9a86e997, unchanged material 0a92206b63a96526e12de317bf80507df9e43c102e323db53073313f81ac1e4c. Real validate command9 and one same-environment isolated rerun exit1 at E1: verifier refreshed git index identity during the shared execution; its one-execution assertion passed. RED log /tmp/bfe8f-sameenv-refresh-smoke.TP5rOk/verification-run-and-guard-smoke.log. Repair only the temporary child Git environment, preserve every existing receipt/count/selector/drift assertion and formal validation GIT_OPTIONAL_LOCKS=0. This directly blocks B-fe8f acceptance and remains current-Story work.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-06T14:07:04.448Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "_hash": "ebac620ba0cdfbbe8ddce3125537a7764b9578516dafc4c70dbbebe1b4880945",
+      "files": [
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "signatureTag": "edge|ts|current-mandatory-validation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtpvydqb_1729_91e7b7c320a24b0cab486f5032fdcce7",
+      "ledgerCommitReceiptId": "lrc_mtpvydqb_1729_716c16dd76a741b4b293896943c6e1a5"
     }
   ]
 }
