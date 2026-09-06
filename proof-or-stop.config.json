@@ -1579,13 +1579,13 @@
         "policySource": "explicit-dyn1-audit-v1"
       },
       {
-        "id": "red-global-cli-exec-bit",
-        "label": "B-e256 global CLI rebuild and promotion regression",
         "command": "node",
         "args": [
           "packages/main/tests/red/red-global-cli-exec-bit.mjs"
         ],
         "timeoutMs": 180000,
+        "id": "red-global-cli-exec-bit",
+        "label": "B-e256 global CLI rebuild and promotion regression",
         "resources": [
           {
             "class": "git-common-dir",
