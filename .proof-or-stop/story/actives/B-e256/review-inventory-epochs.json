@@ -830,7 +830,7 @@
       "reviewRound": "2026-09-06T16:52:33.065Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T17:14:07.376Z",
-      "updatedAt": "2026-09-06T17:14:07.376Z",
+      "updatedAt": "2026-09-06T17:27:53.858Z",
       "cutoff": {
         "headHash": "9763e4bb2dc8459c8e40964064fabe141aa724c5",
         "materialHash": "450191bd9f7c19872fbc84e018034b5583be2c6f6b69fe84761d8a900b7ee533",
@@ -844,9 +844,61 @@
       ],
       "initialRunSequenceBoundary": 81,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T17:14:07.376Z",
+          "completedAt": "2026-09-06T17:27:53.858Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-082",
+              "terminal": "finding",
+              "hostIdentity": "cb0796a159f59e443a1c64ccb005844354e7d281a3d6d5dd95550e1c29e91373",
+              "promptIdentity": "c95abfee0a2b42cdcdee44fc622c6216dd9af4e7f85c4594b341c95ac6165c26",
+              "evidenceIds": [
+                "B-e256:F-024"
+              ],
+              "coverageDigest": "3ffbb305676c202e5167e14b615d7612e4111d772508712d28f1148cf47438f4"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-083",
+              "terminal": "finding",
+              "hostIdentity": "cb0796a159f59e443a1c64ccb005844354e7d281a3d6d5dd95550e1c29e91373",
+              "promptIdentity": "12a441afd4c3e7bbfd98270d5af4ccefd610f7359e4427db72a1bf8c1f5be767",
+              "evidenceIds": [
+                "B-e256:F-025"
+              ],
+              "coverageDigest": "4a85894a5826b8d3184936e735786f6ee246e232930c964148e8bd11fa3ca34c"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-084",
+              "terminal": "finding",
+              "hostIdentity": "8452d9843f15f14c52e6578c9966ed7c413c499a112ebc3e4c7181e16aac1482",
+              "promptIdentity": "9613b9b321231fb98e7e698b0bda45a6666c086b695249b0a519d4abc93c4251",
+              "evidenceIds": [
+                "B-e256:F-026",
+                "B-e256:F-027"
+              ],
+              "coverageDigest": "30dcd41a5f83eca39f830324f44d24facd036f1ebb9c88e3a776d7d00fd99f07"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "cross-platform-acceptance-contract",
+            "global-core-realpath-win32-fixture-contract",
+            "host-bound-doctor-evidence-selector"
+          ],
+          "verifiedFindingSetDigest": "b5f89d28ad6c31c2abfb90c59449efaa61f4eb586051d02957e2f46bc7b46be4",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "0d384a48d1e4735245a4441f0ff27f2567813ff3933178ac90c26cacd8d877cc",
+          "saturated": false,
+          "nextRunSequenceBoundary": 85
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "fc2a96f9f59c9dfa30306109ae004f89cdd1ada3adc4b0b306c8139a92a2b0a1"
+      "_hash": "b0df52f73b14afda5a46789651c22cb88f784f9892fca6bad7e8ce5c757b8f19"
     }
   ],
   "receipts": [
@@ -1431,6 +1483,56 @@
       "findingDispositions": [],
       "createdAt": "2026-09-06T16:40:05.299Z",
       "_hash": "10f61a4381d7244484035a2363219ddc91a471567c50efcf0b2d8fa9d277b26c"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-005:CRIT-01",
+      "epochId": "B-e256:RI-005",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T16:52:33.065Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "9763e4bb2dc8459c8e40964064fabe141aa724c5",
+        "materialHash": "450191bd9f7c19872fbc84e018034b5583be2c6f6b69fe84761d8a900b7ee533",
+        "storyFilesHash": "6e95a097c38048c3b957a290eca2c383f5510de17e232105cb647d7a38d96e93"
+      },
+      "aggregateFindingSetDigest": "b5f89d28ad6c31c2abfb90c59449efaa61f4eb586051d02957e2f46bc7b46be4",
+      "requiredLaneCoverageDigest": "1becdf7a8f89ba32589f46703a9d4dd7952ada5e247fd65ccb7457e8a384fbff",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-085",
+      "terminalEvidenceIds": [
+        "B-e256:RP-059"
+      ],
+      "readEvidenceDigest": "af1d099d1a953207493067265b1f90b0b402b48e826e1cf48b3563428d1d9a4a",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-024",
+          "disposition": "verified_family",
+          "familyKey": "cross-platform-acceptance-contract",
+          "reason": "The machine-owned CHK-001 must intent and ProofStory bind universal POSIX 0o111/0755 semantics while the repaired test defines a distinct Windows npm-shim target branch. The Windows branch can pass without emitting the pinned POSIX label, so the acceptance contract is internally inconsistent and requires repair."
+        },
+        {
+          "findingId": "B-e256:F-025",
+          "disposition": "duplicate",
+          "familyKey": "cross-platform-acceptance-contract",
+          "canonicalFindingId": "B-e256:F-024",
+          "reason": "F-025 isolates the exact pinned-selector failure already included in F-024: both cite checklist line 30 versus the Windows alternate label at red-global-cli-exec-bit lines 179-182 and require the same platform-invariant or platform-aware intent repair. F-024 is live, verified, and non-circular, so F-025 adds no independent family."
+        },
+        {
+          "findingId": "B-e256:F-026",
+          "disposition": "verified_family",
+          "familyKey": "global-core-realpath-win32-fixture-contract",
+          "reason": "The CHK-003 shared fixture unconditionally constructs a directory symlink and expects POSIX 0644/X_OK/chmod behavior, while production explicitly treats win32 as having no execute-bit contract. This makes the registered ok-global-core-realpath evidence path fail or abort on affected Windows hosts and is distinct from CHK-001 acceptance wording."
+        },
+        {
+          "findingId": "B-e256:F-027",
+          "disposition": "verified_family",
+          "familyKey": "host-bound-doctor-evidence-selector",
+          "reason": "CHK-003 happy evidence pins a submitter-specific absolute macOS checkout path, so the command cannot refresh in another clone or Windows checkout even if the correct doctor row is emitted. This path-binding defect is independent of the global-core test fixture portability and CHK-001 labels."
+        }
+      ],
+      "createdAt": "2026-09-06T17:27:34.659Z",
+      "_hash": "4575b098cb598abf057311a6ce80c67fab40a777b008b7aeed338fdabe237602"
     }
   ]
 }
