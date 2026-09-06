@@ -2182,9 +2182,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T11:47:58.939Z",
-      "endTime": "2026-09-06T15:57:38.972Z",
+      "endTime": "2026-09-06T16:56:41.314Z",
       "userSees": "The final verification prints \"Finding ledger integrity: PASS\", \"Runtime evidence integrity: PASS\", and \"green.story3_matrix: PASS\".",
       "excludes": [
         "No Story 2 identity/lineage behavior.",
@@ -3286,6 +3286,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Repair current acceptance-blocking BUG-CERT-002 and F061/F062 under the existing two-file scope acknowledgement; preserve original RED and refusal boundaries."
+    },
+    {
+      "timestamp": "2026-09-06T16:56:41.314Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed BUG-CERT-002 RED55c9f4e9 and GREEN2bee7e31; full focused certification and brand guard positive/negative controls pass. Official refresh re-executed pinned verifiers; full CLI read confirms71/71 mechanical PASS with zero exit, matched selectors, causal receipts and current material/story hashes. Full routine/DONE validation remains pending."
     }
   ]
 }
