@@ -200,7 +200,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:511-518 recognizes a safe negative dismissal observation only when `no` precedes the dismissal subject with at most four words and the optional `by` actor has at most three words. Safe word-order and actor-length equivalents therefore fall back to the whole-source co-occurrence rejection even when their later prose explicitly keeps acceptance blockers in the current Story for repair. The committed public assembleFullPromptEnvelope API rejected `By this intake, no parent Finding is closed. During implementation, acceptance blockers require repair in the current Story.` and `No parent Finding is closed by the newly created supporting Story. During implementation, acceptance blockers require repair in the current Story.` for every active modular REVIEW role. This is distinct from F-002: those inputs never reach its linked-outcome polarity decision because the initial safe observation is not recognized. It violates the related decision's word-order invariant at review-finding-triage-prompt-change-proposal.md:346-351 and leaves the second safe fixture too close to the exact grammar to prove the conceptual boundary. Add safe negative-observation word-order/actor variants and replace the fixed word-count shape with bounded relationship/polarity classification; severity high.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T16:49:20.024Z",
@@ -238,7 +238,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-negative-observation-shape-false-positive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added safe negative-observation word-order variants across every active reviewer role.",
+      "resolvedAt": "2026-09-06T17:43:44.501Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-006",
