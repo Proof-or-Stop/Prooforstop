@@ -3058,6 +3058,54 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqazb2h_10b3_78fa54b046f54fb3baf5f1c5e40202a9",
       "ledgerCommitReceiptId": "lrc_mtqazb2i_10b3_1642eca0af5944d998959aaf8ede225e"
+    },
+    {
+      "id": "B-8a40:F-064",
+      "desc": "packages/main/src/core/prompt-envelope.ts:660-690 preserves a signed-disposition inspection antecedent, but its complete safe negative continuation at :675 recognizes `the ... disposition does not bind the Finding` only when the disposition noun has at most two recognized modifiers. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED `Reviewers inspect a signed defer_with_proof disposition. The verified audited disposition does not bind the Finding.`, but all five REJECTED the semantically identical `The verified audited signed disposition does not bind the Finding.` continuation. Every modifier, target, negative modal, and action is already in the production vocabulary; only the third modifier crosses `{0,2}`, after which the state machine falls through to an unsafe assignment. The focused smoke has canonical negative continuations but no two/three-word boundary. This is distinct from F-039 safe terminal-state synonyms and F-040 direct negative-quantifier forms because the exact canonical negative assignment grammar remains unchanged except for adjective count. Parse the complete negative coreferent relation without an arbitrary modifier ceiling and add all-role two/three/four-word safe plus affirmative controls. Severity high because legitimate detailed evidence wording prevents every REVIEW role from starting.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T21:07:46.017Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-114",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "1e50d0fac9598ff28837585f18d8731947ebafad37a5fedd991e6bac2e45ddf9",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "signed-disposition-negative-coreferent-modifier-bound-false-positive",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqaze8y_12b9_1201b2c1cea24c249b136fe98101c1c0",
+      "ledgerCommitReceiptId": "lrc_mtqaze8y_12b9_fd37d82dabe241568bf68e553e612888"
     }
   ]
 }

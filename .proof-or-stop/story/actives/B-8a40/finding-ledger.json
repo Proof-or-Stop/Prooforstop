@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "db00ef64dae7b4e173dfd31604b462a6610615f5425c63d42f15d6f2fcf97b88",
+  "committedLedgerDigest": "c674f0e3bcb2c35a39f479548d941a055e5b53e1f1611c18512bf0081c839c36",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -394,6 +394,62 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T21:07:41.897Z"
+    },
+    {
+      "recordId": "lr_mtqaze8y_12b9_1201b2c1cea24c249b136fe98101c1c0",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:cde88109-58ea-4f65-bc5f-5fb23f5abc70",
+      "payload": {
+        "id": "B-8a40:F-064",
+        "desc": "packages/main/src/core/prompt-envelope.ts:660-690 preserves a signed-disposition inspection antecedent, but its complete safe negative continuation at :675 recognizes `the ... disposition does not bind the Finding` only when the disposition noun has at most two recognized modifiers. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED `Reviewers inspect a signed defer_with_proof disposition. The verified audited disposition does not bind the Finding.`, but all five REJECTED the semantically identical `The verified audited signed disposition does not bind the Finding.` continuation. Every modifier, target, negative modal, and action is already in the production vocabulary; only the third modifier crosses `{0,2}`, after which the state machine falls through to an unsafe assignment. The focused smoke has canonical negative continuations but no two/three-word boundary. This is distinct from F-039 safe terminal-state synonyms and F-040 direct negative-quantifier forms because the exact canonical negative assignment grammar remains unchanged except for adjective count. Parse the complete negative coreferent relation without an arbitrary modifier ceiling and add all-role two/three/four-word safe plus affirmative controls. Severity high because legitimate detailed evidence wording prevents every REVIEW role from starting.",
+        "severity": "high",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-06T21:07:46.017Z",
+        "reviewRound": "2026-09-06T19:49:59.446Z",
+        "reviewRunId": "B-8a40:RR-114",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "1e50d0fac9598ff28837585f18d8731947ebafad37a5fedd991e6bac2e45ddf9",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "signed-disposition-negative-coreferent-modifier-bound-false-positive",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "15d54c50dfa6bba2b91ebcfdb60f5b54b3efe43166df94ce2d696ede5340039d",
+      "priorDigest": "db00ef64dae7b4e173dfd31604b462a6610615f5425c63d42f15d6f2fcf97b88",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T21:07:46.018Z"
     }
   ],
   "receipts": [
@@ -696,6 +752,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "40f2e232fb327d71654e14bbda3d26f2a31316a4e436743708abceda8970e560",
         "signature": "O7mtAPo9IqlHoC/OW+rjSj1/yFESilWigiYBej6Uv0nOWs15O1bXGWNk99bFdPlHoFGm8D3tcU6eMGm2s4h9DA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqaze8y_12b9_fd37d82dabe241568bf68e553e612888",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:cde88109-58ea-4f65-bc5f-5fb23f5abc70",
+      "requestDigest": "c5e9d16eaa52ea50822bd3388719583883e0dcf511bfe38683dfe778f35f975d",
+      "recordIds": [
+        "lr_mtqaze8y_12b9_1201b2c1cea24c249b136fe98101c1c0"
+      ],
+      "priorLedgerDigest": "db00ef64dae7b4e173dfd31604b462a6610615f5425c63d42f15d6f2fcf97b88",
+      "committedLedgerDigest": "c674f0e3bcb2c35a39f479548d941a055e5b53e1f1611c18512bf0081c839c36",
+      "writerSessionId": "sess-603208b3ae7f13b889e99830d80831a0",
+      "writerFenceToken": "d6b7e5b6-0eb5-412d-b901-b48a6b99b8e4",
+      "committedAt": "2026-09-06T21:07:46.018Z",
+      "replayed": false,
+      "exactRequestDigest": "abdc16cd8d689c9946d5629d8185f0619124f69e10af0537221614e72f36df01",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqaze8y_12b9_fd37d82dabe241568bf68e553e612888",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:cde88109-58ea-4f65-bc5f-5fb23f5abc70",
+        "exactRequestDigest": "abdc16cd8d689c9946d5629d8185f0619124f69e10af0537221614e72f36df01",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqaze8y_12b9_1201b2c1cea24c249b136fe98101c1c0"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "db00ef64dae7b4e173dfd31604b462a6610615f5425c63d42f15d6f2fcf97b88",
+        "committedLedgerDigest": "c674f0e3bcb2c35a39f479548d941a055e5b53e1f1611c18512bf0081c839c36",
+        "replayed": false,
+        "committedAt": "2026-09-06T21:07:46.018Z",
+        "writerSessionId": "sess-603208b3ae7f13b889e99830d80831a0",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "d6b7e5b6-0eb5-412d-b901-b48a6b99b8e4",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "b79798b4f6729f91b65091a041f1440b988d7256457c472f542d6edf363e5c3a",
+        "signature": "M0UvUp5gQWmrBhjxPuVRZuxaAJXX/sMQupX0t7Fnlv24+0X+4VJFiNNbumGVlHGEt+VKcQCmaK6ClgoSTTxPAw=="
       }
     }
   ]
