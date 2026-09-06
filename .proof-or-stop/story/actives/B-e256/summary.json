@@ -1,18 +1,18 @@
 {
   "storyId": "B-e256",
-  "changes": "scripts/promote-dist.mjs validates and restores package.json bin targets on staging before old-dist eviction and rejects symlink escapes. runtime-environment-checks.ts now reports compiled-version truth, emits stable global-core contract markers, and renders host-shell remediation: POSIX commands on POSIX and cmd.exe-valid commands on Windows. The red and realpath regressions cover both platform contracts.",
-  "usage": "Run npm --prefix packages/main run build, then proof-or-stop --version and proof-or-stop doctor. The red regression prints contract: global-cli-bin-target-restored; a healthy doctor run prints contract: global-core-realpath-pass.",
-  "expectedOutcome": "A build keeps proof-or-stop runnable and prints contract: global-cli-bin-target-restored in its regression. Doctor reports the resolved global core and prints contract: global-core-realpath-pass, with POSIX- or cmd.exe-valid remediation when repair is needed.",
-  "actualTranscript": "Focused verification passed: red-global-cli-exec-bit printed contract: global-cli-bin-target-restored and GREEN; global-core-realpath printed ok; the real doctor command exited 0 and printed contract: global-core-realpath-pass.",
-  "outcomeDiff": "No difference from the expected outcome on the tested POSIX host; simulated Windows branches validate npm-shim semantics and exact cmd.exe remediation.",
+  "changes": "Build promotion now preserves an executable POSIX CLI and fails closed on package-manifest read errors; doctor verifies package/PATH agreement, bin-target containment, and actual Windows npm shim contents; regression fixtures cover worktree rebuilds, target escapes, missing PATH commands, zero-assertion skips, and safe PowerShell remediation.",
+  "usage": "Run npm --prefix packages/main run build, then proof-or-stop --version and proof-or-stop doctor; a healthy installation reports contract: global-core-realpath-pass only after the host-specific executable contract is verified.",
+  "expectedOutcome": "After rebuilding from the main checkout or a Story worktree, the globally linked proof-or-stop command remains runnable; doctor never reports a healthy global core when the selected command, target, permissions, or Windows shim disagree.",
+  "actualTranscript": "Current-material focused tests passed: ok global-core-realpath and contract: global-cli-bin-target-restored, including the manifest-read fail-closed case. Full proof-or-stop validate executed all 132 configured commands and returned status=pass and allPass=true.",
+  "outcomeDiff": "No difference: the observed focused and full-suite results match the expected cross-platform fail-closed behavior.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Doctor remains read-only and reports commands without changing host state. POSIX execute-bit assertions and chmod-denial injections do not apply on Windows; Windows instead validates the byte-identical Node entrypoint, npm-generated shim contract, symlink capability, and pre-eviction failure safety.",
-  "pitfalls": "Executable validation must remain before old-dist eviction. Do not use lexical containment alone for symlink paths, universal POSIX mode assertions for Windows, host-specific selector paths, or POSIX shell syntax in Windows remediation.",
+  "limitations": "Real POSIX executable behavior was exercised on the current macOS host; Windows command-shim behavior and encoded PowerShell remediation were exercised through deterministic platform-injected fixtures rather than a physical Windows host.",
+  "pitfalls": "The original EACCES came from build promotion replacing the globally linked dist target with mode 0644. Review then exposed related false-green paths in PATH selection, symlink containment, Windows shim checks, percent expansion, and swallowed manifest read errors; all were current acceptance blockers and were repaired. Full validation includes a quorum smoke that legitimately runs for about ten minutes with heartbeats. The unrelated unmatched --grep zero-check issue belongs to B-e40f and was not pulled into this Story.",
   "phaseStats": {
     "INIT": {
       "count": 2,
@@ -23,23 +23,23 @@
       "durationMs": 168056
     },
     "PLAN": {
-      "count": 5,
-      "durationMs": 1912302
+      "count": 6,
+      "durationMs": 2343285
     },
     "DEV": {
-      "count": 24,
-      "durationMs": 77817043
+      "count": 26,
+      "durationMs": 84624267
     },
     "REVIEW": {
-      "count": 20,
-      "durationMs": 259232107
+      "count": 21,
+      "durationMs": 262966419
     },
     "TEST": {
       "count": 9,
       "durationMs": 17052748
     }
   },
-  "totalDurationMs": 363494808,
+  "totalDurationMs": 374467327,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-03T01:57:56.411Z",
-  "updatedAt": "2026-09-06T18:13:25.055Z"
+  "updatedAt": "2026-09-06T21:16:17.574Z"
 }
