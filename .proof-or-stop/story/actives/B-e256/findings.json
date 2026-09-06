@@ -721,7 +721,7 @@
       "desc": "concept-cleanup: commit 3b2f136af6 replaced post-promotion chmod with restoreBinExecutableBits(staging, dist) before the old dist is evicted (scripts/promote-dist.mjs:16-22), so a chmod failure preserves the working dist. The authoritative Story inputs still carry the deleted model: plan.md:13 requires restoreBinExecutableBits(dist) after rmSync(trash), checklist.json:6 says chmod after renaming staging into dist, understanding.json:7 describes the GREEN candidate as after promotion, and summary.json:3 says the helper runs after every dist promotion. This is not F-017/F-020 symlink containment or coverage: it is a separate incomplete concept replacement that makes the final delivery summary and review context contradict the implemented crash-safety invariant. severity: critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T15:46:03.263Z",
@@ -766,7 +766,11 @@
         ".proof-or-stop/story/actives/B-e256/summary.json"
       ],
       "signatureTag": "missing|mjs|concept-cleanup-commit",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Story truth was legally reopened and corrected through CLI lifecycle: commit 528a0ebcb updates plan.md; checklist context, Story description, scope boundary, background, understanding, and summary now consistently require staging validation and chmod before old-dist eviction. Both INIT reviewers passed with zero issues and the current scope-plan reviewer saved zero-gap evidence.",
+      "resolvedAt": "2026-09-06T16:24:17.858Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
