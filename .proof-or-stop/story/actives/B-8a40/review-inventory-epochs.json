@@ -8,7 +8,7 @@
       "reviewRound": "2026-09-06T16:34:48.065Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T16:34:53.823Z",
-      "updatedAt": "2026-09-06T16:34:53.823Z",
+      "updatedAt": "2026-09-06T16:46:09.815Z",
       "cutoff": {
         "headHash": "0ceed850df8f63a096613d58ddb38bf688c7ae1e",
         "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
@@ -22,11 +22,107 @@
       ],
       "initialRunSequenceBoundary": 0,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T16:34:53.823Z",
+          "completedAt": "2026-09-06T16:46:09.815Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-002",
+              "terminal": "finding",
+              "hostIdentity": "ad92264abeac0b87e2573ca09de8b752ca788bd46a401daa19307f8b8dd324d8",
+              "promptIdentity": "be902d28097bc9de562a114abd8c3d8880462cafce6fdffc43e574920c5840ad",
+              "evidenceIds": [
+                "B-8a40:F-002",
+                "B-8a40:F-003"
+              ],
+              "coverageDigest": "ebe9ae80df52c8a72bb53e1f7dbd07a39b29135f3a80f7a36aef8ce806d3e60c"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-003",
+              "terminal": "finding",
+              "hostIdentity": "ad92264abeac0b87e2573ca09de8b752ca788bd46a401daa19307f8b8dd324d8",
+              "promptIdentity": "0346944a09e24c2996f921015bb06bc0056eb7cbb9792e1aa53351104b1dd3d2",
+              "evidenceIds": [
+                "B-8a40:F-001"
+              ],
+              "coverageDigest": "8dafe8312c51d1f998ae9b4d990910639e569f99e9c7414b30ac2c0d2a75be11"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-001",
+              "terminal": "pass",
+              "hostIdentity": "ad92264abeac0b87e2573ca09de8b752ca788bd46a401daa19307f8b8dd324d8",
+              "promptIdentity": "5a3f3f61ff4c896e7c5a3519f0f9b44659cad8a947dec277b0c1e154a1e1ade3",
+              "evidenceIds": [
+                "B-8a40:RP-001"
+              ],
+              "coverageDigest": "4200adc2461922aaf517bc3cbc7c59e87e5a7df8d1ed676011e4bf0f4152fb36"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "negative-dismissal-linkage-fail-open",
+            "negative-dismissal-polarity-fail-closed"
+          ],
+          "verifiedFindingSetDigest": "d48ad15def43bff2e90d9147c5480aea8302c89d0bb6d7806fd17945711d7bca",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "e7ef5a38e43e4c5fc3a5d91735f1185c140fb3c8e8f7671e71106f10188982f3",
+          "saturated": false,
+          "nextRunSequenceBoundary": 4
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "308e916bf19a3a52acc7daa3b105f6102d50c3c423198555c59c4045c979ce5b"
+      "_hash": "0c6e88fdfe58d3a94fe63981de0a10be69a29d536c1cdb9862566bcea552d65b"
     }
   ],
   "receipts": [],
-  "criticReceipts": []
+  "criticReceipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-001:CRIT-01",
+      "epochId": "B-8a40:RI-001",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "0ceed850df8f63a096613d58ddb38bf688c7ae1e",
+        "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
+        "storyFilesHash": "2a703c79691320aaa87dec260dc4c3f75442241aa0bce923c4b8b40054c7b2dd"
+      },
+      "aggregateFindingSetDigest": "d48ad15def43bff2e90d9147c5480aea8302c89d0bb6d7806fd17945711d7bca",
+      "requiredLaneCoverageDigest": "ee7d96d528c5f2f90d91bd16be6e4280418ab89e2adf362b5042de8d93efd6e4",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-004",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-002"
+      ],
+      "readEvidenceDigest": "68e5333074b4ae801c0baa9d9bcd1d75dcd83010ec6e807c0177bd6f9769880c",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-001",
+          "disposition": "verified_family",
+          "familyKey": "negative-dismissal-linkage-fail-open",
+          "reason": "Verified fail-open family: both the fixed three-segment horizon and closed sentence-start linkage vocabulary remove the negative observation before a semantically linked responsibility conclusion is recognized."
+        },
+        {
+          "findingId": "B-8a40:F-002",
+          "disposition": "verified_family",
+          "familyKey": "negative-dismissal-polarity-fail-closed",
+          "reason": "Independent fail-closed family: the linked-conclusion classifier ignores negated and retained-current-responsibility polarity, recreating the false-positive reviewer-start failure."
+        },
+        {
+          "findingId": "B-8a40:F-003",
+          "disposition": "duplicate",
+          "familyKey": "negative-dismissal-linkage-fail-open",
+          "canonicalFindingId": "B-8a40:F-001",
+          "reason": "F-003 preserves distinct word-order, padding, and intervening-sentence witnesses, but they exercise the same horizon-or-closed-vocabulary fail-open mechanism already canonically captured by F-001; the original observation remains recorded."
+        }
+      ],
+      "createdAt": "2026-09-06T16:45:31.648Z",
+      "_hash": "50018d920ea8097653a4c904b7df2332402747120527a75cda2181c419437309"
+    }
+  ]
 }
