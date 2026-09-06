@@ -570,7 +570,7 @@
       "desc": "quality-bin-target-symlink-escape: scripts/promote-dist.mjs:101-103 validates only the lexical bin path, then statSync/chmodSync follow an in-tree symlink. A targeted probe against the frozen candidate created dist/cli.js as a symlink to an outside 0644 file; restoreBinExecutableBits returned [\"dist/cli.js\"] and changed the outside file to 0755. This lets a malformed or compromised staging tree mutate permissions outside the promoted tree while falsely reporting the bin restored. It is distinct from F-010 (the lexical `..` prefix boundary) and F-013 (a directory/non-regular target): statSync(target).isFile() would still accept this symlink because its referent is a file. Reject symlink targets or verify the resolved target remains inside the promoted tree, and add a hermetic symlink-escape case. severity: medium",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T14:56:29.823Z",
@@ -609,7 +609,11 @@
         "packages/main/tests/red/red-global-cli-exec-bit.mjs"
       ],
       "signatureTag": "quality-bin-target-symlink-escape",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 721bb624b0 uses lstat to reject symlink bin targets before chmod; the escape fixture proves the outside referent stays mode 0644.",
+      "resolvedAt": "2026-09-06T15:32:44.233Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
