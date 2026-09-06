@@ -343,7 +343,7 @@
       "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1511-1514 writes dynamic mutant modules directly into the real packages/main/dist/core build output, and lines 1582-1585 catch and suppress every unlinkSync failure rather than only tolerating ENOENT. A permission, filesystem, or other cleanup error therefore still lets the smoke reach its PASS marker while leaving prompt-envelope.b8a40-*.js in the build/package tree, contradicting plan.md commitment that the implementer leave no mutant files and weakening test isolation. This is distinct from F-001 through F-006, which concern classifier false-safe/false-block semantics. Use an isolated temporary module tree or fail closed on non-ENOENT cleanup errors and verify residue absence before PASS; severity medium.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T16:55:39.441Z",
@@ -381,7 +381,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-mutant-cleanup-error-swallow",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Moved mutant execution to isolated temporary copies with strict cleanup and explicit residue assertions outside the real dist tree.",
+      "resolvedAt": "2026-09-06T17:43:48.746Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-009",
