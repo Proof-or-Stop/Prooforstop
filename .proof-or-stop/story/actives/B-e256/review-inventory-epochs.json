@@ -1194,6 +1194,40 @@
       "cancelReason": "replan or decompose after wave budget exhaustion",
       "terminalRunSequenceBoundary": 105,
       "_hash": "0cbecfa5415cf37e7e79ca02c4fa90f86524f0d8acb9494f5715430ed60f5d30"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e256:RI-007",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T19:50:10.993Z",
+      "updatedAt": "2026-09-06T19:50:10.993Z",
+      "cutoff": {
+        "headHash": "00138bb9ea9ffd2a7ab8fb6309b65daece3f2b48",
+        "materialHash": "5b2ad5e25c1ff178aac5f4d60a1ea6c599e70d33606dd5bb2115718a43046d70",
+        "storyFilesHash": "a9556759a4051ae8c1bfb5516b96fba35d0ac9360b83c29d0ac07a5ee75eb1df"
+      },
+      "scopeDigest": "06d10d3952e69c34a12213672ca37c989d37037ef12fcc8118c1c224dafbad6a",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 105,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-e256:F-029",
+        "B-e256:F-030",
+        "B-e256:F-031",
+        "B-e256:F-032",
+        "B-e256:F-033",
+        "B-e256:F-034",
+        "B-e256:F-035",
+        "B-e256:F-036"
+      ],
+      "_hash": "f56483e2b5e15755f9be9b69b4b5c80db557f9468d15dec2d80c6bccd9748ad4"
     }
   ],
   "receipts": [
