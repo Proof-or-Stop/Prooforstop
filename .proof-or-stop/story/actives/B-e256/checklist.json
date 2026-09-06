@@ -635,6 +635,31 @@
           "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
           "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9",
           "timestamp": "2026-09-06T20:48:19.618Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "file": "packages/main/tests/global-core-realpath.test.mjs",
+          "command": "node packages/main/tests/global-core-realpath.test.mjs",
+          "result": "pass",
+          "note": "Missing, unreadable, and mismatched Windows command shims remain non-pass and suppress the healthy contract marker.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "13efb28c4f4f9c03f850ff572f7739cf7e5a4c19c995201c7ce4dc6fc9e123c0",
+            "outputTail": "ok global-core-realpath\n",
+            "selectorMatched": true,
+            "selector": "ok global-core-realpath",
+            "executedAt": "2026-09-06T20:48:30.842Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:c0ea534dcd12d31fc982f917e669855b47f887d24bc6d754dc7e5aad3bc78780",
+            "causalReceiptHash": "76f812f071e9267a27c0a27398981abf903f0fd4017cb578efd7b710d3b018b9",
+            "commandReruns": 0
+          },
+          "headHash": "2ab58e87a5f42963ff810753b5e2b29c267c2bbb",
+          "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+          "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9",
+          "timestamp": "2026-09-06T20:48:31.290Z"
         }
       ]
     }
