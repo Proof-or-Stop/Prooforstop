@@ -394,7 +394,7 @@
       "reviewRound": "2026-09-06T17:43:17.573Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T17:44:00.814Z",
-      "updatedAt": "2026-09-06T17:53:55.546Z",
+      "updatedAt": "2026-09-06T18:02:16.594Z",
       "cutoff": {
         "headHash": "c58167c08b37831ec1793e5cb8060864dcc58ce1",
         "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
@@ -459,10 +459,64 @@
           "criticDigest": "12d68f70bffd33168124e06f4cf7ead4a9b8d9a2274fd21fcfd417fd8040ede6",
           "saturated": false,
           "nextRunSequenceBoundary": 29
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T17:53:55.546Z",
+          "completedAt": "2026-09-06T18:02:16.594Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-032",
+              "terminal": "finding",
+              "hostIdentity": "d9e3f92ce0fc2fc0e010ad98353e34c59cc11432163b1482b57c96d92ddf0bd0",
+              "promptIdentity": "cf8e58bc0151c54a4236e91f64a2f24b18adb212a4e70b49c8d30c85a9b5c3c1",
+              "evidenceIds": [
+                "B-8a40:F-017",
+                "B-8a40:F-018"
+              ],
+              "coverageDigest": "b9363162ffbd17d6d9986adef4aa350e199ee85112e146e28f41362ec9ac3cc5"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-031",
+              "terminal": "finding",
+              "hostIdentity": "d9e3f92ce0fc2fc0e010ad98353e34c59cc11432163b1482b57c96d92ddf0bd0",
+              "promptIdentity": "53236b874c49f35020badacdb5bdd449c01b3abaf593f3d684a6b809a69e7c0c",
+              "evidenceIds": [
+                "B-8a40:F-016"
+              ],
+              "coverageDigest": "0a1a7becd812efdaa9de97e81c3479078ad1a6fa13cd0c58b8c550846479d04b"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-030",
+              "terminal": "finding",
+              "hostIdentity": "d9e3f92ce0fc2fc0e010ad98353e34c59cc11432163b1482b57c96d92ddf0bd0",
+              "promptIdentity": "db2d7d9656a9c061987692183358d74c285d3d5c7e6645bee3714f633ca19427",
+              "evidenceIds": [
+                "B-8a40:F-019"
+              ],
+              "coverageDigest": "3f22a2c0a28c5ce25630d655c3085a723c33baf608e7f81210a4b6ca6061a254"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-active-voice-negative-observation-bypass",
+            "prompt-envelope-cross-leaf-direct-coreference-bypass",
+            "prompt-envelope-cross-source-local-antecedent-false-positive",
+            "prompt-envelope-double-negation-polarity-bypass",
+            "prompt-envelope-rendered-structural-leaf-authority-injection",
+            "prompt-envelope-same-leaf-unrelated-exclusion-false-positive"
+          ],
+          "verifiedFindingSetDigest": "7575d99038330843bc36478b937bdaa11a02cef0f3b2500d650772731622107f",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "f165c3af9b507c8f10ccf4ea71eeb779462c6f7792d0216b0bfe1ddd63a88af5",
+          "saturated": false,
+          "nextRunSequenceBoundary": 33
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "4538fe9c10bc6d4667ae4cba2e624c04593c0f8e9d636a777402f5e76a61c639"
+      "_hash": "4e56b9d1c580471e6ae6c78efeb6d7f4ecf4c9865ec253bb39ed6ae6a5bd6a7a"
     }
   ],
   "receipts": [
@@ -812,6 +866,56 @@
       ],
       "createdAt": "2026-09-06T17:53:13.632Z",
       "_hash": "64ac41b5822d00bf4a54d6923772719f149d5ab27d4b3305f76e9d2a26da43ee"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-003:CRIT-02",
+      "epochId": "B-8a40:RI-003",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "c58167c08b37831ec1793e5cb8060864dcc58ce1",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "aggregateFindingSetDigest": "7575d99038330843bc36478b937bdaa11a02cef0f3b2500d650772731622107f",
+      "requiredLaneCoverageDigest": "c578abd859e79404e0fe310f129f2ea125e59d500b3a42d5f4ee688c4df40d13",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-033",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-018"
+      ],
+      "readEvidenceDigest": "c4662b0b4b79be6a70e5c210654ca53039e4c280458f90ec6aed7d54fce67389",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-016",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+          "reason": "Independent family: the same-leaf scan treats any later ordinary exclusion as a conclusion of the earlier negative-dismissal observation solely because of ordering, without causal language or coreference. The generated-cache exclusion witnesses and reversed-order controls distinguish this local all-remaining-segments false positive from F-012 cross-leaf local-antecedent joining."
+        },
+        {
+          "findingId": "B-8a40:F-017",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+          "canonicalFindingId": "B-8a40:F-016",
+          "reason": "Duplicate of F-016: both exercise segments.slice(index + 1).some(isLinkedResponsibilityConclusion) joining an unrelated later exclusion inside the same source leaf. F-017 preserves the explicit Separately topic-break witness, but it does not identify a different implementation mechanism."
+        },
+        {
+          "findingId": "B-8a40:F-018",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-double-negation-polarity-bypass",
+          "reason": "Independent family: controlled-pair polarity treats the presence of any negation token as safe rather than composing negation parity, so not not and cannot not affirmative dismissal conclusions bypass the guard while the single-negative control remains safe. This is the inverse fail-open of the earlier single-negation false-positive family."
+        },
+        {
+          "findingId": "B-8a40:F-019",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-rendered-structural-leaf-authority-injection",
+          "reason": "Independent family: rendered user-authorable structural strings such as relatedDocs anchors, checklist file values, protected files, and file-rule values receive neither authority scanning nor a closed structural grammar, allowing forbidden authority text to reach the prompt. This differs from F-010/F-011 natural-language scope-leaf omission because the implicated leaves are structurally named and require either exhaustive scanning or mechanical shape enforcement."
+        }
+      ],
+      "createdAt": "2026-09-06T18:01:55.012Z",
+      "_hash": "0e2eb0114e311d5d457c4e0e43eb91955d93a0b34d063a6f734f1a1863ef7365"
     }
   ]
 }
