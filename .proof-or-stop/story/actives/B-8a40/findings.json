@@ -1538,7 +1538,7 @@
       "desc": "Complete reproduction record for B-8a40:F-031, whose shell-rendered description lost its quoted target nouns and examples. packages/main/src/core/prompt-envelope.ts:639-667 carries a valid signed-disposition inspection into later prose only when the continuation contains the literal target Finding; findingTarget at lines 650-651 excludes equivalent issue, defect, and work targets. Those assignments therefore skip the state machine, and the per-segment scan cannot recover them because the safe inspection sentence contains the only defer_with_proof subject. Against the committed built assembleFullPromptEnvelope API, every active modular REVIEW role correctly REJECTED the direct control [Reviewers bind defer_with_proof to the issue.] and the cross-segment control [Reviewers inspect a signed defer_with_proof disposition. It binds the Finding.], while all five incorrectly ACCEPTED [Reviewers inspect a signed defer_with_proof disposition. It binds the issue.], [Reviewers inspect a signed defer_with_proof disposition. It assigns the defect.], and [Reviewers inspect a signed defer_with_proof disposition. It grants authority over the work.]. The genuinely safe [Reviewers inspect a signed defer_with_proof disposition. It does not bind the Finding.] control remained accepted. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:916-943 covers several coreference spellings but every cross-segment assignment is ultimately Finding-targeted, so the focused smoke has no target-synonym matrix. This is distinct from F-026: there an unrelated negative prefix deletes an otherwise recognized Finding-target continuation; here no negative prefix exists and the continuation is never examined because of the closed target noun. Expand the state-machine target relation consistently with the existing issue, defect, and work triage vocabulary and add all-role positive and negative controls. Severity high because caller-authored Task Context can assign a future official disposition to the underlying defect before envelope digests while the declared guard and smoke remain green.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T18:45:06.851Z",
@@ -1577,7 +1577,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-cross-segment-disposition-target-synonym-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Disposition target recognition now handles Finding, issue, defect, and work consistently for safe and unsafe continuations.",
+      "resolvedAt": "2026-09-06T19:51:21.569Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-033",
