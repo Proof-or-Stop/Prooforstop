@@ -2131,6 +2131,7 @@
       "signatureTag": "topic-break-explicit-coreference-authority-laundering",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf94ht_15ik_920da24b40b9479e91a8346413204179",
+      "ledgerCommitReceiptId": "lrc_mtqf94ht_15ik_1aaa53fd267f4886b3ef896b36e9ffec",
       "resolvedAt": "2026-09-06T23:07:18.413Z",
       "resolvedReason": "Require explicit target-aware topic breaks; separately does not erase Finding, issue, work or defect coreference, with same-leaf and cross-leaf controls. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2141,7 +2142,7 @@
       "desc": "Post-remediation approved test and subordination wrappers remain open-ended and now rely on a finite TRIAGE_INVENTORY_AUTHORITY_ACTION blacklist, so unlisted authority-action synonyms still launder forbidden claims. Across all five active REVIEW roles, the direct [Deem finding_dismiss sufficient for out_of_scope.] control is rejected and the genuine safe test wrapper is accepted, but each of [Add adversarial tests covering all roles and deem finding_dismiss sufficient for out_of_scope and the subordinate Agent-side projection of Dynamic Finding authority.], [Add adversarial tests covering wording that makes finding_dismiss proof of out_of_scope and the subordinate Agent-side projection of Dynamic Finding authority.], and [Add adversarial tests covering guidance that entrusts the review team with defer_with_proof for the Finding and the subordinate Agent-side projection of Dynamic Finding authority.] is admitted. In packages/main/src/core/prompt-envelope.ts, isCanonicalTriageInventorySegment at lines 692-696 and hasDynamicFindingAuthorityAmendmentAssertion at lines 958-964 both approve the same open capture when the finite action matcher misses deem, makes, or entrusts; the segment is then removed from normal relation checking. The round-3 tests cover let, adds, provisions, and reshapes but do not mutation-test or synonym-test the blacklist boundary. This is a distinct residual after F-025 and F-034: the former blanket open-body exemption was replaced by an incomplete negative vocabulary rather than a closed positive grammar or independent residue scan. Close the test inventory grammar or run the captured body through the ordinary authority classifier, and add all-role unlisted-action controls. Severity high because Story-authored Task Context can still publish dismissal or reviewer-disposition authority before envelope digests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T19:56:49.719Z",
@@ -2180,7 +2181,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "approved-test-wrapper-authority-action-synonym-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf95kf_162r_c777db8853154bd9865d1b86aabc5408",
+      "resolvedAt": "2026-09-06T23:07:19.803Z",
+      "resolvedReason": "Duplicate of B-8a40:F-042: the same open test-inventory exemption is closed by independent residual classification; the additional deem/makes/entrusts witnesses are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-045",
