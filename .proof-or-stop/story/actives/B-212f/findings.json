@@ -1662,7 +1662,7 @@
       "desc": "packages/main/src/handlers/checklist.ts:1661: staleReexecCandidate rejects an already-pinned docs/manual intent through isExecutableIntentType, although verification_evidence_refresh_stale at lines 3112-3129 deliberately accepts every immutable pin. WHY: after metadata-only refresh demotes a current pinned docs receipt, async recovery skips its command before enforceAndStampEvidence, leaving mechanical:false with no receipt; the same command on a cli intent re-earns exitCode:0, selectorMatched:true evidence. Actual witness on current production dd65407421: node packages/main/dist/tasks/verification-run-and-guard-smoke.js exits 1 at compiled partB:320 (source:365), B4 pinned docs verifier re-earns mechanical authority, false !== true. Bounded source-executed Part B instrumentation showed INT-DOC reason pinned command was not re-run here, while INT-REEXEC using identical node -e console.log MARKER_OK pin recovered; Refreshed 4/4 is metadata refresh, not proof that all commands executed. Baseline 69403365 and current HEAD have identical handler blob 33043eb2df6c34a76efc820ccb8f73a9b72cfbb4 and smoke blob 0c5d85406d6bbf87252067534b022dc737c9d530: pre-existing, not introduced or worsened by B-212f/F027. Medium because this is fail-closed recovery loss, not forged successful evidence; nevertheless it directly blocks required current validation. Owner confirmed current-Story repair responsibility; no deferral, gate bypass, or historical audit expansion is claimed. Minimal repair candidate: admit already-pinned docs/manual candidates while preserving exact pin, selector, timeout provenance, stamping and failed/pinless demotion safeguards. RR-050 SAFE_INCREMENTAL reused trusted RR-046/RP-011 unchanged complete read basis, with fresh empty implementation/Story-input diff and exact bounded runtime/source witnesses. Manifest/read events preserve the prior actual full and filename-triage reads on identical source, not a claim to have re-read every file during this inventory. RI-003 wave 1 first distinct root, not F027 corroboration.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T16:36:24.624Z",
@@ -1723,7 +1723,11 @@
         "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
       ],
       "signatureTag": "pinned-nondefault-intent-refresh-recovery",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "61ea99033b admits immutable pinned docs/manual intents for actual reexecution; 31351f6c67 preserves signed recovery identity and timestamps. CHK-005:happy:0 and CHK-007 receipts. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:43:47.307Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-037",
