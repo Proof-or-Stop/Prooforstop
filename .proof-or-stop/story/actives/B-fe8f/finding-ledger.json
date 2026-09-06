@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "e735d727ed4e75a9f2fcecf70f6ab7a1e89edab112873184dbbbca4b7ddae797",
+  "committedLedgerDigest": "5f687d8d2ec1e600ec9ec397e7f33c8d44a1cee33b0e4c18e67c62c53fb1f302",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2456,6 +2456,33 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T14:07:04.451Z"
+    },
+    {
+      "recordId": "lr_mtpvyenf_17r5_1617b98dad51414fa7f7567535a34a26",
+      "recordType": "finding",
+      "idempotencyKey": "bfe8f-post-main-lab-oracle-conflict",
+      "payload": {
+        "id": "B-fe8f:F-059",
+        "desc": "Post-main merge mandatory CLI-surface smoke falsely expects supported nested Lab commands to be unavailable. Validate command125 and same-env isolated rerun exit1 at retired Lab alias stays unavailable: lab create. Baseline 55d5e34c6f360ef23e790a6c445bfb8b9a86e997. Current cli.ts19-42 loads and registers six Lab actions, alias-normalizer.ts33-38 maps them, and docs/CLI.md1114-1138 promises canonical nested plus flat compatibility commands. RED log /tmp/bfe8f-sameenv-cli-surface.bSgU6N/cli-surface-smoke.log. Fix this conflicting test oracle, retain six positive actions, unknown-action rejection, current config assertions and production behavior. This is a direct integration acceptance blocker, not authority to remove or expand Lab.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-06T14:07:05.641Z",
+        "reviewRound": "2026-09-05T14:53:05.943Z",
+        "_hash": "e04496d783050c81d6d3cc7738fc00cdae17f31248e4feac2f3bcdd586105c9a",
+        "files": [
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "signatureTag": "doc-code-drift|ts|post-main-merge",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "ca735cdf04c9084b8452cc6ca55ce5461432be33c8fd303646deaf50de815d30",
+      "priorDigest": "e735d727ed4e75a9f2fcecf70f6ab7a1e89edab112873184dbbbca4b7ddae797",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T14:07:05.643Z"
     }
   ],
   "receipts": [
@@ -6797,6 +6824,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "d467a829a2ecaf30bcc7ecc0d601e4a5a24e96f44dbc3fd86a1c482d1f7cb2de",
         "signature": "oScVANVNTPSPq1lSsc/AiLoWOufpFCFU0+VCHs7qRdIcfrYgvMJ2t7FoDnBL0GMg9ZYyBOK48vIPjOJuE5pkAA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtpvyenf_17r5_3b1f20af23324198998b1c5047479b07",
+      "operation": "append_finding",
+      "idempotencyKey": "bfe8f-post-main-lab-oracle-conflict",
+      "requestDigest": "cce8bbd938c29222b3a79e7c05504da45d8d7677510198c989cb86d290238246",
+      "recordIds": [
+        "lr_mtpvyenf_17r5_1617b98dad51414fa7f7567535a34a26"
+      ],
+      "priorLedgerDigest": "e735d727ed4e75a9f2fcecf70f6ab7a1e89edab112873184dbbbca4b7ddae797",
+      "committedLedgerDigest": "5f687d8d2ec1e600ec9ec397e7f33c8d44a1cee33b0e4c18e67c62c53fb1f302",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "c1f74253-62bc-4e2d-be1b-bce9ab9c27ea",
+      "committedAt": "2026-09-06T14:07:05.643Z",
+      "replayed": false,
+      "exactRequestDigest": "eab38595ee26d58a4efbaf2731b2b601098c30ff81648b1bcfec963d43d6dbb7",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtpvyenf_17r5_3b1f20af23324198998b1c5047479b07",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "bfe8f-post-main-lab-oracle-conflict",
+        "exactRequestDigest": "eab38595ee26d58a4efbaf2731b2b601098c30ff81648b1bcfec963d43d6dbb7",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtpvyenf_17r5_1617b98dad51414fa7f7567535a34a26"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "e735d727ed4e75a9f2fcecf70f6ab7a1e89edab112873184dbbbca4b7ddae797",
+        "committedLedgerDigest": "5f687d8d2ec1e600ec9ec397e7f33c8d44a1cee33b0e4c18e67c62c53fb1f302",
+        "replayed": false,
+        "committedAt": "2026-09-06T14:07:05.643Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "c1f74253-62bc-4e2d-be1b-bce9ab9c27ea",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "6dd66dca4efc2d770997e9467c3bdbdf703830a20dbcd2a09d97170aa3f162bc",
+        "signature": "uA3+hTCIH7KnKTj4TytmgKyX+RbpzC/TPYqgQnsljs502Jq+ZdRuyNSD2QM0OYosMLMyqLUS0nSs7hJqcWuLAQ=="
       }
     }
   ]

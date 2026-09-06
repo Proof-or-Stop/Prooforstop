@@ -1520,6 +1520,25 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtpvydqb_1729_91e7b7c320a24b0cab486f5032fdcce7",
       "ledgerCommitReceiptId": "lrc_mtpvydqb_1729_716c16dd76a741b4b293896943c6e1a5"
+    },
+    {
+      "id": "B-fe8f:F-059",
+      "desc": "Post-main merge mandatory CLI-surface smoke falsely expects supported nested Lab commands to be unavailable. Validate command125 and same-env isolated rerun exit1 at retired Lab alias stays unavailable: lab create. Baseline 55d5e34c6f360ef23e790a6c445bfb8b9a86e997. Current cli.ts19-42 loads and registers six Lab actions, alias-normalizer.ts33-38 maps them, and docs/CLI.md1114-1138 promises canonical nested plus flat compatibility commands. RED log /tmp/bfe8f-sameenv-cli-surface.bSgU6N/cli-surface-smoke.log. Fix this conflicting test oracle, retain six positive actions, unknown-action rejection, current config assertions and production behavior. This is a direct integration acceptance blocker, not authority to remove or expand Lab.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-06T14:07:05.641Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "_hash": "e04496d783050c81d6d3cc7738fc00cdae17f31248e4feac2f3bcdd586105c9a",
+      "files": [
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "doc-code-drift|ts|post-main-merge",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtpvyenf_17r5_1617b98dad51414fa7f7567535a34a26",
+      "ledgerCommitReceiptId": "lrc_mtpvyenf_17r5_3b1f20af23324198998b1c5047479b07"
     }
   ]
 }
