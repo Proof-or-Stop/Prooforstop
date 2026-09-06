@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "8afbae55867773587b98722716d7cf81229069e82c426f4a949c47f91ca64e1e",
+  "committedLedgerDigest": "0fb823201bc85dba31a1f0aeba21de1e6201ee582af3e79bf32cb451b8d8a61e",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2401,6 +2401,34 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T00:58:24.739Z"
+    },
+    {
+      "recordId": "lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606",
+      "recordType": "finding",
+      "idempotencyKey": "bfe8f-causal-refusal-diagnostic-20260906",
+      "payload": {
+        "id": "B-fe8f:F-057",
+        "desc": "User-authorized third closeout blocker: validate beforeLaunch in verifier.ts combines same-owner lease refresh failure, causal preflight signature failure and changed preflight facts into one state_changed_before_launch diagnostic. A full Story validation aborted with this diagnostic and no aggregate PASS; actual root branch remains unknown. Current source proves all three OR branches emit identical text, preventing targeted recovery. First add isolated RED tests requiring distinguishable safe branch and changed-field diagnostics, then preserve all refusal predicates and zero child-launch behavior while exposing only safe reason/field names. Diagnostic repair is not proof that the original runtime interruption is solved; capture the next genuine run before claiming closure.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-06T13:05:42.859Z",
+        "reviewRound": "2026-09-05T14:53:05.943Z",
+        "_hash": "2ea4712fd490381c0f712786ce00b88e8394041d763a57ee3488c599bee92687",
+        "files": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/tests/verifier-causal-preflight.test.mjs"
+        ],
+        "signatureTag": "missing|ts|user-authorized-third",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "48b0167eeb6f69e116f9ee33c86c12ca4ff92d5e3a2dd64c5391e60f01d861dc",
+      "priorDigest": "8afbae55867773587b98722716d7cf81229069e82c426f4a949c47f91ca64e1e",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T13:05:42.861Z"
     }
   ],
   "receipts": [
@@ -6656,6 +6684,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "c3d22eeb3fefb2638dd4c94d940990bd59361e90bf7955d5a898c07c178e56ee",
         "signature": "7+fYBYB1FmNkNuvGqeEaZxFLvFJe76ssxZE5XzqfBFZCGrOwEwgIyJGzbyMZVmGLNqFys4ragm723CCZBG+nAw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtptrgzx_p4m_6a56be98b108482199efcc093037115c",
+      "operation": "append_finding",
+      "idempotencyKey": "bfe8f-causal-refusal-diagnostic-20260906",
+      "requestDigest": "44137ddec623a5590756dfa2b6a94413b80cf4f99470c46db7871d50a562f5aa",
+      "recordIds": [
+        "lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606"
+      ],
+      "priorLedgerDigest": "8afbae55867773587b98722716d7cf81229069e82c426f4a949c47f91ca64e1e",
+      "committedLedgerDigest": "0fb823201bc85dba31a1f0aeba21de1e6201ee582af3e79bf32cb451b8d8a61e",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "db9e867a-29a5-43db-9181-6e341024b855",
+      "committedAt": "2026-09-06T13:05:42.861Z",
+      "replayed": false,
+      "exactRequestDigest": "85fec419236e0083b3bf36393a6419e920322ca7eabbfe6e04a14dbb30e9e0ce",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtptrgzx_p4m_6a56be98b108482199efcc093037115c",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "bfe8f-causal-refusal-diagnostic-20260906",
+        "exactRequestDigest": "85fec419236e0083b3bf36393a6419e920322ca7eabbfe6e04a14dbb30e9e0ce",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "8afbae55867773587b98722716d7cf81229069e82c426f4a949c47f91ca64e1e",
+        "committedLedgerDigest": "0fb823201bc85dba31a1f0aeba21de1e6201ee582af3e79bf32cb451b8d8a61e",
+        "replayed": false,
+        "committedAt": "2026-09-06T13:05:42.861Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "db9e867a-29a5-43db-9181-6e341024b855",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "3755f1502d97259b76546244155b3e1731918396cf6993f1f962ce4158f1934e",
+        "signature": "dbgJuJ3jNAMA9LSpwRMmEtrNTQGzDq+6bhI92GPAXqbmwREJ0fovnLD920gnp1ekylEllyDo9MZnSIfEFWLWDw=="
       }
     }
   ]

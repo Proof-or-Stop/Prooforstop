@@ -1481,6 +1481,26 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a",
       "ledgerCommitReceiptId": "lrc_mtp3s5lv_1ft3_7787b5ad2a60490eb44af7c8555ffa29"
+    },
+    {
+      "id": "B-fe8f:F-057",
+      "desc": "User-authorized third closeout blocker: validate beforeLaunch in verifier.ts combines same-owner lease refresh failure, causal preflight signature failure and changed preflight facts into one state_changed_before_launch diagnostic. A full Story validation aborted with this diagnostic and no aggregate PASS; actual root branch remains unknown. Current source proves all three OR branches emit identical text, preventing targeted recovery. First add isolated RED tests requiring distinguishable safe branch and changed-field diagnostics, then preserve all refusal predicates and zero child-launch behavior while exposing only safe reason/field names. Diagnostic repair is not proof that the original runtime interruption is solved; capture the next genuine run before claiming closure.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-06T13:05:42.859Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "_hash": "2ea4712fd490381c0f712786ce00b88e8394041d763a57ee3488c599bee92687",
+      "files": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs"
+      ],
+      "signatureTag": "missing|ts|user-authorized-third",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606",
+      "ledgerCommitReceiptId": "lrc_mtptrgzx_p4m_6a56be98b108482199efcc093037115c"
     }
   ]
 }

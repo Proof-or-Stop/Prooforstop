@@ -343,10 +343,30 @@
       "phase": "DEV",
       "headHash": "62486c1cb6ca0da192481ce755e272607af0cd09",
       "materialHash": "6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The user explicitly authorized closing the three current B-fe8f blockers with RED then GREEN. Bound this acknowledgement to refusal diagnostics and negative controls for the existing causal beforeLaunch gate, plus the minimal explanatory comment addressing original F055; do not relax gate predicates, latest-run binding, signatures, hash freshness, or test assertions. F056 machine exception is already separately recorded.",
+      "timestamp": "2026-09-06T13:05:41.738Z",
+      "paths": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "e8b35c09b96bfa363940a795f24d7c012be5fb67",
+      "materialHash": "7d96979ca81ec8919179c36897e5ace9584aa2616f75dce4c994047ef45fa233"
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-06T12:59:20.650Z",
+  "updatedAt": "2026-09-06T13:05:41.738Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -419,6 +439,7 @@
     "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
-    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts"
+    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/tests/verifier-causal-preflight.test.mjs": "packages/main/tests/verifier-causal-preflight.test.mjs"
   }
 }
