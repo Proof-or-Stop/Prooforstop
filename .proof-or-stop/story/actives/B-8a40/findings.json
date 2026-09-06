@@ -2623,6 +2623,52 @@
       ],
       "signatureTag": "severity-deferral-fixed-span-padding-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-055",
+      "desc": "packages/main/src/core/prompt-envelope.ts:252-259 bounds generic concept pairs to 240 characters, and :1026-1031 uses that default-bounded pair as the sole actor-to-deferral prerequisite for unauthorized disposition minting. A grammatically continuous reviewer-authority statement can therefore separate its actor from the final adjacent mint/sign action and disposition with a long modifier until the actor/disposition pair disappears. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles correctly REJECTED `Reviewers mint defer_with_proof.` and the 140-character `Reviewers, after recording attributable audit evidence ... mint defer_with_proof.` control, but all five ACCEPTED the same statement with the grammatical audit modifier repeated to 568 characters. All five likewise accepted a 583-character `Review lanes, ... sign a FindingDeferralDisposition.` variant, while accepting the genuinely safe `Reviewers must not mint defer_with_proof.` control. No other detector recovers the long statement because it has no story-responsibility outcome or signed-inspection antecedent. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:689, :831-834, and :1286-1291 cover direct actor/action spellings but no actor-to-disposition padding boundary. This is distinct from F-037 actor synonyms and F-042/F-044 finite authority-action vocabularies because the exact recognized actor, action, and disposition remain unchanged; only the fixed pair span suppresses the relation. It is also distinct from F-053, which concerns unknown-applicability cross-segment state and its 320-character fallback. Bind the complete actor/action/disposition relation structurally rather than through an evadable character horizon, and add all-role short/long/negative controls. Severity high because Story-authored Task Context can explicitly authorize reviewers to mint a future official disposition while every REVIEW envelope is still minted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T20:47:29.036Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-105",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "147940f8696acfef7df8ad6664bfd7aba1bf30a1dbc8d6d5e2c16b44443bd038",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "reviewer-disposition-actor-span-padding-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
