@@ -8,7 +8,7 @@
       "reviewRound": "2026-09-06T16:34:48.065Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T16:34:53.823Z",
-      "updatedAt": "2026-09-06T16:46:09.815Z",
+      "updatedAt": "2026-09-06T16:53:03.811Z",
       "cutoff": {
         "headHash": "0ceed850df8f63a096613d58ddb38bf688c7ae1e",
         "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
@@ -72,10 +72,62 @@
           "criticDigest": "e7ef5a38e43e4c5fc3a5d91735f1185c140fb3c8e8f7671e71106f10188982f3",
           "saturated": false,
           "nextRunSequenceBoundary": 4
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T16:46:09.815Z",
+          "completedAt": "2026-09-06T16:53:03.811Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-007",
+              "terminal": "finding",
+              "hostIdentity": "160bbbc98d42bc76849592a540f7a0cf3157f05cd4aa5a2ea7401c0a0af86d4b",
+              "promptIdentity": "16e4d7ee5a6f485d59bffefcd52ae8c81eaaf7429017c6c3a85eb944c75e2238",
+              "evidenceIds": [
+                "B-8a40:F-005"
+              ],
+              "coverageDigest": "bdd0384544dd0cba675f0e5cdc11612bb12aa99049d48a4b3d85217b3b4cb3e8"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-006",
+              "terminal": "pass",
+              "hostIdentity": "160bbbc98d42bc76849592a540f7a0cf3157f05cd4aa5a2ea7401c0a0af86d4b",
+              "promptIdentity": "2dc11da187c5fbdc8e78f7853898481337d77b6107b4f28a550feb498d1a9abc",
+              "evidenceIds": [
+                "B-8a40:RP-003"
+              ],
+              "coverageDigest": "6c26b8adef0ff04bc664423f6c5e433132862e84434ae556831c5ecd9f792c26"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-005",
+              "terminal": "finding",
+              "hostIdentity": "160bbbc98d42bc76849592a540f7a0cf3157f05cd4aa5a2ea7401c0a0af86d4b",
+              "promptIdentity": "93277fd225a302d0668490127916258bb4300c849f470d82330343e09b9f76d1",
+              "evidenceIds": [
+                "B-8a40:F-004",
+                "B-8a40:F-006"
+              ],
+              "coverageDigest": "115ddb98e3601cad4d6d2080e5c91168273b5f0f2b28d34eaa137a57722fba56"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "negative-dismissal-linkage-fail-open",
+            "negative-dismissal-observation-modifier-actor-bound-fail-closed",
+            "negative-dismissal-observation-word-order-fail-closed",
+            "negative-dismissal-polarity-fail-closed"
+          ],
+          "verifiedFindingSetDigest": "4fc80f78e69eaff98935025785e5bf3fdddfc46e322830511f658b5593f2aeb6",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "d95d0a239cb8ed0ecef790ebcc5c48ffb322ccd26078788039e04f5acca3ea49",
+          "saturated": false,
+          "nextRunSequenceBoundary": 8
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "0c6e88fdfe58d3a94fe63981de0a10be69a29d536c1cdb9862566bcea552d65b"
+      "_hash": "a4f5bfc19a561004f8fa51dfa9f076c018f0cb525b56ec7562d3823f082d0c7e"
     }
   ],
   "receipts": [],
@@ -123,6 +175,50 @@
       ],
       "createdAt": "2026-09-06T16:45:31.648Z",
       "_hash": "50018d920ea8097653a4c904b7df2332402747120527a75cda2181c419437309"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-001:CRIT-02",
+      "epochId": "B-8a40:RI-001",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "0ceed850df8f63a096613d58ddb38bf688c7ae1e",
+        "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
+        "storyFilesHash": "2a703c79691320aaa87dec260dc4c3f75442241aa0bce923c4b8b40054c7b2dd"
+      },
+      "aggregateFindingSetDigest": "4fc80f78e69eaff98935025785e5bf3fdddfc46e322830511f658b5593f2aeb6",
+      "requiredLaneCoverageDigest": "14ac39bb497aa67cc01722c6eaf3f1f64b97ccc3e1206ed5eef489708a4ce4ff",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-008",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-004"
+      ],
+      "readEvidenceDigest": "35d29d22415b78bf5917ac56c53829db25ae987e3c9a0da8978fdab09b7b2f2e",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-004",
+          "disposition": "verified_family",
+          "familyKey": "negative-dismissal-observation-modifier-actor-bound-fail-closed",
+          "reason": "Verified distinct safe-observation false-red family: arbitrary modifier and by-actor word-count bounds prevent an otherwise negative closure observation from being recognized, causing later current-repair prose to be mispaired."
+        },
+        {
+          "findingId": "B-8a40:F-005",
+          "disposition": "verified_family",
+          "familyKey": "negative-dismissal-observation-word-order-fail-closed",
+          "reason": "Verified distinct word-order family: the leading By-this-intake construction is outside the helper shape even independently of actor length. The actor-length witness overlaps F-004, but the indivisible Finding also preserves this additional structural word-order defect."
+        },
+        {
+          "findingId": "B-8a40:F-006",
+          "disposition": "duplicate",
+          "familyKey": "negative-dismissal-observation-modifier-actor-bound-fail-closed",
+          "canonicalFindingId": "B-8a40:F-004",
+          "reason": "F-006 explicitly supplies the shell-safe complete reproduction record for F-004 and repeats the same modifier and actor-bound mechanism and expected repair; retain its exact witnesses while assigning the canonical family to F-004."
+        }
+      ],
+      "createdAt": "2026-09-06T16:52:42.011Z",
+      "_hash": "47742c3d3b0aacca4b789fe10ad969fd090457a6f205d2bf347d285ca52424bf"
     }
   ]
 }
