@@ -45,6 +45,8 @@
         "CHK-001:adversarial:0",
         "CHK-001:adversarial:1",
         "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:edge:1",
         "CHK-003:happy:0",
         "CHK-003:happy:1",
         "CHK-003:edge:0",
@@ -55,11 +57,11 @@
         "CHK-003:adversarial:2"
       ],
       "milestoneIds": [],
-      "acceptanceClaim": "The registered red regression passes after staging bin targets are validated before old-dist eviction. Missing or syntactically invalid package manifests remain benign, while non-absence read failures abort without replacing the working dist. Doctor emits the healthy contract marker only when the global package, PATH-selected command, declared bin-target realpath, compiled version, and host executable contract agree. POSIX validates executable access; Windows validates the actual npm command shim and uses encoded PowerShell LiteralPath remediation that preserves spaces, apostrophes, and percent tokens. Capability skips and zero-assertion paths cannot emit the must PASS selector."
+      "acceptanceClaim": "The registered red regression passes after staging bin targets are validated before old-dist eviction, both build wrappers are wired to promotion, and validation_plan exposes the regression by stable id and label. Missing or syntactically invalid package manifests remain benign, while non-absence read failures abort without replacing the working dist. Doctor emits the healthy contract marker only when the global package, PATH-selected command, declared bin-target realpath, compiled version, and host executable contract agree. POSIX validates executable access; Windows validates the actual npm command shim and PATHEXT-selected command. Canonical-main discovery failure and worktree targets remain non-pass. Capability skips and zero-assertion paths cannot emit the must PASS selector."
     }
   ],
   "diagnosticGaps": [],
-  "note": "B-e256 fail-closed cross-platform contract after RI-006 and RI-007: stable selectors bind staging validation, PATH/package agreement, target containment, actual Windows shim validation, and host-safe remediation without universal POSIX mode claims.",
+  "note": "B-e256 fail-closed cross-platform contract after RI-009: immutable config-registration evidence remains separate from the real validation_plan discoverability receipt; implementation and regressions bind promotion wiring, PATH/package agreement, target containment, actual Windows shim validation, and host-safe remediation.",
   "createdAt": "2026-09-02T15:27:29.019Z",
-  "updatedAt": "2026-09-06T20:40:55.922Z"
+  "updatedAt": "2026-09-06T22:55:14.596Z"
 }

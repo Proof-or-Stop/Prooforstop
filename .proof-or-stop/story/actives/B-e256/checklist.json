@@ -265,7 +265,7 @@
             "type": "cli",
             "priority": "must",
             "verification": {
-              "command": "node -e \"const c=JSON.parse(require(fs).readFileSync(proof-or-stop.config.json,utf8));const e=c.validate.commands.find(x=>(x.args||[]).includes(packages/main/tests/red/red-global-cli-exec-bit.mjs));console.log(registered=+JSON.stringify(e))\"",
+              "command": "node -e \"const c=JSON.parse(require('fs').readFileSync('proof-or-stop.config.json','utf8'));const e=c.validate.commands.find(x=>(x.args||[]).includes('packages/main/tests/red/red-global-cli-exec-bit.mjs'));console.log('registered='+JSON.stringify(e))\"",
               "selector": "registered={\"command\":\"node\",\"args\":[\"packages/main/tests/red/red-global-cli-exec-bit.mjs\"],\"timeoutMs\":180000"
             }
           },
