@@ -3813,7 +3813,7 @@
       "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2052-2057 passes linkedNegativeDismissalUnsafeDescriptions.slice(0, 9) to the no-safe-narrowing mutant oracle, although the committed matrix at :1075-1090 now contains fourteen witnesses. CHK-001:adversarial:0 requires retaining the complete unsafe fixture matrix while removing the safe narrowing, and userSees promises the full unsafe matrix with both mutants. The five omitted witnesses cover A/B/C intervening sentences, We therefore consider, inverted Out of scope is where, direct Another Story owns it, and the long evidence-aside form. The ordinary production path and broad-deletion mutant run all fourteen, but those executions do not cover the missing no-safe variant cells. I imported an isolated in-memory copy of the current built production module, inserted exactly the committed no-safe return-false mutation at its unique anchor, and executed these omitted five through public assembleFullPromptEnvelope for every active modular REVIEW role: all twenty-five cells rejected through the expected unsafe Finding-triage authority oracle. Thus these are valid missing expectations, not intentional incompatible cases. The existing focused smoke still reports PASS and its pinned success receipt cannot by itself substantiate the complete no-safe-matrix part of this must intent. Remove the truncation and retain explicit role/witness assertions or cell accounting for the complete matrix. Severity medium because production and the tested mutation behave correctly in the independent probe, but this is a direct current acceptance/coverage claim mismatch requiring bounded repair before accepting that intent; it does not justify unrelated scope expansion.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T23:23:13.714Z",
@@ -3853,7 +3853,11 @@
       "signatureTag": "no-safe-mutant-truncated-unsafe-matrix",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqftlmb_bw4_156213ce731b45a5aa9ef8417caab5ad",
-      "ledgerCommitReceiptId": "lrc_mtqftlmb_bw4_eddb3797d984493abce19bfaf8f19243"
+      "ledgerCommitReceiptId": "lrc_mtqftlmb_bw4_eddb3797d984493abce19bfaf8f19243",
+      "resolvedAt": "2026-09-06T23:52:20.910Z",
+      "resolvedReason": "Duplicate re-attestation of B-8a40:F-073. RED test commit c8350f6d67 removes slice(0, 9) from the no-safe-narrowing mutant oracle. Both mutant paths now retain the complete linkedNegativeDismissalUnsafeDescriptions matrix. The built focused smoke passes after GREEN 689f1817de, including every omitted witness-role cell. Verification: npm run build --prefix packages/main and node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with prompt full-context envelope smoke PASS; all 13 pinned verification receipts refreshed by the CLI at 689f1817de. Original observations remain retained; resolution is not deferral.",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-077",
