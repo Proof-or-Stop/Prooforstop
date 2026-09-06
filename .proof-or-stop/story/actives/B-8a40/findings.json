@@ -2491,6 +2491,7 @@
       "signatureTag": "deferral-explicit-target-cross-segment-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf9coe_1a2r_64247f12abe0472c9686c890dfd374cc",
+      "ledgerCommitReceiptId": "lrc_mtqf9cof_1a2r_d5a59417c79946a0a3c61d9460edc4c6",
       "resolvedAt": "2026-09-06T23:07:29.023Z",
       "resolvedReason": "Recognize explicit Finding, issue, defect and work continuation subjects for deferral responsibility, while retaining the open terminal control. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2501,7 +2502,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts lines 660-690 implement a dedicated signed-disposition cross-segment state machine that keeps an inspection antecedent live across every later segment and rejects the first later Finding or work-bearing continuation unless it matches a small safe-terminal or evidence-only grammar. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject [Reviewers inspect a signed defer_with_proof disposition. Cache routing is a separate decision. It transfers generated work to another Story.], although It refers to the immediately preceding Cache routing decision. The local-only control [Audit evidence is recorded. Cache routing is a separate decision. It transfers generated work to another Story.] is accepted by all five roles, while the genuinely unsafe [Reviewers inspect a signed defer_with_proof disposition. It binds the Finding.] remains rejected, isolating the false join to hasCrossSegmentDispositionAssignment. This is distinct from F-046 deferral-state and F-047 severity-state local-antecedent false positives because it executes through the signed-disposition inspection and assignment state machine, and distinct from F-039 because the continuation is a new substantive antecedent rather than a terminal-state synonym. The focused smoke has no signed-disposition inspection plus local-subject safe witness. Reset or rebind signed-disposition state on a substantive intervening antecedent while preserving evidence-only continuation and genuinely coreferent assignment rejection, with all-role direct unsafe, evidence-aside, and local-antecedent controls. Severity high because ordinary Story scope prose can prevent every REVIEW role from assembling.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T20:32:22.010Z",
@@ -2542,7 +2543,11 @@
       "signatureTag": "signed-disposition-state-local-antecedent-false-positive",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtq9pvcq_1c9p_248a0264d3a740c9a7d58553920e7f32",
-      "ledgerCommitReceiptId": "lrc_mtq9pvcq_1c9p_4d7d56ec20844365a7e032d9225b4baa"
+      "ledgerCommitReceiptId": "lrc_mtq9pvcq_1c9p_4d7d56ec20844365a7e032d9225b4baa",
+      "resolvedAt": "2026-09-06T23:07:30.420Z",
+      "resolvedReason": "Terminate signed-disposition inspection state at a substantive local antecedent, retaining direct binding rejection and evidence-only continuations. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-052",
