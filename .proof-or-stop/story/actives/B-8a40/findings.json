@@ -2595,6 +2595,7 @@
       "signatureTag": "severity-passive-cross-segment-authority-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf9exn_1bmi_f3b6a594062248e88f7b92f2f415ebf2",
+      "ledgerCommitReceiptId": "lrc_mtqf9exn_1bmi_de0e544531f347028a4e69545285141d",
       "resolvedAt": "2026-09-06T23:07:31.947Z",
       "resolvedReason": "Recognize passive outcome-first severity continuations as well as active pronoun relations; both committed passive witnesses are exercised. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2605,7 +2606,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:431 gives the unknown-applicability relation a 320-character maximum span; :765-784 examines only the immediately following segment for non-deferral cross-segment coreference, while :829-839 then flattens all remaining segments but still classifies the joined string through that bounded span. A caller can therefore insert long evidence-only prose between an unknown-applicability antecedent and an explicitly coreferent routing conclusion. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles correctly REJECTED `Applicability remains unknown. That state permits routing away from this Story.` and the short-aside equivalent, but all five ACCEPTED the same proposition when seven audit-evidence sentences moved `That state permits routing away from this Story.` beyond the 320-character join span; a 748-character causal variant ending `For that reason, that state permits routing away from this Story.` was also accepted 5/5. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:691-692, :762-773, and :995-996 cover direct and adjacent unknown-routing claims but no distance/padding witness. This is distinct from F-048, which is a false-positive caused by joining unrelated operational routing inside the bound, and from F-001/F-003, which concern the negative-dismissal branch and its earlier horizon grammar. Preserve legitimate distant coreference across bounded evidence-only asides without converting unrelated routing into authority, and add all-role short/long unsafe and unrelated-safe controls. Severity high because trivial padding lets Story-authored Task Context use unknown applicability to route work away while every REVIEW envelope is still minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T20:40:58.932Z",
@@ -2644,7 +2645,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "unknown-applicability-joined-span-padding-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf9g1b_1cel_7d2ef02145fe412cabcb803e2360ca1f",
+      "resolvedAt": "2026-09-06T23:07:33.369Z",
+      "resolvedReason": "Keep unknown-applicability antecedents through arbitrary evidence-only asides; seven-aside direct and causal continuation witnesses are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-054",
