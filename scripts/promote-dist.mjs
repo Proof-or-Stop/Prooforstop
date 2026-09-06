@@ -10,8 +10,8 @@
 //
 // This module imports ONLY node: built-ins, so it adds no third-party dependency to
 // its callers' fresh-checkout footprint.
-import { chmodSync, readFileSync, renameSync, rmSync, statSync } from 'node:fs';
-import { dirname, isAbsolute, join, relative } from 'node:path';
+import { chmodSync, lstatSync, readFileSync, renameSync, rmSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, sep } from 'node:path';
 
 export function promoteDist(dist, staging, trash) {
   // B-e256: the freshly built staging tree came straight out of tsc, which emits every file 0644;
@@ -96,10 +96,18 @@ export function restoreBinExecutableBits(tree, dist = tree) {
   for (const rel of targets) {
     if (typeof rel !== 'string') continue;
     const underDist = relative(dist, join(packageRoot, rel));
-    if (underDist === '' || underDist.startsWith('..') || isAbsolute(underDist)) continue; // not inside the promoted tree
+    if (underDist === '' || underDist === '..' || underDist.startsWith(`..${sep}`) || isAbsolute(underDist)) continue; // not inside the promoted tree
     const target = join(tree, underDist);
     try {
-      chmodSync(target, statSync(target).mode | 0o111);
+      // lstat is deliberate: stat would follow an in-tree symlink and let a
+      // malformed staging tree chmod a referent outside the promoted tree.
+      const targetStat = lstatSync(target);
+      if (!targetStat.isFile()) {
+        const error = new Error(`bin target is not a regular file`);
+        error.code = 'EINVAL';
+        throw error;
+      }
+      chmodSync(target, targetStat.mode | 0o111);
       restored.push(rel);
     } catch (error) {
       if (error && error.code === 'ENOENT') continue; // absent bin target: nothing to restore

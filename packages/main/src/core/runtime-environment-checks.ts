@@ -78,6 +78,10 @@ export interface RuntimeEnvironmentOptions {
   // global-core-realpath executable fact (owner/group cases cannot be built
   // hermetically by an unprivileged test). Production always uses the default.
   executableAccessProbe?: (path: string) => boolean;
+  // Test seam for failures while inspecting the declared global bin target.
+  // Production uses statSync; tests can inject EACCES/EPERM without depending
+  // on the uid or host filesystem permissions.
+  binTargetStatProbe?: (path: string) => { mode: number; isFile(): boolean };
   // B-e256 cross-host review B-e256-xhr-r12 MAJOR: test seam for the realpath(3)
   // resolution of the global core package. A candidate that lstat/exists as
   // `resolved` can still fail realpath (EACCES/EPERM/EIO on the target, or the
@@ -132,6 +136,7 @@ interface RuntimeCheckContext {
   globalNpmRoot: string | null;
   globalNpmRootProbe: GlobalNpmRootProbeResult;
   executableAccessProbe: (path: string) => boolean;
+  binTargetStatProbe: (path: string) => { mode: number; isFile(): boolean };
   globalCoreRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
   compiledCoreVersionProbe: (globalRealpath: string) => CompiledCoreVersionProbeResult;
 }
@@ -253,6 +258,7 @@ export function runRuntimeEnvironmentChecks(
     globalNpmRoot,
     globalNpmRootProbe,
     executableAccessProbe: options.executableAccessProbe ?? defaultExecutableAccessProbe,
+    binTargetStatProbe: options.binTargetStatProbe ?? statSync,
     globalCoreRealpathProbe: options.globalCoreRealpathProbe ?? defaultGlobalCoreRealpathProbe,
     compiledCoreVersionProbe: options.compiledCoreVersionProbe ?? defaultCompiledCoreVersionProbe,
   };
@@ -634,12 +640,13 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
 //   (6) a missing or non-canonical version on a readable package.json -> drift
 //       with rebuild-and-relink; the version is a verified fact, not a
 //       display-only decoration (B-e256-xhr-r12 MAJOR)
-type GlobalCoreExecutableVerification = 'ok' | 'package-json-unreadable' | 'bin-field-missing' | 'bin-entry-missing';
+type GlobalCoreExecutableVerification = 'ok' | 'package-json-unreadable' | 'bin-field-missing' | 'bin-entry-missing' | 'bin-target-stat-failed';
 
 interface GlobalCoreExecutableFacts {
   binTarget: string | null;
   binMode: string | null;
-  binTargetExists: boolean;
+  binTargetExists: boolean | null;
+  verificationErrorCode: string | null;
   // B-e256-xhr-r11 MAJOR: whether ANY 0o111 bit is set on the target. This is
   // NOT the executable verdict (that is the X_OK probe); it is what decides
   // whether `chmod +x` is a plausible repair at all.
@@ -653,6 +660,7 @@ interface GlobalCoreExecutableFacts {
 function describeGlobalCoreVerification(verification: Exclude<GlobalCoreExecutableVerification, 'ok'>): string {
   if (verification === 'package-json-unreadable') return 'package.json is missing or malformed';
   if (verification === 'bin-field-missing') return 'package.json declares no `bin` field';
+  if (verification === 'bin-target-stat-failed') return 'the declared bin target could not be inspected';
   return `package.json \`bin\` has no ${CANONICAL_ROOT_PACKAGE_NAME} entry`;
 }
 
@@ -686,9 +694,13 @@ function formatFileMode(mode: number): string {
   return `0${(mode & 0o777).toString(8)}`;
 }
 
-function inspectGlobalCoreExecutable(packageRoot: string, executableAccessProbe: (path: string) => boolean): GlobalCoreExecutableFacts {
+function inspectGlobalCoreExecutable(
+  packageRoot: string,
+  executableAccessProbe: (path: string) => boolean,
+  binTargetStatProbe: (path: string) => { mode: number; isFile(): boolean },
+): GlobalCoreExecutableFacts {
   const unverifiable = (verification: Exclude<GlobalCoreExecutableVerification, 'ok'>): GlobalCoreExecutableFacts =>
-    ({ binTarget: null, binMode: null, binTargetExists: false, executeBitsSet: false, executable: null, verification });
+    ({ binTarget: null, binMode: null, binTargetExists: false, verificationErrorCode: null, executeBitsSet: false, executable: null, verification });
   const pkg = readPackageJson(packageRoot);
   if (!pkg || typeof pkg !== 'object') return unverifiable('package-json-unreadable');
   const bin = pkg.bin;
@@ -702,16 +714,19 @@ function inspectGlobalCoreExecutable(packageRoot: string, executableAccessProbe:
   const binTarget = resolve(packageRoot, binRel);
   let stat;
   try {
-    stat = statSync(binTarget);
-  } catch {
-    // PROBE: a declared bin target that does not exist is reported as missing, not thrown.
-    return { binTarget, binMode: null, binTargetExists: false, executeBitsSet: false, executable: false, verification: 'ok' };
+    stat = binTargetStatProbe(binTarget);
+  } catch (error) {
+    const errorCode = errnoCode(error);
+    if (errorCode === 'ENOENT' || errorCode === 'ENOTDIR') {
+      return { binTarget, binMode: null, binTargetExists: false, verificationErrorCode: null, executeBitsSet: false, executable: false, verification: 'ok' };
+    }
+    return { binTarget, binMode: null, binTargetExists: null, verificationErrorCode: errorCode, executeBitsSet: false, executable: null, verification: 'bin-target-stat-failed' };
   }
   const executeBitsSet = (stat.mode & 0o111) !== 0;
-  if (!stat.isFile()) return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: false, executeBitsSet, executable: false, verification: 'ok' };
+  if (!stat.isFile()) return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: false, verificationErrorCode: null, executeBitsSet, executable: false, verification: 'ok' };
   // `binMode` is display-only; the executable verdict is the access(2) probe.
   const executable = executableAccessProbe(binTarget);
-  return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: true, executeBitsSet, executable, verification: 'ok' };
+  return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, executeBitsSet, executable, verification: 'ok' };
 }
 
 function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'details' | 'warnings'> {
@@ -896,7 +911,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
   const globalPackageJson = readPackageJson(globalRealpath);
   const declaredVersion = globalPackageJson?.version;
   const version = typeof declaredVersion === 'string' && declaredVersion.trim().length > 0 ? declaredVersion.trim() : null;
-  const executableFacts = inspectGlobalCoreExecutable(globalRealpath, context.executableAccessProbe);
+  const executableFacts = inspectGlobalCoreExecutable(globalRealpath, context.executableAccessProbe, context.binTargetStatProbe);
   const worktreeCheckout = isWorktreeCheckoutPath(globalRealpath);
   const pathMatches = samePath(globalRealpath, expected);
   const warnings: string[] = [];
@@ -914,7 +929,16 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     warnings.push(`repoint: ${relink}`);
     addRemediation(relink);
   }
-  if (executableFacts.verification !== 'ok') {
+  if (executableFacts.verification === 'bin-target-stat-failed' && executableFacts.binTarget) {
+    const inspect = `ls -ld -- ${shellQuote(executableFacts.binTarget)}`;
+    warnings.push(`global bin target ${executableFacts.binTarget} could not be inspected [${executableFacts.verificationErrorCode ?? 'UNKNOWN'}]; its existence, mode, and executable state are unknown`);
+    if (pathMatches) {
+      warnings.push(`inspect filesystem access: ${inspect}`);
+      addRemediation(inspect);
+    } else {
+      warnings.push(`reported for the obsolete target only; the repoint above is the fix`);
+    }
+  } else if (executableFacts.verification !== 'ok') {
     // (5) Installed but unverifiable is drift, never a silent pass: name the
     // exact reason and the package path. A canonical checkout gets a rebuild
     // in front of the relink; a drifted realpath already carries the relink.
@@ -1043,8 +1067,10 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       compiledVersion,
       binTarget: executableFacts.binTarget,
       binMode: executableFacts.binMode,
+      binTargetExists: executableFacts.binTargetExists,
       executable: executableFacts.executable,
       verification: executableFacts.verification,
+      verificationErrorCode: executableFacts.verificationErrorCode,
       worktreeCheckout,
       remediation: remediations.length > 0 ? remediations.join(' && ') : null,
     },
@@ -1565,6 +1591,9 @@ function probeGlobalNpmRoot(projectRoot: string, timeoutMs = 2_000): GlobalNpmRo
   }
   const trimmed = stdout.trim();
   if (trimmed.length === 0) return { root: null, failureReason: 'npm root -g produced no output' };
+  if (/\r|\n/.test(trimmed) || !isAbsolute(trimmed)) {
+    return { root: null, failureReason: `npm root -g produced invalid path output: ${JSON.stringify(trimmed)}` };
+  }
   return { root: trimmed, failureReason: null };
 }
 
@@ -1929,7 +1958,8 @@ function compactFactDetail(result: RuntimeFactCheckResult): string {
     const mode = actual?.binMode ?? (actual?.binTarget ? 'missing' : 'unverified');
     const executable = actual?.executable === null || actual?.executable === undefined ? 'unverified' : actual.executable ? 'yes' : 'no';
     const unverifiable = typeof actual?.verification === 'string' && actual.verification !== 'ok' ? ` unverifiable=${actual.verification}` : '';
-    return `${actual.realpath} version=${actual?.version ?? 'unknown'} mode=${mode} executable=${executable}${unverifiable}`;
+    const verificationError = actual?.verificationErrorCode ? ` error=${actual.verificationErrorCode}` : '';
+    return `${actual.realpath} version=${actual?.compiledVersion ?? actual?.version ?? 'unknown'} mode=${mode} executable=${executable}${unverifiable}${verificationError}`;
   }
   if (result.outputKey === 'projectLocalBin') {
     const actual = result.actual as any;

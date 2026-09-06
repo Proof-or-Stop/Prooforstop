@@ -466,7 +466,7 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // repinning that NO origin-only entry was dropped this time (the check that caught the
   // previous merge losing two). Earlier note retained below.
   // origin/main merge 1: moved to f23779fb... because validate.commands really did change,
-  // as the maintenance note above requires me to state. Our main carried 124 entries and
+  // because validate.commands really changed. Our main carried 124 entries and
   // origin 122, diverging BOTH ways: ours had cli-surface-smoke,
   // command-ownership-contract, verify-orphan-surface and `npm --prefix packages/graph
   // run check`; origin had validation-tier-planner-smoke and single-owner-extraction-smoke.
@@ -480,7 +480,7 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // post-DONE snapshot smoke: the complete inventory grows from 128 to 131.
   // B-e256 CHK-002 registers the global CLI executable-bit regression smoke;
   // keep the exact digest pin in addition to the structural cwd-neutrality proof above.
-  assert.equal(real.commandSetDigest, 'cdf402cd529e5cafef0d377c588bb406d029fa4a2e97d02c63975304ca3fc293', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  assert.equal(real.commandSetDigest, 'cdf402cd529e5cafef0d377c588bb406d029fa4a2e97d02c63975304ca3fc293', 'the real commandSetDigest must not move unless validate.commands changes; update the adjacent history and expected digest together');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

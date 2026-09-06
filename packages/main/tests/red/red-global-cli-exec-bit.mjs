@@ -53,7 +53,7 @@
  */
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir, userInfo } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -188,6 +188,75 @@ expect('hermetic (c): package.json with no bin field, unparseable package.json a
       console.log(`hermetic (c): ${label} -> ${JSON.stringify(restored)}`);
     });
   }
+});
+
+expect('hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target', () => {
+  assert.notEqual(restoreBinExecutableBits, null, 'restoreBinExecutableBits is not available');
+  const manifests = [
+    ['string shorthand', 'dist/cli.js', ['dist/cli.js']],
+    ['multiple targets', { first: 'dist/cli.js', second: 'dist/helper.js' }, ['dist/cli.js', 'dist/helper.js']],
+  ];
+  for (const [label, bin, expected] of manifests) {
+    withTempPackage((pkgRoot, dist) => {
+      mkdirSync(dist, { recursive: true });
+      writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin }));
+      for (const rel of expected) {
+        writeFileSync(join(pkgRoot, rel), `${CLI_BODY}${rel}\n`);
+        chmodSync(join(pkgRoot, rel), 0o644);
+      }
+      const before = expected.map((rel) => readFileSync(join(pkgRoot, rel), 'utf8'));
+      assert.deepEqual(restoreBinExecutableBits(dist), expected, `${label}: restored list`);
+      expected.forEach((rel, index) => {
+        assert.notEqual(statSync(join(pkgRoot, rel)).mode & 0o111, 0, `${label}: ${rel} must be executable`);
+        assert.equal(readFileSync(join(pkgRoot, rel), 'utf8'), before[index], `${label}: ${rel} content changed`);
+      });
+    });
+  }
+});
+
+expect('hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal', () => {
+  assert.notEqual(restoreBinExecutableBits, null, 'restoreBinExecutableBits is not available');
+  withTempPackage((pkgRoot, dist) => {
+    mkdirSync(dist, { recursive: true });
+    writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: 'dist/..cli.js' }));
+    const target = join(dist, '..cli.js');
+    writeFileSync(target, CLI_BODY);
+    chmodSync(target, 0o644);
+    assert.deepEqual(restoreBinExecutableBits(dist), ['dist/..cli.js']);
+    assert.notEqual(statSync(target).mode & 0o111, 0, 'valid dot-prefixed target must become executable');
+  });
+});
+
+expect('hermetic (c4): a directory declared as a bin target is rejected before promotion', () => {
+  assert.notEqual(promoteDist, null, 'promoteDist is not available');
+  withTempPackage((pkgRoot, dist) => {
+    const staging = join(pkgRoot, 'dist.staging');
+    const trash = join(pkgRoot, 'dist.trash');
+    mkdirSync(dist, { recursive: true });
+    writeFileSync(join(dist, 'cli.js'), CLI_BODY);
+    chmodSync(join(dist, 'cli.js'), 0o755);
+    mkdirSync(join(staging, 'cli.js'), { recursive: true });
+    chmodSync(join(staging, 'cli.js'), 0o644);
+    writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: 'dist/cli.js' }));
+    assert.throws(() => promoteDist(dist, staging, trash), (error) => error?.code === 'EINVAL' && /not a regular file/.test(error.message));
+    assert.equal(readFileSync(join(dist, 'cli.js'), 'utf8'), CLI_BODY, 'old dist must remain untouched');
+    assert.ok(existsSync(staging), 'malformed staging tree must not be promoted');
+    assert.ok(!existsSync(trash), 'old dist must not be evicted');
+  });
+});
+
+expect('hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree', () => {
+  assert.notEqual(restoreBinExecutableBits, null, 'restoreBinExecutableBits is not available');
+  withTempPackage((pkgRoot, dist) => {
+    mkdirSync(dist, { recursive: true });
+    const outside = join(pkgRoot, 'outside.js');
+    writeFileSync(outside, CLI_BODY);
+    chmodSync(outside, 0o644);
+    symlinkSync(outside, join(dist, 'cli.js'));
+    writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: 'dist/cli.js' }));
+    assert.throws(() => restoreBinExecutableBits(dist), (error) => error?.code === 'EINVAL' && /not a regular file/.test(error.message));
+    assert.equal(statSync(outside).mode & 0o777, 0o644, 'outside referent permissions must remain unchanged');
+  });
 });
 
 // (d) a NON-ENOENT failure on an existing bin target must propagate (only an absent target is benign).

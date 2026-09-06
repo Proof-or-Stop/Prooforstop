@@ -924,6 +924,9 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
     assert.ok(warnings.includes('compiled runtime reports version 1.9.0; expected 2.0.0'), `the warning must name BOTH the compiled and expected version, got: ${warnings}`);
     assert.ok(warnings.includes(`rebuild and relink: ${rebuild} && ${relink}`), `got: ${warnings}`);
     assert.doesNotMatch(warnings, /resolves to/, 'the realpath itself is canonical; only the compiled runtime is stale');
+    const row = globalCoreRow(report);
+    assert.ok(row.includes('version=1.9.0'), `the compact row must render the compiled runtime version, got: ${row}`);
+    assert.ok(!row.includes('version=2.0.0'), `the compact row must not substitute the manifest version for the running artifact, got: ${row}`);
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
@@ -1076,6 +1079,66 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
     const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
     assert.ok(warnings.includes('compiled runtime version could not be verified'), `got: ${warnings}`);
     assert.ok(warnings.includes('export-shaped line in a comment as well as the real export'), `must name the raw-vs-stripped ambiguity, got: ${warnings}`);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 32. A successful npm process whose stdout is not one absolute path is a
+//     failed production probe, not a known-empty global installation.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-invalid-npm-root-output-'));
+  const originalPath = process.env.PATH;
+  try {
+    const { worktree } = makeRepoWithWorktree(base);
+    const fakeBin = join(base, 'fake-bin');
+    mkdirSync(fakeBin, { recursive: true });
+    const fakeNpm = join(fakeBin, 'npm');
+    writeFileSync(fakeNpm, '#!/bin/sh\nprintf "root -g\\n"\n');
+    chmodSync(fakeNpm, 0o755);
+    process.env.PATH = fakeBin;
+    const projectRoot = join(base, 'fixture-project');
+    mkdirSync(projectRoot, { recursive: true });
+    const report = runRuntimeEnvironmentChecks(projectRoot, {
+      commandResolver: () => join(base, 'fake-proof-or-stop'),
+      corePackageRoot: join(worktree, 'packages', 'main'),
+    });
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass');
+    assert.equal(actual.presence, 'npm-root-probe-failed');
+    assert.equal(actual.installed, null);
+    assert.match((report.globalCoreRealpath.warnings ?? []).join('\n'), /invalid path output.*root -g/);
+  } finally {
+    if (originalPath === undefined) delete process.env.PATH;
+    else process.env.PATH = originalPath;
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 33. A non-absence stat failure preserves its errno and reports the bin state
+//     as unknown; it must not prescribe a rebuild for a target it never saw.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-bin-stat-denied-'));
+  try {
+    const { repo, worktree } = makeRepoWithWorktree(base);
+    const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
+    const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot, {
+      binTargetStatProbe: () => {
+        const error = new Error('permission denied');
+        error.code = 'EACCES';
+        throw error;
+      },
+    });
+    const actual = report.globalCoreRealpath.actual;
+    assert.notEqual(report.globalCoreRealpath.status, 'pass');
+    assert.equal(actual.verification, 'bin-target-stat-failed');
+    assert.equal(actual.verificationErrorCode, 'EACCES');
+    assert.equal(actual.binTargetExists, null);
+    assert.equal(actual.executable, null);
+    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+    assert.match(warnings, /could not be inspected \[EACCES\]/);
+    assert.doesNotMatch(warnings, /does not exist|rebuild:/);
+    assert.match(globalCoreRow(report), /unverifiable=bin-target-stat-failed error=EACCES/);
   } finally {
     rmSync(base, { recursive: true, force: true });
   }

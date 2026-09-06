@@ -49,7 +49,6 @@ const HEARTBEAT_MS = 250;
 // their guards wide so only rows explicitly named "max" exercise a tight max.
 const NON_MAX_OUTER_TIMEOUT_MS = 120_000;
 const NON_MAX_HARNESS_CEILING_MS = 60_000;
-const DESCENDANT_PID_READY_TIMEOUT_MS = 30_000;
 
 type CliResult = {
   status: number | null;
@@ -309,19 +308,20 @@ function startCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEIL
   child.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
 
   const result = new Promise<CliResult>((resolveResult) => {
+    let ceilingTriggered = false;
     const ceiling = setTimeout(() => {
-      child.kill('SIGKILL');
-      resolveResult({
-        status: null,
-        stdout,
-        stderr: `${stderr}\nsmoke timed out waiting for validate child pid ${child.pid}`,
-        elapsedMs: Date.now() - start,
-      });
+      ceilingTriggered = true;
+      killCliProcessTree(child.pid);
     }, ceilingMs);
     ceiling.unref?.();
     child.on('close', (status) => {
       clearTimeout(ceiling);
-      resolveResult({ status, stdout, stderr, elapsedMs: Date.now() - start });
+      resolveResult({
+        status: ceilingTriggered ? null : status,
+        stdout,
+        stderr: ceilingTriggered ? `${stderr}\nsmoke timed out waiting for validate child pid ${child.pid}` : stderr,
+        elapsedMs: Date.now() - start,
+      });
     });
     child.on('error', (error) => {
       clearTimeout(ceiling);
@@ -335,25 +335,66 @@ function startCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEIL
   });
   return {
     result,
-    kill: () => { try { child.kill('SIGKILL'); } catch { /* already gone */ } },
+    kill: () => killCliProcessTree(child.pid),
   };
+}
+
+function killCliProcessTree(rootPid: number | undefined): void {
+  if (!rootPid) return;
+  if (process.platform === 'win32') {
+    try {
+      execFileSync('taskkill', ['/PID', String(rootPid), '/T', '/F'], { stdio: 'ignore' });
+    } catch {
+      // The process may already have exited between the lifecycle check and cleanup.
+    }
+    return;
+  }
+  const children = new Map<number, number[]>();
+  try {
+    const rows = execFileSync('ps', ['-axo', 'pid=,ppid='], { encoding: 'utf8' });
+    for (const row of rows.split('\n')) {
+      const [pidText, parentText] = row.trim().split(/\s+/);
+      const pid = Number(pidText);
+      const parent = Number(parentText);
+      if (!Number.isInteger(pid) || !Number.isInteger(parent)) continue;
+      const siblings = children.get(parent) ?? [];
+      siblings.push(pid);
+      children.set(parent, siblings);
+    }
+  } catch {
+    // Fall through to killing the known root when process enumeration fails.
+  }
+  const descendants: number[] = [];
+  const visit = (pid: number): void => {
+    for (const childPid of children.get(pid) ?? []) visit(childPid);
+    if (pid !== rootPid) descendants.push(pid);
+  };
+  visit(rootPid);
+  for (const pid of [...descendants, rootPid]) {
+    try { process.kill(pid, 'SIGKILL'); } catch { /* already gone */ }
+  }
 }
 
 function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): Promise<CliResult> {
   return startCli(root, args, ceilingMs, env).result;
 }
 
-// A hanging DONE-required command whose descendant publishes its pid the
-// instant it exists. `sh` + `sleep` need no runtime boot, so the pid lands a
-// few ms after the command is spawned; the previous second `node -e` boot raced
-// the residual budget (B-83aa measured a 95-257ms residual against a 50-150ms
-// boot under load). Job control is off in non-interactive sh, so `sleep` stays
-// in the command's process group, which is exactly what the kill must reach.
+// A platform-neutral hanging DONE-required command whose descendant publishes
+// its pid as soon as Node spawns it. The descendant inherits the command's
+// process group, which is exactly what each validation timeout must terminate.
 function descendantTreeCommand(label: string, pidFile: string, timeoutMs: number) {
+  const script = [
+    'const { spawn } = require("node:child_process");',
+    'const { writeFileSync } = require("node:fs");',
+    'const descendant = spawn(process.execPath, ["-e", "setTimeout(() => {}, 600000)"], { stdio: "ignore" });',
+    'writeFileSync(process.argv[1], `${descendant.pid}\\n`);',
+    'descendant.on("exit", () => process.exit(0));',
+    'setInterval(() => {}, 600000);',
+  ].join('');
   return {
     label,
-    command: '/bin/sh',
-    args: ['-c', `sleep 600 & echo $! > "${pidFile}"; wait`],
+    command: process.execPath,
+    args: ['-e', script, pidFile],
     timeoutMs,
   };
 }
@@ -404,26 +445,36 @@ async function proveTimeoutLayerKillsDescendant(
     admitSyntheticWindow(fixture.root, fixture.storyId);
     const run = startCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, env);
     const boundMs = budgetMs + CHILD_FILE_WAIT_MARGIN_MS;
-    const wait = await waitForChildFile(run, pidFile, boundMs);
-    const result = await run.result;
-    if (wait.outcome === 'bound_expired') {
-      assert.fail(`${label}: ${describeChildFileWait(wait, pidFile, label, boundMs)}`);
+    let descendantPid: number | null = null;
+    try {
+      const wait = await waitForChildFile(run, pidFile, boundMs);
+      const result = await run.result;
+      if (wait.outcome === 'bound_expired') {
+        assert.fail(`${label}: ${describeChildFileWait(wait, pidFile, label, boundMs)}`);
+      }
+      assert.equal(result.status, 1, `${label}: structured ${row.layer} timeout must exit nonzero:\n${result.stderr}`);
+      const parsed = JSON.parse(result.stdout);
+      assert.equal(parsed.result, 'timed_out', `${label}: budget ${budgetMs}ms must report timed_out`);
+      assert.equal(parsed.timeoutLayer, row.layer, `${label}: budget ${budgetMs}ms must attribute the ${row.layer} layer`);
+      row.extraAssertions?.(result);
+      if (wait.outcome === 'exited_without_file') {
+        vacuous.push(`budget ${budgetMs}ms: ${describeChildFileWait(wait, pidFile, label, boundMs)}`);
+        continue;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      const pidText = readFileSync(pidFile, 'utf8').trim();
+      descendantPid = Number(pidText);
+      assert.ok(Number.isInteger(descendantPid) && descendantPid > 0, `${label}: pid file must hold the descendant pid, got "${pidText}"`);
+      assert.throws(() => process.kill(descendantPid as number, 0), /ESRCH/, row.killMessage);
+      return;
+    } finally {
+      run.kill();
+      await run.result;
+      if (descendantPid === null && fileHasContent(pidFile)) descendantPid = Number(readFileSync(pidFile, 'utf8').trim());
+      if (Number.isInteger(descendantPid) && (descendantPid as number) > 0) {
+        try { process.kill(descendantPid as number, 'SIGKILL'); } catch { /* already gone */ }
+      }
     }
-    assert.equal(result.status, 1, `${label}: structured ${row.layer} timeout must exit nonzero:\n${result.stderr}`);
-    const parsed = JSON.parse(result.stdout);
-    assert.equal(parsed.result, 'timed_out', `${label}: budget ${budgetMs}ms must report timed_out`);
-    assert.equal(parsed.timeoutLayer, row.layer, `${label}: budget ${budgetMs}ms must attribute the ${row.layer} layer`);
-    row.extraAssertions?.(result);
-    if (wait.outcome === 'exited_without_file') {
-      vacuous.push(`budget ${budgetMs}ms: ${describeChildFileWait(wait, pidFile, label, boundMs)}`);
-      continue;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    const pidText = readFileSync(pidFile, 'utf8').trim();
-    const descendantPid = Number(pidText);
-    assert.ok(Number.isInteger(descendantPid) && descendantPid > 0, `${label}: pid file must hold the descendant pid, got "${pidText}"`);
-    assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, row.killMessage);
-    return;
   }
   assert.fail([
     `${label}: the ${row.layer} layer fired before the command published a descendant in all ${DESCENDANT_KILL_ESCALATIONS} escalating budgets, so the kill property could not be observed:`,
