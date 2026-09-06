@@ -1154,7 +1154,7 @@
       "desc": "doc-promise-undelivered: .proof-or-stop/story/actives/B-e256/checklist.json:376 and proofstory.json:49 now promise that the Windows branch validates the npm command-shim contract, but packages/main/src/core/runtime-environment-checks.ts:693-695 returns true for every win32 bin target solely from the platform value, while inspectGlobalCoreExecutable at :737-769 only stats the declared dist/cli.js file and never locates, reads, or validates a generated proof-or-stop.cmd/.ps1 shim. The alleged Windows regression at packages/main/tests/global-core-realpath.test.mjs:1229-1240 likewise creates no command shim; it merely injects platform=win32 and asserts that the unconditional true is returned. A missing, stale, or malformed global Windows shim can therefore coexist with executable=yes and the global-core-realpath PASS marker. F-026's resolution claim is not delivered: either validate the actual shim/target relationship or narrow the Story contract and finding resolution to the Node-target-only fact. severity: critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T19:15:47.622Z",
@@ -1208,7 +1208,11 @@
       "signatureTag": "quality-win32-shim-contract-not-validated",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtq6zeav_f3_e8dfdeaaece244b48bd4405147851177",
-      "ledgerCommitReceiptId": "lrc_mtq6zeav_f3_35f2491daec641aeaaaae1aee87194ad"
+      "ledgerCommitReceiptId": "lrc_mtq6zeav_f3_35f2491daec641aeaaaae1aee87194ad",
+      "resolvedAt": "2026-09-06T21:18:00.949Z",
+      "resolvedReason": "Commit d65767d4b16e validates the PATH-selected Windows npm command shim against the declared canonical bin target; CHK-003 happy:1 and adversarial:2 execute the representative valid, missing, unreadable, and mismatched shim cases. Full current-material validate passed 132/132.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-030",
