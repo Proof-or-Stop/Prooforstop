@@ -516,7 +516,7 @@
       "desc": "quality-smoke-platform-regression: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:352-357 hard-codes /bin/sh and the external sleep utility for every new descendantTreeCommand row, replacing the prior process.execPath-based child fixture. proof-or-stop.config.json registers this smoke as an unconditional validation command, while the validation implementation and validation-tier planner explicitly model native win32 execution. On native Windows, spawning /bin/sh fails with ENOENT before the descendant PID can be published, so the command, idle, and max deadline assertions cannot exercise their subject and escalated/full validation fails for host reasons. Use process.execPath with a platform-neutral inline descendant fixture, or provide an explicit win32 branch with equivalent process-tree semantics. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T14:40:33.759Z",
@@ -559,7 +559,11 @@
         "proof-or-stop.config.json"
       ],
       "signatureTag": "quality-smoke-platform-regression",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 721bb624b0 replaces the /bin/sh sleep fixture with process.execPath and Node built-ins; validate-progress-heartbeat-smoke passes.",
+      "resolvedAt": "2026-09-06T15:32:42.994Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-016",
