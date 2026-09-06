@@ -640,7 +640,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:371 and :518-535 recognize the negative dismissal observation only when TRIAGE_DISMISSAL_SUBJECT matches the passive `Finding is closed` shape; equivalent active-voice negation is absent from the subject grammar. Against the committed built public assembleFullPromptEnvelope API, all five active modular REVIEW roles ACCEPTED both `This intake closes no parent Finding. Therefore another Story owns it.` and `The intake does not close any parent Finding. Therefore another Story owns it.`, while the passive controls at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1078-1079 were rejected 5/5. Because the first segment is never identified as a negative dismissal observation, the later causal ownership conclusion is not linked and the guard fails open. This leaves the resolved F-005 word-order family incompletely repaired and violates review-finding-triage-prompt-change-proposal.md:346-351, which requires equivalent authority claims to remain rejected after word-order changes. Add active-voice negative-observation witnesses across every active role and make negative dismissal recognition relation/polarity-based in both voice orders; severity high because Story Task Context can again mint out-of-scope ownership guidance before reviewer startup.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T17:49:16.869Z",
@@ -679,7 +679,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-active-voice-negative-dismissal-linkage-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Active-voice and passive-voice negative observations now share the same normalized subject and polarity handling in commit fb175622.",
+      "resolvedAt": "2026-09-06T19:50:59.618Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-015",
