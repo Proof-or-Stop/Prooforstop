@@ -3012,6 +3012,38 @@
       },
       "readDiagnostics": [],
       "_hash": "926264effaff5540e15dcea003bf2fe7c1361cdea8075d07f10688e7fcb6f390"
+    },
+    {
+      "id": "B-fe8f:RP-079",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-005 wave2 bounded saturation re-attestation. Current canonical SAFE_INCREMENTAL basis RR125/RP076 reports no material/scope/claim/contract change, with only F061 newly registered. Independently inspected git diff ed95680..HEAD: seven CLI-owned review/finding metadata files; diff for packages, scripts, docs, background, plan and bug is empty. Read the complete F061 record through official finding_list: open verified medium, quality RR126, BUG-CERT-002 at certification-window.ts189. It matches the independently reproduced guard exit1 already recorded in RP076; no new test run or new defect is claimed. No additional concept finding beyond F061; no duplicate registration. Known F061 remains a current acceptance blocker, and this lane credential does not resolve it, waive the guard, prove repair, or assert current full validation/quorum. Its proposed remedies are nonbinding: do not restore read-both runtime authority or disguise the literal merely to evade the guard; preserve exact tombstone path/deletion identity and live/unknown refusal. Reuse earlier full reads only under the CLI-selected unchanged-material incremental basis. F048/F049 remain suspected and tracked. Section9.3 foundation only; no later Identity/Lineage or Applicability delivery claim.",
+      "createdAt": "2026-09-06T16:36:12.343Z",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "reviewRunId": "B-fe8f:RR-129",
+      "envelopeId": "45b1f09c62d9e6a34d9e39d49107ecede95291037b049d033f8ab8c41eebe0b8",
+      "writerSessionId": "sess-7e8a1b4c11980cfd74a3755257230a82",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/bug.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "packages/main/src/core/brand-paths.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2e84b2f6f891b63bb735b1ecca641b99308fbb3cc9734cd8868704d4c2164bfd"
     }
   ]
 }
