@@ -2427,6 +2427,58 @@
       },
       "readDiagnostics": [],
       "_hash": "0deb4cd0d8da091002c78126d54cbd8fb796b9efd72a4a795db17bd8b924c185"
+    },
+    {
+      "id": "B-e256:RP-063",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-005 final wave-3 concept saturation review on unchanged material 450191bd9f7c: audited the complete Story, ProofStory, summary, committed diff, Windows user outcome wording, platform branches, and verifier-owned Wave-4 chain. Every observed platform concern maps to an existing family: F-024 owns the universal POSIX Story/ProofStory acceptance contract, with F-025 as its duplicate selector symptom; F-026 owns Windows global-core fixture and evidence portability; F-027 owns the host-bound doctor selector; and F-028 owns Windows-invalid doctor remediation commands. Staging-before-old-dist-eviction wording remains internally consistent. No fifth distinct concept family, residual replacement, or promised-but-undelivered behavior was found.",
+      "createdAt": "2026-09-06T17:38:36.168Z",
+      "reviewRound": "2026-09-06T16:52:33.065Z",
+      "reviewRunId": "B-e256:RR-090",
+      "envelopeId": "d078ecf623468b0514de115bbd995c7ca6a5bbd627b6572e2c52ee35b22ddb23",
+      "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "7c433b6a6e05a85663302ae680941931ef0e7cc7677d0779a2d789676a9f3617"
     }
   ]
 }

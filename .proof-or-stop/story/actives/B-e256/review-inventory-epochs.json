@@ -830,7 +830,7 @@
       "reviewRound": "2026-09-06T16:52:33.065Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T17:14:07.376Z",
-      "updatedAt": "2026-09-06T17:27:53.858Z",
+      "updatedAt": "2026-09-06T17:36:29.048Z",
       "cutoff": {
         "headHash": "9763e4bb2dc8459c8e40964064fabe141aa724c5",
         "materialHash": "450191bd9f7c19872fbc84e018034b5583be2c6f6b69fe84761d8a900b7ee533",
@@ -895,10 +895,61 @@
           "criticDigest": "0d384a48d1e4735245a4441f0ff27f2567813ff3933178ac90c26cacd8d877cc",
           "saturated": false,
           "nextRunSequenceBoundary": 85
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T17:27:53.858Z",
+          "completedAt": "2026-09-06T17:36:29.048Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-086",
+              "terminal": "pass",
+              "hostIdentity": "e2cb41f9a5e0e84b69e19a0f6a96c8152d911992e966d5f344380303d681746d",
+              "promptIdentity": "8f9569f5d92bfaf4bb21fcdd62fb3a2be16cda5292dac4a8562d3726ac0e070c",
+              "evidenceIds": [
+                "B-e256:RP-060"
+              ],
+              "coverageDigest": "6aeca5ca2c18cdc70ca8536577abf4d7d7ec852d70b6d1591c3608d8a1aaea81"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-087",
+              "terminal": "finding",
+              "hostIdentity": "e2cb41f9a5e0e84b69e19a0f6a96c8152d911992e966d5f344380303d681746d",
+              "promptIdentity": "a8ee9df30d13c0259356a7fee43d290d92f6ff80d293472807c1b23eadba4580",
+              "evidenceIds": [
+                "B-e256:F-028"
+              ],
+              "coverageDigest": "aae8fced8313b38a657da30bb67302d9df8843e80ca9f17b7e5d6cb643881211"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-088",
+              "terminal": "pass",
+              "hostIdentity": "b0980bb0f0a7123834ac3f1b709802c5d8ec55cea2818dd8e4b243f957097713",
+              "promptIdentity": "c487cadb6f090dda1a50b882da82b0ef155d19dc064a19d6b4404f35bbe90e95",
+              "evidenceIds": [
+                "B-e256:RP-061"
+              ],
+              "coverageDigest": "e04efd47d455cd61a9795855f9e6cf7ab6ce8d48b168e3f97e4ba3a50e716071"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "cross-platform-acceptance-contract",
+            "global-core-realpath-win32-fixture-contract",
+            "host-bound-doctor-evidence-selector",
+            "windows-doctor-remediation-command-portability"
+          ],
+          "verifiedFindingSetDigest": "c09b08594305dc1c0c5d2d69b85c8fa3cebc0e4cd590c7ccb36ae7f4ca5e8f8d",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "27be778e18cfa8cf64c0e33c8c1072161566070c20478b28902cdb93b2b330fe",
+          "saturated": false,
+          "nextRunSequenceBoundary": 89
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "b0df52f73b14afda5a46789651c22cb88f784f9892fca6bad7e8ce5c757b8f19"
+      "_hash": "6d3d20051dcb132df7843a3836934a5ff7c1b6571897da018bacc28757e00b9e"
     }
   ],
   "receipts": [
@@ -1533,6 +1584,37 @@
       ],
       "createdAt": "2026-09-06T17:27:34.659Z",
       "_hash": "4575b098cb598abf057311a6ce80c67fab40a777b008b7aeed338fdabe237602"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-005:CRIT-02",
+      "epochId": "B-e256:RI-005",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T16:52:33.065Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "9763e4bb2dc8459c8e40964064fabe141aa724c5",
+        "materialHash": "450191bd9f7c19872fbc84e018034b5583be2c6f6b69fe84761d8a900b7ee533",
+        "storyFilesHash": "6e95a097c38048c3b957a290eca2c383f5510de17e232105cb647d7a38d96e93"
+      },
+      "aggregateFindingSetDigest": "c09b08594305dc1c0c5d2d69b85c8fa3cebc0e4cd590c7ccb36ae7f4ca5e8f8d",
+      "requiredLaneCoverageDigest": "67f1b14005e72cea0ee6fecd5e9f2cd4419366e545ea78f9f4a835165ed93fa3",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-089",
+      "terminalEvidenceIds": [
+        "B-e256:RP-062"
+      ],
+      "readEvidenceDigest": "fea52884759c2a1dd2ed854f3a200591fe3c828b9d2c9756551ac95a5c1d5793",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-028",
+          "disposition": "verified_family",
+          "familyKey": "windows-doctor-remediation-command-portability",
+          "reason": "Verified as a distinct production-output family. runtime-environment-checks.ts uses POSIX-only shell quoting and emits cd -- / ls -ld remediation text on Windows, so the promised exact doctor remediation is not executable there. F-024/F-025 concern CHK-001 acceptance selectors, F-026 concerns Windows test-fixture portability, and F-027 concerns a host-bound evidence selector; none owns the emitted remediation-command defect."
+        }
+      ],
+      "createdAt": "2026-09-06T17:36:04.111Z",
+      "_hash": "29a447bd65383ffbf7e6b69723a007ba03a8e32bece33889121121b03d65c2b8"
     }
   ]
 }
