@@ -2727,6 +2727,52 @@
       ],
       "signatureTag": "compatibility-schema-default-span-padding-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-057",
+      "desc": "packages/main/src/core/prompt-envelope.ts:738-762 makes the persistent severity-authority state depend on an antecedent regex allowing at most three modifier words before `factor|criterion|basis|authority|...`; the general controlled-relation path at :765-784 sees only the immediately following segment for severity. Adding a fourth legitimate modifier before an evidence-only aside therefore drops the live severity antecedent and launders the later conclusion. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles REJECTED `Severity is the decisive factor. Record the audit result. It determines Story scope.` and the three-modifier `Severity is the sole decisive authoritative factor...` control, but all five ACCEPTED `Severity is the sole decisive controlling authoritative factor. Record the audit result. It determines Story scope.` and the equivalent with two evidence asides. All five accepted the safe `Severity is only one input to Story scope.` control. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:747-759 covers the canonical antecedent and multiple evidence continuations but never crosses the production `{0,3}` modifier boundary. This is distinct from F-052, which changes the later continuation into passive/outcome-first order, and F-054, which pads a same-sentence controlled concept pair beyond its character maxSpan; here the later pronoun conclusion remains canonical and only the persistent antecedent's arbitrary word-count truncation changes. Replace the fixed modifier count with a structurally bounded severity-authority antecedent and add all-role 3/4-word boundary plus unrelated-safe controls. Severity high because a one-word transformation lets Story-authored Task Context state severity-only scope authority while every REVIEW envelope is still minted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T20:54:09.442Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-109",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "98a5561dff6c283810b976dc6077ad667a93960027c07a79fc827163d7b0f813",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "severity-persistent-antecedent-modifier-bound-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
