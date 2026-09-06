@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e40f",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge *",
+    "git status *",
+    "node bin/proof-or-stop.js *",
+    "node packages/main/dist/tasks/quorum-submit-smoke.js *",
+    "node packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs *",
+    "node packages/main/tests/validate-resource-claims.test.mjs",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "collaboration reviewers",
+    "exec_command",
+    "proof-or-stop"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-e40f",
+    "docs/requirements/decisions",
+    "packages/main/src/tasks",
+    "packages/main/tests",
+    "proof-or-stop.config.json"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [
+    "remote publishing"
+  ],
+  "excludedPaths": [
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/handlers/quorum-prune.ts",
+    "packages/main/src/handlers/quorum-submit.ts",
+    "packages/main/src/tasks/full-suite-runner.ts"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Use the repository-local 0.3.277 CLI. The Story may consume existing scheduler APIs but may not redesign them or publish remotely.",
+  "createdAt": "2026-09-06T12:03:03.915Z",
+  "updatedAt": "2026-09-06T12:03:03.915Z",
+  "_hash": "58f79ed4f955bc3d15dea01925d5e88e322cb883af6e5a23e3b31988b398c0d6"
+}
