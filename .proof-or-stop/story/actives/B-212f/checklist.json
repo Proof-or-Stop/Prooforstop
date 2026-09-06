@@ -1258,7 +1258,57 @@
       },
       "status": "in_progress",
       "startTime": "2026-09-06T01:08:32.143Z",
-      "endTime": null
+      "endTime": null,
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "393a112a4ae719adbce488c4cc90581e9419caff6ba01275d29d3c1824fb3106",
+            "outputTail": "rget (red-w2c-validate-registration.mjs, red-b49d4-harness-registration.mjs) gaining a mention of red-b49d4-registration-derivation.mjs, each ceasing to qualify, a stale cycle break and an unreasoned one\n  [GREEN] NEWCOMER_MIRROR_IS_FAITHFUL (BLOCK D)\n      observed: before the newcomer was planted: red-w2c-validate-registration.mjs(exit=0), red-b49d4-harness-registration.mjs(exit=0)\n  [GREEN] NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS (BLOCK D)\n      observed: spawned 7 committed guard(s) as child processes: red-b2aa7-chk007-receipt.mjs(exit=0, 17297ms), red-b3434-blob-buffer-ceiling.mjs(exit=0, 3671ms), red-b49d4-chk002-receipt.mjs(exit=0, 313ms), red-b49d4-harness-registration.mjs(exit=1, 32ms), red-b8df9-chk002-verdict-shapes.mjs(exit=0, 210ms), red-w2c-validate-registration.mjs(exit=0, 29ms), red-w2d-command-readonly.mjs(exit=0, 6898ms); every spawned file is sha256-identical to its committed counterpart=true\n  [GREEN] EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE (BLOCK D)\n      observed: targets that failed WITHOUT naming the newcomer: none\n  [GREEN] DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION (BLOCK D)\n      observed: packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs planted, registered nowhere and excluded nowhere; guards that caught it: red-b49d4-harness-registration.mjs; guards that reported success anyway: red-b2aa7-chk007-receipt.mjs(\"INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f…\") | red-b3434-blob-buffer-ceiling.mjs(\"✓ fixture blob survives the git pipeline above 1,048,576 bytes ✓ commitImmutableMetadataTr…\") | red-b49d4-chk002-receipt.mjs(\"TOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness car…\") | red-b8df9-chk002-verdict-shapes.mjs(\"=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape === C0 [CONTROL…\") | red-w2c-validate-registration.mjs(\"red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members f…\") | red-w2d-command-readonly.mjs(\"red-w2d-command-readonly: PASS registration: MAIN_TOOLS + command-policy(readOnly/none) + …\")\n  [GREEN] REAL_CONFIG_BYTE_UNMODIFIED (BLOCK E)\n      observed: sha256 before=90a70bfdbdf0d266… after=90a70bfdbdf0d266…; git status --porcelain -- proof-or-stop.config.json => \"\"\n  [GREEN] PROBES_CLEANED_UP (BLOCK E)\n      observed: packages/main/dist/tasks/red-evidence-b49d4-blindness-probe.js=absent, packages/main/src/tasks/red-evidence-b49d4-blindness-probe.ts=absent, packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs=absent\n  [GREEN] REPO_TREE_NEVER_WRITTEN_TO (BLOCK E)\n      observed: listing digest of packages/main/tests/red, packages/main/dist/tasks, packages/main/src/tasks before=b65e89f1c65959b7… after=b65e89f1c65959b7…; git status --porcelain over those paths unchanged=true\n  [OBS  ] NARROWED_ENUMERATION_MISSES_NEWCOMER — red-b2aa7-chk007-receipt.mjs, red-b3434-blob-buffer-ceiling.mjs, red-b49d4-chk002-receipt.mjs, red-b8df9-chk002-verdict-shapes.mjs, red-w2d-command-readonly.mjs derive their population from disk yet reported success with the newcomer sitting undecided in the same directory, because their enumeration is narrowed by name. Measured on real shipped guards rather than argued: coverage of the whole population can only come from an UNFILTERED enumeration.\n\n0 RED / 26 GREEN of 26 rows (28739ms in child processes)\nred-b49d4-registration-derivation: OK (registration is DERIVED from disk: an unregistered member of packages/main/dist/tasks/red-evidence-*.js is caught, every packages/main/tests/red/*.mjs is either registered in validate.commands or carried by the audited exclusion record of a registered guard that was spawned here and passed — accounted for, which is a DIFFERENT and weaker claim than executed, and no claim about execution is made — a differently-prefixed newcomer is caught by the shipped guards themselves, and the control bites on a config COPY while the real proof-or-stop.config.json stays byte-identical)\n",
+            "selectorMatched": true,
+            "selector": "GREEN private Git index isolation",
+            "executedAt": "2026-09-06T01:20:39.769Z",
+            "timeoutMs": 300000,
+            "executionKey": "ce:v1:5268af1337d801225ee6ef7efc7f6c70fb10b8942cd02340bd40fc548210a36a",
+            "causalReceiptHash": "d7e954ad1a1ec426eea4d27fd24831810e95bbb03ba5684c8d0836d101563d33",
+            "commandReruns": 0
+          },
+          "headHash": "e6673f1a0fb4b138245fb296e0dfb9a5b0fdb399",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:20:41.125Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "393a112a4ae719adbce488c4cc90581e9419caff6ba01275d29d3c1824fb3106",
+            "outputTail": "rget (red-w2c-validate-registration.mjs, red-b49d4-harness-registration.mjs) gaining a mention of red-b49d4-registration-derivation.mjs, each ceasing to qualify, a stale cycle break and an unreasoned one\n  [GREEN] NEWCOMER_MIRROR_IS_FAITHFUL (BLOCK D)\n      observed: before the newcomer was planted: red-w2c-validate-registration.mjs(exit=0), red-b49d4-harness-registration.mjs(exit=0)\n  [GREEN] NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS (BLOCK D)\n      observed: spawned 7 committed guard(s) as child processes: red-b2aa7-chk007-receipt.mjs(exit=0, 17297ms), red-b3434-blob-buffer-ceiling.mjs(exit=0, 3671ms), red-b49d4-chk002-receipt.mjs(exit=0, 313ms), red-b49d4-harness-registration.mjs(exit=1, 32ms), red-b8df9-chk002-verdict-shapes.mjs(exit=0, 210ms), red-w2c-validate-registration.mjs(exit=0, 29ms), red-w2d-command-readonly.mjs(exit=0, 6898ms); every spawned file is sha256-identical to its committed counterpart=true\n  [GREEN] EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE (BLOCK D)\n      observed: targets that failed WITHOUT naming the newcomer: none\n  [GREEN] DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION (BLOCK D)\n      observed: packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs planted, registered nowhere and excluded nowhere; guards that caught it: red-b49d4-harness-registration.mjs; guards that reported success anyway: red-b2aa7-chk007-receipt.mjs(\"INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f…\") | red-b3434-blob-buffer-ceiling.mjs(\"✓ fixture blob survives the git pipeline above 1,048,576 bytes ✓ commitImmutableMetadataTr…\") | red-b49d4-chk002-receipt.mjs(\"TOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness car…\") | red-b8df9-chk002-verdict-shapes.mjs(\"=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape === C0 [CONTROL…\") | red-w2c-validate-registration.mjs(\"red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members f…\") | red-w2d-command-readonly.mjs(\"red-w2d-command-readonly: PASS registration: MAIN_TOOLS + command-policy(readOnly/none) + …\")\n  [GREEN] REAL_CONFIG_BYTE_UNMODIFIED (BLOCK E)\n      observed: sha256 before=90a70bfdbdf0d266… after=90a70bfdbdf0d266…; git status --porcelain -- proof-or-stop.config.json => \"\"\n  [GREEN] PROBES_CLEANED_UP (BLOCK E)\n      observed: packages/main/dist/tasks/red-evidence-b49d4-blindness-probe.js=absent, packages/main/src/tasks/red-evidence-b49d4-blindness-probe.ts=absent, packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs=absent\n  [GREEN] REPO_TREE_NEVER_WRITTEN_TO (BLOCK E)\n      observed: listing digest of packages/main/tests/red, packages/main/dist/tasks, packages/main/src/tasks before=b65e89f1c65959b7… after=b65e89f1c65959b7…; git status --porcelain over those paths unchanged=true\n  [OBS  ] NARROWED_ENUMERATION_MISSES_NEWCOMER — red-b2aa7-chk007-receipt.mjs, red-b3434-blob-buffer-ceiling.mjs, red-b49d4-chk002-receipt.mjs, red-b8df9-chk002-verdict-shapes.mjs, red-w2d-command-readonly.mjs derive their population from disk yet reported success with the newcomer sitting undecided in the same directory, because their enumeration is narrowed by name. Measured on real shipped guards rather than argued: coverage of the whole population can only come from an UNFILTERED enumeration.\n\n0 RED / 26 GREEN of 26 rows (28739ms in child processes)\nred-b49d4-registration-derivation: OK (registration is DERIVED from disk: an unregistered member of packages/main/dist/tasks/red-evidence-*.js is caught, every packages/main/tests/red/*.mjs is either registered in validate.commands or carried by the audited exclusion record of a registered guard that was spawned here and passed — accounted for, which is a DIFFERENT and weaker claim than executed, and no claim about execution is made — a differently-prefixed newcomer is caught by the shipped guards themselves, and the control bites on a config COPY while the real proof-or-stop.config.json stays byte-identical)\n",
+            "selectorMatched": true,
+            "selector": "GREEN unchanged real repository index",
+            "executedAt": "2026-09-06T01:20:39.769Z",
+            "timeoutMs": 300000,
+            "executionKey": "ce:v1:5268af1337d801225ee6ef7efc7f6c70fb10b8942cd02340bd40fc548210a36a",
+            "causalReceiptHash": "d7e954ad1a1ec426eea4d27fd24831810e95bbb03ba5684c8d0836d101563d33",
+            "commandReruns": 0
+          },
+          "headHash": "e6673f1a0fb4b138245fb296e0dfb9a5b0fdb399",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:20:41.125Z"
+        }
+      ]
     }
   ],
   "auditLog": [
