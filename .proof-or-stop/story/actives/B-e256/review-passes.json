@@ -1095,6 +1095,56 @@
       },
       "readDiagnostics": [],
       "_hash": "d26576da90743cce64d54029596ce901911931d44df5521ed3923e4b7cee4449"
+    },
+    {
+      "id": "B-e256:RP-032",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Saturation coverage pass: audited all 12 intents (10 must, 2 should), with 0 must gaps and 0 waivers. F-006 through F-015 represent the verified open families and no genuinely distinct uncovered branch remains. Reused the current signed full-3x2 rollout receipt without rerunning rollout smokes.",
+      "createdAt": "2026-09-06T14:55:03.295Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-049",
+      "envelopeId": "4089688253b4197127bc4addbce429a92f4848f17b13f942fc3ec1560c5bcb91",
+      "writerSessionId": "sess-d17335d43dd845860ea92d445ff568e7",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/package.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "5d7a50bede1e31a53f3c72b2fb2d19e51dae9ae04455afde3cc130880bfd588a"
     }
   ]
 }

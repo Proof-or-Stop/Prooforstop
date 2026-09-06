@@ -326,7 +326,7 @@
       "reviewRound": "2026-09-06T13:22:17.538Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T14:10:13.720Z",
-      "updatedAt": "2026-09-06T14:27:29.069Z",
+      "updatedAt": "2026-09-06T14:49:21.294Z",
       "cutoff": {
         "headHash": "19c78aac6064ea653872f90477081b0cdaaf3d7a",
         "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
@@ -390,6 +390,63 @@
           "criticDigest": "769cbe705bfd619e773f9e27a228d9909b7ed9a44f8fe39c528e9d7bdfc8fca7",
           "saturated": false,
           "nextRunSequenceBoundary": 44
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T14:27:29.069Z",
+          "completedAt": "2026-09-06T14:49:21.294Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-046",
+              "terminal": "finding",
+              "hostIdentity": "90e98eefeab832056234f08903304ba423338f532fe7862882e51c99f6a40f0f",
+              "promptIdentity": "1bb3639004431c1b7ab0a7a8574ad2dd4e0690c667658b8d24bc11c39cb66abe",
+              "evidenceIds": [
+                "B-e256:F-012"
+              ],
+              "coverageDigest": "3852d604fecc301dd2ce8cb44ad7fd6866ac916023ea291a4d681b41d4d21143"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-045",
+              "terminal": "finding",
+              "hostIdentity": "90e98eefeab832056234f08903304ba423338f532fe7862882e51c99f6a40f0f",
+              "promptIdentity": "6bc42f3f1e2a36eeb3d55257c8e3091194a5e12bd3c9e436c4d2124e97449d53",
+              "evidenceIds": [
+                "B-e256:F-013",
+                "B-e256:F-014",
+                "B-e256:F-015"
+              ],
+              "coverageDigest": "09e77e3131b0f0902818588dbf553bbec53a73cc0f4c959e8ef6334758e7eba3"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-047",
+              "terminal": "finding",
+              "hostIdentity": "90e98eefeab832056234f08903304ba423338f532fe7862882e51c99f6a40f0f",
+              "promptIdentity": "41b971490a75f4150f39467d3008dc5366ce480882e03d43772e6106c7f22cb1",
+              "evidenceIds": [
+                "B-e256:F-011"
+              ],
+              "coverageDigest": "cd5aa55559756b74322fd1f6be02808f550a59fa02159e528580b3fddcf2c310"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "concept-pin-maintenance-residual-reference",
+            "global-bin-target-stat-error-collapse",
+            "npm-global-root-output-parse",
+            "promote-dist-containment-prefix",
+            "promote-dist-non-regular-bin-target",
+            "test-coverage-bin-shape-cardinality",
+            "validate-smoke-descendant-cleanup",
+            "validate-smoke-platform-portability"
+          ],
+          "verifiedFindingSetDigest": "1e75a8bc399d5958ff1de3d90c3202a163c1e20ec2119496ab51c6b7b0aaba1c",
+          "newVerifiedFindingCount": 5,
+          "criticDigest": "75a3862a61a9295704aa669a68de738c8143b6c274f37ab1a1b7155d440c7fe2",
+          "saturated": false,
+          "nextRunSequenceBoundary": 48
         }
       ],
       "baselineFindingIds": [
@@ -397,7 +454,7 @@
         "B-e256:F-009",
         "B-e256:F-010"
       ],
-      "_hash": "e163950ae7a9dfe37861f9a9961b788e4c2d1c2c139a79ff75947ef93d007637"
+      "_hash": "517b7c859e236fc3b10810b695587e3df679b8b046ec0f481d82ee5761a9c585"
     }
   ],
   "receipts": [
@@ -681,6 +738,61 @@
       ],
       "createdAt": "2026-09-06T14:26:26.502Z",
       "_hash": "18999e6ee326987dc055d00c0909c06465cd92ecc3c3dacce66642659f19beb2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-002:CRIT-02",
+      "epochId": "B-e256:RI-002",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "19c78aac6064ea653872f90477081b0cdaaf3d7a",
+        "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+        "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d"
+      },
+      "aggregateFindingSetDigest": "1e75a8bc399d5958ff1de3d90c3202a163c1e20ec2119496ab51c6b7b0aaba1c",
+      "requiredLaneCoverageDigest": "3795de0b8807132f0df1e507c212752e6c3072768b4bf6f3c736f9fafe601ff2",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-048",
+      "terminalEvidenceIds": [
+        "B-e256:RP-031"
+      ],
+      "readEvidenceDigest": "4518e7cb061b296cb7ede6130555b4fa194d1c58d2c20ac24517b910be2f464f",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-011",
+          "disposition": "verified_family",
+          "familyKey": "test-coverage-bin-shape-cardinality",
+          "reason": "Source inspection confirms restoreBinExecutableBits has separate string-shorthand and object-value iteration paths, while the registered red test's package fixtures declare only one-entry object-form bin values. Repository search found no string-form or multi-target assertion, so this is an independently supported coverage family distinct from F-010's containment predicate."
+        },
+        {
+          "findingId": "B-e256:F-012",
+          "disposition": "verified_family",
+          "familyKey": "concept-pin-maintenance-residual-reference",
+          "reason": "The committed diff removes the PIN MAINTENANCE block, while repository-wide search leaves exactly the live phrases 'the maintenance note above' and 'see PIN MAINTENANCE above' in validation-tier-planner-smoke.ts. The dangling maintenance guidance is independently confirmed and is a distinct residual-reference family."
+        },
+        {
+          "findingId": "B-e256:F-013",
+          "disposition": "verified_family",
+          "familyKey": "promote-dist-non-regular-bin-target",
+          "reason": "restoreBinExecutableBits calls statSync(target).mode and chmodSync without checking isFile(). An independent temporary-package probe declared dist/cli.js as a directory and observed restored=['dist/cli.js'], isFile=false, isDirectory=true, mode=755. This verifies a non-regular-target acceptance family separate from path containment and shape coverage."
+        },
+        {
+          "findingId": "B-e256:F-014",
+          "disposition": "verified_family",
+          "familyKey": "validate-smoke-descendant-cleanup",
+          "reason": "The smoke's harness ceiling and bounded wait call child.kill('SIGKILL') only on the direct CLI child, then resolve or await close; no process-group or descendant cleanup handle exists. The configured descendant command starts sleep 600, so failure paths can outlive the direct child. This is a distinct cleanup/lifecycle family."
+        },
+        {
+          "findingId": "B-e256:F-015",
+          "disposition": "verified_family",
+          "familyKey": "validate-smoke-platform-portability",
+          "reason": "descendantTreeCommand unconditionally executes /bin/sh with an external sleep 600 command, and proof-or-stop.config.json registers validate-progress-heartbeat-smoke without a platform guard. The same validation planner explicitly models win32 behavior, where /bin/sh is not a portable executable. This independently supports a platform-portability family distinct from descendant cleanup."
+        }
+      ],
+      "createdAt": "2026-09-06T14:48:04.900Z",
+      "_hash": "9918789ef39029f4b159765a5c8ab5dfad64bdc86d3937f6f121b717a69d8ab7"
     }
   ]
 }
