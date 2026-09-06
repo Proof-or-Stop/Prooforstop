@@ -1676,9 +1676,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T11:47:58.939Z",
-      "endTime": "2026-09-05T14:49:32.848Z",
+      "endTime": "2026-09-06T13:36:16.366Z",
       "userSees": "The final verification prints \"Finding ledger integrity: PASS\", \"Runtime evidence integrity: PASS\", and \"green.story3_matrix: PASS\".",
       "excludes": [
         "No Story 2 identity/lineage behavior.",
@@ -2603,6 +2603,15 @@
       "to": "done",
       "reason": "Implementer commit 2c26dbe246 preserves the exact B-fe8f patch proof, binds Story-local and current-main/global versions independently, adds deterministic old-rule/stale/mismatch controls, and passes build, focused version proof, full Story 3 smoke, process/runtime contracts, and retired-authority guard.",
       "agent": "main"
+    },
+    {
+      "timestamp": "2026-09-06T13:36:16.366Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "User-authorized F055/F056/F057 bounded repairs and main integration are committed at 1597cc699b8a; focused regression controls pass unchanged and official refresh re-executed all 71 pinned intents at source 15a945d with metadata b4c40de. Full validation and lifecycle closeout remain separate pending obligations."
     }
   ]
 }
