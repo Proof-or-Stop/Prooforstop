@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-e40f",
+  "mode": "custom",
+  "allowed": [
+    "complete stable inventory for the existing quorum-submit smoke checks",
+    "immutable fixture templates with isolated per-case derived fixtures",
+    "persistent per-item RED/GREEN commands and three-sample same-host performance evidence",
+    "quorum-submit-smoke exact fail-closed selection and explicit per-case prerequisites",
+    "three or four resource-classified isolated shards including pure, quorum_prune, and integration cases",
+    "truthful quorum-suite resource declarations and bounded process concurrency"
+  ],
+  "excluded": [
+    "B-aa5f verification execution receipt and freshness semantics",
+    "general validation scheduler or full-suite runner redesign",
+    "production quorum_submit, quorum_prune, or usage-ledger semantics",
+    "remote publication",
+    "Rust runner or any alternate-language rewrite",
+    "unrelated smoke-suite migration or top-level orphan-suite discovery"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "The user explicitly requested one Story for the five non-Rust improvements. INIT reviewers required per-item RED/GREEN, truthful mixed integration classification, and a repeated quantitative performance threshold.",
+  "createdAt": "2026-09-06T12:10:21.694Z",
+  "updatedAt": "2026-09-06T12:10:21.694Z",
+  "_hash": "1327b4a52291b554737f638de832fc212e24990c5f34cc94a7fdfd7c66969771"
+}
