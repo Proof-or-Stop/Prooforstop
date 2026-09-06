@@ -3106,6 +3106,54 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqaze8y_12b9_1201b2c1cea24c249b136fe98101c1c0",
       "ledgerCommitReceiptId": "lrc_mtqaze8y_12b9_fd37d82dabe241568bf68e553e612888"
+    },
+    {
+      "id": "B-8a40:F-065",
+      "desc": "packages/main/src/core/prompt-envelope.ts:289-353 decides whether an otherwise in-span controlled relation is explicitly negative using a 160-character prefix slice at :311 and a 48-character suffix slice at :340. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED the short safe controls `Do not let severity determine Story scope.` and `Severity determining Story scope is forbidden.`, but all five REJECTED the same explicit prohibitions when neutral attributable-audit modifiers expanded the prefix and suffix forms to 398 and 402 bytes. In both long forms the severity/scope concept pair remains adjacent and in span; only the polarity token falls outside the fixed slice. The focused smoke covers short negative relations and concept-span padding but no polarity-window boundaries. This is distinct from F-054, where the concepts themselves exceed their maxSpan, and F-061, which uses the retired-verdict branch's separate 48-character fallback. Replace raw surrounding-text windows with clause-scoped polarity state that remains bounded structurally, retaining affirmative and double-negative rejection, and add all-role boundary controls. Severity high because ordinary detailed prohibitions can prevent every REVIEW role from assembling.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T21:07:50.129Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-114",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "c624778ef5fdd4dea8aaabfac4f01561dabdbdf6896cd214b8f01bf00f6e64b1",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "controlled-relation-polarity-window-false-positive",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqazhf6_14gf_ea6634623a0541448a8dfa2785015a48",
+      "ledgerCommitReceiptId": "lrc_mtqazhf6_14gf_f79dff6841ab4e3bac5647034bf9954f"
     }
   ]
 }
