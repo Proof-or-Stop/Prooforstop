@@ -397,6 +397,50 @@
       ],
       "signatureTag": "prompt-envelope-cross-source-leaf-authority-split",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-010",
+      "desc": "packages/main/src/core/prompt-envelope.ts:1001-1020 enumerates Story title and description, checklist title, context, userSees, and verification-intent descriptions as authority sources, but omits the natural-language taskContext.scope.explicitExcludes array even though FullTaskScopeContext defines it at packages/main/src/core/prompt-contracts.ts:136-151 and the complete scope object is serialized into the reviewer prompt. This creates an unscanned-leaf bypass distinct from F-009 cross-leaf composition: one complete unsafe assertion needs no split or ordering trick. Independent reproduction against the committed built public assembleFullPromptEnvelope API set taskContext.scope.explicitExcludes to the single string No parent Finding is closed by this intake as out of scope. Every one of the five active modular reviewer roles ADMITTED an integrity-valid envelope, and each emitted prompt contained the unsafe string. The existing smoke surface matrix at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 only injects into Story, checklist, and verificationIntent sources and never exercises scope exclusions, so all mechanical receipts remain green. Add a recursive or explicit natural-language source inventory test proving every rendered authority-bearing FullTaskContext leaf is either scanned or justified as structurally non-authoritative, including scope.explicitExcludes; then reject the complete unsafe fixture from that leaf across every active role while retaining safe exclusion prose. Severity high because Story-authored scope text can publish unsafe applicability authority inside the trusted envelope without reaching the pre-digest guard. This omission may predate the narrow diff, so applicability should be assessed separately, but it directly makes the current full-context safety evidence incomplete.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T17:10:49.221Z",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "reviewRunId": "B-8a40:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "f826a107ef9c93f96416a30b9ac91ac102c29e0eb150e141341025bf60883cac",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/core/prompt-contracts.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-unscanned-scope-exclude-leaf",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
