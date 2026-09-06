@@ -123,6 +123,55 @@
       },
       "readDiagnostics": [],
       "_hash": "fedcf61e733428da59e265bd8476738d237e75045c0249271f5aa90ba0b673cc"
+    },
+    {
+      "id": "B-8a40:RP-004",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Inventory wave 2 completeness terminal only: no additional raw finding beyond F-004 through F-006. F-006 is the complete reproduction duplicate of F-004; F-005 retains its independent word-order observation while F-004 retains modifier and actor-bound observations. The refreshed topology receipt separately remains request_changes for unsupported discovery.",
+      "createdAt": "2026-09-06T16:52:27.000Z",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "reviewRunId": "B-8a40:RR-008",
+      "envelopeId": "e68f8d76e662d57de7603cea56d51a063059907ed944f95288bf6b0ea4635b7c",
+      "writerSessionId": "sess-6874831dff42694280c9024d6b580cfa",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/findings.json",
+          ".proof-or-stop/story/actives/B-8a40/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-8a40/review-passes.json",
+          ".proof-or-stop/story/actives/B-8a40/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-8a40/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-8a40/proofstory.json",
+          ".proof-or-stop/story/actives/B-8a40/scope-check.json",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0273ac330eb391b0793d0a247cd46e50f28b8ae8a66431f1ee4cc504ba605e27"
+      },
+      "readDiagnostics": [],
+      "_hash": "5ef6fa852c767b3e61dfc92a79fcee756db648827aed09fada51a1431c1bc246"
     }
   ]
 }
