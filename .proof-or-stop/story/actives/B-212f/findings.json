@@ -2601,7 +2601,7 @@
       "desc": "F-052 candidate witnessed by complete guard smoke after08680744ba and independent quality extracted Part E: two projected verification receipts share executionKey and causalReceiptHash but have distinct executedAt values, causing existing E1 deepEqual to fail. checklist.ts1239 stamps new Date per intent instead of projecting the signed causal receipt.executedAt generated in core/causal-evidence.ts. Production source is unchanged versus main69403365 apart from the unrelated pinned-type condition. Pre-existing medium receipt-truth defect and direct current mandatory verification blocker. Repair by inheriting the signed execution timestamp, retain E1 exact equality and provenance assertions; do not replace execution time with attestation time.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T17:23:41.818Z",
@@ -2612,7 +2612,11 @@
         "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
       ],
       "signatureTag": "causal-receipt-execution-time-projection",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "31351f6c67 projects receipt.executedAt from the signed causal receipt rather than inventing per-intent timestamps. Unchanged E1/E2/E3 smoke passes. CHK-007:happy:0. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:44:08.841Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-053",
