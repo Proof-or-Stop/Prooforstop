@@ -2727,6 +2727,55 @@
       },
       "readDiagnostics": [],
       "_hash": "358745120d5f835d059b1fcbd9400a944ae8d16fc300c983e1a26bb4785b099c"
+    },
+    {
+      "id": "B-fe8f:RP-072",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent Claude CLI host quality lane, REVIEW round 28, RR-118, head ead6135, storyFilesHash 918b091, scope 8b1e47f/a85395a, cliVersion 0.3.277. LANE CONCLUSION ONLY: not standard validation, not DONE, no quorum, no clearance for other lanes. Canonical prompt: I initially truncated review_run_start with head -3, so before signing I recovered the COMPLETE persisted assembledPrompt for RR-118 from review-runs.json (51560 chars, promptHash cba3b676, envelopeId 5cbcf125) and read it in full; handlers/review-run.ts:396 and 412-414 confirm that field is the exact emitted prompt. I did not assume the prior round body. Scope integrity verified from that signed Task Context: scope.allowedModify now includes packages/main/src/core/machine.ts and explicitExcludes is reduced to advisory.ts, candidate-spec-routing.ts and story-recall.ts, mode enforce, with scopeChangeReason bounding the machine.ts exception to the F056 import plus the existing signature-domain renderer and not to gate or signature changes; so the machine.ts edit is inside the signed binding, not a scope violation. Delta reviewed as git diff main...HEAD. F056 verified independently: machine.ts:1270 now renders signed components via describeInitCheckSignatureDomain(), which resolves to the seven components declared by INIT_CHECK_SIGNATURE_DOMAIN at init-check-gate.ts:253-261 (storyId, background.md, title, description, checklist, reviewRound, reviewer verdict); only the template string changed, so the rejection path is unchanged, and the phrasing now matches handlers/init-check.ts:203. Note main still carries the older were-modified phrasing, which wrongly implies all seven changed, so this Story improves on main rather than merely matching it. F055 verified: my original concern is addressed by a comment that now names scripts/verify-proof-or-stop-residue.mjs detector tokens as the reason the test-only prefix is assembled; the change also ADDED cross-platform linux and win32 negative controls asserting the retired ambient key stays semantic, so it is strengthening rather than comment-only, and the recorded resolvedReason describes this accurately. F059 verified as strictly stronger, not a relaxed oracle: the old assertion wrongly required six supported Lab actions to be unavailable; the new one asserts matched=true AND deepEqual(argv, [lab_<action>, --help]) for all six canonical actions across three prefixes, adds compare and promote which the old test never covered, and retains the lab unknown negative control. F058 verified as correctly scoped: GIT_OPTIONAL_LOCKS=1 is set only inside the child execFileSync env for the disposable fixture git root, is gated behind an optional gitIndexRefreshRoot parameter, and never mutates the parent environment; E1 additionally now asserts real index-identity drift instead of assuming it, and E2 adds an INT-SELECTOR-MISS fail-closed control. F060 verified as recognition-only: the RED diff contains no change to BASELINE_HEAD, PROBE_DIGEST, RELATION_DIGEST, IMMUTABLE_RED_BLOB, RED_ID or PROBE_ID, so the official RED binding is unchanged. F057 accepted as honestly framed: the resolution states the verified finding is the missing discriminatory diagnostics and explicitly does NOT claim a proven historical root cause, so the old root remains UNKNOWN even though the final full run succeeded; I did not verify the 11/11 count myself. Validation evidence read, not rerun: the observer artifacts at /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/ record node bin/proof-or-stop.js validate --story=B-fe8f --json in this worktree with child exit 0, 132 commands, zero nonzero exits, zero timeouts, allPass true, elapsed 19.1 minutes; focused logs at /tmp/bfe8f-f058-f060-green.gcmW8Z/ show cli surface smoke passed and verification-run-and-guard-smoke PASS. That summary carries observationalOnly true and records no headHash, so I treat it as a witness record and not as the authoritative stored gate evidence. Source stability: git diff over packages, scripts, bin and config from RR-118 head ead6135 to current HEAD is EMPTY, so no source drifted during this review. No new finding: the only defect-shaped observation in the delta is that machine.ts:1270 is over-indented relative to its block, and the role body explicitly excludes pure style issues from findings, so I did not file it and report it here instead. Preserved unresolved and untouched: F-048 high suspected with route docs/story/drafts/keyed-ledgers-survive-reclone, and F-049 low suspected with route docs/story/drafts/finding-ledger-nonblocking-review-followups CHK-003; I expanded no scope and resolved or dismissed nothing. I edited no source, checklist or Owner artifact, advanced no phase, reran no suite, and ran no build or test. Session identity for later host quorum: sess-6caebb34c1ed02b54e92ef4f13d647ac, host-adapter provider claude-code, non-owner independent reviewer.",
+      "createdAt": "2026-09-06T15:11:53.376Z",
+      "reviewRound": "2026-09-06T14:51:44.866Z",
+      "reviewRunId": "B-fe8f:RR-118",
+      "envelopeId": "5cbcf125f9088c4014449f11ba452301736e3017c71e1421d1da01f1151d7d20",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/review-runs.json",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "223e780bd9d276bd4596a2bad99dd7dce5dba2bed39786116d270b04e361cc69"
     }
   ]
 }
