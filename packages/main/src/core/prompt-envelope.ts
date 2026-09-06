@@ -193,33 +193,20 @@ function relationIsNegated(
   leftRange: { start: number; end: number },
   rightRange: { start: number; end: number },
 ): boolean {
-  const prefix = segment.slice(Math.max(0, relationRange.start - 256), relationRange.start);
-  const suffix = segment.slice(relationRange.end, Math.min(segment.length, relationRange.end + 32));
-  const boundary = Math.max(
-    prefix.lastIndexOf(' but '),
-    prefix.lastIndexOf(' however '),
-    prefix.lastIndexOf(' while '),
-    prefix.lastIndexOf(' although '),
-    prefix.lastIndexOf(' and '),
-    prefix.lastIndexOf(' then '),
-    prefix.lastIndexOf(' accordingly '),
-    prefix.lastIndexOf(' consequently '),
-    prefix.lastIndexOf(' therefore '),
-    prefix.lastIndexOf(' thus '),
-    prefix.lastIndexOf(' hence '),
-    prefix.lastIndexOf(' so '),
-    prefix.lastIndexOf(' as a result '),
-    prefix.lastIndexOf(' for that reason '),
-    prefix.lastIndexOf(';'),
-  );
-  const localPrefix = prefix.slice(boundary + 1);
-  if (/\bneither\b[^.;]{0,96}\bnor\b[^.;]{0,64}$/u.test(prefix)) return true;
-  if (/\bnever\s+(?:claims?|states?|asserts?|says?|teaches?)\s+that\b[^.;]{0,220}$/u.test(localPrefix)) return true;
-  if (/\b(?:never|cannot|reject|rejects|rejected|forbid|forbids|forbidden|prohibit|prohibits|prohibited|disallow|disallows|disallowed)\b[^,;]{0,48}$/u.test(localPrefix)) return true;
-  if (/\b(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b[^,;]{0,32}$/u.test(localPrefix)) return true;
-  if (/^\s+not\b/u.test(suffix)) return true;
-  const followingConcept = leftRange.start > relationRange.start ? leftRange : rightRange.start > relationRange.start ? rightRange : null;
-  if (followingConcept && /\b(?:not|never|neither|nor|without|no\s+longer|rather\s+than)\b/u.test(segment.slice(relationRange.end, followingConcept.start))) return true;
+  const firstRange = leftRange.start <= rightRange.start ? leftRange : rightRange;
+  const secondRange = leftRange.start <= rightRange.start ? rightRange : leftRange;
+  const beforeRelation = segment.slice(firstRange.end, relationRange.start);
+  const afterRelation = segment.slice(relationRange.end, secondRange.start);
+  const relationship = beforeRelation + ' ' + afterRelation;
+  if (/\b(?:not|cannot|never)\b[\s\S]*\bnot\b/u.test(relationship)) return false;
+  if (/\bneither\b[\s\S]*\bnor\b/u.test(relationship)) return true;
+  if (/\b(?:not|never|cannot|without|no\s+longer|rather\s+than)\b/u.test(beforeRelation)
+    || /\b(?:not|never|cannot|without|no\s+longer|rather\s+than)\b/u.test(afterRelation)) return true;
+  const lead = segment.slice(0, firstRange.start).trim();
+  if (/^do\s+not\b[\s\S]*\blet$/u.test(lead)
+    || /^never\s+(?:claims?|states?|asserts?|says?|teaches?)\s+that\b/u.test(lead)) return true;
+  const tail = segment.slice(secondRange.end).trim();
+  if (/^[\p{L}\p{N}_\s]*\b(?:is|are|was|were)\s+(?:forbidden|prohibited)$/u.test(tail)) return true;
   return false;
 }
 
@@ -233,15 +220,15 @@ function hasAffirmativeConceptRelation(
   left: RegExp,
   right: RegExp,
   relation: RegExp,
-  maxBridgeLength = 180,
 ): boolean {
   for (const leftRange of matchRanges(segment, left)) {
     for (const rightRange of matchRanges(segment, right)) {
       const conceptStart = Math.min(leftRange.start, rightRange.start);
       const conceptEnd = Math.max(leftRange.end, rightRange.end);
-      if (conceptEnd - conceptStart > maxBridgeLength) continue;
       for (const relationRange of matchRanges(segment, relation)) {
-        if (relationRange.start < conceptStart - 40 || relationRange.end > conceptEnd + 48) continue;
+        if (relationRange.end > conceptEnd || relationRange.start > conceptStart) {
+          if (relationRange.start < conceptStart || relationRange.end > conceptEnd) continue;
+        }
         if (!relationIsNegated(segment, relationRange, leftRange, rightRange)) return true;
       }
     }
@@ -249,17 +236,11 @@ function hasAffirmativeConceptRelation(
   return false;
 }
 
-function hasConceptPair(text: string, left: RegExp, right: RegExp, maxSpan = 240): boolean {
-  return matchRanges(text, left).some(leftRange =>
-    matchRanges(text, right).some(rightRange => {
-      const start = Math.min(leftRange.start, rightRange.start);
-      const end = Math.max(leftRange.end, rightRange.end);
-      return end - start <= maxSpan;
-    }),
-  );
+function hasConceptPair(text: string, left: RegExp, right: RegExp): boolean {
+  return matchRanges(text, left).length > 0 && matchRanges(text, right).length > 0;
 }
 
-function countBoundedConceptPairInstances(text: string, left: RegExp, right: RegExp, maxSpan = 240): number {
+function countConceptPairInstances(text: string, left: RegExp, right: RegExp): number {
   const leftRanges = matchRanges(text, left);
   const rightRanges = matchRanges(text, right);
   const unmatchedRight = new Set(rightRanges.map((_, index) => index));
@@ -272,13 +253,19 @@ function countBoundedConceptPairInstances(text: string, left: RegExp, right: Reg
         const end = Math.max(leftRange.end, rightRange.end);
         return { index, span: end - start };
       })
-      .filter(item => item.span <= maxSpan)
       .sort((first, second) => first.span - second.span || first.index - second.index)[0];
     if (!candidate) continue;
     unmatchedRight.delete(candidate.index);
     count += 1;
   }
   return count;
+}
+
+function controlledPairHasLocalRelation(relationText: string): boolean {
+  return /\b(?:is|are|was|were|be|being|become|becomes|remain|remains|can|could|may|might|must|should|will|would|depend(?:s|ed|ing)?|rest(?:s|ed|ing)?|base(?:s|d|ing)?|function(?:s|ed|ing)?|proceed(?:s|ed|ing)?|warrant(?:s|ed|ing)?|justif(?:y|ies|ied|ying)|equivalent|reliev(?:e|es|ed|ing)|dispositive|follow(?:s|ed|ing)?|result(?:s|ed|ing)?|deriv(?:e|es|ed|ing)|show(?:s|ed|ing)?|demonstrat(?:e|es|ed|ing)|sufficient|suffic(?:e|es|ed|ing)|licens(?:e|es|ed|ing)|greenlight(?:s|ed|ing)?|embod(?:y|ies|ied|ying)|mak(?:e|es|ing)|deem(?:s|ed|ing)?|determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|set(?:s|ting)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing)|overrid(?:e|es|den|ing)|let(?:s|ting)?|permit(?:s|ted|ting)?|allow(?:s|ed|ing)?|authoriz(?:e|es|ed|ing)|proof|prov(?:e|es|ed|ing)|establish(?:es|ed|ing)?|certif(?:y|ies|ied|ying)|mean(?:s|t|ing)?|count(?:s|ed|ing)?|treat(?:s|ed|ing)?|transfer(?:s|red|ring)?|clear(?:s|ed|ing)?|route(?:s|d|ing)?|assign(?:s|ed|ing)?|belong(?:s|ed|ing)?)\b/u.test(relationText)
+    || /\bas\s*$/u.test(relationText)
+    || TRIAGE_CAUSAL_LINK.test(relationText)
+    || /\bbecause\b/u.test(relationText);
 }
 
 /**
@@ -290,25 +277,22 @@ function controlledConceptPairIsExplicitlyNegative(
   text: string,
   left: RegExp,
   right: RegExp,
-  maxSpan = 240,
   isDisqualifiedPair?: (leftText: string, rightText: string, relationText: string) => boolean,
 ): boolean {
   let sawPair = false;
   for (const leftRange of matchRanges(text, left)) {
     for (const rightRange of matchRanges(text, right)) {
-      const start = Math.min(leftRange.start, rightRange.start);
-      const end = Math.max(leftRange.end, rightRange.end);
-      if (end - start > maxSpan) continue;
       const firstRange = leftRange.start <= rightRange.start ? leftRange : rightRange;
       const secondRange = leftRange.start <= rightRange.start ? rightRange : leftRange;
       const relationship = text.slice(firstRange.end, secondRange.start);
+      if (!controlledPairHasLocalRelation(relationship)) continue;
       if (isDisqualifiedPair?.(
         text.slice(leftRange.start, leftRange.end),
         text.slice(rightRange.start, rightRange.end),
         relationship,
       )) continue;
       sawPair = true;
-      const prefix = text.slice(Math.max(0, start - 160), start);
+      const prefix = text.slice(0, firstRange.start);
       const boundary = Math.max(
         prefix.lastIndexOf(' and '),
         prefix.lastIndexOf(' but '),
@@ -337,13 +321,13 @@ function controlledConceptPairIsExplicitlyNegative(
         relationship.lastIndexOf(' for that reason '),
       );
       const scopedRelationship = relationship.slice(relationshipBoundary + 1);
-      const immediateSuffix = text.slice(end, Math.min(text.length, end + 48));
-      const doubleNegative = /\b(?:not|cannot|never)\s+(?:[\p{L}\p{N}_]+\s+){0,3}not\b/u.test(scopedRelationship);
+      const completeSuffix = text.slice(secondRange.end);
+      const doubleNegative = /\b(?:not|cannot|never)\b[\s\S]*\bnot\b/u.test(scopedRelationship);
       const negativeRelationship = !doubleNegative && (
-        /\bnot\b|\bno\s+longer\b|\b(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b|\bcannot\b|\bnever\b|\bneither\b[^.;]{0,120}\bnor\b|\bnot\s+permitted\b|\bnot\s+allowed\b|\bunavailable\b|\bunsupported\b|\bforbidden\b|\bprohibited\b|\brather\s+than\b|\bexplicitly\s+not\b/u.test(scopedRelationship)
-        || /^\s*(?:(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never|is\s+forbidden|is\s+prohibited)\b/u.test(immediateSuffix)
+        /\bnot\b|\bno\s+longer\b|\b(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b|\bcannot\b|\bnever\b|\bneither\b[\s\S]*\bnor\b|\bnot\s+permitted\b|\bnot\s+allowed\b|\bunavailable\b|\bunsupported\b|\bforbidden\b|\bprohibited\b|\brather\s+than\b|\bexplicitly\s+not\b/u.test(scopedRelationship)
+        || /^[\p{L}\p{N}_\s]*(?:is|are|was|were)\s+(?:forbidden|prohibited)$/u.test(completeSuffix.trim())
       );
-      const negativeLead = /^(?:do\s+not\s+let|verify\s+(?:the\s+)?guidance\s+never\s+claims?\s+that)\b/u.test(localPrefix.trim())
+      const negativeLead = /^(?:do\s+not\b[\s\S]*\blet|verify\s+(?:the\s+)?guidance\s+never\s+claims?\s+that)\b/u.test(localPrefix.trim())
         || /^no\s+reviewer$/u.test(localPrefix.trim())
         || /^neither\b.*\bnor$/u.test(localPrefix.trim())
         || (/^neither$/u.test(localPrefix.trim()) && /\bnor\b/u.test(relationship));
@@ -371,7 +355,6 @@ type ControlledTriageRelationSpec = {
   family: Exclude<ControlledTriageRelationFamily, 'signed-disposition-followup'>;
   subject: RegExp;
   outcome: RegExp;
-  maxSpan: number;
   /**
    * The weakest member of a concept list is generic on its own. It stays in
    * the list because it is a real term next to a specific counterpart, but a
@@ -424,17 +407,16 @@ const CONTROLLED_TRIAGE_RELATION_SPECS: readonly ControlledTriageRelationSpec[] 
     family: 'severity-story-responsibility',
     subject: TRIAGE_SEVERITY_SUBJECT,
     outcome: TRIAGE_SEVERITY_RESPONSIBILITY_OUTCOME,
-    maxSpan: 260,
     genericSubject: TRIAGE_SEVERITY_GENERIC_SUBJECT,
     genericOutcome: TRIAGE_SEVERITY_GENERIC_OUTCOME,
   },
-  { family: 'unknown-applicability-routing', subject: TRIAGE_UNKNOWN_APPLICABILITY_SUBJECT, outcome: TRIAGE_ROUTING_OR_GATE_OUTCOME, maxSpan: 320 },
-  { family: 'dismissal-story-responsibility', subject: TRIAGE_DISMISSAL_SUBJECT, outcome: TRIAGE_STORY_RESPONSIBILITY_OUTCOME, maxSpan: 280 },
-  { family: 'deferral-story-responsibility', subject: TRIAGE_DEFERRAL_SUBJECT, outcome: TRIAGE_STORY_RESPONSIBILITY_OUTCOME, maxSpan: 280 },
+  { family: 'unknown-applicability-routing', subject: TRIAGE_UNKNOWN_APPLICABILITY_SUBJECT, outcome: TRIAGE_ROUTING_OR_GATE_OUTCOME },
+  { family: 'dismissal-story-responsibility', subject: TRIAGE_DISMISSAL_SUBJECT, outcome: TRIAGE_STORY_RESPONSIBILITY_OUTCOME },
+  { family: 'deferral-story-responsibility', subject: TRIAGE_DEFERRAL_SUBJECT, outcome: TRIAGE_STORY_RESPONSIBILITY_OUTCOME },
 ] as const;
 
 function isStructuredUnknownApplicabilityPrerequisite(text: string): boolean {
-  if (!hasConceptPair(text, TRIAGE_UNKNOWN_APPLICABILITY_SUBJECT, TRIAGE_ROUTING_OR_GATE_OUTCOME, 320)) return false;
+  if (!hasConceptPair(text, TRIAGE_UNKNOWN_APPLICABILITY_SUBJECT, TRIAGE_ROUTING_OR_GATE_OUTCOME)) return false;
   const subjectRange = matchRanges(text, TRIAGE_UNKNOWN_APPLICABILITY_SUBJECT)[0];
   const evidenceRange = matchRanges(text, /\b(?:structured|fresh|signed|current)(?:\s+and\s+(?:structured|fresh|signed|current))*\s+evidence\b/u)[0];
   const ownerRange = matchRanges(text, /\b(?:named|traceable|live)(?:\s+and\s+(?:named|traceable|live))*\s+owner\b/u)[0];
@@ -485,16 +467,15 @@ function controlledPairIsGenericOnly(
 function hasControlledConceptPair(text: string, spec: ControlledTriageRelationSpec): boolean {
   return matchRanges(text, spec.subject).some(subjectRange =>
     matchRanges(text, spec.outcome).some(outcomeRange => {
-      const start = Math.min(subjectRange.start, outcomeRange.start);
-      const end = Math.max(subjectRange.end, outcomeRange.end);
-      if (end - start > spec.maxSpan) return false;
       const firstRange = subjectRange.start <= outcomeRange.start ? subjectRange : outcomeRange;
       const secondRange = subjectRange.start <= outcomeRange.start ? outcomeRange : subjectRange;
+      const relationship = text.slice(firstRange.end, secondRange.start);
+      if (!controlledPairHasLocalRelation(relationship)) return false;
       return !controlledPairIsGenericOnly(
         spec,
         text.slice(subjectRange.start, subjectRange.end),
         text.slice(outcomeRange.start, outcomeRange.end),
-        text.slice(firstRange.end, secondRange.start),
+        relationship,
       );
     }),
   );
@@ -507,6 +488,10 @@ function classifyControlledRelationSegment(
   if (spec.family === 'dismissal-story-responsibility'
     && isStandaloneNegativeDismissalObservation(segment)) {
     return { family: spec.family, state: 'explicitly-safe' };
+  }
+  if (spec.family === 'dismissal-story-responsibility'
+    && hasNegativeDismissalSyntax(segment)) {
+    return { family: spec.family, state: 'unsafe' };
   }
   if (!hasControlledConceptPair(segment, spec)) {
     return { family: spec.family, state: 'unclassified' };
@@ -525,7 +510,6 @@ function classifyControlledRelationSegment(
       segment,
       spec.subject,
       spec.outcome,
-      spec.maxSpan,
       (subjectText, outcomeText, relationText) => controlledPairIsGenericOnly(spec, subjectText, outcomeText, relationText),
     )
       ? 'explicitly-safe'
@@ -539,11 +523,7 @@ function classifyControlledRelationSegment(
  * must bind the sole dismissal subject, and any tail may only identify the
  * observing actor. Responsibility conclusions remain outside this grammar.
  */
-function isStandaloneNegativeDismissalObservation(segment: string): boolean {
-  if (TRIAGE_UNSAFE_DISMISSAL_OUTCOME.test(segment)
-    || /\b(?:and|but|however|yet|although|while|except|unless|therefore|accordingly|consequently|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\b/u.test(segment)) {
-    return false;
-  }
+function hasNegativeDismissalSyntax(segment: string): boolean {
   const passiveNegative = /^(?:by\s+[\p{L}\p{N}_\s]+\s+)?(?:no|not\s+a\s+single|zero)\s+[\p{L}\p{N}_\s]*findings?\s+(?:is|are|was|were|becomes?|counts?\s+as)\s+(?:closed|dismissed|archived)(?:\s+by\s+[\p{L}\p{N}_\s]+)?$/u;
   const activeNoQuantifier = /^[\p{L}\p{N}_\s]+\s+(?:closes?|closed|dismisses?|dismissed|archives?|archived)\s+(?:no|zero)\s+[\p{L}\p{N}_\s]*findings?$/u;
   const activeNotAny = /^[\p{L}\p{N}_\s]+\s+(?:does?|did|will|would|can|could|should|must)\s+not\s+(?:close|dismiss|archive)\s+any\s+[\p{L}\p{N}_\s]*findings?$/u;
@@ -552,20 +532,31 @@ function isStandaloneNegativeDismissalObservation(segment: string): boolean {
     || activeNotAny.test(segment);
 }
 
+function isStandaloneNegativeDismissalObservation(segment: string): boolean {
+  if (TRIAGE_UNSAFE_DISMISSAL_OUTCOME.test(segment)
+    || /\b(?:and|but|however|yet|although|while|except|unless|therefore|accordingly|consequently|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\b/u.test(segment)) {
+    return false;
+  }
+  return hasNegativeDismissalSyntax(segment);
+}
+
 function isLinkedResponsibilityConclusion(segment: string): boolean {
-  if (!TRIAGE_UNSAFE_DISMISSAL_OUTCOME.test(segment)
-    || !TRIAGE_DISMISSAL_CONCLUSION_TARGET.test(segment)
-    || TRIAGE_TOPIC_BREAK.test(segment)) return false;
-  if (controlledConceptPairIsExplicitlyNegative(
+  if (!TRIAGE_UNSAFE_DISMISSAL_OUTCOME.test(segment)) return false;
+  const hasTarget = TRIAGE_DISMISSAL_CONCLUSION_TARGET.test(segment);
+  const hasCausalLink = TRIAGE_CAUSAL_LINK.test(segment);
+  if (!hasTarget && !hasCausalLink) return false;
+  const explicitTopicBreakTarget = /^(?:separately|independently|unrelatedly|on\s+a\s+separate\s+topic)\s+(?:(?:the\s+)?(?:issue|finding|work|defect)|it|this|that)\b/u.test(segment);
+  if (TRIAGE_TOPIC_BREAK.test(segment) && !explicitTopicBreakTarget) return false;
+  if (hasTarget && controlledConceptPairIsExplicitlyNegative(
     segment,
     TRIAGE_DISMISSAL_CONCLUSION_TARGET,
     TRIAGE_UNSAFE_DISMISSAL_OUTCOME,
-    Number.MAX_SAFE_INTEGER,
   )) return false;
   const directTarget = /^(?:(?:accordingly|consequently|therefore|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\s+)?(?:(?:the\s+)?(?:issue|finding|work|defect)|it|this|that)\b/u.test(segment);
   const invertedTarget = matchRanges(segment, TRIAGE_UNSAFE_DISMISSAL_OUTCOME).some(outcome =>
     matchRanges(segment, TRIAGE_DISMISSAL_CONCLUSION_TARGET).some(target => outcome.start <= target.start));
-  return directTarget || invertedTarget || TRIAGE_CAUSAL_LINK.test(segment);
+  return directTarget || invertedTarget || hasCausalLink
+    || (TRIAGE_TOPIC_BREAK.test(segment) && explicitTopicBreakTarget);
 }
 
 /**
@@ -576,10 +567,22 @@ function isLinkedResponsibilityConclusion(segment: string): boolean {
 function hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal(
   segments: readonly string[],
 ): boolean {
-  return segments.some((segment, index) => {
-    if (!isStandaloneNegativeDismissalObservation(segment)) return false;
-    return segments.slice(index + 1).some(isLinkedResponsibilityConclusion);
-  });
+  let dismissalObservationIsLive = false;
+  for (const segment of segments) {
+    if (TRIAGE_DISMISSAL_SUBJECT.test(segment)
+      || isStandaloneNegativeDismissalObservation(segment)) {
+      dismissalObservationIsLive = true;
+      continue;
+    }
+    if (!dismissalObservationIsLive) continue;
+    if (isEvidenceOnlyTriageSegment(segment)) continue;
+    if (isLinkedResponsibilityConclusion(segment)) return true;
+    if (introducesLocalTriageAntecedent(segment)) {
+      dismissalObservationIsLive = false;
+      continue;
+    }
+  }
+  return false;
 }
 
 function isPureInterrogative(text: string): boolean {
@@ -618,7 +621,7 @@ function isExplicitRejectedAuthorityStatement(text: string): boolean {
   // The rejection wrapper is metadata for one atomic authority claim. It is
   // never a whole-source escape hatch for punctuation- or clause-separated
   // statements that must each be evaluated by the normal fail-closed guard.
-  if (claim.length === 0 || claim.length > 240) return false;
+  if (claim.length === 0) return false;
   if (!/^[\p{L}\p{N}_\s]+$/u.test(claim)) return false;
   if (/\b(?:and|or|nor|but|however|yet|although|while|then|therefore|so|if|unless|because|whereas)\b/iu.test(claim)) return false;
   return rejectedAuthorityRelationCount(claim) === 1
@@ -630,14 +633,14 @@ function rejectedAuthorityRelationCount(claim: string): number {
   const reviewerActor = REVIEW_AUTHORITY_ACTOR;
   const collapsedOutcome = /\b(?:applicability\s+verdict|non\s+applicability\s+verdict|out\s+of\s+scope|nonownership\s+by\s+(?:(?:this|the|current)\s+)?story|resolved|resolution|repaired|repair|dismissed|finding\s+dismiss|disproven|duplicate|pre\s+existing\s+unaffected)\b/u;
   const storyAuthoredChange = /\b(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b/u;
-  const relations: Array<[RegExp, RegExp, number?]> = [
-    ...CONTROLLED_TRIAGE_RELATION_SPECS.map(spec => [spec.subject, spec.outcome, spec.maxSpan] as [RegExp, RegExp, number]),
+  const relations: Array<[RegExp, RegExp]> = [
+    ...CONTROLLED_TRIAGE_RELATION_SPECS.map(spec => [spec.subject, spec.outcome] as [RegExp, RegExp]),
     [reviewerActor, TRIAGE_DEFERRAL_SUBJECT],
     [TRIAGE_DEFERRAL_SUBJECT, collapsedOutcome],
     [DYNAMIC_FINDING_AUTHORITY, storyAuthoredChange],
   ];
   return relations.reduce(
-    (count, [left, right, maxSpan]) => count + countBoundedConceptPairInstances(normalized, left, right, maxSpan),
+    (count, [left, right]) => count + countConceptPairInstances(normalized, left, right),
     0,
   );
 }
@@ -647,7 +650,7 @@ function isBoundedSignedDispositionInspection(segment: string): boolean {
 }
 
 function isExplicitlyProhibitedDispositionAuthority(segment: string): boolean {
-  const actionList = `${DISPOSITION_AUTHORITY_ACTION_SOURCE}(?:(?:\\s+or)?\\s+${DISPOSITION_AUTHORITY_ACTION_SOURCE}){0,5}`;
+  const actionList = `${DISPOSITION_AUTHORITY_ACTION_SOURCE}(?:(?:\\s+or)?\\s+${DISPOSITION_AUTHORITY_ACTION_SOURCE})*`;
   const disposition = '(?:defer\\s+with\\s+proof(?:\\s+disposition)?|finding\\s+deferral\\s+disposition)';
   const target = `(?:\\s+(?:on|to|for)\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE})?`;
   const direct = new RegExp(`^${REVIEW_AUTHORITY_ACTOR_SOURCE}\\s+(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\\s+not|cannot|never)\\s+${actionList}\\s+${disposition}${target}$`, 'u');
@@ -655,6 +658,17 @@ function isExplicitlyProhibitedDispositionAuthority(segment: string): boolean {
   const noActor = new RegExp(`^(?:no|not\\s+one)\\s+${REVIEW_AUTHORITY_ACTOR_SOURCE}\\s+(?:may|can|must|should|will|would)\\s+${actionList}\\s+${disposition}${target}$`, 'u');
   const forbiddenActor = new RegExp(`^every\\s+${REVIEW_AUTHORITY_ACTOR_SOURCE}\\s+is\\s+(?:forbidden|prohibited)\\s+from\\s+${actionList}\\s+${disposition}${target}$`, 'u');
   return direct.test(segment) || neither.test(segment) || noActor.test(segment) || forbiddenActor.test(segment);
+}
+
+function isEvidenceOnlyTriageSegment(segment: string): boolean {
+  return /^(?:(?:then\s+)?(?:record|preserve|log|report|attach|store|retain|compare|verify|audit|capture)\b[\s\S]*(?:audit|evidence|receipt|record|result|output|trail|check)|(?:audit|review|verification)?\s*evidence(?:\s+record\s+\d+)?\b[\s\S]*(?:recorded|retained|preserved|available|current|inspectable|auditable)|(?:the\s+)?(?:[\p{L}\p{N}_]+\s+)*(?:audit|evidence|review|verification)\s+(?:trail|record|receipt|result|output|check)(?:\s+\d+)?\s+(?:is|are|was|were|remains?)\s+(?:recorded|retained|preserved|available|current|inspectable|auditable)(?:\s+(?:to|for)\s+[\p{L}\p{N}_\s]+)?)$/u.test(segment);
+}
+
+function introducesLocalTriageAntecedent(segment: string): boolean {
+  if (isEvidenceOnlyTriageSegment(segment)) return false;
+  if (/^(?:it|this|that|the\s+(?:same|finding|issue|defect|work|factor|criterion|basis|authority|determinant|driver|rule|test|input|consideration))\b/u.test(segment)) return false;
+  return /\b(?:is|are|was|were|becomes?|remains?)\s+(?:an?\s+|the\s+)?(?:separate|distinct|independent|local|new)?\s*(?:decision|criterion|factor|process|record|result|artifact|route|routing|subject|topic)\b/u.test(segment)
+    || /^(?:(?:separately|independently|unrelatedly|accordingly|consequently|therefore|thus|hence|so)\s+)?[\p{L}\p{N}_]+(?:\s+[\p{L}\p{N}_]+)*\s+(?:is|are|was|were|becomes?|remains?)\b/u.test(segment);
 }
 
 function hasCrossSegmentDispositionAssignment(segments: readonly string[]): boolean {
@@ -667,12 +681,14 @@ function hasCrossSegmentDispositionAssignment(segments: readonly string[]): bool
       continuationIndex < segments.length;
       continuationIndex += 1) {
       const continuation = segments[continuationIndex];
+      if (introducesLocalTriageAntecedent(continuation)) break;
+      if (isEvidenceOnlyTriageSegment(continuation)) continue;
       const dispositionTarget = new RegExp(`\\b(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}\\b`, 'u').test(continuation);
       if (!dispositionTarget) continue;
       // Negative polarity is safe only when the complete continuation is one
       // bounded negative assignment relation. A negative adjective followed
       // by `and grant ...` must not exempt the later affirmative assignment.
-      const negativeCoreferentAssignment = new RegExp(`^(?:then\\s+)?(?:it|this|the\\s+same|that\\s+(?:disposition|artifact|record|result|receipt)|the\\s+(?:(?:signed|inspected|reviewed|verified|audited|same)\\s+){0,2}(?:disposition|artifact|record|result|receipt))\\s+(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\\s+not|cannot|never)\\s+${DISPOSITION_AUTHORITY_ACTION_SOURCE}(?:\\s+(?:it|this|that|the\\s+(?:disposition|artifact|record|result|receipt)))?(?:\\s+(?:on|to|for))?\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}$`, 'u').test(continuation);
+      const negativeCoreferentAssignment = new RegExp(`^(?:then\\s+)?(?:it|this|the\\s+same|that\\s+(?:disposition|artifact|record|result|receipt)|the\\s+(?:[\\p{L}\\p{N}_]+\\s+)*(?:disposition|artifact|record|result|receipt))\\s+(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\\s+not|cannot|never)\\s+${DISPOSITION_AUTHORITY_ACTION_SOURCE}(?:\\s+(?:it|this|that|the\\s+(?:disposition|artifact|record|result|receipt)))?(?:\\s+(?:on|to|for))?\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}$`, 'u').test(continuation);
       const safeTerminalState = new RegExp(`^(?:then\\s+)?(?:(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}\\s+(?:remains?|stays?|is|must\\s+remain)\\s+(?:open|visible|unresolved|unchanged|unbound|nonbinding|unaffected|untouched)|it\\s+carries\\s+no\\s+authority\\s+over\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}|it\\s+leaves\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}\\s+unchanged)$`, 'u').test(continuation);
       const evidenceOnlyContinuation = new RegExp(`^(?:then\\s+)?(?:record|preserve|log|report|attach|store|retain|compare|verify|audit)\\s+(?:the\\s+)?(?:audit|evidence|receipt|record|result|output|trail|check)(?:\\s+(?:result|results|evidence|receipt|receipts|output))?(?:\\s+(?:for|about|on)\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE})?$`, 'u').test(continuation);
       if (negativeCoreferentAssignment
@@ -693,7 +709,8 @@ function isCanonicalTriageInventorySegment(segment: string): boolean {
   const canonicalContractProtocol = /^own\s+all\s+review\s+lane\s+behavior\s+and\s+prohibitions\s+in\s+one\s+canonical\s+agent\s+contract\s*:\s*current\s+review\s+run\s+start\s+review\s+run\s+id\s+finding\s+add\s+review\s+pass\s+set\s+protocol$/u.test(segment);
   const testInventory = /^add\s+adversarial\s+tests\s+covering\s+(.+)\s+and\s+the\s+subordinate\s+agent\s+side\s+projection\s+of\s+dynamic\s+finding\s+authority$/u.exec(segment);
   if (canonicalContractProtocol) return true;
-  return testInventory !== null && !TRIAGE_INVENTORY_AUTHORITY_ACTION.test(testInventory[1]);
+  return testInventory !== null
+    && reviewTriageAuthorityViolation({ location: 'test-inventory-body', kind: 'story', text: testInventory[1] }) === null;
 }
 
 function isApprovedFutureDeferralBoundary(segment: string): boolean {
@@ -717,7 +734,7 @@ function isApprovedIndependentAxesInvariant(segment: string): boolean {
   if (!shape) return false;
   const body = segment.replace(/^(?:inspect|verify|audit|check)\s+/u, '')
     .replace(/\b(?:evidence\s+state\s+)?severity\s+applicability\s+candidate\s+and\s+gate\s+impact\s+(?:are|remain)\s+independent\s+axes$/u, '');
-  return !TRIAGE_INVENTORY_AUTHORITY_ACTION.test(body);
+  return reviewTriageAuthorityViolation({ location: 'independent-axes-body', kind: 'story', text: body }) === null;
 }
 
 function hasNothingButSeverityAuthority(text: string): boolean {
@@ -740,48 +757,77 @@ function hasCrossSegmentSeverityAuthority(segments: readonly string[]): boolean 
   const authorityNoun = '(?:factor|criterion|basis|authority|determinant|driver|rule|test|input|consideration)';
   const responsibilityObject = '(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)';
   const authorityDecisionVerb = TRIAGE_AUTHORITY_DECISION_VERB;
-  const flattened = segments.join(' ').replace(/[:]+/gu, ' ');
-  const splitAuthority = new RegExp(
-    `\\b${severitySubject}\\s+(?:is|are|was|were|be|being|becomes?|remains?)\\s+the\\s+(?:[\\p{L}\\p{N}_]+\\s+){0,3}${authorityNoun}\\s+(?:(?:and|so|therefore|then)\\s+)?(?:(?:this|that|the)\\s+${authorityNoun}|it|this|that)\\s+(?:(?!(?:not|never|no|cannot|do|does|did)\\b)[\\p{L}\\p{N}_]+\\s+){0,2}${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
-    'u',
-  );
-  if (splitAuthority.test(flattened)) return true;
-
-  // Evidence-only asides do not discharge the definite severity-authority
-  // antecedent. Scan the remaining source so adding more reporting sentences
-  // cannot make a later pronoun continuation authoritative.
   const antecedent = new RegExp(
-    `\\b${severitySubject}\\s+(?:is|are|was|were|be|being|becomes?|remains?)\\s+the\\s+(?:[\\p{L}\\p{N}_]+\\s+){0,3}${authorityNoun}\\s*$`,
+    `\\b${severitySubject}\\s+(?:is|are|was|were|be|being|becomes?|remains?)\\s+the\\s+(?=[\\p{L}\\p{N}_\\s]*\\b(?:only|sole|single|decisive|exclusive|controlling|authoritative)\\b)(?:[\\p{L}\\p{N}_]+\\s+)*${authorityNoun}\\s*$`,
     'u',
   );
-  const continuation = new RegExp(
-    `^(?:(?:and|so|therefore|then)\\s+)?(?:(?:this|that|the)\\s+${authorityNoun}|it|this|that)\\s+(?:(?!(?:not|never|no|cannot|do|does|did)\\b)[\\p{L}\\p{N}_]+\\s+){0,2}${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
+  const activeContinuation = new RegExp(
+    `^(?:(?:and|so|therefore|then)\\s+)?(?:(?:this|that|the)\\s+${authorityNoun}|it|this|that)\\s+(?:(?!(?:not|never|no|cannot|do|does|did)\\b)[\\p{L}\\p{N}_]+\\s+)*${authorityDecisionVerb}\\s+(?:the\\s+|current\\s+)?${responsibilityObject}\\b`,
     'u',
   );
-  return segments.some((segment, index) => antecedent.test(segment)
-    && segments.slice(index + 1).some(candidate => continuation.test(candidate)));
+  const passiveContinuation = new RegExp(
+    `^(?:story\\s+)?(?:scope|applicability|ownership|responsibility|routing|repair)\\s+(?:is|are|was|were|be|being)\\s+(?:(?!(?:not|never|no|cannot)\\b)[\\p{L}\\p{N}_]+\\s+)*(?:determined|decided|controlled|governed|set|defined|dictated|overridden)\\s+by\\s+(?:it|this|that|(?:this|that|the)\\s+${authorityNoun})$`,
+    'u',
+  );
+  let severityAntecedentIsLive = false;
+  for (const segment of segments) {
+    if (antecedent.test(segment)) {
+      severityAntecedentIsLive = true;
+      continue;
+    }
+    if (!severityAntecedentIsLive) continue;
+    if (isEvidenceOnlyTriageSegment(segment)) continue;
+    if (activeContinuation.test(segment) || passiveContinuation.test(segment)) return true;
+    if (introducesLocalTriageAntecedent(segment)) severityAntecedentIsLive = false;
+  }
+  return false;
 }
 
 function hasCrossSegmentControlledAuthority(
   segments: readonly string[],
   spec: ControlledTriageRelationSpec,
 ): boolean {
-  const coreferent = /^(?:then\s+)?(?:it|this|that)\b/u;
+  const coreferent = /^(?:(?:then|accordingly|consequently|therefore|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\s+)?(?:that\s+state|it|this|that)\b/u;
+  const explicitDeferralTarget = new RegExp(`^(?:then\\s+)?(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}\\b`, 'u');
   const authorityLink = /\b(?:determin(?:e|es|ed|ing)|permit(?:s|ted|ting)?|allow(?:s|ed|ing)?|authoriz(?:e|es|ed|ing)|prov(?:e|es|ed|ing)|establish(?:es|ed|ing)?|show(?:s|ed|ing)?|mean(?:s|t|ing)?|transfer(?:s|red|ring)?|clear(?:s|ed|ing)?)\b/u;
-  return segments.some((segment, index) => spec.subject.test(segment)
-    && segments.slice(index + 1, spec.family === 'deferral-story-responsibility' ? undefined : index + 2).some(candidate => {
-      const continuationOutcome = spec.family === 'deferral-story-responsibility' && !spec.outcome.test(candidate)
-        ? TRIAGE_DEFERRAL_RESPONSIBILITY_OUTCOME
-        : spec.outcome;
-      if (!coreferent.test(candidate) || !continuationOutcome.test(candidate)) return false;
-      const coreferentRange = matchRanges(candidate, coreferent)[0];
-      const outcomeRange = matchRanges(candidate, continuationOutcome)[0];
-      if (!coreferentRange || !outcomeRange || coreferentRange.end > outcomeRange.start) return false;
-      const relation = candidate.slice(coreferentRange.end, outcomeRange.start);
-      const relationWithOutcomeVerb = candidate.slice(coreferentRange.end, outcomeRange.end);
-      return (authorityLink.test(relation) || authorityLink.test(relationWithOutcomeVerb))
-        && !controlledConceptPairIsExplicitlyNegative(candidate, coreferent, continuationOutcome, spec.maxSpan);
-    }));
+  let subjectIsLive = false;
+  for (const candidate of segments) {
+    if (spec.subject.test(candidate)) {
+      if (!spec.outcome.test(candidate)) {
+        subjectIsLive = true;
+        continue;
+      }
+      // A complete negative invariant still leaves its named controlled
+      // subject available for an immediately following coreferent sentence.
+      // Otherwise `X does not authorize Y. It authorizes Y.` launders the
+      // second assertion by consuming the antecedent in the first sentence.
+      if (classifyControlledRelationSegment(candidate, spec).state === 'explicitly-safe') {
+        subjectIsLive = true;
+        continue;
+      }
+    }
+    if (!subjectIsLive) continue;
+    if (isEvidenceOnlyTriageSegment(candidate)) continue;
+    if (introducesLocalTriageAntecedent(candidate)) {
+      subjectIsLive = false;
+      continue;
+    }
+    const continuationOutcome = spec.family === 'deferral-story-responsibility' && !spec.outcome.test(candidate)
+      ? TRIAGE_DEFERRAL_RESPONSIBILITY_OUTCOME
+      : spec.outcome;
+    const continuationSubject = spec.family === 'deferral-story-responsibility'
+      ? new RegExp(`(?:${coreferent.source}|${explicitDeferralTarget.source})`, 'u')
+      : coreferent;
+    if (!continuationSubject.test(candidate) || !continuationOutcome.test(candidate)) continue;
+    const subjectRange = matchRanges(candidate, continuationSubject)[0];
+    const outcomeRange = matchRanges(candidate, continuationOutcome)[0];
+    if (!subjectRange || !outcomeRange || subjectRange.end > outcomeRange.start) continue;
+    const relation = candidate.slice(subjectRange.end, outcomeRange.start);
+    const relationWithOutcomeVerb = candidate.slice(subjectRange.end, outcomeRange.end);
+    if ((authorityLink.test(relation) || authorityLink.test(relationWithOutcomeVerb))
+      && !controlledConceptPairIsExplicitlyNegative(candidate, continuationSubject, continuationOutcome)) return true;
+  }
+  return false;
 }
 
 function classifyControlledTriageRelations(
@@ -802,6 +848,10 @@ function classifyControlledTriageRelations(
     return { family: 'severity-story-responsibility', state: 'unsafe' };
   }
   for (const spec of CONTROLLED_TRIAGE_RELATION_SPECS) {
+    // Dismissal linkage is owned by the dedicated state machine below. Keeping
+    // it out of this generic antecedent pass preserves a single mutation seam
+    // and prevents two subtly different rules from disagreeing.
+    if (spec.family === 'dismissal-story-responsibility') continue;
     if (hasCrossSegmentControlledAuthority(relevantSegments, spec)) {
       return { family: spec.family, state: 'unsafe' };
     }
@@ -818,24 +868,6 @@ function classifyControlledTriageRelations(
 
   if (hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal(relevantSegments)) {
     return { family: 'dismissal-story-responsibility', state: 'unsafe' };
-  }
-
-  // Dismissal and unknown-applicability authority are commonly laundered over
-  // adjacent punctuation-separated clauses. Re-evaluate the bounded source as
-  // one relationship after every individually safe segment has been checked.
-  // Severity and signed-disposition anaphora use their dedicated structural
-  // state machines above, so unrelated long-form prose is not flattened into
-  // a synthetic relation.
-  for (const spec of CONTROLLED_TRIAGE_RELATION_SPECS) {
-    if (spec.family !== 'dismissal-story-responsibility'
-      && spec.family !== 'unknown-applicability-routing') continue;
-    const joined = relevantSegments
-      .filter(segment => spec.family !== 'dismissal-story-responsibility'
-        || !isStandaloneNegativeDismissalObservation(segment))
-      .join(' ');
-    const classification = classifyControlledRelationSegment(joined, spec);
-    if (classification.state === 'unsafe') return classification;
-    if (classification.state === 'explicitly-safe') safeFamily = classification.family;
   }
 
   return safeFamily === null
@@ -870,26 +902,20 @@ function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthori
   const [primary, ...continuations] = rawStatements;
   if (primary === undefined) return false;
   const gapLogBoundary = /^gap\s+log\s+remains\s+a\s+main\s+agent\s+or\s+human\s+archive\s+for\s+proof\s+or\s+stop\s+framework\s+gaps\s+never\s+a\s+general\s+product\s+defect\s+routing\s+or\s+backlog\s+shortcut$/u;
-  const proofContinuation = /^(?:prove|verify|assert|ensure)\b[\s\S]*\b(?:reject|refuse|block|fail)\w*\b/u;
-  let normalized = primary;
-  if (continuations.length === 1 && proofContinuation.test(continuations[0])) {
-    normalized = `${primary} ${continuations[0]}`;
-  } else if (!continuations.every(continuation => gapLogBoundary.test(continuation))) {
-    return false;
-  }
-  if (!/^(?:inject|attempt\s+to|present|give|change|replace|mutate|alter|delete\s+or\s+alter)\b/u.test(normalized)) return false;
-  const outcomeStart = Math.max(
-    normalized.lastIndexOf(' prove '),
-    normalized.lastIndexOf(' verify '),
-    normalized.lastIndexOf(' assert '),
-    normalized.lastIndexOf(' ensure '),
-    normalized.startsWith('prove ') ? 0 : -1,
-    normalized.startsWith('verify ') ? 0 : -1,
-  );
-  if (outcomeStart < 0) return false;
-  const outcome = normalized.slice(outcomeStart);
-  if (/\b(?:does|did|must|should|will|would|can|could)\s+not\b[^.;]{0,48}\b(?:reject|refuse|block|fail)\w*\b/u.test(outcome)) return false;
-  return /(?:\b(?:reject|refuse|block)\w*\s+(?:it|them|these|every\s+(?:permission|mutation|claim)|the\s+(?:wording|mutation|claim|statement|label))|\b(?:semantic\s+)?(?:contract|guard|validation|guidance)\s+(?:reject|refuse|block)\w*\s+(?:it|them|these|the\s+(?:wording|mutation|claim|statement|label))|\b(?:the\s+)?(?:story\s+owner\s+)?(?:contract|guard|validation|guidance)\s+(?:remains?\s+)?fail(?:s)?\s+closed\b[^.;]*|\b(?:contract\s+)?tests?\s+fail\b[^.;]*|\brequires?\b[^.;]*(?:current\s+story\s+repair|structured\s+evidence|traceable\s+owner|valid\s+route)|\bmust\s+remain\b[^.;]*future\s+system\s+work)\s*[.!?]*$/u.test(outcome);
+  if (!/^(?:inject|attempt\s+to|present|give|change|replace|mutate|alter|delete\s+or\s+alter)\b/u.test(primary)) return false;
+  const proofOutcomeIsAffirmative = (statement: string): boolean => {
+    const marker = /(?:^|\s)(?:and\s+)?(?:prove|verify|assert|ensure)\b/u;
+    const markerRanges = matchRanges(statement, marker);
+    const markerRange = markerRanges.at(-1);
+    if (!markerRange) return false;
+    const outcome = statement.slice(markerRange.start).trim();
+    if (/\b(?:does|did|must|should|will|would|can|could|is|are|was|were)\s+not\b[\s\S]*\b(?:reject|refuse|block|fail|establish)\w*\b/u.test(outcome)) return false;
+    return /(?:\b(?:reject|refuse|block)\w*\s+(?:it|them|these|every\s+(?:permission|mutation|claim)|the\s+(?:wording|mutation|claim|statement|label))|\b(?:semantic\s+)?(?:contract|guard|validation|guidance)\s+(?:reject|refuse|block)\w*\s+(?:it|them|these|the\s+(?:wording|mutation|claim|statement|label))|\b(?:the\s+)?(?:story\s+owner\s+)?(?:contract|guard|validation|guidance)\s+(?:remains?\s+)?fail(?:s)?\s+closed\b[\s\S]*|\b(?:contract\s+)?tests?\s+fail\b[\s\S]*|\b(?:guard|validation|contract)\s+blocks?\s+(?:it|the\s+mutation))$/u.test(outcome);
+  };
+  const primaryHasProof = proofOutcomeIsAffirmative(primary);
+  const proofContinuations = continuations.filter(continuation => !gapLogBoundary.test(continuation));
+  if (!proofContinuations.every(proofOutcomeIsAffirmative)) return false;
+  return primaryHasProof || proofContinuations.length > 0;
 }
 
 function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
@@ -958,7 +984,7 @@ function hasDynamicFindingAuthorityAmendmentAssertion(
     const directSubordination = /^(?:this\s+proposal\s+and\s+story|this\s+(?:proposal|story)|the\s+(?:prompt|guidance))\s+(?:is|are|remains?|must\s+remain)\s+subordinate(?:\s+agent\s+side)?(?:\s+projections?)?\s+(?:of|to)(?:\s+the)?$/u.test(beforeAuthority);
     const testSubordination = /^(?:use\s+red\s+then\s+green\s+)?add\s+(?:adversarial\s+)?tests\s+covering\s+(.+)\s+and\s+the\s+subordinate(?:\s+agent\s+side)?\s+projections?\s+of(?:\s+the)?$/u.exec(beforeAuthority);
     const testBodyPublishesAuthority = testSubordination !== null
-      && TRIAGE_INVENTORY_AUTHORITY_ACTION.test(testSubordination[1]);
+      && reviewTriageAuthorityViolation({ location: 'subordination-test-body', kind: 'story', text: testSubordination[1] }) !== null;
     const subordinateBefore = directSubordination || (testSubordination !== null && !testBodyPublishesAuthority);
     const subordinateAfter = /^(?:document)?(?:\s+and\s+they\s+do\s+not\s+amend\s+that\s+authority)?$/u.test(afterAuthority);
     if (subordinateBefore && subordinateAfter) continue;
@@ -1002,8 +1028,11 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
         verdictAuthority,
         /\b(?:use|treat|accept|is|become|mean|count|classify|set|emit|serve)\w*\b/u,
       );
-      const explicitlyRejected = /^(?:never|reject|do\s+not|must\s+not|cannot|forbid|prohibit|disallow)\b/u.test(segment)
-        || /\bnot\b[^.;]{0,48}\b(?:current|official|applicability)\s+(?:applicability\s+)?verdict\b/u.test(segment);
+      const explicitlyRejected = controlledConceptPairIsExplicitlyNegative(
+        segment,
+        RETIRED_APPLICABILITY_ALIAS,
+        verdictAuthority,
+      ) || /^(?:never|reject|do\s+not|must\s+not|cannot|forbid|prohibit|disallow)\s+(?:use|treat|accept|classify|set|emit|serve)\b[\s\S]*\bstale\s+or\s+not\s+reproduced\b/u.test(segment);
       if (assertsCurrentVerdict || !explicitlyRejected) {
         return 'retired applicability verdict used as authority';
       }
@@ -1036,9 +1065,15 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
       return 'unauthorized disposition minting';
     }
 
-    const schemaOrGate = /\b(?:finding\s+schemas?|applicability\s+fields?|severity\s+fields?|(?:review|test|done|lifecycle)\s+gate(?:\s+predicates?)?|blocking\s+predicates?|process\s+facts?)\b/u;
+    const schemaOrGate = /\b(?:finding\s+schemas?|applicability\s+(?:fields?|verdicts?)|severity\s+fields?|(?:review|test|done|lifecycle)\s+gate(?:\s+predicates?)?|blocking\s+predicates?|process\s+facts?)\b/u;
     const storyAuthoredChange = /(?:^(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b|\bby\s+(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b)/u;
-    const residualSchemaAmendment = /\b(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\s+(?:adds?|provisions?|reshapes?|defines?|creates?|changes?|modifies?|rewrites?|replaces?)\b[\s\S]*\b(?:finding\s+schemas?|applicability\s+fields?|severity\s+fields?|(?:review|test|done|lifecycle)\s+gate(?:\s+predicates?)?|blocking\s+predicates?|process\s+facts?)\b/u.test(segment);
+    const clauseStoryAuthoredChange = /(?:^(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b|\b(?:and|then|but|however|yet)\s+(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b|\bby\s+(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b)/u;
+    const residualSchemaAmendment = hasAffirmativeConceptRelation(
+      segment,
+      clauseStoryAuthoredChange,
+      schemaOrGate,
+      /\b(?:add|provision|reshape|define|create|change|modify|rewrite|replace|publish|enact)\w*\b/u,
+    );
     if (residualSchemaAmendment) {
       return 'Dynamic Finding authority amendment asserted from Task Context';
     }
@@ -1056,11 +1091,17 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
 }
 
 function renderedStructuralAuthorityText(text: string, allowHeadingFragment = false): string | null {
-  if (allowHeadingFragment && text.includes('#')) {
-    const heading = text.slice(text.indexOf('#') + 1).trim();
-    return heading.length > 0 ? heading : null;
-  }
-  return /^[\p{L}\p{N}@._/+*{}:[\]-]+$/u.test(text) ? null : text;
+  const candidate = allowHeadingFragment && text.includes('#')
+    ? text.slice(text.indexOf('#') + 1).trim()
+    : text;
+  if (candidate.length === 0) return null;
+  if (!/^[\p{L}\p{N}@._/+*{}:[\]-]+$/u.test(candidate)) return candidate;
+  const decoded = normalizeTriageAuthorityText(candidate);
+  const authorityCue = (RETIRED_APPLICABILITY_ALIAS.test(decoded) && /\b(?:current|official|applicability)\s+(?:applicability\s+)?verdict\b/u.test(decoded))
+    || CONTROLLED_TRIAGE_RELATION_SPECS.some(spec => spec.subject.test(decoded) && spec.outcome.test(decoded))
+    || (REVIEW_AUTHORITY_ACTOR.test(decoded) && TRIAGE_DEFERRAL_SUBJECT.test(decoded))
+    || (/\b(?:this|the)\s+story\b/u.test(decoded) && /\b(?:finding\s+schemas?|applicability\s+(?:fields?|verdicts?))\b/u.test(decoded));
+  return authorityCue ? decoded : null;
 }
 
 function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): ReviewerTaskContextAuthoritySource[] {
@@ -1149,6 +1190,26 @@ function crossSourceNegativeDismissalAuthority(
   return null;
 }
 
+function crossSourceControlledAuthority(
+  sources: readonly ReviewerTaskContextAuthoritySource[],
+): { first: ReviewerTaskContextAuthoritySource; last: ReviewerTaskContextAuthoritySource; violation: ReviewTriageAuthorityViolation } | null {
+  const eligibleSources = sources
+    .map(source => ({
+      source,
+      segments: reviewerTaskContextAuthoritySourceIsMetaSafe(source) ? [] : triageAuthoritySegments(source.text),
+    }))
+    .filter(entry => entry.segments.length > 0);
+  if (eligibleSources.length < 2) return null;
+  const segments = eligibleSources.flatMap(entry => entry.segments);
+  const violation = controlledTriageViolation(classifyControlledTriageRelations(segments.join('. '), segments));
+  if (violation === null) return null;
+  return {
+    first: eligibleSources[0].source,
+    last: eligibleSources.at(-1)!.source,
+    violation,
+  };
+}
+
 /**
  * REVIEW role authority is package-owned. Story-authored Task Context may
  * describe work, tests, and explicit rejection, but it cannot publish a
@@ -1177,6 +1238,12 @@ function assertReviewerTaskContextAuthoritySafety(
   if (crossSourceViolation !== null) {
     throw new Error(
       `REVIEW Task Context contains unsafe Finding-triage authority across ${crossSourceViolation.observation.location} -> ${crossSourceViolation.conclusion.location}: dismissal used as applicability proof`,
+    );
+  }
+  const controlledCrossSourceViolation = crossSourceControlledAuthority(sources);
+  if (controlledCrossSourceViolation !== null) {
+    throw new Error(
+      `REVIEW Task Context contains unsafe Finding-triage authority across ${controlledCrossSourceViolation.first.location} -> ${controlledCrossSourceViolation.last.location}: ${controlledCrossSourceViolation.violation}`,
     );
   }
 }
