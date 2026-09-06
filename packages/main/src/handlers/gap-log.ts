@@ -31,6 +31,7 @@ import { ensureMetaStory, appendGapFinding, META_STORY_ID } from '../core/audit-
 import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import { readBrandEnv } from '../core/brand-env.js';
+import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 
 const GAP_LOG_CATEGORIES = ['happy', 'edge', 'adversarial', 'missing'] as const;
 const GAP_LOG_SEVERITIES = ['critical', 'high', 'medium', 'low'] as const;
@@ -73,6 +74,7 @@ function collectStructuredEvidence(args: {
 
 export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
   const { store } = ctx;
+  const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   return {
     /**
      * gap_log: archive a manually discovered framework gap into B-META-framework-audit.
@@ -200,7 +202,7 @@ export function createGapLogHandlers(ctx: HandlerContext): Record<string, (...ar
           ...(ev.observedOutput ? { observedOutput: ev.observedOutput } : {}),
           ...(ev.analysisNote ? { analysisNote: ev.analysisNote } : {}),
           agent: args.agent || readBrandEnv('AGENT') || 'proof-or-stop-gap-log',
-        }, META_STORY_ID, { projectRoot: ctx.root });
+        }, META_STORY_ID, { projectRoot: ctx.root, authoritativeMutation });
         return { created: ensured.created, result: appended };
       }, {
         // gap_log is a sub-second critical section. Concurrent callers must

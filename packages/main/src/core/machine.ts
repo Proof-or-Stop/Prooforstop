@@ -1267,7 +1267,7 @@ export function getGuardFailureReason(
     }
     const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
     if (initCheck._hash !== expected) {
-      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (${describeInitCheckSignatureDomain()} were modified); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
+            return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (signed components: ${describeInitCheckSignatureDomain()}); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
     }
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {

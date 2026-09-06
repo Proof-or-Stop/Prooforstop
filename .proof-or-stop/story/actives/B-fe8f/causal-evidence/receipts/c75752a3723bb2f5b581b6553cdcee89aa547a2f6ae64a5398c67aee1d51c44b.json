@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-fe8f",
+  "executionKey": "ce:v1:cf2dac0cd15be5d08a3f5e787f73c39fe99bb4645fadf84cebaa041a40970fb6",
+  "identityDigest": "cf2dac0cd15be5d08a3f5e787f73c39fe99bb4645fadf84cebaa041a40970fb6",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-fe8f",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/dist/tasks/finding-ledger-runtime-smoke.js"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f/.proof-or-stop/story/actives/B-fe8f/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f/.proof-or-stop/story/actives/B-fe8f/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:dd6f8d8a7ef497e0dfe2bf6dc68f05a301f2d7d58909cfae8ed5e2bdc0757d1d",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-fe8f/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "9754c4b3174ca1e36b3748539f417ebaab93dac5",
+          "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
+          "storyFilesHash": "15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-fe8f",
+      "timeoutMs": 270000,
+      "verificationExecutionSemanticsKey": "{\"version\":1,\"rawExecutionKey\":\"{\\\"version\\\":1,\\\"command\\\":{\\\"executable\\\":\\\"node\\\",\\\"args\\\":[\\\"packages/main/dist/tasks/finding-ledger-runtime-smoke.js\\\"]},\\\"cwd\\\":\\\"/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f\\\",\\\"effectiveTimeoutMs\\\":270000,\\\"timeoutProvenance\\\":{\\\"source\\\":\\\"executor-default\\\",\\\"configuredTimeoutMs\\\":null}}\",\"selector\":\"ledger.stale_cas: PASS semanticWrites=0\",\"intentType\":\"logic\",\"evidenceKind\":\"logic_test\"}"
+    },
+    "storyFilesHash": "15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/49bfef8b-d1b7-4471-84a8-3ad0baf1dd9b.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_OPTIONAL_LOCKS": "0",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg03Ki9di:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.277",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "15f1e0e0f2b3075c94215d82ff7920019c4e04fda72de09b0e124cec71eec999",
+  "outputTail": "e_late_symlink_swap: PASS afterFinalCheck=true outsideWrites=0\nruntime.canonical_build_lock: PASS callerFalse=reject callerOmitted=reject zeroWrites=true\nruntime.canonical_build_lock_interleaving: PASS successorStartedAfterAdmission=true successorAcquired=false receiptCommitted=true\nruntime.trust_storage_boundary: PASS emittedInvalidReceipts=0\nruntime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true adapterContract=true\nruntime.validation_executor_session_stability: PASS adapterIdentity=stable ambientSessionRequired=false\nruntime.tamper_matrix: PASS acceptedMutations=0\nruntime.realpath_policy: PASS escapes=0 pathsExposed=0\nruntime.toctou_mutation: PASS receiptsIssued=0\nruntime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true\nregistry.runtime_facade_boundary: PASS exactCommands=2 canonicalRegistry=true adapterContract=true\nquery.carrier_request_digest_binding: PASS outerMutation=refused legacyQuery=preserved\nfinding.lifecycle_legacy_kill_window: PASS durableTransition=1 mirrorWrite=omitted projected=resolved unsignedMirror=open untrustedProjection=refused\nfinding.sparse_display_id: PASS next=F-004 reused=0 ledgerRows=1\nfinding.idempotency_contract: PASS callerKey=true replayRows=0 processEvents=1 signedQuery=true\nfinding.lifecycle_mirror_shadow_refused: PASS missing=open wrong=open duplicateBefore=collapsed legacyOnly=preserved\nfinding.lifecycle_unsigned_mirror: PASS terminal=open authority=none\nfinding.lifecycle_projection: PASS terminal=resolved resurrected=0 duplicateAfter=collapsed legacyOnly=preserved\nfinding.lifecycle_transition: PASS appendOnly=true resolveReplay=stable dismissReplay=stable terminalRows=2 resurrected=0\nfinding.lifecycle_signed_exact_request_digest: PASS missingSigned=open legacyQuery=accepted\nfinding.lifecycle_transition_authority: PASS unsigned=open badSignature=open missingSignedExactRequestDigest=open tampered=open signed=resolved exactCas=true\nfinding.lifecycle_preupgrade_pre_migration: PASS outerExact=true signedExact=false strictSuccessor=true binding=absent projected=open\nfinding.lifecycle_preupgrade_reattestation: PASS preMigration=open currentReattestation=valid immutableBytes=true replayRows=0 projected=resolved\nfinding.lifecycle_preupgrade_adversarial: PASS noBinding=reject wrongReceipt=reject wrongHash=reject wrongStory=reject wrongKey=reject wrongChain=reject partial=reject duplicate=reject currentOmission=open\nlifecycle.finding_ledger_retention: PASS consecutiveFindings=2 authority=none\ngreen.rollback_kill_switch: PASS dataLoss=0\ngreen.combined_concurrency: PASS lost=0 duplicates=0 halfVisible=0 deadlocks=0\ngreen.fail_closed_boundary: PASS unsafeWrites=0\nfinding.lifecycle_real_bfe8f_corpus: PASS historical=16 preMigration=open postMigration=terminal immutableBytes=true replayRows=0\nbuild-lock.fifo_admission: PASS order=true bounded=true mutualExclusion=true failureRecovery=true targetIndependence=true queueCleanup=true properLockfile=true\ngreen.red_green_relation_evaluate: PASS baselineFails=true currentPasses=true assertionUnchanged=true coreContractsPass=true immutableBlob=true sparseAllocatorSupersedesBaseline=true\ngreen.red_historical_anchor_verifier: PASS exactBaselineCheckout=true expectedFailure=ERR_MODULE_NOT_FOUND currentGreenImport=true arbitraryCwdAccepted=false\nred.version_binding_behind_worktree: PASS oldRuleRejects=true ownBindingAccepts=true staleInstalledRejects=true mismatchRejects=true\ngreen.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true installedState=worktree-current installedBinding=current-main\ngreen.clean_pack_install: PASS core=@proof-or-stop/core lab=@proof-or-stop/lab bundled=false registryFetch=false cli=true\ngreen.tamper_matrix: PASS lifecycleDelta=0\ngreen.dependency_scorecard_boundary: PASS\nFinding ledger integrity: PASS\nRuntime evidence integrity: PASS\ngreen.story3_matrix: PASS\n",
+  "outputProbe": "ledger.assessment_envelope_contract: PASS invalid=407 legal=43 signedMutants=true invalidSemanticWrites=0\nledger.assessment_dependency_optionals: PASS combinations=8 exactDigest=true unknownFields=reject variants=6 emptyEnvelopeArrays=allowed sparseArrays=reject\nfinding.projection_receipt_prefix: PASS signedReceiptUnchanged=true tamperRejected=8 batchRows=2 mixedBatch=true readAfterWrite=true readWrites=0\nfinding.projection_source_cas: PASS resignedInvalid=9 exactSourceSet=true tupleFields=6 unorderedSet=accepted mixedBatch=accepted\nfinding.base_receipt_authority: PASS tamperCases=10 mirrorControls=2 refusal=explicit signedBatch=accepted legacyMirrorOnly=accepted readWrites=0\nfinding.base_legacy_binding: PASS unboundUnsigned=refused signedReattestation=accepted\nfinding.base_pre_exact_receipt: PASS signedPrefix=accepted changedPrefix=refused\nfinding.legacy_identity_authority: PASS normalizedTerminalCases=4 mismatchedBindingCases=8 signedTerminals=2 strippedFields=8 mirrorWrites=0\nfinding.legacy_authoritative_mutation: PASS boundMirrorToSignedBase=true signedProjection=true mirrorControls=3 readWrites=0\nledger.concurrent_unique_appends: PASS rows=100 uniqueRecordIds=100\nledger.idempotent_replay: PASS replays=100 newRows=0 sameIds=true\nledger.durable_commit: PASS fsyncFile=true atomicRename=true fsyncDirectory=true\nledger.receipt_contract: PASS signedFields=complete\nledger.exact_record_cas: PASS committed=true\nledger.receipt_replay: PASS newRows=0 sameIds=true recursiveReceipts=0\nledger.idempotency_digest_relabel_refused: PASS replayV2=refused persistedVersion=1 signedBinding=true semanticRelabels=4 carrierRelabels=5 legacyReplay=refused\nledger.stale_cas: PASS semanticWrites=0\nledger.assessment_proposal_atomic: PASS proposalRows=1 receiptRows=1 recursiveReceipts=0\nledger.assessment_proposal_replay: PASS newRows=0 sameIds=true bytesUnchanged=true\nledger.assessment_proposal_rejections: PASS wrongAuthority=reject wrongSignature=reject exactUnion=reject missingReceipt=reject staleExpired=reject proposalFinalDivergence=reject semanticWrites=0 omittedNowExpired=reject\nledger.assessment_proposal_structural_chain: PASS findingRecordId=required witness=nonempty signer=truthful dependencyDigest=exact receiptCurrent=required semanticWrites=0\nledger.assessment_non_applicable_exact_union: PASS valid=5 nullMissingInvalid=12 baseHeadNull=reject unknownApplicable=preserved\nledger.standalone_receipt_conflict: PASS receiptPreserved=true routeWrites=0\nledger.baseline_bundle_refusal: PASS wrongId=reject wrongHash=reject missingKind=reject bytesChanged=reject callerRefusal=reject zeroWrites=true\nledger.atomic_bundle: PASS halfBundles=0 kinds=4 crashRetry=true\nledger.mandatory_repair_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.expiry_policy_records: PASS appendOnly=true idempotent=true halfVisible=0\nledger.receipt_mutation_matrix: PASS acceptedMutations=0\nledger.revoke_apply_serialization: PASS nonLatestCommits=0\nledger.callback_crash_boundary: PASS semanticWrites=0 schemaNeutral=true\nledger.mixed_transactions: PASS lost=0 brokenRefs=0\nledger.legacy_binding: PASS singleRecord=true rewrite=false\ngreen.legacy_migration: PASS legacyRewrites=0\nledger.capability_boundary: PASS writes=0\nledger.crash_recovery: PASS halfVisible=0\nledger.stale_fence: PASS staleWrites=0\nledger.stale_fence_interleaving: PASS successorIssuedBeforePublication=true staleWriterCommitted=false\nledger.lock_compatibility: PASS deadlocks=0\nquery.cold_start_read_only: PASS noKey=true writeDenied=true protectedFilesystemDelta=0\nruntime.verify_cold_start_read_only: PASS noKey=true writeDenied=true protectedFilesystemDelta=0\nfinding.authoritative_live_mutations: PASS concurrentMeta=8 audit=true cluster=true clusterSync=true signatureBackfill=true status=true readAfterWrite=true\nledger.legacy_receipt_binding_sequential: PASS resolutions=2 bindingRecords=1 exactBytes=true conflict=0\nledger.legacy_receipt_binding: PASS query=migrated exactBytes=bound tamper=reject postMigrationUnsigned=reject rewrites=0\nruntime.content_addressed_receipt: PASS blobs=complete signature=valid\nruntime.artifact_stability: PASS pre=true during=true post=true\nruntime.execution_not_semantics: PASS lifecycleDelta=0\nruntime.real_cli_run_adapter: PASS command=finding_runtime_evidence_run persisted=true\nruntime.real_cli_verify_adapter: PASS command=finding_runtime_evidence_verify verified=true\nruntime.registered_key_trust: PASS callerSelected=reject unknown=reject revoked=reject expired=reject\nquery.protected_read_only: PASS signedRows=true pathsExposed=0\nquery.deterministic_scorecard: PASS\nruntime.carrier_signed_exact_request_digest: PASS verify=refused legacyQuery=accepted\nruntime.carrier_outer_identity: PASS operation=refused requestDigest=refused\nruntime.carrier_trust_chain: PASS callerResign=reject tamperedCarrier=reject missingSignedExactRequestDigest=reject outerIdentityMismatch=reject zeroAuthority=true\nquery.incomplete_tamper_refusal: PASS partialRows=0\nregistry.story3_fact_contract: PASS\nregistry.command_phase_policy: PASS bypasses=0\nregistry.persistence_non_authority: PASS lifecycleDelta=0\nregistry.non_authority_mutations: PASS acceptedMutations=0\nregistry.dependency_boundary: PASS forbiddenImportsAccepted=0\nquery.path_leakage: PASS exposedPaths=0\ndependency.lifecycle_gate: PASS B-03b7=blocked_by_B-fe8f B-e6d9=blocked_by_B-fe8f+B-03b7 transitionWrites=0\ndependency.partial_done_gate: PASS phaseDoneOnly=reject unmergedStoryBranch=reject mergedMainFact=accept transitionWritesBeforeMerge=0\ngreen.lifecycle_dependency_gate: PASS B-03b7=release_after_B-fe8f B-e6d9=release_after_B-fe8f+B-03b7\nruntime.freshness_matrix: PASS acceptedStale=0\nruntime.environment_privacy: PASS leakedValues=0\nruntime.blob_store_symlink: PASS outsideWrites=0\nruntime.blob_store_symlink_swap: PASS deterministicInterleaving=reject outsideWrites=0\nruntime.blob_store_late_symlink_swap: PASS afterFinalCheck=true outsideWrites=0\nruntime.canonical_build_lock: PASS callerFalse=reject callerOmitted=reject zeroWrites=true\nruntime.canonical_build_lock_interleaving: PASS successorStartedAfterAdmission=true successorAcquired=false receiptCommitted=true\nruntime.trust_storage_boundary: PASS emittedInvalidReceipts=0\nruntime.append_runtime_receipt_replay: PASS newRows=0 sameRecordId=true sameReceiptId=true bytesUnchanged=true adapterContract=true\nruntime.validation_executor_session_stability: PASS adapterIdentity=stable ambientSessionRequired=false\nruntime.tamper_matrix: PASS acceptedMutations=0\nruntime.realpath_policy: PASS escapes=0 pathsExposed=0\nruntime.toctou_mutation: PASS receiptsIssued=0\nruntime.append_runtime_receipt_crash: PASS rows=1 halfVisible=0 duplicates=0 recoveredSameIds=true\nregistry.runtime_facade_boundary: PASS exactCommands=2 canonicalRegistry=true adapterContract=true\nquery.carrier_request_digest_binding: PASS outerMutation=refused legacyQuery=preserved\nfinding.lifecycle_legacy_kill_window: PASS durableTransition=1 mirrorWrite=omitted projected=resolved unsignedMirror=open untrustedProjection=refused\nfinding.sparse_display_id: PASS next=F-004 reused=0 ledgerRows=1\nfinding.idempotency_contract: PASS callerKey=true replayRows=0 processEvents=1 signedQuery=true\nfinding.lifecycle_mirror_shadow_refused: PASS missing=open wrong=open duplicateBefore=collapsed legacyOnly=preserved\nfinding.lifecycle_unsigned_mirror: PASS terminal=open authority=none\nfinding.lifecycle_projection: PASS terminal=resolved resurrected=0 duplicateAfter=collapsed legacyOnly=preserved\nfinding.lifecycle_transition: PASS appendOnly=true resolveReplay=stable dismissReplay=stable terminalRows=2 resurrected=0\nfinding.lifecycle_signed_exact_request_digest: PASS missingSigned=open legacyQuery=accepted\nfinding.lifecycle_transition_authority: PASS unsigned=open badSignature=open missingSignedExactRequestDigest=open tampered=open signed=resolved exactCas=true\nfinding.lifecycle_preupgrade_pre_migration: PASS outerExact=true signedExact=false strictSuccessor=true binding=absent projected=open\nfinding.lifecycle_preupgrade_reattestation: PASS preMigration=open currentReattestation=valid immutableBytes=true replayRows=0 projected=resolved\nfinding.lifecycle_preupgrade_adversarial: PASS noBinding=reject wrongReceipt=reject wrongHash=reject wrongStory=reject wrongKey=reject wrongChain=reject partial=reject duplicate=reject currentOmission=open\nlifecycle.finding_ledger_retention: PASS consecutiveFindings=2 authority=none\ngreen.rollback_kill_switch: PASS dataLoss=0\ngreen.combined_concurrency: PASS lost=0 duplicates=0 halfVisible=0 deadlocks=0\ngreen.fail_closed_boundary: PASS unsafeWrites=0\nfinding.lifecycle_real_bfe8f_corpus: PASS historical=16 preMigration=open postMigration=terminal immutableBytes=true replayRows=0\nbuild-lock.fifo_admission: PASS order=true bounded=true mutualExclusion=true failureRecovery=true targetIndependence=true queueCleanup=true properLockfile=true\ngreen.red_green_relation_evaluate: PASS baselineFails=true currentPasses=true assertionUnchanged=true coreContractsPass=true immutableBlob=true sparseAllocatorSupersedesBaseline=true\ngreen.red_historical_anchor_verifier: PASS exactBaselineCheckout=true expectedFailure=ERR_MODULE_NOT_FOUND currentGreenImport=true arbitraryCwdAccepted=false\nred.version_binding_behind_worktree: PASS oldRuleRejects=true ownBindingAccepts=true staleInstalledRejects=true mismatchRejects=true\ngreen.version_sync: PASS patchIncrement=1 rootPackage=true mainPackage=true lockfile=true runtimeConstant=true localCli=true installedCli=true installedState=worktree-current installedBinding=current-main\ngreen.clean_pack_install: PASS core=@proof-or-stop/core lab=@proof-or-stop/lab bundled=false registryFetch=false cli=true\ngreen.tamper_matrix: PASS lifecycleDelta=0\ngreen.dependency_scorecard_boundary: PASS\nFinding ledger integrity: PASS\nRuntime evidence integrity: PASS\ngreen.story3_matrix: PASS\n",
+  "outputLength": 9878,
+  "executedAt": "2026-09-06T15:55:02.540Z",
+  "durationMs": 203095,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "3khqnisQd5Ak5FWWEA3aZRAs+DvSoCAaEj3kHABMXu+e5YTXYh8w7EdhuLCFIKIzALh7Jy8R4M8B4hDGF3owCQ==",
+  "receiptHash": "c75752a3723bb2f5b581b6553cdcee89aa547a2f6ae64a5398c67aee1d51c44b"
+}

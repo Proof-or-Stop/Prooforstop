@@ -23,6 +23,7 @@ import { readFileSync } from 'fs';
 
 import type { HandlerContext } from './context.js';
 import { decideBackfill, type BackfillAction } from '../core/signature-backfill.js';
+import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 
 interface SignatureBackfillArgs {
   /** Path to the committed signature map JSON ({ findingId -> "area|failureMode" }). Required. */
@@ -116,6 +117,7 @@ function renderReport(tally: BackfillTally, mapPath: string, mapEntries: number,
 }
 
 export function createSignatureBackfillHandlers(ctx: HandlerContext) {
+  const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   return {
     /**
      * Backfill empty finding `signatureTag`s from a committed map. Dry-run by
@@ -134,28 +136,29 @@ export function createSignatureBackfillHandlers(ctx: HandlerContext) {
       const tally = emptyTally();
 
       for (const storyId of ctx.store.listStoryIds()) {
-        const data = ctx.store.readFindings(storyId);
-        let changed = false;
-        for (const f of data.findings) {
-          tally.scanned += 1;
-          tally.bySource[sourceBucket(f)] += 1;
-          const d = decideBackfill(f, map[f.id], { overwriteAuto });
-          tally.actions[d.action] += 1;
-          if (d.action === 'fill') {
-            tally.filled += 1;
-            if (apply) {
-              // Mutate ONLY the audit-only fields on the already-hashed, already-stored
-              // finding object. These fields are NOT part of _hash (finding.ts attaches
-              // them AFTER signFinding); we never recompute _hash and never call signFinding.
-              f.signatureTag = d.signatureTag;
-              f.signatureTagSource = d.signatureTagSource;
-              changed = true;
+        const process = (data: ReturnType<typeof ctx.store.readFindings>) => {
+          const changedFindingIds: string[] = [];
+          for (const f of data.findings) {
+            tally.scanned += 1;
+            tally.bySource[sourceBucket(f)] += 1;
+            const d = decideBackfill(f, map[f.id], { overwriteAuto });
+            tally.actions[d.action] += 1;
+            if (d.action === 'fill') {
+              tally.filled += 1;
+              if (apply) {
+                f.signatureTag = d.signatureTag;
+                f.signatureTagSource = d.signatureTagSource;
+                changedFindingIds.push(f.id);
+              }
             }
           }
-        }
-        if (apply && changed) {
-          ctx.store.writeFindings(storyId, data);
-          tally.storiesWritten += 1;
+          if (apply && changedFindingIds.length > 0) tally.storiesWritten += 1;
+          return { result: undefined, changedFindingIds };
+        };
+        if (apply) {
+          authoritativeMutation(storyId, `signature-backfill:${overwriteAuto ? 'overwrite-auto' : 'empty-only'}`, process);
+        } else {
+          process(ctx.store.readFindings(storyId));
         }
       }
 

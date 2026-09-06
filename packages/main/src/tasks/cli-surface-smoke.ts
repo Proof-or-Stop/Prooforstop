@@ -127,10 +127,17 @@ function assertCurrentConfigAliases(): void {
 }
 assertCurrentConfigAliases();
 for (const prefix of [[], ['proof-or-stop'], ['lattice']]) {
-  for (const action of ['create', 'run', 'eval', 'help', 'unknown']) {
-    assert.equal(normalizeNestedSpaceAlias([...prefix, 'lab', action, '--help']).matched, false,
-      `retired Lab alias stays unavailable, including redundant bin tokens: ${[...prefix, 'lab', action].join(' ')}`);
+  // Canonical Lab commands remain public; tolerating a redundant historical
+  // bin token does not advertise that token or register a retired command.
+  for (const action of ['create', 'run', 'eval', 'compare', 'promote', 'help']) {
+    const observed = normalizeNestedSpaceAlias([...prefix, 'lab', action, '--help']);
+    assert.equal(observed.matched, true,
+      `public Lab alias remains available: ${[...prefix, 'lab', action].join(' ')}`);
+    assert.deepEqual(observed.argv, [`lab_${action}`, '--help'],
+      `public Lab alias maps to its exact registered command: ${action}`);
   }
+  assert.equal(normalizeNestedSpaceAlias([...prefix, 'lab', 'unknown', '--help']).matched, false,
+    `unknown Lab action is not normalized: ${prefix.join(' ')}`);
 }
 
 // B-cdf6 CHK-005: the product name asserted below is now 'Proof-or-Stop'

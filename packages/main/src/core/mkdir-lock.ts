@@ -269,7 +269,86 @@ function sleepSync(ms: number): void {
 
 export interface AcquiredMkdirLock {
   lockDir: string;
+  /** Persisted per-acquire token; absent only in the legacy fail-open write-error path. */
+  lockId?: string;
+  /** True only while holder.json still names this exact acquire token. */
+  isCurrent?(): boolean;
   release(): void;
+}
+
+export interface MkdirLockFence {
+  writerFenceToken: string;
+  assertCurrent(): void;
+  /** Serialize final assertion+publication against successor token issuance. */
+  publishAtomically<T>(publish: () => T): T;
+}
+
+function fenceAuthorityLockDir(lockDir: string): string {
+  return `${lockDir}.fence-authority`;
+}
+
+function acquireFenceAuthority(lockDir: string, deadlineMs = 120_000): AcquiredMkdirLock {
+  const localHostname = hostname();
+  return acquireMkdirTicketLock(fenceAuthorityLockDir(lockDir), {
+    label: 'mkdir fence authority',
+    deadlineMs,
+    staleMs: 10_000,
+    pollMs: 5,
+    holderInfo: {
+      pid: process.pid,
+      hostname: localHostname,
+      command: 'mkdir fence authority',
+      acquiredAt: new Date().toISOString(),
+    },
+    classifyExistingLock: ({ holder }) => {
+      // Story 3's adapter is same-host local FS. A foreign/unknown host can
+      // never be safely reclaimed by an mtime guess, so it remains active.
+      if (!holder || holder.hostname !== localHostname) return 'active';
+      try {
+        process.kill(holder.pid, 0);
+        return 'active';
+      } catch (error: any) {
+        return error?.code === 'ESRCH' ? 'stale' : 'active';
+      }
+    },
+  });
+}
+
+/**
+ * Capture the token of an already-held mkdir lock and return a stale-writer
+ * fence. A caller that cannot prove a persisted token is refused instead of
+ * being allowed to publish after a stale-reclaim/successor-acquire race.
+ */
+export function captureMkdirLockFence(lockDir: string): MkdirLockFence {
+  const token = readMkdirLockHolder(lockDir)?.lockId;
+  if (!token) {
+    throw new Error(`mkdir lock fence unavailable: ${lockDir} has no persisted ownership token`);
+  }
+  return {
+    writerFenceToken: token,
+    assertCurrent() {
+      const current = readMkdirLockHolder(lockDir)?.lockId;
+      if (current !== token) {
+        const error = new Error('STALE_FENCE: mkdir lock ownership changed before commit');
+        error.name = 'StaleFenceError';
+        throw error;
+      }
+    },
+    publishAtomically<T>(publish: () => T): T {
+      const authority = acquireFenceAuthority(lockDir);
+      try {
+        const current = readMkdirLockHolder(lockDir)?.lockId;
+        if (current !== token) {
+          const error = new Error('STALE_FENCE: mkdir lock ownership changed before commit');
+          error.name = 'StaleFenceError';
+          throw error;
+        }
+        return publish();
+      } finally {
+        authority.release();
+      }
+    },
+  };
 }
 
 export interface MkdirTicketLockOptions extends MkdirLockOptions {
@@ -301,11 +380,17 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
   mkdirSync(dirname(lockDir), { recursive: true });
 
   const deadline = Date.now() + deadlineMs;
+  let issuanceAuthority: AcquiredMkdirLock | undefined;
   while (true) {
+    const authority = acquireFenceAuthority(lockDir, Math.max(deadlineMs, 30_000));
+    let acquired = false;
     try {
-      mkdirSync(lockDir);
-      break;
-    } catch (e: any) {
+      try {
+        mkdirSync(lockDir);
+        acquired = true;
+        issuanceAuthority = authority;
+        break;
+      } catch (e: any) {
       // Lock dir already exists (EEXIST) — another holder, or a stale leftover.
       let sawLiveLock = false;
       let liveLockAgeMs = 0;
@@ -342,6 +427,11 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
       if (Date.now() > deadline) {
         throw new Error(`${label} lock timeout after ${deadlineMs}ms (${e?.message || e})`);
       }
+      }
+    } finally {
+      if (!acquired) authority.release();
+    }
+    if (!acquired) {
       sleepSync(pollMs);
     }
   }
@@ -418,6 +508,8 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
       // empty-dir removal — B-d877 R4 (codex #2): never recursive-force-remove an
       // identity-unverified dir. Then fail the acquire.
       removeEmptyLockDirNonRecursive(lockDir);
+      issuanceAuthority?.release();
+      issuanceAuthority = undefined;
       throw new Error(
         `${label} lock: failed to persist required ownership token (holder.json): ${writeErr?.message ?? writeErr}`,
       );
@@ -425,9 +517,15 @@ export function acquireMkdirLock(lockDir: string, options: MkdirLockOptions = {}
     /* PROBE: holder.json is descriptive metadata only — acquire still succeeded;
        release falls back to unconditional removal (back-compat). */
   }
+  issuanceAuthority?.release();
+  issuanceAuthority = undefined;
 
   return {
     lockDir,
+    ...(releaseLockId ? { lockId: releaseLockId } : {}),
+    isCurrent() {
+      return releaseLockId !== undefined && readMkdirLockHolder(lockDir)?.lockId === releaseLockId;
+    },
     release() {
       if (heartbeatProcess && heartbeatProcess.exitCode === null) {
         try { heartbeatProcess.kill(); } catch { /* already exited */ }

@@ -185,6 +185,9 @@ const processFactRegistryKinds = new Set([
   'artifact',
 ]);
 const requiredProcessFactSemantics = {
+  finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
+  finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
+  finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
   validate: ['validation-status', 'validation-result', 'gate-evidence'],
   test_add: ['test-evidence', 'validation-result'],
   test_story: ['test-evidence', 'validation-result'],
@@ -697,6 +700,43 @@ function read(relPath) {
   if (mutation === 'drop-acceptance-basis-prompt' && roleId === 'proof-or-stop-implementer') {
     // B-cc10: accept either brand so the mutation actually drops the live prompt line.
     text = text.replace(/^Acceptance-basis boundary: only `(?:proof-or-stop|proofOrStop) acceptance_basis_generate`.*$/m, '');
+  }
+  if (mutation === 'story3-promote-query-l4' && relPath === processFactLevelRegistryPath) {
+    text = text.replace(
+      "name: 'finding_ledger_query', level: 'L0'",
+      "name: 'finding_ledger_query', level: 'L4', gateConsumer: 'storyMachine.canPassReview'",
+    );
+  }
+  if (mutation === 'story3-promote-runtime-run-l4' && relPath === processFactLevelRegistryPath) {
+    text = text.replace(
+      "name: 'finding_runtime_evidence_run', level: 'L2'",
+      "name: 'finding_runtime_evidence_run', level: 'L4', gateConsumer: 'storyMachine.canPassReview'",
+    );
+  }
+  if (mutation === 'story3-drop-runtime-freshness' && relPath === processFactRegistryPath) {
+    text = text.replace("'execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'", "'execution-evidence', 'signed-artifact', 'schema-contract', 'workspace-binding'");
+  }
+  if (mutation === 'story3-forbidden-story2-import' && relPath === 'packages/main/src/handlers/finding-ledger.ts') {
+    text += "\nimport { forbiddenStory2Identity } from '../core/finding-identity.js';\n";
+  }
+  if (mutation === 'story3-forbidden-story1-import' && relPath === 'packages/main/src/handlers/finding-ledger.ts') {
+    text += "\nimport { forbiddenStory1Gate } from '../core/finding-applicability-gate.js';\n";
+  }
+  if (mutation === 'story3-unregistered-direct-consumer' && relPath === 'packages/main/src/core/machine.ts') {
+    text += '\nconst forbiddenStory3Consumer = finding_ledger_query({ storyId: "B-X" });\n';
+  }
+  if (mutation === 'story3-query-path-leak' && relPath === 'packages/main/src/handlers/finding-ledger.ts') {
+    text = text.replace(
+      '): FindingLedgerQueryResult {',
+      '): FindingLedgerQueryResult {\n  const ledgerPath = "/protected/finding-ledger.json";',
+    );
+  }
+  if (relPath === processFactRegistryPath && mutation?.startsWith('story3-promote-record-')) {
+    const recordClass = mutation.slice('story3-promote-record-'.length);
+    text = text.replace(
+      new RegExp(`recordClass: '${recordClass}',([^\\n]+)level: 'L2'`),
+      `recordClass: '${recordClass}',$1level: 'L4'`,
+    );
   }
   if (mutation === 'drop-acceptance-basis-handler' && relPath === 'packages/main/src/handlers/proofstory.ts') {
     text = text.replace(/acceptance_basis_generate/g, 'basis_generate_removed');
@@ -4503,21 +4543,35 @@ function assertReviewInventoryRemediationContract() {
     && !stampBody.includes('executedAt: new Date()'),
     'verification execution time must project the signed causal receipt, never per-intent restamping time');
   for (const binding of [
-    '...(deps.refreshExecutionKey !== undefined ? { refreshExecutionKey: deps.refreshExecutionKey } : {})',
-    'runCommand: runCommand(candidate.executionKey)',
-    'refreshExecutionKey: candidate.executionKey',
-    'JSON.stringify({ refreshExecutionKey, command, cwd, timeoutMs: effectiveTimeoutMs })',
+    'verificationExecutionSemanticsKey: deps.executionSemanticsKey',
+    'executionSemanticsKey: candidate.executionKey',
+    'rawExecutionKey: candidate.rawExecutionKey',
+    'context: rawExecutionContext',
+    'rawProcessResults.get(cacheKey)',
+    'rawProcessResults.set(cacheKey, execution)',
+    'Object.freeze({ ...result })',
     'preflightInputKey(input, sourceReceipt.executionKey)',
     'preflightInputKey(input, receipt.executionKey)',
     'preflightInputKey(causalPreflight.input, receipt.executionKey)',
     'preflightInputKey(firstPreflight.input, firstReceipt.executionKey)',
-  ]) assert(checklistHandlerText.includes(binding), `strict refresh identity binding missing: ${binding}`);
-  assert(read(processFactRegistryPath).includes('strict refresh execution inputs bind the authoritative candidate key'),
-    'strict refresh physical/CAS/import identity and signed execution time must remain registered');
+  ]) assert(checklistHandlerText.includes(binding), `layered refresh identity binding missing: ${binding}`);
+  assert(/const rawExecutionKey = JSON\.stringify\(\{\s*version: 1,\s*command: normalizedCommand,\s*cwd: refreshGitCwd,\s*effectiveTimeoutMs,\s*timeoutProvenance,\s*\}\)/.test(refreshCandidate)
+    && /const executionKey = JSON\.stringify\(\{\s*version: 1,\s*rawExecutionKey,\s*selector: pin\.selector,\s*intentType: resolved\.intent\.type,\s*evidenceKind: kind,\s*\}\)/.test(refreshCandidate),
+    'refresh must separate exact command/cwd/timeout/provenance process keys from selector/type/kind evidence keys');
+  assert(/const rawExecutionContext = causalCanonical\(\{\s*schemaVersion: 1,\s*storyId: args\.storyId,\s*materialHash: computed\.materialHash \?\? null,\s*storyFilesHash: computed\.storyFilesHash \?\? null,\s*effectiveEnvironment: effectiveCausalEnvironment\(undefined, computed\.refreshGitCwd\),\s*runtimeVersion: process\.version,\s*toolVersion: resolveCausalToolVersion\(root\) \?\? null,\s*\}\)/.test(checklistHandlerText),
+    'raw refresh reuse must bind current material, story, environment and runtime context');
+  assert(read(processFactRegistryPath).includes('raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context')
+    && read(processFactRegistryPath).includes('selector/type/kind bind distinct signed causal identities and receipt-keyed import checks'),
+    'layered refresh physical/CAS/import identity and signed execution time must remain registered');
   const refreshSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
   for (const marker of ['pinned manual verifier re-earns mechanical authority', 'pinned docs verifier re-earns mechanical authority',
     'a failing re-run leaves the row demoted', 'pin-less demotion strips the receipt',
-    'shared rows bind cloned facts from the same execution', 'different selector/effective-timeout/provenance keys never dedupe']) {
+    'shared rows bind cloned facts from the same execution',
+    'three default-timeout selectors share one raw run; timeout/provenance boundaries remain distinct',
+    'selector-specific evidence identities remain distinct over one raw run',
+    'selector-specific causal receipts remain independently bound',
+    'nonmatching selector receives no mechanical receipt',
+    'same timeout with different audited provenance is not collapsed']) {
     assert(refreshSmoke.includes(marker), `stale refresh executable control missing: ${marker}`);
   }
   assert(
@@ -5025,6 +5079,22 @@ function parseProcessFactArtifactByCommandFromSource(text) {
   return artifacts;
 }
 
+function parseInlineProcessFactArtifactFromSource(block, label) {
+  const artifactMatch = /\bartifact\s*:\s*\{/.exec(block);
+  if (!artifactMatch) return null;
+  const openIndex = artifactMatch.index + artifactMatch[0].lastIndexOf('{');
+  const artifactBlock = extractBalancedBlock(block, openIndex, '{', '}', `${label} inline artifact`);
+  return {
+    path: readStringProperty(artifactBlock, 'path'),
+    signed: /\bsigned:\s*true\b/.test(artifactBlock),
+    signature: readStringProperty(artifactBlock, 'signature'),
+    producerCommand: readStringProperty(artifactBlock, 'producerCommand'),
+    consumerGate: readStringProperty(artifactBlock, 'consumerGate'),
+    reviewerLane: readStringProperty(artifactBlock, 'reviewerLane'),
+    block: artifactBlock,
+  };
+}
+
 function parseProcessFactRequiredSemanticsFromSource(text) {
   const body = extractExportedObjectBody(text, 'PROCESS_FACT_REQUIRED_SEMANTICS', processFactRegistryPath);
   const semantics = new Map();
@@ -5220,7 +5290,9 @@ function parseProcessFactRegistry() {
   });
   const artifactEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_ARTIFACTS').map(entry => {
     const artifactRefMatch = /artifact:\s*PROCESS_FACT_ARTIFACT_BY_COMMAND\.([a-z_][a-z0-9_]*)/.exec(entry.block);
-    const artifact = artifactRefMatch ? artifactByCommand.get(artifactRefMatch[1]) : null;
+    const artifact = artifactRefMatch
+      ? artifactByCommand.get(artifactRefMatch[1])
+      : parseInlineProcessFactArtifactFromSource(entry.block, `${processFactRegistryPath} ${entry.name}`);
     return { ...entry, artifact: artifact || null };
   });
   const flowPolicyEntries = parseFlowFactPolicies().map(entry => ({
@@ -7884,6 +7956,7 @@ function assertProcessFactCommandInventory() {
   assertAcceptanceTopologyLifecycleFilenameContract();
   assertDecisionDocQuorumCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
   assertDecisionDocPromotionCommandContract(cliToolNameSet, registry, levelRegistry, policyByName);
+  assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry, policyByName);
 
   const definitionLevels = new Set(parseProcessFactLevelDefinitions());
   for (const level of ['L0', 'L1', 'L2', 'L3', 'L4']) {
@@ -8054,6 +8127,149 @@ function assertProcessFactCommandInventory() {
     devPhaseToolEntries.size > 0 && !devPhaseToolEntries.has('bug_report'),
     'packages/main/src/core/config.ts: DEV finding_cluster fix must not allow unrelated bug_report',
   );
+}
+
+function assertStory3ProcessFactContract(cliToolNameSet, registry, levelRegistry, policyByName) {
+  const expected = [
+    {
+      name: 'finding_ledger_query', level: 'L0', category: 'finding-ledger-read',
+      owner: /handlers\/finding-ledger\.queryFindingLedger/,
+      semantics: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
+      phases: 'all', ownershipClass: 'readOnly',
+    },
+    {
+      name: 'finding_runtime_evidence_run', level: 'L2', category: 'finding-ledger-persistence',
+      owner: /core\/finding-ledger \+ handlers\/finding-ledger\.appendRuntimeReceipt/,
+      semantics: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
+      phases: ['DEV'], ownershipClass: 'storyScopedMutating',
+    },
+    {
+      name: 'finding_runtime_evidence_verify', level: 'L3', category: 'runtime-evidence-verification',
+      owner: /core\/runtime-evidence-receipt \+ handlers\/finding-ledger\.verify/,
+      semantics: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
+      phases: ['DEV'], ownershipClass: 'readOnly',
+    },
+  ];
+  for (const contract of expected) {
+    assert(cliToolNameSet.has(contract.name), `Story 3: MAIN_TOOLS missing ${contract.name}`);
+    const level = levelRegistry.get(contract.name);
+    assert(level?.level === contract.level, `Story 3: ${contract.name} must stay ${contract.level}, never L4 persistence authority`);
+    assert(level?.category === contract.category, `Story 3: ${contract.name} category drifted`);
+    assert(contract.owner.test(level?.owner || ''), `Story 3: ${contract.name} producer role drifted (${level?.owner || '<missing>'})`);
+    assert(!level?.gateConsumer, `Story 3: ${contract.name} must not name a lifecycle gate consumer`);
+    const entry = registry.get(contract.name);
+    assert(entry, `Story 3: registry missing ${contract.name}`);
+    if (entry) {
+      assert(entry.level === contract.level, `Story 3: ${contract.name} registry level drifted`);
+      assert(contract.semantics.every(semantic => entry.semantics.includes(semantic)), `Story 3: ${contract.name} semantics incomplete`);
+      assert(!entry.semantics.includes('gate-evidence'), `Story 3: ${contract.name} must remain non-L4/non-gate evidence`);
+      assert(!entry.consumerGate, `Story 3: ${contract.name} acquired an unregistered direct consumer`);
+    }
+    const policy = policyByName.get(contract.name);
+    assert(policy, `Story 3: command policy missing ${contract.name}`);
+    if (policy) {
+      assert(policyBlockHasOwnershipClass(policy, contract.ownershipClass), `Story 3: ${contract.name} ownershipClass drifted`);
+      const expectedPhases = contract.phases === 'all' ? ALL_PHASES : contract.phases;
+      assert(sameStringArray(policy.allowedPhases, expectedPhases), `Story 3: ${contract.name} phase policy drifted`);
+      assert(!policy.gateEvidence, `Story 3: ${contract.name} policy must not grant gateEvidence`);
+    }
+  }
+
+  const handlerText = read('packages/main/src/handlers/finding-ledger.ts');
+  assert(handlerText.includes('queryFindingLedger') && handlerText.includes('verifyFindingLedgerQueryRow'), 'Story 3: protected read-only query/verifier contract missing');
+  assert(handlerText.includes("gateEvidence: false") && handlerText.includes("lifecycleAuthority: 'none'"), 'Story 3: query rows must carry explicit non-authority markers');
+  assert(!/from\s+['"]\.\.\/core\/(?:finding-identity|finding-applicability-gate|dynamic-finding-gate|finding-rollout-scorecard)\.js['"]/.test(handlerText), 'Story 3: forbidden Story 2/Story 1 import accepted');
+  const protectedQuerySurface = handlerText.slice(
+    handlerText.indexOf('export function queryFindingLedger('),
+    handlerText.indexOf('export const RUNTIME_EVIDENCE_PRIVATE_KEY_ENV'),
+  );
+  assert(!/\b(?:ledgerPath|protectedPath|lockPath|tempPath|artifactStoreRoot|storagePath|realPath)\b/.test(protectedQuerySurface), 'Story 3: protected query surface contains a path-bearing field');
+  for (const consumerPath of [
+    'packages/main/src/core/machine.ts',
+    'packages/main/src/core/advisory.ts',
+    'packages/main/src/core/lifecycle-registry.ts',
+    'packages/main/src/handlers/phase-gates.ts',
+    'packages/main/src/handlers/transition-orchestrator.ts',
+  ]) {
+    const consumerText = read(consumerPath);
+    assert(!/\b(?:finding_ledger_query|queryFindingLedger)\b/.test(consumerText), `Story 3: unregistered direct lifecycle consumer in ${consumerPath}`);
+  }
+
+  const registrySource = read(processFactRegistryPath);
+  const persistencePolicies = extractConstInitializer(
+    registrySource,
+    'PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES',
+    processFactRegistryPath,
+  );
+  for (const recordClass of ['persistence', 'candidate', 'route', 'baseline', 'history', 'standalone-receipt', 'ledger-receipt']) {
+    const escaped = recordClass.replace('-', '\\-');
+    assert(
+      new RegExp(`recordClass: '${escaped}',[^\\n]+level: 'L2'[^\\n]+allowedConsumers: \\['finding_ledger_query'\\][^\\n]+gateEvidence: false[^\\n]+lifecycleAuthority: 'none'`).test(persistencePolicies),
+      `Story 3: ${recordClass} persistence row must remain L2/query-only/non-authoritative`,
+    );
+  }
+  assert(!/level: 'L4'|gateEvidence: true|lifecycleAuthority: '(?:blocker|pass|unblock|gate)'/.test(persistencePolicies), 'Story 3: persistence-only row policy was promoted to lifecycle authority');
+  const runtimeReceiptPolicy = extractConstInitializer(
+    registrySource,
+    'PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY',
+    processFactRegistryPath,
+  );
+  assert(/recordType: 'runtime_evidence_receipt'/.test(runtimeReceiptPolicy), 'Story 3: runtime receipt policy missing');
+  assert(/level: 'L3'/.test(runtimeReceiptPolicy), 'Story 3: runtime receipt must stay L3 gate-eligible input, distinct from L2 persistence');
+  assert(/producer: 'core\/runtime-evidence-receipt \+ handlers\/finding-ledger\.verify'/.test(runtimeReceiptPolicy), 'Story 3: runtime receipt verifier producer drifted');
+  assert(/gateEvidence: false/.test(runtimeReceiptPolicy) && /lifecycleAuthority: 'gate-eligible-input-only'/.test(runtimeReceiptPolicy), 'Story 3: runtime receipt policy must not claim direct lifecycle authority');
+  const dependencyTransition = read('packages/main/src/handlers/transition-orchestrator.ts');
+  assert(dependencyTransition.includes('assertPlanDevDependenciesDone(store, story, args.phase);'), 'Story 3: PLAN to DEV dependency gate is not wired before transition mutation');
+  const dependencyGateIndex = dependencyTransition.indexOf('assertPlanDevDependenciesDone(store, story, args.phase);');
+  const firstActorSendAfterGate = dependencyTransition.indexOf('actor.send(', dependencyGateIndex);
+  const firstStoryWriteAfterGate = dependencyTransition.indexOf('store.writeStory(', dependencyGateIndex);
+  assert(dependencyGateIndex >= 0 && firstActorSendAfterGate > dependencyGateIndex && firstStoryWriteAfterGate > dependencyGateIndex, 'Story 3: dependency gate must precede actor.send and writeStory');
+  const levelRegistrySource = read(processFactLevelRegistryPath);
+  assert(/name: 'runtime:story_dependency_plan_dev_gate', level: 'L4'[^\n]+gateConsumer: 'runStoryTransition PLAN to DEV admission before phase mutation'/.test(levelRegistrySource), 'Story 3: PLAN to DEV dependency gate process fact missing');
+  assert(dependencyTransition.includes("'show', `main:${store.storyDirRel()}/${depId}/index.json`")
+    && dependencyTransition.includes("'merge-base', '--is-ancestor', branch, 'main'"),
+  'Story 3: dependency gate must prove canonical main DONE and reject an unmerged partial-DONE branch');
+  const findingLedgerArtifact = registrySource.match(/name: 'artifact:finding-ledger\.json',[\s\S]*?rationale: 'Append-only Finding persistence carrier[\s\S]*?\n  },/)?.[0] ?? '';
+  assert(/kind: 'signed-artifact'/.test(findingLedgerArtifact), 'Story 3: finding-ledger.json must be registered as a signed artifact');
+  assert(/level: 'L2'/.test(findingLedgerArtifact) && !/consumerGate:/.test(findingLedgerArtifact), 'Story 3: finding-ledger.json must remain L2 persistence-only with no lifecycle gate consumer');
+  assert(/REVIEW_RETENTION_PROTOCOL_METADATA_PATHS[\s\S]*?'finding-ledger\.json'/.test(read('packages/main/src/core/lifecycle-registry.ts')), 'Story 3: finding-ledger.json must be retained as non-authoritative REVIEW protocol metadata');
+  const lifecyclePolicy = extractConstInitializer(
+    registrySource,
+    'PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY',
+    processFactRegistryPath,
+  );
+  assert(/recordType: 'finding_lifecycle_transition'/.test(lifecyclePolicy)
+    && /level: 'L4'/.test(lifecyclePolicy)
+    && /gateEvidence: true/.test(lifecyclePolicy)
+    && /lifecycleAuthority: 'terminal-finding-state'/.test(lifecyclePolicy),
+  'Story 3: signed Finding lifecycle transition must be an explicit L4 terminal-state fact');
+  assert(/legacy_lifecycle_receipt_binding/.test(lifecyclePolicy)
+    && /current exact-signed/.test(lifecyclePolicy)
+    && /immutable carrier, record, source identity, and chain/.test(lifecyclePolicy),
+  'Story 3: pre-upgrade lifecycle authority must require current-trust exact-byte re-attestation');
+  assert(/name: 'runtime:finding_ledger_lifecycle_transition_gate', level: 'L4'[^\n]+gateConsumer: 'storyMachine\.canPassReview REVIEW to TEST gate'/.test(levelRegistrySource),
+  'Story 3: lifecycle transition gate fact missing from level registry');
+  assert(read('packages/main/src/handlers/finding.ts').includes("operation: 'append_finding_lifecycle_transition'")
+    && read('packages/main/src/core/store.ts').includes("record.recordType !== 'finding_lifecycle_transition'")
+    && read('packages/main/src/handlers/finding-ledger.ts').includes("recordType: 'legacy_lifecycle_receipt_binding'")
+    && read('packages/main/src/core/store.ts').includes('trustedLegacyLifecycleReceiptBindings'),
+  'Story 3: resolve/dismiss lifecycle record is not wired to canonical read projection');
+  const projectionPolicy = extractConstInitializer(
+    registrySource,
+    'PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY',
+    processFactRegistryPath,
+  );
+  assert(/recordType: 'finding_projection'/.test(projectionPolicy)
+    && /level: 'L4'/.test(projectionPolicy)
+    && /gateEvidence: true/.test(projectionPolicy)
+    && /lifecycleAuthority: 'current-finding-projection'/.test(projectionPolicy),
+  'Story 3: signed Finding projection must be an explicit L4 current-state fact');
+  assert(/name: 'runtime:finding_ledger_projection_gate', level: 'L4'[^\n]+gateConsumer: 'storyMachine\.canPassReview REVIEW to TEST gate'/.test(levelRegistrySource),
+  'Story 3: Finding projection gate fact missing from level registry');
+  assert(read('packages/main/src/handlers/finding-ledger.ts').includes("operation: 'append_finding_projection'")
+    && read('packages/main/src/core/store.ts').includes("record.recordType === 'finding_projection'")
+    && read('packages/main/src/core/store.ts').includes("signed.operation !== 'append_finding_projection'"),
+  'Story 3: authoritative Finding projection is not wired to signed canonical read projection');
 }
 
 function formatProcessFactLevelRegistryEntry(entry) {

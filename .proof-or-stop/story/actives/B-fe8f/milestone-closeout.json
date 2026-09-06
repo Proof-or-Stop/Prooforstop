@@ -1,0 +1,94 @@
+{
+  "schemaVersion": "proofbound.milestone_closeout.v1",
+  "storyId": "B-fe8f",
+  "phase": "TEST",
+  "generatedAt": "2026-09-06T18:38:22.449Z",
+  "sourceReport": {
+    "schemaVersion": "proofbound.milestone_status.v1",
+    "digest": "449e6c7ae940f3ad61cbcc82471c9e4599a35219bd93e67577241ce477d63eab",
+    "ledger": {
+      "present": true,
+      "state": "confirmed",
+      "hash": "sha256:058ba001d5eba1661a63d9f34e6b42e2c75348fa304da58e3d2b3d4588bd1351"
+    },
+    "groups": {
+      "completed": [
+        "M1",
+        "M2",
+        "M3",
+        "M4"
+      ],
+      "current": [],
+      "remaining": []
+    },
+    "risks": [],
+    "nextActions": [
+      "No milestone action; all ledger rows are completed or not applicable."
+    ]
+  },
+  "bindings": {
+    "headHash": "b1f7d8e75f004027b47384ea613625b0cc015a55",
+    "materialHash": "29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6",
+    "storyFilesHash": "c0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8"
+  },
+  "rows": [
+    {
+      "milestone": "M1",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Finding-system mutations are fenced, durable, idempotent and exact-CAS receipted.",
+      "acceptance": "The smoke prints Finding ledger integrity: PASS with 100 unique rows, same-ID replay, zero stale-CAS writes and no half-visible crash state.",
+      "evidence": [
+        "CHK-002:happy:0 [pass/integration_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-002:happy:1 [pass/logic_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-002:adversarial:0 [pass/logic_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-003:happy:0 [pass/logic_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-003:edge:0 [pass/logic_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-006:happy:0 [pass/integration_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M2",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Runtime evidence is content-addressed, source/artifact/environment/toolchain/trust bound and persisted exactly once through real CLI adapters.",
+      "acceptance": "The smoke prints Runtime evidence integrity: PASS and real run/verify adapter, freshness, tamper, replay and crash selectors all pass.",
+      "evidence": [
+        "CHK-004:happy:0 [pass/integration_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-004:happy:3 [pass/integration_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-004:happy:4 [pass/integration_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-004:edge:3 [pass/logic_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-004:adversarial:3 [pass/logic_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-006:happy:1 [pass/integration_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M3",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "Every genuine pre-fix contract failure is officially recorded and related to an unchanged GREEN assertion.",
+      "acceptance": "Official RED evidence exists and red_green_relation_evaluate proves baseline fail/current pass with the same assertion digest.",
+      "evidence": [
+        "CHK-001:happy:3 [pass/integration_test] node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs note=verification_run executed the pinned verifier for CHK-001:happy:3",
+        "CHK-001:happy:4 [pass/integration_test] node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs note=verification_run executed the pinned verifier for CHK-001:happy:4",
+        "CHK-001:edge:3 [pass/logic_test] node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs note=verification_run executed the pinned verifier for CHK-001:edge:3",
+        "CHK-006:happy:3 [pass/integration_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    },
+    {
+      "milestone": "M4",
+      "status": "completed (ledger=covered; checklist=complete; evidence=covered; requiredEvidence=covered)",
+      "solvedProblem": "B-03b7 waits for B-fe8f and B-e6d9 waits for both prerequisites.",
+      "acceptance": "Lifecycle fixtures prove failed early advances write no transition and merged prerequisites release only the intended dependent Story.",
+      "evidence": [
+        "CHK-005:adversarial:3 [pass/integration_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution.",
+        "CHK-006:happy:4 [pass/logic_test] node packages/main/dist/tasks/finding-ledger-runtime-smoke.js note=Tool-run recovery after verified public CLI EACCES was corrected by restoring executable permission on the linked main dist entry. Preserve the existing immutable command and selector; derive current receipts from execution."
+      ],
+      "risks": [],
+      "nextAction": "No action for this milestone."
+    }
+  ]
+}

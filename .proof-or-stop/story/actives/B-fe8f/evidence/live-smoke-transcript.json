@@ -1,0 +1,20 @@
+{
+  "storyId": "B-fe8f",
+  "expected": "The terminal prints \"red.audit_summary: current primitives classified; preFixHead=<sha>\" and, only for proven gaps, \"red.genuine_contract_failure: <reason-code>\".",
+  "actual": {
+    "command": "node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+    "exitCode": 0,
+    "stdout": "red.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS historicalBaselineFails=true currentGreenPasses=true currentCorruptedRelationRejected=true assertionUnchanged=true legacyPinnedNegativeControl=\"red.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\"\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-06T17:16:47.455Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "d159d6c9aa61f6580ced896be030e630daa0bdb3",
+  "materialHash": "29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6"
+}

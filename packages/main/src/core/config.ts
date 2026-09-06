@@ -365,6 +365,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'story_get', 'story_list', 'story_reconcile', 'identity_state_migrate', 'story_discard',
     'aux_*', // 全部辅助工具：scan/detail/coverage/locate/sync/trace/diagnose/doc_list
     'checklist_get',
+    'finding_ledger_query', // Story 3: protected read-only signed scorecard/migration projection; no payload/path exposure or lifecycle authority
     'frozen_claim_drift_check', // B-2296 CHK-003: read-only, non-blocking FROZEN_CLAIM_DRIFT advisory; allowed in any phase, writes nothing
     'truth_*', 'gap_*', 'convergence_check',
     'story_advance', // 任何阶段都可以推进（cwd 门禁负责保护）
@@ -516,6 +517,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'decision_doc_proposal', 'decision_doc_save',
     'light_review',
     'finding_add',
+    'finding_runtime_evidence_run', 'finding_runtime_evidence_verify',
     'validate', 'status', 'serve',
     'review_escalation_policy_set',
     'review_host_availability_probe',

@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "proofstory.milestone_ledger.v1",
+  "storyId": "B-fe8f",
+  "state": "confirmed",
+  "ledgerHash": "sha256:058ba001d5eba1661a63d9f34e6b42e2c75348fa304da58e3d2b3d4588bd1351",
+  "milestones": [
+    {
+      "id": "M1",
+      "sourceRequirementId": "REQ-LEDGER-EXACTLY-ONCE",
+      "claim": "Finding-system mutations are fenced, durable, idempotent and exact-CAS receipted.",
+      "doneMeans": "The smoke prints Finding ledger integrity: PASS with 100 unique rows, same-ID replay, zero stale-CAS writes and no half-visible crash state.",
+      "requiredEvidence": [
+        "red_evidence",
+        "logic_test",
+        "concurrency_test",
+        "crash_recovery",
+        "signed_receipt"
+      ],
+      "checklistRefs": [
+        "CHK-002",
+        "CHK-003",
+        "CHK-005",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-002:happy:0",
+        "CHK-002:happy:1",
+        "CHK-002:adversarial:0",
+        "CHK-003:happy:0",
+        "CHK-003:edge:0",
+        "CHK-006:happy:0"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M2",
+      "sourceRequirementId": "REQ-RUNTIME-EVIDENCE-FRESHNESS",
+      "claim": "Runtime evidence is content-addressed, source/artifact/environment/toolchain/trust bound and persisted exactly once through real CLI adapters.",
+      "doneMeans": "The smoke prints Runtime evidence integrity: PASS and real run/verify adapter, freshness, tamper, replay and crash selectors all pass.",
+      "requiredEvidence": [
+        "integration_test",
+        "signed_runtime_receipt",
+        "tamper_matrix",
+        "artifact_stability"
+      ],
+      "checklistRefs": [
+        "CHK-004",
+        "CHK-005",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-004:happy:0",
+        "CHK-004:happy:3",
+        "CHK-004:happy:4",
+        "CHK-004:edge:3",
+        "CHK-004:adversarial:3",
+        "CHK-006:happy:1"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M3",
+      "sourceRequirementId": "REQ-RED-GREEN",
+      "claim": "Every genuine pre-fix contract failure is officially recorded and related to an unchanged GREEN assertion.",
+      "doneMeans": "Official RED evidence exists and red_green_relation_evaluate proves baseline fail/current pass with the same assertion digest.",
+      "requiredEvidence": [
+        "red_evidence",
+        "red_green_relation",
+        "green_execution"
+      ],
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:3",
+        "CHK-001:happy:4",
+        "CHK-001:edge:3",
+        "CHK-006:happy:3"
+      ],
+      "status": "covered"
+    },
+    {
+      "id": "M4",
+      "sourceRequirementId": "REQ-STRICT-DEPENDENCY-ORDER",
+      "claim": "B-03b7 waits for B-fe8f and B-e6d9 waits for both prerequisites.",
+      "doneMeans": "Lifecycle fixtures prove failed early advances write no transition and merged prerequisites release only the intended dependent Story.",
+      "requiredEvidence": [
+        "lifecycle_integration_test",
+        "dependency_mutation_test"
+      ],
+      "checklistRefs": [
+        "CHK-005",
+        "CHK-006"
+      ],
+      "verificationIntentRefs": [
+        "CHK-005:adversarial:3",
+        "CHK-006:happy:4"
+      ],
+      "status": "covered"
+    }
+  ],
+  "createdAt": "2026-09-01T08:59:28.019Z",
+  "updatedAt": "2026-09-01T08:59:36.468Z",
+  "acceptedIntentBinding": {
+    "intentCollisionId": "IC-20260901083052",
+    "acceptedInterpretationHash": "sha256:6e423e0d5cd71e20654c4e5cc52ca8345c4b8bc4e5d9a227b79fa787224dabe3",
+    "acceptedAt": "2026-09-01T08:59:36.468Z"
+  }
+}

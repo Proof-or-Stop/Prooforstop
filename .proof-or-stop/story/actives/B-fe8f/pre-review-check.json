@@ -1,0 +1,904 @@
+{
+  "schemaVersion": "proofstory.pre_review_check.v1",
+  "storyId": "B-fe8f",
+  "mode": "observe",
+  "cutoffAt": "2026-09-06T16:57:14.615Z",
+  "planBasisDigest": "sha256:7d3402ddcd627b808fecc4a03d62096d5aad8b0e9615e793a93df889c68f5820",
+  "preReviewBasisArtifact": {
+    "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+    "basis": {
+      "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+      "storyId": "B-fe8f",
+      "phaseBasis": "pre_review",
+      "priorPlanBasisDigest": "sha256:7d3402ddcd627b808fecc4a03d62096d5aad8b0e9615e793a93df889c68f5820",
+      "status": "unsupported",
+      "generatedBy": {
+        "verifier": "acceptance-coverage-basis-verifier",
+        "command": "proof-or-stop pre_review_check",
+        "algorithmVersion": "v1"
+      },
+      "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+      "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+      "discoveryMethods": [
+        "scope_contract",
+        "process_fact_registry",
+        "handler_dispatch_inventory",
+        "static_call_graph",
+        "runtime_trace"
+      ],
+      "adapterResults": [
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "handler-dispatch-inventory:plan:v1",
+          "method": "handler_dispatch_inventory",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for handler_dispatch_inventory"
+          ],
+          "provenanceRefs": [
+            "registered:handler_dispatch_inventory:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/package.json",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/command-policy.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+              "scope:file:packages/main/src/core/finding-ledger.ts",
+              "scope:file:packages/main/src/core/lattice-brand.ts",
+              "scope:file:packages/main/src/core/machine.ts",
+              "scope:file:packages/main/src/core/mkdir-lock.ts",
+              "scope:file:packages/main/src/core/process-fact-levels.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+              "scope:file:packages/main/src/core/store.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/finding-ledger.ts",
+              "scope:file:packages/main/src/handlers/finding.ts",
+              "scope:file:packages/main/src/registry.ts",
+              "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+              "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:e810a5dc284b2a432b9c7ecabf117079c63470e2eba975ad481962f3d5ed7e3a"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "process-fact-registry:plan:v1",
+          "method": "process_fact_registry",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for process_fact_registry"
+          ],
+          "provenanceRefs": [
+            "registered:process_fact_registry:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/package.json",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/command-policy.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+              "scope:file:packages/main/src/core/finding-ledger.ts",
+              "scope:file:packages/main/src/core/lattice-brand.ts",
+              "scope:file:packages/main/src/core/machine.ts",
+              "scope:file:packages/main/src/core/mkdir-lock.ts",
+              "scope:file:packages/main/src/core/process-fact-levels.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+              "scope:file:packages/main/src/core/store.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/finding-ledger.ts",
+              "scope:file:packages/main/src/handlers/finding.ts",
+              "scope:file:packages/main/src/registry.ts",
+              "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+              "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:c3a965a15a3d6fbcf69ed603a723393003f36853d39ed3c612684421acbbaaf4"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "runtime-trace:plan:v1",
+          "method": "runtime_trace",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for runtime_trace"
+          ],
+          "provenanceRefs": [
+            "registered:runtime_trace:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/package.json",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/command-policy.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+              "scope:file:packages/main/src/core/finding-ledger.ts",
+              "scope:file:packages/main/src/core/lattice-brand.ts",
+              "scope:file:packages/main/src/core/machine.ts",
+              "scope:file:packages/main/src/core/mkdir-lock.ts",
+              "scope:file:packages/main/src/core/process-fact-levels.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+              "scope:file:packages/main/src/core/store.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/finding-ledger.ts",
+              "scope:file:packages/main/src/handlers/finding.ts",
+              "scope:file:packages/main/src/registry.ts",
+              "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+              "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:236208a19214bc1c87963df197e1000737cbab3c82f8094c716e96bd899603c9"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "scope-contract:plan:v1",
+          "method": "scope_contract",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for scope_contract"
+          ],
+          "provenanceRefs": [
+            "registered:scope_contract:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/package.json",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/command-policy.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+              "scope:file:packages/main/src/core/finding-ledger.ts",
+              "scope:file:packages/main/src/core/lattice-brand.ts",
+              "scope:file:packages/main/src/core/machine.ts",
+              "scope:file:packages/main/src/core/mkdir-lock.ts",
+              "scope:file:packages/main/src/core/process-fact-levels.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+              "scope:file:packages/main/src/core/store.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/finding-ledger.ts",
+              "scope:file:packages/main/src/handlers/finding.ts",
+              "scope:file:packages/main/src/registry.ts",
+              "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+              "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:34cc0b597655ca7198a8693c0274bd7058a0bedecfcb4d10dbb1f44c431161de"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "static-call-graph:plan:v1",
+          "method": "static_call_graph",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for static_call_graph"
+          ],
+          "provenanceRefs": [
+            "registered:static_call_graph:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:checklist:CHK-003",
+              "scope:checklist:CHK-004",
+              "scope:checklist:CHK-005",
+              "scope:checklist:CHK-006",
+              "scope:file:package-lock.json",
+              "scope:file:package.json",
+              "scope:file:packages/main/package.json",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/command-policy.ts",
+              "scope:file:packages/main/src/core/config.ts",
+              "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+              "scope:file:packages/main/src/core/finding-ledger.ts",
+              "scope:file:packages/main/src/core/lattice-brand.ts",
+              "scope:file:packages/main/src/core/machine.ts",
+              "scope:file:packages/main/src/core/mkdir-lock.ts",
+              "scope:file:packages/main/src/core/process-fact-levels.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+              "scope:file:packages/main/src/core/store.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/finding-ledger.ts",
+              "scope:file:packages/main/src/handlers/finding.ts",
+              "scope:file:packages/main/src/registry.ts",
+              "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+              "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:6a1fd1de1ebe7686e9ac814970c33b8072245cae6468c26a5895042e560db8dc"
+        }
+      ],
+      "scopeRefs": [
+        "scope:checklist:CHK-001",
+        "scope:checklist:CHK-002",
+        "scope:checklist:CHK-003",
+        "scope:checklist:CHK-004",
+        "scope:checklist:CHK-005",
+        "scope:checklist:CHK-006",
+        "scope:file:package-lock.json",
+        "scope:file:package.json",
+        "scope:file:packages/main/package.json",
+        "scope:file:packages/main/src/cli/command-catalog.ts",
+        "scope:file:packages/main/src/core/command-policy.ts",
+        "scope:file:packages/main/src/core/config.ts",
+        "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+        "scope:file:packages/main/src/core/finding-ledger.ts",
+        "scope:file:packages/main/src/core/lattice-brand.ts",
+        "scope:file:packages/main/src/core/machine.ts",
+        "scope:file:packages/main/src/core/mkdir-lock.ts",
+        "scope:file:packages/main/src/core/process-fact-levels.ts",
+        "scope:file:packages/main/src/core/process-fact-registry.ts",
+        "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+        "scope:file:packages/main/src/core/store.ts",
+        "scope:file:packages/main/src/core/types.ts",
+        "scope:file:packages/main/src/handlers/finding-ledger.ts",
+        "scope:file:packages/main/src/handlers/finding.ts",
+        "scope:file:packages/main/src/registry.ts",
+        "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+        "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+        "scope:file:scripts/verify-process-fact-contract.mjs"
+      ],
+      "sourceInventoryRefs": [],
+      "plannedPathRecords": [],
+      "plannedActualReconciliations": [],
+      "enumeratedPathRefs": [],
+      "excludedPathRefs": [],
+      "blindSpots": [
+        "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+        "snapshot-seal:snapshot_missing:config:proof-or-stop.config.json",
+        "unsupported discovery profile for handler_dispatch_inventory",
+        "unsupported discovery profile for process_fact_registry",
+        "unsupported discovery profile for runtime_trace",
+        "unsupported discovery profile for scope_contract",
+        "unsupported discovery profile for static_call_graph"
+      ],
+      "snapshotSeal": {
+        "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+        "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inventoryDirectoryCount": 0,
+        "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "sourceSnapshotCount": 0,
+        "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "status": "partial",
+        "issues": [
+          {
+            "code": "inventory_unsealable",
+            "targetKind": "inventory",
+            "canonicalRef": "configured-source-root"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "config",
+            "canonicalRef": "proof-or-stop.config.json"
+          }
+        ],
+        "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
+      },
+      "binding": {
+        "headHash": "40dd923bb88cfe4c5cba815af9b4db700501d039",
+        "materialHash": "29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6",
+        "storyFilesHash": "c0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8",
+        "scopeCheckDigest": "sha256:628e858da16e12e1425cb47c4c2713e2b31a7afd726d679d3fcebfb2bf4e5b51",
+        "scopeContractDigest": "sha256:db44a785eafb8b1386b23283cb58c8bd3c125a9ac2d5acf7c103a4fb0dcc7d87",
+        "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "receiptRef": "receipt:coverage-basis:B-fe8f:pre_review:9a44b325c23c5d4b",
+      "basisDigest": "sha256:3e8892840179f68f10e017ebb97d589075a8afd223d1701315187ab92b1c9d53"
+    },
+    "receipt": {
+      "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+      "receiptRef": "receipt:coverage-basis:B-fe8f:pre_review:9a44b325c23c5d4b",
+      "issuer": "acceptance-coverage-basis-verifier",
+      "issuerKeyId": "sha256:88c38c129a5fa2cc9611a6a42e29bd486882476e837bcc10cb4d8c57b1eb5c80",
+      "signerPublicKey": "TUhHCWWnF3l4K94Cb2b+UWichXM0znjU7zftclFBBMs=",
+      "storyId": "B-fe8f",
+      "phaseBasis": "pre_review",
+      "basisDigest": "sha256:3e8892840179f68f10e017ebb97d589075a8afd223d1701315187ab92b1c9d53",
+      "topologyDigest": "sha256:80f899a6331ce896d652d56b5268b894632aefab95c3b0409a12224e3fb6d3af",
+      "scopeCheckDigest": "sha256:628e858da16e12e1425cb47c4c2713e2b31a7afd726d679d3fcebfb2bf4e5b51",
+      "scopeContractDigest": "sha256:db44a785eafb8b1386b23283cb58c8bd3c125a9ac2d5acf7c103a4fb0dcc7d87",
+      "headHash": "40dd923bb88cfe4c5cba815af9b4db700501d039",
+      "materialHash": "29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6",
+      "storyFilesHash": "c0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8",
+      "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
+      "workspaceIdentityDigest": "sha256:9a1fbd2abf1b464dc46a05fa5b6b34444b3ea56e9a6a53f009f20a73a99b6fec",
+      "signature": "oMHVTd3e5QyosqWp1mt3kLbp6sC+Eaxwu8Taf5bc5TA7X6ETxDhpWDDEJRSWEyOIAFwnf4zQ9xJ3lNZwa/M6Dw=="
+    }
+  },
+  "topologyDigest": "sha256:80f899a6331ce896d652d56b5268b894632aefab95c3b0409a12224e3fb6d3af",
+  "scopeCheckDigest": "sha256:628e858da16e12e1425cb47c4c2713e2b31a7afd726d679d3fcebfb2bf4e5b51",
+  "scopeContractDigest": "sha256:db44a785eafb8b1386b23283cb58c8bd3c125a9ac2d5acf7c103a4fb0dcc7d87",
+  "storyFilesHash": "c0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8",
+  "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:ea88c32874bc36cacfc2259c46e90505820c45913e0915c40298aa662c82ab5a"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 5,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:19809a28e7544637d07628ad55e7e4e7a0d6f33717ae5b7eec2b56fdee85cd7c"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:06e583215131811b8e91b8d8bf68f82531e997d56543d4f273a807df06cc340d"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:3",
+      "itemId": "CHK-001",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:81e2198ef39d5d2f4d83ef166fb9e21f2d84ce7a4708b8ba3b78fc6072e016b2"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:9f26d5096bb44d7e761473afef9bc981a45af176ae389cd4c30ebef40744679c"
+    },
+    {
+      "intentRef": "CHK-001:edge:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:9d2b604b99e572416e45d86e61472541eb68b149a48b0163ac46c8c1d46bdb14"
+    },
+    {
+      "intentRef": "CHK-001:edge:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:9926f80fe1dfaf0d060f82afc1fd1183fde5be287e07dd731af3a4f2ed379144"
+    },
+    {
+      "intentRef": "CHK-001:edge:3",
+      "itemId": "CHK-001",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:60a10c0f567a9188c66447b9f2037d27e98a76d4e937b84b2e27c1c1d57af62f"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 8,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:286310b5f489bc577f9ffeabd729056d6469b18157840165dbb61fa915e97bed"
+    },
+    {
+      "intentRef": "CHK-001:happy:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:b80491a314cfbccbbbb04b3eabbf36f8802586a5485c104eaf85cd918a367c8e"
+    },
+    {
+      "intentRef": "CHK-001:happy:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 10,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:220a554f6d2d12e0452eded5ed63054e802b4c5bc47a9cdd74b4f20994bccaba"
+    },
+    {
+      "intentRef": "CHK-001:happy:3",
+      "itemId": "CHK-001",
+      "evidenceIndex": 11,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:055964f9dcf96774b62d1f9b9181c2c4749e609174053bf5f1f2112b9c92cc89"
+    },
+    {
+      "intentRef": "CHK-001:happy:4",
+      "itemId": "CHK-001",
+      "evidenceIndex": 12,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:e522c26831f41d15c60a3b13b53c9ba8d3b1e71f3b1b96b781de6e5ecadda5b0"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:aec8af094ed23bf5224ae2460606a3598514352cddbf72658ad49465948a138d"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d3cf3b61fd3c59da80088475dfaa498e39250a5574c8799cab51a504db3162e8"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:2",
+      "itemId": "CHK-002",
+      "evidenceIndex": 8,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:361687afbe365e5dfac66782b847c0fd348ed1a29aff6c2faa5d539c7588b3b9"
+    },
+    {
+      "intentRef": "CHK-002:edge:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d67ac706466c189c5443f78dced219a9a1202774bca2a0c3f2673a09e5c16f66"
+    },
+    {
+      "intentRef": "CHK-002:edge:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:8fbcc99358bfda4f327d3148c4b3a134dcb5ac142f23504f9f105e1e15d6b6b0"
+    },
+    {
+      "intentRef": "CHK-002:edge:2",
+      "itemId": "CHK-002",
+      "evidenceIndex": 5,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:89a62fdc040b01ac660649eb515f1c71ce889341e25ede7e499d59e1a1f66a1e"
+    },
+    {
+      "intentRef": "CHK-002:happy:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:79e162f0ccfd2e7b00fb9ccbab83022e53bbae8f39f15134b21e3256bcd59bab"
+    },
+    {
+      "intentRef": "CHK-002:happy:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:df816cfad50ff10c8109db947d91c7c2af551e227b10645a6e20d08a99128232"
+    },
+    {
+      "intentRef": "CHK-002:happy:2",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:2acce6a8588997956a37f09a7d52d3e4b6422dcf731318a96dbb4b348a3ca0c2"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 10,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:12b93b770926f01dc0b4a980d1aa0c3bb10633b9a682b7d3a91f63e266321954"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:1",
+      "itemId": "CHK-003",
+      "evidenceIndex": 11,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:849140295eaa9505cc6c2a324152f54ea9ffb728cf6aedcfdaeadfa5117b5a95"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:2",
+      "itemId": "CHK-003",
+      "evidenceIndex": 12,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:f35750b90c35fb2b7d93f80e56ae7e7caed0ed975a69790abf900c72469ddbab"
+    },
+    {
+      "intentRef": "CHK-003:adversarial:3",
+      "itemId": "CHK-003",
+      "evidenceIndex": 13,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:13ed19dd6fcf331db1c315cb46b5a5ab55fb1301883e5f9908eba583d6b69fd6"
+    },
+    {
+      "intentRef": "CHK-003:edge:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:2fa1962ad4f9f5774d4d1366ab8f135c5865b609fe28e383336b44a0bc5082ad"
+    },
+    {
+      "intentRef": "CHK-003:edge:1",
+      "itemId": "CHK-003",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:bbe01d0cb21a8d79f54e9f2ede0f3b414559f804f9b53ad14d889c571ec9ab63"
+    },
+    {
+      "intentRef": "CHK-003:edge:2",
+      "itemId": "CHK-003",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d5f56da2d701549bffdf7c088eb5f70dff85a7294c9d0ee8ea836e0bff878287"
+    },
+    {
+      "intentRef": "CHK-003:edge:3",
+      "itemId": "CHK-003",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1a500dbb38ce1484050fe6eedf9d7a0d54245b1b71ffda246c9a37ce36d797c8"
+    },
+    {
+      "intentRef": "CHK-003:edge:4",
+      "itemId": "CHK-003",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:1a2b24564de78bac7285c224eab4f7d3cecf797e941fa85180b33a4b2b3593d2"
+    },
+    {
+      "intentRef": "CHK-003:happy:0",
+      "itemId": "CHK-003",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:64a58a8b8005642dc70ce293bfadeee4d7b6cbae4ac098806b44e061ecb0e7bf"
+    },
+    {
+      "intentRef": "CHK-003:happy:1",
+      "itemId": "CHK-003",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c86eb6437cb37a202515335fa4a76aafcb04cfe4c9624a68aed071ad446019b4"
+    },
+    {
+      "intentRef": "CHK-003:happy:2",
+      "itemId": "CHK-003",
+      "evidenceIndex": 2,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:d77a6322430146f1abff0df0b823870d25193af52041983519cf78112df6d0c8"
+    },
+    {
+      "intentRef": "CHK-003:happy:3",
+      "itemId": "CHK-003",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:947ceb900159eae11b4be2fb981548d26bcdc98e831ff587815b5bc237940f3d"
+    },
+    {
+      "intentRef": "CHK-003:happy:4",
+      "itemId": "CHK-003",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6429a5c96a581785cdcfcfffb6621d3532b18f1fd514f319c58b49023e696b37"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:42de1bda5b5b2b6a32a3336dbd7e7e1b5694a614889d9d860db2561af2264706"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:1",
+      "itemId": "CHK-004",
+      "evidenceIndex": 10,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6ad93b45734c5bb3556462ed2ef2e88a6849d8a2eabf73136da21e3268dfacda"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:2",
+      "itemId": "CHK-004",
+      "evidenceIndex": 11,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e6a6fb4e772fd80ffd7073f5b962913a6bc961168b23a8e7514afa282b32a31d"
+    },
+    {
+      "intentRef": "CHK-004:adversarial:3",
+      "itemId": "CHK-004",
+      "evidenceIndex": 12,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:cd05994c739f0e248d6a56f5ac5244eec7d84fc9ef1c2689fc57bae548bdc61a"
+    },
+    {
+      "intentRef": "CHK-004:edge:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:2c44c273a524a78e811023867bdd09771cf5bbdf5ca29a9bc845d0d9662fea88"
+    },
+    {
+      "intentRef": "CHK-004:edge:1",
+      "itemId": "CHK-004",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:59b5926917e1b4ed9079959bb4c53fd62b4c5acab6f252daf4164d95a4101e78"
+    },
+    {
+      "intentRef": "CHK-004:edge:2",
+      "itemId": "CHK-004",
+      "evidenceIndex": 7,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:905805c5939874790b7ffd8bc158d1e04900fbfefeaf9a81d65d0bd2605254b4"
+    },
+    {
+      "intentRef": "CHK-004:edge:3",
+      "itemId": "CHK-004",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:028a9d30642195d4308c950ab103e809253be68f92e5e81865099359fd22eef1"
+    },
+    {
+      "intentRef": "CHK-004:happy:0",
+      "itemId": "CHK-004",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:4f23917b62e77fdef0015c9a672701962c53bfea2facfd09b71b5ac441ab22a2"
+    },
+    {
+      "intentRef": "CHK-004:happy:1",
+      "itemId": "CHK-004",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:64348da50be14faddf2616a3ded3987a12316465b121547b22a6767bbc8273d3"
+    },
+    {
+      "intentRef": "CHK-004:happy:2",
+      "itemId": "CHK-004",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:8a455b4bdb92d17efd704a3008392d25f8389608ec9e419435a2a6bb87073fd3"
+    },
+    {
+      "intentRef": "CHK-004:happy:3",
+      "itemId": "CHK-004",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:eb880f1fc8553e38c2f7637ec36ead1de873de115ed7651864188af37365110a"
+    },
+    {
+      "intentRef": "CHK-004:happy:4",
+      "itemId": "CHK-004",
+      "evidenceIndex": 4,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:aa77868fee5c79fcad510b00e70e476e25fce9f4c92fddb8217be694eb14d013"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:21edf3aac67e5209e6be6250ade19a9f4d9d792931646a5e666d95e882082599"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:405c50219158a2c3c3dea3a94977a35254e33483be99d3b84ae65fc5a3ebac24"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e3c70b4b320f7436581333df9132fe6ae65c0cab2e305c306b44a583dba9e4a5"
+    },
+    {
+      "intentRef": "CHK-005:adversarial:3",
+      "itemId": "CHK-005",
+      "evidenceIndex": 9,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:091843208b8a57fd6e168c150fe841ff94b95a3d842cfadc729d86d9aa319b4f"
+    },
+    {
+      "intentRef": "CHK-005:edge:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:3df9a73d8d0f5a4ade294311a21af390060e8a85ca61cab663f3662564004cb6"
+    },
+    {
+      "intentRef": "CHK-005:edge:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:7bd524d69aacceb5751a44a1f598b57f62020f89f24a4313a6d55eb26febbe4b"
+    },
+    {
+      "intentRef": "CHK-005:edge:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:2ddc4ae38bbe50889bc170c902af3908e44c8d63fe7a02e3bdbf2c473599fd2a"
+    },
+    {
+      "intentRef": "CHK-005:happy:0",
+      "itemId": "CHK-005",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e3102d004fd52ac9e141ad89f22082fff05353e4d13319354b5f752f33d1902d"
+    },
+    {
+      "intentRef": "CHK-005:happy:1",
+      "itemId": "CHK-005",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:199b798c0c110e34103836e0e1e78db28e9f152b431c997a60024bded895d39e"
+    },
+    {
+      "intentRef": "CHK-005:happy:2",
+      "itemId": "CHK-005",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d5699c93a5d69871c4c458bb139c6ba835edff4a06ab3aaa6f61c3390acb3082"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:12774c100999d2da5ea8a69e117dd240d023d82a0246bddefd6e078e1e357f28"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:1",
+      "itemId": "CHK-006",
+      "evidenceIndex": 10,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:86fffb0638990b89530e768079d679053292a172e5214b525a034b555d334de4"
+    },
+    {
+      "intentRef": "CHK-006:adversarial:2",
+      "itemId": "CHK-006",
+      "evidenceIndex": 11,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:12a799f4a6a5160eb055eee0fac7b66787274b9d03e36741ee2f5cca16b8998e"
+    },
+    {
+      "intentRef": "CHK-006:edge:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:883e7dfc60d274dc7d249f4ff9a8194a59abffa448cfc3afbbe7fba2a6f276a8"
+    },
+    {
+      "intentRef": "CHK-006:edge:1",
+      "itemId": "CHK-006",
+      "evidenceIndex": 7,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:5311c90db3013092498afa55635a85aac8fbad80e35108c997a6962f4e096006"
+    },
+    {
+      "intentRef": "CHK-006:edge:2",
+      "itemId": "CHK-006",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:061d52f6cd095c86b211aec2a5d30b5ba949b103bff7409b1f63b67add34477d"
+    },
+    {
+      "intentRef": "CHK-006:happy:0",
+      "itemId": "CHK-006",
+      "evidenceIndex": 0,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:c8b38f70b0cb71b9095b1b76a4fbf6ce522b9d9deeed311f1f7075a7e92aa887"
+    },
+    {
+      "intentRef": "CHK-006:happy:1",
+      "itemId": "CHK-006",
+      "evidenceIndex": 1,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:edd5e991b50dd7f25a46951811aadf1113e0f7249d680eef107baaf6fd9e8268"
+    },
+    {
+      "intentRef": "CHK-006:happy:2",
+      "itemId": "CHK-006",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:d59a760f4dc46ecb92580a33c589b4104aeaa0999618cc2eaa6786214d7a9e6a"
+    },
+    {
+      "intentRef": "CHK-006:happy:3",
+      "itemId": "CHK-006",
+      "evidenceIndex": 3,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:065e2f1249187b24d954b5fbd8a63767f6e1e75a51fbcd6dc915383b1ed85e83"
+    },
+    {
+      "intentRef": "CHK-006:happy:4",
+      "itemId": "CHK-006",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:0ee4f221a1f7632160cab00402024a9e5c75240d39d6d9d570bd87bfba6bbd2b"
+    },
+    {
+      "intentRef": "CHK-006:happy:5",
+      "itemId": "CHK-006",
+      "evidenceIndex": 5,
+      "kind": "integration_test",
+      "evidenceDigest": "sha256:4336ae23df87465911c39785343ee23d94404f00d9a91c96d8951b71d53b4c8e"
+    }
+  ],
+  "executableProof": {
+    "schemaVersion": "proofstory.pre_review_executable_proof.v1",
+    "storyId": "B-fe8f",
+    "producer": "registered-verification-command",
+    "verifier": "pre-review-check-command-runner",
+    "commandDigests": [],
+    "caseRecordsEncoding": "gzip-base64",
+    "caseRecords": "",
+    "provenance": {
+      "runnerPath": "",
+      "runnerDigest": "",
+      "targetPath": "",
+      "targetDigest": "",
+      "buildCommand": ""
+    },
+    "bindingProofs": []
+  },
+  "criticReceiptDigest": "sha256:236cabcaa1d5413fed46e5d88639e0bd73aff7e1b8d66432480234724d386dbd",
+  "codes": [
+    "PR_COVERAGE_INCONCLUSIVE",
+    "PR_PRODUCTION_PATH_UNPROVEN",
+    "PR_MUTATION_EVIDENCE_MISSING",
+    "PR_MUTATION_DID_NOT_BITE",
+    "PR_CONTROL_NOT_RESTORED",
+    "PR_TRANSCRIPT_MISSING",
+    "PR_AUTHORITY_INADMISSIBLE"
+  ],
+  "status": "inconclusive",
+  "issuedAt": "2026-09-06T16:57:14.615Z",
+  "signerPublicKey": "uendfEEh3WTk6SOX8NFS9CxZae6O6w72u/FrK9Zqu8s=",
+  "signature": "7N+63+2MUJWWYXPz0MrLFsvyyWf9gL82ui39z73ozdIgM/VrQxUNUErYjQmACLJsMCC/+sD3VWfW6uAIoV0+Cg=="
+}
