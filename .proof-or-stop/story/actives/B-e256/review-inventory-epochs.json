@@ -1202,7 +1202,7 @@
       "reviewRound": "2026-09-06T19:11:32.288Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T19:50:10.993Z",
-      "updatedAt": "2026-09-06T19:50:10.993Z",
+      "updatedAt": "2026-09-06T20:03:30.022Z",
       "cutoff": {
         "headHash": "00138bb9ea9ffd2a7ab8fb6309b65daece3f2b48",
         "materialHash": "5b2ad5e25c1ff178aac5f4d60a1ea6c599e70d33606dd5bb2115718a43046d70",
@@ -1216,7 +1216,62 @@
       ],
       "initialRunSequenceBoundary": 105,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T19:50:10.993Z",
+          "completedAt": "2026-09-06T20:03:30.022Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-106",
+              "terminal": "pass",
+              "hostIdentity": "3c9ed7dc0af62bc35670570a7c137dda4fe6b3a3e02c45563db9befb485aa3e3",
+              "promptIdentity": "a64cfc21384de6347dc9e6895bf8c9f34daf3185f988310696f5957f3a6d4dd0",
+              "evidenceIds": [
+                "B-e256:RP-075"
+              ],
+              "coverageDigest": "d47bbb3f256cc802b6db54a6e6707cca3102986f6eaa6d3c5f1ce3c46fb2c50c"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-107",
+              "terminal": "pass",
+              "hostIdentity": "3c9ed7dc0af62bc35670570a7c137dda4fe6b3a3e02c45563db9befb485aa3e3",
+              "promptIdentity": "3074d04d11c147af4c5b9fc24b2ef903c7c5879f09d9ac29e330abc21ddecc05",
+              "evidenceIds": [
+                "B-e256:RP-074"
+              ],
+              "coverageDigest": "dc987c447bbe298d3925c7a57ee20f4dc52bcebd7f6e9a2101d605664a69d997"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-108",
+              "terminal": "pass",
+              "hostIdentity": "033f85af9d1aa077d02002443224b89a676e68de7eae3fd08f8e438119e56c9e",
+              "promptIdentity": "d663420a7c5e7e8262079b5f29ff386f31a46d9a0e7bd225ed0469b54f26d9a6",
+              "evidenceIds": [
+                "B-e256:RP-076"
+              ],
+              "coverageDigest": "eecaf914b333eb04f36eec60dfa54c161ad9ceda08df7b0a8a225a9a23ce4c03"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "cross-platform-acceptance-contract",
+            "doctor-bin-target-realpath-escape",
+            "doctor-path-vs-global-package-presence-contract",
+            "promote-package-manifest-read-error-false-success",
+            "windows-doctor-command-shim-validation",
+            "windows-doctor-remediation-command-portability",
+            "windows-link-capability-skip-false-green"
+          ],
+          "verifiedFindingSetDigest": "514da621c201dae6adbb56238465fdb37f9cfa12cba76dd804834f5a2fac2120",
+          "newVerifiedFindingCount": 7,
+          "criticDigest": "9b2f6b44002b49a25fc62f89f77d25d7f693816d68bf0df7e67c3997317ea44a",
+          "saturated": false,
+          "nextRunSequenceBoundary": 109
+        }
+      ],
       "baselineFindingIds": [
         "B-e256:F-029",
         "B-e256:F-030",
@@ -1227,7 +1282,7 @@
         "B-e256:F-035",
         "B-e256:F-036"
       ],
-      "_hash": "f56483e2b5e15755f9be9b69b4b5c80db557f9468d15dec2d80c6bccd9748ad4"
+      "_hash": "d7f35854f5720971e377178729a893fb73f46a276b92ebcf7cf5f10654715b01"
     }
   ],
   "receipts": [
