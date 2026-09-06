@@ -178,6 +178,51 @@
       ],
       "signatureTag": "prompt-envelope-negative-dismissal-modifier-bound-false-positive",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-005",
+      "desc": "packages/main/src/core/prompt-envelope.ts:511-518 recognizes a safe negative dismissal observation only when `no` precedes the dismissal subject with at most four words and the optional `by` actor has at most three words. Safe word-order and actor-length equivalents therefore fall back to the whole-source co-occurrence rejection even when their later prose explicitly keeps acceptance blockers in the current Story for repair. The committed public assembleFullPromptEnvelope API rejected `By this intake, no parent Finding is closed. During implementation, acceptance blockers require repair in the current Story.` and `No parent Finding is closed by the newly created supporting Story. During implementation, acceptance blockers require repair in the current Story.` for every active modular REVIEW role. This is distinct from F-002: those inputs never reach its linked-outcome polarity decision because the initial safe observation is not recognized. It violates the related decision's word-order invariant at review-finding-triage-prompt-change-proposal.md:346-351 and leaves the second safe fixture too close to the exact grammar to prove the conceptual boundary. Add safe negative-observation word-order/actor variants and replace the fixed word-count shape with bounded relationship/polarity classification; severity high.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T16:49:20.024Z",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "reviewRunId": "B-8a40:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "156d3851db2e7919d4f9af0c939e3d2a83d4b021b8fd8036d1e236871955ebb0",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-negative-observation-shape-false-positive",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
