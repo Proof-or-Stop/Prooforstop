@@ -55,7 +55,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:521-525 treats any responsibility-outcome token in a candidate beginning with `it`, `this`, `that`, or an issue/work noun as an unsafe linked conclusion without checking assertion polarity. The committed public assembleFullPromptEnvelope API rejected both `No parent Finding is closed by this intake. It is not out of scope.` and `No parent Finding is closed by this intake. It remains the responsibility of this Story.` for every active modular REVIEW role. These are explicit safe/current-repair statements, so the new guard recreates the reviewer-startup false-positive class this Story exists to repair and contradicts the related decision requirement that the guard compare assertion polarity (review-finding-triage-prompt-change-proposal.md:346-351). The focused smoke only has positive out-of-scope/ownership outcomes and therefore misses the inverse safe polarity. Add polarity-aware linkage classification and safe counterexamples; severity high.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T16:40:29.381Z",
@@ -93,7 +93,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-dismissal-link-polarity-false-positive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Added polarity-aware safe-current-responsibility and not-out-of-scope counterexamples across every active reviewer role.",
+      "resolvedAt": "2026-09-06T17:43:40.107Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-003",
