@@ -1937,7 +1937,7 @@
       "desc": "The disposition-prohibition grammar handles modal-not and one exact neither construction but rejects ordinary negative-quantifier and forbidden-form equivalents. Across all five active REVIEW roles, [Reviewers must not mint defer_with_proof.] and [Neither reviewers nor review lanes may mint defer_with_proof.] are accepted, while each of [No reviewer may mint defer_with_proof.], [No review lane can sign FindingDeferralDisposition.], [Not one reviewer may grant defer_with_proof to the Finding.], and [Every reviewer is forbidden from minting defer_with_proof.] is rejected as unauthorized disposition minting. In packages/main/src/core/prompt-envelope.ts, isExplicitlyProhibitedDispositionAuthority requires the actor at segment start followed by modal not, or the exact neither actor nor actor form; its no-reviewer negative handling elsewhere does not participate in this actor and deferral branch. The smoke covers canonical must-not and neither forms but has no negative-quantifier polarity matrix. This is distinct from F-038 safe inspection-action synonyms and F-039 safe continuation states: the relation is a direct explicit prohibition, and only its negative quantifier or forbidden predicate changes. Extend the bounded prohibition grammar to these semantically explicit negative forms while retaining double-negation and unrelated-negation rejection, and add all-role positive, direct-negative, and negative-quantifier controls.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T19:00:53.345Z",
@@ -1976,7 +1976,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "reviewer-disposition-negative-quantifier-false-positive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Direct prohibition forms now support negative quantifiers and forbidden constructions without false rejection.",
+      "resolvedAt": "2026-09-06T19:51:32.050Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
