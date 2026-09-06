@@ -1,41 +1,55 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-06T20:44:17.033Z",
+  "checkedAt": "2026-09-06T22:51:30.873Z",
   "features": [
     {
-      "feature": "A rebuild preserves the platform executable contract before old-dist eviction: POSIX bin targets gain executable access while Windows keeps a byte-identical Node entrypoint usable through npm command shims.",
+      "feature": "A rebuild preserves the host executable contract before old-dist eviction: POSIX bin targets gain executable access while Windows keeps the byte-identical Node entrypoint used by npm command shims.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-001"
     },
     {
-      "feature": "Missing or syntactically invalid package manifests, missing bin fields, and ENOENT targets are benign; other manifest read, stat, realpath, or chmod failures propagate before the working dist is replaced.",
+      "feature": "Missing or syntactically invalid package manifests, missing bin fields, and genuinely absent targets are benign; other manifest read, stat, realpath, or chmod failures propagate before the working dist is replaced.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/understanding.json"
     },
     {
-      "feature": "Promotion rejects non-files plus final and intermediate symlink escapes and preserves the existing dist whenever staging validation fails.",
+      "feature": "Promotion rejects non-files plus final and intermediate symlink escapes, including an escaped parent whose final target is absent, and preserves the existing dist whenever staging validation fails.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/background.md"
     },
     {
-      "feature": "The registered red regression emits stable GREEN and contract selectors on the repaired candidate, remains discriminating against the unfixed baseline, and is present in validation configuration.",
+      "feature": "Both build wrappers route through the shared promoteDist boundary, and the committed regression checks that wiring and staging-before-eviction ordering.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/plan.md#CHK-001"
+    },
+    {
+      "feature": "The committed red regression emits stable GREEN and contract selectors on the repaired candidate, remains discriminating against the unfixed baseline, and is registered in validation configuration.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-002"
     },
     {
-      "feature": "Doctor emits the healthy marker only when the installed global package, PATH-selected command, declared bin-target realpath, compiled version, and host executable contract agree; package presence alone cannot substitute for PATH presence.",
+      "feature": "The real validation_plan command exposes the registered regression by stable id and label; the corrected executable-plus-argv command prints selector red-global-cli-exec-bit [B-e256 global CLI rebuild and promotion regression].",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-002.verificationIntent.edge"
+    },
+    {
+      "feature": "Doctor emits the healthy marker only when the installed global package, PATH-selected command, declared bin target, compiled version, canonical main location, and host executable contract agree; package presence alone cannot substitute for PATH presence.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-e256/proofstory.json#AC-001"
+      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-003"
     },
     {
       "feature": "Doctor resolves the declared bin target and rejects final or intermediate escapes outside the canonical package dist tree, preserving errno evidence for failed probes.",
@@ -45,18 +59,25 @@
       "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-003"
     },
     {
-      "feature": "On POSIX doctor validates executable access and renders safely quoted shell remediation; mode is an observed fact rather than a universal cross-platform promise.",
+      "feature": "On POSIX doctor requires the PATH-selected command to resolve to the declared target, validates executable access, and renders safely quoted remediation; mode is an observed fact rather than a universal cross-platform promise.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/plan.md#CHK-003"
     },
     {
-      "feature": "On Windows doctor validates the actual PATH-selected npm command shim and renders encoded PowerShell LiteralPath remediation preserving spaces, apostrophes, and percent tokens without relying on POSIX mode bits.",
+      "feature": "On Windows doctor follows PATHEXT selection, validates an actually executing npm command-shim segment, and renders encoded PowerShell LiteralPath remediation preserving spaces, apostrophes, and percent tokens without relying on POSIX mode bits.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-e256/proofstory.json#AC-001"
+      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-003"
+    },
+    {
+      "feature": "Failure to discover canonical main from a disposable Story worktree remains non-pass and produces topology diagnosis rather than certifying the worktree as the global target.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/understanding.json"
     },
     {
       "feature": "Capability skips and zero-assertion paths cannot emit the must PASS selector, while non-link Windows assertions still execute.",
@@ -73,11 +94,11 @@
       "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-001"
     },
     {
-      "feature": "Commit d65767d4b16e repairs F-029 through F-036 only through the four declared touchpoints: promote-dist.mjs, runtime-environment-checks.ts, red-global-cli-exec-bit.mjs, and global-core-realpath.test.mjs; no unrelated medium or low issue expands scope.",
-      "covered_by": "CHK-001, CHK-003",
+      "feature": "Commit 3144360a65 changes exactly six implementation, test, and configuration files, all already declared by the versioned scope contract; the validation planner smoke change is the scoped mechanical proof for CHK-002 discoverability and no unrelated path expansion is present.",
+      "covered_by": "CHK-001, CHK-002, CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "git commit d65767d4b16e7f0b19d803899f4f4b49c9d1a3a0"
+      "source": "git commit 3144360a65a67537fd594653a6386063c63b98d9"
     },
     {
       "feature": "Do not alter Codex adapter entrypoint authority, npm link or global-install mechanics, or protected build-lock/crash-safety design; doctor remains read-only and only reports remediation.",
@@ -93,29 +114,29 @@
       ".proof-or-stop/story/actives/B-e256/checklist.json",
       ".proof-or-stop/story/actives/B-e256/decision.json",
       ".proof-or-stop/story/actives/B-e256/plan.md",
-      ".proof-or-stop/story/actives/B-e256/proofstory.json",
       ".proof-or-stop/story/actives/B-e256/scope-boundary.json",
       ".proof-or-stop/story/actives/B-e256/scope-contract.json",
       ".proof-or-stop/story/actives/B-e256/understanding.json"
     ],
     "filesTriagedByName": [
-      ".proof-or-stop/story/actives/B-e256/findings.json",
       "packages/main/src/core/runtime-environment-checks.ts",
+      "packages/main/src/tasks/validation-tier-planner-smoke.ts",
       "packages/main/tests/global-core-realpath.test.mjs",
       "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+      "proof-or-stop.config.json",
       "scripts/promote-dist.mjs"
     ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 12,
-    "covered": 11,
+    "total": 15,
+    "covered": 14,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "2026-09-06T19:11:32.288Z",
-  "_hash": "31416fee4d10b35e091611154fcd0fc8f74c3ffda081fd8394ffd3551474efad",
+  "reviewRound": "2026-09-06T21:16:44.118Z",
+  "_hash": "3ca07676d319148692d09278e32866f1e9971451ffd7b17bd01b27628187bc2e",
   "openQuestions": []
 }
