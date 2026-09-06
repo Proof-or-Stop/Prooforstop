@@ -1446,7 +1446,7 @@
       "desc": "packages/main/src/tasks/done-required-validation-smoke.ts:381 (new in the F-050 repair) builds the retired brand prefix as an expression, ['LAT','TICE_'].join(''), rather than a literal. I verified with grep that the file now contains zero literal occurrences of that retired token, so the only construction is the runtime concatenation. The surrounding assertion logic is correct and matches F-050's required repair: it asserts retired ambient spellings remain semantic while canonical spellings stay session-neutral, without restoring obsolete aliases or weakening the digest assertion. The concern is narrower and is about readability and gate visibility: the line carries no comment explaining why the prefix is assembled instead of written, so a future maintainer cannot tell whether this is deliberate residue-policy compliance or accidental obfuscation, and any literal-token residue scan over this file cannot see the token it is reasoning about. CLAUDE.md documents a sanctioned route for legitimately retaining historical brand tokens, namely the identity-cutover verifier's per-file per-token rules, which would make the exception explicit and auditable instead of invisible. Suggested bounded fix: keep the same behavior and either add a one-line comment naming the residue-policy reason, or register the literal through the sanctioned per-token mechanism. Severity: low.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "suspected",
       "uncertaintyReason": "The mechanical facts are verified: the concatenation exists at that line and the file contains zero literal occurrences of the retired token. What I cannot determine from the sources I read is which residue-policy reading governs. If the policy means no new literal retired tokens may appear in product runtime source, this construction complies and only the missing explanatory comment remains. If the policy means retained historical tokens must be registered with the identity-cutover verifier's per-file per-token rules, this bypasses that registration. I did not read the residue verifier implementation or scripts/verify-proof-or-stop-residue.mjs to settle which reading applies, and I ran no test, so I am not asserting a policy violation. Filed low and suspected so it is preserved and traceable without blocking; it is non-blocking under any reading and does not affect the ledger work.",
       "agent": "proof-or-stop-review-quality",
@@ -1460,7 +1460,11 @@
       "signatureTag": "missing|ts|packages-main-tasks",
       "signatureTagSource": "auto",
       "recordId": "lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66",
-      "ledgerCommitReceiptId": "lrc_mtoik471_bl9_072179585d174fd6b76269ca944aadf4"
+      "ledgerCommitReceiptId": "lrc_mtoik471_bl9_072179585d174fd6b76269ca944aadf4",
+      "resolvedAt": "2026-09-06T14:52:59.744Z",
+      "resolvedReason": "Fixed in source commit 826ea187224bf510c801834cac9e8928ad29041c and retained by main synchronization 1597cc699b8ac3d89837dab83b4b3cf8d5bff867. The done-required-validation smoke now explains its test-only prefix and preserved historical semantic inputs; production token assertions and the open-Finding latest-run rule are unchanged. The original workflow failure was an open RR-111 finding after RR-114 became latest, not material hash drift. Resolve this repaired original observation rather than rebinding or deleting it. Focused GREEN: main build, done-required-validation-smoke and residue guard passed; logs /tmp/bfe8f-f055-validation.wbMxw0/. Final genuine CLI validation completed on 2026-09-06: 132/132 commands have code=0, aggregate allPass=true; full original output /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-056",

@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "16b2a113c08c1da1115786210e0300fb8fbe7b864edf3993e251e4f61c63271c",
+  "committedLedgerDigest": "14f63b5f6fde5001bb3525426e56086aa9e4b8130a23e7968df4c60df2b7e2a2",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2510,6 +2510,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T14:07:06.791Z"
+    },
+    {
+      "recordId": "lr_mtpxlfqa_ea8_f0a03346c6e74a22a2ae1904f2781b2e",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-ac521b37-4b01-4eae-9db3-2d9e188ce886",
+        "findingId": "B-fe8f:F-055",
+        "findingRecordId": "lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-06T14:52:59.744Z",
+        "reason": "Fixed in source commit 826ea187224bf510c801834cac9e8928ad29041c and retained by main synchronization 1597cc699b8ac3d89837dab83b4b3cf8d5bff867. The done-required-validation smoke now explains its test-only prefix and preserved historical semantic inputs; production token assertions and the open-Finding latest-run rule are unchanged. The original workflow failure was an open RR-111 finding after RR-114 became latest, not material hash drift. Resolve this repaired original observation rather than rebinding or deleting it. Focused GREEN: main build, done-required-validation-smoke and residue guard passed; logs /tmp/bfe8f-f055-validation.wbMxw0/. Final genuine CLI validation completed on 2026-09-06: 132/132 commands have code=0, aggregate allPass=true; full original output /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "04da0cdd984472fd65b1c4945c30ab27d48f3b551a0475c50d32b2bd4dd00699",
+      "priorDigest": "16b2a113c08c1da1115786210e0300fb8fbe7b864edf3993e251e4f61c63271c",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T14:52:59.746Z"
     }
   ],
   "receipts": [
@@ -6937,6 +6960,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "0907276e3e06d68f14fdb0311c2dc786f65731ef50403a82775b1b20177c5031",
         "signature": "s0f+yQ0MGogT+I7IK/+sQtpicLUGJ2SOzHSSsKKuDOWTe+V/KeqbEJT6wmsVF1FwGsmXZ0w+ruoVAEgRykvuCg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtpxlfqb_ea8_628e5e9779ac4066b694603038eb5ad8",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66:resolved",
+      "requestDigest": "b5c46fb6f2f90b473e3cd50a9655207cd37d1af99fd48c9994458d8350032e09",
+      "recordIds": [
+        "lr_mtpxlfqa_ea8_f0a03346c6e74a22a2ae1904f2781b2e"
+      ],
+      "priorLedgerDigest": "16b2a113c08c1da1115786210e0300fb8fbe7b864edf3993e251e4f61c63271c",
+      "committedLedgerDigest": "14f63b5f6fde5001bb3525426e56086aa9e4b8130a23e7968df4c60df2b7e2a2",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "eea6ae9e-1a3b-41b2-a421-9cc4305a260b",
+      "committedAt": "2026-09-06T14:52:59.746Z",
+      "replayed": false,
+      "exactRequestDigest": "f4ceab9279516887c4123d581a7eae3d47e5a5864bae72b6415de5a74402924f",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtpxlfqb_ea8_628e5e9779ac4066b694603038eb5ad8",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding-lifecycle:lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66:resolved",
+        "exactRequestDigest": "f4ceab9279516887c4123d581a7eae3d47e5a5864bae72b6415de5a74402924f",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtpxlfqa_ea8_f0a03346c6e74a22a2ae1904f2781b2e"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtoik470_bl9_60d7eb34440b49799beb730ba4ec1e66",
+            "expectedRecordHash": "be3acbf16801bf22e28ffd1a5853d57e44c90ebc61aebf5fca7505a68bfa25c9",
+            "observedChainHeadId": "lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3",
+            "observedChainHeadHash": "91f6e5e0926608ad94de9cc562408f1b79cdac1f67c91f4670b971b14e0373ce",
+            "predicateDigest": "704f990504aea853d8f5408f2f1d1aa6b3286bf60e12d23f4b142c2059c24b79"
+          }
+        ],
+        "priorLedgerDigest": "16b2a113c08c1da1115786210e0300fb8fbe7b864edf3993e251e4f61c63271c",
+        "committedLedgerDigest": "14f63b5f6fde5001bb3525426e56086aa9e4b8130a23e7968df4c60df2b7e2a2",
+        "replayed": false,
+        "committedAt": "2026-09-06T14:52:59.746Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "eea6ae9e-1a3b-41b2-a421-9cc4305a260b",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "5f1c42086b5f9d1f7cf84ac77c49347d8f083e8d3830e2442274bd4d494a86e3",
+        "signature": "UKX+nxrHd7e+7eP0Y19NUOFZ2E3SBAarwGKtu7lzsLfgA6lz2AQB+XlAzYxia3DzAO/CK+zYB5si0bq244+zCw=="
       }
     }
   ]
