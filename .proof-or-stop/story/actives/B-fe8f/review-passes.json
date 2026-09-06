@@ -2924,6 +2924,52 @@
       },
       "readDiagnostics": [],
       "_hash": "aa0d10abe1071fefdde3b213c08b04d0fe1cbb1e69b2d1dcb955ee9bd7b2f5fe"
+    },
+    {
+      "id": "B-fe8f:RP-077",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Current RI005 coverage-only re-attestation after a real committed-state repair, not a blind retry. RR123 terminal was rejected once because uncommitted bug.json failed closeout retention. Independently confirmed bug.json is now clean and commit5feac0c7e108aeab0927dafa85a0ef7bf7190ff7 contains only the eight CLI-generated lines registering open BUG-CERT-002 under CHK006. Read evaluateReviewRunMetadataRetention at review-run.ts1216-1283: it derives changed paths from run.headHash..HEAD plus dirty Story paths. New canonical RR127 binds committed5feac0c and SAFE_INCREMENTAL/RP074; no policy, source, signature or owner-authority weakening. Reused the already completed actual Story-wide audit after another empty source/test/script/config diff from9754c4b. All six frozen happy/edge/adversarial intent groups remain mechanically covered:71must,71current,missing0,waiver0. Previously independently verified all causal receipt signatures/execution-key/hash/Story/pass/exit0/selector bindings; immediately preceding independent production strict freshness check still matched materialff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d/storyFiles15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607. This terminal does not clear BUG-CERT-002: my independent focused npm run test:proof-or-stop-residue exited1 in0.31s, with exactly one brand-decision failure at certification-window.ts189. Inspected its current detector/token derivation and positive/negative assertions plus root command wiring. Existing coverage detects this known integration defect; no separate missing-test root cause was found. Read official done-required-evidence in full: currentFAIL, buildPASS/922ms, root npmtestFAIL exit1/52681ms with5/65 passed and the remainder interrupted. No aggregatePASS, current heavy validation, quorum or DONE claim. Native quality is assigned canonical Finding registration for the same registered bug; no duplicate Finding from this lane and no disposition change. Repair must preserve the fully inspected certification assertions for four deletions/four rename-old-side tombstones, exact digests, blob/deletion/domain changes,48build plus6nearby controls and9live/unknown/near-miss refusals while satisfying the existing residue gate without loosening it. Focused certification GREEN is separate from root suite and71receipts and cannot discharge this failure. F048/F049 remain unchanged suspected. No additional coverage Finding. Actual full-read sources retained in manifest; guard and review-run sections were bounded excerpts, not falsely claimed whole-file reads. No expensive test, build, source/bug/checklist/phase/lease/quorum mutation in this re-attestation; after this single terminal attempt all reviewer writes stop.",
+      "createdAt": "2026-09-06T16:32:37.815Z",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "reviewRunId": "B-fe8f:RR-127",
+      "envelopeId": "c87ef60fee9ab87ec1a2d370403d6ab467309fe174da515d0d6d4de8b65cdd68",
+      "writerSessionId": "sess-6d2c0609b0d0cdcf53060e334118e702",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/background.md",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c2b59a44777504bbb955631ab45930942fc95a514d2803eb5eeb16207a7258c8"
+      },
+      "readDiagnostics": [],
+      "_hash": "c0e0cba1ed478d0cbbc7396b873a68f78d48544aad2e545496b236e56bd47d07"
     }
   ]
 }
