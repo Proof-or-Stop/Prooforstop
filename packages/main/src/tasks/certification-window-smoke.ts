@@ -12,11 +12,13 @@
 
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { StoryStore } from '../core/store.js';
-import { CERTIFICATION_DOMAIN_PATH_RULES } from '../handlers/certification-window.js';
+import { CERTIFICATION_DOMAIN_PATH_RULES, deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
+import { causalDigest } from '../core/causal-evidence.js';
+import { resolveStoryChangedFiles } from '../core/story-aware-validation.js';
 import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
@@ -934,9 +936,9 @@ assertStatusSurface(metadataStatus, 'RUNNING');
 // admitted while a story-owned commit invalidates the same window.
 const selectiveRoot = makeGitRoot();
 git(selectiveRoot, ['checkout', '-b', 'story/B-cw-selective']);
-mkdirSync(join(selectiveRoot, 'src'), { recursive: true });
-writeFileSync(join(selectiveRoot, 'src', 'app.ts'), 'export const n = 1;\n');
-git(selectiveRoot, ['add', 'src/app.ts']);
+mkdirSync(join(selectiveRoot, 'packages/main/src/core'), { recursive: true });
+writeFileSync(join(selectiveRoot, 'packages/main/src/core/app.ts'), 'export const n = 1;\n');
+git(selectiveRoot, ['add', 'packages/main/src/core/app.ts']);
 git(selectiveRoot, ['commit', '-m', 'story source baseline']);
 const selectiveStoryId = 'B-cw-selective';
 const selectiveStore = makeStore(selectiveRoot, selectiveStoryId);
@@ -960,8 +962,8 @@ git(selectiveRoot, ['commit', '-m', 'unrelated material change']);
 git(selectiveRoot, ['checkout', 'story/B-cw-selective']);
 git(selectiveRoot, ['merge', 'main', '--no-edit']);
 assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId }), 'ADMITTED');
-writeFileSync(join(selectiveRoot, 'src', 'app.ts'), 'export const n = 2;\n');
-git(selectiveRoot, ['add', 'src/app.ts']);
+writeFileSync(join(selectiveRoot, 'packages/main/src/core/app.ts'), 'export const n = 2;\n');
+git(selectiveRoot, ['add', 'packages/main/src/core/app.ts']);
 git(selectiveRoot, ['commit', '-m', 'story source change']);
 assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId }), 'INVALIDATED');
 
@@ -1171,4 +1173,145 @@ console.log(findingOutput);
   assert.equal(controlHits.length, 2, 'positive control: overlapping rules must be observable as a double match');
 
   console.log('certification domain path rules: mutually exclusive across 24 probe paths (F-393 guard, with positive control)');
+}
+
+// BUG-CERT-001: use the real Git resolver and production derivation, not a
+// classifier imitation. Historical inputs below are migration-only fixtures;
+// live files in the retired namespace must never gain current authority.
+{
+  const failures: string[] = [];
+  const check = (name: string, test: () => void): void => {
+    try {
+      test();
+      console.log(`certification path regression: PASS ${name}`);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      failures.push(`${name}: ${detail}`);
+      console.error(`certification path regression: RED ${name}: ${detail}`);
+    }
+  };
+  const write = (dir: string, path: string, content: string): void => {
+    mkdirSync(dirname(join(dir, path)), { recursive: true });
+    writeFileSync(join(dir, path), content);
+  };
+  const commit = (dir: string, label: string): void => {
+    git(dir, ['add', '-A']);
+    git(dir, ['commit', '-m', label]);
+  };
+  const historicalRoot = '.lattice/story/actives/B-c011';
+  const historicalNames = [
+    'background.md', 'checklist.json', 'execution-boundary.json', 'index.json',
+    'init-check.json', 'process-events.jsonl', 'scope-boundary.json', 'scope-freeze-check.json',
+  ];
+  const buildPaths = ['packages/lab/package-lock.json', 'packages/utils/package-lock.json'];
+
+  check('sibling build inputs have one domain and nearby ordinary files remain integration', () => {
+    const mismatches: string[] = [];
+    for (const pkg of ['lab', 'utils']) {
+      for (const dir of ['', 'src/', 'scripts/']) {
+        for (const name of ['package.json', 'package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb', 'tsconfig.json', 'tsconfig.build.json', 'proof-or-stop.config.json']) {
+          const path = `packages/${pkg}/${dir}${name}`;
+          const hits = CERTIFICATION_DOMAIN_PATH_RULES.filter(([, pattern]) => pattern.test(path)).map(([domain]) => domain);
+          if (JSON.stringify(hits) !== JSON.stringify(['build-input'])) mismatches.push(`${path} => ${hits.join('+')}`);
+        }
+      }
+      for (const name of ['package-lock.json.backup', 'scripts/check.mjs', 'src/logic.ts']) {
+        const path = `packages/${pkg}/${name}`;
+        assert.deepEqual(CERTIFICATION_DOMAIN_PATH_RULES.filter(([, pattern]) => pattern.test(path)).map(([domain]) => domain),
+          ['integration'], `nearby non-build input remains integration: ${path}`);
+      }
+    }
+    assert.deepEqual(mismatches, [], `ambiguous sibling build inputs: ${mismatches.join('; ')}`);
+  });
+
+  check('real deleted and renamed migration inputs retain exact tombstone and blob hashes', () => {
+    const dir = makeGitRoot();
+    try {
+      for (const name of historicalNames) write(dir, `${historicalRoot}/${name}`, `unique historical ${name}\n`);
+      const laterTombstone = '.lattice/story/actives/B-c012/background.md';
+      write(dir, laterTombstone, 'a separate retained historical subject\n');
+      for (const path of buildPaths) write(dir, path, '{"fixture":"baseline"}\n');
+      commit(dir, 'baseline historical metadata and sibling build inputs');
+      git(dir, ['checkout', '-b', 'story/B-c011']);
+      const renamed = new Set(['background.md', 'execution-boundary.json', 'scope-boundary.json', 'scope-freeze-check.json']);
+      for (const name of historicalNames) {
+        const oldPath = `${historicalRoot}/${name}`;
+        if (renamed.has(name)) {
+          const currentPath = `.proof-or-stop/story/actives/B-c011/${name}`;
+          mkdirSync(dirname(join(dir, currentPath)), { recursive: true });
+          renameSync(join(dir, oldPath), join(dir, currentPath));
+        } else rmSync(join(dir, oldPath));
+      }
+      for (const path of buildPaths) write(dir, path, '{"fixture":"current"}\n');
+      commit(dir, 'migrate retained old metadata and change sibling lockfiles');
+      const entries = resolveStoryChangedFiles(dir, 'HEAD', dir);
+      const oldEntries = entries.filter(entry => entry.path.startsWith(`${historicalRoot}/`));
+      assert.equal(oldEntries.length, historicalNames.length, 'the actual resolver must retain every historical old-side path');
+      assert.equal(oldEntries.filter(entry => entry.status === 'deleted').length, 4);
+      assert.equal(oldEntries.filter(entry => entry.status === 'renamed' && entry.oldPath === entry.path).length, 4);
+      assert.ok(oldEntries.every(entry => entry.blobId === '<deleted>'));
+      const hashes = deriveCertificationDomainInputHashes(dir, 'HEAD', dir);
+      assert.ok(hashes, 'known migration tombstones and sibling lockfiles must produce complete causal hashes');
+      assert.equal(hashes['certification:review-subject'], causalDigest(oldEntries.map(entry => `${entry.path}\0<deleted>`).sort()),
+        'no historical path may be discarded from the review-subject digest');
+      assert.equal(hashes['certification:build-input'], causalDigest(entries.filter(entry => buildPaths.includes(entry.path))
+        .map(entry => `${entry.path}\0${entry.blobId}`).sort()), 'sibling build inputs bind the real current Git blobs');
+
+      write(dir, buildPaths[0], '{"fixture":"changed bytes"}\n');
+      commit(dir, 'change actual build input blob');
+      const changed = deriveCertificationDomainInputHashes(dir, 'HEAD', dir)!;
+      assert.ok(changed);
+      assert.notEqual(changed['certification:build-input'], hashes['certification:build-input'], 'content drift changes its causal hash');
+      assert.equal(changed['certification:review-subject'], hashes['certification:review-subject']);
+      rmSync(join(dir, buildPaths[1]));
+      commit(dir, 'delete actual build input');
+      const deleted = deriveCertificationDomainInputHashes(dir, 'HEAD', dir)!;
+      assert.ok(deleted);
+      assert.notEqual(deleted['certification:build-input'], changed['certification:build-input'], 'a deletion cannot reuse the live blob digest');
+      assert.equal(resolveStoryChangedFiles(dir, 'HEAD', dir).find(entry => entry.path === buildPaths[1])?.blobId, '<deleted>');
+      rmSync(join(dir, laterTombstone));
+      commit(dir, 'retain another historical migration tombstone');
+      const extended = deriveCertificationDomainInputHashes(dir, 'HEAD', dir)!;
+      assert.ok(extended);
+      assert.notEqual(extended['certification:review-subject'], deleted['certification:review-subject'], 'changing the tombstone path set changes its causal hash');
+      assert.equal(extended['certification:build-input'], deleted['certification:build-input']);
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  check('unknown paths, near misses and live retired-namespace files fail closed', () => {
+    const scenarios: Array<{ path: string; action: 'added' | 'modified' | 'renamed' | 'deleted' }> = [
+      { path: `${historicalRoot}/background.md`, action: 'added' },
+      { path: `${historicalRoot}/checklist.json`, action: 'modified' },
+      { path: `${historicalRoot}/background.md`, action: 'renamed' },
+      { path: `${historicalRoot}/findings.json`, action: 'deleted' },
+      { path: `${historicalRoot}/nested/background.md`, action: 'deleted' },
+      { path: '.lattice/story/archives/B-c011/background.md', action: 'deleted' },
+      { path: '.lattice-other/story/actives/B-c011/background.md', action: 'deleted' },
+      { path: '.lattice/story/actives/not-a-story/background.md', action: 'deleted' },
+      { path: 'unclassified-input.txt', action: 'added' },
+    ];
+    for (const { path, action } of scenarios) {
+      const dir = makeGitRoot();
+      try {
+        const before = action === 'renamed' ? 'docs/old-copy.md' : path;
+        if (action !== 'added') {
+          write(dir, before, 'original historical bytes\n');
+          commit(dir, 'seed negative control');
+        }
+        git(dir, ['checkout', '-b', 'story/B-c011']);
+        if (action === 'deleted') rmSync(join(dir, path));
+        else if (action === 'renamed') {
+          mkdirSync(dirname(join(dir, path)), { recursive: true });
+          renameSync(join(dir, before), join(dir, path));
+        } else write(dir, path, 'new untrusted live bytes\n');
+        commit(dir, 'exercise fail-closed path control');
+        const entry = resolveStoryChangedFiles(dir, 'HEAD', dir).find(candidate => candidate.path === path);
+        assert.equal(entry?.status, action, `real resolver must exercise ${action} ${path}`);
+        assert.equal(deriveCertificationDomainInputHashes(dir, 'HEAD', dir), undefined,
+          `${action} ${path} must not be silently skipped or admitted as a migration tombstone`);
+      } finally { rmSync(dir, { recursive: true, force: true }); }
+    }
+  });
+  assert.deepEqual(failures, [], 'BUG-CERT-001: every real path regression must pass');
+  console.log('certification migration and sibling build-input regression: PASS');
 }
