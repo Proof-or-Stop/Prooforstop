@@ -589,7 +589,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 requires every cross-source conclusion to contain TRIAGE_CAUSAL_LINK before it can be related to an earlier standalone negative-dismissal observation. The same direct/coreferent authority relationship already declared unsafe within one leaf therefore becomes fail-open when split across leaves: story.description = `No parent Finding is closed by this intake.` plus checklist.context = `It is out of scope.` is individually unclassified and the cross-source pass skips it solely because the second leaf has no Accordingly/Therefore-style token. This leaves F-009 incompletely repaired despite its resolvedReason claiming location-preserving combined Task Context classification. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1177-1215 and :1441-1450 cover only causal cross-leaf variants, while its same-leaf matrix at :1076-1088 proves that `It is out of scope.` is an intended unsafe linked conclusion. This is distinct from F-012, which is the inverse unrelated-causal false-positive, and from F-001, which concerns same-leaf distance. Relate unambiguous source-leading coreference across leaves as well as causal continuations, retain polarity checks for `It is not out of scope`, and add all-role direct/coreferent split witnesses. Severity high because an integrity-valid reviewer envelope can still carry dismissal-based applicability authority while the focused smoke reports PASS.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T17:47:20.023Z",
@@ -629,7 +629,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-cross-source-leaf-authority-split",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "The repair now evaluates direct cross-field coreference across all five reviewer roles, with matching safe controls.",
+      "resolvedAt": "2026-09-06T19:50:39.651Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-014",
