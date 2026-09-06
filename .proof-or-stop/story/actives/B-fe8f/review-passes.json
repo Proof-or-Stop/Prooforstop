@@ -2684,6 +2684,49 @@
       },
       "readDiagnostics": [],
       "_hash": "2f01c0cd053b8f3778c4e3e9c76f37d041864ad96f4b4d36d7f3f39887b9f651"
+    },
+    {
+      "id": "B-fe8f:RP-071",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 28 independent story-level test-coverage PASS, using the canonical full-context envelope for RR-116 (not a prior round). Actual adapter identity from startup: provider=codex, session=sess-6d2c0609b0d0cdcf53060e334118e702. Reviewed every CHK-001 through CHK-006 intent/evidence mapping against Section 9.3 and reused actual earlier unchanged-source reads; background, plan, understanding, governing decision, core Finding ledger/runtime/Store and full-smoke source are unchanged from the audited46a basis. All frozen intent contracts remain unchanged, with happy/edge/adversarial must columns on every item. Independent production strict coverage/freshness computation: total71, covered71, required gaps0, waivers0, exceptions none, current material05d627b81c424d2c4a4256844e86f5197d2b1bb2ff378a67fe3b2f4d93cabd21 and storyFiles918b0916f485717173b4d10d3503775156ab1c830d1bd54b477ff5a82964e5e1. Reverified all71 exact causal receipt identities and signatures with no invalid receipts:13 RED-verifier and58 Finding ledger/runtime smoke receipts. Actual receipt HEAD is e39f73e566c52879537499ea3a27ae04d5bf0860, not source2086; the production freshness check accepts its exact current material binding. My initial diagnostic incorrectly required literal source-commit equality; separating checks confirmed signatures/hash/story/status all valid and source freshness true, not a repository defect. Source2086-to-current diff is empty. Read actual original full validate stdout JSON, observer summary and relevant stderr in /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F:132 command results all code0, allPass=true, child exit0, no causal_preflight_refused. Read current Store test evidence:PASS, disposition executed, same fresh material/storyFiles, recorded HEADf3cc215c9d6f6cd45bb6e4674b8a69f9e512464c, coverage71/71. I did not rerun expensive tests; log inspection and signature/freshness verification are independent read-only work, not a claim of originating those executions. F055-F060 structured resolutions were challenged against actual diffs and RED/GREEN logs. F055 adds explanatory comments without changing negative semantics. F056 retains the17-row test and uses the existing seven-component renderer without changing signature predicates. F057 logs prove the eight discriminatory refusal scenarios plus existing controls pass11/11, preserving short-circuit order, real no-child-launch negatives, safe field names and positive same-owner refresh; historical root branch remains unknown, while the current full run completes. F058 changes GIT_OPTIONAL_LOCKS only inside the disposable deliberate index-mutation child; original counts/receipts/selectors/drift assertions remain. F059 is explicitly a correction of the wrong retired-Lab test oracle, supported by current cli registration and docs/CLI, with six action positives and unknown-action negatives, not an unchanged-assertion production repair. F060 retains exact static-binding digest and real-worktree official RED/relation reads, uses finite private-mirror layout detection with rejection controls, and preserves parent private-index/HEAD/config isolation; layout choice is not authority. Read same-environment RED logs and /tmp/bfe8f-f058-f060-green.gcmW8Z, with registration26/26GREEN and both other focused passes; final full validation also passes these paths. Audited merged evidence-execution/receipt delta and its added complete-output/pinned-manual controls as integration dependencies, without expanding into unrelated main work or Story1/2 policy. Current intent diagnostic has no gaps; acceptance-rollout check is current PASS/enforce with cohort full3x2, which is not this Story actual independent-host quorum. The existing smoke explicitly labels the real Codex hook token unconfirmed/CANDIDATE-only; no host-identity claim is strengthened. F048/F049 remain original suspected observations with accountable compatibility drafts, not repaired or formally deferred; unsupported cross-clone key recovery is not promised. No new Finding, no current lane coverage blocker. This review is not TEST/DONE completion or permission to bypass later gate freshness. ReadManifest reports actual full reads (including unchanged portions reused with inspected diffs) separately from filename/title triage; specification excerpts are not claimed as full-corpus reads. No code, checklist, scope, finding-status or owner mutation.",
+      "createdAt": "2026-09-06T15:02:28.387Z",
+      "reviewRound": "2026-09-06T14:51:44.866Z",
+      "reviewRunId": "B-fe8f:RR-116",
+      "envelopeId": "d042ae37d836cf24693b09747c2f95a1eae8432bcddcb524ea5771b0cb6bb423",
+      "writerSessionId": "sess-6d2c0609b0d0cdcf53060e334118e702",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/background.md",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/CLI.md",
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2c551a03e168ddf3a288e032575e926e0005714011f101e07fb6d88e29df425a"
+      },
+      "readDiagnostics": [],
+      "_hash": "358745120d5f835d059b1fcbd9400a944ae8d16fc300c983e1a26bb4785b099c"
     }
   ]
 }
