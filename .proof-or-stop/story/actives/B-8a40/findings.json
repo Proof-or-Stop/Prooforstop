@@ -1981,6 +1981,52 @@
       "resolvedAt": "2026-09-06T19:51:32.050Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8a40:F-041",
+      "desc": "Post-remediation structural-leaf scanning still fails open because renderedStructuralAuthorityText treats every whitespace-free path-shaped string as non-prose before applying the same hyphen and underscore normalization used by the authority classifier. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject the direct prose forms of [finding_dismiss-establishes-out_of_scope], [Reviewers-grant-defer_with_proof-to-the-Finding], and [This-Story-adds-an-applicability-field-to-the-Finding-schema] after separator expansion, but admit each exact encoded string from checklist.files.modify, scope.allowedModify, and scope.fileRules.path. In packages/main/src/core/prompt-envelope.ts lines 1058-1063, the structural exemption regex returns null for these strings, so the new enumeration at lines 1075-1123 never sends them through normalizeTriageAuthorityText even though hyphens and underscores would reconstruct the complete forbidden assertions. The round-3 structural matrix in packages/main/src/tasks/prompt-full-context-envelope-smoke.ts uses unsafe strings containing spaces and ordinary path controls, so it cannot detect this normalization mismatch and the focused smoke remains green. This is a distinct residual after F-019: the leaves are now enumerated, but an identifier-shape shortcut suppresses their semantic scan. Normalize first and prove the residual is a closed structural token, or scan encoded separators, and add all-role tests for every exempt structural surface plus ordinary path controls. Severity high because Story-authored trusted context can still mint dismissal, reviewer-disposition, or schema authority before envelope digests.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T19:54:23.171Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-074",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "2a1e12ab55c0065ea7c5c6c91bf58009e885e5967bb950db1f10653b984c8aa0",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "structural-leaf-normalization-encoding-authority-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
