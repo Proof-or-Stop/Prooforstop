@@ -1987,7 +1987,7 @@
       "desc": "Post-remediation structural-leaf scanning still fails open because renderedStructuralAuthorityText treats every whitespace-free path-shaped string as non-prose before applying the same hyphen and underscore normalization used by the authority classifier. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject the direct prose forms of [finding_dismiss-establishes-out_of_scope], [Reviewers-grant-defer_with_proof-to-the-Finding], and [This-Story-adds-an-applicability-field-to-the-Finding-schema] after separator expansion, but admit each exact encoded string from checklist.files.modify, scope.allowedModify, and scope.fileRules.path. In packages/main/src/core/prompt-envelope.ts lines 1058-1063, the structural exemption regex returns null for these strings, so the new enumeration at lines 1075-1123 never sends them through normalizeTriageAuthorityText even though hyphens and underscores would reconstruct the complete forbidden assertions. The round-3 structural matrix in packages/main/src/tasks/prompt-full-context-envelope-smoke.ts uses unsafe strings containing spaces and ordinary path controls, so it cannot detect this normalization mismatch and the focused smoke remains green. This is a distinct residual after F-019: the leaves are now enumerated, but an identifier-shape shortcut suppresses their semantic scan. Normalize first and prove the residual is a closed structural token, or scan encoded separators, and add all-role tests for every exempt structural surface plus ordinary path controls. Severity high because Story-authored trusted context can still mint dismissal, reviewer-disposition, or schema authority before envelope digests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T19:54:23.171Z",
@@ -2026,7 +2026,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "structural-leaf-normalization-encoding-authority-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf925b_14fb_0c4d4a28bc394930a38c5a33e8c3c819",
+      "resolvedAt": "2026-09-06T23:07:15.370Z",
+      "resolvedReason": "Decode structural separators before exempting path-like leaves; the encoded dismissal, reviewer-disposition and schema witnesses run across the structural surface matrix. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-042",
