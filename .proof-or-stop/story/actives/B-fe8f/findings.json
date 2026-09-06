@@ -1640,7 +1640,7 @@
       "desc": "RI-005 wave 2/3 saturation re-observation of the SAME canonical defect as B-fe8f:F-061 (critic-certified family certification-historical-tombstone-brand-decision). This is NOT a new defect family and must be grouped with F-061, which remains open and verified; I neither repaired it nor claim any all-green state. Same root, unchanged: packages/main/src/handlers/certification-window.ts:189 still reads entry.path.startsWith('.lattice/'), a deprecated brand literal used as a path DECISION inside verify-proof-or-stop-residue.mjs CHECK 4 scan scope (handlers/ is not among the skipped **/tasks/**). Bounded saturation evidence for this wave: git diff over packages, scripts, bin and config from F-061's run head 5feac0c to this run head f08b9c8 is EMPTY, the only intervening commits are review metadata, and review_incremental_context reports scopeChanged false, freshnessClassification CURRENT_MATERIAL and ELIGIBLE_NO_MATERIAL_CHANGE. Because no source changed, there is no new material in which a new defect could arise, and I found NO new defect in this wave. F-048 and F-049 remain untouched. No source edits and no heavy reruns were performed. Severity: medium.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T16:37:46.727Z",
@@ -1681,7 +1681,11 @@
       "signatureTag": "certification-historical-tombstone-brand-decision",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtq1c6sq_mem_973d502e68664f249cdb77a857867315",
-      "ledgerCommitReceiptId": "lrc_mtq1c6sq_mem_0dda0d98531341af8f03bf2c75e91d5f"
+      "ledgerCommitReceiptId": "lrc_mtq1c6sq_mem_0dda0d98531341af8f03bf2c75e91d5f",
+      "resolvedAt": "2026-09-06T17:02:46.716Z",
+      "resolvedReason": "Same concrete root as F061, repaired by the same actual change rather than dismissed or deferred. GREEN2bee7e31e2561365f507f1780fa72f07cbd51fd1 explicitly admits current root/package/entrypoint/integration build paths, composes disjoint integration exclusions from that anchored definition, and admits only the exact eight historical migration tombstone shapes before ordinary exact-one classification. No scanner, exemption, alias authority or original assertion was weakened. Same complete certification smoke exit0; build, residue, residue-inject, retired-authority guard and diff-check exit0. Real committed B-fe8f derives all six domain hashes over56changed entries. Raw logs /tmp/bfe8f-cert002.ONPs6H/. These focused results do not claim a fresh full-suite or DONE PASS. Original RED and observation preserved. Current full checklist CLI read confirms71/71 mechanical PASS on source2bee7e31; routine and DONE-required suites remain pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
