@@ -18,7 +18,8 @@
     "package.json",
     "package-lock.json",
     "packages/main/package.json",
-    "packages/main/src/core/lattice-brand.ts"
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/machine.ts"
   ],
   "allowedCreate": [
     "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
@@ -38,10 +39,9 @@
   "explicitExcludes": [
     "packages/main/src/core/candidate-spec-routing.ts",
     "packages/main/src/core/advisory.ts",
-    "packages/main/src/core/machine.ts",
     "packages/main/src/core/story-recall.ts"
   ],
-  "scopeChangeReason": "Apply accepted SEP-B-fe8f-001: add only CLI schema/phase-policy reachability files for real runtime-evidence commands; Story 2/1 semantic files stay protected exclusions.",
+  "scopeChangeReason": "User explicitly authorized all three B-fe8f closeout blockers on September6 with RED before GREEN. Exception for machine.ts is limited to F056 import plus existing signature-domain error renderer, not gate/signature changes. F055 must preserve original observation and valid reviewer binding; causal validation refusal requires demonstrated root cause and negative controls, never weaker freshness checks. All other exclusions/protection remain unchanged.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -346,7 +346,7 @@
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-05T14:35:45.193Z",
+  "updatedAt": "2026-09-06T12:59:20.650Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
