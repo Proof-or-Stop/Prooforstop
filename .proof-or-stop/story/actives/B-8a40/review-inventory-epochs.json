@@ -797,7 +797,7 @@
       "reviewRound": "2026-09-06T17:43:17.573Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T18:29:50.563Z",
-      "updatedAt": "2026-09-06T18:29:50.563Z",
+      "updatedAt": "2026-09-06T18:40:44.865Z",
       "cutoff": {
         "headHash": "72a1055a6b77a619121bbeab09b1d55765332184",
         "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
@@ -811,7 +811,69 @@
       ],
       "initialRunSequenceBoundary": 49,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T18:29:50.563Z",
+          "completedAt": "2026-09-06T18:40:44.865Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-050",
+              "terminal": "finding",
+              "hostIdentity": "89d73b224b31a5c4fb0618475b8ed4bf63820b54bc8b4ea198374f674c0eff57",
+              "promptIdentity": "dc5213aba50401c60083a3d44fb9c6b6fefb398ab335da9428cc7b7e0887f788",
+              "evidenceIds": [
+                "B-8a40:F-027"
+              ],
+              "coverageDigest": "40a092c9aaea0b3ae5e40179c955961e91ffad8ab4c9e2cb3dc364d2bf51ae93"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-052",
+              "terminal": "finding",
+              "hostIdentity": "89d73b224b31a5c4fb0618475b8ed4bf63820b54bc8b4ea198374f674c0eff57",
+              "promptIdentity": "0453014ee3d83bd1554b2da6c5dd3d8aca9ce16528c56bdf4e5b706ee8d922b6",
+              "evidenceIds": [
+                "B-8a40:F-028"
+              ],
+              "coverageDigest": "d1cb69a43ed6182ac7310d8d60054dda0197247f5b9a421ebbf4b3d70f72e5b3"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-053",
+              "terminal": "pass",
+              "hostIdentity": "a3979d2de2d715141403974b4bbb207f19d3ca9c8a67297eaaf3f5770d618316",
+              "promptIdentity": "5249d5bd1768933c7a54b9f770326a013fc215991fab809e42beaf1bde8fe026",
+              "evidenceIds": [
+                "B-8a40:RP-029"
+              ],
+              "coverageDigest": "6bd2e9d13bbdebd1754c174ce611fe4818fefc7be511774865bcc0764e872f41"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-active-voice-negative-observation-bypass",
+            "prompt-envelope-approved-segment-open-body-laundering",
+            "prompt-envelope-causal-boundary-negation-scope-bypass",
+            "prompt-envelope-cross-leaf-direct-coreference-bypass",
+            "prompt-envelope-cross-segment-negative-prefix-assignment-laundering",
+            "prompt-envelope-cross-source-local-antecedent-false-positive",
+            "prompt-envelope-double-negation-polarity-bypass",
+            "prompt-envelope-interrogative-wrapper-authority-laundering",
+            "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+            "prompt-envelope-negative-quantifier-number-agreement-gap",
+            "prompt-envelope-quoted-fixture-greedy-span-laundering",
+            "prompt-envelope-rejected-wrapper-polarity-inversion",
+            "prompt-envelope-rendered-structural-leaf-authority-injection",
+            "prompt-envelope-same-leaf-unrelated-exclusion-false-positive"
+          ],
+          "verifiedFindingSetDigest": "fdac77deb537080f018706c5820a73860d7d6925f1f6e60ccf26a6cc9d47d141",
+          "newVerifiedFindingCount": 14,
+          "criticDigest": "5c5c8a96f1e8ebfaa20cfaafd130a30bc4d2ce86f1858e38d23e41380119d244",
+          "saturated": false,
+          "nextRunSequenceBoundary": 54
+        }
+      ],
       "baselineFindingIds": [
         "B-8a40:F-012",
         "B-8a40:F-013",
@@ -829,7 +891,7 @@
         "B-8a40:F-025",
         "B-8a40:F-026"
       ],
-      "_hash": "b9caf674b1571dcbc87cff4734a80def64c708e164d6acbdaac963d825f6637d"
+      "_hash": "7e91d79a7d889968ad275705eafd86fd382c79fa3b97276c5357c501c8c9e147"
     }
   ],
   "receipts": [
@@ -1434,6 +1496,136 @@
       ],
       "createdAt": "2026-09-06T18:29:28.580Z",
       "_hash": "fbb0b9fb3e53cbaf89f8494c2a87f5c54ec617eddb625ecc1c55f9d863af2018"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-005:CRIT-01",
+      "epochId": "B-8a40:RI-005",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "72a1055a6b77a619121bbeab09b1d55765332184",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "aggregateFindingSetDigest": "fdac77deb537080f018706c5820a73860d7d6925f1f6e60ccf26a6cc9d47d141",
+      "requiredLaneCoverageDigest": "20954a82a752cd237a88d4decacb5aaaa1eda6a10daf6d9727bd54b0bcb43f1f",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-054",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-030"
+      ],
+      "readEvidenceDigest": "4cef150c85df7cfa05753646cc3cb4c166c5189b52836152cee20548465b8251",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-012",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-source-local-antecedent-false-positive",
+          "reason": "Preserved: unrelated later-leaf local antecedent falsely joins to an earlier negative observation across sources."
+        },
+        {
+          "findingId": "B-8a40:F-013",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-leaf-direct-coreference-bypass",
+          "reason": "Preserved: direct or coreferent later-leaf conclusions bypass cross-source authority classification without an explicit causal token."
+        },
+        {
+          "findingId": "B-8a40:F-014",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-active-voice-negative-observation-bypass",
+          "reason": "Preserved: active-voice negative observations escape passive-only recognition."
+        },
+        {
+          "findingId": "B-8a40:F-015",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-cross-leaf-direct-coreference-bypass",
+          "canonicalFindingId": "B-8a40:F-013",
+          "reason": "Preserved duplicate of F-013 with additional noun-target and explicitExcludes witnesses."
+        },
+        {
+          "findingId": "B-8a40:F-016",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+          "reason": "Preserved: same-leaf all-later-segments scan falsely links unrelated exclusion by ordering alone."
+        },
+        {
+          "findingId": "B-8a40:F-017",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+          "canonicalFindingId": "B-8a40:F-016",
+          "reason": "Preserved duplicate of F-016 with explicit topic-break witness."
+        },
+        {
+          "findingId": "B-8a40:F-018",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-double-negation-polarity-bypass",
+          "reason": "Preserved: negation presence rather than parity admits affirmative double negatives."
+        },
+        {
+          "findingId": "B-8a40:F-019",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-rendered-structural-leaf-authority-injection",
+          "reason": "Preserved: rendered structural strings lack scanning or closed grammar."
+        },
+        {
+          "findingId": "B-8a40:F-020",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-negative-quantifier-number-agreement-gap",
+          "reason": "Preserved: quantifier spelling and number agreement split equivalent propositions."
+        },
+        {
+          "findingId": "B-8a40:F-021",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+          "reason": "Preserved: mutation/proof-outcome heuristic exempts a whole verificationIntent leaf."
+        },
+        {
+          "findingId": "B-8a40:F-022",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-interrogative-wrapper-authority-laundering",
+          "reason": "Preserved: interrogative boundary heuristic exempts mixed declarative prose."
+        },
+        {
+          "findingId": "B-8a40:F-023",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-quoted-fixture-greedy-span-laundering",
+          "reason": "Preserved canonical: greedy first-to-last quoted-fixture span launders unquoted interstitial authority."
+        },
+        {
+          "findingId": "B-8a40:F-024",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-quoted-fixture-greedy-span-laundering",
+          "canonicalFindingId": "B-8a40:F-023",
+          "reason": "Preserved duplicate of F-023 with independent all-role controls."
+        },
+        {
+          "findingId": "B-8a40:F-025",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-approved-segment-open-body-laundering",
+          "reason": "Preserved: approved per-segment predicates use unconstrained bodies and delete authority-bearing residue."
+        },
+        {
+          "findingId": "B-8a40:F-026",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-segment-negative-prefix-assignment-laundering",
+          "reason": "Preserved: signed-disposition continuation state skips a full segment on a negative auxiliary prefix."
+        },
+        {
+          "findingId": "B-8a40:F-027",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-causal-boundary-negation-scope-bypass",
+          "reason": "Independent family: the controlled-pair polarity scope does not reset at causal tokens already recognized by TRIAGE_CAUSAL_LINK, so negation belonging to an earlier predicate launders a later affirmative responsibility conclusion. This is separate from double-negation parity and continuation deletion."
+        },
+        {
+          "findingId": "B-8a40:F-028",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-rejected-wrapper-polarity-inversion",
+          "reason": "Independent family: the closed rejected-statement wrapper exempts an atomic relation without proving the inner proposition is unsafe, so rejecting a safe prohibition reverses the wrapper meaning. This differs from F-027 generic relation-scope analysis and from open or whole-leaf wrappers."
+        }
+      ],
+      "createdAt": "2026-09-06T18:40:27.437Z",
+      "_hash": "fced70578edbc234db3b188a168cc3f05f931e19cb57e7cae5bf10ae2da03a5c"
     }
   ]
 }

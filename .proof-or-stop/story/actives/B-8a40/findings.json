@@ -1315,6 +1315,51 @@
       ],
       "signatureTag": "prompt-envelope-rejected-wrapper-polarity-inversion",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-029",
+      "desc": "packages/main/src/core/prompt-envelope.ts:639-667 lets hasCrossSegmentDispositionAssignment skip a Finding-bearing continuation whenever evidenceOnlyContinuation matches. That regex at :657 permits up to 180 arbitrary characters before an evidence noun and another 80 arbitrary characters before `the Finding`, so it does not require the complete continuation to be evidence-only. `Reviewers inspect a signed defer_with_proof disposition. Record audit evidence and bestow it on the Finding.` is therefore admitted: the second segment matches the evidence shortcut and is skipped, while the general segment scan sees neither a new reviewer actor nor a deferral subject and cannot recover the assignment. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:758 and :779 prove that separate evidence sentences followed by a separate affirmative assignment are rejected, and :812-823 cover bounded negative/open endings; they do not combine an assignment inside the same evidence-looking continuation. This is distinct from F-026, which exploits the separate generic negative-prefix shortcut on line 661; here an affirmative evidence action with an open wildcard body launders the assignment. Replace the wildcard evidence shortcut with a complete closed evidence-only grammar or inspect residual clauses independently, and add all-role same-continuation controls. Severity high because Story Task Context can assign a future signed disposition to a Finding before reviewer-envelope digests while all declared tests remain green.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T18:42:37.301Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-055",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "9e6cabd4b78d527c2da63720aa25c63336460068e7aeda9a3a0dc85446f31a98",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-evidence-continuation-assignment-laundering",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
