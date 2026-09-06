@@ -3010,6 +3010,54 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqaz7o0_y15_af84c4654a164d8ba9a6ea5506671db7",
       "ledgerCommitReceiptId": "lrc_mtqaz7o1_y15_f0cf5e9726f14f76927f1c7088a5b92e"
+    },
+    {
+      "id": "B-8a40:F-063",
+      "desc": "packages/main/src/core/prompt-envelope.ts:738-762 recognizes the persistent severity-authority continuation `the factor ... determines Story scope` only when at most two modifier words precede the decision verb. The generic fallback at :765-784 begins only with `it|this|that`, so it cannot recover a continuation beginning `the factor`. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles REJECTED `Severity is the decisive factor. The factor exclusively determines Story scope.`, but all five ACCEPTED `Severity is the decisive factor. The factor conclusively exclusively independently determines Story scope.` The proposition, antecedent, active voice, outcome, and decisive verb are identical; adding the third ordinary adverb alone crosses `{0,2}` and drops the unsafe relation. The focused smoke exercises canonical active continuations but not the two/three-word boundary. This is distinct from F-057, which crosses the separate `{0,3}` bound before the antecedent noun, and from F-052, which changes continuation polarity/order to passive outcome-first form. Replace the modifier-count ceiling with a structurally bounded continuation relation and add all-role two/three/four-word plus unrelated-local-antecedent controls. Severity high because harmless wording lets Task Context assert severity-only Story authority while every REVIEW envelope is minted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T21:07:41.896Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-114",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "4dded547af2c33531126144ef14dfa529e373595752114e44e3ddc7bb6407131",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "severity-continuation-modifier-bound-bypass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqazb2h_10b3_78fa54b046f54fb3baf5f1c5e40202a9",
+      "ledgerCommitReceiptId": "lrc_mtqazb2i_10b3_1642eca0af5944d998959aaf8ede225e"
     }
   ]
 }
