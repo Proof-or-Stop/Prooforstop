@@ -1339,7 +1339,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:578-600 treats any atomic claim containing exactly one controlled relation as safe when wrapped in `Reject ... as an invalid authority statement`, but it never verifies that the inner claim is itself affirmative/unsafe. This reverses the wrapper's intended polarity: `Reject reviewers must not mint defer_with_proof as an invalid authority statement.` and the quoted equivalent are ADMITTED by the committed built assembleFullPromptEnvelope API for all five active modular reviewer roles, even though the sentence declares the canonical prohibition invalid. The direct safe prohibition `Reviewers must not mint defer_with_proof.` is also admitted, while the affirmative control `Reviewers mint defer_with_proof.` is rejected for every role, isolating the escape to rejection-wrapper polarity rather than vocabulary coverage. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1014 exercises rejection only around an unsafe affirmative severity claim and has no control that rejects an explicitly safe prohibition. This is distinct from F-021/F-022/F-023 meta wrappers, F-025 open approved segments, and F-026/F-027 continuation-state bugs: the closed, atomic rejected-statement grammar itself accepts semantic inversion. Require the inner claim to independently classify unsafe before the rejection wrapper can exempt it, and add all-role affirmative/negative polarity controls. Severity high because Story-authored Task Context can repudiate the reviewer authority boundary before envelope digests while the focused smoke remains green.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T18:34:11.671Z",
@@ -1378,7 +1378,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-rejected-wrapper-polarity-inversion",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Rejected-statement wrappers now require the inner proposition to be affirmative unsafe content before the wrapper is exempted.",
+      "resolvedAt": "2026-09-06T19:51:17.094Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-029",
