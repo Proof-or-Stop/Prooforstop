@@ -3030,6 +3030,44 @@
       },
       "readDiagnostics": [],
       "_hash": "95c5951db78388b2ba0d3d7efc15368bcd6cf6ef79c25cc9b7b815a26f315364"
+    },
+    {
+      "id": "B-8a40:RP-071",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-011 wave 2 unchanged-material concept re-attestation. Git diff from prior concept PASS commit 5ed4942 shows no changes to the classifier, focused smoke, Story background/plan/checklist, or either related decision; fresh run binds material bb98989d10e5896a0eebc7314e7cec11060a537799e578cddd7de06b0f33b3ef and unchanged role body. Prior concept residue and implementation-promise inspection therefore remains applicable. Canonical finding_list confirms F-069 through F-073 are retained open; my cross-leaf reset candidate is structurally owned by F-070, and the incomplete mutant coverage promise is owned by F-073. No additional concept defect is reported. This lane terminal does not resolve, waive, or override any known quality/coverage blocker and does not assert whole-Story acceptance.",
+      "createdAt": "2026-09-06T23:22:00.740Z",
+      "reviewRound": "2026-09-06T23:05:45.070Z",
+      "reviewRunId": "B-8a40:RR-134",
+      "envelopeId": "ee283dc5e37039a04883c3ce4000897b6ddb49c09938c6d75e90fa819d44b258",
+      "writerSessionId": "sess-6d5d7ccf000dbb4d861cb84ca915554e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "badc20b084c32edcc1387a173d081987509c28e91e0c4743ddaa6b88dccb5fd4"
     }
   ]
 }

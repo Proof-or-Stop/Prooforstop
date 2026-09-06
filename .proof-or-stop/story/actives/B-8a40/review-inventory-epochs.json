@@ -2130,7 +2130,7 @@
       "reviewRound": "2026-09-06T23:05:45.070Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T23:10:09.583Z",
-      "updatedAt": "2026-09-06T23:10:09.583Z",
+      "updatedAt": "2026-09-06T23:20:20.079Z",
       "cutoff": {
         "headHash": "00c2bb3229054ef164d8fe001e6493fa4cab4f0f",
         "materialHash": "bb98989d10e5896a0eebc7314e7cec11060a537799e578cddd7de06b0f33b3ef",
@@ -2144,9 +2144,63 @@
       ],
       "initialRunSequenceBoundary": 126,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T23:10:09.583Z",
+          "completedAt": "2026-09-06T23:20:20.079Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-127",
+              "terminal": "pass",
+              "hostIdentity": "987bc943ac28cade90fa7f6759bcac56c75ce53acf2acb6597f6784127b491c3",
+              "promptIdentity": "60b3ecdc51ecf723db3f2922ab8774fd597a404e7c3fbe411f0db4c1824908c9",
+              "evidenceIds": [
+                "B-8a40:RP-068"
+              ],
+              "coverageDigest": "0381729931cf536a167b6a8ed189643f3fef1084342576f271641197ce6acd29"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-128",
+              "terminal": "finding",
+              "hostIdentity": "c5db364ab1f917cafedfffdc8b2660173fbb458aacfeef7ae7d94b8c16c7750e",
+              "promptIdentity": "cb667d62f4e4d1ac5bad9e145571fb820cf4f038d7d14e166cf14f22b861e251",
+              "evidenceIds": [
+                "B-8a40:F-069",
+                "B-8a40:F-070"
+              ],
+              "coverageDigest": "2395e03b0b3bad64fc99e00a60f19b7027b971706fadc781acf355eb2555c12d"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-131",
+              "terminal": "finding",
+              "hostIdentity": "3c05ecee48747782ba97e80a53ff97d752db5c1130f0fec3ddb1f6013eb67dfe",
+              "promptIdentity": "6e9cedb8047195182bc87ce34f2f2a4a5425a03748bdba0e8f6b0f6f99928f13",
+              "evidenceIds": [
+                "B-8a40:F-073"
+              ],
+              "coverageDigest": "a86ed7d100f1a89f1c235584e486ff77a4024a6af88284cdf5956616fb332faa"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "controlled-local-relation-verb-filter-regression",
+            "cross-source-dismissal-reset-disagrees-with-same-leaf",
+            "negative-mutation-proof-continuation-authority-suffix-regression",
+            "no-safe-mutant-truncated-unsafe-matrix",
+            "triage-causal-coreference-mistaken-for-local-reset"
+          ],
+          "verifiedFindingSetDigest": "bcd26a3a488c9ab023348ba565c4c23b34faa28541aaf9b2291071059397d962",
+          "newVerifiedFindingCount": 5,
+          "criticDigest": "7e1b656e71271f2b5466b9903a8d2707101caa511080a0fef0704acb26757e8b",
+          "saturated": false,
+          "nextRunSequenceBoundary": 132
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "64e3cacdf10f34031b1f22935839a232ad6e3c12b8932e96b3b366815ab271f4"
+      "_hash": "6cbc2a017df6cb02eca48ad92e05f0266eb2df3308c29aa89d028b2102d8b9d6"
     }
   ],
   "receipts": [
@@ -3988,6 +4042,61 @@
       "findingDispositions": [],
       "createdAt": "2026-09-06T21:28:23.529Z",
       "_hash": "f0e5a489562fa86d4cbe2ae10c7e48ef4895ac2f2b76acc167bb2bbe7d07f40b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-011:CRIT-01",
+      "epochId": "B-8a40:RI-011",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T23:05:45.070Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "00c2bb3229054ef164d8fe001e6493fa4cab4f0f",
+        "materialHash": "bb98989d10e5896a0eebc7314e7cec11060a537799e578cddd7de06b0f33b3ef",
+        "storyFilesHash": "46adf8a85822ff58dea11f3f02efc0d6cec2b3f7f8a07933828c17e58fa95ffc"
+      },
+      "aggregateFindingSetDigest": "bcd26a3a488c9ab023348ba565c4c23b34faa28541aaf9b2291071059397d962",
+      "requiredLaneCoverageDigest": "c1429c9fd0fa26bc3c832cf50de877f4c315d48dbfd82962502c855ec5f59a1d",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-132",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-070"
+      ],
+      "readEvidenceDigest": "467f622e817f905dfe771ebf1d5b702eb1daaa615052b21b09b2857d8acd3284",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-069",
+          "disposition": "verified_family",
+          "familyKey": "triage-causal-coreference-mistaken-for-local-reset",
+          "reason": "Diff confirms introducesLocalTriageAntecedent protects bare coreferents but consumes causal-prefixed copular forms before controlled and disposition follow-up checks. Registered all-role prefix/no-prefix pairs isolate an unsafe reset regression inside the frozen classifier."
+        },
+        {
+          "findingId": "B-8a40:F-070",
+          "disposition": "verified_family",
+          "familyKey": "cross-source-dismissal-reset-disagrees-with-same-leaf",
+          "reason": "Diff confirms the dedicated cross-source scanner never carries the same-leaf local antecedent reset. Identical ordered propositions accept in one leaf and reject split across leaves; an evidence-aside control stays unsafe. Distinct startup false-positive mechanism."
+        },
+        {
+          "findingId": "B-8a40:F-071",
+          "disposition": "verified_family",
+          "familyKey": "controlled-local-relation-verb-filter-regression",
+          "reason": "The new finite positive relation vocabulary precedes recognized pair classification. Registered current/pre-GREEN public-API controls isolate adjudicates/enables versus determines/permits across every role. Distinct same-clause false-negative regression."
+        },
+        {
+          "findingId": "B-8a40:F-072",
+          "disposition": "verified_family",
+          "familyKey": "negative-mutation-proof-continuation-authority-suffix-regression",
+          "reason": "Diff shows the continuation exemption consumes the last proof marker and terminal test-failure suffix without checking an embedded authority assertion. Registered baseline/current paired witnesses and genuine multiple-proof controls verify this distinct metadata exemption failure."
+        },
+        {
+          "findingId": "B-8a40:F-073",
+          "disposition": "verified_family",
+          "familyKey": "no-safe-mutant-truncated-unsafe-matrix",
+          "reason": "Frozen adversarial:0 and userSees promise the complete unsafe matrix under both mutants, but committed smoke passes slice(0,9) from fourteen fixtures. Independent coverage reproduction verifies all twenty-five omitted role/witness cells reject. Direct acceptance coverage gap, distinct from production classifier mechanisms."
+        }
+      ],
+      "createdAt": "2026-09-06T23:19:51.340Z",
+      "_hash": "483a0fc5314fa6059c6b4c66be549329368d50c7d1099b3c593a081b72b944ab"
     }
   ]
 }
