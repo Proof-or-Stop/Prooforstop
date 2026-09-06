@@ -135,6 +135,49 @@
       ],
       "signatureTag": "prompt-envelope-dismissal-link-word-order-horizon-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-004",
+      "desc": "packages/main/src/core/prompt-envelope.ts:511-519 recognizes a complete negative-dismissal observation only when the text before the dismissal subject contains at most four words and the optional  agent suffix contains at most three words. When an otherwise safe observation exceeds either arbitrary word-count bound, the helper returns false and the joined scan at :788-791 re-pairs that explicitly negative observation with later independent current-repair prose, recreating a pre-digest false-red. Reproduced against the committed built public assembleFullPromptEnvelope API for all five active modular reviewer roles: both  and  were REJECTED as . Both statements deny closure and then require current-Story repair. This is distinct from B-8a40:F-002: the later statement here is affirmative safe/current-repair prose; failure is caused by the standalone observation's arbitrary modifier/agent word limit, not by missing polarity analysis in a linked responsibility conclusion. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1340 covers only the exact B-bcae wording and one concise equivalent, so the focused smoke still prints PASS and CHK-001:edge:0 overstates the non-allowlist boundary. Add safe modifier and longer-agent variants that require integrity-valid assembly, then make the safe observation grammar structural rather than word-count bounded; severity high because legitimate reviewer startup remains blocked by harmless wording changes.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T16:48:49.412Z",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "reviewRunId": "B-8a40:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "bb8382c5d480de2d53be8ba2b4843fe4233d787c3c3015252178d9738f41601b",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-negative-dismissal-modifier-bound-false-positive",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
