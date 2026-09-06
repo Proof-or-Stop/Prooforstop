@@ -1652,10 +1652,72 @@
       "signatureTag": "promote-package-manifest-read-error-false-success",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbcrc9_1acm_e6e9f68af21e4245aaee070079e14c18",
+      "ledgerCommitReceiptId": "lrc_mtqbcrc9_1acm_e9e7bf2eb846499bba3a2126ff446a0c",
       "resolvedAt": "2026-09-06T21:18:09.525Z",
       "resolvedReason": "Commit d65767d4b16e treats only missing or malformed manifest data as the documented benign no-bin cases; injected EACCES/EPERM/EIO-style non-absence reads propagate before old-dist eviction. CHK-001 adversarial:1 and the GREEN hermetic c1 selector pass.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e256:F-037",
+      "desc": "packages/main/src/core/runtime-environment-checks.ts:761-767 and packages/main/tests/global-core-realpath.test.mjs:247-258: CHK-003 adversarial shim coverage remains falsifiable because validateWindowsCommandShim treats any non-comment line containing the expected target plus node, exec, or _prog as an invocation. A current-head probe used an echo line naming the correct target followed by a node command invoking another target; global-core-realpath still returned pass with verification=ok, executable=true, remediation=null, and the contract marker. The existing mismatch test puts the expected target only in an @REM line, so it cannot catch a non-comment but non-executing reference. This is distinct from resolved F-029, where Windows validation passed without inspecting a shim: inspection now runs, but its invocation heuristic false-accepts a broken shim. severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T21:21:02.544Z",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "reviewRunId": "B-e256:RR-114",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "8fbd5be98a9c5ce1fe8843a4b4a0dec6a7430ed7d3be7ef32b49a8b0506901a5",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs",
+        ".proof-or-stop/story/actives/B-e256/checklist.json"
+      ],
+      "signatureTag": "windows-command-shim-nonexecuting-line-false-pass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqbggup_16f_0b54591344e342a5a1cb5e8171308138",
+      "ledgerCommitReceiptId": "lrc_mtqbggup_16f_386df82767ea40e29ac396dff80adf74"
     }
   ]
 }
