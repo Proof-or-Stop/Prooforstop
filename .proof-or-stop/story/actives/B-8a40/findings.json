@@ -3136,7 +3136,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:738-762 recognizes the persistent severity-authority continuation `the factor ... determines Story scope` only when at most two modifier words precede the decision verb. The generic fallback at :765-784 begins only with `it|this|that`, so it cannot recover a continuation beginning `the factor`. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles REJECTED `Severity is the decisive factor. The factor exclusively determines Story scope.`, but all five ACCEPTED `Severity is the decisive factor. The factor conclusively exclusively independently determines Story scope.` The proposition, antecedent, active voice, outcome, and decisive verb are identical; adding the third ordinary adverb alone crosses `{0,2}` and drops the unsafe relation. The focused smoke exercises canonical active continuations but not the two/three-word boundary. This is distinct from F-057, which crosses the separate `{0,3}` bound before the antecedent noun, and from F-052, which changes continuation polarity/order to passive outcome-first form. Replace the modifier-count ceiling with a structurally bounded continuation relation and add all-role two/three/four-word plus unrelated-local-antecedent controls. Severity high because harmless wording lets Task Context assert severity-only Story authority while every REVIEW envelope is minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T21:07:41.896Z",
@@ -3177,7 +3177,11 @@
       "signatureTag": "severity-continuation-modifier-bound-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqazb2h_10b3_78fa54b046f54fb3baf5f1c5e40202a9",
-      "ledgerCommitReceiptId": "lrc_mtqazb2i_10b3_1642eca0af5944d998959aaf8ede225e"
+      "ledgerCommitReceiptId": "lrc_mtqazb2i_10b3_1642eca0af5944d998959aaf8ede225e",
+      "resolvedAt": "2026-09-06T23:07:47.721Z",
+      "resolvedReason": "Remove modifier-count ceilings from the persistent severity continuation; three-adverb authority remains rejected. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-064",
