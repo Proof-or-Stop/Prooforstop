@@ -2128,9 +2128,9 @@
       "epochId": "B-8a40:RI-011",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T23:05:45.070Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-06T23:10:09.583Z",
-      "updatedAt": "2026-09-06T23:20:20.079Z",
+      "updatedAt": "2026-09-06T23:26:42.339Z",
       "cutoff": {
         "headHash": "00c2bb3229054ef164d8fe001e6493fa4cab4f0f",
         "materialHash": "bb98989d10e5896a0eebc7314e7cec11060a537799e578cddd7de06b0f33b3ef",
@@ -2197,10 +2197,68 @@
           "criticDigest": "7e1b656e71271f2b5466b9903a8d2707101caa511080a0fef0704acb26757e8b",
           "saturated": false,
           "nextRunSequenceBoundary": 132
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T23:20:20.079Z",
+          "completedAt": "2026-09-06T23:26:09.767Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-134",
+              "terminal": "pass",
+              "hostIdentity": "b971dc9f1750a89e38c19da90cc30f2568bb8f21802525d33fc6809f8588a201",
+              "promptIdentity": "ee283dc5e37039a04883c3ce4000897b6ddb49c09938c6d75e90fa819d44b258",
+              "evidenceIds": [
+                "B-8a40:RP-071"
+              ],
+              "coverageDigest": "c424320a4a48d05fec84bb1bb6683963ac2a48ea31387ac19bd31409206e6c74"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-133",
+              "terminal": "finding",
+              "hostIdentity": "b971dc9f1750a89e38c19da90cc30f2568bb8f21802525d33fc6809f8588a201",
+              "promptIdentity": "a0ab07938bac26d5df69d68cc48fa51a7792cb08bdc731c4d1405adf56d9ac29",
+              "evidenceIds": [
+                "B-8a40:F-077",
+                "B-8a40:F-078"
+              ],
+              "coverageDigest": "0418b2b766b304238492631fc5b5147dc885378af5f15489658691585aaeedc3"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-135",
+              "terminal": "finding",
+              "hostIdentity": "b971dc9f1750a89e38c19da90cc30f2568bb8f21802525d33fc6809f8588a201",
+              "promptIdentity": "7d786f5a0c2c7608b52f626320e1325892277a1013c09e6fe2fbfece9841635e",
+              "evidenceIds": [
+                "B-8a40:F-074",
+                "B-8a40:F-075",
+                "B-8a40:F-076"
+              ],
+              "coverageDigest": "54aef7fb47b2ed0dce3f9fdee411379f5755f7265b47abdbdb3f7750cf0619b5"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "controlled-local-relation-verb-filter-regression",
+            "cross-source-dismissal-reset-disagrees-with-same-leaf",
+            "negative-mutation-proof-continuation-authority-suffix-regression",
+            "no-safe-mutant-truncated-unsafe-matrix",
+            "triage-causal-coreference-mistaken-for-local-reset"
+          ],
+          "verifiedFindingSetDigest": "bcd26a3a488c9ab023348ba565c4c23b34faa28541aaf9b2291071059397d962",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "a1bdc71712e072fc62fd96552e592a025c82b004761db0bc056a52243703f8de",
+          "saturated": true,
+          "nextRunSequenceBoundary": 136
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "6cbc2a017df6cb02eca48ad92e05f0266eb2df3308c29aa89d028b2102d8b9d6"
+      "receiptId": "B-8a40:RI-011:RCP-001",
+      "consumedAt": "2026-09-06T23:26:42.339Z",
+      "consumedByReviewRound": "2026-09-06T23:05:45.070Z",
+      "_hash": "30b01a8610fd2a3fc43ef4c524437ecd4c9f7c20e72cf5208412c958429ae38e"
     }
   ],
   "receipts": [
@@ -2284,6 +2342,33 @@
       "issuedAt": "2026-09-06T21:29:03.985Z",
       "consumedAt": "2026-09-06T21:30:23.286Z",
       "_hash": "f18f5e6c77443cf5e862d716f099fe618bd116d42d2bd8739771de5432ca4966"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-8a40:RI-011:RCP-001",
+      "epochId": "B-8a40:RI-011",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T23:05:45.070Z",
+      "cutoff": {
+        "headHash": "00c2bb3229054ef164d8fe001e6493fa4cab4f0f",
+        "materialHash": "bb98989d10e5896a0eebc7314e7cec11060a537799e578cddd7de06b0f33b3ef",
+        "storyFilesHash": "46adf8a85822ff58dea11f3f02efc0d6cec2b3f7f8a07933828c17e58fa95ffc"
+      },
+      "scopeDigest": "3de9405a940a1ae62c7ef8d656c52a65665aee9c761addc27dee2de50faae99a",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "bcd26a3a488c9ab023348ba565c4c23b34faa28541aaf9b2291071059397d962",
+      "coverageDigest": "8edf42d10f9ace93d8c3515e912204f5a919cd6b5714ea6d6974d543346d5b70",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-06T23:26:09.767Z",
+      "consumedAt": "2026-09-06T23:26:42.339Z",
+      "_hash": "774f0aff1110b5efed0f16eb71b6951ee2246e073ad640aeadc2e864aaf9baef"
     }
   ],
   "criticReceipts": [
@@ -4097,6 +4182,61 @@
       ],
       "createdAt": "2026-09-06T23:19:51.340Z",
       "_hash": "483a0fc5314fa6059c6b4c66be549329368d50c7d1099b3c593a081b72b944ab"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-011:CRIT-02",
+      "epochId": "B-8a40:RI-011",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T23:05:45.070Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "00c2bb3229054ef164d8fe001e6493fa4cab4f0f",
+        "materialHash": "bb98989d10e5896a0eebc7314e7cec11060a537799e578cddd7de06b0f33b3ef",
+        "storyFilesHash": "46adf8a85822ff58dea11f3f02efc0d6cec2b3f7f8a07933828c17e58fa95ffc"
+      },
+      "aggregateFindingSetDigest": "bcd26a3a488c9ab023348ba565c4c23b34faa28541aaf9b2291071059397d962",
+      "requiredLaneCoverageDigest": "b16e45f37a672fab577c8a4337af20f70e973611bde90ec01903557df711251b",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-136",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-072"
+      ],
+      "readEvidenceDigest": "d7d16b1ed320a3d38b79c08be9280731b2b94f505d339b440be4dd8882f3361e",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-074",
+          "disposition": "verified_family",
+          "familyKey": "controlled-local-relation-verb-filter-regression",
+          "reason": "Repeated existing family from signed wave 1, canonical B-8a40:F-071. Description and severity are byte-identical; same finite positive verb-filter and baseline/current controls on unchanged material. Current CLI duplicate links require a same-wave canonical row, so verified_family with the original identical key preserves this known family without claiming a new defect."
+        },
+        {
+          "findingId": "B-8a40:F-075",
+          "disposition": "verified_family",
+          "familyKey": "negative-mutation-proof-continuation-authority-suffix-regression",
+          "reason": "Repeated existing family from signed wave 1, canonical B-8a40:F-072. Description and severity are byte-identical; same final-proof-marker and test-failure-suffix exemption mechanism on unchanged material. Identical prior family key represents the known family under current-wave-only duplicate-link validation."
+        },
+        {
+          "findingId": "B-8a40:F-076",
+          "disposition": "verified_family",
+          "familyKey": "no-safe-mutant-truncated-unsafe-matrix",
+          "reason": "Repeated existing family from signed wave 1, canonical B-8a40:F-073. Description and severity are byte-identical; same slice(0,9) omission against unchanged frozen intent and smoke. Identical prior family key preserves the known direct acceptance coverage gap without a new family claim."
+        },
+        {
+          "findingId": "B-8a40:F-077",
+          "disposition": "verified_family",
+          "familyKey": "triage-causal-coreference-mistaken-for-local-reset",
+          "reason": "Repeated existing family from signed wave 1, canonical B-8a40:F-069. Re-attestation preserves exact unknown-applicability and disposition copular-prefix witnesses and same live-state reset source. Canonical remains open verified with original controls; identical prior key denotes the same mechanism, not a separate family."
+        },
+        {
+          "findingId": "B-8a40:F-078",
+          "disposition": "verified_family",
+          "familyKey": "cross-source-dismissal-reset-disagrees-with-same-leaf",
+          "reason": "Repeated existing family from signed wave 1, canonical B-8a40:F-070. Re-attestation preserves exact ordered leaf split, local cache antecedent, evidence-aside control and unchanged scanner. Canonical remains open verified; identical prior key denotes the same parity/startup mechanism."
+        }
+      ],
+      "createdAt": "2026-09-06T23:25:55.527Z",
+      "_hash": "3b523f81e9bab7dc0aa5a5ccc31a06cf60c216207668cb07b8ed005d497b6569"
     }
   ]
 }
