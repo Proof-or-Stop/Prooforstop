@@ -1224,6 +1224,47 @@ console.log(findingOutput);
     assert.deepEqual(mismatches, [], `ambiguous sibling build inputs: ${mismatches.join('; ')}`);
   });
 
+  check('current build roots retain unique classification and actual blob hashes', () => {
+    const paths = ['', 'bin/', 'scripts/', '.githooks/', 'packages/main/', 'packages/graph/', 'packages/graph/scripts/']
+      .flatMap(prefix => ['package.json', 'package-lock.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb',
+        'tsconfig.json', 'tsconfig.build.json', 'proof-or-stop.config.json'].map(name => `${prefix}${name}`));
+    for (const path of paths) {
+      assert.deepEqual(CERTIFICATION_DOMAIN_PATH_RULES.filter(([, pattern]) => pattern.test(path)).map(([domain]) => domain),
+        ['build-input'], `current build input must have exactly one domain: ${path}`);
+    }
+    const dir = makeGitRoot();
+    try {
+      git(dir, ['checkout', '-b', 'story/B-c011']);
+      for (const path of paths) write(dir, path, `${JSON.stringify({
+        storyDir: '.proof-or-stop/story/actives', storyPrefix: 'B', fixture: path,
+      })}\n`);
+      commit(dir, 'exercise current build roots');
+      const entries = resolveStoryChangedFiles(dir, 'HEAD', dir);
+      assert.deepEqual(entries.map(entry => entry.path).sort(), [...paths].sort());
+      const hashes = deriveCertificationDomainInputHashes(dir, 'HEAD', dir);
+      assert.ok(hashes, 'legitimate root, package and integration build inputs must remain admitted');
+      assert.equal(hashes['certification:build-input'], causalDigest(entries.map(entry => `${entry.path}\0${entry.blobId}`).sort()),
+        'every admitted current build input must bind its actual Git blob');
+    } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  check('build-like basenames do not admit unknown namespaces', () => {
+    const unexpectedAdmissions: string[] = [];
+    for (const path of ['unknown-build/package.json', 'unknown-build/nested/tsconfig.json',
+      '.unrecognized/package.json', '.unrecognized/nested/tsconfig.build.json',
+      'packages-extra/package.json', 'scripts-extra/tsconfig.json']) {
+      const dir = makeGitRoot();
+      try {
+        git(dir, ['checkout', '-b', 'story/B-c011']);
+        write(dir, path, 'an unknown namespace is not a current build surface\n');
+        commit(dir, 'exercise unknown build-like path');
+        assert.equal(resolveStoryChangedFiles(dir, 'HEAD', dir).find(entry => entry.path === path)?.status, 'added');
+        if (deriveCertificationDomainInputHashes(dir, 'HEAD', dir) !== undefined) unexpectedAdmissions.push(path);
+      } finally { rmSync(dir, { recursive: true, force: true }); }
+    }
+    assert.deepEqual(unexpectedAdmissions, [], 'BUG-CERT-002: a familiar basename must not authorize an unknown namespace');
+  });
+
   check('real deleted and renamed migration inputs retain exact tombstone and blob hashes', () => {
     const dir = makeGitRoot();
     try {
@@ -1289,6 +1330,8 @@ console.log(findingOutput);
       { path: '.lattice-other/story/actives/B-c011/background.md', action: 'deleted' },
       { path: '.lattice/story/actives/not-a-story/background.md', action: 'deleted' },
       { path: 'unclassified-input.txt', action: 'added' },
+      ...(['package.json', 'tsconfig.json'] as const).flatMap(name =>
+        (['added', 'modified', 'renamed', 'deleted'] as const).map(action => ({ path: `${historicalRoot}/nested/${name}`, action }))),
     ];
     for (const { path, action } of scenarios) {
       const dir = makeGitRoot();
