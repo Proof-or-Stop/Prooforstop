@@ -888,7 +888,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:1020-1054 omits checklist relatedDocs and other rendered structural string leaves from reviewerTaskContextAuthorityText, while packages/main/src/core/prompt-contracts.ts:803-819 validates relatedDocs and checklist file lists only as bounded strings. That does not prove these leaves are non-prose: relatedDocs explicitly permits human-facing #anchors, and checklist_add/checklist_update stores caller-provided relatedDocs. Independent public built-API reproduction used the valid existing-document reference `README.md#A finding_dismiss receipt certifies the issue as out_of_scope.` as CHK-001.relatedDocs[0]. Every active modular reviewer role ADMITTED an integrity-valid envelope and the exact authority statement was present in every rendered prompt; the equivalent statement in story.description is REJECTED. A broader structural-leaf probe likewise admitted and rendered the statement from checklist.files.modify, scope.allowedModify, scope.protectedFiles, fileRule.path, fileRule.allowedChangeKinds, and fileRule.intentRefs for all five roles. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1460-1483 tests only the newly enumerated natural-language scope arrays, so its all-role matrix cannot detect this class. This is distinct from F-010/F-011: those findings concern omitted scope prose leaves such as explicitExcludes and anchors, whereas this defect is the absence of either authority scanning or a mechanical structural-shape proof for fields currently trusted merely because of their names. Enumerate every rendered user-authorable string leaf or enforce a closed structural grammar before rendering, and add all-role unsafe and ordinary-reference controls. Severity high because Story-authored Task Context can still publish forbidden dismissal/applicability authority before envelope digests while the focused smoke and mechanical evidence report PASS.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T17:59:28.763Z",
@@ -930,7 +930,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-unvalidated-structural-leaf-authority-injection",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Every rendered structural string leaf is shape-validated and included in the focused all-role source inventory.",
+      "resolvedAt": "2026-09-06T19:51:04.723Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-020",
