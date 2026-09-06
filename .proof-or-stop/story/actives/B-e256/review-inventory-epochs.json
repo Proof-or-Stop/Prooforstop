@@ -1692,7 +1692,7 @@
       "reviewRound": "2026-09-06T23:38:10.157Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T23:47:13.525Z",
-      "updatedAt": "2026-09-06T23:47:13.525Z",
+      "updatedAt": "2026-09-06T23:54:24.080Z",
       "cutoff": {
         "headHash": "cc8b3dab97d0ccb6119f604ac164d28f5a74cdd2",
         "materialHash": "1bdf02b7f216612221bfc02e748f9f302a7c89e3aac0fc63ef4023db88bd30e2",
@@ -1706,11 +1706,60 @@
       ],
       "initialRunSequenceBoundary": 141,
       "maxWaves": 2,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T23:47:13.525Z",
+          "completedAt": "2026-09-06T23:54:24.080Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-143",
+              "terminal": "pass",
+              "hostIdentity": "c9e4553fe09ed1c84081caebbe658330a395c874626db17a003b6c403f50c24a",
+              "promptIdentity": "7c546d756c933ac46e9e5d4fe67ae612ffe0c305dfd46fda42458b41fe7c01a8",
+              "evidenceIds": [
+                "B-e256:RP-101"
+              ],
+              "coverageDigest": "56fcc7b9615696f9ddb981c85d159ba5712c5b8a0204c544c8920868d60b96a3"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-144",
+              "terminal": "pass",
+              "hostIdentity": "c9e4553fe09ed1c84081caebbe658330a395c874626db17a003b6c403f50c24a",
+              "promptIdentity": "05c89a19b159cec82633befa23b0721516cfb1b82dd84f9f5295e50cbca6c131",
+              "evidenceIds": [
+                "B-e256:RP-099"
+              ],
+              "coverageDigest": "2077588bb70c201569668915724d2f63c954ecb3fa7ae2ddac751f7c511c24e4"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-142",
+              "terminal": "pass",
+              "hostIdentity": "c9e4553fe09ed1c84081caebbe658330a395c874626db17a003b6c403f50c24a",
+              "promptIdentity": "a5a334397df353bdbb9b2af169bc5407720689281011122f523076d439facac3",
+              "evidenceIds": [
+                "B-e256:RP-100"
+              ],
+              "coverageDigest": "cc73a12bf04ef4d5d0326071d380c1158542650fcc384c56482d40102d2801fa"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "proofstory-must-intent-binding-omission"
+          ],
+          "verifiedFindingSetDigest": "1d515d88512cc6efba1a9a5e2e9a3ef81946468eb62ecb4570bbdf6adcff00e3",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "9723c12c860a61e10eb5918ac97142c58edfefdcaf69d8a7fcef33ed8206fbfb",
+          "saturated": false,
+          "nextRunSequenceBoundary": 145
+        }
+      ],
       "baselineFindingIds": [
         "B-e256:F-046"
       ],
-      "_hash": "b7e388ae0ea3906dc6d1c89ff26b7d2c6119b337b4643d8a742c6b829f824a50"
+      "_hash": "6a5e08794ac9dfc1d2469c0ca799dd022252ebf1350c14b3454adf82c3ef87cb"
     }
   ],
   "receipts": [
@@ -2923,6 +2972,37 @@
       "findingDispositions": [],
       "createdAt": "2026-09-06T22:32:12.572Z",
       "_hash": "22caab79250c1d24a694d6276339873cff155aa2ecbd3a7b56570ad6437b3044"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-010:CRIT-01",
+      "epochId": "B-e256:RI-010",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T23:38:10.157Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "cc8b3dab97d0ccb6119f604ac164d28f5a74cdd2",
+        "materialHash": "1bdf02b7f216612221bfc02e748f9f302a7c89e3aac0fc63ef4023db88bd30e2",
+        "storyFilesHash": "f0b139f7f9834014ae1c7fecf85c32721711f80bbb689fbb16163501e5b2ed6a"
+      },
+      "aggregateFindingSetDigest": "1d515d88512cc6efba1a9a5e2e9a3ef81946468eb62ecb4570bbdf6adcff00e3",
+      "requiredLaneCoverageDigest": "76c52065f8d5ee8a64d3c6f17ae3fd8408ced715964832ddf3715eb1c625c51d",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-145",
+      "terminalEvidenceIds": [
+        "B-e256:RP-102"
+      ],
+      "readEvidenceDigest": "abd6927f64650c279a58f03236044094ebabd3e9dbabefcd52f38b6a8e7ca03f",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-046",
+          "disposition": "verified_family",
+          "familyKey": "proofstory-must-intent-binding-omission",
+          "reason": "Verified applicable high evidence-topology blocker: AC-001 promises benign absent bin targets but omits the must CHK-001:edge:0 intent from verificationIntentRefs. It makes completeness evidence misleading and requires current-Story repair."
+        }
+      ],
+      "createdAt": "2026-09-06T23:54:07.210Z",
+      "_hash": "3c33b95a795a1b68931ae92e086348a1d8be27281fa4c4918091ae431ab6c881"
     }
   ]
 }
