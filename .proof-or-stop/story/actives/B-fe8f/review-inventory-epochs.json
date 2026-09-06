@@ -428,9 +428,9 @@
       "epochId": "B-fe8f:RI-005",
       "storyId": "B-fe8f",
       "reviewRound": "2026-09-06T16:01:27.770Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-06T16:23:46.823Z",
-      "updatedAt": "2026-09-06T16:34:31.821Z",
+      "updatedAt": "2026-09-06T16:40:38.798Z",
       "cutoff": {
         "headHash": "54cb95899066c844d978bb88b8adbc24adbabca8",
         "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
@@ -492,10 +492,61 @@
           "criticDigest": "a25f6fafee736e172e0a801c3eec558423d2bd2958cc7ce7858745f776b50270",
           "saturated": false,
           "nextRunSequenceBoundary": 128
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T16:34:31.821Z",
+          "completedAt": "2026-09-06T16:39:56.262Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-fe8f:RR-129",
+              "terminal": "pass",
+              "hostIdentity": "d20d584d22ba827856210b1d5e957ca727f3ee01d7e1daa113c2ba06559bcb5f",
+              "promptIdentity": "45b1f09c62d9e6a34d9e39d49107ecede95291037b049d033f8ab8c41eebe0b8",
+              "evidenceIds": [
+                "B-fe8f:RP-079"
+              ],
+              "coverageDigest": "d6260dd930e9678169ac0730e335274fd060d47cdcd03b4889e127235260b7e5"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-fe8f:RR-130",
+              "terminal": "finding",
+              "hostIdentity": "d20d584d22ba827856210b1d5e957ca727f3ee01d7e1daa113c2ba06559bcb5f",
+              "promptIdentity": "522126eb8ec6b72e4d9434eda2be42d575efe940e16b0ee7c9772b04da9131e8",
+              "evidenceIds": [
+                "B-fe8f:F-062"
+              ],
+              "coverageDigest": "dee623d69a80dd3f174d0d431d85ae55c3f85c014db804e5485519b8588ae010"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-fe8f:RR-131",
+              "terminal": "pass",
+              "hostIdentity": "98228b170f892741a1ad1977fe06e40671e25f1e16d4b252da68d791679bfa9c",
+              "promptIdentity": "7e35b8d74a68030416817d5b9c8463438c7e5bfcb1fcabb654f47a50dd5d545d",
+              "evidenceIds": [
+                "B-fe8f:RP-080"
+              ],
+              "coverageDigest": "d113f54deb6601a46028978420540250a606524a85a1671fb9e62408d517bd76"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "certification-historical-tombstone-brand-decision"
+          ],
+          "verifiedFindingSetDigest": "c636012300a73f30972e90d95b23476200d5e5b56ef7e69c8c71447550c73b34",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "20329d443745357bfddcec2cabd5beb5545060ba333a4196d762dcbecf583d7e",
+          "saturated": true,
+          "nextRunSequenceBoundary": 132
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "233b6cb9bf1935ac5fd0641641ee6d013f074611bac7b73f26f8a281e83d12cf"
+      "receiptId": "B-fe8f:RI-005:RCP-001",
+      "consumedAt": "2026-09-06T16:40:38.798Z",
+      "consumedByReviewRound": "2026-09-06T16:01:27.770Z",
+      "_hash": "d3ea82fc1bdbf8d2f74c98e8a35ea6c022058bc87ec089cffc347213cdf464f0"
     }
   ],
   "receipts": [
@@ -671,6 +722,33 @@
       "invalidatedAt": "2026-09-06T16:23:37.691Z",
       "invalidationReason": "BUG-CERT-002 is a genuine current DONE-required failure. RIE-007 completeness-only receipt is rejected for remediation with REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED because no saturated wave exists. Replace it with a fresh full inventory epoch; no transition authority is claimed.",
       "_hash": "d4e752496806d3066b48df90a9bdb7483c1110e5253fa93ed88684d50aa3bde1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-fe8f:RI-005:RCP-001",
+      "epochId": "B-fe8f:RI-005",
+      "storyId": "B-fe8f",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "cutoff": {
+        "headHash": "54cb95899066c844d978bb88b8adbc24adbabca8",
+        "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
+        "storyFilesHash": "15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607"
+      },
+      "scopeDigest": "636ee94ad98f9a3dca22f4b4699ab641404ce72d2402f08bcd7d9bf2649813de",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "c636012300a73f30972e90d95b23476200d5e5b56ef7e69c8c71447550c73b34",
+      "coverageDigest": "5ea6937fd0dc7aa28a2116ee6da9d4847b279b55bbbf501f0d87358de53a02ef",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-06T16:39:56.262Z",
+      "consumedAt": "2026-09-06T16:40:38.798Z",
+      "_hash": "bb271548ec6a01289e606ed77a85fd401c2c4e2a4d02f6c6ee057d4c69b664d0"
     }
   ],
   "criticReceipts": [
@@ -863,6 +941,37 @@
       ],
       "createdAt": "2026-09-06T16:34:14.777Z",
       "_hash": "5be1cb63afc457307b05cb17884bc1c989bb39a0a3bbaffe927b8d0ea383a8b2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-fe8f:RI-005:CRIT-02",
+      "epochId": "B-fe8f:RI-005",
+      "storyId": "B-fe8f",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "54cb95899066c844d978bb88b8adbc24adbabca8",
+        "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
+        "storyFilesHash": "15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607"
+      },
+      "aggregateFindingSetDigest": "c636012300a73f30972e90d95b23476200d5e5b56ef7e69c8c71447550c73b34",
+      "requiredLaneCoverageDigest": "dc0b913d010caa469636d25cc6b31f7c96323b660fea37b2ccdb235ec644e8ed",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-fe8f:RR-132",
+      "terminalEvidenceIds": [
+        "B-fe8f:RP-081"
+      ],
+      "readEvidenceDigest": "2587d0ffa59b7d76288581157a970b00bac80bdcc603df82724e03d728cb23d1",
+      "findingDispositions": [
+        {
+          "findingId": "B-fe8f:F-062",
+          "disposition": "verified_family",
+          "familyKey": "certification-historical-tombstone-brand-decision",
+          "reason": "Independently compared complete F062 with signed prior-wave F061 and original DONE-required failing receipt/source/detector inspected in wave1. Same unchanged startsWith deprecated-literal decision at certification-window.ts189, same guard/root failure, same frozen material; source/test/config diff since prior critic is empty. This is the already signed prior-wave family, not a second mechanism; classification does not rely on signatureTag alone. Current wave raw set contains only F062, so no fabricated cross-wave duplicate disposition or F061 raw membership. Both original observations and BUG-CERT-002 remain open and need the same actual repair; zero new family is not zero blockers."
+        }
+      ],
+      "createdAt": "2026-09-06T16:39:42.963Z",
+      "_hash": "5231877738ff801ad7bd7073ed3e9c887e462748cc5932e4ba459f9105a22e7e"
     }
   ]
 }
