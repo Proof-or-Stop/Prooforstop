@@ -1887,7 +1887,7 @@
       "desc": "The signed-disposition continuation state machine admits a small closed list of safe terminal states but rejects equivalent explicit non-authority states. Across all five active REVIEW roles, [Reviewers inspect a signed defer_with_proof disposition. The Finding remains unbound.] is accepted, but each of [The Finding remains unaffected.], [The Finding remains untouched.], [It carries no authority over the Finding.], and [It leaves the Finding unchanged.] after the same inspection antecedent is rejected as unauthorized disposition minting; the unsafe [It binds the Finding.] control is also rejected. In packages/main/src/core/prompt-envelope.ts, findingRemainsUnbound accepts only open, visible, unresolved, unchanged, unbound, or nonbinding in one exact copular shape, and every other Finding-bearing continuation fails closed without a polarity or authority-relation check. The smoke has canonical state spellings but no terminal-state synonym matrix. This is distinct from F-038, where the inspection action itself is unrecognized, and from F-032, where unsafe target synonyms fail open; here a canonical inspection reaches the continuation state machine and semantically safe state synonyms false-red. Replace the closed terminal-state noun list with a bounded negative-authority relation that still rejects affirmative binding, and add all-role synonym controls.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T18:59:34.727Z",
@@ -1926,7 +1926,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "signed-disposition-safe-terminal-state-synonym-false-positive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Safe terminal states now recognize unbound, unaffected, untouched, and no-authority forms while affirmative binding remains rejected.",
+      "resolvedAt": "2026-09-06T19:51:30.546Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-040",
