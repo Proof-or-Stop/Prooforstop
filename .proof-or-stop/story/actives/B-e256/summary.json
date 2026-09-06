@@ -1,18 +1,18 @@
 {
   "storyId": "B-e256",
-  "changes": "scripts/promote-dist.mjs validates and restores package.json bin targets on staging before evicting the current dist, rejects final symlinks and intermediate-symlink escapes, and preserves the old dist on failure. packages/main/src/core/runtime-environment-checks.ts reports only the compiled runtime version and renders version=unknown on probe failure. The regression suite now uses a portable Windows contract while retaining POSIX execute-bit coverage.",
-  "usage": "Run npm --prefix packages/main run build, then proof-or-stop --version and proof-or-stop doctor. For regression checks run node packages/main/tests/red/red-global-cli-exec-bit.mjs and node packages/main/tests/global-core-realpath.test.mjs.",
-  "expectedOutcome": "A dist rebuild leaves packages/main/dist/cli.js executable on POSIX, proof-or-stop remains runnable, unsafe bin symlink paths cannot chmod files outside staging, and doctor reports the compiled version or version=unknown.",
-  "actualTranscript": "Focused verification passed: red-global-cli-exec-bit reported staging restoration before old-dist eviction plus GREEN c5/c6 symlink protection; global-core-realpath printed ok; packages/main/dist/cli.js was mode 0755 on this POSIX host.",
-  "outcomeDiff": "No difference on the tested POSIX host; Windows follows the equivalent npm-shim and shebang contract because POSIX mode bits do not apply there.",
+  "changes": "scripts/promote-dist.mjs validates and restores package.json bin targets on staging before old-dist eviction and rejects symlink escapes. runtime-environment-checks.ts now reports compiled-version truth, emits stable global-core contract markers, and renders host-shell remediation: POSIX commands on POSIX and cmd.exe-valid commands on Windows. The red and realpath regressions cover both platform contracts.",
+  "usage": "Run npm --prefix packages/main run build, then proof-or-stop --version and proof-or-stop doctor. The red regression prints contract: global-cli-bin-target-restored; a healthy doctor run prints contract: global-core-realpath-pass.",
+  "expectedOutcome": "A build keeps proof-or-stop runnable and prints contract: global-cli-bin-target-restored in its regression. Doctor reports the resolved global core and prints contract: global-core-realpath-pass, with POSIX- or cmd.exe-valid remediation when repair is needed.",
+  "actualTranscript": "Focused verification passed: red-global-cli-exec-bit printed contract: global-cli-bin-target-restored and GREEN; global-core-realpath printed ok; the real doctor command exited 0 and printed contract: global-core-realpath-pass.",
+  "outcomeDiff": "No difference from the expected outcome on the tested POSIX host; simulated Windows branches validate npm-shim semantics and exact cmd.exe remediation.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Doctor is read-only and reports remediation without changing the host install. POSIX execute-bit assertions do not apply on Windows; Windows validates the shebang and npm command-shim target, content, cleanup, and pre-eviction safety. POSIX chmod-denial injections are explicitly skipped there while c4/c6 retain failure-order coverage.",
-  "pitfalls": "Executable-bit restoration must stay before old-dist eviction. Post-promotion chmod can replace a working dist before a staging permission failure is discovered; lexical containment alone can follow intermediate symlinks outside staging.",
+  "limitations": "Doctor remains read-only and reports commands without changing host state. POSIX execute-bit assertions and chmod-denial injections do not apply on Windows; Windows instead validates the byte-identical Node entrypoint, npm-generated shim contract, symlink capability, and pre-eviction failure safety.",
+  "pitfalls": "Executable validation must remain before old-dist eviction. Do not use lexical containment alone for symlink paths, universal POSIX mode assertions for Windows, host-specific selector paths, or POSIX shell syntax in Windows remediation.",
   "phaseStats": {
     "INIT": {
       "count": 2,
@@ -23,23 +23,23 @@
       "durationMs": 168056
     },
     "PLAN": {
-      "count": 4,
-      "durationMs": 1402849
+      "count": 5,
+      "durationMs": 1912302
     },
     "DEV": {
-      "count": 22,
-      "durationMs": 76618245
+      "count": 24,
+      "durationMs": 77817043
     },
     "REVIEW": {
-      "count": 19,
-      "durationMs": 255819870
+      "count": 20,
+      "durationMs": 259232107
     },
     "TEST": {
       "count": 9,
       "durationMs": 17052748
     }
   },
-  "totalDurationMs": 358374320,
+  "totalDurationMs": 363494808,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-03T01:57:56.411Z",
-  "updatedAt": "2026-09-06T16:48:04.568Z"
+  "updatedAt": "2026-09-06T18:13:25.055Z"
 }
