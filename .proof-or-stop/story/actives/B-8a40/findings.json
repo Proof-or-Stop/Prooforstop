@@ -2868,6 +2868,52 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqaj63n_b0b_b557f9c87e3a4719a2906a157dca9eb7",
       "ledgerCommitReceiptId": "lrc_mtqaj63n_b0b_87a74a7fdbeb41fc9628899d048ddd49"
+    },
+    {
+      "id": "B-8a40:F-060",
+      "desc": "packages/main/src/core/prompt-envelope.ts:649-657 defines the complete explicit reviewer-disposition prohibition with `actionList` limited to one action plus at most five continuations. A seventh recognized prohibited action makes the whole negative statement miss every safe prohibition grammar; the actor/deferral pair at :1026-1031 then reports unauthorized disposition minting. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED `Reviewers must not mint defer_with_proof.` and the six-action `Reviewers must not mint, sign, supply, bestow, confer, or grant defer_with_proof.` boundary, but all five REJECTED the semantically identical seven-action form ending `grant, or assign defer_with_proof.` and the eight-action form also adding `attach`. All five correctly rejected the affirmative `Reviewers mint defer_with_proof.` control. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:809-810, :1035, :1040, and :1044 cover one to three prohibited actions and actor variations, but never cross the production six-action limit. This is distinct from F-040 negative-quantifier grammar and F-037 actor/action synonyms because every actor, modal, polarity marker, action, and disposition token is individually recognized; only list cardinality flips the verdict. It is distinct from F-058 because the seven-action statement is short and atomic rather than exceeding the rejected-wrapper character limit. Parse a complete negative action list without an arbitrary cardinality ceiling, retaining double-negative and affirmative controls, and add all-role six/seven/eight-action boundary witnesses. Severity high because legitimate comprehensive prohibition guidance can prevent every REVIEW role from assembling based only on how many forbidden actions it names.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T21:02:29.619Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-112",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "f24b2cceb0828143effa7dcb069cf9c253bc4e8713841231eed36bd9f062ff79",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "reviewer-disposition-prohibition-action-count-false-block",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

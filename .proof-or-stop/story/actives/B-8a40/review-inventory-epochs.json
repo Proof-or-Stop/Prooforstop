@@ -1634,9 +1634,9 @@
       "epochId": "B-8a40:RI-009",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T19:49:59.446Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-06T20:37:16.566Z",
-      "updatedAt": "2026-09-06T20:50:19.975Z",
+      "updatedAt": "2026-09-06T20:58:57.156Z",
       "cutoff": {
         "headHash": "15bea5826231986a422d2df77c26aa27c6e83e22",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1770,6 +1770,70 @@
           "criticDigest": "6807c129fb9b1f6c44a17d9502ff169e58a6926565094e679a539f250cefc687",
           "saturated": false,
           "nextRunSequenceBoundary": 106
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T20:50:19.975Z",
+          "completedAt": "2026-09-06T20:58:56.585Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-110",
+              "terminal": "finding",
+              "hostIdentity": "f88ba60eca7d61df71e24d2e80382316a15ad772c3d2fd3b9b9b409ad0b93ae4",
+              "promptIdentity": "a09ce34f68817bfe80ce2d70267f362b731137445cc6445d9c328e447f928391",
+              "evidenceIds": [
+                "B-8a40:F-059"
+              ],
+              "coverageDigest": "03faadf200fb9d146bc8553f680bf915ea2ceb592d7e77dfd31d68f9bf30b6e3"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-109",
+              "terminal": "finding",
+              "hostIdentity": "08decea142c9b10dcc8d1077f915a16722701073b1065539774ac6058d36f3dd",
+              "promptIdentity": "43f27165d209b2f6e5bae9d9cdf224bae06e66b71fd8d567898a16c997622b1a",
+              "evidenceIds": [
+                "B-8a40:F-057"
+              ],
+              "coverageDigest": "6c8df7efba75373d2a4fa9c0f76cce121724e9cecf0dc33fbaa28f5646919f95"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-108",
+              "terminal": "finding",
+              "hostIdentity": "08decea142c9b10dcc8d1077f915a16722701073b1065539774ac6058d36f3dd",
+              "promptIdentity": "416b67e8dfb94a5ce27de2069f469f8b3633ceea402925dd1f5b4e594e83543d",
+              "evidenceIds": [
+                "B-8a40:F-058"
+              ],
+              "coverageDigest": "4c9759006391e6a03f566936f53ce03df944d4c291f47e06aebb7e2b69fa6707"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-compatibility-schema-default-span-padding-bypass",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-deferral-explicit-target-cross-segment-bypass",
+            "prompt-envelope-deferral-state-local-antecedent-false-positive",
+            "prompt-envelope-positive-dismissal-evidence-unrelated-scope-whole-source-false-positive",
+            "prompt-envelope-rejected-authority-wrapper-claim-length-false-positive",
+            "prompt-envelope-reviewer-disposition-actor-span-padding-bypass",
+            "prompt-envelope-severity-deferral-fixed-span-padding-bypass",
+            "prompt-envelope-severity-passive-outcome-first-cross-segment-bypass",
+            "prompt-envelope-severity-persistent-antecedent-modifier-bound-bypass",
+            "prompt-envelope-severity-state-local-antecedent-false-positive",
+            "prompt-envelope-signed-disposition-state-local-antecedent-false-positive",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering",
+            "prompt-envelope-unknown-applicability-joined-span-padding-bypass",
+            "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive"
+          ],
+          "verifiedFindingSetDigest": "b629878a365be016a40df8869ea044a3b39db35947c33bc3ec49053e60a0a0a3",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "f61ac4b00460e16bde55489a83689490d6b16e8c923d6d380829e2904b34ecb3",
+          "saturated": false,
+          "nextRunSequenceBoundary": 111
         }
       ],
       "baselineFindingIds": [
@@ -1786,7 +1850,55 @@
         "B-8a40:F-051",
         "B-8a40:F-052"
       ],
-      "_hash": "69fa133ed4492657136016cf7459de6cb18b80d3138127d3acd68da6cfe78630"
+      "cancelledAt": "2026-09-06T20:58:57.156Z",
+      "cancelReason": "Replan the bounded classifier around all remaining fixed-horizon and modifier-bound blockers after review inventory budget exhaustion.",
+      "terminalRunSequenceBoundary": 111,
+      "_hash": "b629534715baa3378e42cabe15efcea0c0876aaab9b36046ec90b9f756acaadf"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-8a40:RI-010",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T20:58:58.374Z",
+      "updatedAt": "2026-09-06T20:58:58.374Z",
+      "cutoff": {
+        "headHash": "bf56998b0e61b174788c37937795e78b970787bc",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "scopeDigest": "b25c58aa8c04c3813be843f50fc2f8e57553d979afb606f988fa1eba4136cb24",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 111,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-8a40:F-041",
+        "B-8a40:F-042",
+        "B-8a40:F-043",
+        "B-8a40:F-044",
+        "B-8a40:F-045",
+        "B-8a40:F-046",
+        "B-8a40:F-047",
+        "B-8a40:F-048",
+        "B-8a40:F-049",
+        "B-8a40:F-050",
+        "B-8a40:F-051",
+        "B-8a40:F-052",
+        "B-8a40:F-053",
+        "B-8a40:F-054",
+        "B-8a40:F-055",
+        "B-8a40:F-056",
+        "B-8a40:F-057",
+        "B-8a40:F-058",
+        "B-8a40:F-059"
+      ],
+      "_hash": "f8e13782de525eb8544f740d594e80cdae06e3b0ad862d67c2c73830642b74c4"
     }
   ],
   "receipts": [
@@ -3307,6 +3419,56 @@
       ],
       "createdAt": "2026-09-06T20:49:58.775Z",
       "_hash": "1ea6d1572f3e7722b3010bc8f3ebffd2c78673dfb5cd145609324f850f4d2f3a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-009:CRIT-03",
+      "epochId": "B-8a40:RI-009",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "15bea5826231986a422d2df77c26aa27c6e83e22",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "b629878a365be016a40df8869ea044a3b39db35947c33bc3ec49053e60a0a0a3",
+      "requiredLaneCoverageDigest": "de9596ca3c077be1139b1c93f75411c68fefbd2601b80066fe6f49b6d233b703",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-111",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-061"
+      ],
+      "readEvidenceDigest": "f39f5a2b4ff8a8cb94926c54cc93d1ba18af5fcd4b15f0a2296fd8dbc9fbe648",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-056",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-compatibility-schema-default-span-padding-bypass",
+          "canonicalFindingId": "B-8a40:F-059",
+          "reason": "Duplicate of corrective F-059: the observation, compatibility/schema consumers, default 240-character hasConceptPair mechanism, and witnesses are identical. F-056's mechanical read evidence is invalid because its decisions-doc readEvents path contains a typographical mismatch; preserve that record and diagnostics, while valid signed-read F-059 is the direct non-circular canonical."
+        },
+        {
+          "findingId": "B-8a40:F-057",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-persistent-antecedent-modifier-bound-bypass",
+          "reason": "Independent bounded classifier/gate family: the persistent severity antecedent permits at most three modifier words, so a fourth modifier drops live state before otherwise canonical evidence-aside and pronoun continuations. This differs from F-052 continuation word order and F-054 character-span padding."
+        },
+        {
+          "findingId": "B-8a40:F-058",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-rejected-authority-wrapper-claim-length-false-positive",
+          "reason": "Independent bounded classifier/gate family: a safe, atomic rejected-authority wrapper becomes a false-positive solely after its single claim crosses 240 characters. This is a safe-wrapper truncation failure, not the unsafe-assertion fail-open concept-pair padding in F-054 through F-056 or the earlier wrapper-laundering families."
+        },
+        {
+          "findingId": "B-8a40:F-059",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-compatibility-schema-default-span-padding-bypass",
+          "reason": "Canonical valid-read family: compatibility-CLI deferral authority and Story-authored schema changes depend on the default 240-character hasConceptPair horizon, while the residual schema regex also requires an adjacent Story noun and change verb. F-059 corrects F-056's readEvents typo and carries clean signed read evidence."
+        }
+      ],
+      "createdAt": "2026-09-06T20:57:52.483Z",
+      "_hash": "918aeea6af273efabdb90ae83fa519912679932303d326625a78194cdf3370a5"
     }
   ]
 }
