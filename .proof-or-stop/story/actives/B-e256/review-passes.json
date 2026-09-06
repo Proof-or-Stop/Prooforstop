@@ -2891,6 +2891,57 @@
       },
       "readDiagnostics": [],
       "_hash": "f24f858ac08a3a41469dfcf3ae94d118637ddf7b7deb4812098f7bfd25325484"
+    },
+    {
+      "id": "B-e256:RP-072",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-006 final wave 3 saturation test-coverage review passed with no new family beyond registered F-029/F-030/F-031/F-033/F-034/F-035. Re-audited all 12 intents: 10 must intents have current passing mechanical evidence with matched selectors, 2 should intents have attributed passing non-mechanical evidence, zero waivers and zero missing evidence records. Checked selector falsifiability, capability skips, prior RED_REPO_ROOT mutation sensitivity, bin-target realpath escape coverage and the no-PATH premise; their defects are already captured by the named findings and were not duplicated. Focused suites pass and git diff check is clean. Full validate was attempted but refused by the active foreign owner lease; no takeover was used.",
+      "createdAt": "2026-09-06T19:43:10.294Z",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "reviewRunId": "B-e256:RR-104",
+      "envelopeId": "671817eb3302fe4ef3ab148cbd07d3771d02b9e72929bea4fef8f149ccdbc5d0",
+      "writerSessionId": "sess-79fa6c9f2bcd285437701996e2d42f4b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "efe46c5ceedaa2c711219b7b958c8ca692f55033383ce21774fb8159159d99bb"
     }
   ]
 }
