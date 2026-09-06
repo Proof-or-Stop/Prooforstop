@@ -192,7 +192,7 @@
       "reviewRound": "2026-09-06T16:34:48.065Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T16:59:54.200Z",
-      "updatedAt": "2026-09-06T16:59:54.200Z",
+      "updatedAt": "2026-09-06T17:07:05.357Z",
       "cutoff": {
         "headHash": "88dd8d6aced7707e76883121520e70da26f2d854",
         "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
@@ -206,7 +206,62 @@
       ],
       "initialRunSequenceBoundary": 12,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T16:59:54.200Z",
+          "completedAt": "2026-09-06T17:07:05.357Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-015",
+              "terminal": "pass",
+              "hostIdentity": "cec5b9f7a43c093b382fceca4ab5b54ddddde4ff1e312b30ba85527d0a95434f",
+              "promptIdentity": "4ea7d57ad856dc92017d3fb5ff875c71efb8e303b597548a569717b1decc8a42",
+              "evidenceIds": [
+                "B-8a40:RP-008"
+              ],
+              "coverageDigest": "60d8ab84117b8e98f6d90e43208137a3bfd5af031255e825ec5a94e1f2511e3d"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-014",
+              "terminal": "pass",
+              "hostIdentity": "cec5b9f7a43c093b382fceca4ab5b54ddddde4ff1e312b30ba85527d0a95434f",
+              "promptIdentity": "4e29ac5346a0d2c7975676607760f8132ed6b2d7d940e7e42665924bef467db0",
+              "evidenceIds": [
+                "B-8a40:RP-007"
+              ],
+              "coverageDigest": "c1246feb61a06df334930fdb634200e37046a9431ea05274f3603afe9032700d"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-013",
+              "terminal": "finding",
+              "hostIdentity": "cec5b9f7a43c093b382fceca4ab5b54ddddde4ff1e312b30ba85527d0a95434f",
+              "promptIdentity": "af0d09d4f064fed7264ee5652ece46dfc354cde99274d4f95125c7c34963c550",
+              "evidenceIds": [
+                "B-8a40:F-009"
+              ],
+              "coverageDigest": "6bffbae7c4c026ffb465d9f8ead2c0e4a09eafbbeed3e16b63c901ad71ee0d10"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "negative-dismissal-linkage-fail-open",
+            "negative-dismissal-observation-modifier-actor-bound-fail-closed",
+            "negative-dismissal-observation-word-order-fail-closed",
+            "negative-dismissal-polarity-fail-closed",
+            "prompt-envelope-cross-source-leaf-authority-split",
+            "prompt-envelope-mutant-cleanup-isolation",
+            "prompt-envelope-mutant-fidelity-overclaim"
+          ],
+          "verifiedFindingSetDigest": "1aba0b2b28ee26264519d7979e81661f14c89f67319cf8b32369d6a773d646e2",
+          "newVerifiedFindingCount": 7,
+          "criticDigest": "b7747bfe1f0c03881782032c62e35c8b76693dd75d9ba513f26ed6c66b4959ea",
+          "saturated": false,
+          "nextRunSequenceBoundary": 16
+        }
+      ],
       "baselineFindingIds": [
         "B-8a40:F-001",
         "B-8a40:F-002",
@@ -217,7 +272,7 @@
         "B-8a40:F-007",
         "B-8a40:F-008"
       ],
-      "_hash": "4b7e1280255c272ef7f114e8aa8bab6c4c6298289c21c170186f777d3e732ab0"
+      "_hash": "c00d33f1c6c7a3a9aa2dad9657dbc150d4ae27529b615556008460c2475b0d38"
     }
   ],
   "receipts": [],
@@ -346,6 +401,87 @@
       ],
       "createdAt": "2026-09-06T16:58:40.950Z",
       "_hash": "90da4e1f7398d35c55277f3d1d24181f353b93fc538ecda7cfc0a9e80358235c"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-002:CRIT-01",
+      "epochId": "B-8a40:RI-002",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "88dd8d6aced7707e76883121520e70da26f2d854",
+        "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
+        "storyFilesHash": "2a703c79691320aaa87dec260dc4c3f75442241aa0bce923c4b8b40054c7b2dd"
+      },
+      "aggregateFindingSetDigest": "1aba0b2b28ee26264519d7979e81661f14c89f67319cf8b32369d6a773d646e2",
+      "requiredLaneCoverageDigest": "3f3a24c898a1bddc7fcb4c3bf4150451d5a974a1332da77afbbe48667daec808",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-016",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-009"
+      ],
+      "readEvidenceDigest": "cf82a6c75361e25b803e32f323a1b2fb7beedafa6aa082bd3f20a13f697756fc",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-001",
+          "disposition": "verified_family",
+          "familyKey": "negative-dismissal-linkage-fail-open",
+          "reason": "Frozen verified fail-open family: distance and closed sentence-start linkage vocabulary can remove a negative observation before its same-leaf responsibility conclusion is recognized."
+        },
+        {
+          "findingId": "B-8a40:F-002",
+          "disposition": "verified_family",
+          "familyKey": "negative-dismissal-polarity-fail-closed",
+          "reason": "Frozen independent fail-closed family: linked-conclusion classification ignores negated and retained-current-responsibility polarity."
+        },
+        {
+          "findingId": "B-8a40:F-003",
+          "disposition": "duplicate",
+          "familyKey": "negative-dismissal-linkage-fail-open",
+          "canonicalFindingId": "B-8a40:F-001",
+          "reason": "Frozen duplicate disposition: distinct word-order, padding, and intervening witnesses exercise the same same-leaf horizon-or-closed-vocabulary mechanism as F-001 and remain preserved."
+        },
+        {
+          "findingId": "B-8a40:F-004",
+          "disposition": "verified_family",
+          "familyKey": "negative-dismissal-observation-modifier-actor-bound-fail-closed",
+          "reason": "Frozen verified safe-observation family: modifier and by-actor word-count bounds cause false-red pairing with later current-repair prose."
+        },
+        {
+          "findingId": "B-8a40:F-005",
+          "disposition": "verified_family",
+          "familyKey": "negative-dismissal-observation-word-order-fail-closed",
+          "reason": "Frozen verified word-order family: leading By-this-intake constructions are outside the negative-observation helper shape independently of actor length."
+        },
+        {
+          "findingId": "B-8a40:F-006",
+          "disposition": "duplicate",
+          "familyKey": "negative-dismissal-observation-modifier-actor-bound-fail-closed",
+          "canonicalFindingId": "B-8a40:F-004",
+          "reason": "Frozen duplicate disposition: F-006 is the complete shell-safe reproduction of F-004 and preserves its exact modifier and actor-bound witnesses."
+        },
+        {
+          "findingId": "B-8a40:F-007",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-mutant-fidelity-overclaim",
+          "reason": "Frozen verified evidence-fidelity family: the classifier-entry deletion is stronger than the target helper-only mutation and overclaims the must adversarial receipt."
+        },
+        {
+          "findingId": "B-8a40:F-008",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-mutant-cleanup-isolation",
+          "reason": "Frozen verified test-isolation family: mutants enter the real dist tree and non-ENOENT cleanup failures are suppressed, permitting PASS with residue."
+        },
+        {
+          "findingId": "B-8a40:F-009",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-source-leaf-authority-split",
+          "reason": "New distinct fail-open family: Story, checklist, user-visible, and verification-intent leaves are classified independently, so a causal dismissal relationship split across leaves is admitted even though the assembled Task Context publishes the complete unsafe authority claim."
+        }
+      ],
+      "createdAt": "2026-09-06T17:06:43.312Z",
+      "_hash": "25a5a46864dbd32d4aa0af3c3d3ba74169720847c21b19867f5b0c029e3d42d0"
     }
   ]
 }
