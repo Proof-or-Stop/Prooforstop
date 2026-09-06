@@ -336,9 +336,9 @@
           "packages/main/tests/global-core-realpath.test.mjs"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-06T16:19:58.326Z",
-      "endTime": null,
+      "endTime": "2026-09-06T16:19:59.275Z",
       "verificationIntent": {
         "happy": [
           {
@@ -541,6 +541,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Reattest the completed doctor diagnostics after lifecycle reopening."
+    },
+    {
+      "timestamp": "2026-09-06T16:19:59.275Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Doctor compiled-version and executable diagnostics are committed and global-core-realpath passes.",
+      "agent": "proof-or-stop-implementer"
     }
   ]
 }
