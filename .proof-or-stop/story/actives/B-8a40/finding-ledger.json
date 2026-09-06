@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "3304faa0963e7c17dad417476a619317787b13ff44bd25faaf059e5e210f2faa",
+  "committedLedgerDigest": "87a97ca21725cd1cf3826a840a6ab943b9745ac6bf8baf869a569f3a825f625d",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -1608,6 +1608,63 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:12:21.663Z"
+    },
+    {
+      "recordId": "lr_mtqfg4lc_127t_ba520701f1c8458da056c172fcf5f327",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:59af4d94-64b7-458c-82b5-bb0bf456783c",
+      "payload": {
+        "id": "B-8a40:F-070",
+        "desc": "packages/main/src/core/prompt-envelope.ts:1172-1196 crossSourceNegativeDismissalAuthority scans every later source leaf after a negative dismissal observation without carrying the local-antecedent reset used by the same-leaf state machine at :567-586. Against current built public assembleFullPromptEnvelope at GREEN 14081c71ac plus merged main, all five active REVIEW roles ACCEPTED the complete description [No parent Finding is closed by this intake. Cache routing is a separate decision. It is outside this Story.]. All five REJECTED the same ordered propositions split as story.description=[No parent Finding is closed by this intake.], checklist.context=[Cache routing is a separate decision.], checklist.userSees=[It is outside this Story.], with the diagnostic across story.description -> checklist.CHK-001.userSees. The pronoun now refers to the explicitly nearer Cache routing decision, but the second scanner ignores that intervening leaf and falsely treats the independent scope statement as Finding applicability proof. Replacing Cache routing with [Audit evidence is preserved.] correctly remains rejected 5/5, providing the necessary unsafe evidence-aside control. The new whole-context controlled scan does not fix this because this older dedicated cross-source scanner throws first. Round-4 smoke :1330-1350 exercises local resets within a leaf and :1396-1406 unsafe cross-leaf composition separately, but not their composition, so PASS misses this regression. Reuse one ordered state interpretation across source leaves while retaining locations for diagnostics, and add safe same-leaf/cross-leaf parity plus the unsafe evidence-aside control. This is a direct scoped reviewer-startup false-positive blocker, not an unrelated scope expansion.",
+        "severity": "high",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-06T23:12:45.118Z",
+        "reviewRound": "2026-09-06T23:05:45.070Z",
+        "reviewRunId": "B-8a40:RR-128",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "3128f15add32c8ddc82ea12184a077aea799c6a56251bd45d76d34f538e34302"
+        },
+        "readDiagnostics": [],
+        "_hash": "bb1ec8f1bb60aa6b02e95825988fcd88bd90b307ebff970b2065b60669ad1ac4",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "cross-source-dismissal-reset-disagrees-with-same-leaf",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "2f22fbc0a02e661aee2e8a3316325876b7ac48692b88077c1462fa5178c7c977",
+      "priorDigest": "3304faa0963e7c17dad417476a619317787b13ff44bd25faaf059e5e210f2faa",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T23:12:45.120Z"
     }
   ],
   "receipts": [
@@ -4312,6 +4369,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "d7a424774a7167dedd33617ca5f05a375b0584e3201309bbc0a0c1e06676876d",
         "signature": "5i7nNapgb2nG4pVznYrQwzSS/weY1OGd6qZHlZqrSDgg1F5AECW2I6M/0orTR3ekCQH5EZYqH7UhXF13uJOkAQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqfg4lc_127t_dd644ad2e4924a7196de0abccee95c89",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:59af4d94-64b7-458c-82b5-bb0bf456783c",
+      "requestDigest": "03c779afe50e1001c2c156678a4573d5af50ebd0ab1c1d7e58972a846a50c26e",
+      "recordIds": [
+        "lr_mtqfg4lc_127t_ba520701f1c8458da056c172fcf5f327"
+      ],
+      "priorLedgerDigest": "3304faa0963e7c17dad417476a619317787b13ff44bd25faaf059e5e210f2faa",
+      "committedLedgerDigest": "87a97ca21725cd1cf3826a840a6ab943b9745ac6bf8baf869a569f3a825f625d",
+      "writerSessionId": "sess-9de450e3485c005ac8327ed97c1fc9f4",
+      "writerFenceToken": "5796da23-b331-4559-8dd7-bf9a26e3f48c",
+      "committedAt": "2026-09-06T23:12:45.120Z",
+      "replayed": false,
+      "exactRequestDigest": "3d1a422bee1ffc3acbafe2217bc990735ac3acb5f9f70bfbc764795096fc0631",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqfg4lc_127t_dd644ad2e4924a7196de0abccee95c89",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:59af4d94-64b7-458c-82b5-bb0bf456783c",
+        "exactRequestDigest": "3d1a422bee1ffc3acbafe2217bc990735ac3acb5f9f70bfbc764795096fc0631",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqfg4lc_127t_ba520701f1c8458da056c172fcf5f327"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "3304faa0963e7c17dad417476a619317787b13ff44bd25faaf059e5e210f2faa",
+        "committedLedgerDigest": "87a97ca21725cd1cf3826a840a6ab943b9745ac6bf8baf869a569f3a825f625d",
+        "replayed": false,
+        "committedAt": "2026-09-06T23:12:45.120Z",
+        "writerSessionId": "sess-9de450e3485c005ac8327ed97c1fc9f4",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "5796da23-b331-4559-8dd7-bf9a26e3f48c",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "37484284c1e5407db9111a5dd8651025c08aecf223ec72ad79372594dc4bd713",
+        "signature": "zVkuUhCyEkQxPRLxL1H775t/PSQD4JBVgwEpP0ACwYnBG4EUTkc+kjWHJTfYxdCMm6CCVbWKb1Exd9NCKp2RAA=="
       }
     }
   ]
