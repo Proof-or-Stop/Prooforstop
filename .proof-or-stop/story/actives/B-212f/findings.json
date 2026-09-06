@@ -2367,7 +2367,7 @@
       "desc": "RI-003 wave 2 docs discovery corroboration of canonical F-038, not an additional family. Unchanged-material comparison and live finding_list preserve F-038 and F-034 as open verified defects. Canonical RR-057 binds material 5f21d60f and Story files 8c9a7add; prior integrated complete reads and bounded source inspections remain current. setupTimeoutFixture at validate-progress-heartbeat-smoke.ts:159-181 still writes retired lattice.config.json, whereas brand-paths.ts:9 recognizes only proof-or-stop.config.json. The previously independently executed exact fixture/runCli matrix against main 69403365 and head, with caller timeout absent or 31090000, returned allPass:true with commands:[] for the retired filename; renaming only temporary fixture config produced the expected true-hang 1000 ms timeout and named diagnostics in every control. runCli strips the caller max and pins 120000, so no outer-budget or production-executor defect is inferred. No suites or baseline matrices repeated in wave 2. F-038 requires canonical fixture filename repair with command-presence/timeout assertions retained; F-034 remains a separate unresolved ambient-key fixture repair. No new docs root found in the bounded delta, no retired-runtime compatibility restoration requested. This is signed corroborating discovery read evidence and request-changes, not acceptance or a false PASS. Decisions title-triaged with bounded excerpts, unchanged prior full-file reads reused truthfully; no implementation, phase or owner changes.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-05T16:50:50.010Z",
@@ -2439,7 +2439,11 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "canonical-timeout-fixture-filename",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Corroborating observation of B-212f:F-038, preserved in the original finding. Its underlying defect is repaired, not waived: 61ea99033b changes timeout fixture to proof-or-stop.config.json, retaining true-hang named timeout and command-presence controls. CHK-005:adversarial:0. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:44:02.211Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-048",
