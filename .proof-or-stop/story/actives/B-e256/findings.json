@@ -2067,6 +2067,67 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqch215_1v8k_18a1dbe594db46c3bcac66ad02280211",
       "ledgerCommitReceiptId": "lrc_mtqch215_1v8k_4a56e723e1704fa98c51128a0f2f634b"
+    },
+    {
+      "id": "B-e256:F-044",
+      "desc": "CHK-002:edge:0 lacks executable evidence for the second half of its must intent: appearing in proof-or-stop validation_plan output. The pinned command in checklist.json only parses proof-or-stop.config.json and prints the matching entry; it never invokes validation_plan, so planner discovery/output can regress while the selector remains green. A current `proof-or-stop validation_plan --storyId=B-e256 --tier=full --explain` run selected 132/132 commands, but the path packages/main/tests/red/red-global-cli-exec-bit.mjs appeared only as an unclassified material-path with `no impact index maps ... to a validation command`; the selected command unit is labeled only `configured validate.commands[84]`. The evidence note claims an unreceipted implementer transcript and therefore does not mechanically prove the promised planner output. This is distinct from F-043, which proves the red test false-passes when the build wrappers are unwired; this finding concerns validation-inventory/planner discoverability and its unsupported receipt. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T22:07:11.943Z",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "reviewRunId": "B-e256:RR-127",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "7e9b34f0805af756d0bd047de8906c04719b9cd8aedab9d285d1d2e3c1b28f69",
+      "files": [
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "signatureTag": "test-coverage-validation-plan-discoverability-unreceipted",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqd3tqh_1u4u_87b8c00a882d449f866f7422f61f839e",
+      "ledgerCommitReceiptId": "lrc_mtqd3tqh_1u4u_9e06127056ac432a8ccb88294283d267"
     }
   ]
 }
