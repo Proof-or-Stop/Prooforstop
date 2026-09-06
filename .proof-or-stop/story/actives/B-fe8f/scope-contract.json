@@ -379,10 +379,28 @@
       "phase": "DEV",
       "headHash": "26a90eab2b4312a622ca203c42233fd153ca6241",
       "materialHash": "05d627b81c424d2c4a4256844e86f5197d2b1bb2ff378a67fe3b2f4d93cabd21"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Bounded repair for BUG-CERT-001 under the user rule requiring current Story acceptance/DONE blockers to be fixed. Actual done_required_validate refused before launching any test; certification_window_begin CW003 is BLOCKED with pre_cert_causal_freshness_required. Independent enumeration of production resolver found eight retained legacy migration paths with zero domains and Lab/Utils lockfiles with both build-input and integration; derivation returns undefined. Limit repair to mutually exclusive build-input classification and bounded legacy migration identity hashing, with RED/GREEN and unknown/ambiguous fail-closed controls. Do not skip entries, remove certification gates, re-enable retired runtime paths, change other Stories or broaden lifecycle authority.",
+      "timestamp": "2026-09-06T15:34:18.046Z",
+      "paths": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "ee275b9cba441c9fd91a52b90b9b08e07cf5e1bc",
+      "materialHash": "05d627b81c424d2c4a4256844e86f5197d2b1bb2ff378a67fe3b2f4d93cabd21"
     }
   ],
   "createdAt": "2026-09-01T08:59:27.516Z",
-  "updatedAt": "2026-09-06T14:51:14.811Z",
+  "updatedAt": "2026-09-06T15:34:18.046Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -457,6 +475,8 @@
     "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
     "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts",
     "packages/main/tests/verifier-causal-preflight.test.mjs": "packages/main/tests/verifier-causal-preflight.test.mjs",
-    "packages/main/src/tasks/cli-surface-smoke.ts": "packages/main/src/tasks/cli-surface-smoke.ts"
+    "packages/main/src/tasks/cli-surface-smoke.ts": "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/handlers/certification-window.ts": "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts": "packages/main/src/tasks/certification-window-smoke.ts"
   }
 }
