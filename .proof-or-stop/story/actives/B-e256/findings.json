@@ -1663,7 +1663,7 @@
       "desc": "packages/main/src/core/runtime-environment-checks.ts:761-767 and packages/main/tests/global-core-realpath.test.mjs:247-258: CHK-003 adversarial shim coverage remains falsifiable because validateWindowsCommandShim treats any non-comment line containing the expected target plus node, exec, or _prog as an invocation. A current-head probe used an echo line naming the correct target followed by a node command invoking another target; global-core-realpath still returned pass with verification=ok, executable=true, remediation=null, and the contract marker. The existing mismatch test puts the expected target only in an @REM line, so it cannot catch a non-comment but non-executing reference. This is distinct from resolved F-029, where Windows validation passed without inspecting a shim: inspection now runs, but its invocation heuristic false-accepts a broken shim. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T21:21:02.544Z",
@@ -1717,7 +1717,11 @@
       "signatureTag": "windows-command-shim-nonexecuting-line-false-pass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbggup_16f_0b54591344e342a5a1cb5e8171308138",
-      "ledgerCommitReceiptId": "lrc_mtqbggup_16f_386df82767ea40e29ac396dff80adf74"
+      "ledgerCommitReceiptId": "lrc_mtqbggup_16f_386df82767ea40e29ac396dff80adf74",
+      "resolvedAt": "2026-09-06T23:38:32.208Z",
+      "resolvedReason": "Commit 3144360a65 restricts Windows shim acceptance to actual invoking command segments and rejects echo, REM, SET, GOTO, and other non-executing decoys. The cross-platform global-core fixture and current full validation pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-038",
