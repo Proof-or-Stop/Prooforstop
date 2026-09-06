@@ -3090,6 +3090,43 @@
       },
       "readDiagnostics": [],
       "_hash": "8e9a47036389d40d992dd47d65ae2970eb4c64f00a74e161e5ed811a6719eac5"
+    },
+    {
+      "id": "B-fe8f:RP-081",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-005 wave-2 independent completeness/saturation review only; F-061/F-062 and BUG-CERT-002 remain verified open blockers pending repair, not overall PASS or DONE. RR-132 began after all actual wave terminals concept RR129/RP079, quality RR130/F062, coverage RR131/RP080. Read the exact current signed epoch including prior wave family, all three terminal notes/read manifests/mechanical summaries, complete F062 observation, and canonical SAFE_INCREMENTAL basis from my RR128/RP078 (no changed or impacted files). Independently compared F062 to the prior F061 observation and original DONE-required FAIL/source/detector inspected in wave1: both identify the identical deprecated-literal startsWith comparison at certification-window.ts189, the same product-runtime detector and the same failed root command under unchanged source and frozen material. This proves same root beyond mere matching text/signatureTag; no independent second failure mechanism is asserted. Bounded git diff since f08b9c8 for source/tests/scripts/docs/config/guides is empty. Read-only production evaluator verifies epoch signature, exactly raw F062, three complete lanes, no duplicate identities, baseline mismatch or unresolved/invalid dispositions when F062 is assigned verified_family certification-historical-tombstone-brand-decision. The signed prior wave already includes that family, so newFamilies is empty. I did not use not_verified or suppress the blocker. Current duplicate disposition validation requires its canonical verified-family row in the same raw wave; F061 is prior-wave only, so I did not fabricate raw membership or an unsupported cross-wave duplicate artifact. Same-family disposition retains both original findings and their repair obligation. Unchanged source is a sound reuse condition, not proof that all undiscovered defects are impossible; this bounded second wave found no additional family. No test, heavy validation, source/scope change, finding resolution, guard exemption, signature registry write, topology PASS, quorum or DONE claim. Owner must still finalize through the actual gate and repair with preserved exact historical tombstone bindings and live/unknown refusals.",
+      "createdAt": "2026-09-06T16:39:38.223Z",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "reviewRunId": "B-fe8f:RR-132",
+      "envelopeId": "f7821ae88db138f1d9c658878f9c7e6abd8ce3ca82918c984733150933b5a0d8",
+      "writerSessionId": "sess-49530f5882795aa8589913110ebfa3c0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-passes.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-runs.json",
+          "AGENTS.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "scripts/verify-proof-or-stop-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2e558103adc487d41b1687412b899d80e4d9bfcd46ebb0ac24cd85b1ddef1bc6"
     }
   ]
 }
