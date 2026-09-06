@@ -2623,7 +2623,7 @@
       "desc": "Independent quality source-executed Part E2 on current compiled code exits1: physical execution count3 versus required5. Distinct selector pairs and same-timeout/different audited provenance share causal keys, while current command-policy.ts188 and staleReexecCandidate require exact selector/type/kind/cwd/effective-timeout/provenance grouping. History a8f73da7bc3 established the refresh-specific contract; merge594908f8df removed group-consumption/cloned-group import but retained unused groups declaration, strict candidate key, and E2. Main already contains this integration defect. Pre-existing medium current-validation and documented-refresh-contract blocker. Owner explicitly selects restoring the existing strict refresh promise, not rewriting E2 to3: bind the authoritative strict refresh semantics to actual causal execution/cache identity, preserve generic U03 exact-key reuse and independent selector handling elsewhere, retain E1/E2/E3 and failure demotion.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T17:23:42.904Z",
@@ -2635,7 +2635,11 @@
         "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
       ],
       "signatureTag": "strict-refresh-execution-group-integration",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "31351f6c67 binds strict refresh key to physical cache and signed causal identity, and receipt executionKey to preflight cache. Ordinary generic batching is preserved; unchanged exact/distinct refresh controls pass. CHK-007:happy:0 and adversarial:0. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:44:10.184Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-054",
