@@ -1,14 +1,14 @@
 {
-  "schema": "proofOrStop.done-required-evidence",
+  "schema": "proof-or-stop.done-required-evidence",
   "version": 1,
   "storyId": "B-fe8f",
   "status": "FAIL",
-  "startedAt": "2026-09-04T20:33:08.329Z",
-  "endedAt": "2026-09-04T20:42:42.839Z",
-  "durationMs": 574510,
-  "headHash": "12ac0379d7a9f75c44df599bb0c2a87140869104",
-  "materialHash": "4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2",
-  "storyFilesHash": "1016081edd126aa4239610b0f1cb8c65bfb2a43e3634bd71bc9a776d3e1096ff",
+  "startedAt": "2026-09-06T16:20:03.499Z",
+  "endedAt": "2026-09-06T16:20:57.845Z",
+  "durationMs": 54346,
+  "headHash": "bf72ae00f253a68eaa9117f4e87e1828d9344f79",
+  "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
+  "storyFilesHash": "15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607",
   "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
   "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
   "receipts": [
@@ -22,7 +22,7 @@
         "build"
       ],
       "commandSpec": {
-        "schema": "lattice.command-spec.v2",
+        "schema": "proof-or-stop.command-spec.v2",
         "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
         "command": "npm",
         "args": [
@@ -40,17 +40,17 @@
       "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 1488,
-      "outputDigest": "b289003b800777f2f44c820386bb30f988a0c69813c72d3c2f27f68e3e433544",
-      "outputTail": "\n> @proof-or-stop/core@0.3.275 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
-      "startedAt": "2026-09-04T20:33:08.331Z",
-      "endedAt": "2026-09-04T20:33:09.820Z",
-      "effectiveEnvironmentDigest": "9e30fab2b4f574579129f6971657458362a5a1a63ebcd2592d8d48bc2945d9f0",
+      "durationMs": 922,
+      "outputDigest": "652b482915173bcffbd13a4b1c175ab0fed518d2cd1883469380d5587dbd594e",
+      "outputTail": "\n> @proof-or-stop/core@0.3.277 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-09-06T16:20:03.499Z",
+      "endedAt": "2026-09-06T16:20:04.422Z",
+      "effectiveEnvironmentDigest": "333ec4bb3eb5f284586b98cc0988c8209e9e54da8011bb67a0471da0568ddc2a",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "12ac0379d7a9f75c44df599bb0c2a87140869104",
-      "materialHash": "4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2",
-      "storyFilesHash": "1016081edd126aa4239610b0f1cb8c65bfb2a43e3634bd71bc9a776d3e1096ff"
+      "headHash": "bf72ae00f253a68eaa9117f4e87e1828d9344f79",
+      "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
+      "storyFilesHash": "15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607"
     },
     {
       "label": "root full test suite",
@@ -59,7 +59,7 @@
         "test"
       ],
       "commandSpec": {
-        "schema": "lattice.command-spec.v2",
+        "schema": "proof-or-stop.command-spec.v2",
         "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
         "command": "npm",
         "args": [
@@ -74,17 +74,17 @@
       "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f",
       "status": "FAIL",
       "exitCode": 1,
-      "durationMs": 572491,
-      "outputDigest": "566e860fa06f77080b0eaec1966915eb4385c6d62dec6b03a92dc4835f7ff30f",
-      "outputTail": "ct.ts with no importer; pinned by scripts/audit-silent-catches-baseline.json and docs/metadata/task.json; removal deferred to a dedicated dead-code story\n  extract  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+10 more)\n  full-suite-fixed-port-os-collision  kept-unregistered: reached by path from packages/main/src/tasks/full-suite-runner-smoke.ts\n  gap-analyze  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+4 more)\n  locate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  metadata-cross-check  kept-unregistered: loaded at runtime by the logic fixture packages/main/tests/fixtures/metadata-cross-check.json (dynamic import in its execute block) under the configured fixturesDir; not an inventory member by design\n  metadata-store  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  metadata-validate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  profiler  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+5 more)\n  story6-ab-dispatch  kept-unregistered: reached by path from packages/main/src/tasks/story6-ab-dispatch-smoke.ts\n  story6-acceptance-transcript  kept-unregistered: one-off Story 6 acceptance transcript generator cited by docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md; run by hand, not a smoke\n  test-fixture-gen  kept-unregistered: legacy @task-annotation fixture generator over extract.ts with no importer and no pins; deferred to the same dead-code story as its siblings so the pipeline is removed as one unit\n  test-runner  kept-unregistered: legacy @task-annotation flow test runner with no importer (handlers use test-runner-core.js); pinned by scripts/audit-silent-catches-baseline.json; removal deferred to a dedicated dead-code story\n  trace-diff  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+3 more)\n  trace-store  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  truth  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+4 more)\n  truth-analyze  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+1 more)\n  types  kept-unregistered: reached by path from packages/main/src/extension-api.ts (+9 more)\n  validate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  ledger validation-protocol-smoke  registered:npm-script+serial-reference+RESOURCE_POLICY+validate.commands+test:all\n  ledger observability-snapshot-smoke  registered:npm-script+test:all\n[PASS] tasks sweep: 364 packages/main/src/tasks files classified, 0 unclassified\n[PASS] managed asset CASE_MISMATCH detected for case-only variant proof_or_stop.md (filesystem: case-insensitive)\nnode:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: bin/proof-or-stop.js could not find a local @proof-or-stop/core CLI engine or a capable global proof-or-stop.\n\nChecked local candidates:\n  - /private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-full-suite-member-oFbd9r/proof-or-stop-wrapper-cjs-9iY5Uk/packages/main/dist/cli-engine.js\n  - /private/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-full-suite-member-oFbd9r/proof-or-stop-wrapper-cjs-9iY5Uk/node_modules/@proof-or-stop/core/dist/cli-engine.js\n  - /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f/packages/main/dist/dist/cli-engine.js\n\nRecovery:\n  - Install or update @proof-or-stop/core, then rerun: proof-or-stop init --verify-codex\n  - In the Proof-or-Stop repository, run: npm run build\n\n\n1 !== 0\n\n    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-fe8f/packages/main/dist/tasks/validation-protocol-smoke.js:1389:16 {\n  generatedMessage: false,\n\n...[truncated 1130 chars]",
-      "startedAt": "2026-09-04T20:33:10.012Z",
-      "endedAt": "2026-09-04T20:42:42.506Z",
-      "effectiveEnvironmentDigest": "9e30fab2b4f574579129f6971657458362a5a1a63ebcd2592d8d48bc2945d9f0",
+      "durationMs": 52681,
+      "outputDigest": "74a47fe3eedb3c2a8925b26397d40ab3f0ec3e5c0b8308b26912f97760b0f3bc",
+      "outputTail": "publishes only the proof-or-stop bin\nFAIL proof-or-stop-residue [brand-decision]: a DEPRECATED brand literal is used as a path DECISION\n  packages/main/src/handlers/certification-window.ts:189: if (entry.path.startsWith('.lattice/')) {\n\n1 forbidden decision site(s). A deprecated literal inside a comparison recognizes ONLY the old spelling, so the CANONICAL name silently fails while the old one keeps working (B-cdf6 F-065/F-061/F-062/F-068). Route the test through the read-both helpers in packages/main/src/core/brand-paths.ts — isStateDirPath / isAdapterDirPath / isConfigFilename / isManifestFilename — which accept both spellings by construction. Declaring the literal (a DEPRECATED_* constant) or naming it in a deprecation notice is still allowed; only using it as a decision is forbidden.\n\n\n--- test:residue-inject-repro INTERRUPTED ---\n\n\n--- test:retired-authority-vocabulary-guard INTERRUPTED ---\n\n\n--- test:proof-or-stop-prompt-baseline INTERRUPTED ---\n\n\n--- test:codex-heartbeat-timeout INTERRUPTED ---\n\n\n--- test:audit-scan-bin-token INTERRUPTED ---\n\n\n--- test:review-convergence-smoke INTERRUPTED ---\n\n\n--- test:review-loop-smoke INTERRUPTED ---\n\n\n--- test:delivery-context-pack-smoke INTERRUPTED ---\n\n\n--- test:flow-stability-smoke INTERRUPTED ---\n\n\n--- test:review-assurance-floor-smoke INTERRUPTED ---\n\n\n--- test:proofstory-intent-hardening-smoke INTERRUPTED ---\n\n\n--- test:scope-shrinkage-withdrawal-floor-smoke INTERRUPTED ---\n\n\n--- test:withdrawn-disposition-smoke INTERRUPTED ---\n\n\n--- test:milestone-status INTERRUPTED ---\n\n\n--- test:global-core-realpath INTERRUPTED ---\n\n\n--- test:brand-path-resolver-smoke INTERRUPTED ---\n\n\n--- test:config-filename-migration-smoke INTERRUPTED ---\n\n\n--- test:core-package-rename INTERRUPTED ---\n\n\n--- test:state-dir-migration INTERRUPTED ---\n\n\n--- test:identity-state-migrate-atomicity INTERRUPTED ---\n\n\n--- test:migration-contract INTERRUPTED ---\n\n\n--- test:review-incremental-context-smoke INTERRUPTED ---\n\n\n--- test:review-assurance-floor-storyfileshash-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-smoke INTERRUPTED ---\n\n\n--- test:docs-drift-wrapper-root INTERRUPTED ---\n\n\n--- test:graph-story-flag-smoke INTERRUPTED ---\n\n\n--- test:gitroot-cwd-contract INTERRUPTED ---\n\n\n--- test:process-fact-contract INTERRUPTED ---\n\n\n--- test:closeout-trust INTERRUPTED ---\n\n\n--- test:verifier-causal-preflight INTERRUPTED ---\n\n\n--- test:runtime-fact-contract INTERRUPTED ---\n\n\n--- test:evidence-quality INTERRUPTED ---\n\n\n--- test:anti-stall INTERRUPTED ---\n\n\n--- test:storydir-inside-gitroot-smoke INTERRUPTED ---\n\n\n--- test:gitroot-cwd-routing INTERRUPTED ---\n\n\n--- test:bare-gate-gitroot-cwd INTERRUPTED ---\n\n\n--- test:project-gitroot-cwd INTERRUPTED ---\n\n\n--- test:done-oracle-wrapper-root INTERRUPTED ---\n\n\n--- test:done-premerge-mainsha-recheck INTERRUPTED ---\n\n\n--- test:done-escalation-drift-advisory INTERRUPTED ---\n\n\n--- test:review-escalation-freshness-root INTERRUPTED ---\n\n\n--- test:dispatch-checklist-doctor-wrapper-root INTERRUPTED ---\n\n\n--- test:graceful-sites-gitroot-cwd INTERRUPTED ---\n\n\n--- test:experience-hint-worktree-cache INTERRUPTED ---\n\n\n--- test:done-merge-experience-refresh INTERRUPTED ---\n\n\n--- test:experience-coverage-gap INTERRUPTED ---\n\n\n--- test:nested-worktree-bootstrap INTERRUPTED ---\n\n\n--- test:e2e INTERRUPTED ---\n\n\n--- test:experience-arm-gate INTERRUPTED ---\n\n\n--- test:experience-arm-isolation-e2e INTERRUPTED ---\n\n\n--- test:convergence-breaker INTERRUPTED ---\n\n\n--- test:proofstory-acceptance-rollout INTERRUPTED ---\n\n> proof-or-stop@0.3.277 test:proofstory-acceptance-rollout\n> node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js\n\n\n\n--- test:topology-signing-source-guard INTERRUPTED ---\n\n\n--- test:signing-guard-mutation-proof INTERRUPTED ---\n\n\n--- test:validation-tier-planner INTERRUPTED ---\n\n\n--- test:single-owner-extraction INTERRUPTED ---\n\n\n--- test:validation-protocol INTERRUPTED ---\n\n\n--- test:narrowing-repin INTERRUPTED ---\n\nfull-suite: 5/65 passed in 50.2s; retries=0; jobs=3\n",
+      "startedAt": "2026-09-06T16:20:04.720Z",
+      "endedAt": "2026-09-06T16:20:57.445Z",
+      "effectiveEnvironmentDigest": "333ec4bb3eb5f284586b98cc0988c8209e9e54da8011bb67a0471da0568ddc2a",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "12ac0379d7a9f75c44df599bb0c2a87140869104",
-      "materialHash": "4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2",
-      "storyFilesHash": "1016081edd126aa4239610b0f1cb8c65bfb2a43e3634bd71bc9a776d3e1096ff"
+      "headHash": "bf72ae00f253a68eaa9117f4e87e1828d9344f79",
+      "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
+      "storyFilesHash": "15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607"
     }
   ],
   "reasons": [
