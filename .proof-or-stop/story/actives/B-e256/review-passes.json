@@ -1832,6 +1832,52 @@
       },
       "readDiagnostics": [],
       "_hash": "44771bdbbbaf7f092a5222c7e84d17eca9f223d82de339ff8b5f2832906aec3c"
+    },
+    {
+      "id": "B-e256:RP-050",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Final test-coverage review passed: audited all 12 verification intents and current evidence; all 10 must intents are covered, with 0 must gaps and 0 waivers. Independently reran red-global-cli-exec-bit and global-core-realpath successfully. The red test exercised final- and intermediate-symlink rejection, preserved the old dist on pre-promotion validation failure, and emitted the overall GREEN summary; the doctor test proved a failed compiled-version probe renders version=unknown rather than the manifest version. Read-only validation_plan selected registered validate.commands[84] (red-global-cli-exec-bit) in the full 132/132 command set. No new blocker.",
+      "createdAt": "2026-09-06T16:29:55.321Z",
+      "reviewRound": "2026-09-06T16:23:39.403Z",
+      "reviewRunId": "B-e256:RR-073",
+      "envelopeId": "eb0f1126fdf129fd38d7118fdc2823bcb30262685ca385b9639f3c557f1e0aa7",
+      "writerSessionId": "sess-f34da2028100952c764f50c203f4ad14",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/test-evidence.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "370b09af8d9c36ac643d99409b6727c159090333dbf95543f684c95b2ac759e7"
     }
   ]
 }
