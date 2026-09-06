@@ -2814,6 +2814,7 @@
       "signatureTag": "compatibility-schema-default-span-padding-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf9jcy_1em1_c5f1be6c8f114ecca00304b7d77cafa8",
+      "ledgerCommitReceiptId": "lrc_mtqf9jcy_1em1_27f86031ffe9489ba4a434f4b1b7cee1",
       "resolvedAt": "2026-09-06T23:07:37.681Z",
       "resolvedReason": "Duplicate of B-8a40:F-059, the complete corrected signed-read reproduction of the same compatibility/schema distance defect; both long witnesses are repaired and tested. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "duplicate",
@@ -2824,7 +2825,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:738-762 makes the persistent severity-authority state depend on an antecedent regex allowing at most three modifier words before `factor|criterion|basis|authority|...`; the general controlled-relation path at :765-784 sees only the immediately following segment for severity. Adding a fourth legitimate modifier before an evidence-only aside therefore drops the live severity antecedent and launders the later conclusion. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles REJECTED `Severity is the decisive factor. Record the audit result. It determines Story scope.` and the three-modifier `Severity is the sole decisive authoritative factor...` control, but all five ACCEPTED `Severity is the sole decisive controlling authoritative factor. Record the audit result. It determines Story scope.` and the equivalent with two evidence asides. All five accepted the safe `Severity is only one input to Story scope.` control. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:747-759 covers the canonical antecedent and multiple evidence continuations but never crosses the production `{0,3}` modifier boundary. This is distinct from F-052, which changes the later continuation into passive/outcome-first order, and F-054, which pads a same-sentence controlled concept pair beyond its character maxSpan; here the later pronoun conclusion remains canonical and only the persistent antecedent's arbitrary word-count truncation changes. Replace the fixed modifier count with a structurally bounded severity-authority antecedent and add all-role 3/4-word boundary plus unrelated-safe controls. Severity high because a one-word transformation lets Story-authored Task Context state severity-only scope authority while every REVIEW envelope is still minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T20:54:09.442Z",
@@ -2863,7 +2864,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "severity-persistent-antecedent-modifier-bound-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf9kgr_1fdu_f126ee2bd4724dbaa3c33de466d7adde",
+      "resolvedAt": "2026-09-06T23:07:39.112Z",
+      "resolvedReason": "Replace severity antecedent modifier ceilings with structural authority-noun recognition; four modifiers and multiple evidence-aside controls are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-058",
