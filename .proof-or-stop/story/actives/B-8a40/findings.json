@@ -2246,7 +2246,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:765-784 persists every defer_with_proof antecedent across all later segments and treats any later sentence-initial it, this, or that plus a responsibility outcome as referring to the disposition, without resetting when intervening prose introduces a nearer local antecedent. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject [defer_with_proof is recorded. Cache routing is a separate decision. It transfers generated work to another Story.] as disposition collapsed into applicability, even though It refers to the immediately preceding Cache routing decision. The local-only control [Audit evidence is recorded. Cache routing is a separate decision. It transfers generated work to another Story.] is accepted by all five roles, while the genuinely unsafe [defer_with_proof is recorded. It transfers responsibility to another Story.] remains rejected, isolating the false join to stale deferral state. This is distinct from F-012, whose local-antecedent false join is in cross-source negative-dismissal composition, and from F-036, which correctly preserves deferral state across evidence-only asides: here a substantive intervening subject should rebind or terminate the pronoun antecedent. The focused smoke has no deferral-plus-local-subject safe witness. Preserve state across bounded evidence-only continuations but reset or rebind it on a new substantive antecedent, with all-role unsafe direct, evidence-aside, and safe local-antecedent controls. Severity high because legitimate Story scope prose can prevent every reviewer run from assembling.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T20:06:12.584Z",
@@ -2284,7 +2284,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "deferral-state-local-antecedent-false-positive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf97yt_17l3_54036bf564104cc6843cd0f361c93a07",
+      "resolvedAt": "2026-09-06T23:07:22.921Z",
+      "resolvedReason": "Reset deferral antecedent state for a substantive local decision while preserving evidence-only asides; direct unsafe and cache-routing safe controls are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-047",
