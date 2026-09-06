@@ -659,6 +659,46 @@
       "_hash": "f39489eaabaf27631bf44a82521d9d534aaf7d791863de66e860c4cba7971e61",
       "signatureTag": "edge|unknown|quality-symlink-regression",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e256:F-020",
+      "desc": "packages/main/tests/red/red-global-cli-exec-bit.mjs:248-260 covers F-016 only when the final bin path component is a symlink. It has no case where an intermediate directory component is a symlink. At current HEAD, a bounded temp-dir probe declared bin dist/linked/cli.js with dist/linked symlinked to an outside directory; scripts/promote-dist.mjs:98-110 returned [\"dist/linked/cli.js\"] and changed the outside file from 0644 to 0755. Thus the committed F-016 regression is under-broad and does not detect the live intermediate-symlink escape independently recorded as B-e256:F-017. Add a hermetic intermediate-component symlink case that proves the outside referent stays 0644 and restoration fails before promotion. severity: medium",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T15:38:16.473Z",
+      "reviewRound": "2026-09-06T15:32:14.385Z",
+      "reviewRunId": "B-e256:RR-058",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "bac93242dcd401a72e6421489eaa2c3e706263b78aae514921ae3fead797f303",
+      "files": [
+        "scripts/promote-dist.mjs",
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ],
+      "signatureTag": "test-coverage-intermediate-symlink-escape",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
