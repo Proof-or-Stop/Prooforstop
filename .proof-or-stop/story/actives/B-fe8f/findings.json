@@ -1542,7 +1542,7 @@
       "desc": "Post-main merge mandatory CLI-surface smoke falsely expects supported nested Lab commands to be unavailable. Validate command125 and same-env isolated rerun exit1 at retired Lab alias stays unavailable: lab create. Baseline 55d5e34c6f360ef23e790a6c445bfb8b9a86e997. Current cli.ts19-42 loads and registers six Lab actions, alias-normalizer.ts33-38 maps them, and docs/CLI.md1114-1138 promises canonical nested plus flat compatibility commands. RED log /tmp/bfe8f-sameenv-cli-surface.bSgU6N/cli-surface-smoke.log. Fix this conflicting test oracle, retain six positive actions, unknown-action rejection, current config assertions and production behavior. This is a direct integration acceptance blocker, not authority to remove or expand Lab.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-06T14:07:05.641Z",
@@ -1554,7 +1554,11 @@
       "signatureTag": "doc-code-drift|ts|post-main-merge",
       "signatureTagSource": "auto",
       "recordId": "lr_mtpvyenf_17r5_1617b98dad51414fa7f7567535a34a26",
-      "ledgerCommitReceiptId": "lrc_mtpvyenf_17r5_3b1f20af23324198998b1c5047479b07"
+      "ledgerCommitReceiptId": "lrc_mtpvyenf_17r5_3b1f20af23324198998b1c5047479b07",
+      "resolvedAt": "2026-09-06T14:53:36.643Z",
+      "resolvedReason": "The failed cli-surface assertion incorrectly classified the currently supported Lab commands as retired. Existing CLI registration and docs/CLI.md establish the canonical nested surface and flat compatibility. Fix 2086edd40124c0fa2df88b3e0b39001f2414f52e corrects that test oracle to require the six supported actions and retains unknown-action negative controls across supported input prefixes; no Lab production behavior was removed or weakened. RED /tmp/bfe8f-sameenv-cli-surface.bSgU6N/cli-surface-smoke.log. Same-environment GREEN /tmp/bfe8f-f058-f060-green.gcmW8Z/. This is a test-oracle correction, not an unchanged-assertion production fix. Final genuine CLI validation completed on 2026-09-06: 132/132 commands have code=0, aggregate allPass=true; full original output /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-060",
