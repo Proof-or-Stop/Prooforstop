@@ -2159,7 +2159,7 @@
       "desc": "RI-003 wave 2 corroboration of canonical B-212f:F-036 only; no new defect family and no acceptance PASS. packages/main/src/handlers/checklist.ts:1661 still excludes already-pinned docs/manual intents from staleReexecCandidate, so async refresh at lines3112-3129 does not rerun them and cannot restore mechanical receipts. Fresh source inspection confirms the exact guard unchanged; git diff 810bec8..HEAD over production/test/script/config and Story background/plan/checklist inputs is empty. The previously executed actual Part B witness preserved in F-036 remains applicable on identical production dd65407421/material5f21d60f876149ae07175707c662798e5c550344fe4f36522a1c1b9541efdd63: INT-DOC mechanical:false/no receipt, identical CLI pin succeeds, direct smoke exits1 at B4. No suite or baseline rerun was performed for this corroboration. finding_list freshly confirms canonical F-036 is verified/open under RR-050, preserving its current Owner repair responsibility and original baseline evidence. F-040 was also freshly read and remains independently verified/open; scripts/verify-process-fact-contract.mjs:695 still reads legacy mutation environment variable. This terminal does not merge that separate root into F-036 or claim either issue repaired. Fresh RR-055 uses canonical full/FULL_CHEAPER_OR_EQUAL context; previously validated actual full and filename-triage reads are reused on identical source, with current delta and original Finding checks, as requested. No new quality family found in this bounded unchanged-material wave. Existing blockers remain; final family/zero-new classification belongs to the independent inventory critic, not this corroboration prose.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T16:49:00.877Z",
@@ -2220,7 +2220,11 @@
         "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
       ],
       "signatureTag": "pinned-nondefault-intent-refresh-recovery",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Corroborating observation of B-212f:F-036, preserved in the original finding. Its underlying defect is repaired, not waived: 61ea99033b admits immutable pinned docs/manual intents for actual reexecution; 31351f6c67 preserves signed recovery identity and timestamps. CHK-005:happy:0 and CHK-007 receipts. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:43:58.239Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-045",
