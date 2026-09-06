@@ -4,8 +4,8 @@
       "id": "CHK-001",
       "title": "Restore the executable bit on package.json bin targets when dist is promoted",
       "context": "Probe rp-mtk46lj8-90q9av and review rr-mtk4acx4-oqze5c establish that TypeScript emits non-executable bin files. promoteDist must validate and restore every package.json bin target on the staging tree before evicting the current dist. Final symlinks and intermediate-symlink escapes are rejected; only absent targets are benign.",
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-06T16:19:54.550Z",
       "endTime": null,
       "userSees": "After npm --prefix packages/main run build re-emits dist, ls -la packages/main/dist/cli.js shows -rwxr-xr-x and proof-or-stop --version prints the version instead of permission denied",
       "files": {
@@ -492,6 +492,17 @@
           "timestamp": "2026-09-06T15:28:51.765Z"
         }
       ]
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-09-06T16:19:54.550Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reattest completed implementation after the audited INIT/PLAN correction."
     }
   ]
 }
