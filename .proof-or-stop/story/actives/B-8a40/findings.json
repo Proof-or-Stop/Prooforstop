@@ -2554,7 +2554,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:738-762 and :765-784 recognize a cross-segment severity-only authority continuation only when the later segment begins with `it`, `this`, `that`, or an authority noun followed by an active decision verb. Equivalent passive or outcome-first continuations therefore evade both helpers and the per-segment classifier: against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED `Severity is the only factor. Story scope is determined by it.` and `Severity is the only criterion. Story responsibility is determined by that criterion.` All five correctly REJECTED the canonical cross-segment control `Severity is the only factor. It determines Story scope.` and the same-segment inverted control `Story scope is determined by severity alone.`, while accepting `Severity is only one input to Story scope.`, isolating the bypass to inverted cross-segment composition. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:738 and :747-759 cover same-segment inverted severity and active/pronoun cross-segment forms, but no passive outcome-first continuation. This is distinct from F-045, which moves a canonical pronoun continuation across source leaves, F-047, which is a false-positive caused by stale severity state after a nearer antecedent, and F-050, which concerns explicit-target deferral continuations. Make cross-segment severity composition invariant to passive/outcome-first word order while retaining explicit-negative and one-input controls, and add all-role witnesses. Severity high because Story-authored Task Context can assert that severity alone determines Story responsibility while every REVIEW envelope is still minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T20:34:14.401Z",
@@ -2593,7 +2593,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "severity-passive-cross-segment-authority-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf9exn_1bmi_f3b6a594062248e88f7b92f2f415ebf2",
+      "resolvedAt": "2026-09-06T23:07:31.947Z",
+      "resolvedReason": "Recognize passive outcome-first severity continuations as well as active pronoun relations; both committed passive witnesses are exercised. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-053",
