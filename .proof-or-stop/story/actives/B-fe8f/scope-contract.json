@@ -1,0 +1,482 @@
+{
+  "storyId": "B-fe8f",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts",
+    "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/handlers/finding-ledger.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "package.json",
+    "package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts",
+    "packages/main/src/core/machine.ts"
+  ],
+  "allowedCreate": [
+    "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+    "packages/main/src/core/finding-ledger.ts",
+    "packages/main/src/handlers/finding-ledger.ts",
+    "packages/main/src/core/runtime-evidence-receipt.ts",
+    "packages/main/src/tasks/finding-ledger-runtime-smoke.ts"
+  ],
+  "allowedTest": [
+    "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+    "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "protectedFiles": [
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+  ],
+  "explicitExcludes": [
+    "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/story-recall.ts"
+  ],
+  "scopeChangeReason": "User explicitly authorized all three B-fe8f closeout blockers on September6 with RED before GREEN. Exception for machine.ts is limited to F056 import plus existing signature-domain error renderer, not gate/signature changes. F055 must preserve original observation and valid reviewer binding; causal validation refusal requires demonstrated root cause and negative controls, never weaker freshness checks. All other exclusions/protection remain unchanged.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "Accepted scope extensions: the two runtime-evidence facades are required public command boundaries, and build-lock.mjs is required to fix the immutable RED concurrency failure with bounded FIFO admission.",
+      "timestamp": "2026-09-01T13:16:33.382Z",
+      "paths": [
+        "packages/main/src/core/finding-runtime-evidence.ts",
+        "packages/main/src/handlers/finding-runtime-evidence.ts",
+        "scripts/build-lock.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/finding-runtime-evidence.ts",
+        "packages/main/src/handlers/finding-runtime-evidence.ts",
+        "scripts/build-lock.mjs"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "e0b3d2552f2a521194cad1396f01bdab1be61a4f",
+      "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "REVIEW exposed a blocking integration defect: finding-ledger.json is newly generated protocol metadata but is absent from lifecycle closeout retention, so the first reviewer finding invalidates the same signed review run. This path is required only to classify that artifact without granting lifecycle authority.",
+      "timestamp": "2026-09-01T13:31:04.585Z",
+      "paths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/lifecycle-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6a409288fe9cac301c39543d25487ccea0723b9e",
+      "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "REVIEW proved the existing dependency smoke is a local Map simulation while the production PLAN-to-DEV transition only warns on unfinished story.depends. This path is required to make the documented B-fe8f then B-03b7 then B-e6d9 dependency order a fail-closed zero-write lifecycle gate with real regression evidence.",
+      "timestamp": "2026-09-01T13:41:39.831Z",
+      "paths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/transition-orchestrator.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "6a409288fe9cac301c39543d25487ccea0723b9e",
+      "materialHash": "dacc9b3821d526628cd087c87072045330f28a35a9ffd15363d92370beb99220"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Required to complete F-013 canonical @proof-or-stop/lab packaging, bootstrap registration, executable promotion, and clean-install verification without leaving legacy @lattice/lab entrypoints.",
+      "timestamp": "2026-09-01T16:53:23.133Z",
+      "paths": [
+        "packages/lab/package-lock.json",
+        "packages/lab/package.json",
+        "packages/lab/src/index.ts",
+        "packages/lab/src/register.ts",
+        "packages/lab/src/tool-defs.ts",
+        "packages/main/package-lock.json",
+        "packages/utils/package-lock.json",
+        "scripts/build-main-with-binding.mjs",
+        "scripts/verify-global-lab-entrypoint.mjs",
+        "bin/bootstrap-runner.js"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/lab/package-lock.json",
+        "packages/lab/package.json",
+        "packages/lab/src/index.ts",
+        "packages/lab/src/register.ts",
+        "packages/lab/src/tool-defs.ts",
+        "packages/main/package-lock.json",
+        "packages/utils/package-lock.json",
+        "scripts/build-main-with-binding.mjs",
+        "scripts/verify-global-lab-entrypoint.mjs",
+        "bin/bootstrap-runner.js"
+      ],
+      "affectedPathCount": 10,
+      "phase": "DEV",
+      "headHash": "b400f22f1dfcc9b660c7257946d2c0416b944f2f",
+      "materialHash": "560f1c769c34868fadf372de0d9fb144f86bf842ff978c82740eb7824786b295",
+      "anchors": [
+        "finding.F013",
+        "canonical_lab_package",
+        "clean_install",
+        "repo_local_bootstrap"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Main merged the B-022e identity cutover after this Story branched: the retired .lattice story tree for B-fe8f was moved to canonical .proof-or-stop storage by the one-shot identity_state_migrate command (the eight deletions are that move, not content edits), and lattice-brand.ts (already in allowedModify for the CLI version bump) was renamed by main to proof-or-stop-brand.ts, so the same version-constant edit now lands on the renamed file.",
+      "timestamp": "2026-09-02T08:08:20.579Z",
+      "paths": [
+        ".lattice/story/actives/B-fe8f/background.md",
+        ".lattice/story/actives/B-fe8f/checklist.json",
+        ".lattice/story/actives/B-fe8f/execution-boundary.json",
+        ".lattice/story/actives/B-fe8f/index.json",
+        ".lattice/story/actives/B-fe8f/init-check.json",
+        ".lattice/story/actives/B-fe8f/process-events.jsonl",
+        ".lattice/story/actives/B-fe8f/scope-boundary.json",
+        ".lattice/story/actives/B-fe8f/scope-freeze-check.json",
+        "packages/main/src/core/proof-or-stop-brand.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".lattice/story/actives/B-fe8f/background.md",
+        ".lattice/story/actives/B-fe8f/checklist.json",
+        ".lattice/story/actives/B-fe8f/execution-boundary.json",
+        ".lattice/story/actives/B-fe8f/index.json",
+        ".lattice/story/actives/B-fe8f/init-check.json",
+        ".lattice/story/actives/B-fe8f/process-events.jsonl",
+        ".lattice/story/actives/B-fe8f/scope-boundary.json",
+        ".lattice/story/actives/B-fe8f/scope-freeze-check.json",
+        "packages/main/src/core/proof-or-stop-brand.ts"
+      ],
+      "affectedPathCount": 9,
+      "phase": "DEV",
+      "headHash": "fc45b029668507b92866aab7559c564fb5b90172",
+      "materialHash": "c9974a8bf0d4127a00eb534d13a229dcac7ed302c541ac66b9a65eeb43885d73",
+      "anchors": [
+        "identity_cutover_merge",
+        "identity_state_migrate"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Full validate exposed two framework guards that the Story 3 sources trip: red-b49d4-harness-registration requires the new RED harness to be registered in proof-or-stop.config.json validate.commands, and retired-authority-vocabulary-guard pins a dynamic binding graph build ceiling (808) that the three new Story 3 source files raise to 811; both files are touched only to register the harness and refresh the ceiling.",
+      "timestamp": "2026-09-02T12:54:45.291Z",
+      "paths": [
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "proof-or-stop.config.json",
+        "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "dd45caa2ea97c16cd22ebf522c5d34dadeec0d82",
+      "materialHash": "9cbfbe65767c96e02c387f0ef15062a25c498976220ce4d1cfd5d838ed7caba7",
+      "anchors": [
+        "validate_registration",
+        "binding_build_ceiling"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "This command-generated append-only Finding ledger is the canonical durable artifact required by B-fe8f Story 3A acceptance and its receipt, replay, and CAS verification.",
+      "timestamp": "2026-09-02T19:53:08.181Z",
+      "paths": [
+        ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "42d53b36010fd9d1d3f57b885c76c6abf8f47a3a",
+      "materialHash": "cd7b333358dde5573fbe3e1a729e8025c33d69ab7ee4f1c6fe5c629c450b371f"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "B-fe8f CHK-001 added one validate.commands entry, so the existing real-inventory contract requires a mechanical commandSetDigest re-pin; no validation-planner behavior is changed.",
+      "timestamp": "2026-09-03T19:19:45.813Z",
+      "paths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "16dd8f619c1fc85274338af3c5b381ea1f260e75",
+      "materialHash": "e2c78a9f38dd24ee93d7f0ed82157f9ad417abc4e9c03ec2e78bd4a0dbe80016",
+      "hunkDigest": "b4a751b0b17b599a3de40cdb241dcfd909810d4c1b4c9c0a212cd5b40d82c616"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Current REVIEW high blocker F-033 proves these four live Finding writers bypass the authoritative ledger and can lose B-META, cluster, status, or signature mutations on the next projection read; bounded changes are required by CHK-002 and Section 9.3 exactly-once durability.",
+      "timestamp": "2026-09-05T09:47:39.605Z",
+      "paths": [
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/handlers/cluster.ts",
+        "packages/main/src/core/cluster-sync.ts",
+        "packages/main/src/handlers/signature-backfill.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/audit-meta-store.ts",
+        "packages/main/src/handlers/cluster.ts",
+        "packages/main/src/core/cluster-sync.ts",
+        "packages/main/src/handlers/signature-backfill.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "b950a4e308b71a38bd8cb2b8896e3b89de768875",
+      "materialHash": "0d6a1ddb0f31339bb63e2c8fc52081671b73830520cbac57fff261e4085556b2",
+      "anchors": [
+        "finding.F033",
+        "finding.F036",
+        "finding.F039",
+        "section9_3.everyFindingMutation"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The accepted F-033 repair uses dependency injection rather than a forbidden core-to-handler dependency; these three existing handler entrypoints must pass the single authoritative Finding mutation adapter into audit, gap, and cluster-sync production writers, with no unrelated behavior changes.",
+      "timestamp": "2026-09-05T09:52:10.791Z",
+      "paths": [
+        "packages/main/src/handlers/audit.ts",
+        "packages/main/src/handlers/gap-log.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/audit.ts",
+        "packages/main/src/handlers/gap-log.ts",
+        "packages/main/src/handlers/verifier.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "b950a4e308b71a38bd8cb2b8896e3b89de768875",
+      "materialHash": "0d6a1ddb0f31339bb63e2c8fc52081671b73830520cbac57fff261e4085556b2",
+      "anchors": [
+        "finding.F033",
+        "finding.F039",
+        "authoritativeFindingMutation.adapter"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Current B-fe8f evidence refresh mechanically failed with causal_receipt_identity_mismatch because repeated stale rows for one verifier observed Git index stat-cache drift; these two paths are required to execute each initial executionKey group once and prove immutable stamp cloning without weakening identity checks.",
+      "timestamp": "2026-09-05T10:20:34.371Z",
+      "paths": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/checklist.ts",
+        "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "cd5e4deaf31a9fb8f6a43c06a13742a5db19d62b",
+      "materialHash": "19c5a09fe21ae7284383dc6a7685261598988302ad8a0c3358a2d9462c8546f8",
+      "anchors": [
+        "causalReceipt.identityMismatch",
+        "verificationRefresh.executionKeyGrouping",
+        "story.B_fe8f"
+      ]
+    },
+    {
+      "actor": "main-agent",
+      "reason": "These three CLI-created draft files implement the user-required evidence-backed accounting for nonblocking review observations without implementing those observations in B-fe8f. gap_log refused the existing unrelated B-META provenance chain, so the repository guide explicitly permits a traceable draft/backlog fallback. The draft preserves evidence, uncertainty, later ownership and escalation triggers; it is not a signed applicability assessment, deferral receipt or expansion of the current implementation scope.",
+      "timestamp": "2026-09-05T12:59:05.718Z",
+      "paths": [
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json",
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json",
+        "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "92a74dee07e5068a7000c3d69a69ce01f571cfde",
+      "materialHash": "6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Bounded current lifecycle acceptance repairs for registered verified findings B-fe8f:F-050 through F-053. Three existing mandatory verification fixtures use retired environment/config names or an incorrect compiled repository root; the public Lab nested aliases are documented but absent. Preserve all assertions and current production authority boundaries. Change only these four files to restore the demonstrated mandatory validation paths; no global brand migration or trust portability expansion.",
+      "timestamp": "2026-09-05T14:35:45.192Z",
+      "paths": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/done-required-validation-smoke.ts",
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "packages/main/src/tasks/english-early-check-smoke.ts",
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "affectedPathCount": 4,
+      "phase": "DEV",
+      "headHash": "62486c1cb6ca0da192481ce755e272607af0cd09",
+      "materialHash": "6949bb39b69a6f62ce0da227daa3d0e99e07a441f7b7b3a9d82ea1b65151e70b"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "The user explicitly authorized closing the three current B-fe8f blockers with RED then GREEN. Bound this acknowledgement to refusal diagnostics and negative controls for the existing causal beforeLaunch gate, plus the minimal explanatory comment addressing original F055; do not relax gate predicates, latest-run binding, signatures, hash freshness, or test assertions. F056 machine exception is already separately recorded.",
+      "timestamp": "2026-09-06T13:05:41.738Z",
+      "paths": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/verifier.ts",
+        "packages/main/tests/verifier-causal-preflight.test.mjs",
+        "packages/main/src/tasks/done-required-validation-smoke.ts"
+      ],
+      "affectedPathCount": 3,
+      "phase": "DEV",
+      "headHash": "e8b35c09b96bfa363940a795f24d7c012be5fb67",
+      "materialHash": "7d96979ca81ec8919179c36897e5ace9584aa2616f75dce4c994047ef45fa233"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Bounded acceptance-blocker repair F-059 under the user instruction to repair current Story gate failures. The actual 132-command validation at 55d5e34 failed this required CLI-surface test because its oracle declared supported Lab commands retired, contradicting the existing CLI registration and docs/CLI.md. Source commit 2086edd40124c0fa2df88b3e0b39001f2414f52e corrects only the six supported-action assertions and adds unknown-action negative controls, with no Lab production feature changes. RED log /tmp/bfe8f-sameenv-cli-surface.bSgU6N/cli-surface-smoke.log; same-environment focused GREEN /tmp/bfe8f-f058-f060-green.gcmW8Z/; actual final validation /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log has 132/132 zero exit codes and allPass=true. This exact path acknowledgment records the necessary integration repair and does not authorize unrelated scope expansion.",
+      "timestamp": "2026-09-06T14:51:14.811Z",
+      "paths": [
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "26a90eab2b4312a622ca203c42233fd153ca6241",
+      "materialHash": "05d627b81c424d2c4a4256844e86f5197d2b1bb2ff378a67fe3b2f4d93cabd21"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Bounded repair for BUG-CERT-001 under the user rule requiring current Story acceptance/DONE blockers to be fixed. Actual done_required_validate refused before launching any test; certification_window_begin CW003 is BLOCKED with pre_cert_causal_freshness_required. Independent enumeration of production resolver found eight retained legacy migration paths with zero domains and Lab/Utils lockfiles with both build-input and integration; derivation returns undefined. Limit repair to mutually exclusive build-input classification and bounded legacy migration identity hashing, with RED/GREEN and unknown/ambiguous fail-closed controls. Do not skip entries, remove certification gates, re-enable retired runtime paths, change other Stories or broaden lifecycle authority.",
+      "timestamp": "2026-09-06T15:34:18.046Z",
+      "paths": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "ee275b9cba441c9fd91a52b90b9b08e07cf5e1bc",
+      "materialHash": "05d627b81c424d2c4a4256844e86f5197d2b1bb2ff378a67fe3b2f4d93cabd21"
+    }
+  ],
+  "createdAt": "2026-09-01T08:59:27.516Z",
+  "updatedAt": "2026-09-06T15:34:18.046Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/store.ts": "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts": "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/core/mkdir-lock.ts": "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/cli/command-catalog.ts": "packages/main/src/cli/command-catalog.ts",
+    "packages/main/src/core/command-policy.ts": "packages/main/src/core/command-policy.ts",
+    "packages/main/src/core/config.ts": "packages/main/src/core/config.ts",
+    "packages/main/src/core/evidence/artifact-store.ts": "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/handlers/finding-ledger.ts": "packages/main/src/handlers/finding-ledger.ts",
+    "packages/main/src/registry.ts": "packages/main/src/registry.ts",
+    "packages/main/src/core/process-fact-levels.ts": "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "package.json": "package.json",
+    "package-lock.json": "package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/core/lattice-brand.ts": "packages/main/src/core/lattice-brand.ts",
+    "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+    "packages/main/src/core/finding-ledger.ts": "packages/main/src/core/finding-ledger.ts",
+    "packages/main/src/core/runtime-evidence-receipt.ts": "packages/main/src/core/runtime-evidence-receipt.ts",
+    "packages/main/src/tasks/finding-ledger-runtime-smoke.ts": "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md": "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+    "packages/main/src/core/candidate-spec-routing.ts": "packages/main/src/core/candidate-spec-routing.ts",
+    "packages/main/src/core/advisory.ts": "packages/main/src/core/advisory.ts",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/story-recall.ts": "packages/main/src/core/story-recall.ts",
+    "packages/main/src/core/finding-runtime-evidence.ts": "packages/main/src/core/finding-runtime-evidence.ts",
+    "packages/main/src/handlers/finding-runtime-evidence.ts": "packages/main/src/handlers/finding-runtime-evidence.ts",
+    "scripts/build-lock.mjs": "scripts/build-lock.mjs",
+    "packages/main/src/core/lifecycle-registry.ts": "packages/main/src/core/lifecycle-registry.ts",
+    "packages/main/src/handlers/transition-orchestrator.ts": "packages/main/src/handlers/transition-orchestrator.ts",
+    "packages/lab/package-lock.json": "packages/lab/package-lock.json",
+    "packages/lab/package.json": "packages/lab/package.json",
+    "packages/lab/src/index.ts": "packages/lab/src/index.ts",
+    "packages/lab/src/register.ts": "packages/lab/src/register.ts",
+    "packages/lab/src/tool-defs.ts": "packages/lab/src/tool-defs.ts",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/utils/package-lock.json": "packages/utils/package-lock.json",
+    "scripts/build-main-with-binding.mjs": "scripts/build-main-with-binding.mjs",
+    "scripts/verify-global-lab-entrypoint.mjs": "scripts/verify-global-lab-entrypoint.mjs",
+    "bin/bootstrap-runner.js": "bin/bootstrap-runner.js",
+    ".lattice/story/actives/B-fe8f/background.md": ".lattice/story/actives/B-fe8f/background.md",
+    ".lattice/story/actives/B-fe8f/checklist.json": ".lattice/story/actives/B-fe8f/checklist.json",
+    ".lattice/story/actives/B-fe8f/execution-boundary.json": ".lattice/story/actives/B-fe8f/execution-boundary.json",
+    ".lattice/story/actives/B-fe8f/index.json": ".lattice/story/actives/B-fe8f/index.json",
+    ".lattice/story/actives/B-fe8f/init-check.json": ".lattice/story/actives/B-fe8f/init-check.json",
+    ".lattice/story/actives/B-fe8f/process-events.jsonl": ".lattice/story/actives/B-fe8f/process-events.jsonl",
+    ".lattice/story/actives/B-fe8f/scope-boundary.json": ".lattice/story/actives/B-fe8f/scope-boundary.json",
+    ".lattice/story/actives/B-fe8f/scope-freeze-check.json": ".lattice/story/actives/B-fe8f/scope-freeze-check.json",
+    "packages/main/src/core/proof-or-stop-brand.ts": "packages/main/src/core/proof-or-stop-brand.ts",
+    "proof-or-stop.config.json": "proof-or-stop.config.json",
+    "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+    ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json": ".proof-or-stop/story/actives/B-fe8f/finding-ledger.json",
+    "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+    "packages/main/src/core/audit-meta-store.ts": "packages/main/src/core/audit-meta-store.ts",
+    "packages/main/src/handlers/cluster.ts": "packages/main/src/handlers/cluster.ts",
+    "packages/main/src/core/cluster-sync.ts": "packages/main/src/core/cluster-sync.ts",
+    "packages/main/src/handlers/signature-backfill.ts": "packages/main/src/handlers/signature-backfill.ts",
+    "packages/main/src/handlers/audit.ts": "packages/main/src/handlers/audit.ts",
+    "packages/main/src/handlers/gap-log.ts": "packages/main/src/handlers/gap-log.ts",
+    "packages/main/src/handlers/verifier.ts": "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md": "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+    "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json": "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json",
+    "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json": "docs/story/drafts/finding-ledger-nonblocking-review-followups/index.json",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/tests/verifier-causal-preflight.test.mjs": "packages/main/tests/verifier-causal-preflight.test.mjs",
+    "packages/main/src/tasks/cli-surface-smoke.ts": "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/handlers/certification-window.ts": "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts": "packages/main/src/tasks/certification-window-smoke.ts"
+  }
+}

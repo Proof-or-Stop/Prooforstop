@@ -1,0 +1,39 @@
+{
+  "task": "Build the dependency foundation that makes every Finding-system write exactly-once and every mutable runtime witness cryptographically bound and freshness-checkable.",
+  "outcome": "Terminal output shows: Finding ledger integrity: PASS — 100 concurrent appends produced 100 unique durable rows, replay returned the original IDs, and a stale CAS wrote zero records. Runtime evidence integrity: PASS — the signed receipt matches the current source, command, environment, toolchain and artifact bytes; tampered, stale, non-authoritative or unstable receipts are refused with a reason code.",
+  "facts": [
+    "B-1fa6 accepted docs/requirements/decisions/dynamic-finding-system-execution-plan.md as the design and acceptance truth source.",
+    "Section 9.3 requires internal order 3A ledger integrity before 3B runtime evidence integrity.",
+    "Current finding_add serializes a read-push-write section, but allocates display IDs from array length and has no general FindingLedgerReceipt or idempotency/CAS transaction.",
+    "StoryStore atomic replacement validates temp JSON then renames it, but does not currently expose a schema-neutral fenced multi-record transaction or acknowledged file and directory fsync boundary.",
+    "Current VerificationExecutionReceipt records exit/output/selector/time data but does not implement the accepted RuntimeEvidenceReceipt artifact, source, environment, toolchain, trust and content-addressed blob bindings.",
+    "B-03b7 depends on this Story for identity and lineage persistence; B-e6d9 depends on both for applicability enforcement."
+  ],
+  "constraints": [
+    "Audit and reuse existing per-Story, main/B-META, process-event, build and Store transaction primitives instead of creating an uncoordinated lock tree.",
+    "Persistence authority proves exact durable bytes only and must never promote candidate, route, baseline, historical or receipt records into semantic gate authority.",
+    "The supported fault model is canonical shared local filesystem plus crash, kill, retry, stale lock and partial temp writes; unsupported multi-host/NFS and corruption assumptions must fail closed.",
+    "FindingLedgerReceipt and RuntimeEvidenceReceipt fields, signatures and exact-byte CAS behavior must match the accepted document.",
+    "Legacy Finding bytes remain readable and are not rewritten merely to backfill ledger identity.",
+    "Story 3 must not import or implement Story 2 identity/lineage policy or Story 1 applicability/routing/gate policy.",
+    "All process facts consumed by lifecycle or future gates require registry plus mechanical verifier updates and adversarial mutation tests."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/store.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/core/finding-ledger.ts",
+    "packages/main/src/core/runtime-evidence-receipt.ts",
+    "packages/main/src/core/evidence/artifact-store.ts",
+    "packages/main/src/core/mkdir-lock.ts",
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/handlers/finding-ledger.ts",
+    "packages/main/src/registry.ts",
+    "packages/main/src/core/process-fact-levels.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+    "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+  ],
+  "timestamp": "2026-09-01T08:22:43.803Z"
+}

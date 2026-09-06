@@ -88,6 +88,62 @@ export interface ProcessFactRegistryEntry {
   rationale: string;
 }
 
+export interface Story3PersistenceOnlyRecordPolicy {
+  recordClass: 'persistence' | 'candidate' | 'route' | 'baseline' | 'history' | 'standalone-receipt' | 'ledger-receipt';
+  recordTypes: readonly string[];
+  level: 'L2';
+  producer: string;
+  allowedConsumers: readonly ['finding_ledger_query'];
+  gateEvidence: false;
+  lifecycleAuthority: 'none';
+  rationale: string;
+}
+
+/**
+ * Persistence authority is deliberately narrower than semantic authority.
+ * These rows can prove exact durable bytes only; no row in this table may be
+ * promoted to L4 or consumed directly by a lifecycle predicate.
+ */
+export const PROCESS_FACT_STORY3_PERSISTENCE_ONLY_RECORD_POLICIES = [
+  { recordClass: 'persistence', recordTypes: ['finding', 'assessment_proposal', 'assessment', 'mandatory_repair', 'deferral_expiry_policy', 'deferral', 'manifest', 'supersession', 'material_drift_reattestation'], level: 'L2', producer: 'core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Atomic persistence proves durable exact bytes, not blocker/pass/unblock truth.' },
+  { recordClass: 'candidate', recordTypes: ['candidate', 'candidate_route'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Candidate bytes remain advisory until a separately registered semantic authority acts.' },
+  { recordClass: 'route', recordTypes: ['route'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Persisted route bytes never establish applicability or lifecycle disposition.' },
+  { recordClass: 'baseline', recordTypes: ['progress_baseline', 'progress_baseline_set', 'baseline_set'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Baseline bytes preserve a non-gate before-state and cannot block, pass, or unblock alone.' },
+  { recordClass: 'history', recordTypes: ['historical', 'canonical_defect', 'canonical_defect_supersession'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'Historical identity and recall bytes remain advisory rather than current lifecycle evidence.' },
+  { recordClass: 'standalone-receipt', recordTypes: ['standalone_receipt', 'route_receipt'], level: 'L2', producer: 'Story 2 schema-neutral caller through core/finding-ledger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'A standalone target receipt remains non-authoritative until an exact-CAS semantic consumer is registered.' },
+  { recordClass: 'ledger-receipt', recordTypes: ['finding_ledger_receipt'], level: 'L2', producer: 'handlers/finding-ledger.appendFindingLedger', allowedConsumers: ['finding_ledger_query'], gateEvidence: false, lifecycleAuthority: 'none', rationale: 'The signed commit receipt proves persistence integrity only and never the truth of committed content.' },
+] as const satisfies readonly Story3PersistenceOnlyRecordPolicy[];
+
+export const PROCESS_FACT_STORY3_RUNTIME_RECEIPT_POLICY = {
+  recordType: 'runtime_evidence_receipt',
+  level: 'L3',
+  producer: 'core/runtime-evidence-receipt + handlers/finding-ledger.verify',
+  allowedConsumers: ['finding_ledger_query'],
+  gateEvidence: false,
+  lifecycleAuthority: 'gate-eligible-input-only',
+  rationale: 'A current signed runtime receipt can be an input to a separately registered future gate consumer; persistence or query output alone never changes lifecycle state.',
+} as const;
+
+export const PROCESS_FACT_STORY3_FINDING_LIFECYCLE_POLICY = {
+  recordType: 'finding_lifecycle_transition',
+  level: 'L4',
+  producer: 'handlers/finding.appendFindingLifecycleTransition + handlers/finding-ledger.bindLegacyFindingLedgerReceipts',
+  allowedConsumers: ['StoryStore.readFindings', 'storyMachine.canPassReview'],
+  gateEvidence: true,
+  lifecycleAuthority: 'terminal-finding-state',
+  rationale: 'A current exact-signed append-only terminal transition is the canonical resolve/dismiss fact folded by readFindings before the REVIEW blocker gate. A pre-upgrade current-key transition missing only the nested exact digest remains fail-closed unless a separate current exact-signed legacy_lifecycle_receipt_binding re-attests its immutable carrier, record, source identity, and chain. Original Finding rows and historical transition bytes remain immutable.',
+} as const;
+
+export const PROCESS_FACT_STORY3_FINDING_PROJECTION_POLICY = {
+  recordType: 'finding_projection',
+  level: 'L4',
+  producer: 'handlers/finding-ledger.createAuthoritativeFindingMutation',
+  allowedConsumers: ['StoryStore.readFindings', 'storyMachine.canPassReview'],
+  gateEvidence: true,
+  lifecycleAuthority: 'current-finding-projection',
+  rationale: 'A current-key exact-signed, source-record CAS-bound append preserves live legacy Finding mutations without rewriting the immutable source row; StoryStore folds only verified projections in ledger order.',
+} as const;
+
 export const PROCESS_FACT_KIND_BY_COMMAND: Record<string, ProcessFactKind> = {
   validate: 'validation-status',
   done_required_validate: 'validation-status',
@@ -140,6 +196,9 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_pin_narrow: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
+  finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
+  finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
   review_run_start: ['review-run', 'prompt-envelope', 'schema-contract', 'workspace-binding', 'gate-evidence'],
   certification_window_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'blocker-state', 'gate-evidence'],
   certification_window_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
@@ -399,7 +458,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
-    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; strict refresh execution inputs bind the authoritative candidate key through physical execution, signed causal identity and receipt-keyed import checks; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
+    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context, while selector/type/kind bind distinct signed causal identities and receipt-keyed import checks; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
   },
   verification_run: {
     name: 'checklist.json',
@@ -1422,6 +1481,55 @@ export const PROCESS_FACT_ARTIFACTS = [
     consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.finding_add,
     rationale: 'Reviewer finding signatures prevent main-agent forgery.',
+  },
+  {
+    name: 'artifact:finding-ledger.json',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence'],
+    level: 'L2',
+    producer: 'handlers/finding + handlers/finding-ledger',
+    artifact: {
+      name: 'finding-ledger.json',
+      path: 'finding-ledger.json',
+      signed: true,
+      signature: 'signFindingLedgerReceipt/verifyFindingLedgerReceipt; every committed semantic row is covered by an exact signed commit receipt',
+      producerCommand: 'finding_add/finding_runtime_evidence_run',
+    },
+    rationale: 'Append-only Finding persistence carrier and REVIEW-retention metadata. It has no lifecycle/gate authority; protected query and runtime verification establish its receipt trust independently.',
+  },
+  {
+    name: 'artifact:finding-ledger-lifecycle-transition',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'gate-evidence', 'blocker-state', 'finding-state'],
+    level: 'L4',
+    producer: 'handlers/finding.appendFindingLifecycleTransition + handlers/finding-ledger.bindLegacyFindingLedgerReceipts',
+    consumerGate: 'StoryStore.readFindings projection consumed by storyMachine.canPassReview REVIEW to TEST gate',
+    artifact: {
+      name: 'finding-ledger-lifecycle-transition',
+      path: 'finding-ledger.json',
+      signed: true,
+      signature: 'FindingLedgerReceipt covers the immutable finding_lifecycle_transition record and exact source-record CAS binding; pre-upgrade nested-digest omission additionally requires a current exact-signed legacy_lifecycle_receipt_binding over exact carrier/record/source/chain bytes',
+      producerCommand: 'finding_resolve/finding_dismiss',
+      consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+    },
+    rationale: 'Only a current exact-signed finding_lifecycle_transition, or the same current-key pre-upgrade transition with a unique valid current exact-signed legacy_lifecycle_receipt_binding, carries terminal Finding authority; the binding alone and all other ledger rows retain narrower levels.',
+  },
+  {
+    name: 'artifact:finding-ledger-projection',
+    kind: 'signed-artifact',
+    semantics: ['artifact', 'signed-artifact', 'schema-contract', 'atomic-persistence', 'gate-evidence', 'blocker-state', 'finding-state'],
+    level: 'L4',
+    producer: 'handlers/finding-ledger.createAuthoritativeFindingMutation',
+    consumerGate: 'StoryStore.readFindings projection consumed by storyMachine.canPassReview REVIEW to TEST gate',
+    artifact: {
+      name: 'finding-ledger-projection',
+      path: 'finding-ledger.json',
+      signed: true,
+      signature: 'FindingLedgerReceipt covers each immutable finding_projection record and its exact source-record/current-chain CAS binding',
+      producerCommand: 'audit/gap_log/finding_cluster/finding_list/validate/signature_backfill',
+      consumerGate: 'storyMachine.canPassReview REVIEW to TEST gate',
+    },
+    rationale: 'Legacy live mutation surfaces gain durable exactly-once current-state authority only through a current-key exact-signed source-bound projection; unsigned findings.json changes remain non-authoritative.',
   },
   {
     name: 'artifact:review-passes.json',

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-fe8f",
+  "changes": "Implemented Section 9.3 Finding Ledger and Runtime Evidence Integrity: durable fenced append batches, idempotent replay, exact-record CAS, signed source/artifact/runtime binding, protected query and fail-closed readers. User-authorized closeout repairs preserve RED/GREEN: F056 uses the shared seven-field INIT_CHECK signature-domain renderer (e8b35c09b96bfa363940a795f24d7c012be5fb67); F055 explains the retired-prefix negative control (826ea187224bf510c801834cac9e8928ad29041c); F057 safely distinguishes causal preflight refusal branches (RED c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6, GREEN e23615ad1605e7126094de46d959341d9c407415). Main synchronization retains shared DONE predicates, full-output pinned evidence and receipt-keyed import isolation alongside B-fe8f raw-result reuse with independent selector verdicts. BUG-CERT-001 additionally repairs the current PRE_CERT admission blocker in two scoped files: disjoint sibling build-input rules and exact historical migration-tombstone classification without dropping hash inputs or re-enabling retired runtime paths (RED0fafd2dac95b9d2fb6a694173756679515f4790b, GREEN9754c4b3174ca1e36b3748539f417ebaab93dac5). BUG-CERT-002 corrects that follow-up repair without bypassing the brand guard: build inputs are bounded to current supported roots and only exact migration tombstones receive the historical exception (RED55c9f4e9ee60768a06c52f968dd716873b222b79, GREEN2bee7e31e2561365f507f1780fa72f07cbd51fd1).",
+  "usage": "From the Story worktree use node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f for the signed ledger/runtime scorecard. Use official Finding and runtime evidence CLI commands rather than editing protected records. After installation the public executable is proof-or-stop.",
+  "expectedOutcome": "Deliver the Section9.3 Finding ledger/runtime integrity foundation with genuine RED/GREEN evidence, fresh lifecycle verification, independent review and a local main merge.",
+  "actualTranscript": "Current source2bee7e31e2561365f507f1780fa72f07cbd51fd1 includes Section9.3 foundation and the bounded two-file BUG-CERT-002 repair. Prior failed DONE-required output on source9754 remains preserved at /tmp/bfe8f-cert002-red.AhG4Fx/done-required-tool-output.log. RED55c9f4e9ee60768a06c52f968dd716873b222b79 adds six unknown build-namespace assertions; unchanged assertions pass on GREEN2bee7e31. Focused build/certification/residue/residue-inject/retired-guard logs /tmp/bfe8f-cert002.ONPs6H/ and actual56changed-input/six-domain derivation pass. Official verification refresh and independent strict coverage confirm71/71 current mechanical PASS receipts, zero gaps and waivers, material29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6/storyFilesc0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8. Six checklist items/four milestones done. RI005's two waves preserved F061/F062 as one concrete family and authorized bounded DEV remediation; BUG-CERT-001/002 and F055-F062 are formally fixed/resolved. Final current REVIEW: RR133/RP082 concept, RR134/RP083 coverage, genuine ClaudeRR135/RP084 quality. CW005 ADMITTED. Actual live-smoke transcript is current and exits0 with genuine historical RED/current GREEN and corrupted-relation rejection controls. On2026-09-06 DONE-required PASS: build exit0; root suite65/65,retries0,619329ms; official result at /tmp/bfe8f-final-done-required.eR4hKC/stdout.log. Genuine standalone validate completed132/132 code0,allPass=true in1406.8seconds; full original logs /private/tmp/bfe8f-validation-observer.YPZEBu/run-YChCwC/. Current local full3x2 quorum commit28aad36157f09a9672324ed0234bec470e6547aa uses genuine claude-cli/claude-code and codex-desktop/codex sessions; it is six bookkeeping records, not six new independent reviews or Authority/productionDONE. REVIEW-to-TEST at14ce332 reused fresh validation under trusted-story-metadata-descendant lineage and did not rerun132commands. Acceptance rollout check is current enforcement PASS with no diagnostics; topology retains nonblocking observe/inconclusive. Fresh-context independent delivery check saved in commit38e6f55:12promises verified,0unverified;6checklist features tested,0waivers; independent RED verifier,ledger/runtime matrix and certification smoke exit0. Closing self-check reports real machine/edge coverage and no unresolved new TODOs. Local lifecycle DONE merge is the remaining transition, not yet claimed as performed. Exact historical F057 refusal branch remains unknown. Final done_prepare subsequently completedPASS in1410.9seconds: localDoneReady=true,doneClosurePASS,worktreeCleanPASS,full3x2; DONE-required result reused with trusted metadata lineage. Routine validation executed another genuine132/132 code0 under the default environment because the preceding standalone observer carried MAX_TIMEOUT7200000 and IDLE_TIMEOUT1800000. Read-only diagnostic replacing only all132 effective-environment digests exactly reconstructed the reported identity change 1ba2d76b66fe691990dcacd1b1059215ef98d3725bea7062ac8161098965cc98 to fb7e8372ced5d5bd17e0856e2506ee869b6b6f9c7c488f4143928959bc465b14. This was an extra actual execution, not routine reuse or a source change. Raw preparation stdout/stderr at /tmp/bfe8f-final-done-required.eR4hKC/done-prepare.stdout.log and done-prepare.stderr.log. Source,delivery and review remained unchanged; reviewerReattestations0. The remaining operation is the official DONE transition.",
+  "outcomeDiff": "No functional difference for the scoped Section9.3 foundation: the actual CLI transcript,71current mechanical receipts,independent review/delivery and both required suites substantiate the promised supported local behavior. Later Identity/Lineage and Dynamic Applicability remain explicitly excluded. The CLI must still perform the local DONE merge; this summary does not claim that transition has already occurred.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Ledger/runtime foundation only; Identity/Lineage and Dynamic Applicability are later dependency-ordered Stories. Supported authority is the canonical shared local repository and linked worktrees; a clone without its trusted key fails closed. F048/F049 remain preserved with accountable follow-up drafts keyed-ledgers-survive-reclone and finding-ledger-nonblocking-review-followups; compatibility accounting is not signed deferral. Historical causal refusal branch remains unknown despite current diagnostics and successful full validation; do not invent retrospective root-cause attribution. Topology observe/inconclusive is not passed proof, and rollout-cohort full3x2 is not B-fe8f actual host quorum. The optional identity-cutover ENOBUFS diagnostic is outside validate.commands and test:serial-reference and did not expand source scope.",
+  "pitfalls": "Use repository-local CLI for unmerged ledger support. Read full evidence rows after refresh: refreshed count is not pass count; require mechanical=true, actual receipt and current CLI freshness. Serialize implementation/build/metadata and formal validation; use the passive observer to preserve raw output and safe key fingerprints, never issue observer-authored receipts. GIT_OPTIONAL_LOCKS=0 prevents optional writes to the real index, while the deliberate E1/E2 temporary-index mutation must explicitly opt in only inside its disposable fixture. Preserve raw-result reuse separately from independent selector verdicts, timeout/provenance isolation and receipt-keyed import checks. Main's registration harness now has private .git administration; do not restore a shared .git or let real worktrees skip official RED/relation reads. Lab canonical commands remain documented and loaded: do not remove them to satisfy a mistaken negative oracle. A public CLI EACCES was environment recovery, not a signature failure; durable build executable-mode prevention belongs to existing docs/story/drafts/build-emits-non-executable-cli. No original finding was deleted, no signed deferral fabricated, and no validation command was dropped. Closeout reuse correction: I expected the fresh standalone validation to be reused by done_prepare, but the observer-only MAX/IDLE timeout environment changes command identity. All132 old environment digests matched the observer environment, and replacing only those digests reproduced the current identity exactly. The handler correctly reran under default environment. Do not describe that extra execution as reuse; the CLI convergence counter is identity-based and does not erase this wall-clock cost. Prefer a consistent legal validation environment and inspect identity before assuming reuse.",
+  "phaseStats": {
+    "INIT": {
+      "count": 8,
+      "durationMs": 1711708
+    },
+    "INIT_CHECK": {
+      "count": 8,
+      "durationMs": 21934
+    },
+    "PLAN": {
+      "count": 18,
+      "durationMs": 26996827
+    },
+    "DEV": {
+      "count": 40,
+      "durationMs": 176827170
+    },
+    "REVIEW": {
+      "count": 30,
+      "durationMs": 200783892
+    },
+    "TEST": {
+      "count": 4,
+      "durationMs": 62831149
+    }
+  },
+  "totalDurationMs": 469173276,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 2,
+    "fixed": 2,
+    "open": 0
+  },
+  "createdAt": "2026-09-04T15:43:03.331Z",
+  "updatedAt": "2026-09-06T18:32:28.823Z"
+}

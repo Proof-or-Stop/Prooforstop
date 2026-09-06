@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFile } from 'node:child_process';
-import { cpSync, readdirSync, rmSync } from 'node:fs';
+import { chmodSync, cpSync, readdirSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
@@ -78,6 +78,10 @@ await withBuildLock(projectRoot, async () => {
       cpSync(join(sourceAssets, name), join(stagingAssets, name));
     }
   }
+  // npm `bin` shims execute dist/cli.js directly. tsc emits regular 0644 files,
+  // so make the staged CLI executable before the atomic promotion; otherwise a
+  // freshly built linked/global install regresses to EACCES until manual chmod.
+  chmodSync(join(staging, 'cli.js'), 0o755);
   // Promote crash-safely (C2): promoteDist evicts the old dist → trash, moves staging
   // → dist, and RESTORES the old dist from trash if the second rename fails, so a
   // mid-promotion crash never leaves dist absent. The atomic rename shrinks the
