@@ -2557,7 +2557,7 @@
       "desc": "Follow-on failure exposed after F-036 repair61ea99033b: verification-run-and-guard-smoke now passes pinned manual/docs recovery but fails C1 mismatched command JSON-blob deny assertion (actual allow). Source fixtures at406,416,428,504,505 still use node bin/proofOrStop.js; the unchanged production evidence-pin-guard.ts75 recognizes only proof-or-stop, explicitly supported lattice, or cli.js. Thus the test never exercises the intended guard. Same guard source exists on main69403365. Bounded repair is canonical proof-or-stop.js fixture inputs only, preserving deny/match/JSON/shell/wrapper controls; do not expand production accepted invocations. Pre-existing medium fixture defect, directly blocks the pinned CHK-005 verifier and current acceptance. Owner source inspection confirms all five occurrences; implementer ran complete compiled smoke and observed the precise C1 failure.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T17:09:06.349Z",
@@ -2568,7 +2568,11 @@
         "packages/main/src/core/evidence-pin-guard.ts"
       ],
       "signatureTag": "canonical-evidence-guard-fixture-entrypoint",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "08680744ba changes the five guard fixture invocations to canonical proof-or-stop.js, preserving production marker recognition and mismatch/JSON/wrapper denial controls. CHK-006:adversarial:0. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:44:06.221Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-051",
