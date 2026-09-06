@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "42950abb5f0d46de16b47944e3df17bb24019cea2f37a2b7596ab19a2b08eca0",
+  "committedLedgerDigest": "3304faa0963e7c17dad417476a619317787b13ff44bd25faaf059e5e210f2faa",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -1551,6 +1551,63 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:07:55.158Z"
+    },
+    {
+      "recordId": "lr_mtqffmhr_hem_f8f2d6b3548746d8823a2263b99ae681",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:0de3ef95-9f6a-47e9-a505-45771007920f",
+      "payload": {
+        "id": "B-8a40:F-069",
+        "desc": "packages/main/src/core/prompt-envelope.ts:667-671 excludes bare it/this/that from local-antecedent reset but treats causal-prefixed coreference followed by is as a new local subject; :684 and :811 consume this reset before examining the existing controlled relation. Against the current built public assembleFullPromptEnvelope API at committed GREEN 14081c71ac plus merged main, all five active modular REVIEW roles REJECTED [Applicability remains unknown. It is what authorizes routing away from this Story.] and [Reviewers inspect a signed defer_with_proof disposition. It is assigned to the Finding.], but all five ACCEPTED both propositions after inserting Therefore before it in the second sentence. The same two fail-open cases reproduced with each already-recognized causal prefix Accordingly, Consequently, Thus, Hence, So, For that reason, and As a result. These prefixes strengthen the reference to the same antecedent and introduce no distinct local subject, yet they discharge the authority state and permit unknown-applicability routing or unauthorized disposition assignment before the envelope digest. The round-4 reset controls at prompt-full-context-envelope-smoke.ts:1330-1350 exercise genuine Cache routing local antecedents but not causal-prefixed coreference, so focused PASS does not cover the regression. Keep causal prefixes when identifying a coreferent subject; only a verified new substantive subject should reset. Add all-role prefix/no-prefix unsafe pairs and retain genuine local-antecedent safe controls. This is a direct changed-classifier safety regression within current Story scope, not general synonym discovery.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-06T23:12:21.661Z",
+        "reviewRound": "2026-09-06T23:05:45.070Z",
+        "reviewRunId": "B-8a40:RR-128",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "3128f15add32c8ddc82ea12184a077aea799c6a56251bd45d76d34f538e34302"
+        },
+        "readDiagnostics": [],
+        "_hash": "5b6951b4f9b12ed74e44755e5e8ed2addf6b7ab1a60c7bed7a91ee4172cc30b7",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "triage-causal-coreference-mistaken-for-local-reset",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "98b22fa1e2eccb837c6943743871e3405afca8e182467552a23445d909562f77",
+      "priorDigest": "42950abb5f0d46de16b47944e3df17bb24019cea2f37a2b7596ab19a2b08eca0",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T23:12:21.663Z"
     }
   ],
   "receipts": [
@@ -4212,6 +4269,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "a1a90f35c73b82646802d24c0ca3e939ae0526ed01b54de540c31717ebff32c3",
         "signature": "EDWaNdXq9JI6ISF73uB4bG6fMfiRqQv7EgdTSpIwFG/nGyIBHpWMmVxmaacxJQ8aIeWrbbLCKVAtfkMfqHyzCA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqffmhr_hem_42ca3848bb9243ce84be6edbbe57a1b0",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:0de3ef95-9f6a-47e9-a505-45771007920f",
+      "requestDigest": "0a066226a455a0c6e18403cabe4e287267b8601043eb0f815817b1cdba2bd863",
+      "recordIds": [
+        "lr_mtqffmhr_hem_f8f2d6b3548746d8823a2263b99ae681"
+      ],
+      "priorLedgerDigest": "42950abb5f0d46de16b47944e3df17bb24019cea2f37a2b7596ab19a2b08eca0",
+      "committedLedgerDigest": "3304faa0963e7c17dad417476a619317787b13ff44bd25faaf059e5e210f2faa",
+      "writerSessionId": "sess-9de450e3485c005ac8327ed97c1fc9f4",
+      "writerFenceToken": "162fee18-f329-4707-ba83-fae9a60fa4b4",
+      "committedAt": "2026-09-06T23:12:21.663Z",
+      "replayed": false,
+      "exactRequestDigest": "09065de574f8ad6d030518f93c24fedb6759245ea385f9dace0596aa24d8d0fb",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqffmhr_hem_42ca3848bb9243ce84be6edbbe57a1b0",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:0de3ef95-9f6a-47e9-a505-45771007920f",
+        "exactRequestDigest": "09065de574f8ad6d030518f93c24fedb6759245ea385f9dace0596aa24d8d0fb",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqffmhr_hem_f8f2d6b3548746d8823a2263b99ae681"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "42950abb5f0d46de16b47944e3df17bb24019cea2f37a2b7596ab19a2b08eca0",
+        "committedLedgerDigest": "3304faa0963e7c17dad417476a619317787b13ff44bd25faaf059e5e210f2faa",
+        "replayed": false,
+        "committedAt": "2026-09-06T23:12:21.663Z",
+        "writerSessionId": "sess-9de450e3485c005ac8327ed97c1fc9f4",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "162fee18-f329-4707-ba83-fae9a60fa4b4",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "d7a424774a7167dedd33617ca5f05a375b0584e3201309bbc0a0c1e06676876d",
+        "signature": "5i7nNapgb2nG4pVznYrQwzSS/weY1OGd6qZHlZqrSDgg1F5AECW2I6M/0orTR3ekCQH5EZYqH7UhXF13uJOkAQ=="
       }
     }
   ]

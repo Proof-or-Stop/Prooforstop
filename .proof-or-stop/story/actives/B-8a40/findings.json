@@ -3442,6 +3442,55 @@
       "resolvedReason": "Recognize neither/nor polarity across the whole local relationship instead of an internal 120-character horizon; short and long safe coordination plus affirmative controls are covered. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8a40:F-069",
+      "desc": "packages/main/src/core/prompt-envelope.ts:667-671 excludes bare it/this/that from local-antecedent reset but treats causal-prefixed coreference followed by is as a new local subject; :684 and :811 consume this reset before examining the existing controlled relation. Against the current built public assembleFullPromptEnvelope API at committed GREEN 14081c71ac plus merged main, all five active modular REVIEW roles REJECTED [Applicability remains unknown. It is what authorizes routing away from this Story.] and [Reviewers inspect a signed defer_with_proof disposition. It is assigned to the Finding.], but all five ACCEPTED both propositions after inserting Therefore before it in the second sentence. The same two fail-open cases reproduced with each already-recognized causal prefix Accordingly, Consequently, Thus, Hence, So, For that reason, and As a result. These prefixes strengthen the reference to the same antecedent and introduce no distinct local subject, yet they discharge the authority state and permit unknown-applicability routing or unauthorized disposition assignment before the envelope digest. The round-4 reset controls at prompt-full-context-envelope-smoke.ts:1330-1350 exercise genuine Cache routing local antecedents but not causal-prefixed coreference, so focused PASS does not cover the regression. Keep causal prefixes when identifying a coreferent subject; only a verified new substantive subject should reset. Add all-role prefix/no-prefix unsafe pairs and retain genuine local-antecedent safe controls. This is a direct changed-classifier safety regression within current Story scope, not general synonym discovery.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T23:12:21.661Z",
+      "reviewRound": "2026-09-06T23:05:45.070Z",
+      "reviewRunId": "B-8a40:RR-128",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3128f15add32c8ddc82ea12184a077aea799c6a56251bd45d76d34f538e34302"
+      },
+      "readDiagnostics": [],
+      "_hash": "5b6951b4f9b12ed74e44755e5e8ed2addf6b7ab1a60c7bed7a91ee4172cc30b7",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "triage-causal-coreference-mistaken-for-local-reset",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqffmhr_hem_f8f2d6b3548746d8823a2263b99ae681",
+      "ledgerCommitReceiptId": "lrc_mtqffmhr_hem_42ca3848bb9243ce84be6edbbe57a1b0"
     }
   ]
 }
