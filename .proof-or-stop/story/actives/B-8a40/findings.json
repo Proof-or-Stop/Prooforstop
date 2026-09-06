@@ -3864,7 +3864,7 @@
       "desc": "Wave-2 duplicate re-attestation of canonical B-8a40:F-069; no repair or no-blocker claim. packages/main/src/core/prompt-envelope.ts:667-671, :684, and :811 still reset live unknown-applicability or signed-disposition authority when a causal prefix precedes coreferent it followed by is. Fresh git diff 14081c71ac HEAD over the two scoped files is empty and direct reread confirms the same logic. The existing verified public-API witness [Applicability remains unknown. Therefore it is what authorizes routing away from this Story.] and [Reviewers inspect a signed defer_with_proof disposition. Therefore it is assigned to the Finding.] remains applicable to unchanged material; canonical F-069 holds the five-role/eight-prefix reproduction and no-prefix controls. This terminal preserves the existing high blocker for inventory wave 2; propose critic disposition duplicate of B-8a40:F-069, not a new verified family. Bounded re-attestation found no additional unregistered state-reset family.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T23:23:19.737Z",
@@ -3906,7 +3906,11 @@
       "signatureTag": "triage-causal-coreference-mistaken-for-local-reset",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqftq9m_fg1_c1b0047f0e204580819405854fa70bc4",
-      "ledgerCommitReceiptId": "lrc_mtqftq9m_fg1_459c1f030e95450eb8cf630848e44ad9"
+      "ledgerCommitReceiptId": "lrc_mtqftq9m_fg1_459c1f030e95450eb8cf630848e44ad9",
+      "resolvedAt": "2026-09-06T23:52:22.399Z",
+      "resolvedReason": "Duplicate re-attestation of B-8a40:F-069. Commit 689f1817de normalizes causal prefixes before local-antecedent classification in both controlled authority and signed disposition continuations. Committed prefix/no-prefix tests cover all current causal prefixes, explicit negatives, and genuine cache-topic resets across every active modular reviewer role. Verification: npm run build --prefix packages/main and node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with prompt full-context envelope smoke PASS; all 13 pinned verification receipts refreshed by the CLI at 689f1817de. Original observations remain retained; resolution is not deferral.",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-078",
