@@ -172,10 +172,26 @@
       "phase": "DEV",
       "headHash": "3d48a3db2c713f3964857de3c893c3395ea0a382",
       "materialHash": "aea56623f4de0f0f74ff4e2e7dd41ffba7f28cfdb398bff53d8c86c01665e3f7"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F-054 and CHK-008: this existing mandatory validator shares the real Git index with temporary mirrors and blocks the next causal preflight. Authorize only private Git/index isolation plus deterministic RED/GREEN within this one harness; preserve production gates, original controls and validation inventory.",
+      "timestamp": "2026-09-06T01:08:31.548Z",
+      "paths": [
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "2c265a28bb7e43d2cd1b6af414260dadbef96eb3",
+      "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2"
     }
   ],
   "createdAt": "2026-09-04T20:34:07.555Z",
-  "updatedAt": "2026-09-05T17:24:24.396Z",
+  "updatedAt": "2026-09-06T01:08:31.548Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -215,6 +231,7 @@
     "packages/main/src/tasks/cli-surface-smoke.ts": "packages/main/src/tasks/cli-surface-smoke.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
-    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts"
+    "packages/main/src/cli/alias-normalizer.ts": "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/tests/red/red-b49d4-registration-derivation.mjs": "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
   }
 }

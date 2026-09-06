@@ -1208,6 +1208,57 @@
         "attestedAt": "2026-09-05T17:40:30.546Z",
         "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2"
       }
+    },
+    {
+      "id": "CHK-008",
+      "title": "Keep registration-proof mirrors isolated from the real Git index",
+      "context": "F-054 directly blocks required validation after passing command79. Make temporary mirrors use private Git administrative/index state while retaining real committed HEAD and meaningful Git-based controls. The production raw-index causal gate remains unchanged. Freeze a deterministic RED for the shared index path before the narrow fix, then prove the original registration controls and real-index preservation in GREEN.",
+      "relatedDocs": [
+        "AGENTS.md#defect-triage-and-bounded-scope"
+      ],
+      "userSees": "The registration proof reports GREEN private Git index isolation and unchanged real repository index.",
+      "excludes": [
+        "Do not change production causal preflight or index freshness checks.",
+        "Do not omit Git metadata or weaken existing registration, tamper, newcomer and cleanliness controls.",
+        "Do not add or remove configured validation commands or widen to unrelated validation infrastructure."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Private registration-proof mirrors retain the intended Git HEAD and use an index distinct from the real repository while all original registration controls pass.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+              "selector": "GREEN private Git index isolation"
+            }
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "Git activity in temporary mirrors cannot rewrite the real repository index; the regression fails on the original shared administrative path without weakening the production preflight.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+              "selector": "GREEN unchanged real repository index"
+            }
+          }
+        ]
+      },
+      "status": "in_progress",
+      "startTime": "2026-09-06T01:08:32.143Z",
+      "endTime": null
     }
   ],
   "auditLog": [
