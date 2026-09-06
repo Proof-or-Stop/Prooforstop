@@ -3922,6 +3922,64 @@
       },
       "readDiagnostics": [],
       "_hash": "aa84a20e88a55d9b5d1d61d84e151dcd3dd82cc100383c6267223ff3fe1778ec"
+    },
+    {
+      "id": "B-e256:RP-092",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-009 wave-1 saturation PASS only: the frozen material introduces no concept deletion/replacement requiring residue cleanup, and repository-wide staging-vs-post-promotion wording scans found no current residual contradiction outside historical/unrelated uses. Independent inverse-claim review found no new verified family beyond baseline F-031 and F-037 through F-044: universal POSIX delivery prose maps to F-031; shim invocation parsing to F-037; POSIX PATH/package disagreement to F-038; Windows PATHEXT selection to F-039; absent-referent intermediate-symlink escape to F-040; unreadable-shim coverage to F-041; canonical-main fallback to F-042; wrapper-wiring evidence to F-043; and validation_plan discoverability evidence to F-044. The unsupported acceptance-discovery basis remains the existing topology condition, not a newly discovered B-e256 material family. This no-new pass does not override any open finding or authorize lifecycle completion.",
+      "createdAt": "2026-09-06T22:21:16.107Z",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "reviewRunId": "B-e256:RR-132",
+      "envelopeId": "9a6487e74fa6f31cce28c85887cb2947601b7c99cc7b3cccddf6bd8ddb5bf356",
+      "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-e256/scope-contract.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "ccd906a8cb629bc6381d5fd1e7674e45f3b3602cd7a450d94810f40ec38060b8"
     }
   ]
 }
