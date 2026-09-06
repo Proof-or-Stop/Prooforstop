@@ -3871,6 +3871,57 @@
       },
       "readDiagnostics": [],
       "_hash": "df9e1519fe57185fe73c824631cdfef71a5c97ae8989bd36d9f077343ac27ab4"
+    },
+    {
+      "id": "B-e256:RP-091",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-009 wave 1 saturation review found no new test-coverage family beyond the retained F-031 and F-037 through F-044 baseline. Focused promotion and global-core suites pass on unchanged material. This pass does not supersede, resolve, or weaken any retained finding.",
+      "createdAt": "2026-09-06T22:17:56.583Z",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "reviewRunId": "B-e256:RR-131",
+      "envelopeId": "0d98d7d0cff0be3c995f57d0647ea98a7a9042557cfb4eb0dce8044f07024511",
+      "writerSessionId": "sess-79fa6c9f2bcd285437701996e2d42f4b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "aa84a20e88a55d9b5d1d61d84e151dcd3dd82cc100383c6267223ff3fe1778ec"
     }
   ]
 }
