@@ -1946,6 +1946,37 @@
       ],
       "createdAt": "2026-09-06T19:37:42.807Z",
       "_hash": "501f4c685d2723f41ce1e71d043d81dc75be48f47add9918f3e83a43827aabf6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-006:CRIT-03",
+      "epochId": "B-e256:RI-006",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "9375d78ad6f6b74696d1f4e05733f00146f247cb",
+        "materialHash": "5b2ad5e25c1ff178aac5f4d60a1ea6c599e70d33606dd5bb2115718a43046d70",
+        "storyFilesHash": "a9556759a4051ae8c1bfb5516b96fba35d0ac9360b83c29d0ac07a5ee75eb1df"
+      },
+      "aggregateFindingSetDigest": "514da621c201dae6adbb56238465fdb37f9cfa12cba76dd804834f5a2fac2120",
+      "requiredLaneCoverageDigest": "944c171e7c9d6fffb1f5a1341e747bb4cf8e5abfe958c5f91bd31bb15e227762",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-105",
+      "terminalEvidenceIds": [
+        "B-e256:RP-073"
+      ],
+      "readEvidenceDigest": "831d6b8b801b7ed3bbb5249513f43eb713f1d403255692465f955c0b149ac8ab",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-036",
+          "disposition": "verified_family",
+          "familyKey": "promote-package-manifest-read-error-false-success",
+          "reason": "Independent current-source inspection and a fresh temporary-filesystem probe confirmed that package.json EACCES is swallowed: the old 0755 dist is replaced by the new 0644 CLI without an exception. This is distinct from runtime or doctor probe-failure families and symlink-containment families because it occurs at promotion manifest discovery and converts an unverifiable input into successful mutation."
+        }
+      ],
+      "createdAt": "2026-09-06T19:47:49.569Z",
+      "_hash": "8692e2689d997cdba2d5cbc2daf84747f9d8b738a290f57424d28b86f7b619b3"
     }
   ]
 }
