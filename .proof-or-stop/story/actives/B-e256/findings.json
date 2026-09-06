@@ -892,6 +892,7 @@
       "signatureTag": "missing|json|promise-undelivered-proof",
       "signatureTagSource": "auto",
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
+      "ledgerCommitReceiptId": "lrc_mtq6und9_1emf_8a27e5a107b34563a18e113c47ce9174",
       "resolvedAt": "2026-09-06T19:12:06.102Z",
       "resolvedReason": "Commit 1e1e346043 and CLI-owned contract commits c0a6148, 6868d4f, and 639594b replace the universal POSIX 0644-to-0755 promise with a platform-correct POSIX executable-bit versus Windows npm-shim contract. CHK-001 now pins contract: global-cli-bin-target-restored; verification refresh passed and current full validation passed all 132 commands.",
       "resolutionType": "fixed",
@@ -902,7 +903,7 @@
       "desc": "quality-win32-pinned-selector-portability: .proof-or-stop/story/actives/B-e256/checklist.json:30 pins CHK-001:happy:0 to the POSIX-only GREEN label, while packages/main/tests/red/red-global-cli-exec-bit.mjs:179-182 deliberately emits a different Windows label after the F-023 repair. A read-only simulated win32 branch run exited 0 but selectorMatched=false, so a Windows verification-evidence refresh would reject a correct passing run even though the registered full validation now succeeds. Use a platform-invariant selector/output line or a platform-aware supported evidence contract. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T17:18:07.543Z",
@@ -950,7 +951,12 @@
         "packages/main/tests/red/red-global-cli-exec-bit.mjs"
       ],
       "signatureTag": "edge|json|quality-win32-pinned",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtq6uois_1ewu_919689351d3b499fbb4073359ab809c0",
+      "resolvedAt": "2026-09-06T19:12:07.597Z",
+      "resolvedReason": "Duplicate of F-024's narrower selector facet. CHK-001 now pins the platform-invariant contract: global-cli-bin-target-restored marker emitted by both supported platform branches; the refreshed mechanical receipt matched it and the full 132-command validation passed.",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-026",
