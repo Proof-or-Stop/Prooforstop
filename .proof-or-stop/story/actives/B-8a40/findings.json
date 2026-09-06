@@ -3188,7 +3188,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:660-690 preserves a signed-disposition inspection antecedent, but its complete safe negative continuation at :675 recognizes `the ... disposition does not bind the Finding` only when the disposition noun has at most two recognized modifiers. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED `Reviewers inspect a signed defer_with_proof disposition. The verified audited disposition does not bind the Finding.`, but all five REJECTED the semantically identical `The verified audited signed disposition does not bind the Finding.` continuation. Every modifier, target, negative modal, and action is already in the production vocabulary; only the third modifier crosses `{0,2}`, after which the state machine falls through to an unsafe assignment. The focused smoke has canonical negative continuations but no two/three-word boundary. This is distinct from F-039 safe terminal-state synonyms and F-040 direct negative-quantifier forms because the exact canonical negative assignment grammar remains unchanged except for adjective count. Parse the complete negative coreferent relation without an arbitrary modifier ceiling and add all-role two/three/four-word safe plus affirmative controls. Severity high because legitimate detailed evidence wording prevents every REVIEW role from starting.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T21:07:46.017Z",
@@ -3229,7 +3229,11 @@
       "signatureTag": "signed-disposition-negative-coreferent-modifier-bound-false-positive",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqaze8y_12b9_1201b2c1cea24c249b136fe98101c1c0",
-      "ledgerCommitReceiptId": "lrc_mtqaze8y_12b9_fd37d82dabe241568bf68e553e612888"
+      "ledgerCommitReceiptId": "lrc_mtqaze8y_12b9_fd37d82dabe241568bf68e553e612888",
+      "resolvedAt": "2026-09-06T23:07:49.242Z",
+      "resolvedReason": "Parse the whole negative signed-disposition continuation without the two-modifier ceiling; two/three/four-modifier safe and affirmative cases are covered. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-065",
