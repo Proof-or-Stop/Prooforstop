@@ -1737,7 +1737,7 @@
       "desc": "The deferral cross-segment state machine inspects only the immediately following segment, so one benign audit sentence launders a later coreferent authority outcome. All five active REVIEW roles reject the adjacent control [defer_with_proof is recorded. It transfers responsibility to another Story.] but accept [defer_with_proof is recorded. Record the audit result. It transfers responsibility to another Story.] and the longer evidence-aside variant that later clears the REVIEW blocker; explicit negative controls remain accepted. In packages/main/src/core/prompt-envelope.ts, hasCrossSegmentControlledAuthority at lines 761-778 slices only index plus one, while the later whole-source join at lines 800-814 covers dismissal and unknown-applicability only, excluding the deferral-story-responsibility family. The committed smoke matrix has adjacent and signed-disposition continuation cases but no deferral antecedent separated from its later responsibility or gate consequence by evidence-only sentences. Add a persistent deferral state across benign audit or evidence continuations and all-role regression cases for transfer and blocker-clearing outcomes with explicit-negative controls.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T18:57:01.415Z",
@@ -1776,7 +1776,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "deferral-evidence-continuation-state-machine-laundering",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Disposition state persists across bounded benign audit and evidence sentences, while explicit negative terminal controls remain safe.",
+      "resolvedAt": "2026-09-06T19:51:26.075Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-037",
