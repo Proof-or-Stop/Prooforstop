@@ -1054,6 +1054,24 @@ const safeTaskContextAuthorityStatements = [
   'decision_set with at least four pre-mortems: evidence-shopping via repeated narrowing (blocked by the one-re-pin-per-recorded-receipt-set bound), a forged failing transcript (impossible because transcripts are not an input), a receipt whose old selector never matched anything (refused for lack of a recorded failing render), and an ENGINEERED failing receipt from a genuine run driven to fail on purpose (the residual gap; the decision must name the bound that closes it or record it as an accepted limitation). CLAUDE.md\'s Verification Intent / Evidence section documents the new command form, the recorded-receipt-only proof, and the invariant that loosening is impossible. Note on priority: the story is high-risk on its merits because it edits an evidence gate; if story_create\'s keyword scan elevates it, keep the elevation rather than dismissing it.',
 ] as const;
 
+// Captured through `proof-or-stop story_get --storyId=B-bcae --detail`, not by
+// reading Story storage. The first sentence is a complete negative observation;
+// the remaining prose independently defines the Story repair boundary.
+const currentBbcaeDescription = 'User-authorized narrow follow-up to B-1734 on 2026-09-06. Fix the reproduced initial bootstrap check-to-import race: a legitimate concurrent builder must not make a reader that passed readiness checks exit with a transient missing-module error. Carry existing RED/candidate GREEN/mutant sources, production snapshots, exact hashes and raw logs through durable candidate archive sr-mtpu1soj-559bfe; original probe rp-mtptbazb-cvxkwb and spike sr-mtptby4r-6sbo6u remain intact. Baseline commit f2d3fd54c320a07f4e71e8e40ecbbb28329609d4: reader failures 3/3; candidate 0/3; removed protection 3/3; all builders succeed and all three controls pass. Reuse these tests instead of rediscovering the bug, but adapt and rerun them against the final production implementation for fresh verificationEvidence. Acceptance: preserve coherent initial imports during promotion, stable and builder-first startup, genuine missing-artifact fail-closed behavior, and dependency-missing fresh-checkout diagnostics without importing unavailable proper-lockfile. Decide the smallest production-safe coordination at PLAN; the experimental mutex candidate is not a mandated production design. Exclude B-1734 zombie lifecycle cleanup, global CLI executable/symlink ownership (B-e256), all direct dist consumers, full F-032 reviewer credential contamination, source-edit-during-compile binding, package-desktop locking, rename-crash recovery and repository-wide green cleanup unless evidence establishes a direct acceptance/protected-surface blocker. No parent Finding is closed by this intake. During execution classify each discovered defect before scope change: applicable critical/high, safety/data integrity/compatibility risks, direct regressions, core-result or REVIEW/TEST/DONE blockers and misleading gate evidence require current-Story repair. Unrelated nonblocking medium/low defects need traceable reproduction, evidence, impact, explicit follow-up ownership and handling recommendation; reclassify immediately if severity or gate impact escalates. Creation only in this request; independent INIT/PLAN/REVIEW and fresh DEV/TEST/DONE evidence remain required.';
+const structurallyEquivalentNegativeDescription = 'No earlier Finding is dismissed by this follow-up. During implementation, direct acceptance blockers require repair in the current Story.';
+
+const linkedNegativeDismissalUnsafeDescriptions = [
+  'No parent Finding is closed by this intake as out of scope.',
+  'No parent Finding is closed by this intake. It is out of scope.',
+  'No parent Finding is closed by this intake. Consequently, the issue is out of scope.',
+  'No parent Finding is closed by this intake. Therefore another Story owns it.',
+  'No parent Finding is closed by this intake. The work is outside this Story.',
+  'No parent Finding is closed by this intake. Evidence is preserved. It proves the work is out of scope.',
+  'No parent Finding is closed by this intake. Accordingly, the issue is out of scope.',
+  'No parent Finding is closed by this intake. For that reason, the work is outside this Story.',
+  'No parent Finding is closed by this intake. So another Story owns it.',
+] as const;
+
 const liveB9a49SafeMetaIntent = 'Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, equates the future official signed defer_with_proof disposition with a non-applicability verdict, finding_dismiss, or resolution, or permits it for a mandatory current-repair case, and prove semantic validation rejects it.';
 const safeFailClosedVerificationIntent = 'Verify that applicability remains unknown; routing is not permitted and the REVIEW blocker cannot be removed.';
 const currentStoryLikeAuthorityAmendment = 'Amend the Dynamic Finding execution plan with the approved triage contract, retain the former stale_or_not_reproduced verdict as a legacy input alias, and publish the target verdict names as authoritative.';
@@ -1287,6 +1305,28 @@ for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     lane: roleId,
     reviewRunId: `B-envelope:RR-${roleId}`,
   };
+  for (const safeDescription of [currentBbcaeDescription, structurallyEquivalentNegativeDescription]) {
+    const safeLaunch = assembleFullPromptEnvelope({
+      ...roleCommon,
+      taskContext: { ...taskContext, description: safeDescription },
+      createdAt: '2026-09-06T16:00:00.000Z',
+    });
+    assert.equal(safeLaunch.envelope.roleId, roleId,
+      `${roleId} admits a complete negative dismissal observation followed by independent scope prose`);
+    assert.equal(verifyPromptEnvelopeIntegrity(safeLaunch.envelope), true,
+      `${roleId} emits an integrity-valid envelope for explicit-negative Story context`);
+  }
+  for (const unsafeDescription of linkedNegativeDismissalUnsafeDescriptions) {
+    assert.throws(
+      () => assembleFullPromptEnvelope({
+        ...roleCommon,
+        taskContext: { ...taskContext, description: unsafeDescription },
+        createdAt: '2026-09-06T16:00:01.000Z',
+      }),
+      /REVIEW Task Context contains unsafe Finding-triage authority/,
+      `${roleId} rejects a linked conclusion after a negative dismissal observation: ${unsafeDescription}`,
+    );
+  }
   for (const surface of ['story', 'checklist', 'verificationIntent'] as const) {
     for (const unsafeAuthorityText of everyReviewerUnsafeAuthorityRepresentatives) {
       assert.throws(
