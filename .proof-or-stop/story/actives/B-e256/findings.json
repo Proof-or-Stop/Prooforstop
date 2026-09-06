@@ -796,7 +796,7 @@
       "desc": "quality-win32-executable-mode-contract: packages/main/tests/red/red-global-cli-exec-bit.mjs:77-86 and 150-166 unconditionally require POSIX 0o111 mode bits before and after chmod, while the only Windows adaptation at lines 134-147 skips unsupported symlink construction. On Windows, Node chmod does not provide a meaningful POSIX execute-bit contract and npm executes package bins through generated .cmd shims, so this newly registered validation command can fail even when the global CLI works. Platform-gate the POSIX mode assertions or define and test the Windows shim contract; the current symlink-capability skip does not cover this core portability failure. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T16:29:43.572Z",
@@ -832,7 +832,11 @@
       "readDiagnostics": [],
       "_hash": "5e1ae3d588588141b14a31423fbb27625933b6104c083b6baa5d3ccd9b2d9e87",
       "signatureTag": "edge|unknown|quality-win32-executable",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 26418e0846 makes the regression platform-aware: POSIX retains 0o111 assertions; Windows validates the shebang or npm command-shim target, byte content, promotion cleanup, and c4/c6 pre-eviction safety. Only unavailable POSIX chmod-denial injections d/f are skipped there with an explicit named reason.",
+      "resolvedAt": "2026-09-06T16:52:58.393Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
