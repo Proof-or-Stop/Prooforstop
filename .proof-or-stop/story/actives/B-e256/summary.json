@@ -1,18 +1,18 @@
 {
   "storyId": "B-e256",
-  "changes": "Build promotion now preserves an executable POSIX CLI and fails closed on package-manifest read errors; doctor verifies package/PATH agreement, bin-target containment, and actual Windows npm shim contents; regression fixtures cover worktree rebuilds, target escapes, missing PATH commands, zero-assertion skips, and safe PowerShell remediation.",
-  "usage": "Run npm --prefix packages/main run build, then proof-or-stop --version and proof-or-stop doctor; a healthy installation reports contract: global-core-realpath-pass only after the host-specific executable contract is verified.",
-  "expectedOutcome": "After rebuilding from the main checkout or a Story worktree, the globally linked proof-or-stop command remains runnable; doctor never reports a healthy global core when the selected command, target, permissions, or Windows shim disagree.",
-  "actualTranscript": "Current-material focused tests passed: ok global-core-realpath and contract: global-cli-bin-target-restored, including the manifest-read fail-closed case. Full proof-or-stop validate executed all 132 configured commands and returned status=pass and allPass=true.",
-  "outcomeDiff": "No difference: the observed focused and full-suite results match the expected cross-platform fail-closed behavior.",
-  "acceptanceVerdict": "accepted",
+  "changes": "The dist promotion pipeline now restores executable bits for every declared package bin before eviction, rejects symlink and parent-chain escapes, and keeps wrapper wiring covered. Global runtime checks now bind the PATH-resolved command to the canonical package target on POSIX, honor PATHEXT order and executable shim semantics on Windows, reject unreadable or non-invoking shims, and fail closed when canonical-main discovery is unavailable in a Story worktree. The registered regression is discoverable through validation_plan by stable id and label.",
+  "usage": "Run npm --prefix packages/main run build; then invoke proof-or-stop normally from PATH. For direct regression evidence run node packages/main/tests/red/red-global-cli-exec-bit.mjs and node packages/main/tests/global-core-realpath.test.mjs. Use proof-or-stop validation_plan --explain to inspect the registered red-global-cli-exec-bit validation entry.",
+  "expectedOutcome": "After any supported dist rebuild, the globally linked proof-or-stop command remains executable and resolves to the canonical package target; invalid POSIX or Windows command paths and unsafe promotion targets fail closed; validation_plan exposes the regression by stable identity.",
+  "actualTranscript": "Current focused verification passed: package build exit 0; global-core-realpath prints ok; red-global-cli-exec-bit reports live mode 0755 and all hermetic promotion cases GREEN; runtime fact contract verified; validation-tier-planner-smoke PASS including the real validation_plan stable-id-and-label case; git diff --check exit 0.",
+  "outcomeDiff": "No observed difference in focused verification; full Story validation and independent final review remain to be refreshed before DONE.",
+  "acceptanceVerdict": "partial",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Real POSIX executable behavior was exercised on the current macOS host; Windows command-shim behavior and encoded PowerShell remediation were exercised through deterministic platform-injected fixtures rather than a physical Windows host.",
-  "pitfalls": "The original EACCES came from build promotion replacing the globally linked dist target with mode 0644. Review then exposed related false-green paths in PATH selection, symlink containment, Windows shim checks, percent expansion, and swallowed manifest read errors; all were current acceptance blockers and were repaired. Full validation includes a quorum smoke that legitimately runs for about ten minutes with heartbeats. The unrelated unmatched --grep zero-check issue belongs to B-e40f and was not pulled into this Story.",
+  "limitations": "The current machine supplies direct POSIX execution evidence; Windows behavior is covered by hermetic PATHEXT and shim fixtures rather than a native Windows host transcript.",
+  "pitfalls": "The work required multiple adversarial review waves because superficially correct target strings could still be non-invoking shims, PATH resolution could disagree with the canonical package, and immutable evidence pins required splitting planner discoverability into a new intent instead of replacing the original config-registration command.",
   "phaseStats": {
     "INIT": {
       "count": 2,
@@ -23,23 +23,23 @@
       "durationMs": 168056
     },
     "PLAN": {
-      "count": 6,
-      "durationMs": 2343285
+      "count": 9,
+      "durationMs": 3003215
     },
     "DEV": {
-      "count": 26,
-      "durationMs": 84624267
+      "count": 30,
+      "durationMs": 86191796
     },
     "REVIEW": {
-      "count": 21,
-      "durationMs": 262966419
+      "count": 22,
+      "durationMs": 267580038
     },
     "TEST": {
       "count": 9,
       "durationMs": 17052748
     }
   },
-  "totalDurationMs": 374467327,
+  "totalDurationMs": 381308405,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-03T01:57:56.411Z",
-  "updatedAt": "2026-09-06T21:16:17.574Z"
+  "updatedAt": "2026-09-06T23:10:18.653Z"
 }
