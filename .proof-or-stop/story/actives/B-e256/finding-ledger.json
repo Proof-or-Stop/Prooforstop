@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "d043186caecb5a398dd232b28fda90693f20ec7be5661ff22fbc730265f46aae",
+  "committedLedgerDigest": "ddc8fb67a0ac034e7ceb15b15b3af54f59af04806691d41cd15f3191268d8d99",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -339,6 +339,73 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T19:16:19.100Z"
+    },
+    {
+      "recordId": "lr_mtq75ef3_10w3_341be17f4f3940d4ba6bf41b7390c19e",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:9f11cf09-c9e0-450e-b4bc-11158e46b38f",
+      "payload": {
+        "id": "B-e256:F-033",
+        "desc": "test-coverage-win32-capability-skip-false-pass: packages/main/tests/global-core-realpath.test.mjs:83-87 handles an unavailable Windows directory-link capability by printing `ok global-core-realpath` and exiting 0 before any of cases 1-34 run. All three CHK-003 must intents pin exactly that selector, so on an EPERM/EACCES/ENOSYS Windows host the CLI can issue passing mechanical receipts for canonical/drift/non-git, platform executable semantics, and adversarial remediation while executing zero assertions—including the supposedly every-host win32 case 34 at :1224-1284. This is a distinct evidence-integrity gap beyond F-029 (no real shim validation) and F-030 (cmd percent quoting): the F-026 portability repair changed a setup failure into an indistinguishable green result. Limit the skip to link-dependent cases or introduce a fixture seam for the platform-only assertions, and ensure skipped execution cannot match the acceptance selector. severity: high",
+        "severity": "high",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-06T19:20:27.710Z",
+        "reviewRound": "2026-09-06T19:11:32.288Z",
+        "reviewRunId": "B-e256:RR-096",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-e256/background.md",
+            ".proof-or-stop/story/actives/B-e256/checklist.json",
+            ".proof-or-stop/story/actives/B-e256/plan.md",
+            ".proof-or-stop/story/actives/B-e256/proofstory.json",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+            "packages/main/src/core/runtime-environment-checks.ts",
+            "packages/main/src/core/version-bump.ts",
+            "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+            "packages/main/tests/global-core-realpath.test.mjs",
+            "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+            "proof-or-stop.config.json",
+            "scripts/promote-dist.mjs"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-e256/findings.json",
+            ".proof-or-stop/story/actives/B-e256/summary.json",
+            ".proof-or-stop/story/actives/B-e256/understanding.json",
+            "packages/main/src/handlers/doctor.ts",
+            "scripts/build-main-with-binding.mjs",
+            "scripts/build-utils-with-binding.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+        },
+        "readDiagnostics": [],
+        "_hash": "a31deec86224f48442b73094b24010f0d3bc28e2a0a3f84fcb4d72e96b067193",
+        "files": [
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "signatureTag": "test-coverage-win32-link-capability-skip-false-pass",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "354a90956af6820f5bc239648ce5e150438b45b292e99d2cfc6aab6881e0d640",
+      "priorDigest": "d043186caecb5a398dd232b28fda90693f20ec7be5661ff22fbc730265f46aae",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T19:20:27.711Z"
     }
   ],
   "receipts": [
@@ -901,6 +968,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "df08a1bbc5f069a75270a0cb6c34d176c298f37715da716d7b018e2e4f8225c6",
         "signature": "gRDy4gZsdVQ17pLL1OPEMlx5JdbxOfNHFq+eQ7J6TT0XtO8bNfcBPrGtoLj/PUkKbLrResuY+rv81cafSlIRDA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtq75ef3_10w3_69e3e6a08c494625b673b21cc1db7562",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:9f11cf09-c9e0-450e-b4bc-11158e46b38f",
+      "requestDigest": "7aeaa62a2e922fb6375cca9070fc8dddcbe200a2700bf6d2002dbd9dd39c3941",
+      "recordIds": [
+        "lr_mtq75ef3_10w3_341be17f4f3940d4ba6bf41b7390c19e"
+      ],
+      "priorLedgerDigest": "d043186caecb5a398dd232b28fda90693f20ec7be5661ff22fbc730265f46aae",
+      "committedLedgerDigest": "ddc8fb67a0ac034e7ceb15b15b3af54f59af04806691d41cd15f3191268d8d99",
+      "writerSessionId": "sess-79fa6c9f2bcd285437701996e2d42f4b",
+      "writerFenceToken": "15fc104c-dfa3-4c96-ab69-e9225e0f1a19",
+      "committedAt": "2026-09-06T19:20:27.711Z",
+      "replayed": false,
+      "exactRequestDigest": "87bf7fb0dc48adf932683ec457b90a27e853f2c1f9df17da3a6eda02e5c4f48e",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtq75ef3_10w3_69e3e6a08c494625b673b21cc1db7562",
+        "storyId": "B-e256",
+        "idempotencyKey": "finding_add:9f11cf09-c9e0-450e-b4bc-11158e46b38f",
+        "exactRequestDigest": "87bf7fb0dc48adf932683ec457b90a27e853f2c1f9df17da3a6eda02e5c4f48e",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtq75ef3_10w3_341be17f4f3940d4ba6bf41b7390c19e"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "d043186caecb5a398dd232b28fda90693f20ec7be5661ff22fbc730265f46aae",
+        "committedLedgerDigest": "ddc8fb67a0ac034e7ceb15b15b3af54f59af04806691d41cd15f3191268d8d99",
+        "replayed": false,
+        "committedAt": "2026-09-06T19:20:27.711Z",
+        "writerSessionId": "sess-79fa6c9f2bcd285437701996e2d42f4b",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "15fc104c-dfa3-4c96-ab69-e9225e0f1a19",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "4a208be794d21d6b71f1129d6957553d25eb2d7ce9b0dc81a8346ef7692935ac",
+        "signature": "qumJm4kAWk/tGhvJvLFLPnt8uwXDYPDUQaco7/ilW7NeO8a3tunKNO2CfTCiOjuklqhrmfitigyij4+mYYmYCA=="
       }
     }
   ]

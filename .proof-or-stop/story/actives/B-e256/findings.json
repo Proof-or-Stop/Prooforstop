@@ -1383,6 +1383,65 @@
       ],
       "signatureTag": "windows-doctor-remediation-command-portability",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-e256:F-033",
+      "desc": "test-coverage-win32-capability-skip-false-pass: packages/main/tests/global-core-realpath.test.mjs:83-87 handles an unavailable Windows directory-link capability by printing `ok global-core-realpath` and exiting 0 before any of cases 1-34 run. All three CHK-003 must intents pin exactly that selector, so on an EPERM/EACCES/ENOSYS Windows host the CLI can issue passing mechanical receipts for canonical/drift/non-git, platform executable semantics, and adversarial remediation while executing zero assertions—including the supposedly every-host win32 case 34 at :1224-1284. This is a distinct evidence-integrity gap beyond F-029 (no real shim validation) and F-030 (cmd percent quoting): the F-026 portability repair changed a setup failure into an indistinguishable green result. Limit the skip to link-dependent cases or introduce a fixture seam for the platform-only assertions, and ensure skipped execution cannot match the acceptance selector. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T19:20:27.710Z",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "reviewRunId": "B-e256:RR-096",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/handlers/doctor.ts",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "a31deec86224f48442b73094b24010f0d3bc28e2a0a3f84fcb4d72e96b067193",
+      "files": [
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        "packages/main/tests/global-core-realpath.test.mjs"
+      ],
+      "signatureTag": "test-coverage-win32-link-capability-skip-false-pass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtq75ef3_10w3_341be17f4f3940d4ba6bf41b7390c19e",
+      "ledgerCommitReceiptId": "lrc_mtq75ef3_10w3_69e3e6a08c494625b673b21cc1db7562"
     }
   ]
 }
