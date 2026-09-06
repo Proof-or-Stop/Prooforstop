@@ -3,8 +3,8 @@
   "changes": "Implemented Section 9.3 Finding Ledger and Runtime Evidence Integrity: durable fenced append batches, idempotent replay, exact-record CAS, signed source/artifact/runtime binding, protected query and fail-closed readers. User-authorized closeout repairs preserve RED/GREEN: F056 uses the shared seven-field INIT_CHECK signature-domain renderer (e8b35c09b96bfa363940a795f24d7c012be5fb67); F055 explains the retired-prefix negative control (826ea187224bf510c801834cac9e8928ad29041c); F057 safely distinguishes causal preflight refusal branches (RED c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6, GREEN e23615ad1605e7126094de46d959341d9c407415). Main synchronization retains shared DONE predicates, full-output pinned evidence and receipt-keyed import isolation alongside B-fe8f raw-result reuse with independent selector verdicts.",
   "usage": "From the Story worktree use node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f for the signed ledger/runtime scorecard. Use official Finding and runtime evidence CLI commands rather than editing protected records. After installation the public executable is proof-or-stop.",
   "expectedOutcome": "Deliver the Section9.3 Finding ledger/runtime integrity foundation with genuine RED/GREEN evidence, fresh lifecycle verification, independent review and a local main merge.",
-  "actualTranscript": "Current source is 2086edd40124c0fa2df88b3e0b39001f2414f52e, after main synchronization 1597cc699b8ac3d89837dab83b4b3cf8d5bff867. B-fe8f is now in REVIEW round 28. Official evidence refresh25b7b82 completed in326.4seconds; full CLI checklist read verified71/71 mechanical PASS with execution receipts, and the dry-run freshness reader found no stale evidence. Six checklist items are done. Genuine final validate completed132/132 with allPass=true and zero nonzero/unknown command codes on2026-09-06, total observer duration1148.2seconds; original stdout/stderr and observations: /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/. It did not reproduce causal_preflight_refused. The preceding run-JXSg8O completed with4 failures and was not a PASS. Those integration failures now have focused GREEN and final validation GREEN: F058 fixture-only Git optional-write opt-in, F059 corrected documented Lab test oracle, F060 private-Git mirror layout recognition; graph recovered by installing its already-declared d3 dependency without source/package/lock changes. F055-F060 were formally resolved through the CLI in REVIEW with original RED, exact fix and GREEN references (9d8b57d,29381cd,4dbebcd,99e87b6,dd08737,47f361e). F057 closure proves discriminating safe diagnostics and current operational recovery, not retrospective attribution of the old unknown root cause. Earlier EACCES recovery and58 demoted receipts are preserved in command history; current71 PASS is verified, not inferred from refresh counts. Independent current-source reviews, actual Story host quorum, TEST, DONE-required validation, delivery and local main merge remain pending.",
-  "outcomeDiff": "Core implementation and focused checks are complete, but lifecycle delivery and local main merge are not yet complete.",
+  "actualTranscript": "B-fe8f is in TEST. Current implementation source2086edd40124c0fa2df88b3e0b39001f2414f52e retains the Section9.3 foundation and user-authorized closeout repairs. Full CLI evidence reads verified71/71 mechanical PASS with actual command receipts and fresh structural bindings; six checklist items are done. Genuine final validate completed132/132 with allPass=true, zero failed/unknown codes and no causal_preflight_refused on2026-09-06; raw stdout/stderr and passive observations are in /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/. The TEST gate explicitly reused that PASS with trusted-story-metadata-descendant lineage instead of repeating132 commands. F055-F060 were resolved through official REVIEW commands with original RED and exact GREEN references. Independent Round28 passes are RR117/RP070 concept, RR116/RP071 coverage and native Claude RR118/RP072 quality. Actual local Claude/Codex host evidence now verifies fullQuorum3/3, invalid0, assuranceLevel full-3x2 (2cdb9836829dadffe670a5fda3bf8939293a8a9f); these are official bulk local records, not six additional reviews or production authority. Current protected query live execution succeeded and reported signed ledger rows without exposing protected paths; an empty runtime receipt set does not prove runtime freshness. F057 closure proves safe discriminating diagnostics plus current operational recovery, not the exact historical refusal cause. DONE-required validation, independent delivery sign-off and local-main delivery remain pending. Canonical live-smoke capture at2026-09-06T15:26:56.755Z executed the unchanged RED/relation harness, exit0: historicalBaselineFails=true,currentGreenPasses=true,currentCorruptedRelationRejected=true,assertionUnchanged=true,gaps=0. It matches the authored first checklist transcript; the preceding live-query artifact remains preserved in Git history.",
+  "outcomeDiff": "Scoped implementation and current routine verification are delivered in the worktree; final DONE-required and delivery gates plus merge to local main remain pending.",
   "acceptanceVerdict": "partial",
   "outcomeKind": "blocked",
   "realMachineCoverage": {
@@ -32,14 +32,14 @@
     },
     "REVIEW": {
       "count": 28,
-      "durationMs": 193416458
+      "durationMs": 194812505
     },
     "TEST": {
-      "count": 2,
-      "durationMs": 59956921
+      "count": 3,
+      "durationMs": 60591241
     }
   },
-  "totalDurationMs": 456078766,
+  "totalDurationMs": 458109133,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-04T15:43:03.331Z",
-  "updatedAt": "2026-09-06T14:54:14.314Z"
+  "updatedAt": "2026-09-06T15:28:04.680Z"
 }
