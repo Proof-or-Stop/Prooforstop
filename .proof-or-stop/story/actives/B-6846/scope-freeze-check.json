@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-6846",
+  "checkedAt": "2026-09-06T15:52:36.571Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "2dcfb64c0138d8cf392dc72f1b3515e9e17febe6409f16ba042f80b29ae923c6",
+  "executionBoundaryHash": "cac7748b2817969e0736f5dd009c9b95acd9488df3437c60d86f83555381f2fb",
+  "freshnessHash": "764c28cd6f642f2049d6954f6946ec5f7f8a3cee1cdba5e02148ec8385ee1869",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "B-bcae metadata edits",
+    "customerKeyRef",
+    "General language parser",
+    "Layer4",
+    "Lifecycle state machine changes",
+    "repair UX",
+    "Unrelated policy changes"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "B-bcae metadata edits",
+      "source": "scopeBoundary.excluded",
+      "text": "B-bcae metadata edits",
+      "excluded": true
+    },
+    {
+      "keyword": "General language parser",
+      "source": "scopeBoundary.excluded",
+      "text": "General language parser",
+      "excluded": true
+    },
+    {
+      "keyword": "Lifecycle state machine changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Lifecycle state machine changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated policy changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated policy changes",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "ddd72248806ca2e0690a08357ef635ce882400b0171187f554987c1693687005"
+}
