@@ -3021,6 +3021,7 @@
       "signatureTag": "reviewer-disposition-prohibition-action-count-false-block",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf9nsa_1hk2_0a901c01631f4c91a8e21748b977bbe7",
+      "ledgerCommitReceiptId": "lrc_mtqf9nsa_1hk2_bea13cb8647740518bc8ebb423524272",
       "resolvedAt": "2026-09-06T23:07:43.414Z",
       "resolvedReason": "Accept complete explicitly prohibited action lists without a six-action ceiling; seven/eight-action safe cases and affirmative controls are covered. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -3031,7 +3032,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts lines 997-1010 recognize a safe explicit rejection of retired applicability vocabulary only when [not] lies within a fixed 48-character window before [current|official applicability verdict]. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject the unsafe control [stale_or_not_reproduced is the current applicability verdict.] and accept the short safe control [stale_or_not_reproduced is not the current applicability verdict.], but reject [stale_or_not_reproduced is not under any compatibility interpretation preserved solely for historical audit documentation the current applicability verdict.]. The relation-level detector correctly sees the relation verb as negated; the false block occurs because explicitlyRejected becomes false solely when the neutral modifier exceeds the separate 48-character window, after which the fallback rejects every retired alias. The focused smoke covers direct rejected vocabulary and short negative forms but has no 47, 48, and 49-character polarity boundary or long safe negative control. This is distinct from F-054 through F-059 unsafe concept-pair distance bypasses and F-058 safe wrapper claim-length cutoff: it is a separate retired-vocabulary explicit-negative classifier with a local fixed distance. Replace the raw character horizon with structural polarity spanning the single clause, retaining unsafe affirmative and double-negative rejection, and add all-role short, boundary, long-safe, and unsafe controls. Severity high because legitimate migration or compatibility documentation can prevent every REVIEW role from assembling.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T21:02:34.601Z",
@@ -3072,7 +3073,11 @@
       "signatureTag": "retired-verdict-negative-span-false-positive",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqaspyi_1hul_7c6c62caa5a0489c931eb4f408317ce8",
-      "ledgerCommitReceiptId": "lrc_mtqaspyi_1hul_086a435f62974c6b9135017361317aa5"
+      "ledgerCommitReceiptId": "lrc_mtqaspyi_1hul_086a435f62974c6b9135017361317aa5",
+      "resolvedAt": "2026-09-06T23:07:44.856Z",
+      "resolvedReason": "Bind retired-verdict negative polarity to the complete relation instead of a 48-character window; long explicit rejection is covered. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-062",
