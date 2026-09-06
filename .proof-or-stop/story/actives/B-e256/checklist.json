@@ -197,6 +197,31 @@
             "commandReruns": 0
           },
           "timestamp": "2026-09-06T20:46:10.676Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "result": "pass",
+          "note": "The hermetic injected read failure proves non-ENOENT package manifest errors propagate before the old dist is renamed.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b01fc08d781e96c900327e8f68e56ca62049078598e359c110e487d8716e21ae",
+            "outputTail": "bin targets: dist/cli.js\ntsc-emitted shebang file mode: 0644 (executable bits: false)\npipeline staging restore hook present: true; staging restoration precedes old-dist eviction: true (scripts/build-main-with-binding.mjs + scripts/promote-dist.mjs)\nGREEN build pipeline validates and restores package.json bin targets on staging before evicting the old dist\nlive: packages/main/dist/cli.js mode 0755\nGREEN live: packages/main/dist/cli.js is executable\nhermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: true\nGREEN hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits(dist)\nhermetic (a): dist/cli.js mode 0644 -> 0755; restored=[\"dist/cli.js\"]\ncontract: global-cli-bin-target-restored\nGREEN hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored\nGREEN hermetic (b): an absent bin target returns [] without throwing\nhermetic (c): no bin field -> []\nhermetic (c): unparseable package.json -> []\nhermetic (c): missing package.json -> []\nGREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing\nGREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction\nGREEN hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target\nGREEN hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal\nGREEN hermetic (c4): a directory declared as a bin target is rejected before promotion\nGREEN hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree\nhermetic (d): dist 0000 -> restoreBinExecutableBits threw code=EACCES\nGREEN hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed\nhermetic (e): staging dist/cli.js mode 0644 -> promoted 0755; staging=false trash=false\nGREEN hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable\nhermetic (f): staging 0000 -> promoteDist threw code=EACCES; dist=true staging=true trash=false\nGREEN hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted\n\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable\n",
+            "selectorMatched": true,
+            "selector": "GREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction",
+            "executedAt": "2026-09-06T20:47:44.765Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:3d53d209b33fa0d22e2b87dc66e8a23b35c33b0d74db7f0d9e3b472952b24f91",
+            "causalReceiptHash": "22a103366035c8a3c2758e81b9796d6ad8d3b757e42f7d56c9963f540b970888",
+            "commandReruns": 0
+          },
+          "headHash": "bcfa4ccd5b09d950db1906b1b4e2e38c44a3bcb8",
+          "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+          "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9",
+          "timestamp": "2026-09-06T20:47:45.156Z"
         }
       ]
     },
