@@ -2658,6 +2658,79 @@
       ],
       "createdAt": "2026-09-06T22:12:47.158Z",
       "_hash": "634ffc830b90e9e9dbaa8d25297b9e2ba68fceb6020ca00d283296883d5a5d42"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-009:CRIT-01",
+      "epochId": "B-e256:RI-009",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "fd6045380b77c5b536cabe070789fbe46c293066",
+        "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+        "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9"
+      },
+      "aggregateFindingSetDigest": "415a0fb9864131f0feb52c19f03c236f7fb78666093a297b998f6d06c8e29ccd",
+      "requiredLaneCoverageDigest": "88112542575ccfd1f5ebc7a792cd24c671c3143b609d6453003c0cf33865aeca",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-133",
+      "terminalEvidenceIds": [
+        "B-e256:RP-093"
+      ],
+      "readEvidenceDigest": "bd1e70dacc3450c62dbbe1374ea85461a50ccb0450f4ba19aaa9db4fa62c0bd2",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-037",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-nonexecuting-reference-false-pass",
+          "reason": "Retained baseline independently rechecked: loose non-comment token/reference matching can certify a shim that does not execute the target. Distinct from selection and unreadable coverage; high acceptance false-pass requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-038",
+          "disposition": "verified_family",
+          "familyKey": "doctor-posix-path-command-target-mismatch-false-pass",
+          "reason": "Retained baseline independently rechecked: POSIX validates the package bin X_OK but not agreement with the PATH-selected command, so the healthy marker can coexist with CLI drift. Critical direct acceptance blocker requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-039",
+          "disposition": "verified_family",
+          "familyKey": "windows-pathext-command-selection",
+          "reason": "Retained baseline independently rechecked: Windows resolver prefers an extensionless regular file before PATHEXT candidates, so doctor may inspect a different artifact from the host-launched command. Critical resolver family requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-040",
+          "disposition": "verified_family",
+          "familyKey": "promotion-enoent-intermediate-symlink-escape",
+          "reason": "Retained baseline independently rechecked: final lstat ENOENT can be misclassified benign before an intermediate symlink escape is detected, allowing old-dist eviction for an escaped broken tree. High pre-eviction containment blocker requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-041",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-unreadable-coverage-gap",
+          "reason": "Retained baseline independently rechecked: unreadable shim branch is implemented but lacks executable failure injection/assertion while the checklist receipt claims it. High evidence-integrity blocker requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-042",
+          "disposition": "verified_family",
+          "familyKey": "doctor-canonical-main-discovery-fallback-false-pass",
+          "reason": "Retained baseline independently rechecked: canonical-main discovery failure can fall back to the Story worktree and suppress the worktree warning when pathMatches is true, producing a disposable-link healthy marker. Critical acceptance false-pass requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-043",
+          "disposition": "verified_family",
+          "familyKey": "test-coverage-build-wrapper-promote-wiring-false-green",
+          "reason": "Retained baseline independently rechecked: the red fixture can stay GREEN while both build wrappers are unwired because its pipeline scan/order check does not prove either wrapper calls promoteDist. High evidence-integrity blocker requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-044",
+          "disposition": "verified_family",
+          "familyKey": "test-coverage-validation-plan-discoverability-unreceipted",
+          "reason": "Retained baseline independently rechecked: CHK-002 edge promises validation_plan visibility but its pinned receipt only parses config and never invokes the planner. High evidence-integrity blocker requires repair_current. F-031 remains open outside RI-009 pending delivery repair."
+        }
+      ],
+      "createdAt": "2026-09-06T22:25:13.994Z",
+      "_hash": "d2a6d82e58855bd0fff428be289bdc963d5c51e45ace998b24e7814d8fdd433b"
     }
   ]
 }
