@@ -1,6 +1,6 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-06T22:51:30.873Z",
+  "checkedAt": "2026-09-06T23:06:59.503Z",
   "features": [
     {
       "feature": "A rebuild preserves the host executable contract before old-dist eviction: POSIX bin targets gain executable access while Windows keeps the byte-identical Node entrypoint used by npm command shims.",
@@ -31,18 +31,32 @@
       "source": ".proof-or-stop/story/actives/B-e256/plan.md#CHK-001"
     },
     {
-      "feature": "The committed red regression emits stable GREEN and contract selectors on the repaired candidate, remains discriminating against the unfixed baseline, and is registered in validation configuration.",
+      "feature": "The committed red regression emits stable GREEN and contract selectors on the repaired candidate and remains discriminating against the unfixed baseline.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-002"
     },
     {
-      "feature": "The real validation_plan command exposes the registered regression by stable id and label; the corrected executable-plus-argv command prints selector red-global-cli-exec-bit [B-e256 global CLI rebuild and promotion regression].",
+      "feature": "CHK-002 edge:0 separately proves config registration with the immutable executable-and-argv probe; its exact command exits zero and its selector matches the scoped configuration row.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-002.verificationIntent.edge"
+      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-002:edge:0"
+    },
+    {
+      "feature": "CHK-002 edge:1 separately runs the registered validation-tier-planner smoke, whose selected test invokes the production validation_plan renderer and proves stable id/label visibility; its exact command exits zero and prints the concise declared marker.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-002:edge:1"
+    },
+    {
+      "feature": "ProofStory AC-001 binds both distinct CHK-002 edge intents and accurately states config-registration evidence separately from real validation_plan discoverability.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/proofstory.json#AC-001"
     },
     {
       "feature": "Doctor emits the healthy marker only when the installed global package, PATH-selected command, declared bin target, compiled version, canonical main location, and host executable contract agree; package presence alone cannot substitute for PATH presence.",
@@ -94,11 +108,11 @@
       "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-001"
     },
     {
-      "feature": "Commit 3144360a65 changes exactly six implementation, test, and configuration files, all already declared by the versioned scope contract; the validation planner smoke change is the scoped mechanical proof for CHK-002 discoverability and no unrelated path expansion is present.",
+      "feature": "The current non-metadata delta contains exactly the same six implementation, test, and configuration paths introduced by 3144360a65; all six are declared by the versioned scope contract, while 2fba3138c0 and 75dbee0167 only repair pin truth within existing proof-or-stop.config.json and validation-tier-planner-smoke.ts paths.",
       "covered_by": "CHK-001, CHK-002, CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "git commit 3144360a65a67537fd594653a6386063c63b98d9"
+      "source": "git commits 3144360a65a67537fd594653a6386063c63b98d9, 2fba3138c0cd5ff630ddd296c9a1e93bf09c30a1, and 75dbee01673597bfee035e73c571a68712aee8af"
     },
     {
       "feature": "Do not alter Codex adapter entrypoint authority, npm link or global-install mechanics, or protected build-lock/crash-safety design; doctor remains read-only and only reports remediation.",
@@ -114,6 +128,7 @@
       ".proof-or-stop/story/actives/B-e256/checklist.json",
       ".proof-or-stop/story/actives/B-e256/decision.json",
       ".proof-or-stop/story/actives/B-e256/plan.md",
+      ".proof-or-stop/story/actives/B-e256/proofstory.json",
       ".proof-or-stop/story/actives/B-e256/scope-boundary.json",
       ".proof-or-stop/story/actives/B-e256/scope-contract.json",
       ".proof-or-stop/story/actives/B-e256/understanding.json"
@@ -129,14 +144,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 15,
-    "covered": 14,
+    "total": 17,
+    "covered": 16,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "2026-09-06T21:16:44.118Z",
-  "_hash": "3ca07676d319148692d09278e32866f1e9971451ffd7b17bd01b27628187bc2e",
+  "_hash": "222f4a0759f83235ed89e562d61e06ae2ac7838495c8b5653d2ae6b26c3a6a1d",
   "openQuestions": []
 }
