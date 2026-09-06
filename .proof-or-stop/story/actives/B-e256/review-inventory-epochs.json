@@ -148,9 +148,9 @@
       "epochId": "B-e256:RI-001",
       "storyId": "B-e256",
       "reviewRound": "2026-09-06T13:22:17.538Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-06T13:31:24.090Z",
-      "updatedAt": "2026-09-06T13:58:20.360Z",
+      "updatedAt": "2026-09-06T14:10:12.759Z",
       "cutoff": {
         "headHash": "d18da978370a8b0b4c7eab395f640aa92101feed",
         "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
@@ -261,10 +261,92 @@
           "criticDigest": "265c07c7ffb3b91a32e172587ecdd01a0682308d72521cd697a5b4f979660b75",
           "saturated": false,
           "nextRunSequenceBoundary": 35
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T13:58:20.360Z",
+          "completedAt": "2026-09-06T14:09:55.036Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-037",
+              "terminal": "pass",
+              "hostIdentity": "b7ba4563962aedfa0ee351cd0b4b737d1d7fe4a874b0be3caa1fac278c6efbe7",
+              "promptIdentity": "e3aad5da57203e71481e5ff513c22032b0d8e0df87578e1cd5b4c33bfe8b6b6c",
+              "evidenceIds": [
+                "B-e256:RP-024"
+              ],
+              "coverageDigest": "bca5f522646f9751a0cc2e39f85bc4fd4f0288ab19e36c5da8b7596ff32b8234"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-036",
+              "terminal": "finding",
+              "hostIdentity": "b7ba4563962aedfa0ee351cd0b4b737d1d7fe4a874b0be3caa1fac278c6efbe7",
+              "promptIdentity": "5d17ebf91896ba0722528679b2c5c4ffad379d8fd3112019f1dc0a564c2e61eb",
+              "evidenceIds": [
+                "B-e256:F-010"
+              ],
+              "coverageDigest": "60b1c9614fed5a96d55019d8bf9a95e75ee2ce4521e7e582ba41f6e4325fc65f"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-039",
+              "terminal": "pass",
+              "hostIdentity": "b7ba4563962aedfa0ee351cd0b4b737d1d7fe4a874b0be3caa1fac278c6efbe7",
+              "promptIdentity": "7d0fb30e254516e9c0b1d30ede6f4dc2bc480b8b0187f7734430991f1ab84712",
+              "evidenceIds": [
+                "B-e256:RP-025"
+              ],
+              "coverageDigest": "29b8f3753ff84bc6a2dd006a0789ec1205931e15a8d17a9ec46a645edc0a0416"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "npm-global-root-output-parse",
+            "quality-bin-target-containment-prefix",
+            "quality-bin-target-stat-error-collapse"
+          ],
+          "verifiedFindingSetDigest": "28572f92a57c080c4a4b4e20050c2e4299fe1f600f95e27e57591eb841413dd4",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "c86f190ac15f0f93ba71864af8c0b56a5166d159589a445e2b1493741676de9f",
+          "saturated": false,
+          "nextRunSequenceBoundary": 40
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "d05be5a25b135e4d05280d9cdc0746c3435c1741d857cd46ba61d868f1fa79f5"
+      "cancelledAt": "2026-09-06T14:10:12.759Z",
+      "cancelReason": "RI-001 exhausted its three-wave discovery budget after one distinct applicable family emerged in each wave; preserve all findings and reopen a larger bounded saturation epoch before current-Story remediation",
+      "terminalRunSequenceBoundary": 40,
+      "_hash": "028e972116c94903050a079a9c832b441e6712885b52d69a984aa65e29bbf5f7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e256:RI-002",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T14:10:13.720Z",
+      "updatedAt": "2026-09-06T14:10:13.720Z",
+      "cutoff": {
+        "headHash": "19c78aac6064ea653872f90477081b0cdaaf3d7a",
+        "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+        "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d"
+      },
+      "scopeDigest": "be5e90faa9508ff9745bb890f59f58415efb01e4cf11292710a11c01c1fadc6d",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 40,
+      "maxWaves": 5,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-e256:F-008",
+        "B-e256:F-009",
+        "B-e256:F-010"
+      ],
+      "_hash": "fa1014af0c51ab3ad45b1929914b9401af0cc97556eb7c1c7ecd58d314481b9c"
     }
   ],
   "receipts": [
@@ -474,6 +556,37 @@
       ],
       "createdAt": "2026-09-06T13:57:42.491Z",
       "_hash": "f2da9a3d405d28bce28b7c16f775c4bbedd8df35f1f7564b6e6e446e38145aa3"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-001:CRIT-03",
+      "epochId": "B-e256:RI-001",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "d18da978370a8b0b4c7eab395f640aa92101feed",
+        "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+        "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d"
+      },
+      "aggregateFindingSetDigest": "28572f92a57c080c4a4b4e20050c2e4299fe1f600f95e27e57591eb841413dd4",
+      "requiredLaneCoverageDigest": "6b95f0660ac882675e20669ae49291e241547450e3972a20bfa68d218ddb8292",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-040",
+      "terminalEvidenceIds": [
+        "B-e256:RP-026"
+      ],
+      "readEvidenceDigest": "42318e16319b886159b76880505c7c1f2fb99d29e6a93f96f64c5cf1bed9800f",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-010",
+          "disposition": "verified_family",
+          "familyKey": "quality-bin-target-containment-prefix",
+          "reason": "startsWith(..) rejects valid in-dist names like ..cli.js, so it is applicable and requires current Story repair."
+        }
+      ],
+      "createdAt": "2026-09-06T14:09:36.906Z",
+      "_hash": "7d4d614f0ca14ceac6cd47286dfb3e185b6781d8e6f136d4efad367b1308c20f"
     }
   ]
 }
