@@ -2335,6 +2335,67 @@
       "findingDispositions": [],
       "createdAt": "2026-09-06T20:12:20.766Z",
       "_hash": "f9d46c271b2df4167403107290f2f3a440bb5ebf020ab048b8584730e3e273a0"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-008:CRIT-01",
+      "epochId": "B-e256:RI-008",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "a2791eb95eca140125a26676452bf1f4c10f2bfa",
+        "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+        "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9"
+      },
+      "aggregateFindingSetDigest": "a551cdc3da14d4174b2263b7d82aa40ce2a6e62cec780cda547d6ae39a9ae879",
+      "requiredLaneCoverageDigest": "a365cf0ca7ca0e102188f5c64008de1ce3bcb99c2af595a095082d590be0741f",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-121",
+      "terminalEvidenceIds": [
+        "B-e256:RP-083"
+      ],
+      "readEvidenceDigest": "da312a80a870e570f8f7412ec058dbb27996a447562c2ec36a7f1cf648954443",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-037",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-nonexecuting-reference-false-pass",
+          "reason": "The shim validator accepts any non-comment line containing the target and a loose execution token, so a harmless echo/reference can satisfy it while a later command invokes a different target. This is distinct from command selection and unreadable-shim coverage. It is high severity and directly falsifies the healthy marker, so current-Story repair is required."
+        },
+        {
+          "findingId": "B-e256:F-038",
+          "disposition": "verified_family",
+          "familyKey": "doctor-posix-path-command-target-mismatch-false-pass",
+          "reason": "The POSIX path validates executable access on the canonical package bin but does not prove that the PATH-selected command resolves to that bin. A wrong present executable can coexist with global-core PASS. This distinct critical acceptance false-pass requires current-Story repair."
+        },
+        {
+          "findingId": "B-e256:F-039",
+          "disposition": "verified_family",
+          "familyKey": "windows-pathext-command-selection",
+          "reason": "The Windows resolver checks an extensionless regular file before PATHEXT candidates, unlike Windows command execution semantics, so doctor can validate the wrong artifact even with a correct shim parser. This distinct critical resolver family requires current-Story repair."
+        },
+        {
+          "findingId": "B-e256:F-040",
+          "disposition": "verified_family",
+          "familyKey": "promotion-enoent-intermediate-symlink-escape",
+          "reason": "Final-target lstat returns ENOENT before containment is checked when an intermediate component escapes through a symlink and the outside referent is absent. Promotion can then evict the old dist. This distinct high-severity pre-eviction containment family requires current-Story repair."
+        },
+        {
+          "findingId": "B-e256:F-041",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-unreadable-coverage-gap",
+          "reason": "The unreadable Windows command-shim branch is separately implemented but has no commandShimReadProbe failure injection or assertion; existing tests cover mismatch and absence only. This distinct high-severity evidence-integrity gap makes the checklist receipt misleading and requires current-Story repair."
+        },
+        {
+          "findingId": "B-e256:F-042",
+          "disposition": "verified_family",
+          "familyKey": "doctor-canonical-main-discovery-fallback-false-pass",
+          "reason": "Canonical-main discovery failure falls back to the current worktree package and the worktree warning is conditional on an already-false path match, allowing a disposable worktree global link to emit the healthy marker. This distinct critical topology/acceptance false-pass requires current-Story repair."
+        }
+      ],
+      "createdAt": "2026-09-06T21:44:15.974Z",
+      "_hash": "a20ac96df35ced2a12fcee28f4c1a8c5fa00ca2387912c1f12286cac5a9365f5"
     }
   ]
 }
