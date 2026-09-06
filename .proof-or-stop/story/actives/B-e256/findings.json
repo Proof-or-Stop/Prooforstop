@@ -639,7 +639,7 @@
       "desc": "quality-global-row-version-fallback: packages/main/src/core/runtime-environment-checks.ts:1958-1962 fixes F-006 only when compiledVersion is known; when the compiled-runtime probe fails, the nullish fallback silently renders the package.json manifest as the generic version= value. Existing missing/unreadable/malformed compiled-artifact cases set compiledVersion=null but do not assert the row, so a manifest at 2.0.0 with an absent or unparsable dist artifact still renders version=2.0.0 while warnings say the compiled runtime is unverifiable. That generic row value is not the executable’s authoritative version and remains misleading. Render version=unknown for a failed compiled probe, or label manifestVersion and compiledVersion separately, and cover the existing probe-failure/default-probe cases. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T15:37:38.674Z",
@@ -647,7 +647,11 @@
       "reviewRunId": "B-e256:RR-060",
       "_hash": "c21b12baf3a07390823433837bb390372f29a811a7108f8ec0ca6bfc9cd9ea41",
       "signatureTag": "edge|unknown|quality-global-version",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 528a0ebcb renders the compact global-core row from compiledVersion only, falling back to version=unknown rather than package manifest version. global-core-realpath probe-failure cases assert unknown and reject version=0.0.0 fallback.",
+      "resolvedAt": "2026-09-06T16:24:14.070Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-019",
