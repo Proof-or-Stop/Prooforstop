@@ -1972,7 +1972,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/core/runtime-environment-checks.ts:1957-1977 collapses a failed or empty `git worktree list --porcelain` canonical-main probe into the current self-project's local packages/main path. Then :1097-1110 only warns that the resolved global package is inside `.worktrees` when `pathMatches` is already false. A current-built-runtime probe ran from the B-e256 worktree with PATH set to a directory containing no git, a temporary global @proof-or-stop/core symlink to that same Story worktree, and the matching worktree CLI; it produced expected=<B-e256>/packages/main, worktreeCheckout=true, global-core-realpath status=pass, remediation=null, and contract: global-core-realpath-pass. This violates plan.md:51, which promises that a disposable worktree package realpath warns, and permits a global command that breaks when the worktree is deleted to be certified healthy. Canonical-main discovery failure must remain unverifiable/non-pass, and the worktree path predicate must independently forbid the healthy marker; add a failed-topology-probe regression. severity: critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T21:32:57.386Z",
@@ -2025,7 +2025,11 @@
       "signatureTag": "doctor-main-worktree-probe-fallback-false-pass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbvsff_10tl_10fdbb7c38dd4ec6ab22b6e69534f1d9",
-      "ledgerCommitReceiptId": "lrc_mtqbvsff_10tl_7f91b19eb5a74c81a7c7a6c27f4ed3b0"
+      "ledgerCommitReceiptId": "lrc_mtqbvsff_10tl_7f91b19eb5a74c81a7c7a6c27f4ed3b0",
+      "resolvedAt": "2026-09-06T23:38:41.540Z",
+      "resolvedReason": "Commit 3144360a65 makes failed canonical-main discovery in a Story worktree unverifiable/non-pass and independently forbids a disposable worktree package from receiving the healthy marker. The failed-topology regression and current full validation pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-043",
