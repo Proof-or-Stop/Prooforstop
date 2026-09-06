@@ -1392,6 +1392,7 @@
       "signatureTag": "windows-doctor-remediation-command-portability",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbcmz7_195c_4ce48635209d4aa886f7f59b9daa2d0f",
+      "ledgerCommitReceiptId": "lrc_mtqbcmz7_195c_100233b337e4468b943c6cb915ceba27",
       "resolvedAt": "2026-09-06T21:18:03.871Z",
       "resolvedReason": "Duplicate of F-030. The same d65767d4b16e encoded PowerShell LiteralPath remediation and percent-token regression closes both observations.",
       "resolutionType": "duplicate",
@@ -1402,7 +1403,7 @@
       "desc": "test-coverage-win32-capability-skip-false-pass: packages/main/tests/global-core-realpath.test.mjs:83-87 handles an unavailable Windows directory-link capability by printing `ok global-core-realpath` and exiting 0 before any of cases 1-34 run. All three CHK-003 must intents pin exactly that selector, so on an EPERM/EACCES/ENOSYS Windows host the CLI can issue passing mechanical receipts for canonical/drift/non-git, platform executable semantics, and adversarial remediation while executing zero assertions—including the supposedly every-host win32 case 34 at :1224-1284. This is a distinct evidence-integrity gap beyond F-029 (no real shim validation) and F-030 (cmd percent quoting): the F-026 portability repair changed a setup failure into an indistinguishable green result. Limit the skip to link-dependent cases or introduce a fixture seam for the platform-only assertions, and ensure skipped execution cannot match the acceptance selector. severity: high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T19:20:27.710Z",
@@ -1454,7 +1455,11 @@
       "signatureTag": "test-coverage-win32-link-capability-skip-false-pass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtq75ef3_10w3_341be17f4f3940d4ba6bf41b7390c19e",
-      "ledgerCommitReceiptId": "lrc_mtq75ef3_10w3_69e3e6a08c494625b673b21cc1db7562"
+      "ledgerCommitReceiptId": "lrc_mtq75ef3_10w3_69e3e6a08c494625b673b21cc1db7562",
+      "resolvedAt": "2026-09-06T21:18:05.265Z",
+      "resolvedReason": "Commit d65767d4b16e limits capability skips to link-dependent cases and adds assertion-count guards so zero assertions cannot print the pinned ok selector; CHK-003 edge:2 and full validate pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-034",
