@@ -266,6 +266,49 @@
       ],
       "signatureTag": "prompt-envelope-negative-dismissal-modifier-bound-false-positive",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-007",
+      "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1543-1547 labels its mutation broad deletion but injects a filter at the entry of classifyControlledTriageRelations that removes every segment starting with no and containing a dismissal subject before any per-segment or linkage classifier runs. This is materially stronger than the immutable candidate mutation at commit 12363ef512 lines 1540-1544, which returns false only from hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal and therefore reproduces the B-5190 joined-scan shortcut without deleting unrelated input. The current test can demand 45 of 45 role-witness escapes only because it also deletes the first inline witness before the existing single-segment classifier sees it. Independent dynamic reproduction with the faithful helper-only mutation produced the same matrix for all five active roles: witness 1, No parent Finding is closed by this intake as out of scope, remained REJECTED by the pre-existing per-segment oracle, while witnesses 2 through 9 were ADMITTED. Thus the current 45-cell assertion is not mutation evidence that the new bounded-link production branch is necessary; it is killed by an overbroad input-deletion mutation that bypasses additional unrelated protections. This is distinct from the existing functional language-bypass and false-positive Findings: the production outcomes may be repaired separately, but CHK-001:adversarial:1 and its mechanical PASS receipt remain overclaimed until the smoke imports the faithful helper-only mutant, evaluates every role-witness cell without short-circuit, asserts the expected five retained inline rejections and forty linkage escapes, and proves the full production oracle detects those escapes. Severity high because this directly invalidates a must adversarial intent and makes REVIEW evidence misleading.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T16:55:36.388Z",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "reviewRunId": "B-8a40:RR-009",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "8f44350ebd7ce370e7a04d2f8290bd9a50eb8cd957843c121549214761bd1264",
+      "files": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "signatureTag": "prompt-envelope-broad-mutant-fidelity-overclaim",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
