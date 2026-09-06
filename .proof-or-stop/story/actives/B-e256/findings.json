@@ -837,6 +837,60 @@
       "resolvedAt": "2026-09-06T16:52:58.393Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e256:F-024",
+      "desc": "doc-promise-undelivered: .proof-or-stop/story/actives/B-e256/checklist.json:25-30 still defines CHK-001:happy:0 as a universal must intent that a 0644 target gains POSIX 0o111 bits and pins the POSIX-only GREEN label, while packages/main/tests/red/red-global-cli-exec-bit.mjs:83-85 and :178-182 explicitly replace that assertion and label on win32 with an npm-shim-target content contract. .proof-or-stop/story/actives/B-e256/proofstory.json:43-49 also binds that stale intent and universally claims 0644 becomes 0755 after promotion. F-022 staging-before-eviction wording is corrected, but the F-023 portability repair did not reach the machine-owned Story acceptance contract: on win32 the must selector cannot appear even when the test passes. Repair the verification intent and ProofStory acceptance binding so POSIX mode restoration and Windows shim-target behavior are expressed without a contradictory universal 0o111/0755 promise. severity: critical",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T17:17:48.772Z",
+      "reviewRound": "2026-09-06T16:52:33.065Z",
+      "reviewRunId": "B-e256:RR-082",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "0f5935b0470c0f2dc4f096837c47f96a16a4ecb6a6d9d5563c846a0cde8e4082",
+      "files": [
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/proofstory.json",
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ],
+      "signatureTag": "missing|json|promise-undelivered-proof",
+      "signatureTagSource": "auto"
     }
   ]
 }

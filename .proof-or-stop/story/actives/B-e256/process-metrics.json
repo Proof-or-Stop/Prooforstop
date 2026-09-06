@@ -1,13 +1,13 @@
 {
   "storyId": "B-e256",
-  "generatedAt": "2026-09-06T16:52:58.396Z",
+  "generatedAt": "2026-09-06T17:17:48.789Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 3,
     "reviewRounds": 6,
-    "findings": 23,
+    "findings": 24,
     "bugs": 0,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -27,7 +27,7 @@
       },
       "metrics": {
         "findingCoverageRatio": {
-          "value": 1,
+          "value": 0.8,
           "unit": "ratio",
           "confidence": "medium",
           "sources": [
@@ -99,7 +99,7 @@
           ]
         },
         "missingFindingCount": {
-          "value": 11,
+          "value": 12,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -226,7 +226,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 83,
+          "value": 85,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -275,7 +275,7 @@
           "note": "fast channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 20,
+          "value": 21,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -297,7 +297,7 @@
     },
     "reviewDiscipline": {
       "effective": {
-        "value": true,
+        "value": false,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -316,7 +316,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 23,
+          "value": 24,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -324,7 +324,7 @@
           ]
         },
         "criticalResolvedBeforeTest": {
-          "value": true,
+          "value": false,
           "unit": "bool",
           "confidence": "high",
           "sources": [
