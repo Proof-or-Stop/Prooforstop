@@ -1346,9 +1346,9 @@
       "epochId": "B-e256:RI-008",
       "storyId": "B-e256",
       "reviewRound": "2026-09-06T21:16:44.118Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-06T21:27:47.420Z",
-      "updatedAt": "2026-09-06T22:03:51.785Z",
+      "updatedAt": "2026-09-06T22:13:24.758Z",
       "cutoff": {
         "headHash": "a2791eb95eca140125a26676452bf1f4c10f2bfa",
         "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
@@ -1469,6 +1469,61 @@
           "criticDigest": "6a63f94e81b566adef3ff9d1acbb0b154e249ce19ac99e87dcf870a7c0b29769",
           "saturated": false,
           "nextRunSequenceBoundary": 125
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T22:03:51.785Z",
+          "completedAt": "2026-09-06T22:13:10.273Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-128",
+              "terminal": "pass",
+              "hostIdentity": "1abe4eb7b6d1fabc04f6b99095b34af79ce45faed342314ef98d1cb3efddda6d",
+              "promptIdentity": "6116d0ca37d9612c2f616545ff0c51f56f6679e168a21d990e637fabc7597450",
+              "evidenceIds": [
+                "B-e256:RP-088"
+              ],
+              "coverageDigest": "939fee19dc87648a3ef9926ecc49804758d6186107a462dce12590d16d26caf0"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-126",
+              "terminal": "pass",
+              "hostIdentity": "1abe4eb7b6d1fabc04f6b99095b34af79ce45faed342314ef98d1cb3efddda6d",
+              "promptIdentity": "49f41a721707e46afdd4e14608e2b67004885983a89efeecc01c120d16baa4f7",
+              "evidenceIds": [
+                "B-e256:RP-087"
+              ],
+              "coverageDigest": "50a5119643dbe36bf074c995d8d8a22d492a736b217be6c001672e7be4e89800"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-127",
+              "terminal": "finding",
+              "hostIdentity": "1abe4eb7b6d1fabc04f6b99095b34af79ce45faed342314ef98d1cb3efddda6d",
+              "promptIdentity": "7e229bb8345fb0b4e9977c24bb69245d3b35bf72503fccf6af5ac46d82ea9a85",
+              "evidenceIds": [
+                "B-e256:F-044"
+              ],
+              "coverageDigest": "e1f08ba6442f218d9b06c7a5acdd3ff0ee79723557e1b9f2f77cf0a138d33339"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "doctor-canonical-main-discovery-fallback-false-pass",
+            "doctor-posix-path-command-target-mismatch-false-pass",
+            "promotion-enoent-intermediate-symlink-escape",
+            "test-coverage-build-wrapper-promote-wiring-false-green",
+            "test-coverage-validation-plan-discoverability-unreceipted",
+            "windows-command-shim-nonexecuting-reference-false-pass",
+            "windows-command-shim-unreadable-coverage-gap",
+            "windows-pathext-command-selection"
+          ],
+          "verifiedFindingSetDigest": "415a0fb9864131f0feb52c19f03c236f7fb78666093a297b998f6d06c8e29ccd",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "006051a5134e3548536c6b4d8b0886666cc2c5ae134ae2eb813a3e3a025c8b8d",
+          "saturated": false,
+          "nextRunSequenceBoundary": 129
         }
       ],
       "baselineFindingIds": [
@@ -1477,7 +1532,10 @@
         "B-e256:F-039",
         "B-e256:F-040"
       ],
-      "_hash": "ce1ae35bd7ae6d886f07015e666c012d5e90c4373fa76711e279649fdbcd9ae1"
+      "cancelledAt": "2026-09-06T22:13:24.758Z",
+      "cancelReason": "RI-008 exhausted its three discovery waves while the final wave still added verified high evidence-integrity family F-044. Preserve F-037 through F-044 as current-Story repair obligations, retain F-031 pending delivery repair, and replan the bounded repair rather than minting a false completeness receipt.",
+      "terminalRunSequenceBoundary": 129,
+      "_hash": "e25e4e29e501c0e68cbd20954a32b7d5b9a2e7bf91c9f46975007a82a812fbae"
     }
   ],
   "receipts": [
