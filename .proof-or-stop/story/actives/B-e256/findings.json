@@ -292,7 +292,7 @@
       "desc": "packages/main/tests/red/red-global-cli-exec-bit.mjs:139,160,203,230,258 only exercise a one-entry object-form package.json bin, while scripts/promote-dist.mjs:93-96 contains a distinct string-shorthand branch and iterates arbitrary object values. Repository search found no test using bin:\"dist/cli.js\" or two declared bin targets. A regression could leave a shorthand target or one of multiple targets at 0644 while every current selector remains GREEN, contradicting CHK-001 and the plan promise to restore every listed package.json bin target. Add hermetic string-shorthand and multi-target cases that assert every target becomes executable, remains byte-identical, and appears in the restored list. This is distinct from F-010, which covers the in-dist containment prefix boundary. severity: medium",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T14:32:51.687Z",
@@ -342,7 +342,11 @@
         "packages/main/tests/red/red-global-cli-exec-bit.mjs"
       ],
       "signatureTag": "test-coverage-bin-shape-cardinality",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 721bb624b0 covers package.json bin string shorthand and multiple targets, asserting every target is executable, byte-identical, and listed.",
+      "resolvedAt": "2026-09-06T15:32:38.188Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-012",
