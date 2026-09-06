@@ -6,9 +6,9 @@
       "epochId": "B-8a40:RI-001",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T16:34:48.065Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-06T16:34:53.823Z",
-      "updatedAt": "2026-09-06T16:53:03.811Z",
+      "updatedAt": "2026-09-06T16:59:23.786Z",
       "cutoff": {
         "headHash": "0ceed850df8f63a096613d58ddb38bf688c7ae1e",
         "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
@@ -124,10 +124,100 @@
           "criticDigest": "d95d0a239cb8ed0ecef790ebcc5c48ffb322ccd26078788039e04f5acca3ea49",
           "saturated": false,
           "nextRunSequenceBoundary": 8
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T16:53:03.811Z",
+          "completedAt": "2026-09-06T16:59:15.584Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-010",
+              "terminal": "pass",
+              "hostIdentity": "43dae6c80ff1b3eb614900a78b462d75347c373bdc83855c14873fe111e948ce",
+              "promptIdentity": "d3ac237cd64e69da030e654f5c0439cbd54ec569153cee7112732db1340ab2c6",
+              "evidenceIds": [
+                "B-8a40:RP-005"
+              ],
+              "coverageDigest": "153be050f3817c7442d66b44d98a275a9ae5185557071815e13a8c42b02f3485"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-011",
+              "terminal": "finding",
+              "hostIdentity": "43dae6c80ff1b3eb614900a78b462d75347c373bdc83855c14873fe111e948ce",
+              "promptIdentity": "b3ae2f0d141dbe0540ce1ffc450c23d5a1f8011499700b87a4c557b62c6eefae",
+              "evidenceIds": [
+                "B-8a40:F-008"
+              ],
+              "coverageDigest": "9c2849259891ac921ea3ff0cc1bcb29f4fbefaa6e75fe270a07536251b95adae"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-009",
+              "terminal": "finding",
+              "hostIdentity": "43dae6c80ff1b3eb614900a78b462d75347c373bdc83855c14873fe111e948ce",
+              "promptIdentity": "734767bb86f25693845fbc082cee7e9210fef76b0ea79e777e024ddc3407d3a0",
+              "evidenceIds": [
+                "B-8a40:F-007"
+              ],
+              "coverageDigest": "428c6f1d1fd660333510a5dc444426c7a51c5ee31601f964c53f036700417bc0"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "negative-dismissal-linkage-fail-open",
+            "negative-dismissal-observation-modifier-actor-bound-fail-closed",
+            "negative-dismissal-observation-word-order-fail-closed",
+            "negative-dismissal-polarity-fail-closed",
+            "prompt-envelope-mutant-cleanup-isolation",
+            "prompt-envelope-mutant-fidelity-overclaim"
+          ],
+          "verifiedFindingSetDigest": "3f8d2829c5bd25ce88aacad39d37f1eaef20312e862a3b0f0a8ad4593ca0af90",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "548828e12b44d0d5109879127f96f7b95942f377cd6d100a870d345018bafdf5",
+          "saturated": false,
+          "nextRunSequenceBoundary": 12
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "a4f5bfc19a561004f8fa51dfa9f076c018f0cb525b56ec7562d3823f082d0c7e"
+      "cancelledAt": "2026-09-06T16:59:23.786Z",
+      "cancelReason": "Replan the bounded repair around the six verified finding families after review inventory budget exhaustion.",
+      "terminalRunSequenceBoundary": 12,
+      "_hash": "2140d7e439ce4f2376a875cb49440f04161558241ff9a2017945bc2d3da943d5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-8a40:RI-002",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T16:59:54.200Z",
+      "updatedAt": "2026-09-06T16:59:54.200Z",
+      "cutoff": {
+        "headHash": "88dd8d6aced7707e76883121520e70da26f2d854",
+        "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
+        "storyFilesHash": "2a703c79691320aaa87dec260dc4c3f75442241aa0bce923c4b8b40054c7b2dd"
+      },
+      "scopeDigest": "e21e2fb8bb92d7703952110c8e28de34f157880e2d3743ded51d6b0e230af7fb",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 12,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-8a40:F-001",
+        "B-8a40:F-002",
+        "B-8a40:F-003",
+        "B-8a40:F-004",
+        "B-8a40:F-005",
+        "B-8a40:F-006",
+        "B-8a40:F-007",
+        "B-8a40:F-008"
+      ],
+      "_hash": "4b7e1280255c272ef7f114e8aa8bab6c4c6298289c21c170186f777d3e732ab0"
     }
   ],
   "receipts": [],
@@ -219,6 +309,43 @@
       ],
       "createdAt": "2026-09-06T16:52:42.011Z",
       "_hash": "47742c3d3b0aacca4b789fe10ad969fd090457a6f205d2bf347d285ca52424bf"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-001:CRIT-03",
+      "epochId": "B-8a40:RI-001",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "0ceed850df8f63a096613d58ddb38bf688c7ae1e",
+        "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
+        "storyFilesHash": "2a703c79691320aaa87dec260dc4c3f75442241aa0bce923c4b8b40054c7b2dd"
+      },
+      "aggregateFindingSetDigest": "3f8d2829c5bd25ce88aacad39d37f1eaef20312e862a3b0f0a8ad4593ca0af90",
+      "requiredLaneCoverageDigest": "eaa8a0d053225200681a0651060d625096d80b0bd96273209d90d1b5a85f6292",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-012",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-006"
+      ],
+      "readEvidenceDigest": "9a9ec7cad2580567aa6e4b0200e0892c296545103f5c9790df16663f96d3a325",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-007",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-mutant-fidelity-overclaim",
+          "reason": "Verified distinct evidence-fidelity family: the injected classifier-entry deletion is materially stronger than the target helper-only mutation, so its 45-cell escape result does not prove the bounded-link branch is necessary and overclaims a must adversarial receipt."
+        },
+        {
+          "findingId": "B-8a40:F-008",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-mutant-cleanup-isolation",
+          "reason": "Verified distinct test-isolation family: mutant modules are written into the real dist tree and non-ENOENT cleanup failures are suppressed, allowing PASS with residue. This mechanism and repair are independent of mutation semantic fidelity."
+        }
+      ],
+      "createdAt": "2026-09-06T16:58:40.950Z",
+      "_hash": "90da4e1f7398d35c55277f3d1d24181f353b93fc538ecda7cfc0a9e80358235c"
     }
   ]
 }
