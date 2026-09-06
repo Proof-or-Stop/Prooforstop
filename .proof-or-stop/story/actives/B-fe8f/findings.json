@@ -1519,7 +1519,7 @@
       "desc": "Current mandatory validation fails because the B-fe8f E1/E2 temporary Git-index drift witness inherits GIT_OPTIONAL_LOCKS=0 while asserting that git status refreshes the temporary index. Source baseline 55d5e34c6f360ef23e790a6c445bfb8b9a86e997, unchanged material 0a92206b63a96526e12de317bf80507df9e43c102e323db53073313f81ac1e4c. Real validate command9 and one same-environment isolated rerun exit1 at E1: verifier refreshed git index identity during the shared execution; its one-execution assertion passed. RED log /tmp/bfe8f-sameenv-refresh-smoke.TP5rOk/verification-run-and-guard-smoke.log. Repair only the temporary child Git environment, preserve every existing receipt/count/selector/drift assertion and formal validation GIT_OPTIONAL_LOCKS=0. This directly blocks B-fe8f acceptance and remains current-Story work.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-06T14:07:04.448Z",
@@ -1531,7 +1531,11 @@
       "signatureTag": "edge|ts|current-mandatory-validation",
       "signatureTagSource": "auto",
       "recordId": "lr_mtpvydqb_1729_91e7b7c320a24b0cab486f5032fdcce7",
-      "ledgerCommitReceiptId": "lrc_mtpvydqb_1729_716c16dd76a741b4b293896943c6e1a5"
+      "ledgerCommitReceiptId": "lrc_mtpvydqb_1729_716c16dd76a741b4b293896943c6e1a5",
+      "resolvedAt": "2026-09-06T14:53:34.301Z",
+      "resolvedReason": "Current acceptance integration failure reproduced at the pre-fix 55d5e34 source under GIT_OPTIONAL_LOCKS=0: verification-run-and-guard E1 did not create the intentional temporary index stat drift. Fix 2086edd40124c0fa2df88b3e0b39001f2414f52e sets GIT_OPTIONAL_LOCKS=1 only for the deliberate git status mutation in its disposable fixture, preserving the parent environment and every original execution-count, selector, receipt and drift assertion. RED log /tmp/bfe8f-sameenv-refresh-smoke.TP5rOk/verification-run-and-guard-smoke.log. Same-environment GREEN in /tmp/bfe8f-f058-f060-green.gcmW8Z/; E1/E2/E3 pass and E2 still requires four real executions. Final genuine CLI validation completed on 2026-09-06: 132/132 commands have code=0, aggregate allPass=true; full original output /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-059",
