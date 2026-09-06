@@ -1745,6 +1745,62 @@
       "findingDispositions": [],
       "createdAt": "2026-09-06T17:48:26.842Z",
       "_hash": "6563c5a69eeb8607c0b524a54b44d15834b0f549514ac77ce34304240207e7f9"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-006:CRIT-01",
+      "epochId": "B-e256:RI-006",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "9375d78ad6f6b74696d1f4e05733f00146f247cb",
+        "materialHash": "5b2ad5e25c1ff178aac5f4d60a1ea6c599e70d33606dd5bb2115718a43046d70",
+        "storyFilesHash": "a9556759a4051ae8c1bfb5516b96fba35d0ac9360b83c29d0ac07a5ee75eb1df"
+      },
+      "aggregateFindingSetDigest": "3c1b3ca019d76192da182e1e1ffd026a49c7cf090be709373a18ec39870b40ac",
+      "requiredLaneCoverageDigest": "f1927eee6e20b92db0e8119a1e85470b87d5aee69fe3307dc7dcc54d667281fa",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-097",
+      "terminalEvidenceIds": [
+        "B-e256:RP-067"
+      ],
+      "readEvidenceDigest": "4d77cc21cbf290583ff0786b5eba76ef23fa34d7ac07a3e2cb0bb0bc89b46763",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-029",
+          "disposition": "verified_family",
+          "familyKey": "windows-doctor-command-shim-validation",
+          "reason": "Verified as a distinct production false-pass family: runtime-environment-checks.ts:693-695 returns executable=true solely from platform=win32, while :737-769 only stats the declared Node target and never validates the actual .cmd/.ps1 shim. The win32 fixture at global-core-realpath.test.mjs:1229-1240 creates no shim and merely asserts that unconditional verdict. This differs from F-026 fixture portability, F-027 selector portability, and F-028 remediation rendering."
+        },
+        {
+          "findingId": "B-e256:F-030",
+          "disposition": "verified_family",
+          "familyKey": "windows-doctor-remediation-command-portability",
+          "reason": "Verified as the canonical recurrence of F-028: commandPathQuote at runtime-environment-checks.ts:703-717 preserves legal percent-delimited Windows path components even though cmd.exe expands %NAME% inside quoted command lines, and the test helper mirrors the same quoting with only a space-path fixture. The production surface and required fix are exactly the existing Windows doctor remediation-command portability family."
+        },
+        {
+          "findingId": "B-e256:F-031",
+          "disposition": "verified_family",
+          "familyKey": "cross-platform-acceptance-contract",
+          "reason": "Verified as recurrence of F-024: checklist.json:10 and delivery-check.json:11-14 still bind the universal POSIX-only ls -la/-rwxr-xr-x user outcome, while checklist.json:25 and ProofStory AC-001 now define POSIX bits versus the Windows Node-target/npm-shim contract. The residual is within the existing cross-platform acceptance-contract family."
+        },
+        {
+          "findingId": "B-e256:F-032",
+          "disposition": "duplicate",
+          "familyKey": "windows-doctor-remediation-command-portability",
+          "canonicalFindingId": "B-e256:F-030",
+          "reason": "F-032 cites the same live source defect at commandPathQuote, the same legal %VAR%-shaped Windows path, the same cmd.exe expansion behavior, the same missing percent-path fixture, and the same remediation as earlier live F-030. F-030 is verified, open, current-wave, and the chain is non-circular."
+        },
+        {
+          "findingId": "B-e256:F-033",
+          "disposition": "verified_family",
+          "familyKey": "windows-link-capability-skip-false-green",
+          "reason": "Verified as a distinct evidence-integrity family: global-core-realpath.test.mjs:83-87 emits the exact accepted `ok global-core-realpath` selector and exits 0 before cases 1-34 when the Windows directory-link capability probe returns EPERM/EACCES/ENOSYS. This is not F-026's former Windows test failure/unreachability; the repair created the opposite failure mode, a mechanically accepted zero-assertion green, requiring skip isolation or a non-accepting selector."
+        }
+      ],
+      "createdAt": "2026-09-06T19:25:37.542Z",
+      "_hash": "a5a936dab10a676bdee74c082adf9b30cdb66ba48d8730d604cc60b33cb83f79"
     }
   ]
 }
