@@ -474,6 +474,56 @@
       ],
       "signatureTag": "quality-smoke-descendant-cleanup",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-e256:F-015",
+      "desc": "quality-smoke-platform-regression: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:352-357 hard-codes /bin/sh and the external sleep utility for every new descendantTreeCommand row, replacing the prior process.execPath-based child fixture. proof-or-stop.config.json registers this smoke as an unconditional validation command, while the validation implementation and validation-tier planner explicitly model native win32 execution. On native Windows, spawning /bin/sh fails with ENOENT before the descendant PID can be published, so the command, idle, and max deadline assertions cannot exercise their subject and escalated/full validation fails for host reasons. Use process.execPath with a platform-neutral inline descendant fixture, or provide an explicit win32 branch with equivalent process-tree semantics. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T14:40:33.759Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-045",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "79a3e3394ae844e966da22d20522babdf8e500d65049bf0f3ede7a0f40806b50",
+      "files": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "quality-smoke-platform-regression",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
