@@ -1636,7 +1636,7 @@
       "reviewRound": "2026-09-06T19:49:59.446Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T20:37:16.566Z",
-      "updatedAt": "2026-09-06T20:43:41.314Z",
+      "updatedAt": "2026-09-06T20:50:19.975Z",
       "cutoff": {
         "headHash": "15bea5826231986a422d2df77c26aa27c6e83e22",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1709,6 +1709,67 @@
           "criticDigest": "a1725039833cf25d4d910e418bd46cba2f354dccae59ed049be3192f1c89c317",
           "saturated": false,
           "nextRunSequenceBoundary": 102
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T20:43:41.314Z",
+          "completedAt": "2026-09-06T20:50:19.975Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-103",
+              "terminal": "finding",
+              "hostIdentity": "1411a5b179cf77695872ba39903d8450cd51b95475e4eba34849b9027f6b5e0c",
+              "promptIdentity": "4fd9e259f37834c7d5d7c0514848f846004bccec4704f35726710b944f6c26a7",
+              "evidenceIds": [
+                "B-8a40:F-054"
+              ],
+              "coverageDigest": "0920145bdf3cb6b29d1c8879408fcd932114b50e164d0c34b4e1351e2f7a4bfb"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-105",
+              "terminal": "finding",
+              "hostIdentity": "1411a5b179cf77695872ba39903d8450cd51b95475e4eba34849b9027f6b5e0c",
+              "promptIdentity": "8c8f7ad3fe4a4364c6e3413d97f3abf268ad558643e21d20b5e79a617715acce",
+              "evidenceIds": [
+                "B-8a40:F-055"
+              ],
+              "coverageDigest": "1f2041c1914587651fab19649680f48795dadf0f5769bfdbcf0198cd3a5e7c79"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-104",
+              "terminal": "pass",
+              "hostIdentity": "1411a5b179cf77695872ba39903d8450cd51b95475e4eba34849b9027f6b5e0c",
+              "promptIdentity": "c5eb488ad50cd23047d4fb2ab46031e5ca0287307000dacde7e472155ef64ace",
+              "evidenceIds": [
+                "B-8a40:RP-059"
+              ],
+              "coverageDigest": "3871d7478fee8e9d2f80d9739d739cecfbcdf88f0bea41722be43fe5209b87ab"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-deferral-explicit-target-cross-segment-bypass",
+            "prompt-envelope-deferral-state-local-antecedent-false-positive",
+            "prompt-envelope-positive-dismissal-evidence-unrelated-scope-whole-source-false-positive",
+            "prompt-envelope-reviewer-disposition-actor-span-padding-bypass",
+            "prompt-envelope-severity-deferral-fixed-span-padding-bypass",
+            "prompt-envelope-severity-passive-outcome-first-cross-segment-bypass",
+            "prompt-envelope-severity-state-local-antecedent-false-positive",
+            "prompt-envelope-signed-disposition-state-local-antecedent-false-positive",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering",
+            "prompt-envelope-unknown-applicability-joined-span-padding-bypass",
+            "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive"
+          ],
+          "verifiedFindingSetDigest": "ccbbf93ff01da774395a390959148b3b2998dc807d96f26b642ff00e5f48b211",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "6807c129fb9b1f6c44a17d9502ff169e58a6926565094e679a539f250cefc687",
+          "saturated": false,
+          "nextRunSequenceBoundary": 106
         }
       ],
       "baselineFindingIds": [
@@ -1725,7 +1786,7 @@
         "B-8a40:F-051",
         "B-8a40:F-052"
       ],
-      "_hash": "45890d9ea1f49358bb6b6b466ff8b8fbe82caa65c09c23c19946829780f22824"
+      "_hash": "69fa133ed4492657136016cf7459de6cb18b80d3138127d3acd68da6cfe78630"
     }
   ],
   "receipts": [
@@ -3209,6 +3270,43 @@
       ],
       "createdAt": "2026-09-06T20:43:22.172Z",
       "_hash": "4d988fffff8803caff37e26bc4bb37fb95c2f2a90157e0780555f98621c67d1a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-009:CRIT-02",
+      "epochId": "B-8a40:RI-009",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "15bea5826231986a422d2df77c26aa27c6e83e22",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "ccbbf93ff01da774395a390959148b3b2998dc807d96f26b642ff00e5f48b211",
+      "requiredLaneCoverageDigest": "9d43a0b51f57742d4d38e468d3161ea65e848a744acd796a5cec128e3ae74fdb",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-106",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-060"
+      ],
+      "readEvidenceDigest": "017d370d7890231ee2ba9c252f5802131771a2ffcb088c7ba2e879c8decc84fc",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-054",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-deferral-fixed-span-padding-bypass",
+          "reason": "Independent bounded classifier/gate family: severity and deferral controlled relations use their own 260 and 280 character maximum spans, so neutral same-sentence modifiers erase otherwise exact propositions. This is separate from F-053's unknown-applicability joined-span path and from earlier negative-dismissal horizons."
+        },
+        {
+          "findingId": "B-8a40:F-055",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-reviewer-disposition-actor-span-padding-bypass",
+          "reason": "Independent bounded classifier/gate family: unauthorized reviewer disposition minting depends on the default-bounded actor-to-disposition hasConceptPair, so a grammatical modifier beyond 240 characters suppresses an exact recognized actor, action, and disposition relation. Unlike F-054 it is an actor/action/disposition authority prerequisite, not a severity or deferral controlled outcome."
+        }
+      ],
+      "createdAt": "2026-09-06T20:49:58.775Z",
+      "_hash": "1ea6d1572f3e7722b3010bc8f3ebffd2c78673dfb5cd145609324f850f4d2f3a"
     }
   ]
 }

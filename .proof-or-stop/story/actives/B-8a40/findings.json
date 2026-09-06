@@ -2669,6 +2669,64 @@
       ],
       "signatureTag": "reviewer-disposition-actor-span-padding-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-056",
+      "desc": "packages/main/src/core/prompt-envelope.ts:1033-1051 uses the default 240-character hasConceptPair horizon as the sole relation prerequisite for compatibility-CLI deferral authority and for Story-authored schema or gate changes, while the residual schema regex at :1041 requires the Story noun to sit immediately next to a finite change verb. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject [The compatibility CLI authorizes defer_with_proof.] and [This Story changes the applicability field.], but all five admit the identical subjects, authority actions, and outcomes when one grammatical audit-evidence modifier extends each same sentence to 536 and 529 bytes. The long schema form evades residualSchemaAmendment because the modifier separates Story from changes, then evades the fallback pair horizon; the compatibility form directly exceeds the same default pair horizon. This is distinct from F-055, which covers reviewer-actor to disposition distance, and F-054, which covers the explicit severity and deferral ControlledTriageRelationSpec spans. It exhausts the remaining safety-relevant default hasConceptPair consumers. Replace the evadable distance test with structural relation classification or an unbounded same-sentence state that preserves polarity, and add all-role short and long unsafe plus explicit-negative controls for both branches. Severity high because neutral same-sentence detail lets Task Context grant compatibility deferral authority or amend the Finding schema while every REVIEW envelope is minted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T20:53:31.670Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-107",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-andেৱbudget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "83b5750499cce068ecb44cfc7d248951f45caaab9edc0be7c5452ff02a89f0c3"
+      },
+      "readDiagnostics": [
+        {
+          "code": "read_manifest_missing_full_read",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/role-prompt-modularization-andেৱbudget-execution-plan.md",
+          "message": "mechanical decisions-doc read log has a full read missing from readManifest.filesReadFully: docs/requirements/decisions/role-prompt-modularization-andেৱbudget-execution-plan.md"
+        },
+        {
+          "code": "read_manifest_extra_full_read",
+          "severity": "finding",
+          "path": "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "message": "readManifest.filesReadFully self-reports a decisions-doc file absent from the mechanical read log: docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        }
+      ],
+      "_hash": "15fbaadb144fe46f7ef79fc231f3fdf5fb78e72ceb4badfc3571800244ce2d45",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "compatibility-schema-default-span-padding-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
