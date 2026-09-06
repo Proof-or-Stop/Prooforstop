@@ -1849,7 +1849,7 @@
       "desc": "promotion-missing-target-symlink-escape: scripts/promote-dist.mjs:117-138 performs lstat on the final staging bin path before resolving containment and treats every ENOENT as a benign absent target. If an intermediate staging directory is already a symlink outside the promoted tree but the outside final filename does not exist, lstat throws ENOENT before the realpath containment check. A current-head temporary probe built dist/linked -> outside with no outside/cli.js and package bin dist/linked/cli.js; restoreBinExecutableBits returned [] without throwing, so promoteDist would proceed to evict the working dist and promote the escaped, broken tree. The existing c6 regression only creates an existing outside referent and therefore reaches realpath. This violates background.md/plan.md and CHK-001, which require intermediate symlink escapes to be rejected before eviction and reserve benign handling for genuinely absent targets. Validate containment of the resolvable parent chain before classifying final ENOENT, and add an absent-referent escape regression. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T21:27:09.783Z",
@@ -1896,7 +1896,11 @@
       "signatureTag": "promotion-enoent-masks-intermediate-symlink-escape",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqboc7s_1u6u_9231eeaed94c426da1394b006039efc0",
-      "ledgerCommitReceiptId": "lrc_mtqboc7s_1u6u_61bfaaa6fd2a44d5b82cdb5512869971"
+      "ledgerCommitReceiptId": "lrc_mtqboc7s_1u6u_61bfaaa6fd2a44d5b82cdb5512869971",
+      "resolvedAt": "2026-09-06T23:38:37.643Z",
+      "resolvedReason": "Commit 3144360a65 checks existing parent-chain containment before treating a missing final bin target as benign, so an intermediate symlink escape with an absent outside target aborts promotion. red-global-cli-exec-bit.mjs case c7 and current full validation pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-041",

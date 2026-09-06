@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "ebddefa6661c2de535623e62c37344245def0e2df01b3da903819b8c56fd5976",
+  "committedLedgerDigest": "bc921ee32d89458f18401c9337b67791253a9e8fbc44246a76e46cbcf69a89a7",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -1239,6 +1239,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:38:35.801Z"
+    },
+    {
+      "recordId": "lr_mtqgdej0_c53_72b32a8c609943d796f5de12cae98aa5",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqboc7s_1u6u_9231eeaed94c426da1394b006039efc0:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtqboc7s_1u6u_9231eeaed94c426da1394b006039efc0",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-089cd928-521a-4491-be13-459411d1a915",
+        "findingId": "B-e256:F-040",
+        "findingRecordId": "lr_mtqboc7s_1u6u_9231eeaed94c426da1394b006039efc0",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-06T23:38:37.643Z",
+        "reason": "Commit 3144360a65 checks existing parent-chain containment before treating a missing final bin target as benign, so an intermediate symlink escape with an absent outside target aborts promotion. red-global-cli-exec-bit.mjs case c7 and current full validation pass.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "4f524868ec638de8325e7b186cec0b52612463d8626c277835034a1e53749f7b",
+      "priorDigest": "ebddefa6661c2de535623e62c37344245def0e2df01b3da903819b8c56fd5976",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T23:38:37.644Z"
     }
   ],
   "receipts": [
@@ -2880,6 +2903,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "63be9f354b373e8519c67974a8f362cf58f77efb2f90a6b5d27e40b0bf8baa53",
         "signature": "pbVxobQNKeDBpfYoR26FOLQ9hDvWcp+C3oJmI8tcMmds6h0ygm+e/kuYX4ckIUWM+H2ZMcW/t4VS9B4ycAX3Bg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqgdej0_c53_a6624e3aa0ce424eada64fd43c39e14d",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqboc7s_1u6u_9231eeaed94c426da1394b006039efc0:resolved",
+      "requestDigest": "5d3933eb5388f2d4c92a74e9d8f3c707f357ac857efd86a6aebdc0bf20d76f7b",
+      "recordIds": [
+        "lr_mtqgdej0_c53_72b32a8c609943d796f5de12cae98aa5"
+      ],
+      "priorLedgerDigest": "ebddefa6661c2de535623e62c37344245def0e2df01b3da903819b8c56fd5976",
+      "committedLedgerDigest": "bc921ee32d89458f18401c9337b67791253a9e8fbc44246a76e46cbcf69a89a7",
+      "writerSessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+      "writerFenceToken": "f4438719-965e-4bdb-85c1-a02608e30958",
+      "committedAt": "2026-09-06T23:38:37.644Z",
+      "replayed": false,
+      "exactRequestDigest": "5aaf47bfb69789833fe9f470ec2d2e5423e502b96fdc0fe15a8e8c39a1e1add3",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqgdej0_c53_a6624e3aa0ce424eada64fd43c39e14d",
+        "storyId": "B-e256",
+        "idempotencyKey": "finding-lifecycle:lr_mtqboc7s_1u6u_9231eeaed94c426da1394b006039efc0:resolved",
+        "exactRequestDigest": "5aaf47bfb69789833fe9f470ec2d2e5423e502b96fdc0fe15a8e8c39a1e1add3",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtqgdej0_c53_72b32a8c609943d796f5de12cae98aa5"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtqboc7s_1u6u_9231eeaed94c426da1394b006039efc0",
+            "expectedRecordHash": "890a3674bb20b1187fbbfd57417faaaed494dc781a6b9caec7cdc5d4329066d6",
+            "observedChainHeadId": "lr_mtqgdd3t_app_828e4e29fb464d30a7bb45ef6725b0fd",
+            "observedChainHeadHash": "1f4baf8060ade471ba1bfa43d3c50f1a52ac672040caa93c4e6afea4625dc69d",
+            "predicateDigest": "a713514d81fef43fa5c3ba303f6b19ce5356b60c3e4c1b62bfe04536c08c5516"
+          }
+        ],
+        "priorLedgerDigest": "ebddefa6661c2de535623e62c37344245def0e2df01b3da903819b8c56fd5976",
+        "committedLedgerDigest": "bc921ee32d89458f18401c9337b67791253a9e8fbc44246a76e46cbcf69a89a7",
+        "replayed": false,
+        "committedAt": "2026-09-06T23:38:37.644Z",
+        "writerSessionId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "f4438719-965e-4bdb-85c1-a02608e30958",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "6c0ff36029488d4767af9881c429d1a1cde4743683c6d0ff9e28372e18e0c6cb",
+        "signature": "j3ZeTMUM5vasoDQVB7noLOnLLAuzOmk2Nex3XFmigFfJBSkMEHNLe8e9ZKClrQ9XUFhhcFKPFR5cN1ty7qgXCQ=="
       }
     }
   ]
