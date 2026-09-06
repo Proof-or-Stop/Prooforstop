@@ -1224,6 +1224,51 @@
       ],
       "signatureTag": "prompt-envelope-cross-segment-negative-prefix-assignment-laundering",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-027",
+      "desc": "packages/main/src/core/prompt-envelope.ts:316-329 scopes negation between a target and responsibility outcome by cutting at several conjunctions, but omits most causal boundaries already recognized by TRIAGE_CAUSAL_LINK at :377, including `therefore`, `thus`, `hence`, `so`, `as a result`, and `for that reason`. Consequently the unsafe continuation `No parent Finding is closed by this intake. It is not retained as evidence, therefore outside this Story applies.` is admitted: isLinkedResponsibilityConclusion sees target `It` and outcome `outside this Story`, but controlledConceptPairIsExplicitlyNegative treats the unrelated earlier `not retained` as negating the entire relation because `therefore` does not reset scopedRelationship. The same conclusion without the unrelated negative clause is rejected, and `consequently` is already a boundary, proving the vocabulary inconsistency. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:980 and :987 cover unrelated negation around other authority claims, while :1075-1090 covers causal dismissal conclusions without a preceding unrelated negative predicate; there is no polarity-scope matrix over all production causal links. This is distinct from F-018 double-negation parity and F-026 signed-disposition continuation deletion: one affirmative proposition is laundered by negation from a separate predicate inside the same segment. Use the canonical causal-boundary vocabulary for negation scope and add all-role controls for every link. Severity high because a trivial causal-prefix transformation admits the dismissal-derived out-of-scope authority this Story promises to reject.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T18:32:13.462Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-050",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "3f22353ac40de747dd5cc8bdd1f151ee1ed7d0a2e2f8b41ff7ddef0fa355afb6",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-causal-boundary-negation-scope-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }

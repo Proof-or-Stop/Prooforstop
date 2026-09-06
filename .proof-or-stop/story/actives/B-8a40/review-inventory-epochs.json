@@ -581,9 +581,9 @@
       "epochId": "B-8a40:RI-004",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T17:43:17.573Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-06T18:09:04.936Z",
-      "updatedAt": "2026-09-06T18:22:47.134Z",
+      "updatedAt": "2026-09-06T18:29:49.374Z",
       "cutoff": {
         "headHash": "2aa009f9b95895dfa299e6929c2ee1a9e4e46e53",
         "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
@@ -712,6 +712,65 @@
           "criticDigest": "ce5b5b7400dae98436917dbf8d3d494dc1df2a9ac43d7a0a5a76d9165af512f6",
           "saturated": false,
           "nextRunSequenceBoundary": 45
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T18:22:47.134Z",
+          "completedAt": "2026-09-06T18:29:48.890Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-046",
+              "terminal": "pass",
+              "hostIdentity": "b51a2f45e2cbc7dcb78f90842f41f64c38c9997933996fdc935fb3477d7da0ca",
+              "promptIdentity": "e2f2148fae87844c9c4ad15785cab44d846dc0295bd87dafe25b0bca0b23a33d",
+              "evidenceIds": [
+                "B-8a40:RP-026"
+              ],
+              "coverageDigest": "a1981e7c0017e1d77b6633f11ddd7a01ef536b63246f36c012e778a03053d839"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-048",
+              "terminal": "pass",
+              "hostIdentity": "b51a2f45e2cbc7dcb78f90842f41f64c38c9997933996fdc935fb3477d7da0ca",
+              "promptIdentity": "c04826436f725e5ffa390e1ef64d2ab97481be19341ac597e1660d59e05afa17",
+              "evidenceIds": [
+                "B-8a40:RP-027"
+              ],
+              "coverageDigest": "917616ef02e8eea9c19a5ca5cb1d40de7c1830ba0c17519f8ddd78ccb28e7154"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-047",
+              "terminal": "finding",
+              "hostIdentity": "b51a2f45e2cbc7dcb78f90842f41f64c38c9997933996fdc935fb3477d7da0ca",
+              "promptIdentity": "f035ab01feb11ca9f49217cf10eba4f8a2ea192a6e4d83d72aff358a456bd37b",
+              "evidenceIds": [
+                "B-8a40:F-026"
+              ],
+              "coverageDigest": "f37e06887f4b93c7d2d3833a1b183880ffabb94142f9bdf60c277c89c5aecf80"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-active-voice-negative-observation-bypass",
+            "prompt-envelope-approved-segment-open-body-laundering",
+            "prompt-envelope-cross-leaf-direct-coreference-bypass",
+            "prompt-envelope-cross-segment-negative-prefix-assignment-laundering",
+            "prompt-envelope-cross-source-local-antecedent-false-positive",
+            "prompt-envelope-double-negation-polarity-bypass",
+            "prompt-envelope-interrogative-wrapper-authority-laundering",
+            "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+            "prompt-envelope-negative-quantifier-number-agreement-gap",
+            "prompt-envelope-quoted-fixture-greedy-span-laundering",
+            "prompt-envelope-rendered-structural-leaf-authority-injection",
+            "prompt-envelope-same-leaf-unrelated-exclusion-false-positive"
+          ],
+          "verifiedFindingSetDigest": "abad711b462b56b07b8474f1ad6fd48c54784e1e9b5fdac46794a594453bda1e",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "82b1df1310545fa82d6dc77ae0223771cf499349272d56f84657799542ce46cc",
+          "saturated": false,
+          "nextRunSequenceBoundary": 49
         }
       ],
       "baselineFindingIds": [
@@ -726,7 +785,51 @@
         "B-8a40:F-020",
         "B-8a40:F-021"
       ],
-      "_hash": "e14c2c6676a5f0758b6d53ac331fbb2af09ae2486be92989956cb431af63fa4a"
+      "cancelledAt": "2026-09-06T18:29:49.374Z",
+      "cancelReason": "Replan the classifier around the complete verified wrapper and state-machine families after review inventory budget exhaustion.",
+      "terminalRunSequenceBoundary": 49,
+      "_hash": "a176f6a3b49214609a1d69aa1bc8482db18ace45b067fffec20da029d19cda68"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-8a40:RI-005",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T18:29:50.563Z",
+      "updatedAt": "2026-09-06T18:29:50.563Z",
+      "cutoff": {
+        "headHash": "72a1055a6b77a619121bbeab09b1d55765332184",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "scopeDigest": "7220b13ea87f043afe60045b89ddf80029939a9eaf68df90e74062810c3e9753",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 49,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-8a40:F-012",
+        "B-8a40:F-013",
+        "B-8a40:F-014",
+        "B-8a40:F-015",
+        "B-8a40:F-016",
+        "B-8a40:F-017",
+        "B-8a40:F-018",
+        "B-8a40:F-019",
+        "B-8a40:F-020",
+        "B-8a40:F-021",
+        "B-8a40:F-022",
+        "B-8a40:F-023",
+        "B-8a40:F-024",
+        "B-8a40:F-025",
+        "B-8a40:F-026"
+      ],
+      "_hash": "b9caf674b1571dcbc87cff4734a80def64c708e164d6acbdaac963d825f6637d"
     }
   ],
   "receipts": [
@@ -1300,6 +1403,37 @@
       ],
       "createdAt": "2026-09-06T18:22:25.767Z",
       "_hash": "3d7ae611ac879eea564883f0a93df4811c8609bb12fc4e6daff241486fd5f20b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-004:CRIT-03",
+      "epochId": "B-8a40:RI-004",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "2aa009f9b95895dfa299e6929c2ee1a9e4e46e53",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "aggregateFindingSetDigest": "abad711b462b56b07b8474f1ad6fd48c54784e1e9b5fdac46794a594453bda1e",
+      "requiredLaneCoverageDigest": "334898161fc5fe0d64b47c28f40880b37f0917deafe984637c0b8e43cb2b4306",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-049",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-028"
+      ],
+      "readEvidenceDigest": "4fc90991de34158e880d3e68dbb48475b67d81d02f863dd110d09e9ea7f17088",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-026",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-segment-negative-prefix-assignment-laundering",
+          "reason": "Independent family: the signed-disposition continuation state machine treats any segment beginning with a negative auxiliary as wholly safe and skips residual affirmative assignment clauses. This is distinct from F-025 approved-segment open-body deletion and F-021 through F-024 whole-leaf meta-safe wrappers because it depends on a prior signed-disposition antecedent and deletes the continuation inside relation-state processing."
+        }
+      ],
+      "createdAt": "2026-09-06T18:29:28.580Z",
+      "_hash": "fbb0b9fb3e53cbaf89f8494c2a87f5c54ec617eddb625ecc1c55f9d863af2018"
     }
   ]
 }
