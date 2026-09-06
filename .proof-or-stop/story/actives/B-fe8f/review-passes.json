@@ -2776,6 +2776,40 @@
       },
       "readDiagnostics": [],
       "_hash": "223e780bd9d276bd4596a2bad99dd7dce5dba2bed39786116d270b04e361cc69"
+    },
+    {
+      "id": "B-fe8f:RP-073",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Actual current-round concept review, not reuse of RP070. Rechecked integrated source stat and complete new two-file diff after2086edd; all six checklist declarations and previously fully-read background/plan/understanding/decision are byte-identical to RR117 inputs. Read current summary, scope acknowledgement16, current evidence rows, and BUG-CERT-001 RED/GREEN logs. Independently executed the production read-only deriveCertificationDomainInputHashes: six hashes over56entries; all8old-side historical paths retained exactly in review-subject digest, and Lab/Utils lockfiles uniquely build-input. The new legacy pattern is documented migration-only and also requires deleted blob plus deleted/rename-old-side status; live/unknown/near-miss paths refuse, exactly-one classification remains, and no old runtime authority/CLI namespace is restored. Actual RED log fails the sibling-overlap and missing-tombstone cases while negative controls pass; GREEN passes, and git diff confirms no smoke changes between RED0fafd2d and GREEN9754c4b. No new command/env/behavior promise lacks implementation, no later Identity/Applicability/deferral authority is claimed. All71 current mechanical PASS rows have receipts and exact current materialff65fca/story15f6210; the prior132 validation and priorquorum are historical, not current. Fresh heavy certification, actualcurrenthostquorum and lifecycle delivery remain separate Owner work. No new concept Finding. Manifest full files were read completely earlier with byte-equality reconfirmed or newly read completely; source/checklist/spec sections were targeted reads and not claimed full-file coverage.",
+      "createdAt": "2026-09-06T16:05:56.667Z",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "reviewRunId": "B-fe8f:RR-119",
+      "envelopeId": "17ae9180a9ea8b9c23d2bfd37ebf0f16662d9c1fbe1350934ac86c3ca9840616",
+      "writerSessionId": "sess-7e8a1b4c11980cfd74a3755257230a82",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/decision.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/summary.json",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8611619ed503cfc626dc5c642a4f45a7e777af0754447dbf745dcd36725bcb16"
     }
   ]
 }
