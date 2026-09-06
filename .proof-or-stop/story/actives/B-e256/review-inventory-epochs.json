@@ -150,7 +150,7 @@
       "reviewRound": "2026-09-06T13:22:17.538Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T13:31:24.090Z",
-      "updatedAt": "2026-09-06T13:31:24.090Z",
+      "updatedAt": "2026-09-06T13:46:52.211Z",
       "cutoff": {
         "headHash": "d18da978370a8b0b4c7eab395f640aa92101feed",
         "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
@@ -164,9 +164,58 @@
       ],
       "initialRunSequenceBoundary": 26,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T13:31:24.090Z",
+          "completedAt": "2026-09-06T13:46:52.211Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-027",
+              "terminal": "pass",
+              "hostIdentity": "dcecbd569e449a848c1a4fa7c9ee4f51a80c2a545e1b14f3bf4b1e869da4ff1e",
+              "promptIdentity": "a5e672cba64e592dbe081d145912b0e22ad05a2a7b43480a5b825b70c4fb9162",
+              "evidenceIds": [
+                "B-e256:RP-017"
+              ],
+              "coverageDigest": "2eca2976c887cb06f5465c45e1a0cdab5377531dd59c10cfbc5cbc843d35c2d8"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-028",
+              "terminal": "finding",
+              "hostIdentity": "dcecbd569e449a848c1a4fa7c9ee4f51a80c2a545e1b14f3bf4b1e869da4ff1e",
+              "promptIdentity": "6dc825501461c50b937aa849b67defd169fcd6cb0ef14aaf1155490fded46d29",
+              "evidenceIds": [
+                "B-e256:F-008"
+              ],
+              "coverageDigest": "8bd08f17591058eec225e2c44689999d8a3212e4712a86626cddbb7df5542691"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-029",
+              "terminal": "pass",
+              "hostIdentity": "dcecbd569e449a848c1a4fa7c9ee4f51a80c2a545e1b14f3bf4b1e869da4ff1e",
+              "promptIdentity": "350b246ef18de5fdf3d2855856752e12b30c76fb6a3f68daddad342c41219279",
+              "evidenceIds": [
+                "B-e256:RP-018"
+              ],
+              "coverageDigest": "f32d216cab7bb8e8db83a8a4f5e0eb679d2dd7c4b1c7b981c88f4658ab25cbc7"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "npm-global-root-output-parse"
+          ],
+          "verifiedFindingSetDigest": "e0d3d4120273b75bd1afe56633c023ac7a9d55f8035f32aea237341f6f57f063",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "ed50db8c8a215b392678ab30fd8b5c31a454837d18b4a95e1e4ccaf62300c5c6",
+          "saturated": false,
+          "nextRunSequenceBoundary": 31
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "17962b96678dc392a2733b29db016be59857ac6895509f5a5fedebdd1dcd906c"
+      "_hash": "ee3432d60b959483f39232d46b172e04a50c124ffbc353d7a6914b24490a90b2"
     }
   ],
   "receipts": [
@@ -314,5 +363,37 @@
       "_hash": "422f12dae09b218aac1cc3aa36c499234268c328c5cd37012b089045667a01d9"
     }
   ],
-  "criticReceipts": []
+  "criticReceipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-001:CRIT-01",
+      "epochId": "B-e256:RI-001",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "d18da978370a8b0b4c7eab395f640aa92101feed",
+        "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+        "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d"
+      },
+      "aggregateFindingSetDigest": "e0d3d4120273b75bd1afe56633c023ac7a9d55f8035f32aea237341f6f57f063",
+      "requiredLaneCoverageDigest": "ec0f7e5cfb5b224ef3d50c0611aecde8c10b8bf4ba6a7610ba751784c67315a5",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-031",
+      "terminalEvidenceIds": [
+        "B-e256:RP-020"
+      ],
+      "readEvidenceDigest": "d9b9cd2c38b9b9122cce654d662a808e595728758ca80301bb48d16d212f44d0",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-008",
+          "disposition": "verified_family",
+          "familyKey": "npm-global-root-output-parse",
+          "reason": "Distinct verified family: malformed npm root -g output is accepted as a valid filesystem root, directly weakening the Story doctor diagnostic; it is applicable and requires repair in the current Story."
+        }
+      ],
+      "createdAt": "2026-09-06T13:46:15.737Z",
+      "_hash": "0f4f492520e97fe0c5dbb619aff0edb95fa7bfaee68158888813e83d692c3d6e"
+    }
+  ]
 }
