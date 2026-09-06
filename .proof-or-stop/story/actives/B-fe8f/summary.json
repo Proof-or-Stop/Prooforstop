@@ -3,10 +3,10 @@
   "changes": "Implemented Section 9.3 Finding Ledger and Runtime Evidence Integrity: durable fenced append batches, idempotent replay, exact-record CAS, signed source/artifact/runtime binding, protected query and fail-closed readers. User-authorized closeout repairs preserve RED/GREEN: F056 uses the shared seven-field INIT_CHECK signature-domain renderer (e8b35c09b96bfa363940a795f24d7c012be5fb67); F055 explains the retired-prefix negative control (826ea187224bf510c801834cac9e8928ad29041c); F057 safely distinguishes causal preflight refusal branches (RED c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6, GREEN e23615ad1605e7126094de46d959341d9c407415). Main synchronization retains shared DONE predicates, full-output pinned evidence and receipt-keyed import isolation alongside B-fe8f raw-result reuse with independent selector verdicts. BUG-CERT-001 additionally repairs the current PRE_CERT admission blocker in two scoped files: disjoint sibling build-input rules and exact historical migration-tombstone classification without dropping hash inputs or re-enabling retired runtime paths (RED0fafd2dac95b9d2fb6a694173756679515f4790b, GREEN9754c4b3174ca1e36b3748539f417ebaab93dac5). BUG-CERT-002 corrects that follow-up repair without bypassing the brand guard: build inputs are bounded to current supported roots and only exact migration tombstones receive the historical exception (RED55c9f4e9ee60768a06c52f968dd716873b222b79, GREEN2bee7e31e2561365f507f1780fa72f07cbd51fd1).",
   "usage": "From the Story worktree use node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f for the signed ledger/runtime scorecard. Use official Finding and runtime evidence CLI commands rather than editing protected records. After installation the public executable is proof-or-stop.",
   "expectedOutcome": "Deliver the Section9.3 Finding ledger/runtime integrity foundation with genuine RED/GREEN evidence, fresh lifecycle verification, independent review and a local main merge.",
-  "actualTranscript": "Current source2bee7e31e2561365f507f1780fa72f07cbd51fd1 includes the foundation and the bounded two-file BUG-CERT-002 repair. The prior DONE-required run on source9754 passed build but failed root npmtest on the introduced deprecated-literal decision; preserved original output /tmp/bfe8f-cert002-red.AhG4Fx/done-required-tool-output.log. Independent focused residue RED exits1. RED55c9f4e9 adds assertions that catch six unknown build-like namespace admissions; same full certification smoke exits0 after GREEN2bee7e31 without assertion changes. Build, residue, residue-inject, retired-authority guard and diff-check all exit0; exact8historical tombstones, legitimate build roots, source/blob/deletion/domain drift and live/unknown/rename-into rejection controls remain tested. Actual committed Story derives6domains over56changed entries. Raw logs /tmp/bfe8f-cert002.ONPs6H/. Official verification_evidence_refresh_stale re-executed pinned verifiers in431.6seconds; full CLI read confirms71/71 mechanical PASS with exit0, selectorMatched=true, causalReceiptHash present and current material29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6/storyFilesc0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8. Six checklist items and four milestones are complete. RI005 completed two frozen-source inventory waves and preserved F061/F062 as one real defect family; its signed receipt authorized the bounded DEV remediation, not TEST. Original F055-F060 resolutions and RED/GREEN are preserved. Source2086edd's132/132 validation and old realClaude/Codex quorum are historical after the new code change. Current-source final review, certification re-admission, routine/DONE-required validation, independent delivery and local main merge remain pending. F057's exact historical refusal branch remains unknown. Current source has entered REVIEW. BUG-CERT-002 and both structured observations F061/F062 are formally fixed/resolved against the same actual RED/GREEN chain; current final reviewer passes are not yet claimed. Acceptance rollout check is current and passes enforcement with no diagnostics; topology remains nonblocking observe/inconclusive.",
-  "outcomeDiff": "Bounded implementation, focused regression tests and71current mechanical evidence rows pass. Final current-source review, routine/DONE-required validation, independent delivery and local main merge remain pending.",
-  "acceptanceVerdict": "partial",
-  "outcomeKind": "blocked",
+  "actualTranscript": "Current source2bee7e31e2561365f507f1780fa72f07cbd51fd1 includes Section9.3 foundation and the bounded two-file BUG-CERT-002 repair. Prior failed DONE-required output on source9754 remains preserved at /tmp/bfe8f-cert002-red.AhG4Fx/done-required-tool-output.log. RED55c9f4e9ee60768a06c52f968dd716873b222b79 adds six unknown build-namespace assertions; unchanged assertions pass on GREEN2bee7e31. Focused build/certification/residue/residue-inject/retired-guard logs /tmp/bfe8f-cert002.ONPs6H/ and actual56changed-input/six-domain derivation pass. Official verification refresh and independent strict coverage confirm71/71 current mechanical PASS receipts, zero gaps and waivers, material29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6/storyFilesc0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8. Six checklist items/four milestones done. RI005's two waves preserved F061/F062 as one concrete family and authorized bounded DEV remediation; BUG-CERT-001/002 and F055-F062 are formally fixed/resolved. Final current REVIEW: RR133/RP082 concept, RR134/RP083 coverage, genuine ClaudeRR135/RP084 quality. CW005 ADMITTED. Actual live-smoke transcript is current and exits0 with genuine historical RED/current GREEN and corrupted-relation rejection controls. On2026-09-06 DONE-required PASS: build exit0; root suite65/65,retries0,619329ms; official result at /tmp/bfe8f-final-done-required.eR4hKC/stdout.log. Genuine standalone validate completed132/132 code0,allPass=true in1406.8seconds; full original logs /private/tmp/bfe8f-validation-observer.YPZEBu/run-YChCwC/. Current local full3x2 quorum commit28aad36157f09a9672324ed0234bec470e6547aa uses genuine claude-cli/claude-code and codex-desktop/codex sessions; it is six bookkeeping records, not six new independent reviews or Authority/productionDONE. REVIEW-to-TEST at14ce332 reused fresh validation under trusted-story-metadata-descendant lineage and did not rerun132commands. Acceptance rollout check is current enforcement PASS with no diagnostics; topology retains nonblocking observe/inconclusive. Fresh-context independent delivery check saved in commit38e6f55:12promises verified,0unverified;6checklist features tested,0waivers; independent RED verifier,ledger/runtime matrix and certification smoke exit0. Closing self-check reports real machine/edge coverage and no unresolved new TODOs. Local lifecycle DONE merge is the remaining transition, not yet claimed as performed. Exact historical F057 refusal branch remains unknown.",
+  "outcomeDiff": "No functional difference for the scoped Section9.3 foundation: the actual CLI transcript,71current mechanical receipts,independent review/delivery and both required suites substantiate the promised supported local behavior. Later Identity/Lineage and Dynamic Applicability remain explicitly excluded. The CLI must still perform the local DONE merge; this summary does not claim that transition has already occurred.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
@@ -32,14 +32,14 @@
     },
     "REVIEW": {
       "count": 30,
-      "durationMs": 197603770
+      "durationMs": 200783892
     },
     "TEST": {
-      "count": 3,
-      "durationMs": 60922833
+      "count": 4,
+      "durationMs": 61328319
     }
   },
-  "totalDurationMs": 464084838,
+  "totalDurationMs": 467670446,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-04T15:43:03.331Z",
-  "updatedAt": "2026-09-06T17:07:40.385Z"
+  "updatedAt": "2026-09-06T18:07:25.993Z"
 }
