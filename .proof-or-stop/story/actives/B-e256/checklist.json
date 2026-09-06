@@ -342,12 +342,12 @@
       "verificationIntent": {
         "happy": [
           {
-            "desc": "proof-or-stop doctor prints a global-cli row showing the resolved realpath of the global proof-or-stop executable, its reported version and file mode when the global install resolves into this repository",
+            "desc": "proof-or-stop doctor reports a resolved passing global-core-realpath fact with verified realpath, version, observed mode and executable state through a host-independent contract marker",
             "type": "cli",
             "priority": "must",
             "verification": {
               "command": "node packages/main/dist/cli.js doctor",
-              "selector": "global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version="
+              "selector": "contract: global-core-realpath-pass"
             }
           }
         ],
@@ -362,7 +362,7 @@
             }
           },
           {
-            "desc": "packages/main/tests/global-core-realpath.test.mjs keeps passing its existing cases (worktree-built CLI resolving to the canonical main checkout stays accepted) and gains a non-executable-target case",
+            "desc": "packages/main/tests/global-core-realpath.test.mjs keeps passing canonical, drift and non-git cases and covers platform-specific executable semantics",
             "type": "cli",
             "priority": "must",
             "verification": {
@@ -373,7 +373,7 @@
         ],
         "adversarial": [
           {
-            "desc": "A global executable whose realpath is inside a .worktrees/ checkout or whose bin target lacks the executable bit produces a warning row with the exact repoint or chmod command, never a silent pass",
+            "desc": "Realpath drift warns with an exact host-shell repoint command; POSIX non-executable targets get chmod while Windows treats mode as display-only and validates the npm command-shim contract",
             "type": "logic",
             "priority": "must",
             "verification": {
