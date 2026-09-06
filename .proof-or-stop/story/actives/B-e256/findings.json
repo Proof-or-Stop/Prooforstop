@@ -1718,6 +1718,66 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbggup_16f_0b54591344e342a5a1cb5e8171308138",
       "ledgerCommitReceiptId": "lrc_mtqbggup_16f_386df82767ea40e29ac396dff80adf74"
+    },
+    {
+      "id": "B-e256:F-038",
+      "desc": "doc-promise-undelivered: packages/main/src/core/runtime-environment-checks.ts:1049-1096 rejects an absent PATH command, but inspectGlobalCoreExecutable at :861-867 validates the PATH-selected shim only on Windows; the POSIX branch checks X_OK on the canonical package bin target without verifying that a present PATH executable resolves to that target. renderRuntimeEnvironmentReport at :318-328 can therefore emit contract: global-core-realpath-pass while cli-entrypoint is fail. Reproduction against the current built runtime with platform=linux, commandResolver returning an executable bogus temp proof-or-stop path, the real npm root -g, and executableAccessProbe=true produced cli-entrypoint=fail, global-core-realpath=pass, marker=true. This directly falsifies ProofStory AC-001 and summary.json:3-7, which promise that the healthy marker requires PATH/package/bin-target agreement. Add POSIX PATH-command realpath agreement to the global-core fact and a wrong-but-present PATH regression. severity: critical",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T21:22:18.417Z",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "reviewRunId": "B-e256:RR-117",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/scope-contract.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5a05c9b5b0afb8f2051773aff27e307e90bf8d56eda8895c320abf4a66ad1ec4",
+      "files": [
+        ".proof-or-stop/story/actives/B-e256/proofstory.json",
+        ".proof-or-stop/story/actives/B-e256/summary.json",
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs"
+      ],
+      "signatureTag": "doctor-posix-path-command-target-mismatch-false-pass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqbi3ea_3of_fde4e570261b45be806d652de88d2294",
+      "ledgerCommitReceiptId": "lrc_mtqbi3ea_3of_b6cadec2665f4c7a9de6f9a9d90341a9"
     }
   ]
 }
