@@ -1,0 +1,33 @@
+{
+  "storyId": "B-bcae",
+  "name": "b1734-reader-import-race-20260906",
+  "title": "Prevent admitted bootstrap readers from failing during concurrent dist promotion",
+  "description": "User-authorized narrow follow-up to B-1734 on 2026-09-06. Fix the reproduced initial bootstrap check-to-import race: a legitimate concurrent builder must not make a reader that passed readiness checks exit with a transient missing-module error. Carry existing RED/candidate GREEN/mutant sources, production snapshots, exact hashes and raw logs through durable candidate archive sr-mtpu1soj-559bfe; original probe rp-mtptbazb-cvxkwb and spike sr-mtptby4r-6sbo6u remain intact. Baseline commit f2d3fd54c320a07f4e71e8e40ecbbb28329609d4: reader failures 3/3; candidate 0/3; removed protection 3/3; all builders succeed and all three controls pass. Reuse these tests instead of rediscovering the bug, but adapt and rerun them against the final production implementation for fresh verificationEvidence. Acceptance: preserve coherent initial imports during promotion, stable and builder-first startup, genuine missing-artifact fail-closed behavior, and dependency-missing fresh-checkout diagnostics without importing unavailable proper-lockfile. Decide the smallest production-safe coordination at PLAN; the experimental mutex candidate is not a mandated production design. Exclude B-1734 zombie lifecycle cleanup, global CLI executable/symlink ownership (B-e256), all direct dist consumers, full F-032 reviewer credential contamination, source-edit-during-compile binding, package-desktop locking, rename-crash recovery and repository-wide green cleanup unless evidence establishes a direct acceptance/protected-surface blocker. No parent Finding is closed by this intake. During execution classify each discovered defect before scope change: applicable critical/high, safety/data integrity/compatibility risks, direct regressions, core-result or REVIEW/TEST/DONE blockers and misleading gate evidence require current-Story repair. Unrelated nonblocking medium/low defects need traceable reproduction, evidence, impact, explicit follow-up ownership and handling recommendation; reclassify immediately if severity or gate impact escalates. Creation only in this request; independent INIT/PLAN/REVIEW and fresh DEV/TEST/DONE evidence remain required.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Security/Credentials",
+      "matched": "credential"
+    },
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-09-06T13:13:45.791Z",
+  "startedAt": "2026-09-06T13:13:45.791Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-06T13:13:46.633Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-98d02a93a118a7f4d0a06d9380ca324d",
+      "agent": "main"
+    }
+  ]
+}

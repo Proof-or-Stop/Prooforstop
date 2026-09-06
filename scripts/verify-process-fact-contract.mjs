@@ -5,6 +5,7 @@ import { createHash } from 'node:crypto';
 import { basename, join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
+import { checkSharedDoneAdapterSources, runSharedDonePredicateProof } from '../packages/main/tests/red/red-done-shared-predicates.mjs';
 
 const root = process.cwd();
 // --quiet suppresses only the verbose listings (registry entries, inventory
@@ -107,6 +108,8 @@ const processFactLevelRegistryPath = 'packages/main/src/core/process-fact-levels
 const commandPolicyPath = 'packages/main/src/core/command-policy.ts';
 const flowFactPolicyPath = 'packages/main/src/core/flow-fact-policy.ts';
 const lifecycleRegistryPath = 'packages/main/src/core/lifecycle-registry.ts';
+const machinePath = 'packages/main/src/core/machine.ts';
+const doneOraclePath = 'packages/main/src/core/done-oracle.ts';
 const legacyTestFixtureCommands = [
   'test_auto',
   'test_story',
@@ -692,8 +695,7 @@ function read(relPath) {
   assert(existsSync(absPath), `${relPath} should exist`);
   if (!existsSync(absPath)) return '';
   let text = readFileSync(absPath, 'utf8');
-  const mutation = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION
-    ?? process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
+  const mutation = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION;
   const roleId = canonicalRoleId(basename(relPath));
   if (mutation === 'drop-acceptance-basis-prompt' && roleId === 'proof-or-stop-implementer') {
     // B-cc10: accept either brand so the mutation actually drops the live prompt line.
@@ -2866,9 +2868,15 @@ function assertCloseoutTrustBoundary() {
   assert(machineText.includes('collectReviewerEvidenceState') && machineText.includes('[stale_closeout_review]'), 'TEST→DONE guard and failure renderer must consume closeout-aware reviewer evidence freshness');
   assert(machineText.includes('export function evaluateReviewVerdict')
     && /function canPassReviewGuard[\s\S]{0,200}evaluateReviewVerdict\(context\)\.ok/.test(machineText)
-    && /function canFinishGuard[\s\S]{0,2500}evaluateReviewVerdict\(context\)\.ok/.test(machineText)
-    && (machineText.match(/evaluateReviewVerdict\(\{/g) || []).length >= 2,
+    && machineText.includes('const reviewVerdict = evaluateReviewVerdict(context);')
+    && machineText.includes('return firstDonePredicateFailure(context) === null;')
+    && machineText.includes('return firstDonePredicateFailure({ storyId, store, projectRoot:'),
   'REVIEW→TEST and TEST→DONE boolean/reason paths must share the authoritative reviewer verdict evaluator');
+  const doneOracleText = read('packages/main/src/core/done-oracle.ts');
+  assert(doneOracleText.includes("const completedSnapshot = store.readStory(storyId).phase === 'DONE' ? options.completedSnapshot : undefined;")
+    && doneOracleText.includes('not a fresh reviewer PASS')
+    && doneOracleText.includes('full historical reviewer audit'),
+  'Only explicit completed DONE snapshots may select historical presentation, which must never claim fresh reviewer admission or a full historical audit');
   for (const token of ['review_round_missing', 'review_evidence_missing', 'review_evidence_invalid', 'review_lane_missing', 'review_quorum', 'review_finding_blocking']) {
     assert(machineText.includes(token), `shared reviewer verdict must preserve ${token}`);
   }
@@ -4520,6 +4528,52 @@ function assertReviewInventoryRemediationContract() {
     /withChecklistLock[\s\S]*withReviewInventoryMutationLock[\s\S]*withMkdirLock/.test(checklistHandlerText),
     'packages/main/src/handlers/checklist.ts: every checklist acceptance writer must use inventory -> checklist lock order',
   );
+  const refreshSource = ts.createSourceFile('checklist.ts', checklistHandlerText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const refreshCandidate = findFunctionDeclaration(refreshSource, 'staleReexecCandidate')?.body?.getText(refreshSource) ?? '';
+  // Finite admission-shape check complements the real handler smoke; it is not
+  // a claim of arbitrary semantic equivalence from source tokens.
+  assert(refreshCandidate.includes('if (!resolved || !pin) return undefined;')
+    && !refreshCandidate.includes('isExecutableIntentType')
+    && refreshCandidate.includes('resolveEvidenceCommandTimeout'),
+    'stale refresh candidate must admit every immutable pin, including docs/manual, without bypassing timeout enforcement');
+  assert(read(processFactRegistryPath).includes('every immutable pinned intent, including docs/manual'),
+    'stale pinned docs/manual recovery must remain registered as mechanical gate evidence');
+  const stampBody = findFunctionDeclaration(refreshSource, 'enforceAndStampEvidence')?.body?.getText(refreshSource) ?? '';
+  assert(stampBody.includes('executedAt: receipt.executedAt')
+    && !stampBody.includes('executedAt: new Date()'),
+    'verification execution time must project the signed causal receipt, never per-intent restamping time');
+  for (const binding of [
+    'verificationExecutionSemanticsKey: deps.executionSemanticsKey',
+    'executionSemanticsKey: candidate.executionKey',
+    'rawExecutionKey: candidate.rawExecutionKey',
+    'context: rawExecutionContext',
+    'rawProcessResults.get(cacheKey)',
+    'rawProcessResults.set(cacheKey, execution)',
+    'Object.freeze({ ...result })',
+    'preflightInputKey(input, sourceReceipt.executionKey)',
+    'preflightInputKey(input, receipt.executionKey)',
+    'preflightInputKey(causalPreflight.input, receipt.executionKey)',
+    'preflightInputKey(firstPreflight.input, firstReceipt.executionKey)',
+  ]) assert(checklistHandlerText.includes(binding), `layered refresh identity binding missing: ${binding}`);
+  assert(/const rawExecutionKey = JSON\.stringify\(\{\s*version: 1,\s*command: normalizedCommand,\s*cwd: refreshGitCwd,\s*effectiveTimeoutMs,\s*timeoutProvenance,\s*\}\)/.test(refreshCandidate)
+    && /const executionKey = JSON\.stringify\(\{\s*version: 1,\s*rawExecutionKey,\s*selector: pin\.selector,\s*intentType: resolved\.intent\.type,\s*evidenceKind: kind,\s*\}\)/.test(refreshCandidate),
+    'refresh must separate exact command/cwd/timeout/provenance process keys from selector/type/kind evidence keys');
+  assert(/const rawExecutionContext = causalCanonical\(\{\s*schemaVersion: 1,\s*storyId: args\.storyId,\s*materialHash: computed\.materialHash \?\? null,\s*storyFilesHash: computed\.storyFilesHash \?\? null,\s*effectiveEnvironment: effectiveCausalEnvironment\(undefined, computed\.refreshGitCwd\),\s*runtimeVersion: process\.version,\s*toolVersion: resolveCausalToolVersion\(root\) \?\? null,\s*\}\)/.test(checklistHandlerText),
+    'raw refresh reuse must bind current material, story, environment and runtime context');
+  assert(read(processFactRegistryPath).includes('raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context')
+    && read(processFactRegistryPath).includes('selector/type/kind bind distinct signed causal identities and receipt-keyed import checks'),
+    'layered refresh physical/CAS/import identity and signed execution time must remain registered');
+  const refreshSmoke = read('packages/main/src/tasks/verification-run-and-guard-smoke.ts');
+  for (const marker of ['pinned manual verifier re-earns mechanical authority', 'pinned docs verifier re-earns mechanical authority',
+    'a failing re-run leaves the row demoted', 'pin-less demotion strips the receipt',
+    'shared rows bind cloned facts from the same execution',
+    'three default-timeout selectors share one raw run; timeout/provenance boundaries remain distinct',
+    'selector-specific evidence identities remain distinct over one raw run',
+    'selector-specific causal receipts remain independently bound',
+    'nonmatching selector receives no mechanical receipt',
+    'same timeout with different audited provenance is not collapsed']) {
+    assert(refreshSmoke.includes(marker), `stale refresh executable control missing: ${marker}`);
+  }
   assert(
     /reviewInventoryAcceptanceSubjectDigest[\s\S]*verificationIntent[\s\S]*verificationEvidence[\s\S]*userSeesSnapshot/.test(epochText),
     `${epochPath}: the frozen acceptance subject must include complete checklist review semantics`,
@@ -5154,7 +5208,7 @@ function parseProcessFactRegistry() {
   }
 
   const finalRegistryBody = extractExportedArrayBody(sourceText, 'PROCESS_FACT_REGISTRY');
-  for (const requiredSpread of ['COMMAND_PROCESS_FACTS', 'PROCESS_FACT_REVIEWER_LANES', 'PROCESS_FACT_ARTIFACTS', 'PROCESS_FACT_FLOW_POLICIES']) {
+  for (const requiredSpread of ['COMMAND_PROCESS_FACTS', 'PROCESS_FACT_REVIEWER_LANES', 'PROCESS_FACT_ARTIFACTS', 'PROCESS_FACT_FLOW_POLICIES', 'PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS']) {
     assert(
       finalRegistryBody.includes(`...${requiredSpread}`),
       `${processFactRegistryPath}: final PROCESS_FACT_REGISTRY export missing ...${requiredSpread}`,
@@ -5253,12 +5307,14 @@ function parseProcessFactRegistry() {
     rationale: entry.rationale,
   }));
   const closeoutTelemetryEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_CLOSEOUT_TELEMETRY');
+  const donePreflightConsumerEntries = parseRegistryArrayEntriesFromSource(sourceText, 'PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS');
 
   cachedProcessFactRegistryEntries = [
     ...commandEntries,
     ...laneEntries,
     ...artifactEntries,
     ...flowPolicyEntries,
+    ...donePreflightConsumerEntries,
     ...closeoutTelemetryEntries,
   ];
   if (process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION === 'drop-acceptance-basis-registry') {
@@ -5269,6 +5325,122 @@ function parseProcessFactRegistry() {
 
 function processFactRegistryMap() {
   return new Map(parseProcessFactRegistry().map(entry => [entry.name, entry]));
+}
+
+function parseDonePreflightPredicateInventory(sourceText) {
+  const body = extractExportedArrayBody(sourceText, 'DONE_PREFLIGHT_PREDICATE_INVENTORY');
+  return parseTopLevelObjectBlocks(body, `${processFactRegistryPath} DONE_PREFLIGHT_PREDICATE_INVENTORY`)
+    .map(block => ({
+      blockerCode: readStringProperty(block, 'blockerCode'),
+      processFactName: readStringProperty(block, 'processFactName'),
+      oracleRowId: readStringProperty(block, 'oracleRowId'),
+    }));
+}
+
+/** Inventory the single source, not purported equivalence of two programs. */
+function collectSharedDoneBlockerBindings(machineSource) {
+  const sf = ts.createSourceFile(machinePath, machineSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const evaluator = sf.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'evaluateDonePredicates');
+  const errors = [];
+  const byCode = new Map();
+  if (!evaluator?.body || !evaluator.asteriskToken) {
+    return { errors: ['shared DONE predicate generator missing'], byCode };
+  }
+  const visit = node => {
+    if (ts.isYieldExpression(node)) {
+      const call = node.expression;
+      if (node.asteriskToken || !call || !ts.isCallExpression(call) || call.expression.getText(sf) !== 'donePredicate'
+        || call.arguments.length !== 4 || !ts.isStringLiteral(call.arguments[0]) || !ts.isStringLiteral(call.arguments[1])) {
+        errors.push('shared DONE outcomes must be direct yields of donePredicate with literal predicate/row identities');
+        return;
+      }
+      const rowId = call.arguments[1].text;
+      const collect = child => {
+        const literal = ts.isStringLiteral(child) || ts.isNoSubstitutionTemplateLiteral(child)
+          || ts.isTemplateHead(child) || ts.isTemplateMiddle(child) || ts.isTemplateTail(child);
+        if (literal) {
+          for (const match of child.text.matchAll(/\[([a-z][a-z0-9_]*)\]/g)) {
+            const rows = byCode.get(match[1]) ?? new Set();
+            rows.add(rowId);
+            byCode.set(match[1], rows);
+          }
+        }
+        ts.forEachChild(child, collect);
+      };
+      collect(call.arguments[3]);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(evaluator.body);
+  return { errors, byCode };
+}
+
+function checkDonePreflightPredicateInventory({ machineSource, doneOracleSource, mappings, registry }) {
+  const extracted = collectSharedDoneBlockerBindings(machineSource);
+  const errors = [...extracted.errors, ...checkSharedDoneAdapterSources(machineSource, doneOracleSource)];
+  const mapped = new Map();
+  for (const entry of mappings) {
+    if (!entry.blockerCode || !entry.processFactName || !entry.oracleRowId) {
+      errors.push('DONE predicate inventory requires code, process fact and oracle row');
+      continue;
+    }
+    if (mapped.has(entry.blockerCode)) errors.push('duplicate DONE predicate mapping: ' + entry.blockerCode);
+    mapped.set(entry.blockerCode, entry);
+    const fact = registry.get(entry.processFactName);
+    if (fact?.level !== 'L4' || !fact?.semantics.includes('gate-evidence')) {
+      errors.push('DONE predicate [' + entry.blockerCode + '] requires an L4 gate-evidence process fact');
+    }
+    const rows = extracted.byCode.get(entry.blockerCode);
+    if (!rows || rows.size !== 1 || !rows.has(entry.oracleRowId)) {
+      errors.push('DONE predicate [' + entry.blockerCode + '] must map to its exact shared outcome row ' + entry.oracleRowId);
+    }
+  }
+  for (const code of extracted.byCode.keys()) {
+    if (!mapped.has(code)) errors.push('DONE predicate [' + code + '] has no done-preflight mapping');
+  }
+  return errors;
+}
+
+function assertDonePreflightPredicateInventoryParity() {
+  const before = failures.length;
+  const machineSource = read(machinePath);
+  const doneOracleSource = read(doneOraclePath);
+  const registry = processFactRegistryMap();
+  const mappings = parseDonePreflightPredicateInventory(read(processFactRegistryPath));
+  for (const error of checkDonePreflightPredicateInventory({ machineSource, doneOracleSource, mappings, registry })) fail(error);
+  for (const name of ['runtime:done_shared_predicate_projection', 'runtime:done_finish_decision_presence', 'runtime:done_phase_agnostic_reviewer_verdict']) {
+    const fact = registry.get(name);
+    assert(fact?.level === 'L4' && fact?.consumerGate?.includes('storyMachine.canFinish DONE gate')
+      && fact?.consumerGate?.includes('done_closure/done_prepare preflight'), name + ': both DONE consumers must stay registered at L4');
+  }
+  const sf = ts.createSourceFile(machinePath, machineSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const evaluator = sf.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'evaluateDonePredicates');
+  if (evaluator?.body) {
+    const offset = evaluator.body.getStart(sf) + 1;
+    const future = machineSource.slice(0, offset)
+      + "\n yield donePredicate('future', 'future-row', null, '[future_done_predicate]');\n"
+      + machineSource.slice(offset);
+    const missing = checkDonePreflightPredicateInventory({ machineSource: future, doneOracleSource, mappings, registry });
+    assert(missing.some(error => error.includes('[future_done_predicate]') && error.includes('no done-preflight mapping')),
+      'future shared DONE literal must fail the inventory until registered');
+    const registered = [...mappings, { blockerCode: 'future_done_predicate', oracleRowId: 'future-row', processFactName: 'artifact:delivery-check.json' }];
+    assert(checkDonePreflightPredicateInventory({ machineSource: future, doneOracleSource, mappings: registered, registry }).length === 0,
+      'new registered shared predicate needs no manual oracle row whitelist');
+    const wrong = registered.map(entry => entry.blockerCode === 'future_done_predicate' ? { ...entry, oracleRowId: 'test-evidence' } : entry);
+    assert(checkDonePreflightPredicateInventory({ machineSource: future, doneOracleSource, mappings: wrong, registry })
+      .some(error => error.includes('[future_done_predicate]') && error.includes('exact shared outcome row')),
+    'wrong row mapping must fail against source-owned outcome identity');
+  }
+  try {
+    assert(registry.get('artifact:prompt-envelopes.json')?.rationale?.includes('Verification snapshots preserve optional-property absence'),
+      'Prompt Envelope snapshot fidelity must remain registered; isolation must not invalidate signed trusted-prior evidence');
+    // Includes source-executed canonical envelope/signature/trusted-prior proof:
+    // optional-key absence and malformed values are preserved, not normalized.
+    runSharedDonePredicateProof(machineSource, doneOracleSource);
+  } catch (error) {
+    fail('executable shared DONE predicate proof: ' + (error?.message ?? String(error)));
+  }
+  if (failures.length === before) console.log('DONE/preflight predicate inventory parity passed');
 }
 
 function extractCliToolNames(cliText) {
@@ -8700,6 +8872,7 @@ assertReopenAuditLockRejectionRationaleContract();
 assertValidationPersistenceTransactionContract();
 assertReviewInventoryRemediationContract();
 assertProcessFactCommandInventory();
+assertDonePreflightPredicateInventoryParity();
 await assertLifecycleArtifactScopePolicy();
 assertStrengtheningRoadmapGovernanceLedger();
 assertParentRoadmapIntentTotalityPlan();
@@ -8735,3 +8908,4 @@ if (failures.length) {
 
 console.log('');
 console.log('Process fact contract verified');
+console.log('Process-fact contract verification passed');

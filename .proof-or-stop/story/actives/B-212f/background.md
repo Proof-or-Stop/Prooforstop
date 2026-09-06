@@ -12,4 +12,4 @@ The narrow solution is to make done_prepare consume the real DONE finish-decisio
 
 ## Conversational Texture
 
-The maintainer wants the already reviewed RED and candidate GREEN carried into a normal Story so implementation can proceed directly from proven behavior. During execution, critical, high, acceptance-blocking, or gate-truth defects stay in this Story; unrelated nonblocking medium or low defects require traceable evidence and a named later route instead of silent scope expansion.
+The maintainer wants the reviewed RED and candidate GREEN carried into a normal Story so implementation can proceed from proven behavior. The maintainer also supplied separate execution-scoping rules for handling discoveries during the work; those rules govern session conduct and are not an implementation deliverable or a change to the product contract.

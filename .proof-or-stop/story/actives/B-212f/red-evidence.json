@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-212f",
+  "records": [
+    {
+      "id": "RED-20260904203510",
+      "trigger": "done_prepare omits the finish-decision and phase-agnostic reviewer-verdict blockers that real DONE enforces",
+      "acceptanceTargetRef": "AB-DONE-PREDICATES",
+      "baselineHeadHash": "429e51bcbfe73681f6c0b15a2ee2997c8723b271",
+      "baselineMaterialHash": "e4090a460ce4fe5114eff3834d93aa7660e41ed053a2666d95a7d3969f1dd0e2",
+      "observedFailure": "The same fixture is rejected by real DONE, but buildDoneClosureRunbook has no corresponding row for missing finish decision or stale scopeBinding.diffPackHash; the reviewed test exits 1 with two parity failures.",
+      "failingCommand": "DONE_PARITY_DIST_ROOT=/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist node /tmp/proof-or-stop-done-parity.uXCbfh/candidate/packages/main/tests/red/red-done-prepare-done-parity.mjs",
+      "failureReceiptHash": "bdf82538423b2ac7aedba83f2762dd49234c10dd23b7a55238e3267389f47fd1",
+      "expectedGreenCommand": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+      "greenRelation": {
+        "targetRef": "AB-DONE-PREDICATES",
+        "relation": "regression_to_green",
+        "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs"
+      },
+      "note": "Bound to reviewed probe rp-mtn2kjzu-pap3kp, independent RED review rr-mtn2kqun-vcqatu, and relation rgr-mtn2ppnx-h2nqoj; candidate GREEN remains non-lifecycle intake evidence.",
+      "createdAt": "2026-09-04T20:35:10.198Z"
+    }
+  ],
+  "createdAt": "2026-09-04T20:35:10.198Z",
+  "updatedAt": "2026-09-04T20:35:10.198Z"
+}

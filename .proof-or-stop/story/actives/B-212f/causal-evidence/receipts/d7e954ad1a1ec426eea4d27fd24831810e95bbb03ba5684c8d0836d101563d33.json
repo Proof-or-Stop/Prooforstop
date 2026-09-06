@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-212f",
+  "executionKey": "ce:v1:5268af1337d801225ee6ef7efc7f6c70fb10b8942cd02340bd40fc548210a36a",
+  "identityDigest": "5268af1337d801225ee6ef7efc7f6c70fb10b8942cd02340bd40fc548210a36a",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-212f",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f/.proof-or-stop/story/actives/B-212f/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f/.proof-or-stop/story/actives/B-212f/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:d79b98a90f03e0cdd34bd4b0d6d62891072b6c6e60defe6ff01f23c40854d0cf",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-212f/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "e6673f1a0fb4b138245fb296e0dfb9a5b0fdb399",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-212f",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/49bfef8b-d1b7-4471-84a8-3ad0baf1dd9b.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg03Ki9di:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.276",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "393a112a4ae719adbce488c4cc90581e9419caff6ba01275d29d3c1824fb3106",
+  "outputTail": "rget (red-w2c-validate-registration.mjs, red-b49d4-harness-registration.mjs) gaining a mention of red-b49d4-registration-derivation.mjs, each ceasing to qualify, a stale cycle break and an unreasoned one\n  [GREEN] NEWCOMER_MIRROR_IS_FAITHFUL (BLOCK D)\n      observed: before the newcomer was planted: red-w2c-validate-registration.mjs(exit=0), red-b49d4-harness-registration.mjs(exit=0)\n  [GREEN] NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS (BLOCK D)\n      observed: spawned 7 committed guard(s) as child processes: red-b2aa7-chk007-receipt.mjs(exit=0, 17297ms), red-b3434-blob-buffer-ceiling.mjs(exit=0, 3671ms), red-b49d4-chk002-receipt.mjs(exit=0, 313ms), red-b49d4-harness-registration.mjs(exit=1, 32ms), red-b8df9-chk002-verdict-shapes.mjs(exit=0, 210ms), red-w2c-validate-registration.mjs(exit=0, 29ms), red-w2d-command-readonly.mjs(exit=0, 6898ms); every spawned file is sha256-identical to its committed counterpart=true\n  [GREEN] EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE (BLOCK D)\n      observed: targets that failed WITHOUT naming the newcomer: none\n  [GREEN] DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION (BLOCK D)\n      observed: packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs planted, registered nowhere and excluded nowhere; guards that caught it: red-b49d4-harness-registration.mjs; guards that reported success anyway: red-b2aa7-chk007-receipt.mjs(\"INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f…\") | red-b3434-blob-buffer-ceiling.mjs(\"✓ fixture blob survives the git pipeline above 1,048,576 bytes ✓ commitImmutableMetadataTr…\") | red-b49d4-chk002-receipt.mjs(\"TOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness car…\") | red-b8df9-chk002-verdict-shapes.mjs(\"=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape === C0 [CONTROL…\") | red-w2c-validate-registration.mjs(\"red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members f…\") | red-w2d-command-readonly.mjs(\"red-w2d-command-readonly: PASS registration: MAIN_TOOLS + command-policy(readOnly/none) + …\")\n  [GREEN] REAL_CONFIG_BYTE_UNMODIFIED (BLOCK E)\n      observed: sha256 before=90a70bfdbdf0d266… after=90a70bfdbdf0d266…; git status --porcelain -- proof-or-stop.config.json => \"\"\n  [GREEN] PROBES_CLEANED_UP (BLOCK E)\n      observed: packages/main/dist/tasks/red-evidence-b49d4-blindness-probe.js=absent, packages/main/src/tasks/red-evidence-b49d4-blindness-probe.ts=absent, packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs=absent\n  [GREEN] REPO_TREE_NEVER_WRITTEN_TO (BLOCK E)\n      observed: listing digest of packages/main/tests/red, packages/main/dist/tasks, packages/main/src/tasks before=b65e89f1c65959b7… after=b65e89f1c65959b7…; git status --porcelain over those paths unchanged=true\n  [OBS  ] NARROWED_ENUMERATION_MISSES_NEWCOMER — red-b2aa7-chk007-receipt.mjs, red-b3434-blob-buffer-ceiling.mjs, red-b49d4-chk002-receipt.mjs, red-b8df9-chk002-verdict-shapes.mjs, red-w2d-command-readonly.mjs derive their population from disk yet reported success with the newcomer sitting undecided in the same directory, because their enumeration is narrowed by name. Measured on real shipped guards rather than argued: coverage of the whole population can only come from an UNFILTERED enumeration.\n\n0 RED / 26 GREEN of 26 rows (28739ms in child processes)\nred-b49d4-registration-derivation: OK (registration is DERIVED from disk: an unregistered member of packages/main/dist/tasks/red-evidence-*.js is caught, every packages/main/tests/red/*.mjs is either registered in validate.commands or carried by the audited exclusion record of a registered guard that was spawned here and passed — accounted for, which is a DIFFERENT and weaker claim than executed, and no claim about execution is made — a differently-prefixed newcomer is caught by the shipped guards themselves, and the control bites on a config COPY while the real proof-or-stop.config.json stays byte-identical)\n",
+  "outputProbe": "GREEN private Git index isolation\nGREEN unchanged real repository index: {\"admin\":\"/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-212f\",\"common\":\"/Users/jek/Documents/GitHub/Prooforstop/.git\",\"index\":\"/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-212f/index\",\"head\":\"e6673f1a0fb4b138245fb296e0dfb9a5b0fdb399\",\"indexDigest\":\"d79b98a90f03e0cdd34bd4b0d6d62891072b6c6e60defe6ff01f23c40854d0cf\",\"stagesDigest\":\"ca23001ddca4520ae7e6ae93a8f282b0af5e23616da96129e2543573441f4c95\"}\n  [GREEN] GUARD_PASSES_ON_UNTOUCHED_TREE (BLOCK 0)\n      observed: exit=0 out=\"red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members found ON DISK are accounted for: 4 registered in proof-or-stop.config.json validate.commands — including the re…\"\n  [GREEN] CLEAN_SUCCESS_LINE_COVERS_THE_POPULATION (BLOCK 0)\n      observed: largest count reported=4 vs 4 packages/main/dist/tasks/red-evidence-*.js on disk\n  [GREEN] BLINDNESS_MIRROR_IS_FAITHFUL (BLOCK A)\n      observed: guard run against the untouched mirror exit=0 out=\"red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members found ON DISK are accounted for: 4 registered in proof-or-stop.config.j…\"\n  [GREEN] PLANTED_MEMBER_MATCHES_THE_SHAPE_OF_REAL_MEMBERS (BLOCK A)\n      observed: MEASURED on the repository (this is the conjunct that can fail): all 4 real packages/main/dist/tasks/red-evidence-*.js members carry a packages/main/src/tasks counterpart — missing: none — so a dist+src pair is exactly the shape of a real member. REPORTED, not asserted (guaranteed by the body this block just wrote): the probe exits 3\n  [GREEN] PLANTED_MEMBER_IS_REGISTERED_NOWHERE (BLOCK A)\n      observed: packages/main/dist/tasks/red-evidence-b49d4-blindness-probe.js present in validate.commands=false\n  [GREEN] GUARD_DETECTS_UNREGISTERED_MEMBER (BLOCK A)\n      observed: exit=1; names the probe=true; population on disk=5 (red-evidence-b49d4-blindness-probe.js, red-evidence-chain-smoke.js, red-evidence-envelope-smoke.js, red-evidence-policy-canon-smoke.js, red-evidence-target-binding-smoke.js)\n  [GREEN] SUCCESS_LINE_COUNTS_THE_POPULATION_NOT_THE_EXPECTATION (BLOCK A)\n      observed: exit=1; largest count in the success line=null while 5 members exist on disk; line=\"\"\n  [GREEN] SANDBOX_IS_FAITHFUL (BLOCK B)\n      observed: exit=0 out=\"red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members found ON DISK are accounted for: 4 registered in proof-or-stop.config.json validate.commands — including the re…\"\n  [GREEN] SANDBOX_REDIRECTS_THE_CONFIG_READ (BLOCK B)\n      observed: with validate.commands=[] the guard exited 1: \"red-w2c-validate-registration: proof-or-stop.config.json must declare a non-empty validate.commands array\"\n  [GREEN] CONTROL_DEREGISTRATION_BITES (BLOCK B)\n      observed: removed packages/main/dist/tasks/red-evidence-chain-smoke.js (131 → 130 commands); exit=1; names the victim=true\n  [GREEN] CONTROL_USED_A_COPY_NOT_THE_REAL_CONFIG (BLOCK B)\n      observed: sandbox copy differs from the real file=true; real proof-or-stop.config.json sha256 still 90a70bfdbdf0d266…\n  [GREEN] NO_PRE_FIX_PROBE_DEBRIS_IN_THE_REPOSITORY (BLOCK C)\n      observed: probe paths present in the working tree: none\n  [GREEN] DECISION_RECORD_IS_LIVE_AND_AUDITED (BLOCK C)\n      observed: packages/main/tests/red/red-b49d4-harness-registration.mjs spawned against the untouched tree: exit=0; it reports a TOTAL enumeration of 62 entries of packages/main/tests/red, covering at least the 62 *.mjs this block enumerates=true; 10 key(s) read from its declared exclusion record: red-B-74b9-chk001-acceptance-basis.mjs, red-B-74b9-chk002-readmanifest.mjs, red-B-74b9-chk003-version-bump.mjs, red-B-new-concurrent-done-race.mjs, red-B-new-retired-channel-lane.mjs, red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs, red-fb7b-guard-bite.mjs, red-fb7b-pretest-builds-utils.mjs\n  [GREEN] EVERY_RED_HARNESS_IS_REGISTERED_OR_DECIDED (BLOCK C)\n      observed: 62 *.mjs on disk (unfiltered): 52 registered in validate.commands, 10 unregistered — of which 10 are DECIDED by the audited exclusion record of red-b49d4-harness-registration.mjs (red-B-74b9-chk001-acceptance-basis.mjs, red-B-74b9-chk002-readmanifest.mjs, red-B-74b9-chk003-version-bump.mjs, red-B-new-concurrent-done-race.mjs, red-B-new-retired-channel-lane.mjs, red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs, red-fb7b-guard-bite.mjs, red-fb7b-pretest-builds-utils.mjs) and 0 are UNACCOUNTED: none. EXECUTION IS A DIFFERENT PROPERTY AND IS NOT CLAIMED HERE: proof-or-stop validate does not run those 10 directly, and whether anything else executes them is not measured by this block — a filename appearing in a registered file is a mention, not a spawn\n  [GREEN] SELF_IS_INSIDE_THE_POPULATION (BLOCK C)\n      observed: red-b49d4-registration-derivation.mjs present in the derived population=true\n  [GREEN] DECISION_ARM_IS_LIVE (BLOCK C)\n      observed: unregistered but carried by the audited decision record: red-B-74b9-chk001-acceptance-basis.mjs, red-B-74b9-chk002-readmanifest.mjs, red-B-74b9-chk003-version-bump.mjs, red-B-new-concurrent-done-race.mjs, red-B-new-retired-channel-lane.mjs, red-b2aa7-chk001-receipt.mjs, red-b2aa7-chk010-receipt.mjs, red-b49d4-chk001-receipt.mjs, red-fb7b-guard-bite.mjs, red-fb7b-pretest-builds-utils.mjs; dropping red-B-74b9-chk001-acceptance-basis.mjs from that record moves it into unaccounted=true\n  [GREEN] DERIVATION_IS_NON_VACUOUS (BLOCK C)\n      observed: de-registering red-1734-bootstrap-depfree.mjs moves it into unaccounted (0 → 1)\n  [GREEN] NEWCOMER_TARGET_SET_IS_COMPLETE (BLOCK D)\n      observed: 7 *.mjs qualify (read proof-or-stop.config.json AND enumerate): red-b2aa7-chk007-receipt.mjs, red-b3434-blob-buffer-ceiling.mjs, red-b49d4-chk002-receipt.mjs, red-b49d4-harness-registration.mjs, red-b8df9-chk002-verdict-shapes.mjs, red-w2c-validate-registration.mjs, red-w2d-command-readonly.mjs; dropped for mentioning red-b49d4-registration-derivation.mjs without an audited cycle break: none; audited cycle breaks: none (stale: none; unreasoned: none); required targets missing from the derived set: none\n  [GREEN] TARGET_SET_COMPLETENESS_CHECK_BITES (BLOCK D)\n      observed: the same derivation was re-run over 6 synthetic mutations and rejected every one: each required target (red-w2c-validate-registration.mjs, red-b49d4-harness-registration.mjs) gaining a mention of red-b49d4-registration-derivation.mjs, each ceasing to qualify, a stale cycle break and an unreasoned one\n  [GREEN] NEWCOMER_MIRROR_IS_FAITHFUL (BLOCK D)\n      observed: before the newcomer was planted: red-w2c-validate-registration.mjs(exit=0), red-b49d4-harness-registration.mjs(exit=0)\n  [GREEN] NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS (BLOCK D)\n      observed: spawned 7 committed guard(s) as child processes: red-b2aa7-chk007-receipt.mjs(exit=0, 17297ms), red-b3434-blob-buffer-ceiling.mjs(exit=0, 3671ms), red-b49d4-chk002-receipt.mjs(exit=0, 313ms), red-b49d4-harness-registration.mjs(exit=1, 32ms), red-b8df9-chk002-verdict-shapes.mjs(exit=0, 210ms), red-w2c-validate-registration.mjs(exit=0, 29ms), red-w2d-command-readonly.mjs(exit=0, 6898ms); every spawned file is sha256-identical to its committed counterpart=true\n  [GREEN] EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE (BLOCK D)\n      observed: targets that failed WITHOUT naming the newcomer: none\n  [GREEN] DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION (BLOCK D)\n      observed: packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs planted, registered nowhere and excluded nowhere; guards that caught it: red-b49d4-harness-registration.mjs; guards that reported success anyway: red-b2aa7-chk007-receipt.mjs(\"INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f…\") | red-b3434-blob-buffer-ceiling.mjs(\"✓ fixture blob survives the git pipeline above 1,048,576 bytes ✓ commitImmutableMetadataTr…\") | red-b49d4-chk002-receipt.mjs(\"TOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness car…\") | red-b8df9-chk002-verdict-shapes.mjs(\"=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape === C0 [CONTROL…\") | red-w2c-validate-registration.mjs(\"red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members f…\") | red-w2d-command-readonly.mjs(\"red-w2d-command-readonly: PASS registration: MAIN_TOOLS + command-policy(readOnly/none) + …\")\n  [GREEN] REAL_CONFIG_BYTE_UNMODIFIED (BLOCK E)\n      observed: sha256 before=90a70bfdbdf0d266… after=90a70bfdbdf0d266…; git status --porcelain -- proof-or-stop.config.json => \"\"\n  [GREEN] PROBES_CLEANED_UP (BLOCK E)\n      observed: packages/main/dist/tasks/red-evidence-b49d4-blindness-probe.js=absent, packages/main/src/tasks/red-evidence-b49d4-blindness-probe.ts=absent, packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs=absent\n  [GREEN] REPO_TREE_NEVER_WRITTEN_TO (BLOCK E)\n      observed: listing digest of packages/main/tests/red, packages/main/dist/tasks, packages/main/src/tasks before=b65e89f1c65959b7… after=b65e89f1c65959b7…; git status --porcelain over those paths unchanged=true\n  [OBS  ] NARROWED_ENUMERATION_MISSES_NEWCOMER — red-b2aa7-chk007-receipt.mjs, red-b3434-blob-buffer-ceiling.mjs, red-b49d4-chk002-receipt.mjs, red-b8df9-chk002-verdict-shapes.mjs, red-w2d-command-readonly.mjs derive their population from disk yet reported success with the newcomer sitting undecided in the same directory, because their enumeration is narrowed by name. Measured on real shipped guards rather than argued: coverage of the whole population can only come from an UNFILTERED enumeration.\n\n0 RED / 26 GREEN of 26 rows (28739ms in child processes)\nred-b49d4-registration-derivation: OK (registration is DERIVED from disk: an unregistered member of packages/main/dist/tasks/red-evidence-*.js is caught, every packages/main/tests/red/*.mjs is either registered in validate.commands or carried by the audited exclusion record of a registered guard that was spawned here and passed — accounted for, which is a DIFFERENT and weaker claim than executed, and no claim about execution is made — a differently-prefixed newcomer is caught by the shipped guards themselves, and the control bites on a config COPY while the real proof-or-stop.config.json stays byte-identical)\n",
+  "outputLength": 10401,
+  "executedAt": "2026-09-06T01:20:39.769Z",
+  "durationMs": 31477,
+  "timeoutMs": 300000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "Qfv97VlExrzb09jm+yVyOEuUHddML6zStg1GYf1f2y9vW+ez+gby65fdc5iGlPdYGaWfl31fJrtKxOTKvNBUCw==",
+  "receiptHash": "d7e954ad1a1ec426eea4d27fd24831810e95bbb03ba5684c8d0836d101563d33"
+}

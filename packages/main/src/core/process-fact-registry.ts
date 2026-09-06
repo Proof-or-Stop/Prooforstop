@@ -458,7 +458,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
-    consumerGate: 'validate verification freshness gate',
+    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context, while selector/type/kind bind distinct signed causal identities and receipt-keyed import checks; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
   },
   verification_run: {
     name: 'checklist.json',
@@ -1448,7 +1448,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/agent-prompt + handlers/review-run',
     consumerGate: 'story-dispatch rows are audit-only; review-run rows are verified through signed ReviewRun envelopeId by REVIEW and quorum gates; the assurance floor consumes host-verdict rounds emitted after quorum admission',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.agent_prompt,
-    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes bind roleId/lane, the exact story-dispatch prompt bytes, host identity, delivered assembledPrompt, and an immutable as-of-run finding projection plus digest. Later mutable finding disposition metadata therefore cannot rewrite historical eligibility. Unsupported hosts fail closed and review_run_start supplies exactly one selected role-body render.',
+    rationale: 'Content-addressed full Prompt Envelopes are append-only. createdAt is provenance outside the envelopeId digest; story-dispatch cannot carry reviewer authority. Review-run envelopes bind roleId/lane, the exact story-dispatch prompt bytes, host identity, delivered assembledPrompt, and an immutable as-of-run finding projection plus digest. Verification snapshots preserve optional-property absence, canonical integrity and trusted-prior selection while isolating valid arrays; explicit malformed values remain rejected, never normalized or re-signed. Later mutable finding disposition metadata therefore cannot rewrite historical eligibility. Unsupported hosts fail closed and review_run_start supplies exactly one selected role-body render.',
   },
   {
     name: 'artifact:review-runs.json',
@@ -1647,6 +1647,95 @@ export const PROCESS_FACT_SIGNED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact?.signed === true,
 ) as readonly ProcessFactRegistryEntry[];
 
+/**
+ * L4 predicates shared by the real TEST→DONE guard and the read-only
+ * done_closure/done_prepare projection. These entries make the projection's
+ * consumption explicit without making the shared read-only projection an
+ * evidence producer. The full done_prepare command can execute mutating steps.
+ */
+export const PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS = [
+  {
+    name: 'runtime:done_shared_predicate_projection',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'schema-contract', 'blocker-state', 'gate-evidence'],
+    level: 'L4',
+    producer: 'core/machine evaluateDonePredicates ordered lazy outcomes',
+    consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
+    rationale: 'The boolean DONE gate and diagnostic consume the first failed shared outcome. Active readiness generically projects every failure, including future predicates, and preserves stricter preflight failures. Explicit actual-DONE snapshot inspection retains the pre-existing historical artifact/assurance presentation, not a new admission attempt; reviewer eligibility is informational, never a fresh PASS or full historical audit. TEST cannot select that exception. Rejected delivery contents are not traversed. Literal code/row identities, finite adapter syntax, and executable mutations guard this boundary without claiming arbitrary TypeScript semantic equivalence.',
+  },
+  {
+    name: 'runtime:done_finish_decision_presence',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'schema-contract', 'blocker-state', 'gate-evidence'],
+    level: 'L4',
+    producer: 'core/machine evaluateDonePredicates via core/playbook-runtime-memory readDevMemoryFinishDecision',
+    consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
+    rationale: 'DONE and its read-only preflight projection consume the same fail-closed finish-decision presence predicate. A missing or malformed record yields missing_dev_memory_finish_decision; the projection reads but never creates or repairs the record.',
+  },
+  {
+    name: 'runtime:done_phase_agnostic_reviewer_verdict',
+    kind: 'runtime-behavior',
+    semantics: ['runtime-behavior', 'freshness-policy', 'review-run', 'review-pass', 'blocker-state', 'gate-evidence'],
+    level: 'L4',
+    producer: 'core/machine evaluateDonePredicates via evaluateReviewVerdict',
+    consumerGate: 'storyMachine.canFinish DONE gate and buildDoneChecklist done_closure/done_prepare preflight',
+    rationale: 'DONE and its read-only preflight projection call the same phase-agnostic evaluateReviewVerdict predicate. Dynamic reviewer verdict codes use the shared review-verdict row; only review_evidence_invalid is presented through the established stale_closeout_review compatibility code, and reviewer evidence is never rebound or rewritten.',
+  },
+] as const satisfies readonly ProcessFactRegistryEntry[];
+
+export interface DonePreflightPredicateInventoryEntry {
+  blockerCode: string;
+  processFactName: string;
+  oracleRowId: string;
+}
+
+/**
+ * Every literal machine-readable blocker code in machine.ts's shared
+ * evaluateDonePredicates generator must be represented here. The DONE branch
+ * and boolean guard are thin consumers of its first failed result; the oracle
+ * projects all failed results without a manually maintained row whitelist.
+ * The verifier checks source-owned code/row identities, finite adapter shapes,
+ * and executable propagation/mutation witnesses. It does not attempt to prove
+ * semantic equivalence between arbitrary independently written predicates.
+ */
+export const DONE_PREFLIGHT_PREDICATE_INVENTORY = [
+  {
+    blockerCode: 'delivery_check_tampered',
+    processFactName: 'artifact:delivery-check.json',
+    oracleRowId: 'delivery-check',
+  },
+  {
+    blockerCode: 'live_smoke_transcript_failed',
+    processFactName: 'runtime:live_smoke_transcript_done_gate',
+    oracleRowId: 'live-smoke-transcript',
+  },
+  {
+    blockerCode: 'missing_delivery_check',
+    processFactName: 'artifact:delivery-check.json',
+    oracleRowId: 'delivery-check',
+  },
+  {
+    blockerCode: 'missing_dev_memory_finish_decision',
+    processFactName: 'runtime:done_finish_decision_presence',
+    oracleRowId: 'dev-memory-finish-decision',
+  },
+  {
+    blockerCode: 'stale_closeout_review',
+    processFactName: 'runtime:done_phase_agnostic_reviewer_verdict',
+    oracleRowId: 'review-verdict',
+  },
+  {
+    blockerCode: 'stale_delivery_check',
+    processFactName: 'artifact:delivery-check.json',
+    oracleRowId: 'delivery-check',
+  },
+  {
+    blockerCode: 'unverified_promise',
+    processFactName: 'runtime:delivery_promise_outcome_done_gate',
+    oracleRowId: 'delivery-check',
+  },
+] as const satisfies readonly DonePreflightPredicateInventoryEntry[];
+
 export const PROCESS_FACT_CLOSEOUT_TELEMETRY = [
   {
     name: 'runtime:closeout_phase_transition',
@@ -1695,6 +1784,7 @@ export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
   ...PROCESS_FACT_REVIEWER_LANES,
   ...PROCESS_FACT_ARTIFACTS,
   ...PROCESS_FACT_FLOW_POLICIES,
+  ...PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS,
   ...PROCESS_FACT_CLOSEOUT_TELEMETRY,
 ];
 

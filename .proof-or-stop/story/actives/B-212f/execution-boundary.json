@@ -6,11 +6,14 @@
     "git commit *",
     "git diff *",
     "git status *",
+    "node bin/proof-or-stop.js *",
     "node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js",
     "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+    "node packages/main/tests/red/red-done-shared-predicates.mjs",
     "node scripts/verify-process-fact-contract.mjs",
     "npm --prefix packages/main run build",
     "npm --prefix packages/main run test:flow-stability-smoke",
+    "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
     "npm run test:closeout-trust",
     "proof-or-stop *"
   ],
@@ -27,27 +30,22 @@
     "packages/main/src/core/done-transition-prerequisites.ts",
     "packages/main/src/core/machine.ts",
     "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/validation-executor.ts",
     "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
     "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+    "packages/main/tests/red/red-done-shared-predicates.mjs",
     "proof-or-stop.config.json",
     "scripts/verify-process-fact-contract.mjs"
   ],
-  "excludedCommands": [
-    "git checkout -- *",
-    "git push *",
-    "git reset --hard *",
-    "rm -rf *"
-  ],
+  "excludedCommands": [],
   "excludedTools": [
     "remote publication"
   ],
-  "excludedPaths": [
-    ".proof-or-stop/story/actives/B-c86f",
-    "packages/main/src/core/runtime-artifact-registry.ts"
-  ],
+  "excludedPaths": [],
   "confirmedBy": "main-agent",
-  "confirmationNote": "Only the Story worktree may receive implementation changes. The existing temporary clone is intake/design evidence. New defects follow the user-confirmed severity/applicability rule: current repair for major or acceptance/gate blockers; structured traceable deferral for nonblocking medium/low defects; no global-green scope expansion.",
-  "createdAt": "2026-09-04T14:50:34.494Z",
-  "updatedAt": "2026-09-04T14:50:34.494Z",
-  "_hash": "a5f5defccc749204892d56a9115ae6288e58f41066486de31f6ddbea49b9d83b"
+  "confirmationNote": "Human approved shared DONE evaluator after convergence freeze on 2026-09-05. machine.ts edits are limited to the DONE evaluator, guard, diagnostic adapter and required types/imports. New executable shared-predicate test verifies future blockers and adapter mutations. Existing user execution-scoping rules continue to apply.",
+  "createdAt": "2026-09-05T11:10:55.597Z",
+  "updatedAt": "2026-09-05T11:10:55.597Z",
+  "_hash": "ff0ef92d7358e6be81e56a0869611cb8b025a7c148d60cec5d9b653ba5a7d580"
 }

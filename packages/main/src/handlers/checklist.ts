@@ -1246,7 +1246,7 @@ async function enforceAndStampEvidence(
     // pin actually executed above (never from the caller — this block is inside the
     // tool-owned receipt that every caller-facing schema strips).
     selector: pinSelector,
-    executedAt: new Date().toISOString(),
+    executedAt: receipt.executedAt,
     // B-cdf6 (B-META F-012): always stamp the armed ceiling, and — only when the caller
     // RAISED it — an attributable override block, so a reviewer reading the receipt can
     // see this pass was earned under a raised budget rather than the default. Lives in
@@ -1952,11 +1952,11 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       preflightByInput: Map<string, CachedCausalPreflight>;
       valid: boolean;
     };
-    const preflightInputKey = (input: { command: string; cwd: string; timeoutMs?: number; executionSemanticsKey?: string }): string => JSON.stringify([
+    const preflightInputKey = (input: { command: string; cwd: string; timeoutMs?: number }, executionKey: string): string => JSON.stringify([
       input.command,
       input.cwd,
       input.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
-      input.executionSemanticsKey ?? null,
+      executionKey,
     ]);
     const buildCausalCommitSnapshot = (): CachedCausalCommitSnapshot => {
       const currentHashes = evidenceHashes(gitCwd, root);
@@ -1967,15 +1967,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       }
 
       const preflightByInput = new Map<string, CachedCausalPreflight>();
-      for (const { causalPreflight } of usable) {
-        if (!causalPreflight) continue;
+      for (const { causalPreflight, causalReceipt: sourceReceipt } of usable) {
+        if (!causalPreflight || !sourceReceipt) continue;
         const input = causalPreflight.input;
-        const key = preflightInputKey(input);
+        const key = preflightInputKey(input, sourceReceipt.executionKey);
         if (preflightByInput.has(key)) continue;
         const currentFacts = causalPreflightFactsFor(storyId, gitCwd)(input);
-        const sourceReceipt = usable.find(candidate => candidate.causalPreflight
-          && preflightInputKey(candidate.causalPreflight.input) === key)?.causalReceipt;
-        if (!sourceReceipt) continue;
         // Receipt persistence can legitimately change liveness/probe details
         // (for example, the evidence-target directory appears). Revalidate a
         // fresh signed readiness report instead of requiring byte-identical
@@ -2030,7 +2027,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
           return false;
         }
         const input = causalPreflight.input;
-        const cachedPreflight = preflightByInput.get(preflightInputKey(input));
+        const cachedPreflight = preflightByInput.get(preflightInputKey(input, receipt.executionKey));
         if (!cachedPreflight?.report.ready) return false;
         const inputs = receipt.identity.inputs;
         const recordedMaterial = inputs && typeof inputs === 'object' && !Array.isArray(inputs)
@@ -2078,7 +2075,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       const stamp = usable.find(candidate => candidate.causalReceipt === receipt);
       const causalPreflight = stamp?.causalPreflight;
       const cachedPreflight = causalPreflight
-        ? cachedSnapshot?.preflightByInput.get(preflightInputKey(causalPreflight.input))
+        ? cachedSnapshot?.preflightByInput.get(preflightInputKey(causalPreflight.input, receipt.executionKey))
         : undefined;
       if (!causalPreflight || !cachedPreflight?.report.ready) {
         throw new Error('causal evidence commit refused: current causal preflight is not ready [causal_commit_preflight_not_ready]');
@@ -2089,7 +2086,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         expectedExecutionKey: receipt.executionKey,
         ...(hashes.materialHash ? { expectedMaterialHash: hashes.materialHash } : {}),
         ...(hashes.storyFilesHash ? { expectedStoryFilesHash: hashes.storyFilesHash } : {}),
-        currentIdentity: () => cachedSnapshot?.preflightByInput.get(preflightInputKey(causalPreflight.input))?.identity,
+        currentIdentity: () => cachedSnapshot?.preflightByInput.get(preflightInputKey(causalPreflight.input, receipt.executionKey))?.identity,
         revalidate: revalidateCached,
         commit: () => undefined,
         batch,
@@ -2100,7 +2097,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
     }
     const firstReceipt = usable[0].causalReceipt!;
     const firstPreflight = usable[0].causalPreflight!;
-    const firstCachedPreflight = cachedSnapshot?.preflightByInput.get(preflightInputKey(firstPreflight.input));
+    const firstCachedPreflight = cachedSnapshot?.preflightByInput.get(preflightInputKey(firstPreflight.input, firstReceipt.executionKey));
     if (!firstCachedPreflight?.report.ready) {
       throw new Error('causal evidence commit refused: current causal preflight is not ready [causal_commit_preflight_not_ready]');
     }
@@ -2110,7 +2107,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       expectedExecutionKey: firstReceipt.executionKey,
       ...(hashes.materialHash ? { expectedMaterialHash: hashes.materialHash } : {}),
       ...(hashes.storyFilesHash ? { expectedStoryFilesHash: hashes.storyFilesHash } : {}),
-      currentIdentity: () => cachedSnapshot?.preflightByInput.get(preflightInputKey(firstPreflight.input))?.identity,
+      currentIdentity: () => cachedSnapshot?.preflightByInput.get(preflightInputKey(firstPreflight.input, firstReceipt.executionKey))?.identity,
       // Re-probe immediately before the actual checklist write. No-op receipt
       // imports above use the bounded batch snapshot; the canonical write gets
       // its own fresh transaction snapshot.

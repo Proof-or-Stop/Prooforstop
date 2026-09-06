@@ -492,7 +492,10 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   // pinned_command_missing, and one of the dropped suites is this very file. Restored
   // both, giving the 126-entry union, and repinned to what that union produces through
   // the same configuredValidationCommands -> buildValidationCommandInventory path.
-  assert.equal(real.commandSetDigest, '6dfd3360d882d3af473530138f65ab4b82ce1961a158b72446c0895e9bb35ac5', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // B-212f CHK-001/CHK-003 register original parity, shared predicate proof and
+  // post-DONE snapshot smoke. Their 131-entry main inventory and B-fe8f's
+  // 129-entry inventory form a 132-entry union without losing either side.
+  assert.equal(real.commandSetDigest, '896916d2feea86b5eec749f9af05cad1a1df00a1b955b84e1b55556031a4bea5', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
 });

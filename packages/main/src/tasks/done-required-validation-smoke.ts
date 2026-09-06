@@ -395,6 +395,19 @@ function assertDoneRequiredBlocked(
           effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'reviewer-identity' }, undefined, root),
           `retired ambient spelling remains semantic: ${frozenKey}`,
         );
+        for (const platform of ['linux', 'win32'] as const) {
+          const retiredOwner = buildDoneRequiredExecutionIdentity({
+            projectRoot: root, policy, processEnvironment: { ...common, [frozenKey]: 'owner-value' }, platform,
+          });
+          const retiredReviewer = buildDoneRequiredExecutionIdentity({
+            projectRoot: root, policy, processEnvironment: { ...common, [frozenKey]: 'reviewer-value' }, platform,
+          });
+          assert.notDeepEqual(
+            retiredOwner.commands.map(command => command.effectiveEnvironmentDigest),
+            retiredReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+            `retired ambient key remains semantic on ${platform}: ${frozenKey}`,
+          );
+        }
       }
       const owner = { ...common, [key]: 'owner-identity' };
       const reviewer = { ...common, [key]: 'reviewer-identity' };
