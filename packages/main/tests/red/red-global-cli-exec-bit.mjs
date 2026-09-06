@@ -13,7 +13,8 @@
  *    checkout; the earlier symptom from the draft was the link resolving into
  *    .worktrees/B-fe8f)
  *
- * Mechanism: packages/main/package.json declares bin.proof-or-stop = dist/cli.js.
+ * Historical RED mechanism on the observed pre-fix checkout:
+ * packages/main/package.json declares bin.proof-or-stop = dist/cli.js.
  * `npm link` / global install chmods that target ONCE at install time. But
  * scripts/build-main-with-binding.mjs rebuilds dist by `tsc --outDir dist.staging`
  * + atomic rename (scripts/promote-dist.mjs): tsc emits fresh files with mode
@@ -22,13 +23,17 @@
  * someone chmods it by hand.
  *
  * DESIRED property (asserted here, hermetically):
- *   - a tsc emit of a shebang'd entry produces a NON-executable file (documents
- *     why the pipeline must restore the bit; expected to hold before and after);
- *   - the build pipeline (build-main-with-binding.mjs + promote-dist.mjs) restores
- *     the executable bit on every package.json `bin` target after promotion.
+ *   - on POSIX, a tsc emit of a shebang'd entry produces a NON-executable file
+ *     (documents why the pipeline must restore the bit; expected to hold before
+ *     and after). Windows uses npm-generated command shims instead of POSIX mode
+ *     bits, so the same fixture verifies emitted content and promotion behavior;
+ *   - the build pipeline (build-main-with-binding.mjs + promote-dist.mjs) validates
+ *     and restores every package.json `bin` target on STAGING before old-dist
+ *     eviction, so a restoration failure leaves the working dist in place.
  *     Pre-fix: no such step exists -> RED. Post-fix -> GREEN.
- *   - the live dist bin target, if present, is executable (live check; may pass
- *     spuriously after a manual chmod, so the pipeline check above is primary).
+ *   - the live dist bin target, if present, has executable bits on POSIX or a
+ *     Node shebang suitable for npm-generated command shims on Windows (the
+ *     pipeline ordering and hermetic promotion cases remain primary).
  *   - HERMETIC (B-e256 CHK-002): `restoreBinExecutableBits(dist)` exported from
  *     scripts/promote-dist.mjs (a) turns a 0644 package.json `bin` target
  *     executable with byte-identical content and returns ['dist/cli.js'];
@@ -44,7 +49,8 @@
  *     executable and trash is gone; (f) when that staging restoration fails,
  *     promoteDist throws BEFORE evicting the old dist (previous working dist kept,
  *     no trash). (d)/(f) rely on a 0o000 parent directory and are skipped with a
- *     printed note when running as root (root ignores mode bits).
+ *     printed note when running as root (root ignores mode bits) or on Windows
+ *     (POSIX directory-mode denial is not available there).
  *
  * Run from the repository root:
  *   node packages/main/tests/red/red-global-cli-exec-bit.mjs
@@ -54,7 +60,7 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, writeFileSync } from 'node:fs';
-import { tmpdir, userInfo } from 'node:os';
+import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -74,6 +80,11 @@ function expect(label, fn) {
   catch (err) { failures.push(`${label}\n    ${String(err.message).split('\n').join('\n    ')}`); console.log(`RED   ${label}\n    ${err.message}`); }
 }
 
+const hasPosixModeContract = process.platform !== 'win32';
+if (!hasPosixModeContract) {
+  console.log('platform contract: win32 uses npm-generated command shims; POSIX 0o111 mode assertions are not applicable, while promotion/content/safety assertions still run');
+}
+
 // 1. tsc emit never sets the executable bit (hermetic fixture)
 const tmp = mkdtempSync(join(tmpdir(), 'red-exec-bit-'));
 try {
@@ -81,29 +92,46 @@ try {
   writeFileSync(join(tmp, 'tsconfig.json'), JSON.stringify({ compilerOptions: { target: 'es2022', module: 'es2022', outDir: 'out' }, files: ['entry.ts'] }));
   const tsc = join(repoRoot, 'node_modules/typescript/bin/tsc');
   execFileSync(process.execPath, [tsc, '-p', join(tmp, 'tsconfig.json')], { cwd: tmp, stdio: ['ignore', 'pipe', 'pipe'] });
-  const mode = statSync(join(tmp, 'out/entry.js')).mode & 0o777;
-  console.log(`tsc-emitted shebang file mode: 0${mode.toString(8)} (executable bits: ${(mode & 0o111) !== 0})`);
-  assert.equal(mode & 0o111, 0, 'tsc unexpectedly emitted an executable file');
+  const emitted = join(tmp, 'out/entry.js');
+  assert.match(readFileSync(emitted, 'utf8'), /^#!\/usr\/bin\/env node\n/, 'tsc output must preserve the Node shebang used by npm command shims');
+  if (hasPosixModeContract) {
+    const mode = statSync(emitted).mode & 0o777;
+    console.log(`tsc-emitted shebang file mode: 0${mode.toString(8)} (executable bits: ${(mode & 0o111) !== 0})`);
+    assert.equal(mode & 0o111, 0, 'tsc unexpectedly emitted an executable file');
+  } else {
+    console.log('tsc-emitted shebang file: POSIX executable-bit assertion not applicable on win32');
+  }
 } finally {
   rmSync(tmp, { recursive: true, force: true });
 }
 
-// 2. the build pipeline must restore the bit on bin targets
+// 2. the build pipeline must run staging validation/restoration before old-dist eviction.
 const pipeline = ['scripts/build-main-with-binding.mjs', 'scripts/promote-dist.mjs'];
 const pipelineText = pipeline.map((rel) => readFileSync(join(repoRoot, rel), 'utf8')).join('\n');
+const promoteDistText = readFileSync(join(repoRoot, 'scripts/promote-dist.mjs'), 'utf8');
 const restoresBit = /chmod(Sync)?\s*\(/.test(pipelineText) && /\bbin\b/.test(pipelineText);
-console.log(`pipeline restores bin executable bit: ${restoresBit} (${pipeline.join(' + ')})`);
-expect('build pipeline restores the executable bit on package.json bin targets after promoting dist', () => {
-  assert.equal(restoresBit, true, `neither ${pipeline.join(' nor ')} chmods the bin target(s) ${binTargets.join(', ')} after a rebuild; a re-emitted dist/cli.js is 0644 and the global symlink dies with "permission denied"`);
+const stagingRestoreOffset = promoteDistText.indexOf('restoreBinExecutableBits(staging, dist);');
+const oldDistEvictionOffset = promoteDistText.indexOf('renameSync(dist, trash);');
+const restoresStagingBeforeEviction = stagingRestoreOffset >= 0 && oldDistEvictionOffset >= 0 && stagingRestoreOffset < oldDistEvictionOffset;
+console.log(`pipeline staging restore hook present: ${restoresBit}; staging restoration precedes old-dist eviction: ${restoresStagingBeforeEviction} (${pipeline.join(' + ')})`);
+expect('build pipeline validates and restores package.json bin targets on staging before evicting the old dist', () => {
+  assert.equal(restoresBit, true, `neither ${pipeline.join(' nor ')} restores the bin target(s) ${binTargets.join(', ')} during a rebuild`);
+  assert.equal(restoresStagingBeforeEviction, true, 'promoteDist must restoreBinExecutableBits(staging, dist) before renameSync(dist, trash) so a failed restoration cannot evict the working dist');
 });
 
 // 3. live check (secondary; a manual chmod can make this pass without fixing the pipeline)
 for (const rel of binTargets) {
   const abs = join(repoRoot, 'packages/main', rel);
   if (!existsSync(abs)) { console.log(`live: ${rel} absent (dist not built) -- skipped`); continue; }
-  const mode = statSync(abs).mode & 0o777;
-  console.log(`live: packages/main/${rel} mode 0${mode.toString(8)}`);
-  expect(`live: packages/main/${rel} is executable`, () => assert.notEqual(mode & 0o111, 0, `packages/main/${rel} is not executable (mode 0${mode.toString(8)})`));
+  if (hasPosixModeContract) {
+    const mode = statSync(abs).mode & 0o777;
+    console.log(`live: packages/main/${rel} mode 0${mode.toString(8)}`);
+    expect(`live: packages/main/${rel} is executable`, () => assert.notEqual(mode & 0o111, 0, `packages/main/${rel} is not executable (mode 0${mode.toString(8)})`));
+  } else {
+    expect(`live: packages/main/${rel} remains a valid npm shim target on Windows`, () => {
+      assert.match(readFileSync(abs, 'utf8'), /^#!\/usr\/bin\/env node\n/, `${rel} must preserve its Node shebang for npm-generated command shims`);
+    });
+  }
 }
 
 // 4. hermetic: restoreBinExecutableBits(dist) from scripts/promote-dist.mjs (B-e256 CHK-002)
@@ -147,8 +175,11 @@ function tryCreateFixtureSymlink(target, path, type, label) {
   }
 }
 
-// (a) 0644 bin target becomes executable, content byte-identical, returned list is ['dist/cli.js']
-expect('hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored', () => {
+// (a) POSIX mode restoration / Windows npm-shim target preservation, with byte-identical content.
+const directRestoreLabel = hasPosixModeContract
+  ? 'hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored'
+  : 'hermetic (a): a package.json bin target remains a byte-identical npm Windows-shim target and is reported as restored';
+expect(directRestoreLabel, () => {
   assert.notEqual(restoreBinExecutableBits, null, 'restoreBinExecutableBits is not available (see the export case above)');
   withTempPackage((pkgRoot, dist) => {
     mkdirSync(dist, { recursive: true });
@@ -157,13 +188,15 @@ expect('hermetic (a): a 0644 package.json bin target becomes executable with byt
     writeFileSync(target, CLI_BODY);
     chmodSync(target, 0o644);
     const before = statSync(target).mode & 0o777;
-    assert.equal(before & 0o111, 0, `fixture setup: expected a non-executable bin target, got 0${before.toString(8)}`);
+    if (hasPosixModeContract) assert.equal(before & 0o111, 0, `fixture setup: expected a non-executable bin target, got 0${before.toString(8)}`);
     const restored = restoreBinExecutableBits(dist);
     const after = statSync(target).mode & 0o777;
-    console.log(`hermetic (a): dist/cli.js mode 0${before.toString(8)} -> 0${after.toString(8)}; restored=${JSON.stringify(restored)}`);
+    console.log(`hermetic (a): ${hasPosixModeContract ? `dist/cli.js mode 0${before.toString(8)} -> 0${after.toString(8)}` : 'POSIX mode assertion not applicable on win32'}; restored=${JSON.stringify(restored)}`);
     assert.deepEqual(restored, ['dist/cli.js'], 'restored list must name exactly the bin target');
-    assert.equal(after & 0o111, 0o111, `bin target still lacks executable bits (mode 0${after.toString(8)})`);
-    assert.equal(after & 0o644, 0o644, `original permission bits must be preserved (mode 0${after.toString(8)})`);
+    if (hasPosixModeContract) {
+      assert.equal(after & 0o111, 0o111, `bin target still lacks executable bits (mode 0${after.toString(8)})`);
+      assert.equal(after & 0o644, 0o644, `original permission bits must be preserved (mode 0${after.toString(8)})`);
+    }
     assert.equal(readFileSync(target, 'utf8'), CLI_BODY, 'bin target content changed');
   });
 });
@@ -196,11 +229,15 @@ expect('hermetic (c): package.json with no bin field, unparseable package.json a
       const stray = join(dist, 'cli.js');
       writeFileSync(stray, CLI_BODY);
       chmodSync(stray, 0o644);
+      const before = readFileSync(stray, 'utf8');
       let restored;
       assert.doesNotThrow(() => { restored = restoreBinExecutableBits(dist); }, `${label}: must not throw`);
       assert.deepEqual(restored, [], `${label}: expected [], got ${JSON.stringify(restored)}`);
-      const mode = statSync(stray).mode & 0o777;
-      assert.equal(mode & 0o111, 0, `${label}: undeclared dist/cli.js was chmodded (mode 0${mode.toString(8)})`);
+      assert.equal(readFileSync(stray, 'utf8'), before, `${label}: undeclared dist/cli.js content changed`);
+      if (hasPosixModeContract) {
+        const mode = statSync(stray).mode & 0o777;
+        assert.equal(mode & 0o111, 0, `${label}: undeclared dist/cli.js was chmodded (mode 0${mode.toString(8)})`);
+      }
       console.log(`hermetic (c): ${label} -> ${JSON.stringify(restored)}`);
     });
   }
@@ -223,7 +260,7 @@ expect('hermetic (c2): string-shorthand and multiple bin declarations restore ev
       const before = expected.map((rel) => readFileSync(join(pkgRoot, rel), 'utf8'));
       assert.deepEqual(restoreBinExecutableBits(dist), expected, `${label}: restored list`);
       expected.forEach((rel, index) => {
-        assert.notEqual(statSync(join(pkgRoot, rel)).mode & 0o111, 0, `${label}: ${rel} must be executable`);
+        if (hasPosixModeContract) assert.notEqual(statSync(join(pkgRoot, rel)).mode & 0o111, 0, `${label}: ${rel} must be executable`);
         assert.equal(readFileSync(join(pkgRoot, rel), 'utf8'), before[index], `${label}: ${rel} content changed`);
       });
     });
@@ -239,7 +276,8 @@ expect('hermetic (c3): an in-dist basename beginning with two dots is not mistak
     writeFileSync(target, CLI_BODY);
     chmodSync(target, 0o644);
     assert.deepEqual(restoreBinExecutableBits(dist), ['dist/..cli.js']);
-    assert.notEqual(statSync(target).mode & 0o111, 0, 'valid dot-prefixed target must become executable');
+    if (hasPosixModeContract) assert.notEqual(statSync(target).mode & 0o111, 0, 'valid dot-prefixed target must become executable');
+    assert.equal(readFileSync(target, 'utf8'), CLI_BODY, 'valid dot-prefixed target content must remain unchanged');
   });
 });
 
@@ -268,10 +306,12 @@ expect('hermetic (c5): an in-tree symlink cannot chmod a referent outside the pr
     const outside = join(pkgRoot, 'outside.js');
     writeFileSync(outside, CLI_BODY);
     chmodSync(outside, 0o644);
+    const outsideBody = readFileSync(outside, 'utf8');
     if (!tryCreateFixtureSymlink(outside, join(dist, 'cli.js'), 'file', 'hermetic (c5)')) return;
     writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: 'dist/cli.js' }));
     assert.throws(() => restoreBinExecutableBits(dist), (error) => error?.code === 'EINVAL' && /not a regular file/.test(error.message));
-    assert.equal(statSync(outside).mode & 0o777, 0o644, 'outside referent permissions must remain unchanged');
+    assert.equal(readFileSync(outside, 'utf8'), outsideBody, 'outside referent content must remain unchanged');
+    if (hasPosixModeContract) assert.equal(statSync(outside).mode & 0o777, 0o644, 'outside referent permissions must remain unchanged');
   });
 });
 
@@ -289,6 +329,7 @@ expect('hermetic (c6): an intermediate directory symlink cannot chmod a referent
     const outsideTarget = join(outside, 'cli.js');
     writeFileSync(outsideTarget, CLI_BODY);
     chmodSync(outsideTarget, 0o644);
+    const outsideBody = readFileSync(outsideTarget, 'utf8');
     const symlinkType = process.platform === 'win32' ? 'junction' : 'dir';
     if (!tryCreateFixtureSymlink(outside, join(staging, 'linked'), symlinkType, 'hermetic (c6)')) return;
     writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: 'dist/linked/cli.js' }));
@@ -297,7 +338,8 @@ expect('hermetic (c6): an intermediate directory symlink cannot chmod a referent
       () => promoteDist(dist, staging, trash),
       (error) => error?.code === 'EINVAL' && /resolves outside the promoted tree/.test(error.message),
     );
-    assert.equal(statSync(outsideTarget).mode & 0o777, 0o644, 'outside referent permissions must remain unchanged');
+    assert.equal(readFileSync(outsideTarget, 'utf8'), outsideBody, 'outside referent content must remain unchanged');
+    if (hasPosixModeContract) assert.equal(statSync(outsideTarget).mode & 0o777, 0o644, 'outside referent permissions must remain unchanged');
     assert.equal(readFileSync(join(dist, 'linked', 'cli.js'), 'utf8'), CLI_BODY, 'old dist must remain untouched');
     assert.ok(existsSync(staging), 'malformed staging tree must not be promoted');
     assert.ok(!existsSync(trash), 'old dist must not be evicted');
@@ -306,12 +348,15 @@ expect('hermetic (c6): an intermediate directory symlink cannot chmod a referent
 
 // (d) a NON-ENOENT failure on an existing bin target must propagate (only an absent target is benign).
 // Simulated hermetically: the bin target exists but its parent directory is 0o000, so stat() fails with
-// EACCES (not ENOENT). Root ignores mode bits, so the case is skipped (with a note) when uid === 0.
-const isRoot = typeof process.getuid === 'function' ? process.getuid() === 0 : userInfo().uid === 0;
-if (isRoot) console.log('hermetic (d)/(f): running as root (uid 0) — mode-bit denial cannot be simulated; skipped');
+// EACCES (not ENOENT). Root ignores mode bits and Windows has no POSIX directory-mode denial,
+// so this injection is skipped with a note on those hosts. Cross-platform c4/c6 still prove that
+// a staging validation failure preserves the old dist before any rename.
+const isRoot = hasPosixModeContract && typeof process.getuid === 'function' && process.getuid() === 0;
+const canSimulateModeDenial = hasPosixModeContract && !isRoot;
+if (!canSimulateModeDenial) console.log(`hermetic (d)/(f): POSIX mode-bit denial cannot be simulated on ${isRoot ? 'uid 0' : process.platform}; skipped (c4/c6 still verify pre-eviction failure safety)`);
 expect('hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed', () => {
   assert.notEqual(restoreBinExecutableBits, null, 'restoreBinExecutableBits is not available (see the export case above)');
-  if (isRoot) return;
+  if (!canSimulateModeDenial) return;
   withTempPackage((pkgRoot, dist) => {
     mkdirSync(dist, { recursive: true });
     writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: { 'red-exec-bit': 'dist/cli.js' } }));
@@ -334,9 +379,13 @@ expect('hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target 
   });
 });
 
-// (e) promoteDist restores the bit on the STAGING tree, so the promoted dist bin target is executable.
+// (e) promoteDist restores the STAGING target before promotion; POSIX verifies mode bits,
+// while Windows verifies the byte-identical Node target used by npm-generated command shims.
 const STAGING_BODY = '#!/usr/bin/env node\nconsole.log("hello from the freshly emitted bin target");\n';
-expect('hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable', () => {
+const stagingPromotionLabel = hasPosixModeContract
+  ? 'hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable'
+  : 'hermetic (e): promoteDist validates the staging npm Windows-shim target before promoting its byte-identical content';
+expect(stagingPromotionLabel, () => {
   assert.notEqual(promoteDist, null, `${promoteDistPath} does not export promoteDist`);
   withTempPackage((pkgRoot, dist) => {
     const staging = join(pkgRoot, 'dist.staging');
@@ -349,14 +398,16 @@ expect('hermetic (e): promoteDist restores the executable bit on the staging tre
     writeFileSync(join(staging, 'cli.js'), STAGING_BODY);
     chmodSync(join(staging, 'cli.js'), 0o644);
     const before = statSync(join(staging, 'cli.js')).mode & 0o777;
-    assert.equal(before & 0o111, 0, `fixture setup: expected a non-executable staging bin target, got 0${before.toString(8)}`);
+    if (hasPosixModeContract) assert.equal(before & 0o111, 0, `fixture setup: expected a non-executable staging bin target, got 0${before.toString(8)}`);
     promoteDist(dist, staging, trash);
     const target = join(dist, 'cli.js');
     const after = statSync(target).mode & 0o777;
-    console.log(`hermetic (e): staging dist/cli.js mode 0${before.toString(8)} -> promoted 0${after.toString(8)}; staging=${existsSync(staging)} trash=${existsSync(trash)}`);
+    console.log(`hermetic (e): ${hasPosixModeContract ? `staging dist/cli.js mode 0${before.toString(8)} -> promoted 0${after.toString(8)}` : 'POSIX mode assertion not applicable on win32'}; staging=${existsSync(staging)} trash=${existsSync(trash)}`);
     assert.equal(readFileSync(target, 'utf8'), STAGING_BODY, 'promoted dist must contain the staging tree');
-    assert.equal(after & 0o111, 0o111, `promoted bin target lacks executable bits (mode 0${after.toString(8)})`);
-    assert.equal(after & 0o644, 0o644, `original permission bits must be preserved (mode 0${after.toString(8)})`);
+    if (hasPosixModeContract) {
+      assert.equal(after & 0o111, 0o111, `promoted bin target lacks executable bits (mode 0${after.toString(8)})`);
+      assert.equal(after & 0o644, 0o644, `original permission bits must be preserved (mode 0${after.toString(8)})`);
+    }
     assert.ok(!existsSync(staging), 'staging must have been moved into place');
     assert.ok(!existsSync(trash), 'trash must be removed after a successful promotion');
   });
@@ -365,7 +416,7 @@ expect('hermetic (e): promoteDist restores the executable bit on the staging tre
 // (f) a failing staging restoration aborts promotion BEFORE the old dist is evicted (previous working dist kept).
 expect('hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted', () => {
   assert.notEqual(promoteDist, null, `${promoteDistPath} does not export promoteDist`);
-  if (isRoot) return;
+  if (!canSimulateModeDenial) return;
   withTempPackage((pkgRoot, dist) => {
     const staging = join(pkgRoot, 'dist.staging');
     const trash = join(pkgRoot, 'dist.trash');
@@ -400,4 +451,4 @@ if (failures.length > 0) {
   for (const f of failures) console.error(`  ✗ ${f}`);
   process.exit(1);
 }
-console.log('\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable');
+console.log(`\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable${hasPosixModeContract ? '' : ' via npm-generated Windows command shims'}`);
