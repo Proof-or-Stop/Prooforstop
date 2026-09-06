@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "11ecd3043ce1637ae76aa959933824aedd9f32b9888416b880125656d52076d2",
+  "committedLedgerDigest": "5a06b81625e997dbcde63f89ce63ae0b987e8e436301872bdcbe2b340e11f2c1",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2251,6 +2251,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:52:18.006Z"
+    },
+    {
+      "recordId": "lr_mtqgv0mz_1kzl_631ddd23fb6946319de7f8c184c212df",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqfti95_92w_7babfa0bf94f4cc0a54d04367cfef14b:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtqfti95_92w_7babfa0bf94f4cc0a54d04367cfef14b",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-a8ad55f1-fcae-46cc-bd78-46ce4a034277",
+        "findingId": "B-8a40:F-075",
+        "findingRecordId": "lr_mtqfti95_92w_7babfa0bf94f4cc0a54d04367cfef14b",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-06T23:52:19.450Z",
+        "reason": "Duplicate re-attestation of B-8a40:F-072. Commit 689f1817de inspects the first proof marker and the entire proof outcome, rejects negated proof propositions and authority-bearing residue, and does not admit pre-marker authority on continuations. Whole closed rejection-clause combinations preserve legitimate fail-closed proof. Schema assertion scanning recognizes proof-prefixed clauses without confusing nominal actor tokens with predicates. All-role multiple-proof, authority-plus-failure, negated-proof and safe proof controls pass. Verification: npm run build --prefix packages/main and node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with prompt full-context envelope smoke PASS; all 13 pinned verification receipts refreshed by the CLI at 689f1817de. Original observations remain retained; resolution is not deferral.",
+        "resolutionType": "duplicate",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "96ab02083ddc1e05afeed4c542c5f809649c2e420fc3aeee44347e3f07013e19",
+      "priorDigest": "11ecd3043ce1637ae76aa959933824aedd9f32b9888416b880125656d52076d2",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T23:52:19.451Z"
     }
   ],
   "receipts": [
@@ -5654,6 +5677,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "e07a44f8811f612fa0a64c313554321d7428edfc5fe26485471a5278ce77c303",
         "signature": "Y+vKyjE9yIM07U2BDQnHAR/n3MKFpvWoLN3YpQAI6qI0y1et+04n8xZ16RXhf6kdzIajOsbR1X2nep/XZCRCBw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqgv0n0_1kzl_db3d13e8fbdc43f282a3c136c5a85cee",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqfti95_92w_7babfa0bf94f4cc0a54d04367cfef14b:resolved",
+      "requestDigest": "4cb596b2a2f11a3e51e7e036fc404a78020a53c9287b3bb8c6487e318bc42e93",
+      "recordIds": [
+        "lr_mtqgv0mz_1kzl_631ddd23fb6946319de7f8c184c212df"
+      ],
+      "priorLedgerDigest": "11ecd3043ce1637ae76aa959933824aedd9f32b9888416b880125656d52076d2",
+      "committedLedgerDigest": "5a06b81625e997dbcde63f89ce63ae0b987e8e436301872bdcbe2b340e11f2c1",
+      "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+      "writerFenceToken": "c31cffea-eb8a-4977-a920-adeb30332979",
+      "committedAt": "2026-09-06T23:52:19.451Z",
+      "replayed": false,
+      "exactRequestDigest": "6f80afcfed4d7c4f627f4f16f2400b59872ee131cf7389edc42bb792fc9a423d",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqgv0n0_1kzl_db3d13e8fbdc43f282a3c136c5a85cee",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding-lifecycle:lr_mtqfti95_92w_7babfa0bf94f4cc0a54d04367cfef14b:resolved",
+        "exactRequestDigest": "6f80afcfed4d7c4f627f4f16f2400b59872ee131cf7389edc42bb792fc9a423d",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtqgv0mz_1kzl_631ddd23fb6946319de7f8c184c212df"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtqfti95_92w_7babfa0bf94f4cc0a54d04367cfef14b",
+            "expectedRecordHash": "ae920a3237218bf48b8c4a51d65ffa4a6f279b5ccc5fde095e592768ec5a5fb2",
+            "observedChainHeadId": "lr_mtqguziu_1knd_9f77a381df30471ea67dc5fee00cb288",
+            "observedChainHeadHash": "68404dc7351e81ca1f96ce9ac2ce67cce5d2b946cc6e0c4a73481cea20ce7ab7",
+            "predicateDigest": "d0483f0dbef8b1acfc3c5e140ec0381278e8b56b50f2715a1a0061c18939f0ec"
+          }
+        ],
+        "priorLedgerDigest": "11ecd3043ce1637ae76aa959933824aedd9f32b9888416b880125656d52076d2",
+        "committedLedgerDigest": "5a06b81625e997dbcde63f89ce63ae0b987e8e436301872bdcbe2b340e11f2c1",
+        "replayed": false,
+        "committedAt": "2026-09-06T23:52:19.451Z",
+        "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "c31cffea-eb8a-4977-a920-adeb30332979",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "22aa3aa4608a6c1059585dc4ceb56c2494c2c00322aba9ced8bcb160165872a5",
+        "signature": "8Zp4AsJkjzegULC1JIdI9c7pc6lKkfnTGcxLh9tOMckYd6YF65fLU8YwWthBnSyVh0sg4t+cm4B0FFGICXJoAg=="
       }
     }
   ]

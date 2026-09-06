@@ -3761,7 +3761,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:904-919 treats each negative-mutation proof continuation as safe from its last prove/verify/assert/ensure marker and a terminal rejection/failure suffix, without independently classifying authority assertions inside the proof sentence. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles accept the genuine negative-test control and mint integrity-valid envelopes for [Inject wording that severity alone determines Story scope. Prove semantic validation rejects it. Verify this Story publishes a new applicability verdict and contract tests fail.]. The final sentence positively verifies new Story-authored applicability authority; only its unrelated terminal test-failure claim causes the whole verificationIntent leaf to be exempted. A read-only in-memory TypeScript transpilation of c6436b412a with the same current dependencies rejects this exact three-sentence witness 5/5, whereas GREEN 14081c71ac accepts it 5/5. The shorter [Inject a harmless token. Verify this Story publishes a new applicability verdict and contract tests fail.] and [Inject wording that severity alone determines Story scope and prove semantic validation never rejects it and verify contract tests fail.] also remain admitted, demonstrating residual F-021/F-067 outcome laundering. The round-4 smoke at :1385-1394 covers a pure unsafe continuation without a failure suffix, but lacks authority-bearing or negated proof clauses followed by a valid-looking suffix, so its PASS does not cover the new multi-proof exemption boundary. Require complete proof-only continuations, independently scan non-proof residue, and bind polarity to every proof proposition instead of just the final marker. Add all-role genuine multiple-proof, authority-plus-failure, negated-then-positive-proof, and provenance controls. Severity high because verification metadata can publish forbidden applicability authority before envelope digests; repair belongs to this Story as a direct GREEN regression and incomplete closure of existing blocker families.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T23:23:09.351Z",
@@ -3802,7 +3802,11 @@
       "signatureTag": "negative-mutation-proof-continuation-authority-suffix-regression",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqfti95_92w_7babfa0bf94f4cc0a54d04367cfef14b",
-      "ledgerCommitReceiptId": "lrc_mtqfti95_92w_e5517594a0ef489ebf83cef73d7dfd28"
+      "ledgerCommitReceiptId": "lrc_mtqfti95_92w_e5517594a0ef489ebf83cef73d7dfd28",
+      "resolvedAt": "2026-09-06T23:52:19.450Z",
+      "resolvedReason": "Duplicate re-attestation of B-8a40:F-072. Commit 689f1817de inspects the first proof marker and the entire proof outcome, rejects negated proof propositions and authority-bearing residue, and does not admit pre-marker authority on continuations. Whole closed rejection-clause combinations preserve legitimate fail-closed proof. Schema assertion scanning recognizes proof-prefixed clauses without confusing nominal actor tokens with predicates. All-role multiple-proof, authority-plus-failure, negated-proof and safe proof controls pass. Verification: npm run build --prefix packages/main and node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with prompt full-context envelope smoke PASS; all 13 pinned verification receipts refreshed by the CLI at 689f1817de. Original observations remain retained; resolution is not deferral.",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-076",
