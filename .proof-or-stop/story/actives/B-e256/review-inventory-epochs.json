@@ -578,7 +578,7 @@
       "reviewRound": "2026-09-06T15:32:14.385Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T15:41:03.314Z",
-      "updatedAt": "2026-09-06T15:41:03.314Z",
+      "updatedAt": "2026-09-06T15:53:37.073Z",
       "cutoff": {
         "headHash": "51d4212bc701aea4f3a3277b2a953c181f5c3efe",
         "materialHash": "11b6badc5481a14170fdd330d275c9a165b63fee00f3c8ef0ed8848fb6815de2",
@@ -592,9 +592,58 @@
       ],
       "initialRunSequenceBoundary": 60,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T15:41:03.314Z",
+          "completedAt": "2026-09-06T15:53:37.073Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-062",
+              "terminal": "finding",
+              "hostIdentity": "be85fdda9ea5d69d5333df138b0e34ed2fd5b0a22a122794593aed33224d3d1d",
+              "promptIdentity": "b8c81b68afa9ad7660cd3edd27683063099e723a25931a60f6b7d0e097c73663",
+              "evidenceIds": [
+                "B-e256:F-021"
+              ],
+              "coverageDigest": "bf5cf137711c4a7807041f6296c40f5d0463bce6fe1c892052722c4b37c7ba5d"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-064",
+              "terminal": "pass",
+              "hostIdentity": "51e7355c744db285a75b6e4b5063d5f241257efdb1bc57ce282d57b329fc41c3",
+              "promptIdentity": "aef525b7c6f5c0a6c5a6cf1e73849c31c71bd9a698efa8ab2582e3959eb7344a",
+              "evidenceIds": [
+                "B-e256:RP-043"
+              ],
+              "coverageDigest": "a1a7ce4825101ebfec42a7d2501e45866165b64689e1f80e14713e0eed9df3e6"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-061",
+              "terminal": "pass",
+              "hostIdentity": "be85fdda9ea5d69d5333df138b0e34ed2fd5b0a22a122794593aed33224d3d1d",
+              "promptIdentity": "ca99337a5af2cfedf04b0c5e1572d7d4dc07627475208c8cf2be58b88836ac2d",
+              "evidenceIds": [
+                "B-e256:RP-041"
+              ],
+              "coverageDigest": "16414a5ab988a429440f8f814235bf28be22e23ac2f9ff976abaf090d5f75c76"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "stale-story-post-promotion-chmod-model"
+          ],
+          "verifiedFindingSetDigest": "87466f61bfef83f253b0d3874cf8b3003dc6a9880a40cfc5b367d0dfcc3a867e",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "ad9083b7227048466c6a49af42089e552a33fef774be342d5d5f3ed9eb31ad5c",
+          "saturated": false,
+          "nextRunSequenceBoundary": 66
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "ed710656e3c5791f1b7554185dfba64bba151117970bd43b0ddfac1bf34407e9"
+      "_hash": "805a332332ac0a437d72b1ce1ab05e495d4b669548246f331431029967c2fcff"
     }
   ],
   "receipts": [
@@ -1015,6 +1064,37 @@
       "findingDispositions": [],
       "createdAt": "2026-09-06T15:19:42.859Z",
       "_hash": "1282ad2d3d79bbb2125f4ae8cf35636001838207d992fdbb1f069a1de738f8ba"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-003:CRIT-01",
+      "epochId": "B-e256:RI-003",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T15:32:14.385Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "51d4212bc701aea4f3a3277b2a953c181f5c3efe",
+        "materialHash": "11b6badc5481a14170fdd330d275c9a165b63fee00f3c8ef0ed8848fb6815de2",
+        "storyFilesHash": "3dd76d3507ce4cf628053a2e4469ad2b73b51c9ea29c74657eeeb8f909f96f33"
+      },
+      "aggregateFindingSetDigest": "87466f61bfef83f253b0d3874cf8b3003dc6a9880a40cfc5b367d0dfcc3a867e",
+      "requiredLaneCoverageDigest": "2e6a1d5c15745e14ade24ed7257022d48eb37e0e0076f25a0d1e754841fbcee0",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-066",
+      "terminalEvidenceIds": [
+        "B-e256:RP-045"
+      ],
+      "readEvidenceDigest": "0921606e655720d4b7d7a5d0770a004758c79ef20850b1126ccc7a370465dbb1",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-021",
+          "disposition": "verified_family",
+          "familyKey": "stale-story-post-promotion-chmod-model",
+          "reason": "Independently verified that Story plan, checklist context, understanding, and summary still describe post-promotion chmod, while the committed implementation restores the staging tree before evicting the previous dist. This is a distinct Story-model consistency family, separate from intermediate-symlink containment and its missing regression coverage."
+        }
+      ],
+      "createdAt": "2026-09-06T15:53:22.855Z",
+      "_hash": "060b13697985421e1353791a70719b655083918b2c15d51a2883fb010d46887a"
     }
   ]
 }
