@@ -678,7 +678,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 makes cross-leaf dismissal authority depend on TRIAGE_CAUSAL_LINK in the later leaf, so a direct anaphoric or noun-target conclusion that is unsafe in one leaf becomes admissible when split across FullTaskContext leaves. Independent public-API reproduction on current built material: story.description = \"No parent Finding is closed by this intake.\" plus checklist.CHK-001.context = \"It is out of scope.\" was ADMITTED by all five active modular reviewer roles; replacing the later leaf with \"The work is outside this Story.\" was also ADMITTED by all five, and placing \"It is out of scope.\" in scope.explicitExcludes was ADMITTED by all five. The exact same-leaf text \"No parent Finding is closed by this intake. It is out of scope.\" was REJECTED by all five, proving this is a cross-leaf detector gap rather than a vocabulary miss. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1441-1450 covers only three causal-prefix splits, and its scope checks at lines 1460-1483 exercise complete single-leaf authority statements, not direct cross-leaf anaphora. This is distinct from resolved F-009: that finding and its repair bind causal-prefix cross-leaf witnesses; the new witness needs no causal marker and directly replays CHK-001:edge:2 across the rendered leaf boundary. Add all-role direct/coreferent cross-leaf witnesses, including a scope leaf, and make the combined-source oracle reject them without joining unrelated safe leaves. Severity high because the trusted reviewer envelope can still mint an unsafe applicability assertion while all 13 refreshed mechanical receipts and the focused smoke report PASS.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T17:49:46.230Z",
@@ -717,7 +717,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-cross-leaf-direct-anaphora-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate of B-8a40:F-013; the canonical familys",
+      "resolvedAt": "2026-09-06T19:50:16.090Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-016",
