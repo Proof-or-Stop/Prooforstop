@@ -1855,6 +1855,43 @@
       ],
       "createdAt": "2026-09-06T19:25:37.542Z",
       "_hash": "a5a936dab10a676bdee74c082adf9b30cdb66ba48d8730d604cc60b33cb83f79"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-006:CRIT-02",
+      "epochId": "B-e256:RI-006",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "9375d78ad6f6b74696d1f4e05733f00146f247cb",
+        "materialHash": "5b2ad5e25c1ff178aac5f4d60a1ea6c599e70d33606dd5bb2115718a43046d70",
+        "storyFilesHash": "a9556759a4051ae8c1bfb5516b96fba35d0ac9360b83c29d0ac07a5ee75eb1df"
+      },
+      "aggregateFindingSetDigest": "6a3b081ef5489578894e21dbddb157fda0c202e02ffb50a3bf5a18541369ec37",
+      "requiredLaneCoverageDigest": "5e83f9aeb4b7e207fc16ff5ee078823e8b683b6ce4a2d49fdfedb6f423def870",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-101",
+      "terminalEvidenceIds": [
+        "B-e256:RP-070"
+      ],
+      "readEvidenceDigest": "d647180a721cb64490f4c0b9d8cffbf9921dba2f910c1fffaedca7f2a224bdb5",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-034",
+          "disposition": "verified_family",
+          "familyKey": "doctor-bin-target-realpath-escape",
+          "reason": "Independent source inspection and a built-candidate temporary-filesystem probe confirmed that inspectGlobalCoreExecutable stat-follows the package.json bin target without checking its realpath containment: a canonical global package whose dist/cli.js symlinks into .worktrees/stale still reports global-core-realpath PASS and emits the pass marker. This is distinct from F-029's Windows npm command-shim selection and from F-016/F-017's already-repaired promotion-time symlink protections."
+        },
+        {
+          "findingId": "B-e256:F-035",
+          "disposition": "verified_family",
+          "familyKey": "doctor-path-vs-global-package-presence-contract",
+          "reason": "Independent source inspection and a built-candidate probe with commandResolver=null confirmed that cli-entrypoint reports missing while a healthy package under npm root makes global-core-realpath PASS with no remediation. CHK-003 promises informational link guidance when no global proof-or-stop is on PATH, but the global-core check classifies npm package presence instead. This is distinct from the Windows shim, quoting, platform-wording, and zero-assertion skip families."
+        }
+      ],
+      "createdAt": "2026-09-06T19:37:42.807Z",
+      "_hash": "501f4c685d2723f41ce1e71d043d81dc75be48f47add9918f3e83a43827aabf6"
     }
   ]
 }
