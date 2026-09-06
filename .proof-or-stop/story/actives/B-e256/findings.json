@@ -629,6 +629,21 @@
       "_hash": "dd597c4917b5d3a0283eaa8234b4a6516d89cfe30deb88e8d997b1e4238e5e57",
       "signatureTag": "adversarial|unknown|quality-target-intermediate",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e256:F-018",
+      "desc": "quality-global-row-version-fallback: packages/main/src/core/runtime-environment-checks.ts:1958-1962 fixes F-006 only when compiledVersion is known; when the compiled-runtime probe fails, the nullish fallback silently renders the package.json manifest as the generic version= value. Existing missing/unreadable/malformed compiled-artifact cases set compiledVersion=null but do not assert the row, so a manifest at 2.0.0 with an absent or unparsable dist artifact still renders version=2.0.0 while warnings say the compiled runtime is unverifiable. That generic row value is not the executable’s authoritative version and remains misleading. Render version=unknown for a failed compiled probe, or label manifestVersion and compiledVersion separately, and cover the existing probe-failure/default-probe cases. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T15:37:38.674Z",
+      "reviewRound": "2026-09-06T15:32:14.385Z",
+      "reviewRunId": "B-e256:RR-060",
+      "_hash": "c21b12baf3a07390823433837bb390372f29a811a7108f8ec0ca6bfc9cd9ea41",
+      "signatureTag": "edge|unknown|quality-global-version",
+      "signatureTagSource": "auto"
     }
   ]
 }
