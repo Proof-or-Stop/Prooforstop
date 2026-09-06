@@ -480,7 +480,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // post-DONE snapshot smoke: the complete inventory grows from 128 to 131.
   // B-e256 CHK-002 registers the global CLI executable-bit regression smoke;
   // keep the exact digest pin in addition to the structural cwd-neutrality proof above.
-  assert.equal(real.commandSetDigest, 'cdf402cd529e5cafef0d377c588bb406d029fa4a2e97d02c63975304ca3fc293', 'the real commandSetDigest must not move unless validate.commands changes; update the adjacent history and expected digest together');
+  // B-e256 F-044 gives that row a stable id/label so validation_plan output
+  // names it mechanically instead of exposing only a configured array index.
+  assert.equal(real.commandSetDigest, 'aa98863a809d4e19e5380bc7ffaaab0c4ac8f522961a5fa7b00e6ddc0a06ea3a', 'the real commandSetDigest must not move unless validate.commands changes; update the adjacent history and expected digest together');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
@@ -4361,8 +4363,9 @@ testCase('the REAL package.json chain and the REAL RESOURCE_POLICY both register
 //      reported PASS. Neither of those two reads validate.commands at all.
 //
 //      So this case reads the REAL configured command set through the production
-//      reader and drives the REAL pin resolver, rather than inspecting JSON text.
-//      Deleting the config entry must fail HERE.
+//      reader and drives both the REAL pin resolver and validation_plan renderer,
+//      rather than inspecting JSON text. It also proves B-e256's global-CLI RED
+//      command is visible by stable id/label in actual planner output.
 // ---------------------------------------------------------------------------
 testCase('the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves', () => {
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
@@ -4393,6 +4396,24 @@ testCase('the REAL validate.commands universe registers this suite so its own re
     'resolved',
     `the recorded pin must resolve against the real universe, got ${JSON.stringify(resolution)}`,
   );
+
+  const redPinnedCommand = 'node packages/main/tests/red/red-global-cli-exec-bit.mjs';
+  const redPin = parseLegacyValidationCommandString(redPinnedCommand);
+  assert.ok(redPin, 'the B-e256 RED command must parse under the canonical pin rule');
+  const redMatches = commands.filter((entry) => entry.command === redPin!.command
+    && entry.args.length === redPin!.args.length
+    && entry.args.every((arg, index) => arg === redPin!.args[index]));
+  assert.equal(redMatches.length, 1, `the B-e256 RED command must appear exactly once in the real planner universe, found ${redMatches.length}`);
+  assert.equal(redMatches[0].id, 'red-global-cli-exec-bit');
+  assert.equal(redMatches[0].label, 'B-e256 global CLI rebuild and promotion regression');
+
+  // Execute the production handler over the real configured command row. A
+  // config-only membership assertion is insufficient: the operator-visible
+  // planner rendering itself must preserve the stable identity.
+  const { ctx } = planCliRoot({ commands: redMatches });
+  const rendered = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'full', explain: true });
+  assert.match(rendered, /^inclusion reasons by unit \(1\):$/m);
+  assert.match(rendered, /^ {2}red-global-cli-exec-bit \[B-e256 global CLI rebuild and promotion regression\]$/m);
 });
 
 testCase('every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed', () => {

@@ -13,6 +13,42 @@
 import { chmodSync, lstatSync, readFileSync, realpathSync, renameSync, rmSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, sep } from 'node:path';
 
+function assertParentChainInsideTree(tree, target, realTree) {
+  const parentRelative = relative(tree, dirname(target));
+  let cursor = tree;
+  for (const component of parentRelative.split(sep).filter(Boolean)) {
+    cursor = join(cursor, component);
+    let entry;
+    try {
+      entry = lstatSync(cursor);
+    } catch (error) {
+      if (error && error.code === 'ENOENT') return; // genuinely absent parent: the final target is absent too
+      throw error;
+    }
+    if (!entry.isDirectory() && !entry.isSymbolicLink()) {
+      const error = new Error(`bin target parent is not a directory`);
+      error.code = 'EINVAL';
+      throw error;
+    }
+    let realParent;
+    try {
+      realParent = realpathSync(cursor);
+    } catch (error) {
+      // lstat proved the component exists. ENOENT here therefore means a
+      // dangling/vanished symlink in the parent chain, not a genuinely absent
+      // final bin target, and must not reach the caller's benign ENOENT branch.
+      if (error && error.code === 'ENOENT') error.code = 'EINVAL';
+      throw error;
+    }
+    const underRealTree = relative(realTree, realParent);
+    if (underRealTree === '..' || underRealTree.startsWith(`..${sep}`) || isAbsolute(underRealTree)) {
+      const error = new Error(`bin target parent resolves outside the promoted tree`);
+      error.code = 'EINVAL';
+      throw error;
+    }
+  }
+}
+
 export function promoteDist(dist, staging, trash, options = {}) {
   // B-e256: the freshly built staging tree came straight out of tsc, which emits every file 0644;
   // restore the executable bit on package.json `bin` targets ON STAGING, BEFORE the old dist is
@@ -115,6 +151,12 @@ export function restoreBinExecutableBits(tree, dist = tree, options = {}) {
     if (underDist === '' || underDist === '..' || underDist.startsWith(`..${sep}`) || isAbsolute(underDist)) continue; // not inside the promoted tree
     const target = join(tree, underDist);
     try {
+      realTree ??= realpathSync(tree);
+      // Resolve every existing parent before looking at the final path. If an
+      // intermediate symlink has escaped and the outside filename is absent,
+      // lstat(target) reports ENOENT; without this precheck that escape was
+      // incorrectly classified as a benign missing bin target.
+      assertParentChainInsideTree(tree, target, realTree);
       // lstat rejects a symlink at the final path. realpath containment is a
       // separate, necessary check: an intermediate directory component can be
       // a symlink whose final referent still looks like a regular file.
@@ -124,7 +166,6 @@ export function restoreBinExecutableBits(tree, dist = tree, options = {}) {
         error.code = 'EINVAL';
         throw error;
       }
-      realTree ??= realpathSync(tree);
       const realTarget = realpathSync(target);
       const underRealTree = relative(realTree, realTarget);
       if (underRealTree === '' || underRealTree === '..' || underRealTree.startsWith(`..${sep}`) || isAbsolute(underRealTree)) {

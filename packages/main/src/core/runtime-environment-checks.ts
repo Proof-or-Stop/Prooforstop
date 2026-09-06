@@ -622,17 +622,20 @@ function findMainWorktreeRoot(cwd: string, budget?: IdentityProbeBudget): string
 
 function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'details' | 'warnings'> {
   const commandPath = context.cliEntrypoint;
+  const expectedCore = context.isSelfProject ? context.canonicalSelfCoreRoot : null;
+  const expectedCli = expectedCore ? join(expectedCore, 'dist', 'cli.js') : null;
   if (!commandPath) {
     return {
       status: statusForDrift(severity),
       actual: null,
-      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'proof-or-stop executable on PATH',
+      expected: context.isSelfProject ? expectedCli ?? 'canonical main CLI (git worktree discovery failed)' : 'proof-or-stop executable on PATH',
       warnings: ['PATH lookup for `proof-or-stop` did not resolve a CLI executable'],
     };
   }
   const commandRealpath = safeRealpath(commandPath);
-  const expectedCli = context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : null;
-  const matchesExpected = !expectedCli || (commandRealpath ? samePath(commandRealpath, expectedCli) : false);
+  const matchesExpected = context.isSelfProject
+    ? !!expectedCli && !!commandRealpath && samePath(commandRealpath, expectedCli)
+    : true;
   const status = matchesExpected ? 'pass' : statusForDrift(severity);
   return {
     status,
@@ -640,8 +643,10 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
       path: commandPath,
       realpath: commandRealpath,
     },
-    expected: expectedCli,
-    ...(status === 'pass' ? {} : { warnings: [`CLI entrypoint resolves to ${commandRealpath ?? commandPath}, expected ${expectedCli}`] }),
+    expected: expectedCli ?? (context.isSelfProject ? 'canonical main CLI (git worktree discovery failed)' : null),
+    ...(status === 'pass' ? {} : { warnings: [expectedCli
+      ? `CLI entrypoint resolves to ${commandRealpath ?? commandPath}, expected ${expectedCli}`
+      : `CLI entrypoint resolves to ${commandRealpath ?? commandPath}, but the canonical main worktree could not be discovered`] }),
   };
 }
 
@@ -681,6 +686,8 @@ type GlobalCoreExecutableVerification =
   | 'bin-target-realpath-failed'
   | 'bin-target-realpath-escape'
   | 'command-entrypoint-missing'
+  | 'command-entrypoint-realpath-failed'
+  | 'command-entrypoint-target-mismatch'
   | 'windows-command-shim-missing'
   | 'windows-command-shim-unreadable'
   | 'windows-command-shim-target-mismatch';
@@ -692,6 +699,7 @@ interface GlobalCoreExecutableFacts {
   binTargetExists: boolean | null;
   verificationErrorCode: string | null;
   commandShim: string | null;
+  commandEntrypointRealpath?: string | null;
   // B-e256-xhr-r11 MAJOR: whether ANY 0o111 bit is set on the target. This is
   // NOT the executable verdict (that is the X_OK probe); it is what decides
   // whether `chmod +x` is a plausible repair at all.
@@ -709,6 +717,8 @@ function describeGlobalCoreVerification(verification: Exclude<GlobalCoreExecutab
   if (verification === 'bin-target-realpath-failed') return 'the declared bin target realpath could not be resolved';
   if (verification === 'bin-target-realpath-escape') return 'the declared bin target resolves outside the package dist tree';
   if (verification === 'command-entrypoint-missing') return 'no proof-or-stop command was found on PATH';
+  if (verification === 'command-entrypoint-realpath-failed') return 'the proof-or-stop command selected from PATH could not be resolved';
+  if (verification === 'command-entrypoint-target-mismatch') return 'the proof-or-stop command selected from PATH does not resolve to this package bin target';
   if (verification === 'windows-command-shim-missing') return 'the proof-or-stop command selected from PATH is missing';
   if (verification === 'windows-command-shim-unreadable') return 'the proof-or-stop command shim selected from PATH could not be read';
   if (verification === 'windows-command-shim-target-mismatch') return 'the proof-or-stop command shim does not invoke this package bin target';
@@ -731,6 +741,46 @@ function defaultExecutableAccessProbe(path: string): boolean {
 
 function normalizedShimText(value: string): string {
   return value.replace(/\\/g, '/').toLowerCase();
+}
+
+function commandSegments(line: string): string[] {
+  const segments: string[] = [];
+  let segment = '';
+  let quoted = false;
+  for (let index = 0; index < line.length; index += 1) {
+    const char = line[index];
+    if (char === '"') quoted = !quoted;
+    if (!quoted && (char === '&' || char === '|')) {
+      if (segment.trim()) segments.push(segment.trim());
+      segment = '';
+      while (line[index + 1] === char) index += 1;
+      continue;
+    }
+    segment += char;
+  }
+  if (segment.trim()) segments.push(segment.trim());
+  return segments;
+}
+
+function commandTokens(segment: string): string[] {
+  const tokens: string[] = [];
+  const matcher = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
+  for (const match of segment.matchAll(matcher)) tokens.push(match[1] ?? match[2] ?? match[3]);
+  return tokens;
+}
+
+function shimSegmentInvokesTarget(segment: string, normalizedRelativeTarget: string, normalizedAbsoluteTarget: string): boolean {
+  const withoutAt = segment.trim().replace(/^@/, '');
+  if (/^(?:echo|rem|set(?:local)?|goto|title|if|else|for|exit|call\s+:|write-(?:output|host))(?:\s|$)/i.test(withoutAt)) return false;
+  const tokens = commandTokens(withoutAt);
+  while (tokens[0] === '&' || /^(?:call|exec)$/i.test(tokens[0] ?? '')) tokens.shift();
+  const runtime = normalizedShimText(tokens[0] ?? '');
+  const invokesRuntime = runtime === '%_prog%'
+    || runtime === '$_prog'
+    || /(?:^|\/)node(?:\.exe)?(?:\$exe)?$/.test(runtime);
+  if (!invokesRuntime) return false;
+  const normalizedSegment = normalizedShimText(withoutAt);
+  return normalizedSegment.includes(normalizedRelativeTarget) || normalizedSegment.includes(normalizedAbsoluteTarget);
 }
 
 function validateWindowsCommandShim(
@@ -761,10 +811,7 @@ function validateWindowsCommandShim(
   const targetMatches = normalizedRelativeTarget.length > 0 && content.split(/\r?\n/).some((line) => {
     const trimmed = line.trim();
     if (trimmed.length === 0 || /^(?:@?rem(?:\s|$)|::|#(?!\!))/i.test(trimmed)) return false;
-    const normalizedLine = normalizedShimText(line);
-    const namesTarget = normalizedLine.includes(normalizedRelativeTarget) || normalizedLine.includes(normalizedAbsoluteTarget);
-    const invokesRuntime = /(?:\bexec\b|_prog|(?:^|\s)&\s|\bnode(?:\.exe)?\b)/i.test(line);
-    return namesTarget && invokesRuntime;
+    return commandSegments(line).some((segment) => shimSegmentInvokesTarget(segment, normalizedRelativeTarget, normalizedAbsoluteTarget));
   });
   return targetMatches
     ? { commandShim: cliEntrypoint, executable: true, verification: 'ok', errorCode: null }
@@ -862,9 +909,18 @@ function inspectGlobalCoreExecutable(
     const shim = validateWindowsCommandShim(cliEntrypoint, installedPackageRoot, binRel, commandShimReadProbe);
     return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: shim.errorCode, commandShim: shim.commandShim, executeBitsSet, executable: shim.executable, verification: shim.verification };
   }
-  // `binMode` is display-only; the POSIX executable verdict is access(2) X_OK.
+  const commandRealpathProbe = defaultGlobalCoreRealpathProbe(cliEntrypoint!);
+  if (!commandRealpathProbe.realpath) {
+    return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: commandRealpathProbe.errorCode, commandShim: null, commandEntrypointRealpath: null, executeBitsSet, executable: null, verification: 'command-entrypoint-realpath-failed' };
+  }
+  const commandEntrypointRealpath = commandRealpathProbe.realpath;
+  if (!samePath(commandEntrypointRealpath, binTargetRealpath)) {
+    return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, commandShim: null, commandEntrypointRealpath, executeBitsSet, executable: false, verification: 'command-entrypoint-target-mismatch' };
+  }
+  // `binMode` is display-only; the POSIX executable verdict is access(2) X_OK,
+  // after the PATH command has resolved to this exact declared target.
   const executable = executableAccessProbe(binTarget);
-  return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, commandShim: null, executeBitsSet, executable, verification: 'ok' };
+  return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, commandShim: null, commandEntrypointRealpath, executeBitsSet, executable, verification: 'ok' };
 }
 
 function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'details' | 'warnings'> {
@@ -875,9 +931,11 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     ? context.globalCoreRealpathProbe(globalPackage.path)
     : { realpath: null, errorCode: null };
   const globalRealpath = realpathProbe.realpath;
-  const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : resolveCanonicalCoreRoot(context.corePackageRoot);
-  const expectedVersion = readExpectedCoreVersion(expected);
-  const relink = globalCoreRelinkCommand(expected, context.platform);
+  const expected = context.isSelfProject ? context.canonicalSelfCoreRoot : resolveCanonicalCoreRoot(context.corePackageRoot);
+  const expectedVersion = readExpectedCoreVersion(expected ?? context.corePackageRoot);
+  const canonicalDiscoveryFailed = expected === null;
+  const diagnoseCanonical = 'git worktree list --porcelain';
+  const relink = expected ? globalCoreRelinkCommand(expected, context.platform) : diagnoseCanonical;
   if (globalRoot === null && context.globalNpmRootProbe.failureReason) {
     // (3a) B-e256 cross-host review B-e256-xhr-r13 MAJOR: the `npm root -g`
     // PROBE failed (npm missing, non-zero exit, timeout, unparsable output).
@@ -1095,14 +1153,18 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     context.commandShimReadProbe,
   );
   const worktreeCheckout = isWorktreeCheckoutPath(globalRealpath);
-  const pathMatches = samePath(globalRealpath, expected);
+  const pathMatches = expected !== null && samePath(globalRealpath, expected);
   const warnings: string[] = [];
   const remediations: string[] = [];
   // The same command can be the fix for two independent facts (a missing
   // version and a missing bin target both want rebuild-and-relink); the
   // operator must never be handed `x && y && x`.
   const addRemediation = (command: string): void => { if (!remediations.includes(command)) remediations.push(command); };
-  if (!pathMatches) {
+  if (canonicalDiscoveryFailed) {
+    warnings.push(`the canonical main worktree could not be discovered; the current Story worktree cannot be treated as the stable global target`);
+    warnings.push(`diagnose repository topology: ${diagnoseCanonical}`);
+    addRemediation(diagnoseCanonical);
+  } else if (!pathMatches) {
     // (1) Drift: keep the historical explanatory line, then the exact repoint command.
     warnings.push(`global ${describeCorePackageCandidate(globalPackage)} resolves to ${globalRealpath}, expected ${expected}`);
     if (worktreeCheckout) {
@@ -1110,6 +1172,9 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     }
     warnings.push(`repoint: ${relink}`);
     addRemediation(relink);
+  }
+  if (worktreeCheckout && !warnings.some((warning) => warning.includes('inside a `.worktrees/` checkout'))) {
+    warnings.push(`global realpath is inside a \`.worktrees/\` checkout; it will break when that worktree is removed or rebuilt`);
   }
   if (executableFacts.verification === 'bin-target-stat-failed' && executableFacts.binTarget) {
     const inspect = globalCoreInspectCommand(executableFacts.binTarget, context.platform, true);
@@ -1268,6 +1333,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       verification: executableFacts.verification,
       verificationErrorCode: executableFacts.verificationErrorCode,
       commandShim: executableFacts.commandShim,
+      commandEntrypointRealpath: executableFacts.commandEntrypointRealpath ?? null,
       worktreeCheckout,
       remediation: remediations.length > 0 ? remediations.join(' && ') : null,
     },
@@ -1733,11 +1799,14 @@ function commandPathNames(command: 'proof-or-stop' | 'lattice'): string[] {
     .split(';')
     .map((extension) => extension.trim())
     .filter(Boolean);
-  return [...new Set([
-    command,
-    ...extensions.map((extension) => `${command}${extension.toLowerCase()}`),
-    ...extensions.map((extension) => `${command}${extension.toUpperCase()}`),
-  ])];
+  // CreateProcess/cmd resolve an unqualified command through PATHEXT order;
+  // an extensionless sibling is not preferred over an executable extension.
+  // Include case variants beside each extension solely so a win32 simulation
+  // on a case-sensitive test host models Windows' case-insensitive lookup.
+  return [...new Set(extensions.flatMap((extension) => {
+    const suffix = extension.startsWith('.') ? extension : `.${extension}`;
+    return [`${command}${suffix}`, `${command}${suffix.toLowerCase()}`, `${command}${suffix.toUpperCase()}`];
+  }))];
 }
 
 function isRunnablePath(path: string): boolean {
@@ -1973,12 +2042,12 @@ function findMainWorktreeCoreRoot(anchorDir: string): string | null {
 function resolveCanonicalSelfCoreRoot(projectRoot: string): string | null {
   const canonical = findMainWorktreeCoreRoot(projectRoot);
   if (canonical) return canonical;
+  // A Story worktree is explicitly disposable. When the topology probe fails,
+  // falling back to its local packages/main path would certify that disposable
+  // checkout as canonical and produce a false healthy global-runtime marker.
+  if (isWorktreeCheckoutPath(projectRoot)) return null;
   const localCore = join(projectRoot, 'packages', 'main');
   return existsSync(localCore) ? safeRealpath(localCore) ?? resolve(localCore) : null;
-}
-
-function expectedSelfCoreRoot(context: RuntimeCheckContext): string {
-  return context.canonicalSelfCoreRoot ?? join(context.projectRoot, 'packages', 'main');
 }
 
 // A worktree-built CLI evaluating a NON-self project must accept the global
@@ -1988,12 +2057,14 @@ function expectedSelfCoreRoot(context: RuntimeCheckContext): string {
 // story worktree (B-fa65). Canonicalize via `git worktree list` anchored at the
 // core root itself; a different clone has a different repository, so its
 // canonical path still differs from the global realpath and genuine drift
-// keeps warning. When git yields no main worktree the fallback is the
-// realpath-normalized core root — deliberately NOT the raw pre-fix path,
-// because the comparison target (globalRealpath) is itself realpath-resolved,
-// so symlink normalization must match on both sides (F-002).
-function resolveCanonicalCoreRoot(coreRoot: string): string {
-  return findMainWorktreeCoreRoot(coreRoot) ?? safeRealpath(coreRoot) ?? resolve(coreRoot);
+// keeps warning. A non-worktree checkout may safely fall back to its normalized
+// core root, but a disposable Story worktree must remain unknown when topology
+// discovery fails rather than certifying itself as canonical.
+function resolveCanonicalCoreRoot(coreRoot: string): string | null {
+  const canonical = findMainWorktreeCoreRoot(coreRoot);
+  if (canonical) return canonical;
+  const normalized = safeRealpath(coreRoot) ?? resolve(coreRoot);
+  return isWorktreeCheckoutPath(normalized) ? null : normalized;
 }
 
 function readPackageJson(dir: string): any | null {

@@ -27,8 +27,8 @@
  *     (documents why the pipeline must restore the bit; expected to hold before
  *     and after). Windows uses npm-generated command shims instead of POSIX mode
  *     bits, so the same fixture verifies emitted content and promotion behavior;
- *   - the build pipeline (build-main-with-binding.mjs + promote-dist.mjs) validates
- *     and restores every package.json `bin` target on STAGING before old-dist
+ *   - both build pipelines (build-main/build-utils + promote-dist.mjs) validate
+ *     and restore every package.json `bin` target on STAGING before old-dist
  *     eviction, so a restoration failure leaves the working dist in place.
  *     Pre-fix: no such step exists -> RED. Post-fix -> GREEN.
  *   - the live dist bin target, if present, has executable bits on POSIX or a
@@ -105,18 +105,30 @@ try {
   rmSync(tmp, { recursive: true, force: true });
 }
 
-// 2. the build pipeline must run staging validation/restoration before old-dist eviction.
-const pipeline = ['scripts/build-main-with-binding.mjs', 'scripts/promote-dist.mjs'];
-const pipelineText = pipeline.map((rel) => readFileSync(join(repoRoot, rel), 'utf8')).join('\n');
+// 2. both build wrappers must actually call the shared promotion boundary, and
+// that boundary must validate staging before old-dist eviction.
+const wrappers = ['scripts/build-main-with-binding.mjs', 'scripts/build-utils-with-binding.mjs'];
+function wrapperWiresPromoteDist(source) {
+  const importsPromoter = /import\s*{[^}]*\bpromoteDist\b[^}]*}\s*from\s*['"]\.\/promote-dist\.mjs['"]/.test(source);
+  const callsPromoter = /\bpromoteDist\s*\(\s*dist\s*,\s*staging\s*,\s*trash\s*\)/.test(source);
+  return importsPromoter && callsPromoter;
+}
+const wrapperSources = new Map(wrappers.map((rel) => [rel, readFileSync(join(repoRoot, rel), 'utf8')]));
 const promoteDistText = readFileSync(join(repoRoot, 'scripts/promote-dist.mjs'), 'utf8');
-const restoresBit = /chmod(Sync)?\s*\(/.test(pipelineText) && /\bbin\b/.test(pipelineText);
+const wrapperWiring = wrappers.map((rel) => ({ rel, wired: wrapperWiresPromoteDist(wrapperSources.get(rel)) }));
 const stagingRestoreOffset = promoteDistText.search(/restoreBinExecutableBits\(staging, dist(?:, options)?\);/);
 const oldDistEvictionOffset = promoteDistText.indexOf('renameSync(dist, trash);');
 const restoresStagingBeforeEviction = stagingRestoreOffset >= 0 && oldDistEvictionOffset >= 0 && stagingRestoreOffset < oldDistEvictionOffset;
-console.log(`pipeline staging restore hook present: ${restoresBit}; staging restoration precedes old-dist eviction: ${restoresStagingBeforeEviction} (${pipeline.join(' + ')})`);
+console.log(`pipeline wrappers wired: ${wrapperWiring.map(({ rel, wired }) => `${rel}=${wired}`).join(', ')}; staging restoration precedes old-dist eviction: ${restoresStagingBeforeEviction}`);
 expect('build pipeline validates and restores package.json bin targets on staging before evicting the old dist', () => {
-  assert.equal(restoresBit, true, `neither ${pipeline.join(' nor ')} restores the bin target(s) ${binTargets.join(', ')} during a rebuild`);
+  assert.deepEqual(wrapperWiring.filter(({ wired }) => !wired), [], `every build wrapper must import and call promoteDist: ${JSON.stringify(wrapperWiring)}`);
   assert.equal(restoresStagingBeforeEviction, true, 'promoteDist must restoreBinExecutableBits(staging, dist) before renameSync(dist, trash) so a failed restoration cannot evict the working dist');
+  for (const [rel, source] of wrapperSources) {
+    const withoutImport = source.replace(/import\s*{[^}]*\bpromoteDist\b[^}]*}\s*from\s*['"]\.\/promote-dist\.mjs['"];?/, '// mutation: promotion import removed');
+    const withoutCall = source.replace(/\bpromoteDist\s*\(\s*dist\s*,\s*staging\s*,\s*trash\s*\)/, 'void 0 /* mutation: promotion call removed */');
+    assert.equal(wrapperWiresPromoteDist(withoutImport), false, `${rel} import-removal mutation must be detected`);
+    assert.equal(wrapperWiresPromoteDist(withoutCall), false, `${rel} call-removal mutation must be detected`);
+  }
 });
 
 // 3. live check (secondary; a manual chmod can make this pass without fixing the pipeline)
@@ -379,6 +391,31 @@ expect('hermetic (c6): an intermediate directory symlink cannot chmod a referent
     assert.equal(readFileSync(join(dist, 'linked', 'cli.js'), 'utf8'), CLI_BODY, 'old dist must remain untouched');
     assert.ok(existsSync(staging), 'malformed staging tree must not be promoted');
     assert.ok(!existsSync(trash), 'old dist must not be evicted');
+  });
+});
+
+expect('hermetic (c7): an intermediate symlink escape is rejected even when the outside final target is absent', () => {
+  assert.notEqual(promoteDist, null, 'promoteDist is not available');
+  withTempPackage((pkgRoot, dist) => {
+    const staging = join(pkgRoot, 'dist.staging');
+    const trash = join(pkgRoot, 'dist.trash');
+    const outside = join(pkgRoot, 'outside-absent-target');
+    mkdirSync(join(dist, 'linked'), { recursive: true });
+    writeFileSync(join(dist, 'linked', 'cli.js'), CLI_BODY);
+    chmodSync(join(dist, 'linked', 'cli.js'), 0o755);
+    mkdirSync(staging, { recursive: true });
+    mkdirSync(outside, { recursive: true });
+    const symlinkType = process.platform === 'win32' ? 'junction' : 'dir';
+    if (!tryCreateFixtureSymlink(outside, join(staging, 'linked'), symlinkType, 'hermetic (c7)')) return;
+    writeFileSync(join(pkgRoot, 'package.json'), JSON.stringify({ name: 'red-exec-bit-fixture', bin: 'dist/linked/cli.js' }));
+
+    assert.throws(
+      () => promoteDist(dist, staging, trash),
+      (error) => error?.code === 'EINVAL' && /parent resolves outside the promoted tree/.test(error.message),
+    );
+    assert.equal(readFileSync(join(dist, 'linked', 'cli.js'), 'utf8'), CLI_BODY, 'old dist must remain untouched');
+    assert.ok(existsSync(staging), 'escaped staging tree must not be promoted');
+    assert.ok(!existsSync(trash), 'old dist must not be evicted before parent containment validation');
   });
 });
 

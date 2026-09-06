@@ -159,6 +159,8 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
   const bin = join(base, platform === 'win32' ? 'proof-or-stop.cmd' : 'fake-proofOrStop');
   if (platform === 'win32' && globalRoot) {
     writeRepresentativeWindowsShim(bin, globalRoot);
+  } else if (globalRoot) {
+    symlinkSync(join(globalRoot, '@proof-or-stop', 'core', 'dist', 'cli.js'), bin, 'file');
   } else {
     writeFileSync(bin, '#!/usr/bin/env node\n');
   }
@@ -173,7 +175,7 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
 function writeRepresentativeWindowsShim(shimPath, globalRoot, packageName = '@proof-or-stop/core', binRel = 'dist/cli.js') {
   const lexicalTarget = join(globalRoot, ...packageName.split('/'), binRel);
   const relativeTarget = relative(dirname(shimPath), lexicalTarget).replaceAll('/', '\\');
-  writeFileSync(shimPath, `@ECHO off\r\nSETLOCAL\r\nnode "%~dp0\\${relativeTarget}" %*\r\n`);
+  writeFileSync(shimPath, `@ECHO off\r\nSETLOCAL\r\nSET "_prog=node"\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%" "%~dp0\\${relativeTarget}" %*\r\n`);
   return shimPath;
 }
 
@@ -255,6 +257,72 @@ let executedAssertionGroups = 0;
     const [rebuildCommand, relinkCommand] = expectedMalformedRemediation.split(' && ');
     assert.equal(decodeWindowsPowerShellCommand(rebuildCommand), `& npm.cmd --prefix ${expectedPowerShellLiteral(canonicalCoreRoot)} run build`);
     assert.equal(decodeWindowsPowerShellCommand(relinkCommand), `Set-Location -LiteralPath ${expectedPowerShellLiteral(canonicalCoreRoot)}; & npm.cmd link`);
+    executedAssertionGroups += 1;
+
+    writeFileSync(shim, `@ECHO off\r\necho node "${join(globalRoot, '@proof-or-stop', 'core', 'dist', 'cli.js')}"\r\nnode other-package\\dist\\cli.js %*\r\n`);
+    const echoedTarget = runChecks(join(base, 'echoed-target'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
+    assert.notEqual(echoedTarget.globalCoreRealpath.status, 'pass', 'an echo of the expected target is not an executing invocation');
+    assert.equal(echoedTarget.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
+    assert.doesNotMatch(renderRuntimeEnvironmentReport(echoedTarget), /contract: global-core-realpath-pass/);
+    executedAssertionGroups += 1;
+
+    writeRepresentativeWindowsShim(shim, globalRoot);
+    const unreadable = runChecks(join(base, 'unreadable-shim'), coreRoot, globalRoot, {
+      platform: 'win32',
+      commandResolver: () => shim,
+      commandShimReadProbe: () => {
+        const error = new Error('access denied');
+        error.code = 'EACCES';
+        throw error;
+      },
+    });
+    assert.notEqual(unreadable.globalCoreRealpath.status, 'pass');
+    assert.equal(unreadable.globalCoreRealpath.actual.verification, 'windows-command-shim-unreadable');
+    assert.equal(unreadable.globalCoreRealpath.actual.verificationErrorCode, 'EACCES');
+    assert.doesNotMatch(renderRuntimeEnvironmentReport(unreadable), /contract: global-core-realpath-pass/);
+    executedAssertionGroups += 1;
+
+    const bogusPosix = join(base, 'bogus-posix-command');
+    writeFileSync(bogusPosix, '#!/usr/bin/env node\n');
+    chmodSync(bogusPosix, 0o755);
+    const wrongPosixPath = runChecks(join(base, 'wrong-posix-path'), coreRoot, globalRoot, {
+      platform: 'linux',
+      commandResolver: () => bogusPosix,
+      executableAccessProbe: () => true,
+    });
+    assert.notEqual(wrongPosixPath.globalCoreRealpath.status, 'pass', 'POSIX X_OK cannot substitute for PATH-to-bin realpath agreement');
+    assert.equal(wrongPosixPath.globalCoreRealpath.actual.verification, 'command-entrypoint-target-mismatch');
+    assert.equal(wrongPosixPath.globalCoreRealpath.actual.commandEntrypointRealpath, realpathSync(bogusPosix));
+    assert.doesNotMatch(renderRuntimeEnvironmentReport(wrongPosixPath), /contract: global-core-realpath-pass/);
+    executedAssertionGroups += 1;
+
+    const resolverBin = join(base, 'resolver-bin');
+    mkdirSync(resolverBin, { recursive: true });
+    writeRepresentativeWindowsShim(join(resolverBin, 'proof-or-stop'), globalRoot);
+    writeFileSync(join(resolverBin, 'proof-or-stop.cmd'), '@ECHO off\r\nnode other-package\\dist\\cli.js %*\r\n');
+    const originalPlatform = Object.getOwnPropertyDescriptor(process, 'platform');
+    const originalPathUpper = process.env.PATH;
+    const originalPathMixed = process.env.Path;
+    const originalPathExt = process.env.PATHEXT;
+    try {
+      Object.defineProperty(process, 'platform', { ...originalPlatform, value: 'win32' });
+      process.env.Path = resolverBin;
+      process.env.PATH = resolverBin;
+      process.env.PATHEXT = '.CMD;.EXE';
+      const selected = runRuntimeEnvironmentChecks(join(base, 'resolver-project'), {
+        corePackageRoot: coreRoot,
+        globalNpmRootResolver: () => globalRoot,
+        platform: 'win32',
+      });
+      assert.equal(selected.globalCoreRealpath.actual.commandShim.toLowerCase(), join(resolverBin, 'proof-or-stop.cmd').toLowerCase());
+      assert.equal(selected.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
+      assert.notEqual(selected.globalCoreRealpath.status, 'pass', 'PATHEXT-selected broken .cmd must win over a valid extensionless sibling');
+    } finally {
+      Object.defineProperty(process, 'platform', originalPlatform);
+      if (originalPathMixed === undefined) delete process.env.Path; else process.env.Path = originalPathMixed;
+      if (originalPathUpper === undefined) delete process.env.PATH; else process.env.PATH = originalPathUpper;
+      if (originalPathExt === undefined) delete process.env.PATHEXT; else process.env.PATHEXT = originalPathExt;
+    }
     executedAssertionGroups += 1;
 
     writeRepresentativeWindowsShim(shim, globalRoot);
@@ -1465,6 +1533,46 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
     assert.match((errnoReport.globalCoreRealpath.warnings ?? []).join('\n'), /bin-target-realpath-failed.*\[EIO\]/);
     executedAssertionGroups += 3;
   } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 36. F-042: if git topology discovery fails from a disposable Story
+// worktree, that worktree may not become the fallback canonical global target.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-canonical-main-probe-failure-'));
+  const originalPath = process.env.PATH;
+  const originalPathMixed = process.env.Path;
+  try {
+    const worktreeDir = join(base, 'repo', '.worktrees', 'B-probe-failure');
+    const { worktree } = makeRepoWithWorktree(base, { worktreeDir });
+    writeFileSync(join(worktree, 'package.json'), JSON.stringify({ name: 'proof-or-stop' }) + '\n');
+    const worktreeCore = join(worktree, 'packages', 'main');
+    const globalRoot = makeGlobalRootLinkedTo(base, worktreeCore);
+    const emptyPath = join(base, 'empty-path');
+    mkdirSync(emptyPath, { recursive: true });
+    const command = join(base, process.platform === 'win32' ? 'proof-or-stop.cmd' : 'proof-or-stop');
+    if (process.platform === 'win32') writeRepresentativeWindowsShim(command, globalRoot);
+    else symlinkSync(join(globalRoot, '@proof-or-stop', 'core', 'dist', 'cli.js'), command, 'file');
+    process.env.PATH = emptyPath; // the production git topology probe now fails with ENOENT
+    process.env.Path = emptyPath;
+
+    const report = runRuntimeEnvironmentChecks(worktree, {
+      commandResolver: () => command,
+      globalNpmRootResolver: () => globalRoot,
+      corePackageRoot: worktreeCore,
+    });
+    assert.notEqual(report.globalCoreRealpath.status, 'pass');
+    assert.equal(report.globalCoreRealpath.expected, null, 'failed topology discovery must remain unknown, not fall back to the Story worktree');
+    assert.equal(report.globalCoreRealpath.actual.worktreeCheckout, true);
+    assert.equal(report.globalCoreRealpath.actual.remediation, 'git worktree list --porcelain');
+    assert.match((report.globalCoreRealpath.warnings ?? []).join('\n'), /canonical main worktree could not be discovered/);
+    assert.match((report.globalCoreRealpath.warnings ?? []).join('\n'), /inside a `.worktrees\/` checkout/);
+    assert.doesNotMatch(renderRuntimeEnvironmentReport(report), /contract: global-core-realpath-pass/);
+    executedAssertionGroups += 1;
+  } finally {
+    if (originalPath === undefined) delete process.env.PATH; else process.env.PATH = originalPath;
+    if (originalPathMixed === undefined) delete process.env.Path; else process.env.Path = originalPathMixed;
     rmSync(base, { recursive: true, force: true });
   }
 }
