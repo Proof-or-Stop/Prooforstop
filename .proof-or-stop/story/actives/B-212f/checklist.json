@@ -834,7 +834,7 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -842,23 +842,23 @@
             "outputTail": "ProofStory acceptance coverage basis Wave 1A smoke passed\n",
             "selectorMatched": true,
             "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed",
-            "executedAt": "2026-09-05T17:32:46.892Z",
+            "executedAt": "2026-09-06T01:25:43.158Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:becf4fe13c4a5c1db62755a4df0fff4b6fe0d5a2b643854e300886f297bf02a3",
-            "causalReceiptHash": "c19e58f471b5327c7f7e28cc155c26dbf34f480313ce100baed0ff26be7a795a",
+            "executionKey": "ce:v1:b0a9ed8a88600fdc95b19b8992f1687541b5414deba6adf665f3374f49324742",
+            "causalReceiptHash": "b9f85151654b5c09479375121170581b00f8a9c41d7107118ebefb50dc210890",
             "commandReruns": 0
           },
-          "headHash": "0993b4655cb34b8e2f1b577f3bbb33d3628978bf",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:34:42.644Z"
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
         },
         {
           "intentRef": "CHK-005:happy:2",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -866,23 +866,23 @@
             "outputTail": "ok: story_create refuses CJK background before persistence\nok: story_create refuses CJK checklist title/context before persistence\nok: story_create refuses CJK relatedDocs before persistence\nok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement\nok: English story_create succeeds with em dash punctuation\nok: background_set refuses CJK before writing\nok: early authoring check and english-artifact gate agree on containsCJK\nok: agent docs preserve the recursive English-authoring boundary\nenglish-early-check smoke passed\n",
             "selectorMatched": true,
             "selector": "english-early-check smoke passed",
-            "executedAt": "2026-09-05T17:32:55.603Z",
+            "executedAt": "2026-09-06T01:25:51.180Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:3b951050457fbd61ac6276304877dd3aa7db4196644a4912463a8ba4797b7fa0",
-            "causalReceiptHash": "16aa4b865af42a901db44c7e07d42d8bd6cd27a1bacdd833df0768495550245d",
+            "executionKey": "ce:v1:433979c61c00733be9dfa1ca8c86992ab65d9770823a4eefec06680cb9cb6ea2",
+            "causalReceiptHash": "9c2425cb808cd4fb255bda9de968cfa0f492cb87643221fa8362b566b6d1bc72",
             "commandReruns": 0
           },
-          "headHash": "0993b4655cb34b8e2f1b577f3bbb33d3628978bf",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:34:42.644Z"
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
         },
         {
           "intentRef": "CHK-005:edge:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -890,23 +890,23 @@
             "outputTail": "validation-tier-planner-smoke: running CHK-001 stable command identity cases\n  ok  25 cases passed\n\nvalidation-tier-planner-smoke: running CHK-002 legacy pin resolver cases\n  ok  13 cases passed\n\nvalidation-tier-planner-smoke: running CHK-003 Story input collector cases\n  ok  18 cases passed\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  11 cases passed\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n  ok  prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail\n  ok  a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing\n  ok  merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified\n  ok  priorRedIds on this real repository does not throw and matches an independent bounded git query\n  ok  priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)\n  ok  priorRedIds raises when the git call fails instead of returning an empty set\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\ndefault stdout projection: 2519 chars (bound 11000)\n  ok  bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars\n\nvalidation-tier-planner-smoke: PASS\n",
             "selectorMatched": true,
             "selector": "validation-tier-planner-smoke: PASS",
-            "executedAt": "2026-09-05T17:33:02.786Z",
+            "executedAt": "2026-09-06T01:25:58.143Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:a67a32f7186b1833988b6cc59e9600404f1d6d2152b33f1c0be52e0bb4d1d334",
-            "causalReceiptHash": "5a0025c576fbd1ee00ad65a8d42f74a793d94708e722e00742c86fe7b2ebf08f",
+            "executionKey": "ce:v1:5d9def7e8f05f1559973ad28a9a5853cbdb6760612d3f9303a499386c4325b32",
+            "causalReceiptHash": "25f357774df0ff243d170e5e9ddcef4138c49e345f71d7afaee9f7459b1b723e",
             "commandReruns": 0
           },
-          "headHash": "0993b4655cb34b8e2f1b577f3bbb33d3628978bf",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:34:42.644Z"
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
         },
         {
           "intentRef": "CHK-005:edge:2",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -914,23 +914,23 @@
             "outputTail": "done-required-validation smoke passed\n",
             "selectorMatched": true,
             "selector": "done-required-validation smoke passed",
-            "executedAt": "2026-09-05T17:33:20.878Z",
+            "executedAt": "2026-09-06T01:26:14.988Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:9bb63b8a579d2349243d679233b97085232e388df6d5aac3d25bc9b88afee440",
-            "causalReceiptHash": "fe29f1580f37ede54f0e0c4e69a33fe3fe6d5f1d1ab525539fae8e7bd10d2a3e",
+            "executionKey": "ce:v1:c9994c250c5dd4babaa10e981d2b22129b34e3835c00543a80ef4d8ea2da0b19",
+            "causalReceiptHash": "1910530cc9f8dbdf4fc2358c026c4015580ecf5b62aca34a9dfe6834b23e47dd",
             "commandReruns": 0
           },
-          "headHash": "0993b4655cb34b8e2f1b577f3bbb33d3628978bf",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:34:42.644Z"
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
         },
         {
           "intentRef": "CHK-005:adversarial:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -938,23 +938,23 @@
             "outputTail": "validate-progress-heartbeat smoke passed\n",
             "selectorMatched": true,
             "selector": "validate-progress-heartbeat smoke passed",
-            "executedAt": "2026-09-05T17:34:40.380Z",
+            "executedAt": "2026-09-06T01:27:32.927Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:05d052d1651db22f773f7cab31181a8d161596d9b30ad7f05b79caf1e1c6e120",
-            "causalReceiptHash": "a9d5c5e9e254a8a3768f9eaf70244da07fdd870dcb1d5de6afcbce5130b969ff",
+            "executionKey": "ce:v1:553b33eb14d49cc72eefb8a073e5d3bf477238c5ca2ff40def7b6508a2869acb",
+            "causalReceiptHash": "5b760a15c9f1fb7d1cfc927fa17d9d1bb1eb5804e1af22c16d573b8741473e03",
             "commandReruns": 0
           },
-          "headHash": "0993b4655cb34b8e2f1b577f3bbb33d3628978bf",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:34:42.644Z"
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
         },
         {
           "intentRef": "CHK-005:adversarial:1",
           "kind": "integration_test",
           "command": "node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -962,16 +962,16 @@
             "outputTail": "=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n\n  C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n      observed: distinct=true digestLength=64\n  S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S3  [PASS      ] shape hashes deterministically and does not throw: proof-or-stop-*@fallback pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S7  [PASS      ] the documented shapes do not collide onto one digest\n      observed: distinctDigests=6 of shapes=6; collisions=none\n  X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n      observed: absentDigestDiffersFromExplicitEncoding=true\n  X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n      observed: digestMoved=true\n  D1  [PASS      ] INJECTING a reviewer record moves the digest\n      observed: digestMoved=true\n  D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n      observed: digestMoved=true\n  D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n      observed: digestMoved=true\n  M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n      observed: componentsDeclared=7 allRendered=true\n  M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n      observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n  L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n      observed: filesMeasuredOnThisRun=322 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n  L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n      observed: present=[canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | proof-or-stop-*@fallback pair | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n\n  0 FAILED / 0 BROKEN / 17 rows\n  signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n\n  PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n\n",
             "selectorMatched": true,
             "selector": "PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.",
-            "executedAt": "2026-09-05T17:34:42.301Z",
+            "executedAt": "2026-09-06T01:27:34.808Z",
             "timeoutMs": 300000,
-            "executionKey": "ce:v1:1a52f40d663715b326993729e43f02058c95c7ab7d695742f4b3fda785ef4369",
-            "causalReceiptHash": "5fb1cd74298441cc970e8158fbec83a8f22aef9302a3c3819e7edcc1906bafb7",
+            "executionKey": "ce:v1:59bd362bc0777d159d560f9aa34d8061cf32422979178b3a68a0b635265b83c6",
+            "causalReceiptHash": "36941bace6a7638703ce2563e545763ad4ee978bad8ccbcfcddc04f6f7cf17b7",
             "commandReruns": 0
           },
-          "headHash": "0993b4655cb34b8e2f1b577f3bbb33d3628978bf",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:34:42.644Z"
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
         }
       ],
       "userSeesSnapshot": {
