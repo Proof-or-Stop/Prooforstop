@@ -2555,6 +2555,58 @@
       },
       "readDiagnostics": [],
       "_hash": "7d1ebef6857acf2679520424013170d1605feece5bb43340b13defdff14e243d"
+    },
+    {
+      "id": "B-fe8f:RP-068",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent Claude CLI host quality lane, RI-004, RR-114, round 27, head 7ceba75, storyFilesHash acfc9f8 and scope 0bd8725/5831353 both unchanged from RR-111. LANE CONCLUSION ONLY: not standard validation, not DONE, no quorum, no clearance for other lanes. Source stability verified by git: git diff over packages, scripts, bin, docs and config is EMPTY both against my prior terminal head e057a28 and against 46a3745, so there is no new source delta to review and the RR-111/RP-065 three-pass conclusion carries forward unchanged; only Story metadata is dirty. F-056: I verified it independently rather than accepting the assertion, and I do NOT claim it is fixed. core/machine.ts:1249 renders the init_check_tampered message with the parenthetical background/title/description/checklist, which is four fields, while INIT_CHECK_SIGNATURE_DOMAIN at core/init-check-gate.ts:253-261 declares seven components: storyId, background.md, title, description, checklist, reviewRound, and reviewer verdict (agentResults + issues). The three omitted from the operator-facing text are storyId, reviewRound and the reviewer verdict. This matters concretely because B-8df9 CHK-002 widened the domain to cover the verdict precisely so that hand-editing agentResults or deleting a critical issue trips the gate; an operator whose hash mismatched for that reason is currently pointed at four fields that did not change, which is the same misdiagnosis class the project already documents for the timeout and heartbeat messages. The designed remedy already exists and is already used correctly elsewhere: init-check-gate.ts:272 exports describeInitCheckSignatureDomain() and handlers/init-check.ts:203 renders signed components from it, so machine.ts is the one consumer restating a hand-written list. init-check-gate.ts:250-251 states in terms that a hand-written field list standing in for the real domain is the defect family that module exists to remove and must not be reintroduced downstream, so machine.ts:1249 is exactly that. Scope evidence, offered as a routing candidate and explicitly NOT as a signed applicability verdict, since the current compatibility CLI implements no assessment or defer_with_proof artifact and I fabricate none: packages/main/src/core/machine.ts appears in explicitExcludes of the signed scope contract 0bd8725 whose mode is enforce; git diff main...HEAD limited to that path is EMPTY, so this Story never touched it; and the identical four-field string is present in main:packages/main/src/core/machine.ts. F-056 is therefore verified real but pre-existing on main and neither introduced nor worsened by B-fe8f, and repairing it inside this Story would require editing an explicitly excluded file under an enforce-mode contract. Whether that is routed to main or handled through a scope-extension proposal is the Owner decision; I am not making it and I did not resolve or dismiss F-056. No blocking defect from this lane at this material. Preserved unresolved and untouched: F-048 high suspected with route docs/story/drafts/keyed-ledgers-survive-reclone, F-049 low suspected with route docs/story/drafts/finding-ledger-nonblocking-review-followups CHK-003, and F-055 low suspected on done-required-validation-smoke.ts:381. I edited no source, resolved no finding, wrote no Owner artifact, reran no global suite and ran no test or build. Operational note unchanged: the globally installed proof-or-stop binary is a stale pre-B-fe8f build reporting phantom untrusted closeout artifact path finding-ledger.json blockers that the local build at this same source does not; use the local build. Session identity for later host quorum: sess-6caebb34c1ed02b54e92ef4f13d647ac, host-adapter provider claude-code, non-owner independent reviewer.",
+      "createdAt": "2026-09-06T01:04:24.689Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "reviewRunId": "B-fe8f:RR-114",
+      "envelopeId": "26993bef33d8575cbc6fecbdf2cb14ee1c2b17652c0c718915d1848202df1615",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/background.md",
+          "docs/story/drafts/finding-ledger-nonblocking-review-followups/checklist.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/finding-ledger.ts",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/lifecycle-registry.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/store.ts",
+          "packages/main/src/handlers/finding-ledger.ts",
+          "packages/main/src/handlers/init-check.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "1a713b3cf9e64466dda63cd25021469733518f5c6aad8aa5046d246a07c62a6e"
     }
   ]
 }
