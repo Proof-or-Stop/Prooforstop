@@ -249,7 +249,7 @@
       "desc": "Complete reproduction record for B-8a40:F-004, whose shell-rendered description lost its quoted examples. packages/main/src/core/prompt-envelope.ts:511-519 recognizes a complete negative-dismissal observation only when the text before the dismissal subject contains at most four words and the optional by-agent suffix contains at most three words. When either arbitrary word-count bound is exceeded, the helper returns false and the joined scan at lines 788-791 re-pairs the explicitly negative observation with later independent current-repair prose, recreating a pre-digest false-red. Against the committed built public assembleFullPromptEnvelope API, every one of the five active modular reviewer roles rejected both exact safe inputs: [1] No currently open independently reviewed parent Finding is closed by this intake. During execution, direct blockers require repair in this Story. [2] No parent Finding is closed by the intake associated with this Story. During execution, direct blockers require repair in this Story. The error for every cell was REVIEW Task Context contains unsafe Finding-triage authority at story.description: dismissal used as applicability proof. Both inputs deny closure and then require current-Story repair. This is distinct from B-8a40:F-002 because the later statement here is affirmative safe/current-repair prose; the defect is the standalone observation grammar arbitrary modifier and agent word limit, not missing polarity analysis in a linked responsibility conclusion. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1340 covers only the exact B-bcae wording and one concise equivalent, so the focused smoke still prints PASS and CHK-001:edge:0 overstates the non-allowlist boundary. Add safe modifier and longer-agent variants that require integrity-valid assembly, then make the safe observation grammar structural rather than word-count bounded. Severity is high because legitimate reviewer startup remains blocked by harmless wording changes.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T16:49:38.156Z",
@@ -285,7 +285,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-negative-dismissal-modifier-bound-false-positive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate of the F-004 modifier and actor-bound family; its full shell-safe witnesses are covered by the repaired matrix.",
+      "resolvedAt": "2026-09-06T17:43:45.990Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-007",
