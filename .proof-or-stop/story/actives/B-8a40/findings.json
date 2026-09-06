@@ -941,7 +941,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:371 and :518-535 make safe negative-dismissal recognition depend on the literal determiner `no` and singular `Finding is/was/... closed` subject spellings, rather than negative proposition quantity. This leaves a distinct polarity/number-agreement hole even after the active/passive F-014 family: the passive, subject-matched equivalent `Not a single parent Finding is closed by this intake. Acceptance blockers remain the responsibility of this Story.` is not recognized as a standalone negative observation and is falsely rejected after the joined fallback, while `Zero parent Findings are closed by this intake. Therefore another Story owns the issue.` never matches TRIAGE_DISMISSAL_SUBJECT at all and is admitted despite carrying the unsafe dismissal-to-ownership conclusion. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1064-1073 covers `no` only, and the unsafe matrix at :1075-1090 likewise has no `not a single` or zero/plural witness. This differs from F-005 word-order and actor-length variants because `Finding is closed` remains in canonical passive order in the first witness, and from F-014 active-voice `closes no`/`does not close any` forms because this is negative-quantifier and plural agreement coverage. Extend the relation grammar over equivalent negative quantifiers without making arbitrary scope prose authoritative, and add all-role safe and unsafe controls. Severity high because an equivalent negative proposition can either recreate the reviewer-startup false red or bypass the authority guard based only on quantifier spelling.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T18:05:01.158Z",
@@ -979,7 +979,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-negative-quantifier-agreement-gap",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Negative quantifiers and singular or plural agreement now normalize consistently, with safe and unsafe controls.",
+      "resolvedAt": "2026-09-06T19:51:06.250Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-021",
