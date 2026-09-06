@@ -2929,7 +2929,7 @@
       "desc": "Complete signed-read reproduction record for B-8a40:F-056, whose original readEvents path contained a typographical mismatch: packages/main/src/core/prompt-envelope.ts:1033-1051 uses the default 240-character hasConceptPair horizon as the sole relation prerequisite for compatibility-CLI deferral authority and for Story-authored schema or gate changes, while the residual schema regex at :1041 requires the Story noun to sit immediately next to a finite change verb. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject [The compatibility CLI authorizes defer_with_proof.] and [This Story changes the applicability field.], but all five admit the identical subjects, authority actions, and outcomes when one grammatical audit-evidence modifier extends each same sentence to 536 and 529 bytes. The long schema form evades residualSchemaAmendment because the modifier separates Story from changes, then evades the fallback pair horizon; the compatibility form directly exceeds the same default pair horizon. This is distinct from F-055, which covers reviewer-actor to disposition distance, and F-054, which covers the explicit severity and deferral ControlledTriageRelationSpec spans. It exhausts the remaining safety-relevant default hasConceptPair consumers. Replace the evadable distance test with structural relation classification or an unbounded same-sentence state that preserves polarity, and add all-role short and long unsafe plus explicit-negative controls for both branches. Severity high because neutral same-sentence detail lets Task Context grant compatibility deferral authority or amend the Finding schema while every REVIEW envelope is minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T20:55:08.962Z",
@@ -2969,7 +2969,11 @@
       "signatureTag": "compatibility-schema-default-span-padding-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqaj63n_b0b_b557f9c87e3a4719a2906a157dca9eb7",
-      "ledgerCommitReceiptId": "lrc_mtqaj63n_b0b_87a74a7fdbeb41fc9628899d048ddd49"
+      "ledgerCommitReceiptId": "lrc_mtqaj63n_b0b_87a74a7fdbeb41fc9628899d048ddd49",
+      "resolvedAt": "2026-09-06T23:07:41.939Z",
+      "resolvedReason": "Remove the default concept-pair distance cutoff for compatibility authority and Story schema assertions; long compatibility and applicability-field claims are rejected. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-060",
