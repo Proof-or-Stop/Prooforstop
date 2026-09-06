@@ -1637,7 +1637,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:916-919 treats `Add tests covering .+ and the subordinate ... projections of the Dynamic Finding authority` as a safe subordination relation, but the open `.+` body is never checked for an authority amendment. Against the committed built assembleFullPromptEnvelope API, all five active modular REVIEW roles ADMIT `Add tests covering this Story adds a new applicability verdict and the subordinate Agent-side projection of the Dynamic Finding authority.` The genuinely safe wrapper `Add tests covering all roles and the subordinate Agent-side projection of the Dynamic Finding authority.` is admitted, while the direct unsafe control `This Story adds a new applicability verdict to the Dynamic Finding authority.` is rejected for all roles, isolating the escape to subordinateBefore. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1018 covers only the short safe subordination sentence, and the live long context at :387 uses the separate `Add adversarial tests covering` branch; neither inserts an amendment into this non-adversarial open body. This is distinct from F-025's canonical approved-segment filter, F-030's schemaInvariant shortcut, and F-033's explicit-prohibition tail: this is the Dynamic Finding amendment detector's separate subordinate grammar. Replace the open body with a closed inventory or independently scan its residue before accepting subordination, and add all-role safe/unsafe controls. Severity high because Story-authored Task Context can publish a new applicability verdict before envelope digests while the focused smoke remains green.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T18:51:27.527Z",
@@ -1676,7 +1676,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-dynamic-subordinate-open-body-laundering",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Dynamic-authority subordinate forms now use closed test grammar without open embedded bodies.",
+      "resolvedAt": "2026-09-06T19:51:24.549Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-035",
