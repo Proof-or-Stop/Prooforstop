@@ -1635,6 +1635,52 @@
       ],
       "signatureTag": "prompt-envelope-subordination-wrapper-open-body-laundering",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-036",
+      "desc": "The deferral cross-segment state machine inspects only the immediately following segment, so one benign audit sentence launders a later coreferent authority outcome. All five active REVIEW roles reject the adjacent control [defer_with_proof is recorded. It transfers responsibility to another Story.] but accept [defer_with_proof is recorded. Record the audit result. It transfers responsibility to another Story.] and the longer evidence-aside variant that later clears the REVIEW blocker; explicit negative controls remain accepted. In packages/main/src/core/prompt-envelope.ts, hasCrossSegmentControlledAuthority at lines 761-778 slices only index plus one, while the later whole-source join at lines 800-814 covers dismissal and unknown-applicability only, excluding the deferral-story-responsibility family. The committed smoke matrix has adjacent and signed-disposition continuation cases but no deferral antecedent separated from its later responsibility or gate consequence by evidence-only sentences. Add a persistent deferral state across benign audit or evidence continuations and all-role regression cases for transfer and blocker-clearing outcomes with explicit-negative controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T18:57:01.415Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-061",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "b3161773fbff1db567faede4472b53c6a289a239a74d1261f401c0ff23c6ff1c",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "deferral-evidence-continuation-state-machine-laundering",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
