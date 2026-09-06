@@ -2450,6 +2450,37 @@
       ],
       "createdAt": "2026-09-06T21:44:15.974Z",
       "_hash": "a20ac96df35ced2a12fcee28f4c1a8c5fa00ca2387912c1f12286cac5a9365f5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-008:CRIT-02",
+      "epochId": "B-e256:RI-008",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "a2791eb95eca140125a26676452bf1f4c10f2bfa",
+        "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+        "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9"
+      },
+      "aggregateFindingSetDigest": "b3c892d1d717724b2c9795d691e4e7d40cc97e0bd8e406c6d865d65d9e1ae263",
+      "requiredLaneCoverageDigest": "2195cfdff79231f21bd77434a0fc7651e902e77d9ec66a859e189aa69d34decb",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-125",
+      "terminalEvidenceIds": [
+        "B-e256:RP-086"
+      ],
+      "readEvidenceDigest": "4f8849e50987f69d1ce70e44de6d08f55ea296ab029e98559591037fbf68711b",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-043",
+          "disposition": "verified_family",
+          "familyKey": "test-coverage-build-wrapper-promote-wiring-false-green",
+          "reason": "Independent code and evidence review confirms a distinct high-severity evidence-integrity family: the registered red test can report its staging-restoration selector and final GREEN while both build wrappers are unwired from promoteDist, because the pipeline scan concatenates only build-main and promote-dist and the ordering check inspects promote-dist alone. This directly makes CHK-001/CHK-002 mechanical evidence false-green, is not covered by F-037 through F-042, and must be repair_current under the bounded-scope rule. Prior RI-008 dispositions for F-037 through F-042 remain unchanged; F-031 remains open outside this epoch."
+        }
+      ],
+      "createdAt": "2026-09-06T22:03:12.932Z",
+      "_hash": "c5dd32e42e979648fe1f7d8c5076072b86a81e3ab7ccb2a0612ad3cb60cd7704"
     }
   ]
 }
