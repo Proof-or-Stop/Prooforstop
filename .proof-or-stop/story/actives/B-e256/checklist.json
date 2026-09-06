@@ -210,9 +210,9 @@
           "packages/main/tests/red/red-global-cli-exec-bit.mjs"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-06T16:19:56.459Z",
-      "endTime": null,
+      "endTime": "2026-09-06T16:19:57.354Z",
       "verificationIntent": {
         "happy": [
           {
@@ -522,6 +522,16 @@
       "from": "pending",
       "to": "in_progress",
       "reason": "Reattest the committed registered red regression after lifecycle reopening."
+    },
+    {
+      "timestamp": "2026-09-06T16:19:57.354Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Registered red test at commit 528a0ebcb covers final and intermediate symlink paths and passes.",
+      "agent": "proof-or-stop-implementer"
     }
   ]
 }
