@@ -60,6 +60,38 @@
       "blockerDetail": "CausalEvidence requires fresh affected-node evidence: dependency input-hash identity is missing or contains unknown keys; strict refusal applies",
       "inventory": {},
       "_hash": "acf2b2b9e3c2ca64d35331fb68fe8ca04524fcac04e81f1c705d596163c0151c"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-fe8f:CW-004",
+      "storyId": "B-fe8f",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-06T16:19:45.866Z",
+      "updatedAt": "2026-09-06T16:19:45.866Z",
+      "frozen": {
+        "headHash": "36b55e126cb714d6c8849295a7eba11efa4a2ba2",
+        "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
+        "storyFilesHash": "15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607",
+        "causalInputHashes": {
+          "certification:source": "d4842e59c2f612c995e97e7e4556d90a84d60fd69f1662705e1708d9e641af65",
+          "certification:test": "63f99418ab7da58caf7790aa44d2ec0505f1688464197df44efe31822632177d",
+          "certification:build-input": "5bacf0e161661a5a51c309bb30b6b6210d4ff43a100e250ed223d3699e629693",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "b09deee883b292f9bed90530cfc43c224d5f90e29db0bf50a93260cf54890aff",
+          "certification:review-subject": "3d76c2aa8f9187bb73b890d1f9168760d0b957ba584819c82cb91dc73f9072d8"
+        },
+        "expectedMainSha": "1aacc44317a0b904a2ebf7fd3f05cf868d73b8d7",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-fe8f:RIE-006",
+        "receiptId": "B-fe8f:RIE-006:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-fe8f:PRECERT-002",
+      "_hash": "bb6848d6f0b40afb2c8fb4b61cd65142238e9458fc4ac95da107b91b53cf1672"
     }
   ],
   "receipts": [
@@ -82,6 +114,34 @@
       "inventoryReceiptId": "B-fe8f:RIE-001:RCP-001",
       "createdAt": "2026-09-04T15:55:03.156Z",
       "_hash": "3468f3a46652db8a69eb8db12aae2aaff6fdc00c5be56cca519257969f137da6"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-fe8f:PRECERT-002",
+      "windowId": "B-fe8f:CW-004",
+      "storyId": "B-fe8f",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "36b55e126cb714d6c8849295a7eba11efa4a2ba2",
+        "materialHash": "ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d",
+        "storyFilesHash": "15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607",
+        "causalInputHashes": {
+          "certification:source": "d4842e59c2f612c995e97e7e4556d90a84d60fd69f1662705e1708d9e641af65",
+          "certification:test": "63f99418ab7da58caf7790aa44d2ec0505f1688464197df44efe31822632177d",
+          "certification:build-input": "5bacf0e161661a5a51c309bb30b6b6210d4ff43a100e250ed223d3699e629693",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "b09deee883b292f9bed90530cfc43c224d5f90e29db0bf50a93260cf54890aff",
+          "certification:review-subject": "3d76c2aa8f9187bb73b890d1f9168760d0b957ba584819c82cb91dc73f9072d8"
+        },
+        "expectedMainSha": "1aacc44317a0b904a2ebf7fd3f05cf868d73b8d7",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-fe8f:RIE-006",
+      "inventoryReceiptId": "B-fe8f:RIE-006:RCP-001",
+      "createdAt": "2026-09-06T16:19:45.866Z",
+      "_hash": "654a8295f002c9ffe6f232ac3c993157740677627f6262505b46ba922e213539"
     }
   ]
 }
