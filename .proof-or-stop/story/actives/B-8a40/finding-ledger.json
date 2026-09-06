@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "87a97ca21725cd1cf3826a840a6ab943b9745ac6bf8baf869a569f3a825f625d",
+  "committedLedgerDigest": "f484f010a91aef682979366e837df9224280d6ab9e821f1148f755be9639e277",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -1665,6 +1665,62 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:12:45.120Z"
+    },
+    {
+      "recordId": "lr_mtqfgnex_1ock_5bdc6e97eccf4d7cb996f944e5693ddc",
+      "recordType": "finding",
+      "idempotencyKey": "b8a40-coverage-rr129-local-relation-verbs",
+      "payload": {
+        "id": "B-8a40:F-071",
+        "desc": "packages/main/src/core/prompt-envelope.ts:264-269 introduces controlledPairHasLocalRelation as a finite positive relation-verb filter; hasControlledConceptPair at :467-480 now returns unclassified when a recognized unsafe concept pair uses an unlisted affirmative verb. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject the controls [Severity alone determines Story scope.] and [Unknown applicability permits routing away from this Story.], but mint integrity-valid envelopes for [Severity alone adjudicates Story scope.] and [Unknown applicability enables routing away from this Story.]. A read-only in-memory TypeScript transpilation of the classifier at pre-GREEN commit c6436b412a, using the same current dependencies and identical public API inputs, rejects both latter witnesses for all five roles; current GREEN 14081c71ac accepts them. This is therefore an introduced regression, not a request for an unrelated general language parser. The committed round-4 tests cover padding with determines/permits and the existing known-verb corpus, but do not challenge the new positive vocabulary boundary; the focused smoke still prints PASS. Preserve relationship-sensitive separation without allowing unlisted affirmative authority verbs to turn a recognized controlled pair into a safe omission, and add all-role newly unlisted-verb RED/GREEN controls with unrelated-safe and explicit-negative cases. Severity high: Story-authored context regains severity-only scope and unknown-applicability routing authority before envelope digests.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-06T23:13:09.512Z",
+        "reviewRound": "2026-09-06T23:05:45.070Z",
+        "reviewRunId": "B-8a40:RR-129",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "657539373a2520958942ffb4592944f46f85a3395d23578a66f0b2afd38adaad",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "controlled-local-relation-verb-filter-regression",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "e01bb845de6a7381319065e67c60425be94acd46e8bc50d5d4a9b8527130201b",
+      "priorDigest": "87a97ca21725cd1cf3826a840a6ab943b9745ac6bf8baf869a569f3a825f625d",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T23:13:09.513Z"
     }
   ],
   "receipts": [
@@ -4412,6 +4468,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "37484284c1e5407db9111a5dd8651025c08aecf223ec72ad79372594dc4bd713",
         "signature": "zVkuUhCyEkQxPRLxL1H775t/PSQD4JBVgwEpP0ACwYnBG4EUTkc+kjWHJTfYxdCMm6CCVbWKb1Exd9NCKp2RAA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqfgney_1ock_a1213d7663484083bef9ffa5762444cc",
+      "operation": "append_finding",
+      "idempotencyKey": "b8a40-coverage-rr129-local-relation-verbs",
+      "requestDigest": "8892f0e58f99f97fdf5644c8c28c2b4c19f78fda77f80679f860363b30852f96",
+      "recordIds": [
+        "lr_mtqfgnex_1ock_5bdc6e97eccf4d7cb996f944e5693ddc"
+      ],
+      "priorLedgerDigest": "87a97ca21725cd1cf3826a840a6ab943b9745ac6bf8baf869a569f3a825f625d",
+      "committedLedgerDigest": "f484f010a91aef682979366e837df9224280d6ab9e821f1148f755be9639e277",
+      "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+      "writerFenceToken": "e84fb834-7442-4638-b0d3-1bb70bdd55be",
+      "committedAt": "2026-09-06T23:13:09.513Z",
+      "replayed": false,
+      "exactRequestDigest": "cedb18a497376f90e620fd58574d8899f56c3bf45f79df1a965112b0dbccaaef",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqfgney_1ock_a1213d7663484083bef9ffa5762444cc",
+        "storyId": "B-8a40",
+        "idempotencyKey": "b8a40-coverage-rr129-local-relation-verbs",
+        "exactRequestDigest": "cedb18a497376f90e620fd58574d8899f56c3bf45f79df1a965112b0dbccaaef",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqfgnex_1ock_5bdc6e97eccf4d7cb996f944e5693ddc"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "87a97ca21725cd1cf3826a840a6ab943b9745ac6bf8baf869a569f3a825f625d",
+        "committedLedgerDigest": "f484f010a91aef682979366e837df9224280d6ab9e821f1148f755be9639e277",
+        "replayed": false,
+        "committedAt": "2026-09-06T23:13:09.513Z",
+        "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "e84fb834-7442-4638-b0d3-1bb70bdd55be",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "f008e51a7647fa30ac6611d64b0d5efbc6d3c67d1aafea07b9e06d5f1464c8f7",
+        "signature": "0x/mxrfkvvOSo0PYnp1VE/gkFVrbZbL+9SndtUsYoH3AH6C4YUmJEFljoQlO6hIg6nhXzHUO3gxckwlRoNgPAw=="
       }
     }
   ]
