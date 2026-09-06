@@ -644,6 +644,21 @@
       "_hash": "c21b12baf3a07390823433837bb390372f29a811a7108f8ec0ca6bfc9cd9ea41",
       "signatureTag": "edge|unknown|quality-global-version",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e256:F-019",
+      "desc": "quality-symlink-regression-portability: packages/main/tests/red/red-global-cli-exec-bit.mjs:248-259 unconditionally calls symlinkSync in a validation command registered for every host. Native Windows can reject file-symlink creation with EPERM when the account lacks Create Symbolic Links privilege or Developer Mode, so this F-016 regression case can fail before exercising restoreBinExecutableBits even though the implementation may be correct. This reintroduces a host-dependent failure alongside the F-015 portability repair. Use a privilege-independent directory junction/intermediate-link fixture where equivalent, or explicitly feature-probe and report/skip only the unsupported symlink construction while retaining safety coverage on capable hosts. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T15:38:08.005Z",
+      "reviewRound": "2026-09-06T15:32:14.385Z",
+      "reviewRunId": "B-e256:RR-060",
+      "_hash": "f39489eaabaf27631bf44a82521d9d534aaf7d791863de66e860c4cba7971e61",
+      "signatureTag": "edge|unknown|quality-symlink-regression",
+      "signatureTagSource": "auto"
     }
   ]
 }
