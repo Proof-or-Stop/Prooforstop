@@ -2647,6 +2647,7 @@
       "signatureTag": "unknown-applicability-joined-span-padding-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf9g1b_1cel_7d2ef02145fe412cabcb803e2360ca1f",
+      "ledgerCommitReceiptId": "lrc_mtqf9g1b_1cel_5c3f51c55bf043399a8bf05961d00016",
       "resolvedAt": "2026-09-06T23:07:33.369Z",
       "resolvedReason": "Keep unknown-applicability antecedents through arbitrary evidence-only asides; seven-aside direct and causal continuation witnesses are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2657,7 +2658,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:422-433 assigns fixed 260-character and 280-character spans to the severity and deferral families, and :485-512 treats a concept pair beyond that distance as unclassified even when both concepts and their decisive relation remain in one sentence. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject the short controls [Severity alone determines Story scope.] and [defer_with_proof determines that the Finding is out of scope.], but all five admit the identical propositions after audit-evidence modifiers extend the same sentence to 463 and 511 bytes respectively. The deferral path also relies on a separate default 240-character hasConceptPair at :1019-1023, so neither fallback catches the padded relation. This is distinct from F-053, which covers the unknown-applicability joined span, and from F-001/F-003, which cover negative-dismissal linkage and padding; it exhausts the remaining controlled-relation maxSpan families. The focused smoke has no same-sentence distance witness for severity or deferral. Replace evadable character horizons with relation-preserving segmentation or a bounded structural state that cannot be defeated by neutral modifiers, and add all-role short and long unsafe plus unrelated-safe controls. Severity high because harmless padding lets Story-authored Task Context assert severity-only scope or deferral-based applicability while every REVIEW envelope is minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T20:46:58.603Z",
@@ -2695,7 +2696,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "severity-deferral-fixed-span-padding-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf9h4b_1d56_9938fb0727374785a088ce895eeb3bb8",
+      "resolvedAt": "2026-09-06T23:07:34.775Z",
+      "resolvedReason": "Remove raw character cutoffs from controlled concept relationships; long same-sentence severity and deferral claims retain classification. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-055",
