@@ -774,7 +774,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:553-559 treats every later responsibility conclusion in the same source leaf as linked to the first standalone negative-dismissal observation, without checking sentence-level antecedence or honoring an explicit topic break. Consequently valid prose such as `No parent Finding is closed by this intake. Separately, generated cache work is outside this Story.` is rejected: the second sentence is an ordinary independent implementation exclusion, yet `segments.slice(index + 1).some(isLinkedResponsibilityConclusion)` joins it to the Finding solely because it occurs later. The focused smoke at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1064-1073 has no safe same-leaf unrelated exclusion; its unrelated safe witness at :1217-1224 splits the two statements across leaves, and its safe scope matrix at :1473-1483 contains no preceding dismissal observation. This is distinct from F-012, whose defect is the separate crossSourceNegativeDismissalAuthority join across leaves and whose proposed source-leading rule cannot repair this same-leaf all-remaining-segments scan. Preserve distant genuine linkage while requiring location-aware/coreferent binding and add all-role safe same-leaf topic-break witnesses. Severity high because legitimate Story scope prose can still reproduce the pre-digest reviewer-startup false red.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T17:58:17.798Z",
@@ -812,7 +812,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-same-source-unrelated-conclusion-false-positive",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate of B-8a40:F-016; the canonical familys",
+      "resolvedAt": "2026-09-06T19:50:17.611Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-018",
