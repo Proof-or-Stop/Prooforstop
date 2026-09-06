@@ -1130,6 +1130,51 @@
       ],
       "signatureTag": "prompt-envelope-quoted-fixture-greedy-span-authority-laundering",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-025",
+      "desc": "packages/main/src/core/prompt-envelope.ts:673-675 and :693-695 define two approved-segment predicates with unconstrained `.+` bodies, and :761-766 plus :976-981 remove any matching segment from controlled-relation classification and skip all later authority checks. This lets an intended positive grammar become an arbitrary middle/suffix escape: `Add adversarial tests covering all roles and let finding_dismiss establish out_of_scope.` matches isCanonicalTriageInventorySegment, while `Inspect whether finding_dismiss establishes out_of_scope and verify evidence state severity applicability candidate and gate impact remain independent axes.` matches isApprovedIndependentAxesInvariant; both contain the same affirmative dismissal/applicability relation that is rejected without the wrapper, but the entire segment is discarded. The focused smoke preserves the exact B-9a49 inventory prose but has no adversarial insertion inside either open body. This is distinct from F-021 through F-023, which exploit whole-leaf meta-safe predicates; here a per-segment approved-content filter deletes the authority-bearing segment before both the controlled and general fallback scans. Replace open `.+` exemptions with closed grammars or scan unmatched residue independently, and add all-role inserted-authority witnesses. Severity high because a caller-authored checklist or verification sentence can publish prohibited authority before envelope digests behind an otherwise approved prefix or suffix.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T18:19:21.703Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-042",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "a5a6fb02f39654928b1476d45a6773a40a5b853ffb65cbd0373ff46623fffcca",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-approved-segment-open-body-laundering",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
