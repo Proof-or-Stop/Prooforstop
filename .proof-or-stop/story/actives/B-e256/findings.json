@@ -353,7 +353,7 @@
       "desc": "concept-cleanup: packages/main/src/tasks/validation-tier-planner-smoke.ts:469,483 deletes the PIN MAINTENANCE guidance block but leaves two live references to the now-nonexistent maintenance note (\"the maintenance note above\" and \"see PIN MAINTENANCE above\"). Repository-wide rg confirms no PIN MAINTENANCE block remains, so future validate.commands digest drift points maintainers to instructions that this Story removed; the deletion is incomplete and the residual assertion/comment are misleading. severity=critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T14:33:09.855Z",
@@ -398,7 +398,11 @@
         "packages/main/src/tasks/validation-tier-planner-smoke.ts"
       ],
       "signatureTag": "missing|ts|concept-cleanup-packages",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Commit 721bb624b0 removes both dangling PIN MAINTENANCE references and replaces them with self-contained digest maintenance guidance.",
+      "resolvedAt": "2026-09-06T15:32:39.374Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-013",
