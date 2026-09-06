@@ -1348,7 +1348,7 @@
       "reviewRound": "2026-09-06T21:16:44.118Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T21:27:47.420Z",
-      "updatedAt": "2026-09-06T21:45:09.910Z",
+      "updatedAt": "2026-09-06T22:03:51.785Z",
       "cutoff": {
         "headHash": "a2791eb95eca140125a26676452bf1f4c10f2bfa",
         "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
@@ -1415,6 +1415,60 @@
           "criticDigest": "6d0183a7eb2388a0ebe6b97508f23d9c2735736028e956a86b87ce6d0da40619",
           "saturated": false,
           "nextRunSequenceBoundary": 121
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T21:45:09.910Z",
+          "completedAt": "2026-09-06T22:03:51.785Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-122",
+              "terminal": "finding",
+              "hostIdentity": "8420a1c2690bf9e81ece5d3a719e16a7f7a21533b4480900404338990d999fef",
+              "promptIdentity": "5d9a537e2a2e1adb41c0b0c6be3cdb359bf4f091a6f06adcd07818a980baf63e",
+              "evidenceIds": [
+                "B-e256:F-043"
+              ],
+              "coverageDigest": "b8e0c11b2ad72b32d746ef4971c384662f8eae7cb87ba5c828fc6147781139d3"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-124",
+              "terminal": "pass",
+              "hostIdentity": "49d5dbe6d93b1b1a40ac3dd9046a52054dc5fbd57f46916f8a0d6e34d99f8a6d",
+              "promptIdentity": "ee14a5ffd59c3bf5b9955705d4b31697cf63d15525550c01673cef1ed8a5d6c4",
+              "evidenceIds": [
+                "B-e256:RP-085"
+              ],
+              "coverageDigest": "05f7dc9d05338fb127ed4f9116d93ce7d0b8644971396193a2867ad09f550fb8"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-123",
+              "terminal": "pass",
+              "hostIdentity": "8420a1c2690bf9e81ece5d3a719e16a7f7a21533b4480900404338990d999fef",
+              "promptIdentity": "af348dc1647a037ebdef64568334fe6f78db3905cb735c0c945847b8d1048f9c",
+              "evidenceIds": [
+                "B-e256:RP-084"
+              ],
+              "coverageDigest": "d2933e83ea3828e970382aaf10089a229c980fc3fdc7e8cb903b29a59945e378"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "doctor-canonical-main-discovery-fallback-false-pass",
+            "doctor-posix-path-command-target-mismatch-false-pass",
+            "promotion-enoent-intermediate-symlink-escape",
+            "test-coverage-build-wrapper-promote-wiring-false-green",
+            "windows-command-shim-nonexecuting-reference-false-pass",
+            "windows-command-shim-unreadable-coverage-gap",
+            "windows-pathext-command-selection"
+          ],
+          "verifiedFindingSetDigest": "b3c892d1d717724b2c9795d691e4e7d40cc97e0bd8e406c6d865d65d9e1ae263",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "6a63f94e81b566adef3ff9d1acbb0b154e249ce19ac99e87dcf870a7c0b29769",
+          "saturated": false,
+          "nextRunSequenceBoundary": 125
         }
       ],
       "baselineFindingIds": [
@@ -1423,7 +1477,7 @@
         "B-e256:F-039",
         "B-e256:F-040"
       ],
-      "_hash": "a12218a71fad8ae4e27f3203dbf861069310254293bf67106eca9e0820e80982"
+      "_hash": "ce1ae35bd7ae6d886f07015e666c012d5e90c4373fa76711e279649fdbcd9ae1"
     }
   ],
   "receipts": [
