@@ -17,9 +17,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-fe8f:CW-002",
       "storyId": "B-fe8f",
-      "state": "RUNNING",
+      "state": "INVALIDATED",
       "createdAt": "2026-09-04T15:55:03.156Z",
-      "updatedAt": "2026-09-04T15:55:09.922Z",
+      "updatedAt": "2026-09-06T15:28:30.823Z",
       "frozen": {
         "headHash": "3f643a94411675ad5a8bb7f145082f259976f3c8",
         "materialHash": "4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2",
@@ -35,7 +35,31 @@
         "authorizesTest": false
       },
       "receiptId": "B-fe8f:PRECERT-001",
-      "_hash": "0804869172cdb898509cdcec9f61030f6b8484d99f1acb451a302ad05a2ea75a"
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "dependency input-hash identity is missing or contains unknown keys; strict refusal applies",
+      "invalidation": {
+        "detectedAt": "2026-09-06T15:28:30.823Z",
+        "oldHeadHash": "3f643a94411675ad5a8bb7f145082f259976f3c8",
+        "currentHeadHash": "888449e11a21c2fea521319e3707143c9f8cade9",
+        "oldMaterialHash": "4a497e4afc25e497b95d2c2e1dbff703b5848e7343ccfdf1202ebf69a0f3b4d2",
+        "currentMaterialHash": "05d627b81c424d2c4a4256844e86f5197d2b1bb2ff378a67fe3b2f4d93cabd21",
+        "oldStoryFilesHash": "1016081edd126aa4239610b0f1cb8c65bfb2a43e3634bd71bc9a776d3e1096ff",
+        "currentStoryFilesHash": "918b0916f485717173b4d10d3503775156ab1c830d1bd54b477ff5a82964e5e1",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "878e88ab8c2b1b1b941e2f5a60c2ecd13033130a881799ed8df23c07d2822244"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-fe8f:CW-003",
+      "storyId": "B-fe8f",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-06T15:29:33.051Z",
+      "updatedAt": "2026-09-06T15:29:33.051Z",
+      "blockerCode": "pre_cert_causal_freshness_required",
+      "blockerDetail": "CausalEvidence requires fresh affected-node evidence: dependency input-hash identity is missing or contains unknown keys; strict refusal applies",
+      "inventory": {},
+      "_hash": "acf2b2b9e3c2ca64d35331fb68fe8ca04524fcac04e81f1c705d596163c0151c"
     }
   ],
   "receipts": [
