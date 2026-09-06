@@ -2646,7 +2646,7 @@
       "desc": "Current acceptance blocker: B-49d4 makeMirror symlinks the real .git administrative entry into private filesystem mirrors, so Git-dependent mirror probes do not isolate the real worktree index. In official B-212f validation on unchanged HEAD65249e816c, command79 passed then the per-launch causal guard refused state_changed_before_launch. A second monitored official run, with task-scoped GIT_OPTIONAL_LOCKS=0, captured command79 start2026-09-06T01:05:05.090Z raw-index SHA2564953715c4c9e6328b3bd45c249be5f2f5b614c862a0d840257e510dd8b3cbc87; at its passing end01:05:39.269Z raw-index was13be931b5b2d2d81dec88c19ddb93ee27e1d85806710fcbe86cd83fdd75e825c, mtime01:05:07.706Z. HEAD stayed65249e816c and canonical git ls-files --stage digest stayed11cb7359b225c2de250b25dfa7be83b506c81fa02849e0d7a32da9c9ae8dced6. Immediate next launch refused. A standalone44s harness run passed without index drift, so the event is not claimed deterministic or attributed to a specific inner Git command. The structural shared-index isolation defect is confirmed in makeMirror306-344; raw index drift during the official execution window is measured, not a source/staged-content change. Preserve the production raw-index/signed causal preflight. Add a deterministic private-Git-index regression and isolate mirrors' Git administrative state while preserving all existing real-Git positive/negative controls, no removal of .git or inventory tests. Current Story repair is required because this blocks mandatory validation; do not claim the optional-lock environment resolved it.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-06T01:07:55.431Z",
@@ -2656,7 +2656,11 @@
         "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
       ],
       "signatureTag": "adversarial|mjs|current-acceptance-blocker",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "e6673f1a0f isolates mirror Git admin/index state; deterministic RED d2581bb421 rejects shared admin before an index-write probe. Complete GREEN retains all original controls and checks real raw index, staged entries and HEAD unchanged. CHK-008 both intent receipts. Production causal raw-index guard unchanged. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:44:11.648Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
