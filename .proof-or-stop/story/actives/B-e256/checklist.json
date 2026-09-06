@@ -560,6 +560,31 @@
             "commandReruns": 0
           },
           "timestamp": "2026-09-06T20:46:10.676Z"
+        },
+        {
+          "intentRef": "CHK-003:happy:1",
+          "kind": "logic_test",
+          "file": "packages/main/tests/global-core-realpath.test.mjs",
+          "command": "node packages/main/tests/global-core-realpath.test.mjs",
+          "result": "pass",
+          "note": "The cross-platform fixture constructs and validates a representative Windows npm command shim and preserves POSIX executable checks.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "13efb28c4f4f9c03f850ff572f7739cf7e5a4c19c995201c7ce4dc6fc9e123c0",
+            "outputTail": "ok global-core-realpath\n",
+            "selectorMatched": true,
+            "selector": "ok global-core-realpath",
+            "executedAt": "2026-09-06T20:47:55.936Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:e72022e92544b23f5a0c833b542b9ed484d542dd75b1c9f6a87ed0a0f7b270fb",
+            "causalReceiptHash": "06fcbd8912a8cfd19c50831c72196a791fe8698216be7d3d88fc0c4c2975c0df",
+            "commandReruns": 0
+          },
+          "headHash": "671411bd4c70b736c4ee2c790f08fcb52a53e0c7",
+          "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+          "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9",
+          "timestamp": "2026-09-06T20:47:56.344Z"
         }
       ]
     }
