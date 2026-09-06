@@ -1588,6 +1588,7 @@
       "signatureTag": "doctor-path-vs-global-package-presence-contract",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbcq3y_1a1t_b4065c30493a444cb7f0cea414e871ee",
+      "ledgerCommitReceiptId": "lrc_mtqbcq3z_1a1t_b87fd9876a334c85a86036dbad3e16a4",
       "resolvedAt": "2026-09-06T21:18:07.938Z",
       "resolvedReason": "Commit d65767d4b16e makes a missing PATH-selected proof-or-stop command non-pass with relink remediation even when the package exists; CHK-003 edge:1 exercises the actual premise and full validate passes.",
       "resolutionType": "fixed",
@@ -1598,7 +1599,7 @@
       "desc": "promotion-manifest-read-error-false-success: scripts/promote-dist.mjs:87-91 catches every package.json read/parse error and returns [], so promoteDist at :16-35 continues to evict the working dist even when the manifest probe observed EACCES/EPERM/EIO rather than a benign missing or malformed manifest. A current built-candidate temporary probe chmodded package.json to 000, kept old dist/cli.js at 0755 and staging at 0644, then called promoteDist; it returned without throwing, replaced the old CLI with the new body, and left the promoted target mode 0644 (observed {threw:null,body:\"new\\n\",mode:\"644\"}). This defeats the primary background/checklist promise to validate/restore declared staging bin targets before eviction and conflicts with understanding.json's only-ENOENT-benign constraint; the pinned adversarial evidence tests only missing and syntactically unparseable manifests, not a non-absence read failure. Preserve non-absence manifest read errors and abort before eviction, or explicitly reconcile the conflicting acceptance contract and prove the chosen failure behavior. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T19:43:35.193Z",
@@ -1649,7 +1650,12 @@
         "packages/main/tests/red/red-global-cli-exec-bit.mjs"
       ],
       "signatureTag": "promote-package-manifest-read-error-false-success",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqbcrc9_1acm_e6e9f68af21e4245aaee070079e14c18",
+      "resolvedAt": "2026-09-06T21:18:09.525Z",
+      "resolvedReason": "Commit d65767d4b16e treats only missing or malformed manifest data as the documented benign no-bin cases; injected EACCES/EPERM/EIO-style non-absence reads propagate before old-dist eviction. CHK-001 adversarial:1 and the GREEN hermetic c1 selector pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
