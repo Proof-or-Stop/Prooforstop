@@ -1999,7 +1999,7 @@
       "desc": "validation-tier-planner-smoke.ts:450-491 explicitly requires maintaining its fixed commandSetDigest when validate.commands changes, but line491 still pins main inventory511e19067cbd9cdc45ef05813957167d0494044365fe690af13adbaf373bafb1. Independent actual configuredValidationCommands -> buildValidationCommandInventory queries yield main69403365ae count128/digest511e19067cbd9cdc45ef05813957167d0494044365fe690af13adbaf373bafb1 versus B-212f count131/digeste1b85f5c0ecd1cbdf95c62e442eeabe398ce44b5f55cf36c17d03f953f682e86. Both have no declared cwd, no absolute warnings and all cwdRelative values dot. The config diff adds exactly B-212f CHK001 parity, CHK003 shared proof and historical snapshot smoke; planner, verifier and inventory code are unchanged. Thus the stale test pin is an introduced Story maintenance omission, independently distinguished from the three pre-existing families. It blocks formal validation. Bounded repair: repin to the verified fixed e1b85f5c value and annotate the B-212f checklist registrations per existing policy. Preserve fixed expected digest, no-cwd assertions and absolute warning checks; never calculate expected dynamically or remove any inventory entry. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-05T16:37:45.145Z",
@@ -2041,7 +2041,11 @@
         "proof-or-stop.config.json"
       ],
       "signatureTag": "validation-inventory-fixed-pin-maintenance",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "61ea99033b maintains the fixed expected 131-command inventory digest e1b85f5c0ecd1cbdf95c62e442eeabe398ce44b5f55cf36c17d03f953f682e86 after Story test registration. No dynamic expected digest or inventory removal. CHK-005:edge:0. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:43:54.229Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-042",
