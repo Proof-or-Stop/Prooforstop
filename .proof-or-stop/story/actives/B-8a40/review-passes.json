@@ -3187,6 +3187,47 @@
       },
       "readDiagnostics": [],
       "_hash": "468ef86b015a7c7b388366667241642f427fb198339b5281bac301ad052e51c7"
+    },
+    {
+      "id": "B-8a40:RP-075",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept lane inspected the complete committed main...HEAD diff for prompt-envelope.ts and prompt-full-context-envelope-smoke.ts, all CHK-001 declarations and receipt entries, background, plan, understanding and decision. No public concept deletion/replacement is introduced. Repository-wide text scans found no active references to countBoundedConceptPairInstances, controlledPairHasLocalRelation, or crossSourceNegativeDismissalAuthority; matches retained in Story findings/ledger/envelopes are historical audit evidence, not runtime residue. The retained hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal name has an explicit historical mutation-seam comment, matching both production call and test mutation anchor. New test promises correspond to all-role safe/unsafe loops and two separately imported built-module mutants, including the complete no-safe unsafe matrix and independently collected broad-mutant cells. No new public command, flag, or process-fact promise is added. Canonical acceptance_topology_check and pre_review_check_read remain observe/inconclusive and nonblocking; this is not a topology or pre-review PASS. The separate acceptance_rollout_check reports current signed PASS/full-3x2 with no diagnostics; this is not evidence of this Story's independent-host quorum. The existing pre-review infrastructure follow-up draft preserves the separate limitation. Decision proposal read in full; modularization plan read only at relevant trust-boundary/concept/verification sections. Source files were reviewed through their complete committed diff, not claimed as full-file reads. No concept-lane blocker found; no Finding registered.",
+      "createdAt": "2026-09-06T23:57:24.475Z",
+      "reviewRound": "2026-09-06T23:51:29.750Z",
+      "reviewRunId": "B-8a40:RR-139",
+      "envelopeId": "fe3dc0cb868a1f275e9108677205b5fabe6a8ac6b177cd345443d1a1d2593db6",
+      "writerSessionId": "sess-2104ff88f324968df5c1671aab07abbf",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/story/drafts/pre-review-live-proof-story-identity-and-semantics/background.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3128f15add32c8ddc82ea12184a077aea799c6a56251bd45d76d34f538e34302"
+      },
+      "readDiagnostics": [],
+      "_hash": "0fd0a8975419f64134a69bd4127ab94b8c4ef08d0db56d6dddc1a5d0001f82d2"
     }
   ]
 }
