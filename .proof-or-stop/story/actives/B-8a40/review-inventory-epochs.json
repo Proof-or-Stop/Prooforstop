@@ -1044,7 +1044,7 @@
       "reviewRound": "2026-09-06T17:43:17.573Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T19:04:50.963Z",
-      "updatedAt": "2026-09-06T19:04:50.963Z",
+      "updatedAt": "2026-09-06T19:14:54.017Z",
       "cutoff": {
         "headHash": "9b4266b49f0552930ae608a669ae2f060614cea5",
         "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
@@ -1058,7 +1058,79 @@
       ],
       "initialRunSequenceBoundary": 62,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T19:04:50.963Z",
+          "completedAt": "2026-09-06T19:14:54.017Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-063",
+              "terminal": "pass",
+              "hostIdentity": "5023cf5f3acef0e6a50ee81a65b976259188fc8c1b62a35b539deea9849f2b34",
+              "promptIdentity": "1db3de9498f0bbd6e1b1af11e50a0d40e671a520a2191bb6285d2fc43c5cd1d5",
+              "evidenceIds": [
+                "B-8a40:RP-033"
+              ],
+              "coverageDigest": "7562857842a6722436d9221696feb3e5a65ee495a265f1aab36ff42c939ad100"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-064",
+              "terminal": "pass",
+              "hostIdentity": "91aa6fb81640037712efe94b1889b71b62d541d4f2837aa989005efbd3a31e86",
+              "promptIdentity": "727111e95730cee284cf4b61334d355794b093f13bbd14a39693e860593a7dfb",
+              "evidenceIds": [
+                "B-8a40:RP-034"
+              ],
+              "coverageDigest": "07b16614991139d1656870da43887d8b144aaba7eee6d3da6ad070b81cfcd502"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-066",
+              "terminal": "pass",
+              "hostIdentity": "91aa6fb81640037712efe94b1889b71b62d541d4f2837aa989005efbd3a31e86",
+              "promptIdentity": "2dac75551cb201ace2d6ce945ae7e329d73e223f58a2e8c775e27ca66e2843f4",
+              "evidenceIds": [
+                "B-8a40:RP-035"
+              ],
+              "coverageDigest": "2f01e4f2e94336d195ae76fec0c88c39c38abc3c868e794025f1be258011eb9a"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-active-voice-negative-observation-bypass",
+            "prompt-envelope-approved-segment-open-body-laundering",
+            "prompt-envelope-causal-boundary-negation-scope-bypass",
+            "prompt-envelope-cross-leaf-direct-coreference-bypass",
+            "prompt-envelope-cross-segment-disposition-target-synonym-bypass",
+            "prompt-envelope-cross-segment-negative-prefix-assignment-laundering",
+            "prompt-envelope-cross-source-local-antecedent-false-positive",
+            "prompt-envelope-deferral-benign-intervening-state-machine-bypass",
+            "prompt-envelope-double-negation-polarity-bypass",
+            "prompt-envelope-dynamic-authority-prohibition-open-tail-laundering",
+            "prompt-envelope-dynamic-subordinate-open-body-laundering",
+            "prompt-envelope-evidence-continuation-assignment-laundering",
+            "prompt-envelope-interrogative-wrapper-authority-laundering",
+            "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+            "prompt-envelope-negative-quantifier-number-agreement-gap",
+            "prompt-envelope-quoted-fixture-greedy-span-laundering",
+            "prompt-envelope-rejected-wrapper-polarity-inversion",
+            "prompt-envelope-rendered-structural-leaf-authority-injection",
+            "prompt-envelope-reviewer-actor-synonym-disposition-bypass",
+            "prompt-envelope-reviewer-disposition-negative-quantifier-false-positive",
+            "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+            "prompt-envelope-schema-invariant-open-tail-laundering",
+            "prompt-envelope-signed-disposition-inspection-action-synonym-false-positive",
+            "prompt-envelope-signed-disposition-safe-terminal-state-synonym-false-positive"
+          ],
+          "verifiedFindingSetDigest": "02d6734e102e07257f42eddef4b5c9ccb30ffdcdfe34c96369387dac2001bb98",
+          "newVerifiedFindingCount": 24,
+          "criticDigest": "d9a3e93209698a47e0f3179dacbe7103ac6956a287efd45f1c0c56b14d0cbc93",
+          "saturated": false,
+          "nextRunSequenceBoundary": 67
+        }
+      ],
       "baselineFindingIds": [
         "B-8a40:F-012",
         "B-8a40:F-013",
@@ -1090,7 +1162,7 @@
         "B-8a40:F-039",
         "B-8a40:F-040"
       ],
-      "_hash": "0141a0efbb11323afba7b0c7d15e6fce106c1e4bd7276f875ee5a1f8dcafd1b7"
+      "_hash": "8bd59d78e56035573989e766804a9fa2246ad167e4a5ca17a0c768aee359623b"
     }
   ],
   "receipts": [
@@ -1949,6 +2021,210 @@
       ],
       "createdAt": "2026-09-06T19:04:25.220Z",
       "_hash": "27e4255e53da8a7fcecd38b3be4a5f2c6bc0555f5e910886a53e372a98b03ac6"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-006:CRIT-01",
+      "epochId": "B-8a40:RI-006",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "9b4266b49f0552930ae608a669ae2f060614cea5",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "aggregateFindingSetDigest": "02d6734e102e07257f42eddef4b5c9ccb30ffdcdfe34c96369387dac2001bb98",
+      "requiredLaneCoverageDigest": "0c8bc385ae4ffb0fe1690d206ff98d22c9ebc49521b86bca2862bf0a7d758b6f",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-067",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-036"
+      ],
+      "readEvidenceDigest": "2c74fe80f4a581604fe2dee2761ea7e96dc935d876243f4b4a6e42ba74868c92",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-012",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-source-local-antecedent-false-positive",
+          "reason": "Preserved: unrelated later-leaf local antecedent falsely joins to an earlier negative observation across sources."
+        },
+        {
+          "findingId": "B-8a40:F-013",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-leaf-direct-coreference-bypass",
+          "reason": "Preserved: direct or coreferent later-leaf conclusions bypass cross-source authority classification without an explicit causal token."
+        },
+        {
+          "findingId": "B-8a40:F-014",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-active-voice-negative-observation-bypass",
+          "reason": "Preserved: active-voice negative observations escape passive-only recognition."
+        },
+        {
+          "findingId": "B-8a40:F-015",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-cross-leaf-direct-coreference-bypass",
+          "canonicalFindingId": "B-8a40:F-013",
+          "reason": "Preserved duplicate of F-013 with additional noun-target and explicitExcludes witnesses."
+        },
+        {
+          "findingId": "B-8a40:F-016",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+          "reason": "Preserved: same-leaf all-later-segments scan falsely links unrelated exclusion by ordering alone."
+        },
+        {
+          "findingId": "B-8a40:F-017",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+          "canonicalFindingId": "B-8a40:F-016",
+          "reason": "Preserved duplicate of F-016 with explicit topic-break witness."
+        },
+        {
+          "findingId": "B-8a40:F-018",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-double-negation-polarity-bypass",
+          "reason": "Preserved: negation presence rather than parity admits affirmative double negatives."
+        },
+        {
+          "findingId": "B-8a40:F-019",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-rendered-structural-leaf-authority-injection",
+          "reason": "Preserved: rendered structural strings lack scanning or closed grammar."
+        },
+        {
+          "findingId": "B-8a40:F-020",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-negative-quantifier-number-agreement-gap",
+          "reason": "Preserved: quantifier spelling and number agreement split equivalent propositions."
+        },
+        {
+          "findingId": "B-8a40:F-021",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+          "reason": "Preserved: mutation/proof-outcome heuristic exempts a whole verificationIntent leaf."
+        },
+        {
+          "findingId": "B-8a40:F-022",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-interrogative-wrapper-authority-laundering",
+          "reason": "Preserved: interrogative boundary heuristic exempts mixed declarative prose."
+        },
+        {
+          "findingId": "B-8a40:F-023",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-quoted-fixture-greedy-span-laundering",
+          "reason": "Preserved canonical: greedy first-to-last quoted-fixture span launders unquoted interstitial authority."
+        },
+        {
+          "findingId": "B-8a40:F-024",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-quoted-fixture-greedy-span-laundering",
+          "canonicalFindingId": "B-8a40:F-023",
+          "reason": "Preserved duplicate of F-023 with independent all-role controls."
+        },
+        {
+          "findingId": "B-8a40:F-025",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-approved-segment-open-body-laundering",
+          "reason": "Preserved: approved per-segment predicates use unconstrained bodies and delete authority-bearing residue."
+        },
+        {
+          "findingId": "B-8a40:F-026",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-segment-negative-prefix-assignment-laundering",
+          "reason": "Preserved: signed-disposition continuation state skips a full segment on a negative auxiliary prefix."
+        },
+        {
+          "findingId": "B-8a40:F-027",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-causal-boundary-negation-scope-bypass",
+          "reason": "Independent family: the controlled-pair polarity scope does not reset at causal tokens already recognized by TRIAGE_CAUSAL_LINK, so negation belonging to an earlier predicate launders a later affirmative responsibility conclusion. This is separate from double-negation parity and continuation deletion."
+        },
+        {
+          "findingId": "B-8a40:F-028",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-rejected-wrapper-polarity-inversion",
+          "reason": "Independent family: the closed rejected-statement wrapper exempts an atomic relation without proving the inner proposition is unsafe, so rejecting a safe prohibition reverses the wrapper meaning. This differs from F-027 generic relation-scope analysis and from open or whole-leaf wrappers."
+        },
+        {
+          "findingId": "B-8a40:F-029",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-evidence-continuation-assignment-laundering",
+          "reason": "Independent family: evidenceOnlyContinuation accepts arbitrary text between an evidence-looking prefix and the Finding target, causing the signed-disposition continuation state machine to skip an affirmative assignment embedded in the same segment. It is distinct from F-026 generic negative-prefix skipping."
+        },
+        {
+          "findingId": "B-8a40:F-030",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-schema-invariant-open-tail-laundering",
+          "reason": "Independent family: the fallback schemaInvariant shortcut accepts an unconstrained tail after a safe invariant prefix and suppresses its own affirmative schema amendment. This differs from F-025 approved-content filtering and all whole-leaf meta-safe wrappers by its separate fallback schema/gate detector."
+        },
+        {
+          "findingId": "B-8a40:F-031",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-cross-segment-disposition-target-synonym-bypass",
+          "canonicalFindingId": "B-8a40:F-032",
+          "reason": "Duplicate of F-032: both show the signed-disposition continuation state machine recognizes only the literal Finding target and misses issue, defect, and work synonyms. F-031's shell-rendered description lost the decisive nouns, so the complete later record F-032 is canonical; the chain is direct and non-circular."
+        },
+        {
+          "findingId": "B-8a40:F-032",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-segment-disposition-target-synonym-bypass",
+          "reason": "Canonical complete family: the continuation state machine's closed Finding-only target excludes equivalent issue, defect, and work assignments, while direct and Finding-target controls prove the vocabulary-specific bypass. F-032 preserves the complete reproduction that was lost from F-031."
+        },
+        {
+          "findingId": "B-8a40:F-033",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-dynamic-authority-prohibition-open-tail-laundering",
+          "reason": "Independent family: the Dynamic Finding amendment detector's explicit-prohibition branch consumes arbitrary contradictory residual verbs before the authority noun, allowing a negative first verb followed by an affirmative replacement. This is separate from schemaInvariant and approved-segment filters."
+        },
+        {
+          "findingId": "B-8a40:F-034",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-dynamic-subordinate-open-body-laundering",
+          "reason": "Canonical family: subordinateBefore accepts an unconstrained tests-covering body without independently checking embedded amendments to Dynamic Finding authority. F-034 was created first and isolates the production branch with direct and safe controls."
+        },
+        {
+          "findingId": "B-8a40:F-035",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-dynamic-subordinate-open-body-laundering",
+          "canonicalFindingId": "B-8a40:F-034",
+          "reason": "Duplicate of F-034: both exploit the same subordinateBefore open body in the Dynamic Finding amendment detector. F-035 preserves extra adversarial-tests, schema-field, and gate-predicate witnesses but identifies no distinct mechanism."
+        },
+        {
+          "findingId": "B-8a40:F-036",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-deferral-benign-intervening-state-machine-bypass",
+          "reason": "Independent family: the deferral cross-segment state machine inspects only the immediately following segment and loses the antecedent across benign audit or evidence continuations, admitting later transfer or blocker-clearing outcomes. This differs from open-body deletion inside one continuation."
+        },
+        {
+          "findingId": "B-8a40:F-037",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-reviewer-actor-synonym-disposition-bypass",
+          "reason": "Independent family: the unauthorized disposition actor grammar omits equivalent reviewer collectives and auditor nouns, so direct and cross-segment assignments fail open before the state machine despite a literal Finding target."
+        },
+        {
+          "findingId": "B-8a40:F-038",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-signed-disposition-inspection-action-synonym-false-positive",
+          "reason": "Independent family: safe signed-disposition inspection accepts only five action verbs and falsely classifies examine, assess, check, review, and evaluate as minting. Canonical actor and target remain present, distinguishing it from actor or target fail-open families."
+        },
+        {
+          "findingId": "B-8a40:F-039",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-signed-disposition-safe-terminal-state-synonym-false-positive",
+          "reason": "Independent family: after a canonical inspection, the continuation state machine admits only a closed terminal-state list and false-reds equivalent unaffected, untouched, no-authority, and unchanged relations while correctly rejecting binding."
+        },
+        {
+          "findingId": "B-8a40:F-040",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-reviewer-disposition-negative-quantifier-false-positive",
+          "reason": "Independent family: direct disposition prohibitions recognize modal-not and one neither form but reject equivalent no-reviewer, not-one, and forbidden-from negative propositions. The defect is direct-prohibition polarity grammar, not inspection or continuation handling."
+        }
+      ],
+      "createdAt": "2026-09-06T19:13:35.954Z",
+      "_hash": "4aa03fc078f02a4f19f0e46179c620ecf7c2c52f3e56c6f44bb86b8853b6da6a"
     }
   ]
 }
