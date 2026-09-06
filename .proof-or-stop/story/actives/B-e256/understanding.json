@@ -1,20 +1,23 @@
 {
   "task": "Keep the global Proof-or-Stop executable working after dist rebuilds and make its diagnostics and evidence portable across POSIX and Windows hosts.",
-  "outcome": "After npm --prefix packages/main run build, the red regression prints \"contract: global-cli-bin-target-restored\" and proof-or-stop --version succeeds; proof-or-stop doctor prints \"contract: global-core-realpath-pass\" with the compiled version, or version=unknown when that probe fails.",
+  "outcome": "After npm --prefix packages/main run build, the regression prints contract: global-cli-bin-target-restored and proof-or-stop --version succeeds. A healthy proof-or-stop doctor prints contract: global-core-realpath-pass only when the package, PATH command, bin target, compiled version, and host executable contract agree; otherwise it prints a host-valid repair command.",
   "facts": [
     "TypeScript emits fresh POSIX dist entrypoints without executable bits.",
-    "The global executable may be a symlink or npm command shim targeting packages/main/dist/cli.js, so promotion must preserve the host-specific executable contract.",
-    "promoteDist validates and restores staging bin targets before evicting the working dist.",
-    "Final symlinks and intermediate-directory symlink escapes must not be followed by chmod.",
-    "POSIX validates executable mode bits; Windows validates the byte-identical Node entrypoint and npm-generated command shim rather than POSIX mode bits.",
+    "The global executable may be a POSIX symlink or a Windows npm command shim targeting packages/main/dist/cli.js.",
+    "promoteDist validates the staging package manifest and declared bin targets before old-dist eviction.",
+    "Only a missing or syntactically invalid package manifest and ENOENT target are benign; other read, stat, realpath, or chmod errors must fail closed.",
+    "Final and intermediate symlink escapes must be rejected both during promotion and in doctor bin-target inspection.",
+    "POSIX validates executable access; Windows validates the actual PATH-selected npm command shim rather than POSIX mode bits.",
+    "A healthy global npm package cannot substitute for a missing proof-or-stop command on PATH.",
     "A failed compiled-version probe is not evidence for the package manifest version."
   ],
   "constraints": [
     "Use only node: built-ins in scripts/promote-dist.mjs.",
     "Preserve atomic promotion and leave the old dist intact when staging validation fails.",
-    "Treat only ENOENT as a benign absent-target condition.",
-    "Doctor remains read-only and must emit remediation executable by the current host shell.",
-    "Story metadata and implementation remain English."
+    "Doctor remains read-only and emits POSIX shell remediation on POSIX or encoded PowerShell LiteralPath remediation on Windows.",
+    "Capability skips cannot emit the must PASS selector before non-link assertions execute.",
+    "Story metadata and implementation remain English.",
+    "Do not expand scope for unrelated medium or low defects; record evidence and route them to an explicit later owner."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -23,5 +26,5 @@
     "packages/main/tests/red/red-global-cli-exec-bit.mjs",
     "packages/main/tests/global-core-realpath.test.mjs"
   ],
-  "timestamp": "2026-09-06T18:11:57.754Z"
+  "timestamp": "2026-09-06T20:40:41.449Z"
 }

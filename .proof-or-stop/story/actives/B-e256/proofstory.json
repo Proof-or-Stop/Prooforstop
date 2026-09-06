@@ -42,15 +42,24 @@
       "verificationIntentRefs": [
         "CHK-001:happy:0",
         "CHK-001:happy:1",
+        "CHK-001:adversarial:0",
+        "CHK-001:adversarial:1",
         "CHK-002:happy:0",
-        "CHK-003:happy:0"
+        "CHK-003:happy:0",
+        "CHK-003:happy:1",
+        "CHK-003:edge:0",
+        "CHK-003:edge:1",
+        "CHK-003:edge:2",
+        "CHK-003:adversarial:0",
+        "CHK-003:adversarial:1",
+        "CHK-003:adversarial:2"
       ],
       "milestoneIds": [],
-      "acceptanceClaim": "The registered red test exits 0 after promoteDist validates and restores staging bin targets before old-dist eviction: POSIX targets gain executable mode bits, while Windows preserves the byte-identical Node entrypoint used by npm command shims. Doctor reports the resolved global core through a host-independent passing marker and emits POSIX- or cmd.exe-valid remediation. The recorded RED run keeps the unfixed baseline discriminated."
+      "acceptanceClaim": "The registered red regression passes after staging bin targets are validated before old-dist eviction. Missing or syntactically invalid package manifests remain benign, while non-absence read failures abort without replacing the working dist. Doctor emits the healthy contract marker only when the global package, PATH-selected command, declared bin-target realpath, compiled version, and host executable contract agree. POSIX validates executable access; Windows validates the actual npm command shim and uses encoded PowerShell LiteralPath remediation that preserves spaces, apostrophes, and percent tokens. Capability skips and zero-assertion paths cannot emit the must PASS selector."
     }
   ],
   "diagnosticGaps": [],
-  "note": "B-e256 cross-platform ProofStory contract: stable machine selectors bind staging restoration and the resolved doctor pass state without host paths or universal POSIX mode promises.",
+  "note": "B-e256 fail-closed cross-platform contract after RI-006 and RI-007: stable selectors bind staging validation, PATH/package agreement, target containment, actual Windows shim validation, and host-safe remediation without universal POSIX mode claims.",
   "createdAt": "2026-09-02T15:27:29.019Z",
-  "updatedAt": "2026-09-06T18:06:46.252Z"
+  "updatedAt": "2026-09-06T20:40:55.922Z"
 }

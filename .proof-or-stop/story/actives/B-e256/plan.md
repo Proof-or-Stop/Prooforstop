@@ -10,7 +10,7 @@ Evidence pack (gitignored, copied into this worktree): `.proof-or-stop/evidence/
 - Modify: scripts/promote-dist.mjs, scripts/build-main-with-binding.mjs (comment/header only if needed), scripts/build-utils-with-binding.mjs (only if it needs a different packageRoot)
 - Test: packages/main/tests/red/red-global-cli-exec-bit.mjs (run from the evidence pack until CHK-002 commits it)
 
-Apply the proven candidate: in `scripts/promote-dist.mjs` add and export `restoreBinExecutableBits(tree, dist = tree)` (reads `<dirname(dist)>/package.json`, resolves each declared `bin` beneath the real promoted tree, rejects non-regular/final-symlink targets and intermediate-symlink escapes, restores POSIX executable bits with `mode | 0o111`, preserves the byte-identical Node entrypoint used by npm command shims on Windows, swallows ENOENT per target, returns the restored list, and returns `[]` when package.json is missing/unparseable or has no `bin`). `promoteDist` must run this validation and restoration against the staging tree before evicting the current dist, so a failed restoration leaves the working dist in place. Only `node:` built-ins (the module's fresh-checkout footprint rule). Keep the crash-safety comments; add a short comment citing this story and the RED symptom.
+Apply the proven candidate: in `scripts/promote-dist.mjs` add and export `restoreBinExecutableBits(tree, dist = tree)` (reads `<dirname(dist)>/package.json`, resolves each declared `bin` beneath the real promoted tree, rejects non-regular/final-symlink targets and intermediate-symlink escapes, restores POSIX executable bits with `mode | 0o111`, and preserves the byte-identical Node entrypoint used by npm command shims on Windows). A missing or syntactically invalid package manifest and an ENOENT bin target remain benign empty-bin cases; every other package-manifest or bin-target filesystem error propagates. `promoteDist` must run this validation and restoration against the staging tree before evicting the current dist, so any failed read, validation, or restoration leaves the working dist in place. Only `node:` built-ins (the module's fresh-checkout footprint rule). Keep the crash-safety comments; add a short comment citing this story and the RED symptom.
 
 **Verify**:
 - `npm --prefix packages/main run build` then the red regression prints `contract: global-cli-bin-target-restored`; on POSIX, `ls -la packages/main/dist/cli.js` also shows executable bits, while Windows validates the byte-identical Node entrypoint used by the npm command shim
@@ -19,7 +19,7 @@ Apply the proven candidate: in `scripts/promote-dist.mjs` add and export `restor
 - `node packages/main/tests/red/red-1734-content-binding.mjs` still passes
 
 **DoneWhen**:
-- Both builds route through promoteDist and leave bin targets executable; absent bin target / missing bin field are no-ops (add these two cases to the red test in CHK-002)
+- Both builds route through promoteDist and preserve the platform executable contract. Missing manifests, invalid JSON, missing bin fields, and absent bin targets are no-ops; non-absence read errors abort before old-dist eviction.
 
 ## CHK-002: Commit red-global-cli-exec-bit.mjs as a registered red test that is GREEN after the fix
 
@@ -48,10 +48,10 @@ Copy the script from the evidence pack; extend it with hermetic cases that impor
 - Modify: packages/main/src/core/runtime-environment-checks.ts, packages/main/src/handlers/doctor.ts (only if the row is not already rendered from runRuntimeEnvironmentChecks), packages/main/tests/global-core-realpath.test.mjs
 - Test: packages/main/tests/global-core-realpath.test.mjs
 
-Extend `checkGlobalCoreRealpath` (B-fa65) so its result also carries `binTarget`, `binMode` and `executable` for the resolved package's `package.json.bin` target, and warn when the realpath resolves into a `.worktrees/` checkout of this repository. Remediation must be executable by the host shell: POSIX renders quoted `cd --`, `chmod +x`, and `ls -ld` commands; Windows renders cmd.exe-valid `cd /d`, double-quoted paths, `dir /a`, and npm-shim guidance without treating POSIX mode bits as authority. Stay informational when no global install is found, emit the stable `contract: global-core-realpath-pass` marker for a resolved pass, and keep every existing classification and test case passing.
+Extend `checkGlobalCoreRealpath` (B-fa65) so its result also carries `binTarget`, `binTargetRealpath`, `binMode`, `commandShim`, and `executable` for the resolved package's `package.json.bin` target, and warn when either the package realpath is a disposable worktree or the declared target resolves outside the package dist tree. A global package without a `proof-or-stop` command on PATH is non-pass and receives relink guidance. POSIX validates executable access and renders quoted shell remediation. Windows validates the actual PATH-selected npm command shim and renders a base64-encoded PowerShell `LiteralPath` command so spaces, apostrophes, and percent tokens survive shell parsing; POSIX mode bits are display-only there. Stay informational only when no global package is installed, emit `contract: global-core-realpath-pass` only after all host-specific checks pass, and keep every existing classification and test case passing.
 
 **Verify**:
-- `node packages/main/tests/global-core-realpath.test.mjs` passes with the new non-executable and worktree-realpath cases
+- `node packages/main/tests/global-core-realpath.test.mjs` passes with executable-mode, actual Windows shim, PATH absence, bin-target realpath containment, encoded remediation, and zero-assertion skip guards
 - `proof-or-stop doctor` prints the global-core row (realpath, version, observed mode) and `contract: global-core-realpath-pass` on any supported host when the global core resolves correctly
 - `proof-or-stop validate --lint` green
 
