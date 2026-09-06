@@ -1885,6 +1885,67 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqboc7s_1u6u_9231eeaed94c426da1394b006039efc0",
       "ledgerCommitReceiptId": "lrc_mtqboc7s_1u6u_61bfaaa6fd2a44d5b82cdb5512869971"
+    },
+    {
+      "id": "B-e256:F-041",
+      "desc": "CHK-003:adversarial:2 has no executable coverage for its promised unreadable Windows npm command-shim branch. packages/main/src/core/runtime-environment-checks.ts:742-752 classifies commandShimReadProbe failures as windows-command-shim-missing or windows-command-shim-unreadable, but packages/main/tests/global-core-realpath.test.mjs:229-302 covers only a target-mismatched shim and an ENOENT missing shim. Repository search finds no commandShimReadProbe injection and no assertion for windows-command-shim-unreadable; the EIO fixture at lines 261-276 instead injects binTargetStatProbe and exercises the unrelated bin-target-stat-failed branch. checklist.json:645 nevertheless claims the receipt covered missing, unreadable, and mismatched shims. Thus the unreadable branch can regress while the pinned ok global-core-realpath selector remains green. This is distinct from F-037, which is a parser false-positive after a shim was read, and from resolved F-029, which concerned unconditional validation. severity: high",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T21:32:08.602Z",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "reviewRunId": "B-e256:RR-119",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "ea4eae11500c725ff177eac766debb62fe50bdd90c4ab3d75ae0a910d9656abe",
+      "files": [
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs"
+      ],
+      "signatureTag": "test-coverage-windows-command-shim-unreadable-branch",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqbuqsb_c2m_1c189aa016a2491fb4afd652d758b125",
+      "ledgerCommitReceiptId": "lrc_mtqbuqsb_c2m_924b1f0aa2f34a49804eca4ebaa3a107"
     }
   ]
 }
