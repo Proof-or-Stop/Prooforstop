@@ -2036,7 +2036,7 @@
       "desc": "packages/main/tests/red/red-global-cli-exec-bit.mjs:109-119 claims to verify build-pipeline wiring by concatenating build-main-with-binding.mjs with promote-dist.mjs and searching for any chmod/bin text, while its ordering assertion inspects only promote-dist.mjs. It never asserts that build-main or build-utils imports/calls promoteDist and never executes either wrapper. A current-test temporary fixture kept the real promote-dist.mjs and a healthy executable live dist but replaced both build wrappers with `// deliberately unwired build wrapper`; with `RED_REPO_ROOT` bound to that fixture, the registered regression exited 0, printed `pipeline staging restore hook present: true`, emitted `contract: global-cli-bin-target-restored`, and printed the final GREEN summary. Thus CHK-001:happy:0 and CHK-002:happy:0 mechanical selectors can remain green after the actual build-to-promotion connection is removed; build-utils is not inspected at all. Add a structural assertion for both wrapper imports/calls or an end-to-end wrapper probe. This is distinct from F-041's Windows unreadable-shim branch and from the production defects F-037-F-042. severity: high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T21:49:29.608Z",
@@ -2090,7 +2090,11 @@
       "signatureTag": "test-coverage-build-wrapper-promote-wiring-false-green",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqch215_1v8k_18a1dbe594db46c3bcac66ad02280211",
-      "ledgerCommitReceiptId": "lrc_mtqch215_1v8k_4a56e723e1704fa98c51128a0f2f634b"
+      "ledgerCommitReceiptId": "lrc_mtqch215_1v8k_4a56e723e1704fa98c51128a0f2f634b",
+      "resolvedAt": "2026-09-06T23:38:43.480Z",
+      "resolvedReason": "Commit 3144360a65 makes the registered RED regression verify that both build wrappers import and call promoteDist, with mutation controls that replace each wrapper and prove the test bites. red-global-cli-exec-bit.mjs and current full validation pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-044",
