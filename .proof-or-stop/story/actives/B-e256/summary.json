@@ -1,18 +1,18 @@
 {
   "storyId": "B-e256",
-  "changes": "scripts/promote-dist.mjs: exported restoreBinExecutableBits(dist) runs after every dist promotion and chmods each package.json bin target (ENOENT / no bin / unparseable package.json are no-ops), so the global proof-or-stop symlink keeps working after rebuilds (tsc emits 0644; npm link chmods only once). packages/main/src/core/runtime-environment-checks.ts: checkGlobalCoreRealpath reports realpath, version, bin mode and executable flag, warns with the exact repoint command when the global install resolves into a .worktrees/ checkout, with chmod +x when the bin target is not executable, and with the rebuild command when it is absent; no global install is informational. packages/main/tests/global-core-realpath.test.mjs: cases 4-8 cover those branches. packages/main/tests/red/red-global-cli-exec-bit.mjs: registered red test with hermetic cases for restoreBinExecutableBits. Cherry-picked B-83aa 8ebfff3550 so validation-tier-planner-smoke F-023 no longer pins the whole-repository commandSetDigest.",
-  "usage": "No new command. After npm --prefix packages/main run build, ls -la packages/main/dist/cli.js shows -rwxr-xr-x and proof-or-stop --version works; proof-or-stop doctor prints the global-core-realpath row with realpath, version, mode and executable flag. Regression: node packages/main/tests/red/red-global-cli-exec-bit.mjs and node packages/main/tests/global-core-realpath.test.mjs.",
-  "expectedOutcome": "Rebuilds keep the global bin target executable and doctor names the drift with an exact remediation; the red test prints GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable.",
-  "actualTranscript": "node packages/main/tests/red/red-global-cli-exec-bit.mjs in the story worktree -> hermetic (a)/(b)/(c) GREEN and the final GREEN line, exit 0; RED_REPO_ROOT=<main checkout> -> RED red-global-cli-exec-bit: 5 desired properties not met, exit 1; node packages/main/tests/global-core-realpath.test.mjs -> ok global-core-realpath (8 cases); node packages/main/dist/cli.js doctor -> global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.271 mode=0755 executable=yes. Round-2 reviewers proved cases 7/8 by mutation.",
-  "outcomeDiff": "No difference between expected and actual.",
+  "changes": "scripts/promote-dist.mjs now validates and restores package.json bin targets on the staging tree before evicting the current dist, rejects final symlinks and intermediate-symlink escapes, and preserves the old dist on failure. packages/main/src/core/runtime-environment-checks.ts reports only the compiled runtime version and renders version=unknown when that probe fails. The red and realpath regression suites cover the new safety and diagnostic cases.",
+  "usage": "Run npm --prefix packages/main run build, then proof-or-stop --version and proof-or-stop doctor. For regression checks run node packages/main/tests/red/red-global-cli-exec-bit.mjs and node packages/main/tests/global-core-realpath.test.mjs.",
+  "expectedOutcome": "A dist rebuild leaves packages/main/dist/cli.js executable, proof-or-stop remains runnable, unsafe bin symlink paths cannot chmod files outside staging, and doctor reports the compiled version or version=unknown.",
+  "actualTranscript": "Focused verification passed: red-global-cli-exec-bit printed GREEN including hermetic c6 for an intermediate-directory symlink escape; global-core-realpath printed ok; packages/main/dist/cli.js was mode 0755.",
+  "outcomeDiff": "No user-visible difference from the expected outcome.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Doctor reports and recommends; it never repairs the host global install. The earlier draft symptom (link resolving into .worktrees/B-fe8f) is machine state and is covered by the doctor warning plus a fixture, not by a red test of the live host.",
-  "pitfalls": "restoreBinExecutableBits runs inside promoteDist for both main and utils builds; a package that declares bin as a string shorthand is handled, a non-object bin value is ignored. Mode bits are not part of the content-bound build binding, so a second build still takes the fast path.",
+  "limitations": "Doctor is read-only and reports remediation without changing the host install. On Windows hosts that cannot create symlinks, only the unsupported symlink fixture is explicitly skipped; all other failures remain blocking.",
+  "pitfalls": "Executable-bit restoration must stay before old-dist eviction. Using post-promotion chmod can replace a working dist before a staging permission failure is discovered; using lexical containment alone can follow intermediate symlinks outside staging.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -23,19 +23,23 @@
       "durationMs": 159349
     },
     "PLAN": {
-      "count": 1,
-      "durationMs": 822967
+      "count": 2,
+      "durationMs": 1219143
     },
     "DEV": {
-      "count": 3,
-      "durationMs": 3961864
+      "count": 20,
+      "durationMs": 75929221
     },
     "REVIEW": {
-      "count": 3,
-      "durationMs": 33858309
+      "count": 18,
+      "durationMs": 254798763
+    },
+    "TEST": {
+      "count": 9,
+      "durationMs": 17052748
     }
   },
-  "totalDurationMs": 45766164,
+  "totalDurationMs": 356122899,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -48,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-03T01:57:56.411Z",
-  "updatedAt": "2026-09-03T01:57:56.411Z"
+  "updatedAt": "2026-09-06T16:10:33.146Z"
 }
