@@ -1432,7 +1432,7 @@
       "reviewRound": "2026-09-06T19:49:59.446Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T20:16:24.819Z",
-      "updatedAt": "2026-09-06T20:16:24.819Z",
+      "updatedAt": "2026-09-06T20:21:53.404Z",
       "cutoff": {
         "headHash": "fb94c7ffe53eea1645a0afb7731237a88d888d06",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1446,7 +1446,62 @@
       ],
       "initialRunSequenceBoundary": 86,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T20:16:24.819Z",
+          "completedAt": "2026-09-06T20:21:53.404Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-087",
+              "terminal": "pass",
+              "hostIdentity": "8a2bab6c844c85e5b90dc21201179dd796c9e6b21d011e0b29755def91463a84",
+              "promptIdentity": "1eeacd308bcdb50e788966fd48370d4f94f012601d44bad90fe274d4cb1ffe48",
+              "evidenceIds": [
+                "B-8a40:RP-049"
+              ],
+              "coverageDigest": "940f6785ce47b43193ac9be8da362e972f75c8ac73b95f44644e64f54bdb4912"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-089",
+              "terminal": "finding",
+              "hostIdentity": "8a2bab6c844c85e5b90dc21201179dd796c9e6b21d011e0b29755def91463a84",
+              "promptIdentity": "b5db25aecbbd4fdc46f5ebed51ec0429223c675af8428e3bb0b4ac8507a774dd",
+              "evidenceIds": [
+                "B-8a40:F-048"
+              ],
+              "coverageDigest": "66062d3ed7ef637fe8cfa2d74f7abceb5d741f4250dd5be26ed75e7639525313"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-088",
+              "terminal": "pass",
+              "hostIdentity": "8a2bab6c844c85e5b90dc21201179dd796c9e6b21d011e0b29755def91463a84",
+              "promptIdentity": "c23c485a481843aa4074f14f67f0aa1f4760f46478de249f39ff5e8a04000b54",
+              "evidenceIds": [
+                "B-8a40:RP-050"
+              ],
+              "coverageDigest": "d930150c9e33ca880d605fda953115f8801dc0ad24f391bd48e92c5d87dc6357"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-deferral-state-local-antecedent-false-positive",
+            "prompt-envelope-severity-state-local-antecedent-false-positive",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering",
+            "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive"
+          ],
+          "verifiedFindingSetDigest": "3cb40eb6732d1566f4453b1d65be9af115e30ac0d7294eec3a21385615be85c1",
+          "newVerifiedFindingCount": 7,
+          "criticDigest": "db2855734ad0e2fd53031e25b7f51532509f4d1b539ca644e1cad552a2e12ff3",
+          "saturated": false,
+          "nextRunSequenceBoundary": 90
+        }
+      ],
       "baselineFindingIds": [
         "B-8a40:F-041",
         "B-8a40:F-042",
@@ -1456,7 +1511,7 @@
         "B-8a40:F-046",
         "B-8a40:F-047"
       ],
-      "_hash": "9898bc5664b891649ad1227f0ff0f8e91ca8786dfbb8ba9bca8d8694d092841a"
+      "_hash": "a9363cc66ec69e7b09a27ec1a9e91e142b37faaa12d40a3337e3678bb08c044b"
     }
   ],
   "receipts": [
@@ -2688,6 +2743,80 @@
       ],
       "createdAt": "2026-09-06T20:14:53.860Z",
       "_hash": "dacb822c3ff06921a1b7c529559a3580a137a9b4f8ea995f5db202c8d723941f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-008:CRIT-01",
+      "epochId": "B-8a40:RI-008",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "fb94c7ffe53eea1645a0afb7731237a88d888d06",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "3cb40eb6732d1566f4453b1d65be9af115e30ac0d7294eec3a21385615be85c1",
+      "requiredLaneCoverageDigest": "0bc152c8abd66d8b872d486d74a2be824edc72f2d233e7824c81029689d41c44",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-090",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-051"
+      ],
+      "readEvidenceDigest": "16e202bb9f11b92ab986c9f5ec56e8bdf66035cb86ebd782399fbc3f139d46f9",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-041",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+          "reason": "Independent bounded classifier/gate family: structural leaves are now enumerated, unlike F-019, but the whitespace-free path-shape exemption runs before hyphen and underscore semantic normalization, allowing encoded dismissal, reviewer-disposition, and schema-authority assertions."
+        },
+        {
+          "findingId": "B-8a40:F-042",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+          "reason": "Canonical current-material family: approved inventory and subordinate wrappers remain open-bodied behind the same finite authority-action blacklist, so unlisted verbs such as publishes and enacts bypass the residual classifier. This is an incomplete-closure mechanism after earlier open-body findings, not F-041 encoding or F-043 linkage."
+        },
+        {
+          "findingId": "B-8a40:F-043",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-topic-break-explicit-coreference-laundering",
+          "reason": "Independent bounded classifier/gate family: an unconditional topic-break exemption severs an otherwise rejected relation even when the later sentence explicitly corefers to the Finding. This is separate from unrelated-object false joins because the target is explicit and the laundering occurs in relation linkage."
+        },
+        {
+          "findingId": "B-8a40:F-044",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+          "canonicalFindingId": "B-8a40:F-042",
+          "reason": "Direct non-circular duplicate of earlier F-042: both exercise the same open approved-wrapper capture guarded by TRIAGE_INVENTORY_AUTHORITY_ACTION and bypass it with unlisted authority-action verbs. Preserve F-044's additional deem, makes, and entrusts witnesses and its dismissal/disposition controls."
+        },
+        {
+          "findingId": "B-8a40:F-045",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+          "reason": "Independent bounded classifier/gate family: full Task Context composition tracks only negative-dismissal relations, allowing equivalent prohibited severity-to-scope, unknown-to-routing, deferral-to-transfer, and signed-disposition-to-binding propositions when their continuations move to another trusted leaf."
+        },
+        {
+          "findingId": "B-8a40:F-046",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-deferral-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family. Unlike F-012, the stale join occurs in the deferral continuation state rather than cross-source negative-dismissal composition. Unlike F-036, which loses deferral state too early across evidence-only prose, F-046 retains it too long across a substantive nearer antecedent and falsely binds the later pronoun. Preserve direct unsafe, evidence-aside, and local-antecedent controls."
+        },
+        {
+          "findingId": "B-8a40:F-047",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family. It shares the local-antecedent rebinding symptom with F-046 but executes through hasCrossSegmentSeverityAuthority and its separate persistent severity/flattened-authority-noun grammar; F-046 executes through the deferral controlled-relation state. Preserve both direct unsafe, evidence-aside, and local-antecedent witnesses."
+        },
+        {
+          "findingId": "B-8a40:F-048",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive",
+          "reason": "Independent bounded classifier/gate family: the dedicated unknown-applicability whole-source concatenation treats any later generic routing token as a controlled relation without causal linkage, coreference, or anaphora. This differs from F-046/F-047 persistent pronoun states and from F-012/F-016 dismissal composition; preserve unrelated operational-routing and genuinely unsafe route controls."
+        }
+      ],
+      "createdAt": "2026-09-06T20:21:32.652Z",
+      "_hash": "c30a11d093acd505afec2dc83d50cffec79691da5dd628a1491e0be0eab6dd33"
     }
   ]
 }
