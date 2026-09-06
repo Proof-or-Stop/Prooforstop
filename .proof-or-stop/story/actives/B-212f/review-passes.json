@@ -926,6 +926,91 @@
       },
       "readDiagnostics": [],
       "_hash": "ae0cd4bb1fd25a295f039c08c0977dc6cb0f9f0da920322923fb05dd85d192e3"
+    },
+    {
+      "id": "B-212f:RP-018",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Independent docs round 10 review: extracted 9 changed production exported declarations, compared 3 direct symbol-referenced documentation sections plus bounded related-contract windows and README fallback. Seven exports have no direct doc reference after fallback: projectDonePredicateRows, DonePredicateResult, firstDonePredicateFailure, donePredicateValue, PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS, DonePreflightPredicateInventoryEntry, DONE_PREFLIGHT_PREDICATE_INVENTORY. Their behavior is described at module level in the DONE Predicate Parity Contract. Checked all eight checklist titles/userSees, committed production diffs, registry/verifier changes, selector and strict-refresh repair contracts, and private Git isolation diff. No doc-promise-undelivered or applicable doc-code drift found: shared active predicates preserve missing_dev_memory_finish_decision and stale_closeout_review mapping, finite executable mutation proof is not arbitrary TypeScript equivalence, completed DONE snapshot is explicitly informational rather than fresh reviewer PASS/full historical audit, and readiness projection is read-only while done_prepare execution may mutate. Window/diff-only reads are conservatively listed as triage, not full reads. No host quorum, current pre-review PASS, or actual DONE is asserted. No source edits, no full suite rerun, no findings added.",
+      "createdAt": "2026-09-06T09:57:04.700Z",
+      "reviewRound": "2026-09-06T09:42:51.753Z",
+      "reviewRunId": "B-212f:RR-063",
+      "envelopeId": "4322bafe8f5084a769ed1b7ce7341ca01aead3b20eaaef5146193410036bc247",
+      "writerSessionId": "sess-b9278b5e59ad6dbc1cc202941731ba33",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-212f/checklist.json",
+          ".proof-or-stop/story/actives/B-212f/findings.json",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "96536c71364c6ac3a18eae7dc860f7543f49df610a4cb95859287bbc5ed08a4e"
+      },
+      "readDiagnostics": [],
+      "_hash": "28590e2728d217689841c8f701508b7917025ddd38b76cb42a1a08cc3d553ac3"
     }
   ]
 }
