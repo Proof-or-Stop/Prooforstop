@@ -1340,7 +1340,7 @@
       "desc": "quality-win32-cmd-percent-expansion: packages/main/src/core/runtime-environment-checks.ts:703-707 claims that wrapping a Windows path in double quotes is sufficient for cmd.exe and leaves the path bytes unchanged. cmd.exe expands `%VariableName%` tokens on command lines, including quoted arguments, while `%` is legal in Windows file and directory names. A valid canonical root such as `C:\\repo\\%TEMP%\\core` is therefore rendered at :710-717 as `cd /d \"C:\\repo\\%TEMP%\\core\" && npm link` or an equivalent `npm --prefix` command and targets the environment-expanded path instead of the literal checkout. packages/main/tests/global-core-realpath.test.mjs:1229-1279 covers spaces but no percent-delimited component, so its simulated win32 assertions cannot catch this. F-028 exact cmd.exe remediation is therefore not fully closed. Render a command that preserves literal percent characters for the intended cmd.exe usage and add a percent-path fixture. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T19:18:09.260Z",
@@ -1390,7 +1390,12 @@
         "packages/main/tests/global-core-realpath.test.mjs"
       ],
       "signatureTag": "windows-doctor-remediation-command-portability",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqbcmz7_195c_4ce48635209d4aa886f7f59b9daa2d0f",
+      "resolvedAt": "2026-09-06T21:18:03.871Z",
+      "resolvedReason": "Duplicate of F-030. The same d65767d4b16e encoded PowerShell LiteralPath remediation and percent-token regression closes both observations.",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-033",
