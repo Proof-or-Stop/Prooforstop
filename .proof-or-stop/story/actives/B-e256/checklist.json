@@ -270,12 +270,12 @@
             }
           },
           {
-            "desc": "The real proof-or-stop validation_plan output exposes the regression by its stable registered id and label",
-            "type": "cli",
+            "desc": "The registered planner smoke drives the real validation_plan renderer and proves it exposes the regression by stable id and label",
+            "type": "logic",
             "priority": "must",
             "verification": {
-              "command": "node packages/main/dist/cli.js validation_plan --storyId=B-e256 --tier=full --explain",
-              "selector": "red-global-cli-exec-bit [B-e256 global CLI rebuild and promotion regression]"
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "ok  the real validation_plan output exposes red-global-cli-exec-bit by stable id and label"
             }
           }
         ],
