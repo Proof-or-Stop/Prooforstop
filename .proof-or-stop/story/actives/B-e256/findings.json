@@ -614,6 +614,21 @@
       "resolvedAt": "2026-09-06T15:32:44.233Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e256:F-017",
+      "desc": "quality-bin-target-intermediate-symlink-escape: scripts/promote-dist.mjs:98-110 checks lexical containment and lstatSyncs only the final path component, so an in-tree intermediate directory symlink is followed. A current-HEAD bounded probe declared bin dist/linked/cli.js where dist/linked symlinked to an outside directory; restoreBinExecutableBits returned [\"dist/linked/cli.js\"] and changed the outside referent from 0644 to 0755. F-016 is therefore only partially resolved: rejecting a final-component symlink does not prevent nested symlink traversal. Resolve/realpath the target and verify it remains under the real promoted tree, or reject any symlink component, and add the hermetic intermediate-symlink escape case. severity: medium",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T15:35:41.809Z",
+      "reviewRound": "2026-09-06T15:32:14.385Z",
+      "reviewRunId": "B-e256:RR-060",
+      "_hash": "dd597c4917b5d3a0283eaa8234b4a6516d89cfe30deb88e8d997b1e4238e5e57",
+      "signatureTag": "adversarial|unknown|quality-target-intermediate",
+      "signatureTagSource": "auto"
     }
   ]
 }
