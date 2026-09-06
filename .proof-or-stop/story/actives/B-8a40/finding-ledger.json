@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "43bcb532f483eee05165734d87d9e40309d2729125fdd07351ed47e076210045",
+  "committedLedgerDigest": "1e882941e2d4f3ef1d88c379daa86abcbace307c2c17b1ffd219000e66fe7d94",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2159,6 +2159,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:52:12.059Z"
+    },
+    {
+      "recordId": "lr_mtqguw2j_1jkp_b4ed4b22dd4242fc85b92930e03bc0d8",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqfgnex_1ock_5bdc6e97eccf4d7cb996f944e5693ddc:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtqfgnex_1ock_5bdc6e97eccf4d7cb996f944e5693ddc",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-fcad0b5b-8bf3-4d7c-81a4-e964baa999e2",
+        "findingId": "B-8a40:F-071",
+        "findingRecordId": "lr_mtqfgnex_1ock_5bdc6e97eccf4d7cb996f944e5693ddc",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-06T23:52:13.530Z",
+        "reason": "Commit 689f1817de removes controlledPairHasLocalRelation and its finite affirmative verb filters. Recognized concept pairs fail closed for unlisted adjudicates/enables predicates. A closed composable nominal test-topic grammar retains existing safe inventory coverage without exempting unknown predicates. All-role unsafe, explicit-negative and nominal controls pass. Verification: npm run build --prefix packages/main and node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with prompt full-context envelope smoke PASS; all 13 pinned verification receipts refreshed by the CLI at 689f1817de. Original observations remain retained; resolution is not deferral.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "a11790a797a273b60a641505db0bd4966fe94125f772a6429fa81a98fd5bab91",
+      "priorDigest": "43bcb532f483eee05165734d87d9e40309d2729125fdd07351ed47e076210045",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T23:52:13.531Z"
     }
   ],
   "receipts": [
@@ -5354,6 +5377,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "51114fbfc830f09c124c99b61404505092d655e54d5edd7862f982ef3aa1c25b",
         "signature": "WrAg9hebUGS6B4vt8Mpo057d3fwPdRVKfkt6TwxlJc2RqfunLPe8+j7PPcblGUuuQPJHavRCZf7cFPQwpmDvBQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqguw2j_1jkp_76451de8c6bc4134a3c73b325359b8b2",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqfgnex_1ock_5bdc6e97eccf4d7cb996f944e5693ddc:resolved",
+      "requestDigest": "15d2e699b01f155b6f01491289b9533268f0821287738191cce11d6757789335",
+      "recordIds": [
+        "lr_mtqguw2j_1jkp_b4ed4b22dd4242fc85b92930e03bc0d8"
+      ],
+      "priorLedgerDigest": "43bcb532f483eee05165734d87d9e40309d2729125fdd07351ed47e076210045",
+      "committedLedgerDigest": "1e882941e2d4f3ef1d88c379daa86abcbace307c2c17b1ffd219000e66fe7d94",
+      "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+      "writerFenceToken": "6454c039-2801-4043-8017-f8ed83522ce5",
+      "committedAt": "2026-09-06T23:52:13.531Z",
+      "replayed": false,
+      "exactRequestDigest": "aae21c9817713a6afb7a873948f3b747c28957987f0b86817eddcd1ccd932142",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqguw2j_1jkp_76451de8c6bc4134a3c73b325359b8b2",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding-lifecycle:lr_mtqfgnex_1ock_5bdc6e97eccf4d7cb996f944e5693ddc:resolved",
+        "exactRequestDigest": "aae21c9817713a6afb7a873948f3b747c28957987f0b86817eddcd1ccd932142",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtqguw2j_1jkp_b4ed4b22dd4242fc85b92930e03bc0d8"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtqfgnex_1ock_5bdc6e97eccf4d7cb996f944e5693ddc",
+            "expectedRecordHash": "0833595c28432875f0c16ffdd12ce236fdb221683052e55b9656b60385fe715c",
+            "observedChainHeadId": "lr_mtqguuxn_1j93_a66aff35c0084a7c915ce8a6d8246941",
+            "observedChainHeadHash": "1d97e94975e7ebe6958af25842ccdce637d1d3f92470d86883d69d92cd7cb750",
+            "predicateDigest": "a45cbd4db6c0543ba299cf77597ad89440178e200a4f9677f7694517a4a27a0d"
+          }
+        ],
+        "priorLedgerDigest": "43bcb532f483eee05165734d87d9e40309d2729125fdd07351ed47e076210045",
+        "committedLedgerDigest": "1e882941e2d4f3ef1d88c379daa86abcbace307c2c17b1ffd219000e66fe7d94",
+        "replayed": false,
+        "committedAt": "2026-09-06T23:52:13.531Z",
+        "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "6454c039-2801-4043-8017-f8ed83522ce5",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "42eec9a46e38f1677333f99cde0ab129778257b3e742c5104cfc79f174a8b5fb",
+        "signature": "Np1FYX6LziNoU4f33R8TLO1ojqpuotdczGvCwvvOV0sY19rz2AHr4Rt9vDBFdm5MhJyvIHaVJjTGtAbAHcgCAQ=="
       }
     }
   ]
