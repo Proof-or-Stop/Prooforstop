@@ -1245,7 +1245,7 @@
       "reviewRound": "2026-09-06T19:49:59.446Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T19:51:43.369Z",
-      "updatedAt": "2026-09-06T19:51:43.369Z",
+      "updatedAt": "2026-09-06T20:01:51.864Z",
       "cutoff": {
         "headHash": "ef6baaa221bc41a6765341387ac49865063ddfc7",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1259,9 +1259,63 @@
       ],
       "initialRunSequenceBoundary": 71,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T19:51:43.369Z",
+          "completedAt": "2026-09-06T20:01:51.864Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-072",
+              "terminal": "finding",
+              "hostIdentity": "76f6f27f51c947bec27953ffd6ab545f76d67e91c8fcb0222dd740c77a647d51",
+              "promptIdentity": "9a1669c0f1e771c996c71dbdb52cde61e394aa59386e6f9101a34bd3c442c010",
+              "evidenceIds": [
+                "B-8a40:F-043"
+              ],
+              "coverageDigest": "973582b50f4675e943c5fb4f9a2642a378d5f31a3183b1574285d82078067e8d"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-073",
+              "terminal": "finding",
+              "hostIdentity": "76f6f27f51c947bec27953ffd6ab545f76d67e91c8fcb0222dd740c77a647d51",
+              "promptIdentity": "4f184ddd904b90cea3788c9f941c9afdc113ea21549b391bb2d5dacce87f1485",
+              "evidenceIds": [
+                "B-8a40:F-042"
+              ],
+              "coverageDigest": "fef2d72605647104ea3f07fd16c9053ef989dae76a418a7e369576776f2bdb80"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-074",
+              "terminal": "finding",
+              "hostIdentity": "76f6f27f51c947bec27953ffd6ab545f76d67e91c8fcb0222dd740c77a647d51",
+              "promptIdentity": "1f97ee4aabadf03dde7b7cf73ea6c6d5d9d973201d00ffe7c24d8626f7d82b0f",
+              "evidenceIds": [
+                "B-8a40:F-041",
+                "B-8a40:F-044",
+                "B-8a40:F-045"
+              ],
+              "coverageDigest": "bbbe1661e856dc0cb2a425902b37212044bf0085097ab88a4239934403d8ac31"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering"
+          ],
+          "verifiedFindingSetDigest": "0189f7c445f301d2af217866ec30adb245c90207f49396ef12ebf7ef751de236",
+          "newVerifiedFindingCount": 4,
+          "criticDigest": "360ebf6bc540fbebd85811d5720da6a9178c25a8943dbc7bb364fd8a0373d7de",
+          "saturated": false,
+          "nextRunSequenceBoundary": 77
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "ae3e3900c96a9eb6644a164fd182e5ecb11cea2d0692829195127aae17d31278"
+      "_hash": "3d9d6f26e1ec9f56cedb3e4507bbd6287ae564795d856b48dd15ecc3282cfd68"
     }
   ],
   "receipts": [
@@ -2375,6 +2429,62 @@
       "findingDispositions": [],
       "createdAt": "2026-09-06T19:20:29.513Z",
       "_hash": "656333576de4364933e1e27f99dc7130643d2344d988e8af9d7a91661dd38eb0"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-007:CRIT-01",
+      "epochId": "B-8a40:RI-007",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "ef6baaa221bc41a6765341387ac49865063ddfc7",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "0189f7c445f301d2af217866ec30adb245c90207f49396ef12ebf7ef751de236",
+      "requiredLaneCoverageDigest": "f4c9c11c31348d2c35e7eed6e4f04966803ccccad343f3e7ecf52820a78ebc50",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-077",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-042"
+      ],
+      "readEvidenceDigest": "4e3345ce91783a52c587dcb1eea39351cd5655fc68f447578fe05a91510f9a36",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-041",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+          "reason": "Independent bounded classifier/gate family: structural leaves are now enumerated, unlike F-019, but the whitespace-free path-shape exemption runs before hyphen and underscore semantic normalization, allowing encoded dismissal, reviewer-disposition, and schema-authority assertions."
+        },
+        {
+          "findingId": "B-8a40:F-042",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+          "reason": "Canonical current-material family: approved inventory and subordinate wrappers remain open-bodied behind the same finite authority-action blacklist, so unlisted verbs such as publishes and enacts bypass the residual classifier. This is an incomplete-closure mechanism after earlier open-body findings, not F-041 encoding or F-043 linkage."
+        },
+        {
+          "findingId": "B-8a40:F-043",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-topic-break-explicit-coreference-laundering",
+          "reason": "Independent bounded classifier/gate family: an unconditional topic-break exemption severs an otherwise rejected relation even when the later sentence explicitly corefers to the Finding. This is separate from unrelated-object false joins because the target is explicit and the laundering occurs in relation linkage."
+        },
+        {
+          "findingId": "B-8a40:F-044",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+          "canonicalFindingId": "B-8a40:F-042",
+          "reason": "Direct non-circular duplicate of earlier F-042: both exercise the same open approved-wrapper capture guarded by TRIAGE_INVENTORY_AUTHORITY_ACTION and bypass it with unlisted authority-action verbs. Preserve F-044's additional deem, makes, and entrusts witnesses and its dismissal/disposition controls."
+        },
+        {
+          "findingId": "B-8a40:F-045",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+          "reason": "Independent bounded classifier/gate family: full Task Context composition tracks only negative-dismissal relations, allowing equivalent prohibited severity-to-scope, unknown-to-routing, deferral-to-transfer, and signed-disposition-to-binding propositions when their continuations move to another trusted leaf."
+        }
+      ],
+      "createdAt": "2026-09-06T20:01:19.317Z",
+      "_hash": "dbc25c688a5bb0fab8c3df527f125cc82136a8722c9ce743c87625230f220d66"
     }
   ]
 }
