@@ -3588,6 +3588,537 @@
       "incrementalContextBytes": 28505,
       "escalatedToFull": true,
       "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-test-coverage",
+      "storyId": "B-8a40",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-8a40:RR-030",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "lane": "proof-or-stop-review-test-coverage",
+      "dispatchPromptDigest": "e34dc50e27c4bee1ad777c2033d0102bde7f3c79508104df3e97d6f13288ee52",
+      "hostRenderIdentityDigest": "76d6acb1bbd2917e4cce9102da03819b6f0261cab6d68beab5bfc235d0fdfb15",
+      "createdAt": "2026-09-06T17:54:59.295Z",
+      "headHash": "7dda3d1881030af1df1cc0401165ea32bb80105b",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "241b9c8157a370ca82591367e84f7606178f1f8183dd46a4f5a80dcf1352d2f8",
+      "roleRenderDigest": "d286c761ff9ead9ed285dfee667c9684e7aa1b4c33702d6d492d13946affb413",
+      "contextMode": "full",
+      "contextDigest": "13f1ff3d954d85c42d658027f288af7e68d7dac9175500e87b254ecec7efeac6",
+      "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+      "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876",
+      "policyHash": "9c092ea5049329d3c440f77b286cecddae3ac38b0984fadf7af9c27c52e76661",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "9a81b7f0c195e6e9c386382db166cbc934b2445264245e42cf954b1ac57e136a",
+      "knownExecutionEnvironmentDigest": "392606c7acc37720a5b704d079ac9931617d2c8188b3416269ab05433b0aff64",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "aa6e3258c02223f1de45ea08da75cee8f0c23c963a611eb958cbd5df73036532",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "d6b4227f322e961ef76712d1bcbe48551717591d4f11f64535d1d34b9d973cf5",
+      "bytes": 23800,
+      "lines": 153,
+      "estimatedTokens": 5950,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "db2d7d9656a9c061987692183358d74c285d3d5c7e6645bee3714f633ca19427",
+      "priorPassRef": "B-8a40:RP-015",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "058da62df401ade862976c463ce9796e294d8dcde1a01e2daf1960823816e91f",
+      "impactedFilesDigest": "0f2679432ae4281e216e56a5f864e7c53679a02a9f5625fea1a634045641f7fb",
+      "taskSemanticDigest": "b3782e1ccdadd9a3a205f7b6cf4c0faff7b8c83f46a99e2956de214e5076f3f0",
+      "findingProjection": [
+        {
+          "id": "B-8a40:F-001",
+          "createdAt": "2026-09-06T16:39:19.111Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:539-542 and :788-791 remove every standalone negative-dismissal observation from the whole-source dismissal scan after checking only the next three segments, while isLinkedResponsibilityConclusion also requires a closed sentence-start vocabulary. This creates fail-open paths relative to main: No parent Finding is closed by this intake. A. B. C. The issue is out of scope. falls beyond the slice, while No parent Finding is closed by this intake. We therefore consider the issue out of scope. is adjacent but misses the anchored prefix grammar; in both cases the dismissal subject is filtered out before joined classification. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1094 and :1562 cover only the short sentence-start matrix, so the focused smoke still prints PASS and the broad-deletion mutant cannot detect either bypass. This is a high-severity Task Context authority-safety regression: preserve the safe B-bcae observation without making later linkage depend on an evadable distance or closed prefix list."
+        },
+        {
+          "id": "B-8a40:F-002",
+          "createdAt": "2026-09-06T16:40:29.381Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:521-525 treats any responsibility-outcome token in a candidate beginning with `it`, `this`, `that`, or an issue/work noun as an unsafe linked conclusion without checking assertion polarity. The committed public assembleFullPromptEnvelope API rejected both `No parent Finding is closed by this intake. It is not out of scope.` and `No parent Finding is closed by this intake. It remains the responsibility of this Story.` for every active modular REVIEW role. These are explicit safe/current-repair statements, so the new guard recreates the reviewer-startup false-positive class this Story exists to repair and contradicts the related decision requirement that the guard compare assertion polarity (review-finding-triage-prompt-change-proposal.md:346-351). The focused smoke only has positive out-of-scope/ownership outcomes and therefore misses the inverse safe polarity. Add polarity-aware linkage classification and safe counterexamples; severity high."
+        },
+        {
+          "id": "B-8a40:F-003",
+          "createdAt": "2026-09-06T16:40:46.456Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:523-525 and :539-542 replace the prior whole-source check with a fixed sentence-initial prefix allowlist and a three-segment/360-character horizon. The committed public assembleFullPromptEnvelope API admitted `No parent Finding is closed by this intake. Out of scope is where the issue belongs.` and `No parent Finding is closed by this intake. Another Story owns it.` for every active modular REVIEW role, even though these are word-order equivalents of the declared rejected adjacent scope/ownership conclusions. It also admitted the same unsafe conclusion after three benign intervening sentences or one padded adjacent sentence. This directly contradicts the related decision at review-finding-triage-prompt-change-proposal.md:346-351, which requires equivalent authority claims to stay rejected after word-order or punctuation changes, and reopens the B-5190 bypass class. The focused matrix covers only the accepted prefix spellings and at most one benign intervening segment. Make the bounded relation test invariant to these word-order and padding transformations and add independent witnesses; severity high."
+        },
+        {
+          "id": "B-8a40:F-004",
+          "createdAt": "2026-09-06T16:48:49.412Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:511-519 recognizes a complete negative-dismissal observation only when the text before the dismissal subject contains at most four words and the optional  agent suffix contains at most three words. When an otherwise safe observation exceeds either arbitrary word-count bound, the helper returns false and the joined scan at :788-791 re-pairs that explicitly negative observation with later independent current-repair prose, recreating a pre-digest false-red. Reproduced against the committed built public assembleFullPromptEnvelope API for all five active modular reviewer roles: both  and  were REJECTED as . Both statements deny closure and then require current-Story repair. This is distinct from B-8a40:F-002: the later statement here is affirmative safe/current-repair prose; failure is caused by the standalone observation's arbitrary modifier/agent word limit, not by missing polarity analysis in a linked responsibility conclusion. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1340 covers only the exact B-bcae wording and one concise equivalent, so the focused smoke still prints PASS and CHK-001:edge:0 overstates the non-allowlist boundary. Add safe modifier and longer-agent variants that require integrity-valid assembly, then make the safe observation grammar structural rather than word-count bounded; severity high because legitimate reviewer startup remains blocked by harmless wording changes."
+        },
+        {
+          "id": "B-8a40:F-005",
+          "createdAt": "2026-09-06T16:49:20.024Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:511-518 recognizes a safe negative dismissal observation only when `no` precedes the dismissal subject with at most four words and the optional `by` actor has at most three words. Safe word-order and actor-length equivalents therefore fall back to the whole-source co-occurrence rejection even when their later prose explicitly keeps acceptance blockers in the current Story for repair. The committed public assembleFullPromptEnvelope API rejected `By this intake, no parent Finding is closed. During implementation, acceptance blockers require repair in the current Story.` and `No parent Finding is closed by the newly created supporting Story. During implementation, acceptance blockers require repair in the current Story.` for every active modular REVIEW role. This is distinct from F-002: those inputs never reach its linked-outcome polarity decision because the initial safe observation is not recognized. It violates the related decision's word-order invariant at review-finding-triage-prompt-change-proposal.md:346-351 and leaves the second safe fixture too close to the exact grammar to prove the conceptual boundary. Add safe negative-observation word-order/actor variants and replace the fixed word-count shape with bounded relationship/polarity classification; severity high."
+        },
+        {
+          "id": "B-8a40:F-006",
+          "createdAt": "2026-09-06T16:49:38.156Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "Complete reproduction record for B-8a40:F-004, whose shell-rendered description lost its quoted examples. packages/main/src/core/prompt-envelope.ts:511-519 recognizes a complete negative-dismissal observation only when the text before the dismissal subject contains at most four words and the optional by-agent suffix contains at most three words. When either arbitrary word-count bound is exceeded, the helper returns false and the joined scan at lines 788-791 re-pairs the explicitly negative observation with later independent current-repair prose, recreating a pre-digest false-red. Against the committed built public assembleFullPromptEnvelope API, every one of the five active modular reviewer roles rejected both exact safe inputs: [1] No currently open independently reviewed parent Finding is closed by this intake. During execution, direct blockers require repair in this Story. [2] No parent Finding is closed by the intake associated with this Story. During execution, direct blockers require repair in this Story. The error for every cell was REVIEW Task Context contains unsafe Finding-triage authority at story.description: dismissal used as applicability proof. Both inputs deny closure and then require current-Story repair. This is distinct from B-8a40:F-002 because the later statement here is affirmative safe/current-repair prose; the defect is the standalone observation grammar arbitrary modifier and agent word limit, not missing polarity analysis in a linked responsibility conclusion. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1340 covers only the exact B-bcae wording and one concise equivalent, so the focused smoke still prints PASS and CHK-001:edge:0 overstates the non-allowlist boundary. Add safe modifier and longer-agent variants that require integrity-valid assembly, then make the safe observation grammar structural rather than word-count bounded. Severity is high because legitimate reviewer startup remains blocked by harmless wording changes."
+        },
+        {
+          "id": "B-8a40:F-007",
+          "createdAt": "2026-09-06T16:55:36.388Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1543-1547 labels its mutation broad deletion but injects a filter at the entry of classifyControlledTriageRelations that removes every segment starting with no and containing a dismissal subject before any per-segment or linkage classifier runs. This is materially stronger than the immutable candidate mutation at commit 12363ef512 lines 1540-1544, which returns false only from hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal and therefore reproduces the B-5190 joined-scan shortcut without deleting unrelated input. The current test can demand 45 of 45 role-witness escapes only because it also deletes the first inline witness before the existing single-segment classifier sees it. Independent dynamic reproduction with the faithful helper-only mutation produced the same matrix for all five active roles: witness 1, No parent Finding is closed by this intake as out of scope, remained REJECTED by the pre-existing per-segment oracle, while witnesses 2 through 9 were ADMITTED. Thus the current 45-cell assertion is not mutation evidence that the new bounded-link production branch is necessary; it is killed by an overbroad input-deletion mutation that bypasses additional unrelated protections. This is distinct from the existing functional language-bypass and false-positive Findings: the production outcomes may be repaired separately, but CHK-001:adversarial:1 and its mechanical PASS receipt remain overclaimed until the smoke imports the faithful helper-only mutant, evaluates every role-witness cell without short-circuit, asserts the expected five retained inline rejections and forty linkage escapes, and proves the full production oracle detects those escapes. Severity high because this directly invalidates a must adversarial intent and makes REVIEW evidence misleading."
+        },
+        {
+          "id": "B-8a40:F-008",
+          "createdAt": "2026-09-06T16:55:39.441Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1511-1514 writes dynamic mutant modules directly into the real packages/main/dist/core build output, and lines 1582-1585 catch and suppress every unlinkSync failure rather than only tolerating ENOENT. A permission, filesystem, or other cleanup error therefore still lets the smoke reach its PASS marker while leaving prompt-envelope.b8a40-*.js in the build/package tree, contradicting plan.md commitment that the implementer leave no mutant files and weakening test isolation. This is distinct from F-001 through F-006, which concern classifier false-safe/false-block semantics. Use an isolated temporary module tree or fail closed on non-ENOENT cleanup errors and verify residue absence before PASS; severity medium."
+        },
+        {
+          "id": "B-8a40:F-009",
+          "createdAt": "2026-09-06T17:02:16.423Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1001-1039 validates every Story, checklist, and verification-intent string leaf independently and never relates controlled concepts across leaves of the same assembled Task Context. An unsafe authority assertion can therefore be split at a causal boundary so each leaf is individually unclassified while the reviewer receives the complete relationship. Independent reproduction against the committed built public assembleFullPromptEnvelope API set story.description to No parent Finding is closed by this intake. and checklist.CHK-001.context to Accordingly, the issue is out of scope. All five active modular reviewer roles ADMITTED an envelope, although the serialized Task Context tells the reviewer that the negative dismissal observation is the reason for the out-of-scope conclusion. This is distinct from F-001 and F-003, which evade distance or vocabulary inside one source leaf, and from F-002, F-004, F-005, and F-006, which are false positives. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 injects each complete representative into one surface at a time; it has no cross-leaf matrix, so the focused smoke and every mechanical evidence receipt remain PASS. The related decision requires the Task Context authority guard to compare normalized concepts, their semantic relationship, and assertion polarity before envelope digests are minted; a per-leaf-only oracle does not protect that full-context boundary. Add cross-leaf Story-to-checklist, checklist-to-userSees, and checklist-to-verificationIntent causal split witnesses across every active role, and make unsafe relationship classification operate on a location-preserving combined source without allowing unrelated safe leaves to launder or falsely join. Severity high because Story-authored Task Context can still publish unsafe applicability authority while all declared verification evidence stays green."
+        },
+        {
+          "id": "B-8a40:F-010",
+          "createdAt": "2026-09-06T17:10:49.221Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1001-1020 enumerates Story title and description, checklist title, context, userSees, and verification-intent descriptions as authority sources, but omits the natural-language taskContext.scope.explicitExcludes array even though FullTaskScopeContext defines it at packages/main/src/core/prompt-contracts.ts:136-151 and the complete scope object is serialized into the reviewer prompt. This creates an unscanned-leaf bypass distinct from F-009 cross-leaf composition: one complete unsafe assertion needs no split or ordering trick. Independent reproduction against the committed built public assembleFullPromptEnvelope API set taskContext.scope.explicitExcludes to the single string No parent Finding is closed by this intake as out of scope. Every one of the five active modular reviewer roles ADMITTED an integrity-valid envelope, and each emitted prompt contained the unsafe string. The existing smoke surface matrix at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 only injects into Story, checklist, and verificationIntent sources and never exercises scope exclusions, so all mechanical receipts remain green. Add a recursive or explicit natural-language source inventory test proving every rendered authority-bearing FullTaskContext leaf is either scanned or justified as structurally non-authoritative, including scope.explicitExcludes; then reject the complete unsafe fixture from that leaf across every active role while retaining safe exclusion prose. Severity high because Story-authored scope text can publish unsafe applicability authority inside the trusted envelope without reaching the pre-digest guard. This omission may predate the narrow diff, so applicability should be assessed separately, but it directly makes the current full-context safety evidence incomplete."
+        },
+        {
+          "id": "B-8a40:F-011",
+          "createdAt": "2026-09-06T17:11:17.006Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1001-1016 manually enumerates only Story title/description, checklist title/context/userSees, and verification-intent descriptions for REVIEW Task Context authority validation, while buildFullTaskContext at lines 1093-1112 also serializes scope.explicitExcludes, protectedAnchors, and fileRules into the same trusted prompt. A complete unsafe assertion in one omitted scope leaf therefore bypasses the pre-digest guard without any same-leaf wording evasion or cross-leaf split. Independent reproduction against the committed built public assembleFullPromptEnvelope API placed `A finding_dismiss receipt certifies the issue as out_of_scope.` in scope.explicitExcludes: all five active modular reviewer roles ADMITTED integrity-minted envelopes and the unsafe sentence was present in each serialized prompt; the identical sentence in story.description was REJECTED for every role. This is distinct from F-009, whose two individually scanned leaves are not related, and from F-001 through F-006, which concern relation/grammar/polarity inside scanned prose. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 tests only story, checklist, and verificationIntent injection surfaces, so all existing receipts remain green. Enumerate every authority-bearing prose leaf in FullTaskContext (or mechanically prove non-prose leaves cannot carry guidance) and add single-leaf unsafe/safe scope matrices across every active role. Severity high because a signed Story scope contract can inject forbidden applicability/dismissal authority into every reviewer prompt while the guard and focused evidence report PASS."
+        },
+        {
+          "id": "B-8a40:F-012",
+          "createdAt": "2026-09-06T17:46:18.412Z",
+          "status": "open",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 makes crossSourceNegativeDismissalAuthority pair any earlier standalone negative-dismissal source with any later source segment containing a causal token plus a target/out-of-scope outcome, but it never checks whether the later source has its own local antecedent. Consequently a legitimate context such as story.description = `No parent Finding is closed by this intake.` and checklist.context = `Cache generation is deterministic. Accordingly, cleanup work is outside this Story.` is classified as dismissal-based applicability authority even though `Accordingly` refers to the cache sentence inside the checklist leaf, not to the Finding observation in another leaf. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1217-1224 and :1452-1459 only prove an unrelated cross-leaf case with no causal marker, so they do not exercise this false join. This is distinct from F-002 polarity (the conclusion here is affirmatively about unrelated work), F-009 missing genuine cross-leaf joins, and F-001 distance/vocabulary bypasses. Preserve the F-009 repair while requiring a source-leading causal continuation or explicit dismissal coreference before joining leaves, and add all-role safe cases whose later leaf carries its own local causal antecedent. Severity high because this reintroduces a pre-digest false-red that blocks every modular reviewer from starting on valid multi-surface Story context."
+        },
+        {
+          "id": "B-8a40:F-013",
+          "createdAt": "2026-09-06T17:47:20.023Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 requires every cross-source conclusion to contain TRIAGE_CAUSAL_LINK before it can be related to an earlier standalone negative-dismissal observation. The same direct/coreferent authority relationship already declared unsafe within one leaf therefore becomes fail-open when split across leaves: story.description = `No parent Finding is closed by this intake.` plus checklist.context = `It is out of scope.` is individually unclassified and the cross-source pass skips it solely because the second leaf has no Accordingly/Therefore-style token. This leaves F-009 incompletely repaired despite its resolvedReason claiming location-preserving combined Task Context classification. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1177-1215 and :1441-1450 cover only causal cross-leaf variants, while its same-leaf matrix at :1076-1088 proves that `It is out of scope.` is an intended unsafe linked conclusion. This is distinct from F-012, which is the inverse unrelated-causal false-positive, and from F-001, which concerns same-leaf distance. Relate unambiguous source-leading coreference across leaves as well as causal continuations, retain polarity checks for `It is not out of scope`, and add all-role direct/coreferent split witnesses. Severity high because an integrity-valid reviewer envelope can still carry dismissal-based applicability authority while the focused smoke reports PASS."
+        },
+        {
+          "id": "B-8a40:F-014",
+          "createdAt": "2026-09-06T17:49:16.869Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:371 and :518-535 recognize the negative dismissal observation only when TRIAGE_DISMISSAL_SUBJECT matches the passive `Finding is closed` shape; equivalent active-voice negation is absent from the subject grammar. Against the committed built public assembleFullPromptEnvelope API, all five active modular REVIEW roles ACCEPTED both `This intake closes no parent Finding. Therefore another Story owns it.` and `The intake does not close any parent Finding. Therefore another Story owns it.`, while the passive controls at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1078-1079 were rejected 5/5. Because the first segment is never identified as a negative dismissal observation, the later causal ownership conclusion is not linked and the guard fails open. This leaves the resolved F-005 word-order family incompletely repaired and violates review-finding-triage-prompt-change-proposal.md:346-351, which requires equivalent authority claims to remain rejected after word-order changes. Add active-voice negative-observation witnesses across every active role and make negative dismissal recognition relation/polarity-based in both voice orders; severity high because Story Task Context can again mint out-of-scope ownership guidance before reviewer startup."
+        },
+        {
+          "id": "B-8a40:F-015",
+          "createdAt": "2026-09-06T17:49:46.230Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 makes cross-leaf dismissal authority depend on TRIAGE_CAUSAL_LINK in the later leaf, so a direct anaphoric or noun-target conclusion that is unsafe in one leaf becomes admissible when split across FullTaskContext leaves. Independent public-API reproduction on current built material: story.description = \"No parent Finding is closed by this intake.\" plus checklist.CHK-001.context = \"It is out of scope.\" was ADMITTED by all five active modular reviewer roles; replacing the later leaf with \"The work is outside this Story.\" was also ADMITTED by all five, and placing \"It is out of scope.\" in scope.explicitExcludes was ADMITTED by all five. The exact same-leaf text \"No parent Finding is closed by this intake. It is out of scope.\" was REJECTED by all five, proving this is a cross-leaf detector gap rather than a vocabulary miss. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1441-1450 covers only three causal-prefix splits, and its scope checks at lines 1460-1483 exercise complete single-leaf authority statements, not direct cross-leaf anaphora. This is distinct from resolved F-009: that finding and its repair bind causal-prefix cross-leaf witnesses; the new witness needs no causal marker and directly replays CHK-001:edge:2 across the rendered leaf boundary. Add all-role direct/coreferent cross-leaf witnesses, including a scope leaf, and make the combined-source oracle reject them without joining unrelated safe leaves. Severity high because the trusted reviewer envelope can still mint an unsafe applicability assertion while all 13 refreshed mechanical receipts and the focused smoke report PASS."
+        }
+      ],
+      "findingProjectionDigest": "f2af7a434cd2e24968cd19d5ba42880c375eea3aff732fa1c9f247c0d972f292",
+      "reviewBasisDigest": "10f8d9712993022fbeb562712a853fb22a0c81c80f46b1367cf3005ba744d665",
+      "incrementalContextDigest": "4947200c2c8ac2a86f89086d254dfd787b2111418f44e26c7aa803c7ecccb967",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 23800,
+      "incrementalContextBytes": 29277,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-quality",
+      "storyId": "B-8a40",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-8a40:RR-031",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "lane": "proof-or-stop-review-quality",
+      "dispatchPromptDigest": "3928dc0abdfa4b2df4ea3382cf7340d10bb77fc59cbd618b025cc8b7e8952a18",
+      "hostRenderIdentityDigest": "571816810e58bc250da489855f5d9ca4fc6cc64035048ad1ef97c7c238f39e00",
+      "createdAt": "2026-09-06T17:55:04.304Z",
+      "headHash": "7dda3d1881030af1df1cc0401165ea32bb80105b",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "db1ded0feb790b52d503493df206bfa48daef517bbc0db97fdd27e369b1dd9c4",
+      "roleRenderDigest": "7549f3d81837aa403fe7fdb6f6bf19668d07e50ebcecb893592758a276cfcb21",
+      "contextMode": "full",
+      "contextDigest": "13f1ff3d954d85c42d658027f288af7e68d7dac9175500e87b254ecec7efeac6",
+      "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+      "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876",
+      "policyHash": "9c092ea5049329d3c440f77b286cecddae3ac38b0984fadf7af9c27c52e76661",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "38dda8aee5e577d7aca9b06a63105a5ebd7f4688a866b12cff294752f6059ee3",
+      "knownExecutionEnvironmentDigest": "392606c7acc37720a5b704d079ac9931617d2c8188b3416269ab05433b0aff64",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "77c5a684fdcf7cfd57a6489c641362c6711f530bb1788bfcfd4e8e151890e264",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "71a090836ed12bbb3be9c1eab017569e9a490e8938940f3d0bd3231db243a277",
+      "bytes": 26513,
+      "lines": 193,
+      "estimatedTokens": 6629,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "53236b874c49f35020badacdb5bdd449c01b3abaf593f3d684a6b809a69e7c0c",
+      "priorPassRef": "B-8a40:RP-013",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "058da62df401ade862976c463ce9796e294d8dcde1a01e2daf1960823816e91f",
+      "impactedFilesDigest": "0f2679432ae4281e216e56a5f864e7c53679a02a9f5625fea1a634045641f7fb",
+      "taskSemanticDigest": "b3782e1ccdadd9a3a205f7b6cf4c0faff7b8c83f46a99e2956de214e5076f3f0",
+      "findingProjection": [
+        {
+          "id": "B-8a40:F-001",
+          "createdAt": "2026-09-06T16:39:19.111Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:539-542 and :788-791 remove every standalone negative-dismissal observation from the whole-source dismissal scan after checking only the next three segments, while isLinkedResponsibilityConclusion also requires a closed sentence-start vocabulary. This creates fail-open paths relative to main: No parent Finding is closed by this intake. A. B. C. The issue is out of scope. falls beyond the slice, while No parent Finding is closed by this intake. We therefore consider the issue out of scope. is adjacent but misses the anchored prefix grammar; in both cases the dismissal subject is filtered out before joined classification. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1094 and :1562 cover only the short sentence-start matrix, so the focused smoke still prints PASS and the broad-deletion mutant cannot detect either bypass. This is a high-severity Task Context authority-safety regression: preserve the safe B-bcae observation without making later linkage depend on an evadable distance or closed prefix list."
+        },
+        {
+          "id": "B-8a40:F-002",
+          "createdAt": "2026-09-06T16:40:29.381Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:521-525 treats any responsibility-outcome token in a candidate beginning with `it`, `this`, `that`, or an issue/work noun as an unsafe linked conclusion without checking assertion polarity. The committed public assembleFullPromptEnvelope API rejected both `No parent Finding is closed by this intake. It is not out of scope.` and `No parent Finding is closed by this intake. It remains the responsibility of this Story.` for every active modular REVIEW role. These are explicit safe/current-repair statements, so the new guard recreates the reviewer-startup false-positive class this Story exists to repair and contradicts the related decision requirement that the guard compare assertion polarity (review-finding-triage-prompt-change-proposal.md:346-351). The focused smoke only has positive out-of-scope/ownership outcomes and therefore misses the inverse safe polarity. Add polarity-aware linkage classification and safe counterexamples; severity high."
+        },
+        {
+          "id": "B-8a40:F-003",
+          "createdAt": "2026-09-06T16:40:46.456Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:523-525 and :539-542 replace the prior whole-source check with a fixed sentence-initial prefix allowlist and a three-segment/360-character horizon. The committed public assembleFullPromptEnvelope API admitted `No parent Finding is closed by this intake. Out of scope is where the issue belongs.` and `No parent Finding is closed by this intake. Another Story owns it.` for every active modular REVIEW role, even though these are word-order equivalents of the declared rejected adjacent scope/ownership conclusions. It also admitted the same unsafe conclusion after three benign intervening sentences or one padded adjacent sentence. This directly contradicts the related decision at review-finding-triage-prompt-change-proposal.md:346-351, which requires equivalent authority claims to stay rejected after word-order or punctuation changes, and reopens the B-5190 bypass class. The focused matrix covers only the accepted prefix spellings and at most one benign intervening segment. Make the bounded relation test invariant to these word-order and padding transformations and add independent witnesses; severity high."
+        },
+        {
+          "id": "B-8a40:F-004",
+          "createdAt": "2026-09-06T16:48:49.412Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:511-519 recognizes a complete negative-dismissal observation only when the text before the dismissal subject contains at most four words and the optional  agent suffix contains at most three words. When an otherwise safe observation exceeds either arbitrary word-count bound, the helper returns false and the joined scan at :788-791 re-pairs that explicitly negative observation with later independent current-repair prose, recreating a pre-digest false-red. Reproduced against the committed built public assembleFullPromptEnvelope API for all five active modular reviewer roles: both  and  were REJECTED as . Both statements deny closure and then require current-Story repair. This is distinct from B-8a40:F-002: the later statement here is affirmative safe/current-repair prose; failure is caused by the standalone observation's arbitrary modifier/agent word limit, not by missing polarity analysis in a linked responsibility conclusion. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1340 covers only the exact B-bcae wording and one concise equivalent, so the focused smoke still prints PASS and CHK-001:edge:0 overstates the non-allowlist boundary. Add safe modifier and longer-agent variants that require integrity-valid assembly, then make the safe observation grammar structural rather than word-count bounded; severity high because legitimate reviewer startup remains blocked by harmless wording changes."
+        },
+        {
+          "id": "B-8a40:F-005",
+          "createdAt": "2026-09-06T16:49:20.024Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:511-518 recognizes a safe negative dismissal observation only when `no` precedes the dismissal subject with at most four words and the optional `by` actor has at most three words. Safe word-order and actor-length equivalents therefore fall back to the whole-source co-occurrence rejection even when their later prose explicitly keeps acceptance blockers in the current Story for repair. The committed public assembleFullPromptEnvelope API rejected `By this intake, no parent Finding is closed. During implementation, acceptance blockers require repair in the current Story.` and `No parent Finding is closed by the newly created supporting Story. During implementation, acceptance blockers require repair in the current Story.` for every active modular REVIEW role. This is distinct from F-002: those inputs never reach its linked-outcome polarity decision because the initial safe observation is not recognized. It violates the related decision's word-order invariant at review-finding-triage-prompt-change-proposal.md:346-351 and leaves the second safe fixture too close to the exact grammar to prove the conceptual boundary. Add safe negative-observation word-order/actor variants and replace the fixed word-count shape with bounded relationship/polarity classification; severity high."
+        },
+        {
+          "id": "B-8a40:F-006",
+          "createdAt": "2026-09-06T16:49:38.156Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "Complete reproduction record for B-8a40:F-004, whose shell-rendered description lost its quoted examples. packages/main/src/core/prompt-envelope.ts:511-519 recognizes a complete negative-dismissal observation only when the text before the dismissal subject contains at most four words and the optional by-agent suffix contains at most three words. When either arbitrary word-count bound is exceeded, the helper returns false and the joined scan at lines 788-791 re-pairs the explicitly negative observation with later independent current-repair prose, recreating a pre-digest false-red. Against the committed built public assembleFullPromptEnvelope API, every one of the five active modular reviewer roles rejected both exact safe inputs: [1] No currently open independently reviewed parent Finding is closed by this intake. During execution, direct blockers require repair in this Story. [2] No parent Finding is closed by the intake associated with this Story. During execution, direct blockers require repair in this Story. The error for every cell was REVIEW Task Context contains unsafe Finding-triage authority at story.description: dismissal used as applicability proof. Both inputs deny closure and then require current-Story repair. This is distinct from B-8a40:F-002 because the later statement here is affirmative safe/current-repair prose; the defect is the standalone observation grammar arbitrary modifier and agent word limit, not missing polarity analysis in a linked responsibility conclusion. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1340 covers only the exact B-bcae wording and one concise equivalent, so the focused smoke still prints PASS and CHK-001:edge:0 overstates the non-allowlist boundary. Add safe modifier and longer-agent variants that require integrity-valid assembly, then make the safe observation grammar structural rather than word-count bounded. Severity is high because legitimate reviewer startup remains blocked by harmless wording changes."
+        },
+        {
+          "id": "B-8a40:F-007",
+          "createdAt": "2026-09-06T16:55:36.388Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1543-1547 labels its mutation broad deletion but injects a filter at the entry of classifyControlledTriageRelations that removes every segment starting with no and containing a dismissal subject before any per-segment or linkage classifier runs. This is materially stronger than the immutable candidate mutation at commit 12363ef512 lines 1540-1544, which returns false only from hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal and therefore reproduces the B-5190 joined-scan shortcut without deleting unrelated input. The current test can demand 45 of 45 role-witness escapes only because it also deletes the first inline witness before the existing single-segment classifier sees it. Independent dynamic reproduction with the faithful helper-only mutation produced the same matrix for all five active roles: witness 1, No parent Finding is closed by this intake as out of scope, remained REJECTED by the pre-existing per-segment oracle, while witnesses 2 through 9 were ADMITTED. Thus the current 45-cell assertion is not mutation evidence that the new bounded-link production branch is necessary; it is killed by an overbroad input-deletion mutation that bypasses additional unrelated protections. This is distinct from the existing functional language-bypass and false-positive Findings: the production outcomes may be repaired separately, but CHK-001:adversarial:1 and its mechanical PASS receipt remain overclaimed until the smoke imports the faithful helper-only mutant, evaluates every role-witness cell without short-circuit, asserts the expected five retained inline rejections and forty linkage escapes, and proves the full production oracle detects those escapes. Severity high because this directly invalidates a must adversarial intent and makes REVIEW evidence misleading."
+        },
+        {
+          "id": "B-8a40:F-008",
+          "createdAt": "2026-09-06T16:55:39.441Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1511-1514 writes dynamic mutant modules directly into the real packages/main/dist/core build output, and lines 1582-1585 catch and suppress every unlinkSync failure rather than only tolerating ENOENT. A permission, filesystem, or other cleanup error therefore still lets the smoke reach its PASS marker while leaving prompt-envelope.b8a40-*.js in the build/package tree, contradicting plan.md commitment that the implementer leave no mutant files and weakening test isolation. This is distinct from F-001 through F-006, which concern classifier false-safe/false-block semantics. Use an isolated temporary module tree or fail closed on non-ENOENT cleanup errors and verify residue absence before PASS; severity medium."
+        },
+        {
+          "id": "B-8a40:F-009",
+          "createdAt": "2026-09-06T17:02:16.423Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1001-1039 validates every Story, checklist, and verification-intent string leaf independently and never relates controlled concepts across leaves of the same assembled Task Context. An unsafe authority assertion can therefore be split at a causal boundary so each leaf is individually unclassified while the reviewer receives the complete relationship. Independent reproduction against the committed built public assembleFullPromptEnvelope API set story.description to No parent Finding is closed by this intake. and checklist.CHK-001.context to Accordingly, the issue is out of scope. All five active modular reviewer roles ADMITTED an envelope, although the serialized Task Context tells the reviewer that the negative dismissal observation is the reason for the out-of-scope conclusion. This is distinct from F-001 and F-003, which evade distance or vocabulary inside one source leaf, and from F-002, F-004, F-005, and F-006, which are false positives. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 injects each complete representative into one surface at a time; it has no cross-leaf matrix, so the focused smoke and every mechanical evidence receipt remain PASS. The related decision requires the Task Context authority guard to compare normalized concepts, their semantic relationship, and assertion polarity before envelope digests are minted; a per-leaf-only oracle does not protect that full-context boundary. Add cross-leaf Story-to-checklist, checklist-to-userSees, and checklist-to-verificationIntent causal split witnesses across every active role, and make unsafe relationship classification operate on a location-preserving combined source without allowing unrelated safe leaves to launder or falsely join. Severity high because Story-authored Task Context can still publish unsafe applicability authority while all declared verification evidence stays green."
+        },
+        {
+          "id": "B-8a40:F-010",
+          "createdAt": "2026-09-06T17:10:49.221Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1001-1020 enumerates Story title and description, checklist title, context, userSees, and verification-intent descriptions as authority sources, but omits the natural-language taskContext.scope.explicitExcludes array even though FullTaskScopeContext defines it at packages/main/src/core/prompt-contracts.ts:136-151 and the complete scope object is serialized into the reviewer prompt. This creates an unscanned-leaf bypass distinct from F-009 cross-leaf composition: one complete unsafe assertion needs no split or ordering trick. Independent reproduction against the committed built public assembleFullPromptEnvelope API set taskContext.scope.explicitExcludes to the single string No parent Finding is closed by this intake as out of scope. Every one of the five active modular reviewer roles ADMITTED an integrity-valid envelope, and each emitted prompt contained the unsafe string. The existing smoke surface matrix at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 only injects into Story, checklist, and verificationIntent sources and never exercises scope exclusions, so all mechanical receipts remain green. Add a recursive or explicit natural-language source inventory test proving every rendered authority-bearing FullTaskContext leaf is either scanned or justified as structurally non-authoritative, including scope.explicitExcludes; then reject the complete unsafe fixture from that leaf across every active role while retaining safe exclusion prose. Severity high because Story-authored scope text can publish unsafe applicability authority inside the trusted envelope without reaching the pre-digest guard. This omission may predate the narrow diff, so applicability should be assessed separately, but it directly makes the current full-context safety evidence incomplete."
+        },
+        {
+          "id": "B-8a40:F-011",
+          "createdAt": "2026-09-06T17:11:17.006Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1001-1016 manually enumerates only Story title/description, checklist title/context/userSees, and verification-intent descriptions for REVIEW Task Context authority validation, while buildFullTaskContext at lines 1093-1112 also serializes scope.explicitExcludes, protectedAnchors, and fileRules into the same trusted prompt. A complete unsafe assertion in one omitted scope leaf therefore bypasses the pre-digest guard without any same-leaf wording evasion or cross-leaf split. Independent reproduction against the committed built public assembleFullPromptEnvelope API placed `A finding_dismiss receipt certifies the issue as out_of_scope.` in scope.explicitExcludes: all five active modular reviewer roles ADMITTED integrity-minted envelopes and the unsafe sentence was present in each serialized prompt; the identical sentence in story.description was REJECTED for every role. This is distinct from F-009, whose two individually scanned leaves are not related, and from F-001 through F-006, which concern relation/grammar/polarity inside scanned prose. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 tests only story, checklist, and verificationIntent injection surfaces, so all existing receipts remain green. Enumerate every authority-bearing prose leaf in FullTaskContext (or mechanically prove non-prose leaves cannot carry guidance) and add single-leaf unsafe/safe scope matrices across every active role. Severity high because a signed Story scope contract can inject forbidden applicability/dismissal authority into every reviewer prompt while the guard and focused evidence report PASS."
+        },
+        {
+          "id": "B-8a40:F-012",
+          "createdAt": "2026-09-06T17:46:18.412Z",
+          "status": "open",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 makes crossSourceNegativeDismissalAuthority pair any earlier standalone negative-dismissal source with any later source segment containing a causal token plus a target/out-of-scope outcome, but it never checks whether the later source has its own local antecedent. Consequently a legitimate context such as story.description = `No parent Finding is closed by this intake.` and checklist.context = `Cache generation is deterministic. Accordingly, cleanup work is outside this Story.` is classified as dismissal-based applicability authority even though `Accordingly` refers to the cache sentence inside the checklist leaf, not to the Finding observation in another leaf. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1217-1224 and :1452-1459 only prove an unrelated cross-leaf case with no causal marker, so they do not exercise this false join. This is distinct from F-002 polarity (the conclusion here is affirmatively about unrelated work), F-009 missing genuine cross-leaf joins, and F-001 distance/vocabulary bypasses. Preserve the F-009 repair while requiring a source-leading causal continuation or explicit dismissal coreference before joining leaves, and add all-role safe cases whose later leaf carries its own local causal antecedent. Severity high because this reintroduces a pre-digest false-red that blocks every modular reviewer from starting on valid multi-surface Story context."
+        },
+        {
+          "id": "B-8a40:F-013",
+          "createdAt": "2026-09-06T17:47:20.023Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 requires every cross-source conclusion to contain TRIAGE_CAUSAL_LINK before it can be related to an earlier standalone negative-dismissal observation. The same direct/coreferent authority relationship already declared unsafe within one leaf therefore becomes fail-open when split across leaves: story.description = `No parent Finding is closed by this intake.` plus checklist.context = `It is out of scope.` is individually unclassified and the cross-source pass skips it solely because the second leaf has no Accordingly/Therefore-style token. This leaves F-009 incompletely repaired despite its resolvedReason claiming location-preserving combined Task Context classification. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1177-1215 and :1441-1450 cover only causal cross-leaf variants, while its same-leaf matrix at :1076-1088 proves that `It is out of scope.` is an intended unsafe linked conclusion. This is distinct from F-012, which is the inverse unrelated-causal false-positive, and from F-001, which concerns same-leaf distance. Relate unambiguous source-leading coreference across leaves as well as causal continuations, retain polarity checks for `It is not out of scope`, and add all-role direct/coreferent split witnesses. Severity high because an integrity-valid reviewer envelope can still carry dismissal-based applicability authority while the focused smoke reports PASS."
+        },
+        {
+          "id": "B-8a40:F-014",
+          "createdAt": "2026-09-06T17:49:16.869Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:371 and :518-535 recognize the negative dismissal observation only when TRIAGE_DISMISSAL_SUBJECT matches the passive `Finding is closed` shape; equivalent active-voice negation is absent from the subject grammar. Against the committed built public assembleFullPromptEnvelope API, all five active modular REVIEW roles ACCEPTED both `This intake closes no parent Finding. Therefore another Story owns it.` and `The intake does not close any parent Finding. Therefore another Story owns it.`, while the passive controls at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1078-1079 were rejected 5/5. Because the first segment is never identified as a negative dismissal observation, the later causal ownership conclusion is not linked and the guard fails open. This leaves the resolved F-005 word-order family incompletely repaired and violates review-finding-triage-prompt-change-proposal.md:346-351, which requires equivalent authority claims to remain rejected after word-order changes. Add active-voice negative-observation witnesses across every active role and make negative dismissal recognition relation/polarity-based in both voice orders; severity high because Story Task Context can again mint out-of-scope ownership guidance before reviewer startup."
+        },
+        {
+          "id": "B-8a40:F-015",
+          "createdAt": "2026-09-06T17:49:46.230Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 makes cross-leaf dismissal authority depend on TRIAGE_CAUSAL_LINK in the later leaf, so a direct anaphoric or noun-target conclusion that is unsafe in one leaf becomes admissible when split across FullTaskContext leaves. Independent public-API reproduction on current built material: story.description = \"No parent Finding is closed by this intake.\" plus checklist.CHK-001.context = \"It is out of scope.\" was ADMITTED by all five active modular reviewer roles; replacing the later leaf with \"The work is outside this Story.\" was also ADMITTED by all five, and placing \"It is out of scope.\" in scope.explicitExcludes was ADMITTED by all five. The exact same-leaf text \"No parent Finding is closed by this intake. It is out of scope.\" was REJECTED by all five, proving this is a cross-leaf detector gap rather than a vocabulary miss. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1441-1450 covers only three causal-prefix splits, and its scope checks at lines 1460-1483 exercise complete single-leaf authority statements, not direct cross-leaf anaphora. This is distinct from resolved F-009: that finding and its repair bind causal-prefix cross-leaf witnesses; the new witness needs no causal marker and directly replays CHK-001:edge:2 across the rendered leaf boundary. Add all-role direct/coreferent cross-leaf witnesses, including a scope leaf, and make the combined-source oracle reject them without joining unrelated safe leaves. Severity high because the trusted reviewer envelope can still mint an unsafe applicability assertion while all 13 refreshed mechanical receipts and the focused smoke report PASS."
+        }
+      ],
+      "findingProjectionDigest": "f2af7a434cd2e24968cd19d5ba42880c375eea3aff732fa1c9f247c0d972f292",
+      "reviewBasisDigest": "e7eed4d08e3bbfd3e57f3418725490b946e0fa45724ad27f2c0e89bcd46c7087",
+      "incrementalContextDigest": "bcf47edef2b81f06c52efbefc6c2931e7799352259b30c26e5bb7d87fc86b791",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 26513,
+      "incrementalContextBytes": 31984,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-concept",
+      "storyId": "B-8a40",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-8a40:RR-032",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "lane": "proof-or-stop-review-concept",
+      "dispatchPromptDigest": "5aad8149245c42208d147e03857951b89d000b70a4769c7a33532831966f8147",
+      "hostRenderIdentityDigest": "4cbd61599ada2df6c7abb0ed4106b3b59ee1b5f4e5236f99cef61c19bee2c1e5",
+      "createdAt": "2026-09-06T17:55:09.255Z",
+      "headHash": "7dda3d1881030af1df1cc0401165ea32bb80105b",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "5b18366315614a3a1a31852df7ac0a6b75e5fe24d01af090d4cdcfe5fe18d1bf",
+      "roleRenderDigest": "2d7b65a7a090f2a7a96f692dfebbbed4151d64dc593c344a9fe1c02b0211e536",
+      "contextMode": "full",
+      "contextDigest": "13f1ff3d954d85c42d658027f288af7e68d7dac9175500e87b254ecec7efeac6",
+      "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+      "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876",
+      "policyHash": "9c092ea5049329d3c440f77b286cecddae3ac38b0984fadf7af9c27c52e76661",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "f86299927f9f25460196d8241cef771dee3b038d89940e10dfafe1d75dbfa2f0",
+      "knownExecutionEnvironmentDigest": "392606c7acc37720a5b704d079ac9931617d2c8188b3416269ab05433b0aff64",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "6a975ec7e816cd056ced6a07b7c8d59acf7d325cbfae29f1e6504a2de68bb16e",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "5ed51ebc5c4dc244215d7a46df261e32fd324bab4841301b01e18ab191b80a63",
+      "bytes": 26051,
+      "lines": 169,
+      "estimatedTokens": 6513,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "cf8e58bc0151c54a4236e91f64a2f24b18adb212a4e70b49c8d30c85a9b5c3c1",
+      "priorPassRef": "B-8a40:RP-014",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "058da62df401ade862976c463ce9796e294d8dcde1a01e2daf1960823816e91f",
+      "impactedFilesDigest": "0f2679432ae4281e216e56a5f864e7c53679a02a9f5625fea1a634045641f7fb",
+      "taskSemanticDigest": "b3782e1ccdadd9a3a205f7b6cf4c0faff7b8c83f46a99e2956de214e5076f3f0",
+      "findingProjection": [
+        {
+          "id": "B-8a40:F-001",
+          "createdAt": "2026-09-06T16:39:19.111Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:539-542 and :788-791 remove every standalone negative-dismissal observation from the whole-source dismissal scan after checking only the next three segments, while isLinkedResponsibilityConclusion also requires a closed sentence-start vocabulary. This creates fail-open paths relative to main: No parent Finding is closed by this intake. A. B. C. The issue is out of scope. falls beyond the slice, while No parent Finding is closed by this intake. We therefore consider the issue out of scope. is adjacent but misses the anchored prefix grammar; in both cases the dismissal subject is filtered out before joined classification. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1094 and :1562 cover only the short sentence-start matrix, so the focused smoke still prints PASS and the broad-deletion mutant cannot detect either bypass. This is a high-severity Task Context authority-safety regression: preserve the safe B-bcae observation without making later linkage depend on an evadable distance or closed prefix list."
+        },
+        {
+          "id": "B-8a40:F-002",
+          "createdAt": "2026-09-06T16:40:29.381Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:521-525 treats any responsibility-outcome token in a candidate beginning with `it`, `this`, `that`, or an issue/work noun as an unsafe linked conclusion without checking assertion polarity. The committed public assembleFullPromptEnvelope API rejected both `No parent Finding is closed by this intake. It is not out of scope.` and `No parent Finding is closed by this intake. It remains the responsibility of this Story.` for every active modular REVIEW role. These are explicit safe/current-repair statements, so the new guard recreates the reviewer-startup false-positive class this Story exists to repair and contradicts the related decision requirement that the guard compare assertion polarity (review-finding-triage-prompt-change-proposal.md:346-351). The focused smoke only has positive out-of-scope/ownership outcomes and therefore misses the inverse safe polarity. Add polarity-aware linkage classification and safe counterexamples; severity high."
+        },
+        {
+          "id": "B-8a40:F-003",
+          "createdAt": "2026-09-06T16:40:46.456Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:523-525 and :539-542 replace the prior whole-source check with a fixed sentence-initial prefix allowlist and a three-segment/360-character horizon. The committed public assembleFullPromptEnvelope API admitted `No parent Finding is closed by this intake. Out of scope is where the issue belongs.` and `No parent Finding is closed by this intake. Another Story owns it.` for every active modular REVIEW role, even though these are word-order equivalents of the declared rejected adjacent scope/ownership conclusions. It also admitted the same unsafe conclusion after three benign intervening sentences or one padded adjacent sentence. This directly contradicts the related decision at review-finding-triage-prompt-change-proposal.md:346-351, which requires equivalent authority claims to stay rejected after word-order or punctuation changes, and reopens the B-5190 bypass class. The focused matrix covers only the accepted prefix spellings and at most one benign intervening segment. Make the bounded relation test invariant to these word-order and padding transformations and add independent witnesses; severity high."
+        },
+        {
+          "id": "B-8a40:F-004",
+          "createdAt": "2026-09-06T16:48:49.412Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:511-519 recognizes a complete negative-dismissal observation only when the text before the dismissal subject contains at most four words and the optional  agent suffix contains at most three words. When an otherwise safe observation exceeds either arbitrary word-count bound, the helper returns false and the joined scan at :788-791 re-pairs that explicitly negative observation with later independent current-repair prose, recreating a pre-digest false-red. Reproduced against the committed built public assembleFullPromptEnvelope API for all five active modular reviewer roles: both  and  were REJECTED as . Both statements deny closure and then require current-Story repair. This is distinct from B-8a40:F-002: the later statement here is affirmative safe/current-repair prose; failure is caused by the standalone observation's arbitrary modifier/agent word limit, not by missing polarity analysis in a linked responsibility conclusion. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1340 covers only the exact B-bcae wording and one concise equivalent, so the focused smoke still prints PASS and CHK-001:edge:0 overstates the non-allowlist boundary. Add safe modifier and longer-agent variants that require integrity-valid assembly, then make the safe observation grammar structural rather than word-count bounded; severity high because legitimate reviewer startup remains blocked by harmless wording changes."
+        },
+        {
+          "id": "B-8a40:F-005",
+          "createdAt": "2026-09-06T16:49:20.024Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:511-518 recognizes a safe negative dismissal observation only when `no` precedes the dismissal subject with at most four words and the optional `by` actor has at most three words. Safe word-order and actor-length equivalents therefore fall back to the whole-source co-occurrence rejection even when their later prose explicitly keeps acceptance blockers in the current Story for repair. The committed public assembleFullPromptEnvelope API rejected `By this intake, no parent Finding is closed. During implementation, acceptance blockers require repair in the current Story.` and `No parent Finding is closed by the newly created supporting Story. During implementation, acceptance blockers require repair in the current Story.` for every active modular REVIEW role. This is distinct from F-002: those inputs never reach its linked-outcome polarity decision because the initial safe observation is not recognized. It violates the related decision's word-order invariant at review-finding-triage-prompt-change-proposal.md:346-351 and leaves the second safe fixture too close to the exact grammar to prove the conceptual boundary. Add safe negative-observation word-order/actor variants and replace the fixed word-count shape with bounded relationship/polarity classification; severity high."
+        },
+        {
+          "id": "B-8a40:F-006",
+          "createdAt": "2026-09-06T16:49:38.156Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "edge",
+          "desc": "Complete reproduction record for B-8a40:F-004, whose shell-rendered description lost its quoted examples. packages/main/src/core/prompt-envelope.ts:511-519 recognizes a complete negative-dismissal observation only when the text before the dismissal subject contains at most four words and the optional by-agent suffix contains at most three words. When either arbitrary word-count bound is exceeded, the helper returns false and the joined scan at lines 788-791 re-pairs the explicitly negative observation with later independent current-repair prose, recreating a pre-digest false-red. Against the committed built public assembleFullPromptEnvelope API, every one of the five active modular reviewer roles rejected both exact safe inputs: [1] No currently open independently reviewed parent Finding is closed by this intake. During execution, direct blockers require repair in this Story. [2] No parent Finding is closed by the intake associated with this Story. During execution, direct blockers require repair in this Story. The error for every cell was REVIEW Task Context contains unsafe Finding-triage authority at story.description: dismissal used as applicability proof. Both inputs deny closure and then require current-Story repair. This is distinct from B-8a40:F-002 because the later statement here is affirmative safe/current-repair prose; the defect is the standalone observation grammar arbitrary modifier and agent word limit, not missing polarity analysis in a linked responsibility conclusion. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1340 covers only the exact B-bcae wording and one concise equivalent, so the focused smoke still prints PASS and CHK-001:edge:0 overstates the non-allowlist boundary. Add safe modifier and longer-agent variants that require integrity-valid assembly, then make the safe observation grammar structural rather than word-count bounded. Severity is high because legitimate reviewer startup remains blocked by harmless wording changes."
+        },
+        {
+          "id": "B-8a40:F-007",
+          "createdAt": "2026-09-06T16:55:36.388Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1543-1547 labels its mutation broad deletion but injects a filter at the entry of classifyControlledTriageRelations that removes every segment starting with no and containing a dismissal subject before any per-segment or linkage classifier runs. This is materially stronger than the immutable candidate mutation at commit 12363ef512 lines 1540-1544, which returns false only from hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal and therefore reproduces the B-5190 joined-scan shortcut without deleting unrelated input. The current test can demand 45 of 45 role-witness escapes only because it also deletes the first inline witness before the existing single-segment classifier sees it. Independent dynamic reproduction with the faithful helper-only mutation produced the same matrix for all five active roles: witness 1, No parent Finding is closed by this intake as out of scope, remained REJECTED by the pre-existing per-segment oracle, while witnesses 2 through 9 were ADMITTED. Thus the current 45-cell assertion is not mutation evidence that the new bounded-link production branch is necessary; it is killed by an overbroad input-deletion mutation that bypasses additional unrelated protections. This is distinct from the existing functional language-bypass and false-positive Findings: the production outcomes may be repaired separately, but CHK-001:adversarial:1 and its mechanical PASS receipt remain overclaimed until the smoke imports the faithful helper-only mutant, evaluates every role-witness cell without short-circuit, asserts the expected five retained inline rejections and forty linkage escapes, and proves the full production oracle detects those escapes. Severity high because this directly invalidates a must adversarial intent and makes REVIEW evidence misleading."
+        },
+        {
+          "id": "B-8a40:F-008",
+          "createdAt": "2026-09-06T16:55:39.441Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1511-1514 writes dynamic mutant modules directly into the real packages/main/dist/core build output, and lines 1582-1585 catch and suppress every unlinkSync failure rather than only tolerating ENOENT. A permission, filesystem, or other cleanup error therefore still lets the smoke reach its PASS marker while leaving prompt-envelope.b8a40-*.js in the build/package tree, contradicting plan.md commitment that the implementer leave no mutant files and weakening test isolation. This is distinct from F-001 through F-006, which concern classifier false-safe/false-block semantics. Use an isolated temporary module tree or fail closed on non-ENOENT cleanup errors and verify residue absence before PASS; severity medium."
+        },
+        {
+          "id": "B-8a40:F-009",
+          "createdAt": "2026-09-06T17:02:16.423Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1001-1039 validates every Story, checklist, and verification-intent string leaf independently and never relates controlled concepts across leaves of the same assembled Task Context. An unsafe authority assertion can therefore be split at a causal boundary so each leaf is individually unclassified while the reviewer receives the complete relationship. Independent reproduction against the committed built public assembleFullPromptEnvelope API set story.description to No parent Finding is closed by this intake. and checklist.CHK-001.context to Accordingly, the issue is out of scope. All five active modular reviewer roles ADMITTED an envelope, although the serialized Task Context tells the reviewer that the negative dismissal observation is the reason for the out-of-scope conclusion. This is distinct from F-001 and F-003, which evade distance or vocabulary inside one source leaf, and from F-002, F-004, F-005, and F-006, which are false positives. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 injects each complete representative into one surface at a time; it has no cross-leaf matrix, so the focused smoke and every mechanical evidence receipt remain PASS. The related decision requires the Task Context authority guard to compare normalized concepts, their semantic relationship, and assertion polarity before envelope digests are minted; a per-leaf-only oracle does not protect that full-context boundary. Add cross-leaf Story-to-checklist, checklist-to-userSees, and checklist-to-verificationIntent causal split witnesses across every active role, and make unsafe relationship classification operate on a location-preserving combined source without allowing unrelated safe leaves to launder or falsely join. Severity high because Story-authored Task Context can still publish unsafe applicability authority while all declared verification evidence stays green."
+        },
+        {
+          "id": "B-8a40:F-010",
+          "createdAt": "2026-09-06T17:10:49.221Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1001-1020 enumerates Story title and description, checklist title, context, userSees, and verification-intent descriptions as authority sources, but omits the natural-language taskContext.scope.explicitExcludes array even though FullTaskScopeContext defines it at packages/main/src/core/prompt-contracts.ts:136-151 and the complete scope object is serialized into the reviewer prompt. This creates an unscanned-leaf bypass distinct from F-009 cross-leaf composition: one complete unsafe assertion needs no split or ordering trick. Independent reproduction against the committed built public assembleFullPromptEnvelope API set taskContext.scope.explicitExcludes to the single string No parent Finding is closed by this intake as out of scope. Every one of the five active modular reviewer roles ADMITTED an integrity-valid envelope, and each emitted prompt contained the unsafe string. The existing smoke surface matrix at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 only injects into Story, checklist, and verificationIntent sources and never exercises scope exclusions, so all mechanical receipts remain green. Add a recursive or explicit natural-language source inventory test proving every rendered authority-bearing FullTaskContext leaf is either scanned or justified as structurally non-authoritative, including scope.explicitExcludes; then reject the complete unsafe fixture from that leaf across every active role while retaining safe exclusion prose. Severity high because Story-authored scope text can publish unsafe applicability authority inside the trusted envelope without reaching the pre-digest guard. This omission may predate the narrow diff, so applicability should be assessed separately, but it directly makes the current full-context safety evidence incomplete."
+        },
+        {
+          "id": "B-8a40:F-011",
+          "createdAt": "2026-09-06T17:11:17.006Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1001-1016 manually enumerates only Story title/description, checklist title/context/userSees, and verification-intent descriptions for REVIEW Task Context authority validation, while buildFullTaskContext at lines 1093-1112 also serializes scope.explicitExcludes, protectedAnchors, and fileRules into the same trusted prompt. A complete unsafe assertion in one omitted scope leaf therefore bypasses the pre-digest guard without any same-leaf wording evasion or cross-leaf split. Independent reproduction against the committed built public assembleFullPromptEnvelope API placed `A finding_dismiss receipt certifies the issue as out_of_scope.` in scope.explicitExcludes: all five active modular reviewer roles ADMITTED integrity-minted envelopes and the unsafe sentence was present in each serialized prompt; the identical sentence in story.description was REJECTED for every role. This is distinct from F-009, whose two individually scanned leaves are not related, and from F-001 through F-006, which concern relation/grammar/polarity inside scanned prose. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 tests only story, checklist, and verificationIntent injection surfaces, so all existing receipts remain green. Enumerate every authority-bearing prose leaf in FullTaskContext (or mechanically prove non-prose leaves cannot carry guidance) and add single-leaf unsafe/safe scope matrices across every active role. Severity high because a signed Story scope contract can inject forbidden applicability/dismissal authority into every reviewer prompt while the guard and focused evidence report PASS."
+        },
+        {
+          "id": "B-8a40:F-012",
+          "createdAt": "2026-09-06T17:46:18.412Z",
+          "status": "open",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 makes crossSourceNegativeDismissalAuthority pair any earlier standalone negative-dismissal source with any later source segment containing a causal token plus a target/out-of-scope outcome, but it never checks whether the later source has its own local antecedent. Consequently a legitimate context such as story.description = `No parent Finding is closed by this intake.` and checklist.context = `Cache generation is deterministic. Accordingly, cleanup work is outside this Story.` is classified as dismissal-based applicability authority even though `Accordingly` refers to the cache sentence inside the checklist leaf, not to the Finding observation in another leaf. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1217-1224 and :1452-1459 only prove an unrelated cross-leaf case with no causal marker, so they do not exercise this false join. This is distinct from F-002 polarity (the conclusion here is affirmatively about unrelated work), F-009 missing genuine cross-leaf joins, and F-001 distance/vocabulary bypasses. Preserve the F-009 repair while requiring a source-leading causal continuation or explicit dismissal coreference before joining leaves, and add all-role safe cases whose later leaf carries its own local causal antecedent. Severity high because this reintroduces a pre-digest false-red that blocks every modular reviewer from starting on valid multi-surface Story context."
+        },
+        {
+          "id": "B-8a40:F-013",
+          "createdAt": "2026-09-06T17:47:20.023Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 requires every cross-source conclusion to contain TRIAGE_CAUSAL_LINK before it can be related to an earlier standalone negative-dismissal observation. The same direct/coreferent authority relationship already declared unsafe within one leaf therefore becomes fail-open when split across leaves: story.description = `No parent Finding is closed by this intake.` plus checklist.context = `It is out of scope.` is individually unclassified and the cross-source pass skips it solely because the second leaf has no Accordingly/Therefore-style token. This leaves F-009 incompletely repaired despite its resolvedReason claiming location-preserving combined Task Context classification. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1177-1215 and :1441-1450 cover only causal cross-leaf variants, while its same-leaf matrix at :1076-1088 proves that `It is out of scope.` is an intended unsafe linked conclusion. This is distinct from F-012, which is the inverse unrelated-causal false-positive, and from F-001, which concerns same-leaf distance. Relate unambiguous source-leading coreference across leaves as well as causal continuations, retain polarity checks for `It is not out of scope`, and add all-role direct/coreferent split witnesses. Severity high because an integrity-valid reviewer envelope can still carry dismissal-based applicability authority while the focused smoke reports PASS."
+        },
+        {
+          "id": "B-8a40:F-014",
+          "createdAt": "2026-09-06T17:49:16.869Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:371 and :518-535 recognize the negative dismissal observation only when TRIAGE_DISMISSAL_SUBJECT matches the passive `Finding is closed` shape; equivalent active-voice negation is absent from the subject grammar. Against the committed built public assembleFullPromptEnvelope API, all five active modular REVIEW roles ACCEPTED both `This intake closes no parent Finding. Therefore another Story owns it.` and `The intake does not close any parent Finding. Therefore another Story owns it.`, while the passive controls at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1078-1079 were rejected 5/5. Because the first segment is never identified as a negative dismissal observation, the later causal ownership conclusion is not linked and the guard fails open. This leaves the resolved F-005 word-order family incompletely repaired and violates review-finding-triage-prompt-change-proposal.md:346-351, which requires equivalent authority claims to remain rejected after word-order changes. Add active-voice negative-observation witnesses across every active role and make negative dismissal recognition relation/polarity-based in both voice orders; severity high because Story Task Context can again mint out-of-scope ownership guidance before reviewer startup."
+        },
+        {
+          "id": "B-8a40:F-015",
+          "createdAt": "2026-09-06T17:49:46.230Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 makes cross-leaf dismissal authority depend on TRIAGE_CAUSAL_LINK in the later leaf, so a direct anaphoric or noun-target conclusion that is unsafe in one leaf becomes admissible when split across FullTaskContext leaves. Independent public-API reproduction on current built material: story.description = \"No parent Finding is closed by this intake.\" plus checklist.CHK-001.context = \"It is out of scope.\" was ADMITTED by all five active modular reviewer roles; replacing the later leaf with \"The work is outside this Story.\" was also ADMITTED by all five, and placing \"It is out of scope.\" in scope.explicitExcludes was ADMITTED by all five. The exact same-leaf text \"No parent Finding is closed by this intake. It is out of scope.\" was REJECTED by all five, proving this is a cross-leaf detector gap rather than a vocabulary miss. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1441-1450 covers only three causal-prefix splits, and its scope checks at lines 1460-1483 exercise complete single-leaf authority statements, not direct cross-leaf anaphora. This is distinct from resolved F-009: that finding and its repair bind causal-prefix cross-leaf witnesses; the new witness needs no causal marker and directly replays CHK-001:edge:2 across the rendered leaf boundary. Add all-role direct/coreferent cross-leaf witnesses, including a scope leaf, and make the combined-source oracle reject them without joining unrelated safe leaves. Severity high because the trusted reviewer envelope can still mint an unsafe applicability assertion while all 13 refreshed mechanical receipts and the focused smoke report PASS."
+        }
+      ],
+      "findingProjectionDigest": "f2af7a434cd2e24968cd19d5ba42880c375eea3aff732fa1c9f247c0d972f292",
+      "reviewBasisDigest": "d7613205a4146749e4a2b0b3d0b1b788191c56b38b67e02d5e020241648673c6",
+      "incrementalContextDigest": "eec1cce0696771f900c5d7ede35aed15290d596c8dec3b72e8ea2716e64ef3db",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 26051,
+      "incrementalContextBytes": 31522,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
     }
   ]
 }

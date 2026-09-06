@@ -394,7 +394,7 @@
       "reviewRound": "2026-09-06T17:43:17.573Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T17:44:00.814Z",
-      "updatedAt": "2026-09-06T17:44:00.814Z",
+      "updatedAt": "2026-09-06T17:53:55.546Z",
       "cutoff": {
         "headHash": "c58167c08b37831ec1793e5cb8060864dcc58ce1",
         "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
@@ -408,9 +408,61 @@
       ],
       "initialRunSequenceBoundary": 25,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T17:44:00.814Z",
+          "completedAt": "2026-09-06T17:53:55.546Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-026",
+              "terminal": "finding",
+              "hostIdentity": "1aee408db7b90f57feabad8fc095c7e022011328a5dc11af15414577fff3f4f0",
+              "promptIdentity": "b96b803fd74ee653b736f9e1ef25f8b3e72d4a6bc4dfbc2f05f56fa5a106a2e0",
+              "evidenceIds": [
+                "B-8a40:F-012",
+                "B-8a40:F-013"
+              ],
+              "coverageDigest": "afeeb761e7df5808973363e5268175e6a31505acc780035c6ee36d14769342cb"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-028",
+              "terminal": "finding",
+              "hostIdentity": "1aee408db7b90f57feabad8fc095c7e022011328a5dc11af15414577fff3f4f0",
+              "promptIdentity": "c95b386fb0a468861f2e39904ee86bbed9e413b18d3b33a1cc45803ff4cb445a",
+              "evidenceIds": [
+                "B-8a40:F-014"
+              ],
+              "coverageDigest": "22d96eed093638ed6acc2baf007f9f97ec9826b9b61bd3945621f0967eaced70"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-027",
+              "terminal": "finding",
+              "hostIdentity": "1aee408db7b90f57feabad8fc095c7e022011328a5dc11af15414577fff3f4f0",
+              "promptIdentity": "a507edfb93f5d308fbaf82ee08e94159947524bb9fef82716aaf77359801c4be",
+              "evidenceIds": [
+                "B-8a40:F-015"
+              ],
+              "coverageDigest": "17179fe6cdaad7776ca77a7fe2e0cd747d221fda329623e60a39d6d5bbb086f8"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-active-voice-negative-observation-bypass",
+            "prompt-envelope-cross-leaf-direct-coreference-bypass",
+            "prompt-envelope-cross-source-local-antecedent-false-positive"
+          ],
+          "verifiedFindingSetDigest": "cb370940afe4fa912b4ec9bea512ed6cf3cd03237ed68ce89f460d944c7bf8e6",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "12d68f70bffd33168124e06f4cf7ead4a9b8d9a2274fd21fcfd417fd8040ede6",
+          "saturated": false,
+          "nextRunSequenceBoundary": 29
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "111ff9ba553f852e95bc31a1072e1af863545a588f09858128c104c02e36556e"
+      "_hash": "4538fe9c10bc6d4667ae4cba2e624c04593c0f8e9d636a777402f5e76a61c639"
     }
   ],
   "receipts": [
@@ -710,6 +762,56 @@
       "findingDispositions": [],
       "createdAt": "2026-09-06T17:25:07.205Z",
       "_hash": "ec83958af2a8443b10791f1daea77c8920568fda4d050d72e0808babb0a68504"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-003:CRIT-01",
+      "epochId": "B-8a40:RI-003",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "c58167c08b37831ec1793e5cb8060864dcc58ce1",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "aggregateFindingSetDigest": "cb370940afe4fa912b4ec9bea512ed6cf3cd03237ed68ce89f460d944c7bf8e6",
+      "requiredLaneCoverageDigest": "94693c732369191304163ebeebfa4db573b65373b83df8971b01832dbb30090a",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-029",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-017"
+      ],
+      "readEvidenceDigest": "83bf6ab7c6a75b24aa63396d6f74c276ffa38a4da6f6e99cb9d2bbcd699bef2b",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-012",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-source-local-antecedent-false-positive",
+          "reason": "Independent family: crossSourceNegativeDismissalAuthority combines an earlier negative observation with a later conclusion even when that conclusion has its own unrelated local causal antecedent. The deterministic-cache then Accordingly-cleanup witness is a false positive and is neither the direct/coreferent omission nor an active-voice observation bypass."
+        },
+        {
+          "findingId": "B-8a40:F-013",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-leaf-direct-coreference-bypass",
+          "reason": "Independent family: a direct or coreferent conclusion in a later structured leaf, such as It is out of scope, bypasses the cross-source authority check because the implementation requires an explicit causal token. This differs from F-012 because there is no unrelated local antecedent, and from same-leaf linkage failures."
+        },
+        {
+          "findingId": "B-8a40:F-014",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-active-voice-negative-observation-bypass",
+          "reason": "Independent family: the negative-observation recognizer is limited to passive forms, so active-voice statements such as This intake closes no parent Finding and The intake does not close any parent Finding escape before their ownership or scope conclusions are evaluated."
+        },
+        {
+          "findingId": "B-8a40:F-015",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-cross-leaf-direct-coreference-bypass",
+          "canonicalFindingId": "B-8a40:F-013",
+          "reason": "Duplicate of F-013: both demonstrate the same missing direct/coreferent cross-leaf linkage caused by requiring TRIAGE_CAUSAL_LINK. F-015 preserves additional witnesses for The work is outside this Story and It is out of scope in the explicitExcludes scope leaf, but those witness and noun-target differences do not create a separate mechanism."
+        }
+      ],
+      "createdAt": "2026-09-06T17:53:13.632Z",
+      "_hash": "64ac41b5822d00bf4a54d6923772719f149d5ab27d4b3305f76e9d2a26da43ee"
     }
   ]
 }
