@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "b28c6cca42c9ef0528f994eb0863c95981e9c374cb87de3883ad34a01d990ef4",
+  "committedLedgerDigest": "709e6b5cf2a6254abf21946d324c1c28f4e1462534cb8e102d075587a4401d67",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2556,6 +2556,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T14:53:29.330Z"
+    },
+    {
+      "recordId": "lr_mtpxm4lw_zfr_b727653b9e5d40959f9498c249ca4134",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-4fd1f9de-32bd-489c-bdae-7ac53e090341",
+        "findingId": "B-fe8f:F-057",
+        "findingRecordId": "lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-06T14:53:31.986Z",
+        "reason": "The verified finding is the missing discriminatory diagnostics, not a proven historical lease/index/signature root cause. RED at c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6 added eight failing diagnostic assertions while preserving two passing existing controls; node packages/main/dist/tasks/verifier-causal-preflight-smoke.js exited nonzero before the production change. GREEN e23615ad1605e7126094de46d959341d9c407415 adds bounded lease_missing_or_invalid, lease_foreign_session, lease_refresh_not_refreshed, preflight_verification_failed, and facts_changed diagnostics while retaining short-circuit order, refusal conditions, and zero launch/write negative controls. The dedicated test passed 11/11. Logs /tmp/bfe8f-preflight-diagnostics.jVG4SL/. Historical exact cause remains unknown. The final genuine CLI validate completed 132/132 with allPass=true on 2026-09-06, with no causal_preflight_refused, at /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/. This proves current operational recovery and diagnostic coverage, not a retroactive root-cause attribution.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "0b9c671761d25f7d3aef557de64dfd01dc0682c66f534627c7308598788da5c2",
+      "priorDigest": "b28c6cca42c9ef0528f994eb0863c95981e9c374cb87de3883ad34a01d990ef4",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T14:53:31.988Z"
     }
   ],
   "receipts": [
@@ -7087,6 +7110,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "5b857b5d7ab3814e3b22cfe86c3da7d5933d63d93cde5e01fe1cbaf030d0f063",
         "signature": "9ygnjub9lDSwqqYRrDtB5468iI6UlrmqFP/hQP3dAJEPD4qEHHMk0uCbCIys2hnxsBv/nKIOuR4sMFvhQPspDw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtpxm4lx_zfr_6ede2888213b4bd99c22aeb182bce396",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606:resolved",
+      "requestDigest": "7248b014c13a31e51b4afc2b4212802b7096ff130615c81cd9a21c0e662bfc17",
+      "recordIds": [
+        "lr_mtpxm4lw_zfr_b727653b9e5d40959f9498c249ca4134"
+      ],
+      "priorLedgerDigest": "b28c6cca42c9ef0528f994eb0863c95981e9c374cb87de3883ad34a01d990ef4",
+      "committedLedgerDigest": "709e6b5cf2a6254abf21946d324c1c28f4e1462534cb8e102d075587a4401d67",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "5aa71d5e-3404-41a1-add4-55a941a82670",
+      "committedAt": "2026-09-06T14:53:31.988Z",
+      "replayed": false,
+      "exactRequestDigest": "398303248588523ac0c6287963e2dcb51d0210a99b202080f9a0951122af9978",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtpxm4lx_zfr_6ede2888213b4bd99c22aeb182bce396",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding-lifecycle:lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606:resolved",
+        "exactRequestDigest": "398303248588523ac0c6287963e2dcb51d0210a99b202080f9a0951122af9978",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtpxm4lw_zfr_b727653b9e5d40959f9498c249ca4134"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606",
+            "expectedRecordHash": "55f87b8e7509b8538923e84bc7e7efc2afe632c8332221cb27b79a79803f2971",
+            "observedChainHeadId": "lr_mtpxm2k2_wv8_9c1adcaae61b42ee845a6eb475fe398e",
+            "observedChainHeadHash": "a6881cde17cf4aa0b07d9c7fa6e204d282ec89c9d58043bfd976186096736330",
+            "predicateDigest": "1678b2f21503b57e082cbe98041880754aadd19ddd696cfb5c64dec204d6a457"
+          }
+        ],
+        "priorLedgerDigest": "b28c6cca42c9ef0528f994eb0863c95981e9c374cb87de3883ad34a01d990ef4",
+        "committedLedgerDigest": "709e6b5cf2a6254abf21946d324c1c28f4e1462534cb8e102d075587a4401d67",
+        "replayed": false,
+        "committedAt": "2026-09-06T14:53:31.988Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "5aa71d5e-3404-41a1-add4-55a941a82670",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "4ee89160e69e1cb6aee0ef4518cf63350ebbe686d30e2165dfc3d1862fe92376",
+        "signature": "WNbD7bMaHGHsG20eBki1MqNSNVojD1EdyltVmr5tcGCO9nc2E3FyXj9RtKyNg/zWRfuQOaf5vAzxV5S5ZTAPBg=="
       }
     }
   ]

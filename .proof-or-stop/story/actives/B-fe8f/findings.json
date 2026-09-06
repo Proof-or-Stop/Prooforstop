@@ -1495,7 +1495,7 @@
       "desc": "User-authorized third closeout blocker: validate beforeLaunch in verifier.ts combines same-owner lease refresh failure, causal preflight signature failure and changed preflight facts into one state_changed_before_launch diagnostic. A full Story validation aborted with this diagnostic and no aggregate PASS; actual root branch remains unknown. Current source proves all three OR branches emit identical text, preventing targeted recovery. First add isolated RED tests requiring distinguishable safe branch and changed-field diagnostics, then preserve all refusal predicates and zero child-launch behavior while exposing only safe reason/field names. Diagnostic repair is not proof that the original runtime interruption is solved; capture the next genuine run before claiming closure.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-06T13:05:42.859Z",
@@ -1508,7 +1508,11 @@
       "signatureTag": "missing|ts|user-authorized-third",
       "signatureTagSource": "auto",
       "recordId": "lr_mtptrgzx_p4m_464f108515dd4d58974560a1dfabe606",
-      "ledgerCommitReceiptId": "lrc_mtptrgzx_p4m_6a56be98b108482199efcc093037115c"
+      "ledgerCommitReceiptId": "lrc_mtptrgzx_p4m_6a56be98b108482199efcc093037115c",
+      "resolvedAt": "2026-09-06T14:53:31.986Z",
+      "resolvedReason": "The verified finding is the missing discriminatory diagnostics, not a proven historical lease/index/signature root cause. RED at c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6 added eight failing diagnostic assertions while preserving two passing existing controls; node packages/main/dist/tasks/verifier-causal-preflight-smoke.js exited nonzero before the production change. GREEN e23615ad1605e7126094de46d959341d9c407415 adds bounded lease_missing_or_invalid, lease_foreign_session, lease_refresh_not_refreshed, preflight_verification_failed, and facts_changed diagnostics while retaining short-circuit order, refusal conditions, and zero launch/write negative controls. The dedicated test passed 11/11. Logs /tmp/bfe8f-preflight-diagnostics.jVG4SL/. Historical exact cause remains unknown. The final genuine CLI validate completed 132/132 with allPass=true on 2026-09-06, with no causal_preflight_refused, at /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/. This proves current operational recovery and diagnostic coverage, not a retroactive root-cause attribution.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-058",
