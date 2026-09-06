@@ -2028,6 +2028,7 @@
       "signatureTag": "structural-leaf-normalization-encoding-authority-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf925b_14fb_0c4d4a28bc394930a38c5a33e8c3c819",
+      "ledgerCommitReceiptId": "lrc_mtqf925b_14fb_862d9c45741e443da468fab3f1b3d126",
       "resolvedAt": "2026-09-06T23:07:15.370Z",
       "resolvedReason": "Decode structural separators before exempting path-like leaves; the encoded dismissal, reviewer-disposition and schema witnesses run across the structural surface matrix. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2038,7 +2039,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:394-400 and :692-720/:958-964 attempt to close resolved F-025/F-035 by rejecting test-inventory or subordination bodies only when the body matches the finite TRIAGE_INVENTORY_AUTHORITY_ACTION blacklist. That is not the closed grammar or independent residual classification required by those findings, so ordinary unlisted authority verbs reopen both bypasses. Against the committed built assembleFullPromptEnvelope API, every active modular REVIEW role ADMITTED `Add tests covering this Story publishes a new applicability verdict and the subordinate Agent-side projection of the Dynamic Finding authority.`, the equivalent `enacts` wording, and `Add adversarial tests covering this Story publishes a new applicability verdict and the subordinate Agent-side projection of Dynamic Finding authority.` The safe wrapper remained admitted and the direct unsafe control `This Story publishes a new applicability verdict to the Dynamic Finding authority.` was rejected for all five roles, isolating the false-safe behavior to the finite blacklist. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1280-1282 replays only `adds` and `provisions`, which are enumerated in that blacklist, so the expanded suite remains green while the semantic family survives. This is current-material recurrence/incomplete closure of resolved F-025 and F-035, not a new unrelated synonym-gap observation: replace blacklist-based exemption with a truly closed positive inventory or run the production authority classifier on the captured body, and add all-role unlisted-verb controls. Severity high because Story-authored Task Context can still announce a new official applicability verdict before envelope digests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T19:54:42.716Z",
@@ -2077,7 +2078,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-inventory-finite-blacklist-incomplete-closure",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf93cv_14x3_dd3eec06895141ebab400dbe70b970b2",
+      "resolvedAt": "2026-09-06T23:07:16.941Z",
+      "resolvedReason": "Classify the captured test-inventory and subordination body with the production authority classifier instead of a finite verb blacklist; publishes, enacts, deem, makes and entrusts regressions are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-043",
