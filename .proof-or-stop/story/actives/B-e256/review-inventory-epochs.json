@@ -2068,6 +2068,80 @@
       ],
       "createdAt": "2026-09-06T19:47:49.569Z",
       "_hash": "8692e2689d997cdba2d5cbc2daf84747f9d8b738a290f57424d28b86f7b619b3"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-007:CRIT-01",
+      "epochId": "B-e256:RI-007",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "00138bb9ea9ffd2a7ab8fb6309b65daece3f2b48",
+        "materialHash": "5b2ad5e25c1ff178aac5f4d60a1ea6c599e70d33606dd5bb2115718a43046d70",
+        "storyFilesHash": "a9556759a4051ae8c1bfb5516b96fba35d0ac9360b83c29d0ac07a5ee75eb1df"
+      },
+      "aggregateFindingSetDigest": "514da621c201dae6adbb56238465fdb37f9cfa12cba76dd804834f5a2fac2120",
+      "requiredLaneCoverageDigest": "57473b19fd610cd547dfe4ea8fc67819e0abd7e75e8de5bb2684146baec07758",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-109",
+      "terminalEvidenceIds": [
+        "B-e256:RP-077"
+      ],
+      "readEvidenceDigest": "3dbd92ba218afdcbc3e78630cb500d387ec8da47874756806f5aae94cc150001",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-029",
+          "disposition": "verified_family",
+          "familyKey": "windows-doctor-command-shim-validation",
+          "reason": "Current source still short-circuits the win32 executable probe to true at runtime-environment-checks.ts:693-695 and the Windows fixture at global-core-realpath.test.mjs:1236-1240 constructs no .cmd/.ps1 shim. This remains the distinct Windows command-shim validation family."
+        },
+        {
+          "findingId": "B-e256:F-030",
+          "disposition": "verified_family",
+          "familyKey": "windows-doctor-remediation-command-portability",
+          "reason": "Current commandPathQuote at runtime-environment-checks.ts:703-707 wraps Windows paths in double quotes without preserving literal paired-percent components from cmd.exe expansion. This is the canonical Windows remediation-command portability family."
+        },
+        {
+          "findingId": "B-e256:F-031",
+          "disposition": "verified_family",
+          "familyKey": "cross-platform-acceptance-contract",
+          "reason": "Checklist CHK-001.userSees still unconditionally promises POSIX ls/-rwxr-xr-x while its intent and ProofStory distinguish POSIX executable bits from Windows shim semantics. This remains the cross-platform acceptance-contract family."
+        },
+        {
+          "findingId": "B-e256:F-032",
+          "disposition": "duplicate",
+          "familyKey": "windows-doctor-remediation-command-portability",
+          "canonicalFindingId": "B-e256:F-030",
+          "reason": "F-032 cites the same live commandPathQuote implementation, the same cmd.exe percent expansion on legal Windows paths, the same missing percent-path fixture, and the same required literal-path remediation as signature-valid open F-030. F-030 is canonical and the duplicate chain is direct and non-circular."
+        },
+        {
+          "findingId": "B-e256:F-033",
+          "disposition": "verified_family",
+          "familyKey": "windows-link-capability-skip-false-green",
+          "reason": "global-core-realpath.test.mjs:83-87 still prints the accepted ok selector and exits 0 before all cases when the Windows directory-link capability probe is unavailable. This remains the distinct zero-assertion skip/false-green family."
+        },
+        {
+          "findingId": "B-e256:F-034",
+          "disposition": "verified_family",
+          "familyKey": "doctor-bin-target-realpath-escape",
+          "reason": "inspectGlobalCoreExecutable still resolves the lexical package bin path then stat/access-follows it without verifying the target realpath remains inside the canonical package. This remains the distinct doctor bin-target realpath-escape family."
+        },
+        {
+          "findingId": "B-e256:F-035",
+          "disposition": "verified_family",
+          "familyKey": "doctor-path-vs-global-package-presence-contract",
+          "reason": "checkGlobalCoreRealpath still derives presence from npm root and package entry without consulting context.cliEntrypoint, while CHK-003 promises behavior for no global proof-or-stop on PATH. This remains the distinct PATH-versus-package-presence contract family."
+        },
+        {
+          "findingId": "B-e256:F-036",
+          "disposition": "verified_family",
+          "familyKey": "promote-package-manifest-read-error-false-success",
+          "reason": "restoreBinExecutableBits at promote-dist.mjs:87-91 still catches every package.json read/parse error and returns [], allowing non-absence read failures to proceed to old-dist eviction. This remains the distinct promotion manifest-read-error false-success family."
+        }
+      ],
+      "createdAt": "2026-09-06T20:00:50.523Z",
+      "_hash": "b78b2771ac7e9e25ceee9167f77e5df5f713972ae5d0ae66c17e43e013fad999"
     }
   ]
 }
