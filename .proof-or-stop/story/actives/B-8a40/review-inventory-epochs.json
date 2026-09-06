@@ -1636,7 +1636,7 @@
       "reviewRound": "2026-09-06T19:49:59.446Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T20:37:16.566Z",
-      "updatedAt": "2026-09-06T20:37:16.566Z",
+      "updatedAt": "2026-09-06T20:43:41.314Z",
       "cutoff": {
         "headHash": "15bea5826231986a422d2df77c26aa27c6e83e22",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1650,7 +1650,67 @@
       ],
       "initialRunSequenceBoundary": 98,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T20:37:16.566Z",
+          "completedAt": "2026-09-06T20:43:41.314Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-099",
+              "terminal": "pass",
+              "hostIdentity": "541ee34accab9bd6c27657ee5b8a882ce782cb880bb93d242eadb515303262cd",
+              "promptIdentity": "45fd469c0079e72081adb5b4ef8239b543307648f0907d2de33c80c4159ce444",
+              "evidenceIds": [
+                "B-8a40:RP-056"
+              ],
+              "coverageDigest": "1a6bc24067379f22f60e81d95ca030596f2885925cb57e9ccd0f1fe6d56d6e65"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-100",
+              "terminal": "finding",
+              "hostIdentity": "541ee34accab9bd6c27657ee5b8a882ce782cb880bb93d242eadb515303262cd",
+              "promptIdentity": "1e027b9da0b2650e33e8f0cd8b5de85df4545236b61b2b97857a35996fc96cd2",
+              "evidenceIds": [
+                "B-8a40:F-053"
+              ],
+              "coverageDigest": "674ccdf4bd6f9004cc27f4c163a21dcd9030c06d2f30ffadcc580cf69b38f5f9"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-101",
+              "terminal": "pass",
+              "hostIdentity": "541ee34accab9bd6c27657ee5b8a882ce782cb880bb93d242eadb515303262cd",
+              "promptIdentity": "8ab9b8d6304979a69bd0b026d91fc655121b482c476ea9d41826fa1058e28e13",
+              "evidenceIds": [
+                "B-8a40:RP-057"
+              ],
+              "coverageDigest": "f96499098598d911f13209665d38ea10b9402591ff83e20f550dbcda4c71386e"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-deferral-explicit-target-cross-segment-bypass",
+            "prompt-envelope-deferral-state-local-antecedent-false-positive",
+            "prompt-envelope-positive-dismissal-evidence-unrelated-scope-whole-source-false-positive",
+            "prompt-envelope-severity-passive-outcome-first-cross-segment-bypass",
+            "prompt-envelope-severity-state-local-antecedent-false-positive",
+            "prompt-envelope-signed-disposition-state-local-antecedent-false-positive",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering",
+            "prompt-envelope-unknown-applicability-joined-span-padding-bypass",
+            "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive"
+          ],
+          "verifiedFindingSetDigest": "d101b167532c0a0291dbb9d0acba26c67bee5ce7133ad5f4c12c528882f3e448",
+          "newVerifiedFindingCount": 12,
+          "criticDigest": "a1725039833cf25d4d910e418bd46cba2f354dccae59ed049be3192f1c89c317",
+          "saturated": false,
+          "nextRunSequenceBoundary": 102
+        }
+      ],
       "baselineFindingIds": [
         "B-8a40:F-041",
         "B-8a40:F-042",
@@ -1665,7 +1725,7 @@
         "B-8a40:F-051",
         "B-8a40:F-052"
       ],
-      "_hash": "e43363b821ddd04c1547fd289d75227e356a591af8dfeb76d742d5c2f92cfac9"
+      "_hash": "45890d9ea1f49358bb6b6b466ff8b8fbe82caa65c09c23c19946829780f22824"
     }
   ],
   "receipts": [
@@ -3045,6 +3105,110 @@
       ],
       "createdAt": "2026-09-06T20:36:51.479Z",
       "_hash": "fe1e37325091d6fd253980979a8ddb077b2b5b147fb62dd3b643ffc8f3396451"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-009:CRIT-01",
+      "epochId": "B-8a40:RI-009",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "15bea5826231986a422d2df77c26aa27c6e83e22",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "d101b167532c0a0291dbb9d0acba26c67bee5ce7133ad5f4c12c528882f3e448",
+      "requiredLaneCoverageDigest": "3778274487670972c6412e7acfd4ed43ffa70cbeda3f1ce935bacbab84e564a9",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-102",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-058"
+      ],
+      "readEvidenceDigest": "4a0befc4ef4678f2693eae7d44de8a877a811a925f613692f051e464ede889f0",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-041",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+          "reason": "Independent bounded classifier/gate family: structural leaves are now enumerated, unlike F-019, but the whitespace-free path-shape exemption runs before hyphen and underscore semantic normalization, allowing encoded dismissal, reviewer-disposition, and schema-authority assertions."
+        },
+        {
+          "findingId": "B-8a40:F-042",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+          "reason": "Canonical current-material family: approved inventory and subordinate wrappers remain open-bodied behind the same finite authority-action blacklist, so unlisted verbs such as publishes and enacts bypass the residual classifier. This is an incomplete-closure mechanism after earlier open-body findings, not F-041 encoding or F-043 linkage."
+        },
+        {
+          "findingId": "B-8a40:F-043",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-topic-break-explicit-coreference-laundering",
+          "reason": "Independent bounded classifier/gate family: an unconditional topic-break exemption severs an otherwise rejected relation even when the later sentence explicitly corefers to the Finding. This is separate from unrelated-object false joins because the target is explicit and the laundering occurs in relation linkage."
+        },
+        {
+          "findingId": "B-8a40:F-044",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+          "canonicalFindingId": "B-8a40:F-042",
+          "reason": "Direct non-circular duplicate of earlier F-042: both exercise the same open approved-wrapper capture guarded by TRIAGE_INVENTORY_AUTHORITY_ACTION and bypass it with unlisted authority-action verbs. Preserve F-044's additional deem, makes, and entrusts witnesses and its dismissal/disposition controls."
+        },
+        {
+          "findingId": "B-8a40:F-045",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+          "reason": "Independent bounded classifier/gate family: full Task Context composition tracks only negative-dismissal relations, allowing equivalent prohibited severity-to-scope, unknown-to-routing, deferral-to-transfer, and signed-disposition-to-binding propositions when their continuations move to another trusted leaf."
+        },
+        {
+          "findingId": "B-8a40:F-046",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-deferral-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family. Unlike F-012, the stale join occurs in the deferral continuation state rather than cross-source negative-dismissal composition. Unlike F-036, which loses deferral state too early across evidence-only prose, F-046 retains it too long across a substantive nearer antecedent and falsely binds the later pronoun. Preserve direct unsafe, evidence-aside, and local-antecedent controls."
+        },
+        {
+          "findingId": "B-8a40:F-047",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family. It shares the local-antecedent rebinding symptom with F-046 but executes through hasCrossSegmentSeverityAuthority and its separate persistent severity/flattened-authority-noun grammar; F-046 executes through the deferral controlled-relation state. Preserve both direct unsafe, evidence-aside, and local-antecedent witnesses."
+        },
+        {
+          "findingId": "B-8a40:F-048",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive",
+          "reason": "Independent bounded classifier/gate family: the dedicated unknown-applicability whole-source concatenation treats any later generic routing token as a controlled relation without causal linkage, coreference, or anaphora. This differs from F-046/F-047 persistent pronoun states and from F-012/F-016 dismissal composition; preserve unrelated operational-routing and genuinely unsafe route controls."
+        },
+        {
+          "findingId": "B-8a40:F-049",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-positive-dismissal-evidence-unrelated-scope-whole-source-false-positive",
+          "reason": "Independent bounded classifier/gate family: the dismissal-family whole-source join concatenates an affirmative finding_dismiss audit-evidence record with an unrelated later scope statement without causal linkage or coreference. F-016/F-017 depend on standalone negative-dismissal filtering and same-leaf ordering, while F-048 executes through the separate unknown-applicability family. Preserve the positive audit record, unrelated scope, local-only, and direct unsafe controls."
+        },
+        {
+          "findingId": "B-8a40:F-050",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-deferral-explicit-target-cross-segment-bypass",
+          "reason": "Independent bounded classifier/gate family: deferral cross-segment detection accepts only pronoun-led continuations, so an explicitly named Finding, issue, defect, or work target bypasses the helper even though the equivalent same-segment authority is rejected. It needs neither F-036 evidence-aside persistence nor F-046 ambiguous local antecedence, and remains within one source leaf unlike F-045."
+        },
+        {
+          "findingId": "B-8a40:F-051",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-signed-disposition-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family: hasCrossSegmentDispositionAssignment keeps a signed-disposition inspection antecedent live past a new substantive local antecedent. Although the symptom resembles F-046/F-047, it uses a separate signed-disposition inspection and assignment state machine and differs from F-039 terminal-state vocabulary."
+        },
+        {
+          "findingId": "B-8a40:F-052",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-passive-outcome-first-cross-segment-bypass",
+          "reason": "Independent bounded classifier/gate family: cross-segment severity authority recognizes active pronoun or authority-noun-first continuations but misses passive and outcome-first equivalents. This is distinct from F-047's false-positive stale severity state, F-045's cross-leaf split, and F-050's deferral target grammar."
+        },
+        {
+          "findingId": "B-8a40:F-053",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-unknown-applicability-joined-span-padding-bypass",
+          "reason": "Independent bounded classifier/gate family: the unknown-applicability relation imposes a 320-character joined-span ceiling, so explicit coreference or causal linkage fails open after evidence-only padding. F-048 is the opposite within-bound false-positive on unrelated routing, while F-001/F-003 use the separate negative-dismissal horizon grammar; preserve short unsafe, long unsafe, causal-padding, and unrelated-safe controls."
+        }
+      ],
+      "createdAt": "2026-09-06T20:43:22.172Z",
+      "_hash": "4d988fffff8803caff37e26bc4bb37fb95c2f2a90157e0780555f98621c67d1a"
     }
   ]
 }
