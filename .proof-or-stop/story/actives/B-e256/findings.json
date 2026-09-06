@@ -1907,7 +1907,7 @@
       "desc": "CHK-003:adversarial:2 has no executable coverage for its promised unreadable Windows npm command-shim branch. packages/main/src/core/runtime-environment-checks.ts:742-752 classifies commandShimReadProbe failures as windows-command-shim-missing or windows-command-shim-unreadable, but packages/main/tests/global-core-realpath.test.mjs:229-302 covers only a target-mismatched shim and an ENOENT missing shim. Repository search finds no commandShimReadProbe injection and no assertion for windows-command-shim-unreadable; the EIO fixture at lines 261-276 instead injects binTargetStatProbe and exercises the unrelated bin-target-stat-failed branch. checklist.json:645 nevertheless claims the receipt covered missing, unreadable, and mismatched shims. Thus the unreadable branch can regress while the pinned ok global-core-realpath selector remains green. This is distinct from F-037, which is a parser false-positive after a shim was read, and from resolved F-029, which concerned unconditional validation. severity: high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T21:32:08.602Z",
@@ -1961,7 +1961,11 @@
       "signatureTag": "test-coverage-windows-command-shim-unreadable-branch",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbuqsb_c2m_1c189aa016a2491fb4afd652d758b125",
-      "ledgerCommitReceiptId": "lrc_mtqbuqsb_c2m_924b1f0aa2f34a49804eca4ebaa3a107"
+      "ledgerCommitReceiptId": "lrc_mtqbuqsb_c2m_924b1f0aa2f34a49804eca4ebaa3a107",
+      "resolvedAt": "2026-09-06T23:38:39.548Z",
+      "resolvedReason": "Commit 3144360a65 adds an injected commandShimReadProbe failure exercising windows-command-shim-unreadable and asserts the healthy marker is suppressed. global-core-realpath.test.mjs and current full validation pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-042",
