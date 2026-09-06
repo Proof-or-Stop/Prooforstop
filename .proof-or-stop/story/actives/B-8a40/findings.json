@@ -3709,7 +3709,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:264-269 introduces controlledPairHasLocalRelation as a finite positive relation-verb filter; hasControlledConceptPair at :467-480 now returns unclassified when a recognized unsafe concept pair uses an unlisted affirmative verb. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject the controls [Severity alone determines Story scope.] and [Unknown applicability permits routing away from this Story.], but mint integrity-valid envelopes for [Severity alone adjudicates Story scope.] and [Unknown applicability enables routing away from this Story.]. A read-only in-memory TypeScript transpilation of the classifier at pre-GREEN commit c6436b412a, using the same current dependencies and identical public API inputs, rejects both latter witnesses for all five roles; current GREEN 14081c71ac accepts them. This is therefore an introduced regression, not a request for an unrelated general language parser. The committed round-4 tests cover padding with determines/permits and the existing known-verb corpus, but do not challenge the new positive vocabulary boundary; the focused smoke still prints PASS. Preserve relationship-sensitive separation without allowing unlisted affirmative authority verbs to turn a recognized controlled pair into a safe omission, and add all-role newly unlisted-verb RED/GREEN controls with unrelated-safe and explicit-negative cases. Severity high: Story-authored context regains severity-only scope and unknown-applicability routing authority before envelope digests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T23:23:04.658Z",
@@ -3750,7 +3750,11 @@
       "signatureTag": "controlled-local-relation-verb-filter-regression",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqftemr_69g_1c5c87d52d634dc8be47e240ad7bf814",
-      "ledgerCommitReceiptId": "lrc_mtqftems_69g_8b80933e694b4ebdbe8d2ad92eeccdfd"
+      "ledgerCommitReceiptId": "lrc_mtqftems_69g_8b80933e694b4ebdbe8d2ad92eeccdfd",
+      "resolvedAt": "2026-09-06T23:52:18.004Z",
+      "resolvedReason": "Duplicate re-attestation of B-8a40:F-071. Commit 689f1817de removes controlledPairHasLocalRelation and its finite affirmative verb filters. Recognized concept pairs fail closed for unlisted adjudicates/enables predicates. A closed composable nominal test-topic grammar retains existing safe inventory coverage without exempting unknown predicates. All-role unsafe, explicit-negative and nominal controls pass. Verification: npm run build --prefix packages/main and node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with prompt full-context envelope smoke PASS; all 13 pinned verification receipts refreshed by the CLI at 689f1817de. Original observations remain retained; resolution is not deferral.",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-075",
