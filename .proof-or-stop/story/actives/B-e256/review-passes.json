@@ -2744,6 +2744,57 @@
       },
       "readDiagnostics": [],
       "_hash": "d55a2e41076eb3fd5b69e8a31c8a3c9a7825388bd22734423c986912f8a63548"
+    },
+    {
+      "id": "B-e256:RP-069",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-006 wave 2 saturation test-coverage review passed with no new family beyond registered F-029/F-030/F-031/F-033. Audited all 12 verification intents and their current evidence (10 must with mechanical receipts, 2 should with attributed non-mechanical evidence, zero waivers), selector falsifiability, capability-skip behavior, platform branches, and mutation sensitivity. A fresh RED_REPO_ROOT run against unfixed main exited 1 with the RED summary and 13 failed desired properties. The full validate command was attempted but correctly refused by the active foreign owner lease; no takeover was used.",
+      "createdAt": "2026-09-06T19:32:41.863Z",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "reviewRunId": "B-e256:RR-100",
+      "envelopeId": "d87762cdd1da004f4b36d2d20f764c1dfb9989f4dea50687023a27c31a9cdce7",
+      "writerSessionId": "sess-79fa6c9f2bcd285437701996e2d42f4b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "2c1fbbc483e3e61c62cfef5a96dbbfd366685fe1313ba491f43b566b461a0c6d"
     }
   ]
 }
