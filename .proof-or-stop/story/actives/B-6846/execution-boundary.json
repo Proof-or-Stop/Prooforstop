@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-6846",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git log",
+    "git status",
+    "node bin/proof-or-stop.js",
+    "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+    "npm run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "collaboration",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    "packages/main/dist",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".proof-or-stop/story/actives/B-bcae"
+  ],
+  "confirmedBy": "story_create",
+  "createdAt": "2026-09-06T15:49:20.932Z",
+  "updatedAt": "2026-09-06T15:49:20.932Z",
+  "_hash": "cac7748b2817969e0736f5dd009c9b95acd9488df3437c60d86f83555381f2fb"
+}
