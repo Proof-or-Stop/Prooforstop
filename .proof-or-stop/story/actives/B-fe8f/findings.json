@@ -1539,6 +1539,25 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtpvyenf_17r5_1617b98dad51414fa7f7567535a34a26",
       "ledgerCommitReceiptId": "lrc_mtpvyenf_17r5_3b1f20af23324198998b1c5047479b07"
+    },
+    {
+      "id": "B-fe8f:F-060",
+      "desc": "The B-fe8f RED guard no longer recognizes the registration parent test's supported private Git mirror. Main now creates an isolated .git directory with private HEAD/index (red-b49d4-registration-derivation.mjs347-365); the B-fe8f guard95-103 still requires .git to be a symlink. In the parent mirror it falls into red_evidence_get against a context without the independent Story evidence store and fails EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE. Real validate command79 and isolated parent rerun exit1 (1 RED/25 GREEN); the identical direct real-worktree leaf under the same environment passes all13 markers. F056 leaf passes inside the parent too. Logs /tmp/bfe8f-sameenv-registration.p7sGmj/{registration-derivation,ledger-runtime-integrity-direct}.log; baseline55d5e34c6f360ef23e790a6c445bfb8b9a86e997. Adapt only bounded mirror recognition and add negative controls; retain private Git isolation, immutable binding digest and real-worktree official CLI evidence reads. This is an acceptance-blocking fixture integration mismatch, not evidence of invalid real RED credentials.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "main",
+      "createdAt": "2026-09-06T14:07:06.789Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "_hash": "043175d705e93e4673de0eafd850e348993b00cd2685d1ef5fc01fb15a1cba6e",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "edge|mjs|fe8f-guard-longer",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3",
+      "ledgerCommitReceiptId": "lrc_mtpvyfjb_18d9_fc71917e20cf492b8c020e8e844d1c71"
     }
   ]
 }

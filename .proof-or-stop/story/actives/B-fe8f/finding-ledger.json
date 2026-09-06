@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "5f687d8d2ec1e600ec9ec397e7f33c8d44a1cee33b0e4c18e67c62c53fb1f302",
+  "committedLedgerDigest": "16b2a113c08c1da1115786210e0300fb8fbe7b864edf3993e251e4f61c63271c",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2483,6 +2483,33 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T14:07:05.643Z"
+    },
+    {
+      "recordId": "lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3",
+      "recordType": "finding",
+      "idempotencyKey": "bfe8f-post-main-private-git-mirror",
+      "payload": {
+        "id": "B-fe8f:F-060",
+        "desc": "The B-fe8f RED guard no longer recognizes the registration parent test's supported private Git mirror. Main now creates an isolated .git directory with private HEAD/index (red-b49d4-registration-derivation.mjs347-365); the B-fe8f guard95-103 still requires .git to be a symlink. In the parent mirror it falls into red_evidence_get against a context without the independent Story evidence store and fails EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE. Real validate command79 and isolated parent rerun exit1 (1 RED/25 GREEN); the identical direct real-worktree leaf under the same environment passes all13 markers. F056 leaf passes inside the parent too. Logs /tmp/bfe8f-sameenv-registration.p7sGmj/{registration-derivation,ledger-runtime-integrity-direct}.log; baseline55d5e34c6f360ef23e790a6c445bfb8b9a86e997. Adapt only bounded mirror recognition and add negative controls; retain private Git isolation, immutable binding digest and real-worktree official CLI evidence reads. This is an acceptance-blocking fixture integration mismatch, not evidence of invalid real RED credentials.",
+        "severity": "medium",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "main",
+        "createdAt": "2026-09-06T14:07:06.789Z",
+        "reviewRound": "2026-09-05T14:53:05.943Z",
+        "_hash": "043175d705e93e4673de0eafd850e348993b00cd2685d1ef5fc01fb15a1cba6e",
+        "files": [
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "signatureTag": "edge|mjs|fe8f-guard-longer",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "fe463bc5d6f8a6778a9a30e9eac3224652b0410465807479446d2304d92ce1f2",
+      "priorDigest": "5f687d8d2ec1e600ec9ec397e7f33c8d44a1cee33b0e4c18e67c62c53fb1f302",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T14:07:06.791Z"
     }
   ],
   "receipts": [
@@ -6867,6 +6894,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "6dd66dca4efc2d770997e9467c3bdbdf703830a20dbcd2a09d97170aa3f162bc",
         "signature": "uA3+hTCIH7KnKTj4TytmgKyX+RbpzC/TPYqgQnsljs502Jq+ZdRuyNSD2QM0OYosMLMyqLUS0nSs7hJqcWuLAQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtpvyfjb_18d9_fc71917e20cf492b8c020e8e844d1c71",
+      "operation": "append_finding",
+      "idempotencyKey": "bfe8f-post-main-private-git-mirror",
+      "requestDigest": "8d3a0cc3f79f03921495474fa434c48e201f7ad5a4901462499d32b8ed9869fa",
+      "recordIds": [
+        "lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3"
+      ],
+      "priorLedgerDigest": "5f687d8d2ec1e600ec9ec397e7f33c8d44a1cee33b0e4c18e67c62c53fb1f302",
+      "committedLedgerDigest": "16b2a113c08c1da1115786210e0300fb8fbe7b864edf3993e251e4f61c63271c",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "34d1fd01-656a-4f67-9d81-99ee7eb3081c",
+      "committedAt": "2026-09-06T14:07:06.791Z",
+      "replayed": false,
+      "exactRequestDigest": "0c3c7ad8c0a43bd6f2909286acbd2160a2b3e02fc5f8824b1839258daa7ef29f",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtpvyfjb_18d9_fc71917e20cf492b8c020e8e844d1c71",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "bfe8f-post-main-private-git-mirror",
+        "exactRequestDigest": "0c3c7ad8c0a43bd6f2909286acbd2160a2b3e02fc5f8824b1839258daa7ef29f",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "5f687d8d2ec1e600ec9ec397e7f33c8d44a1cee33b0e4c18e67c62c53fb1f302",
+        "committedLedgerDigest": "16b2a113c08c1da1115786210e0300fb8fbe7b864edf3993e251e4f61c63271c",
+        "replayed": false,
+        "committedAt": "2026-09-06T14:07:06.791Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "34d1fd01-656a-4f67-9d81-99ee7eb3081c",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "0907276e3e06d68f14fdb0311c2dc786f65731ef50403a82775b1b20177c5031",
+        "signature": "s0f+yQ0MGogT+I7IK/+sQtpicLUGJ2SOzHSSsKKuDOWTe+V/KeqbEJT6wmsVF1FwGsmXZ0w+ruoVAEgRykvuCg=="
       }
     }
   ]
