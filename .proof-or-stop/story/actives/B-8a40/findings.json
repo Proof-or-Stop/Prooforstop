@@ -2337,6 +2337,7 @@
       "signatureTag": "severity-state-local-antecedent-false-positive",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf99a7_18em_b6795ef2e452412aa53f30105462e1ed",
+      "ledgerCommitReceiptId": "lrc_mtqf99a7_18em_dca1157d89474da7aa83d9a6f4202b56",
       "resolvedAt": "2026-09-06T23:07:24.620Z",
       "resolvedReason": "Reset severity antecedent state for a substantive local criterion while retaining evidence-only continuations; cache-routing and direct unsafe controls are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2347,7 +2348,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:823-839 unconditionally joins every relevant segment for the unknown-applicability family, so any later unrelated use of the generic word `routing` becomes a synthetic authority relation. Against the current committed built assembleFullPromptEnvelope API, all five active REVIEW roles REJECT `Applicability remains unknown. Cache routing is a separate process.` and even `Applicability remains unknown. Separately, cache routing is a distinct implementation process.` The local-only control `Evidence remains current. Cache routing is a separate process.` is admitted by all roles, while the genuinely unsafe `Applicability remains unknown. It permits routing away from this Story.` remains rejected, isolating the high false-block to the unconditional unknown-family join. The comment claims unrelated prose is not flattened, but that exclusion applies only to severity and signed-disposition; no causal/coreferent relation or topic continuity is required for unknown applicability. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts has no unknown-applicability plus unrelated operational-routing safe witness. This is distinct from F-046/F-047 persistent deferral/severity pronoun state and F-012/F-016 dismissal joins: it executes through the dedicated whole-source unknown-applicability concatenation and needs no anaphora. Require a bounded causal/coreferent unknown-to-route transition, or preserve segment identity and explicit topic breaks, with all-role unrelated and unsafe controls. Severity high because ordinary Story planning prose about unknown applicability and implementation/cache routing prevents every REVIEW role from starting.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T20:18:52.927Z",
@@ -2386,7 +2387,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-unknown-applicability-unrelated-routing-false-block",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf9aej_18vo_ff06206a3eb94eebaeec1216dbe13c5f",
+      "resolvedAt": "2026-09-06T23:07:26.071Z",
+      "resolvedReason": "Remove unconditional unknown-applicability whole-source concatenation and require local relation or live coreference; unrelated cache-routing controls are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-049",
