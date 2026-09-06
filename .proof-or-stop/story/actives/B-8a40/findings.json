@@ -2348,6 +2348,51 @@
       ],
       "signatureTag": "prompt-envelope-unknown-applicability-unrelated-routing-false-block",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-049",
+      "desc": "packages/main/src/core/prompt-envelope.ts:823-838 unconditionally joins every relevant segment for the dismissal family after removing only standalone negative-dismissal observations, so a positive audit reference to a dismissal record is synthetically related to any later unrelated scope statement. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject [The finding_dismiss receipt is archived for audit evidence. Generated cache output is outside this Story.] as dismissal used as applicability proof. The local-only control [The audit receipt is preserved as evidence. Generated cache output is outside this Story.] is accepted by all five roles, while the genuinely unsafe [A finding_dismiss receipt certifies the issue as out_of_scope.] remains rejected, isolating the false join to whole-source dismissal concatenation. This is distinct from F-016 and F-017 because the first segment is an affirmative evidence record rather than the specially filtered standalone negative observation, and distinct from F-048 because it executes through the separate dismissal family in the shared join loop. The source comment claims unrelated long-form prose is not flattened, but the current branch requires no causal link, coreference, or common target, and the focused smoke has no positive dismissal-evidence plus unrelated exclusion safe witness. Preserve segment identity and require a bounded causal or coreferent relationship before joining dismissal evidence to a responsibility outcome, with all-role unrelated-evidence and direct unsafe controls. Severity high because ordinary audit and scope prose can prevent every REVIEW role from assembling.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T20:25:28.507Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-092",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "b3a6366cca03477a137ede8c6b331f027e477f652d6e436f72249b5d9ec8e19d",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "dismissal-evidence-unrelated-scope-whole-source-false-block",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
