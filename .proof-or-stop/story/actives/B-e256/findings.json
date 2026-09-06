@@ -98,6 +98,21 @@
       "resolvedAt": "2026-09-04T07:53:07.177Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e256:F-006",
+      "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:1932 renders version from actual.version (package.json) even though the new compiled-runtime probe stores the executable’s authoritative version in actual.compiledVersion. When package.json is 2.0.0 but dist still serves 1.9.0, the global-core-realpath summary row therefore says version=2.0.0 while its warning says the compiled runtime reports 1.9.0; this contradicts the promised reported-version diagnostic and can mislead operators. Render compiledVersion (or clearly label both manifest and compiled values) and add a stale-compiled-version row assertion. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T13:27:56.662Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-024",
+      "_hash": "3e33b85ec912760eef34a779eca92459ccad05ed0f1c5c3cb144d5f917694038",
+      "signatureTag": "edge|unknown|quality-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
