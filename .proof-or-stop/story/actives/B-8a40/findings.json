@@ -3084,7 +3084,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:231-249 limits hasAffirmativeConceptRelation to a 180-character concept bridge, while :997-1010 treats any segment beginning with `do not` as explicitly rejected even when that negation belongs to a separate leading proposition. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles REJECTED `Do not alter unrelated audit metadata, stale_or_not_reproduced is the current applicability verdict.`, but all five ACCEPTED the same unsafe affirmative verdict after a neutral historical-audit modifier expanded the retired-alias-to-verdict span to 488 bytes. The segment still states the retired alias as the current verdict; only the fixed relation horizon suppresses assertsCurrentVerdict, and the unrelated opening prohibition then makes explicitlyRejected true. The focused smoke covers direct retired-vocabulary rejection and short explicit-negative forms but has no long affirmative relation preceded by an unrelated negative clause. This is distinct from F-061, which is a false block when a genuine `not ... current verdict` relation exceeds a separate 48-character window, and from F-054 through F-059, which concern other concept families. Bind the complete retired-alias/verdict proposition structurally and scope negation to its own clause, with all-role short/long affirmative, genuine-negative, and unrelated-negative controls. Severity high because caller-authored Task Context can publish retired applicability vocabulary as current authority while every REVIEW envelope is minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T21:07:37.488Z",
@@ -3125,7 +3125,11 @@
       "signatureTag": "retired-verdict-affirmative-relation-span-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqaz7o0_y15_af84c4654a164d8ba9a6ea5506671db7",
-      "ledgerCommitReceiptId": "lrc_mtqaz7o1_y15_f0cf5e9726f14f76927f1c7088a5b92e"
+      "ledgerCommitReceiptId": "lrc_mtqaz7o1_y15_f0cf5e9726f14f76927f1c7088a5b92e",
+      "resolvedAt": "2026-09-06T23:07:46.325Z",
+      "resolvedReason": "Classify the complete retired-alias/verdict relationship without the 180-character cutoff and bind negation locally; unrelated negative-prefix laundering is covered. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-063",
