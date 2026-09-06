@@ -185,6 +185,82 @@
       "estimatedTokens": 5757,
       "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
       "envelopeId": "7bf78af19dc73a17e66379c15261c80d78741ba1bf2535d79267f76840b36319"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-topology-critic",
+      "storyId": "B-8a40",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-8a40:RR-004",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "lane": "proof-or-stop-review-topology-critic",
+      "dispatchPromptDigest": "6c0666d1d85a43f20e7109cd290063482d12733e2435979e2b1511328b48418a",
+      "hostRenderIdentityDigest": "50d6651baf3726c91757c9bc61e1af9da2903ca1d99c5277b452a5ab85e79a04",
+      "createdAt": "2026-09-06T16:43:36.001Z",
+      "headHash": "1051fd1b1316be23a06d85ff69b91ae6f3f5b2e0",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "76db5cf02d1e02e5963fb50373e32536affac18e927d916f26d11ac0928f066c",
+      "roleRenderDigest": "48b3cee1e50a8ec8a2755e93ea80bea882cdc40106d5974a915d5979dc5f189b",
+      "contextMode": "full",
+      "contextDigest": "9494c2740b2e3930e689e13e38c2a4f1e0a1d60335af69f2e2db8b4b6cca06b0",
+      "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
+      "storyFilesHash": "2a703c79691320aaa87dec260dc4c3f75442241aa0bce923c4b8b40054c7b2dd",
+      "policyHash": "9c092ea5049329d3c440f77b286cecddae3ac38b0984fadf7af9c27c52e76661",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "11f9b088528e91e0be0c8184b7d6bae76e60d2273ebc83c292b78bae334f1add",
+      "knownExecutionEnvironmentDigest": "392606c7acc37720a5b704d079ac9931617d2c8188b3416269ab05433b0aff64",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "5c4c0a0925f98abcd1b8aff49f5b40ebf5b8a72db465e2216d6b5c0d2bc2138c",
+      "commandPolicyDigest": "722b924abcff385e3f5dc79d2826fc75661c348e98569212653d9d985fc13242",
+      "assembledPromptDigest": "b52d5393238bae140294c348e341c39146080d5028e49352526edb47bae137d9",
+      "bytes": 23026,
+      "lines": 128,
+      "estimatedTokens": 5757,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "47832b615ea1a4aa5c84091df033ac68dd859bd0b6d76186de42a07ec2460a98",
+      "freshnessClassification": "NOT_EVALUATED",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_MISSING_TRUSTED_PRIOR_PASS",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "058da62df401ade862976c463ce9796e294d8dcde1a01e2daf1960823816e91f",
+      "impactedFilesDigest": "0f2679432ae4281e216e56a5f864e7c53679a02a9f5625fea1a634045641f7fb",
+      "taskSemanticDigest": "b3782e1ccdadd9a3a205f7b6cf4c0faff7b8c83f46a99e2956de214e5076f3f0",
+      "findingProjection": [
+        {
+          "id": "B-8a40:F-001",
+          "createdAt": "2026-09-06T16:39:19.111Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:539-542 and :788-791 remove every standalone negative-dismissal observation from the whole-source dismissal scan after checking only the next three segments, while isLinkedResponsibilityConclusion also requires a closed sentence-start vocabulary. This creates fail-open paths relative to main: No parent Finding is closed by this intake. A. B. C. The issue is out of scope. falls beyond the slice, while No parent Finding is closed by this intake. We therefore consider the issue out of scope. is adjacent but misses the anchored prefix grammar; in both cases the dismissal subject is filtered out before joined classification. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1094 and :1562 cover only the short sentence-start matrix, so the focused smoke still prints PASS and the broad-deletion mutant cannot detect either bypass. This is a high-severity Task Context authority-safety regression: preserve the safe B-bcae observation without making later linkage depend on an evadable distance or closed prefix list."
+        },
+        {
+          "id": "B-8a40:F-002",
+          "createdAt": "2026-09-06T16:40:29.381Z",
+          "status": "open",
+          "severity": "high",
+          "category": "edge",
+          "desc": "packages/main/src/core/prompt-envelope.ts:521-525 treats any responsibility-outcome token in a candidate beginning with `it`, `this`, `that`, or an issue/work noun as an unsafe linked conclusion without checking assertion polarity. The committed public assembleFullPromptEnvelope API rejected both `No parent Finding is closed by this intake. It is not out of scope.` and `No parent Finding is closed by this intake. It remains the responsibility of this Story.` for every active modular REVIEW role. These are explicit safe/current-repair statements, so the new guard recreates the reviewer-startup false-positive class this Story exists to repair and contradicts the related decision requirement that the guard compare assertion polarity (review-finding-triage-prompt-change-proposal.md:346-351). The focused smoke only has positive out-of-scope/ownership outcomes and therefore misses the inverse safe polarity. Add polarity-aware linkage classification and safe counterexamples; severity high."
+        },
+        {
+          "id": "B-8a40:F-003",
+          "createdAt": "2026-09-06T16:40:46.456Z",
+          "status": "open",
+          "severity": "high",
+          "category": "adversarial",
+          "desc": "packages/main/src/core/prompt-envelope.ts:523-525 and :539-542 replace the prior whole-source check with a fixed sentence-initial prefix allowlist and a three-segment/360-character horizon. The committed public assembleFullPromptEnvelope API admitted `No parent Finding is closed by this intake. Out of scope is where the issue belongs.` and `No parent Finding is closed by this intake. Another Story owns it.` for every active modular REVIEW role, even though these are word-order equivalents of the declared rejected adjacent scope/ownership conclusions. It also admitted the same unsafe conclusion after three benign intervening sentences or one padded adjacent sentence. This directly contradicts the related decision at review-finding-triage-prompt-change-proposal.md:346-351, which requires equivalent authority claims to stay rejected after word-order or punctuation changes, and reopens the B-5190 bypass class. The focused matrix covers only the accepted prefix spellings and at most one benign intervening segment. Make the bounded relation test invariant to these word-order and padding transformations and add independent witnesses; severity high."
+        }
+      ],
+      "findingProjectionDigest": "432b54e6f178645376ffdd8203961cb8e79f2715c4ffc5ed0933f2a223f516d0",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 23026,
+      "escalatedToFull": false
     }
   ]
 }
