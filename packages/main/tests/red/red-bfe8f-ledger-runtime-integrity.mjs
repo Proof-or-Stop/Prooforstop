@@ -16,11 +16,13 @@ import { spawnSync } from 'node:child_process';
 import {
   existsSync,
   lstatSync,
+  mkdirSync,
   mkdtempSync,
   readFileSync,
   readdirSync,
   renameSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -87,20 +89,73 @@ function runProof(command, payload) {
 }
 
 // B-49d4's supported newcomer proof executes byte-identical committed guards
-// inside a private symlink mirror. That mirror intentionally contains no
+// inside a symlink mirror with private Git administration. That mirror contains no
 // independent B-fe8f Story evidence store. Keep that bounded harness useful by
 // checking an integrity-pinned static copy of the already-reviewed evidence
 // identities there; the real worktree path below still executes every official
 // CLI read and relation check.
-const supportedRegistrationMirror = (() => {
+// The parent harness proves real Git isolation independently. This finite
+// launch/layout check only selects the existing integrity-pinned static binding;
+// it does not grant authority to the mirror or substitute for that isolation proof.
+function isSupportedRegistrationMirror(root, execArgv) {
   try {
-    return process.execArgv.includes('--preserve-symlinks-main')
-      && lstatSync(join(repoRoot, '.git')).isSymbolicLink()
-      && lstatSync(join(repoRoot, 'proof-or-stop.config.json')).isSymbolicLink();
+    return execArgv.includes('--preserve-symlinks-main')
+      && lstatSync(join(root, '.git')).isDirectory()
+      && !readdirSync(join(root, '.git')).includes('commondir')
+      && ['HEAD', 'index', 'objects/info/alternates'].every((path) => lstatSync(join(root, '.git', path)).isFile())
+      && lstatSync(join(root, 'proof-or-stop.config.json')).isSymbolicLink();
   } catch {
     return false;
   }
-})();
+}
+
+const mirrorShapeScratch = mkdtempSync(join(tmpdir(), 'bfe8f-registration-mirror-shape-'));
+try {
+  const privateMirror = join(mirrorShapeScratch, 'private-mirror');
+  const config = join(mirrorShapeScratch, 'proof-or-stop.config.json');
+  const flags = ['--preserve-symlinks-main'];
+  mkdirSync(join(privateMirror, '.git', 'objects', 'info'), { recursive: true });
+  writeFileSync(config, '{}\n');
+  for (const path of ['HEAD', 'index', 'objects/info/alternates']) {
+    writeFileSync(join(privateMirror, '.git', path), 'synthetic layout only\n');
+  }
+  symlinkSync(config, join(privateMirror, 'proof-or-stop.config.json'));
+  assert.equal(isSupportedRegistrationMirror(privateMirror, flags), true,
+    'private Git mirror layout must select the bounded registration binding');
+  assert.equal(isSupportedRegistrationMirror(privateMirror, []), false,
+    'a private layout without the required launcher flag must keep official evidence reads');
+
+  const linkedConfig = join(privateMirror, 'proof-or-stop.config.json');
+  rmSync(linkedConfig);
+  writeFileSync(linkedConfig, '{}\n');
+  assert.equal(isSupportedRegistrationMirror(privateMirror, flags), false,
+    'ordinary repository config must not select the registration binding');
+  rmSync(linkedConfig);
+  symlinkSync(config, linkedConfig);
+
+  for (const shape of ['worktree', 'shared-git']) {
+    const candidate = join(mirrorShapeScratch, shape);
+    mkdirSync(candidate);
+    symlinkSync(config, join(candidate, 'proof-or-stop.config.json'));
+    if (shape === 'worktree') writeFileSync(join(candidate, '.git'), `gitdir: ${join(privateMirror, '.git')}\n`);
+    else symlinkSync(join(privateMirror, '.git'), join(candidate, '.git'));
+    assert.equal(isSupportedRegistrationMirror(candidate, flags), false,
+      `${shape} must not bypass official evidence reads`);
+  }
+  const commonDir = join(privateMirror, '.git', 'commondir');
+  writeFileSync(commonDir, '../shared-admin\n');
+  assert.equal(isSupportedRegistrationMirror(privateMirror, flags), false,
+    'a private-looking Git directory with commondir must not select the registration binding');
+  rmSync(commonDir);
+  const privateIndex = join(privateMirror, '.git', 'index');
+  rmSync(privateIndex);
+  symlinkSync(config, privateIndex);
+  assert.equal(isSupportedRegistrationMirror(privateMirror, flags), false,
+    'a linked index is not private administration');
+} finally {
+  rmSync(mirrorShapeScratch, { recursive: true, force: true });
+}
+const supportedRegistrationMirror = isSupportedRegistrationMirror(repoRoot, process.execArgv);
 
 const registrationMirrorBinding = {
   original: {

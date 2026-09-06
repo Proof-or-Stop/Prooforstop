@@ -540,7 +540,9 @@ function externalVerifierCommand(counterPath: string, outputPath: string, gitInd
     `require('fs').appendFileSync(${JSON.stringify(counterPath)}, 'x')`,
     ...(gitIndexRefreshRoot ? [
       `require('fs').utimesSync(${JSON.stringify(join(gitIndexRefreshRoot, 'packages/main/src/base.ts'))}, new Date(), new Date())`,
-      `require('child_process').execFileSync('git',['status','--short'],{cwd:${JSON.stringify(gitIndexRefreshRoot)}})`,
+      // This disposable fixture deliberately changes its own index stat cache,
+      // even when the outer validation disables optional writes to the real index.
+      `require('child_process').execFileSync('git',['status','--short'],{cwd:${JSON.stringify(gitIndexRefreshRoot)},env:{...process.env,GIT_OPTIONAL_LOCKS:'1'}})`,
     ] : []),
     `process.stdout.write(require('fs').readFileSync(${JSON.stringify(outputPath)}, 'utf8'))`,
   ].join(';');
