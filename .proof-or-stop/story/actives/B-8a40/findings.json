@@ -1681,6 +1681,52 @@
       ],
       "signatureTag": "deferral-evidence-continuation-state-machine-laundering",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-037",
+      "desc": "The unauthorized disposition actor grammar is a closed noun list, so ordinary reviewer-role synonyms bypass both direct and cross-segment enforcement. All five active REVIEW roles reject [Reviewers grant defer_with_proof to the Finding.] but accept each of [The review team grants defer_with_proof to the Finding.], [Independent auditors sign FindingDeferralDisposition for the Finding.], [The review panel bestows defer_with_proof on the Finding.], and [The review team inspects a signed defer_with_proof disposition. It binds the Finding.]; the explicit negative control [The review team must not grant defer_with_proof to the Finding.] is also accepted. In packages/main/src/core/prompt-envelope.ts, the unauthorizedActor matcher and both signed-inspection grammars recognize only reviewer, review lane, agent, and story owner tokens, so equivalent review team, review panel, and auditor actors never open the authority relation. The smoke includes many action and continuation spellings but no actor-synonym matrix. This is distinct from F-032 target-synonym bypass: the target here remains the literal Finding and the failure occurs before the state machine because its actor antecedent is unrecognized. Model the active-reviewer actor concept rather than a short noun allowlist, or otherwise reject equivalent reviewer collectives, and add direct plus cross-segment all-role positive and explicit-negative controls.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T18:58:08.107Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-061",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "bb384074baaec05f2e87d5f3e52f1f8599dcaa0772f728afda11ab03ae3d0bce",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "reviewer-actor-synonym-disposition-authority-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
