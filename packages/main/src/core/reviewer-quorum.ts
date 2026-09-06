@@ -5,6 +5,8 @@
  * coverage and verifier independence, returning structured diagnostics.
  */
 
+import { canonicalReviewerLane, reviewerIdentitiesEqual } from './reviewer-opt-in.js';
+
 export type ReviewerQuorumProfile = 'light' | 'balanced' | 'strict';
 
 export interface ProducerVerifierMetadata {
@@ -21,7 +23,7 @@ export interface ProducerVerifierMetadata {
 }
 
 export interface ReviewerEvidenceEntry {
-  /** lane, e.g. "proof-or-stop-review-concept" */
+  /** lane, e.g. "proof-or-stop-review-concept" (legacy lanes remain readable) */
   lane: string;
   /** agent string, e.g. "proof-or-stop-review-concept" or bare "concept" */
   agent?: string;
@@ -64,20 +66,15 @@ export interface ReviewerQuorumResult {
   diagnostics: QuorumDiagnostic[];
 }
 
-/** Map reviewer short name to canonical lane string */
+/** Map reviewer short name or a legacy lane to a canonical registered lane. */
 function toLane(name: string): string {
-  if (name.startsWith('proof-or-stop-review-')) return name;
-  return `proof-or-stop-review-${name}`;
+  return canonicalReviewerLane(name) ?? name.trim();
 }
 
 /** Check if an evidence entry covers the given lane */
 function entryCoversLane(entry: ReviewerEvidenceEntry, lane: string): boolean {
-  if (entry.lane === lane) return true;
-  if (entry.agent) {
-    if (entry.agent === lane) return true;
-    if (toLane(entry.agent) === lane) return true;
-  }
-  return false;
+  return reviewerIdentitiesEqual(entry.lane, lane)
+    || (!!entry.agent && reviewerIdentitiesEqual(entry.agent, lane));
 }
 
 function metadataKey(m: ProducerVerifierMetadata | undefined): string | null {

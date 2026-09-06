@@ -36,6 +36,8 @@ import {
 } from '../handlers/english-artifact-gate.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+// packageRoot is packages/main/dist; guides live three levels above it.
+const repositoryRoot = resolve(packageRoot, '..', '..', '..');
 const cliPath = join(packageRoot, 'cli.js');
 const STORY_DIR = '.proof-or-stop/story/actives';
 
@@ -181,7 +183,92 @@ function assertRefused(res: { status: number; output: string }, expected: string
   }
 }
 
-// (c) all-English story_create succeeds, INCLUDING a U+2014 em-dash false-positive guard.
+// (c) story_create refuses CJK in relatedDocs before creating any story.
+{
+  const root = makeRoot('related-docs-create');
+  try {
+    const res = runCli(root, 'story_create', baseStory({
+      checklist: [{
+        title: 'English checklist title',
+        context: 'English context long enough for the smoke.',
+        relatedDocs: [`AGENTS.md#${CJK_FIX}`],
+      }],
+    }));
+    assertRefused(res, 'checklist[1].relatedDocs[1]');
+    assert.deepEqual(storyIds(root), [], 'CJK relatedDocs refusal must not create a story directory');
+
+    const nested = runCli(root, 'story_create', baseStory({
+      name: 'english-nested-intent-refusal',
+      checklist: [{
+        title: 'English checklist title',
+        context: 'English context long enough for the smoke.',
+        excludes: ['English excluded direction'],
+        verificationIntent: {
+          happy: [{ desc: `Nested intent ${CJK_FIX}`, type: 'manual', priority: 'must' }],
+          edge: [],
+          adversarial: [],
+        },
+      }],
+    }));
+    assertRefused(nested, 'checklist[1].verificationIntent.happy[1].desc');
+    assert.deepEqual(storyIds(root), [], 'nested CJK checklist prose must not create a story directory');
+    console.log('ok: story_create refuses CJK relatedDocs before persistence');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// (d) checklist_update refuses CJK relatedDocs without changing checklist.json,
+// then accepts an English replacement that also passes the final artifact gate.
+{
+  const root = makeRoot('related-docs-update');
+  try {
+    const create = runCli(root, 'story_create', baseStory({ name: 'english-related-docs-update' }));
+    assert.equal(create.status, 0, `setup story_create failed:\n${create.output}`);
+    const storyId = parseStoryId(create.output);
+    const storyDir = join(root, STORY_DIR, storyId);
+    const checklistFile = join(storyDir, 'checklist.json');
+    const before = readFileSync(checklistFile, 'utf8');
+
+    const addRefused = runCli(root, 'checklist_add', {
+      storyId,
+      title: 'A second English checklist item',
+      context: 'English context for the checklist add writer.',
+      relatedDocs: [`AGENTS.md#${CJK_FIX}`],
+    });
+    assertRefused(addRefused, 'checklist item.relatedDocs[1]');
+    assert.equal(readFileSync(checklistFile, 'utf8'), before, 'CJK checklist_add must be side-effect free');
+
+    const refused = runCli(root, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      relatedDocs: [`AGENTS.md#${CJK_FIX}`],
+    });
+    assertRefused(refused, 'CHK-001.relatedDocs[1]');
+    assert.equal(readFileSync(checklistFile, 'utf8'), before, 'CJK relatedDocs update must be side-effect free');
+
+    const accepted = runCli(root, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      relatedDocs: ['AGENTS.md#process-fact-contract'],
+    });
+    assert.equal(accepted.status, 0, `English relatedDocs update should pass:\n${accepted.output}`);
+    const after = readFileSync(checklistFile, 'utf8');
+    assert.notEqual(after, before, 'English relatedDocs update must persist');
+    assert.ok(after.includes('AGENTS.md#process-fact-contract'), 'English replacement must be stored');
+    const finalGate = runEnglishArtifactGate({
+      storyDir,
+      gitCwd: root,
+      gitLogReader: () => '',
+    });
+    assert.equal(finalGate.ok, true, `English replacement must satisfy final gate: ${JSON.stringify(finalGate.violations)}`);
+    console.log('ok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+}
+
+// (e) all-English story_create succeeds, INCLUDING a U+2014 em-dash false-positive guard.
 {
   const root = makeRoot('english');
   try {
@@ -200,7 +287,7 @@ function assertRefused(res: { status: number; output: string }, expected: string
   }
 }
 
-// (d) background_set with CJK content is refused before writing background.md.
+// (f) background_set with CJK content is refused before writing background.md.
 {
   const root = makeRoot('background-set');
   try {
@@ -222,7 +309,7 @@ function assertRefused(res: { status: number; output: string }, expected: string
   }
 }
 
-// (e) the early check uses the SAME predicate as runEnglishArtifactGate: for
+// (g) the early check uses the SAME predicate as runEnglishArtifactGate: for
 // every candidate, the early authoring check, the persisted-artifact gate, and
 // containsCJK must all agree (no divergent language policy).
 {
@@ -262,4 +349,21 @@ function assertRefused(res: { status: number; output: string }, expected: string
   console.log('ok: early authoring check and english-artifact gate agree on containsCJK');
 }
 
+// F-054: the agent-facing contract must describe the recursive runtime boundary,
+// not accidentally narrow it to a small illustrative field list.
+for (const docName of ['AGENTS.md', 'CLAUDE.md']) {
+  const doc = readFileSync(join(repositoryRoot, docName), 'utf8');
+  const heading = '### English authoring and legacy relatedDocs recovery';
+  const sectionStart = doc.indexOf(heading);
+  assert.ok(sectionStart >= 0, `${docName}: English-authoring guidance section must exist`);
+  const paragraphStart = sectionStart + heading.length;
+  const paragraphEnd = doc.indexOf('\n\n', paragraphStart + 2);
+  const contract = doc.slice(paragraphStart, paragraphEnd >= 0 ? paragraphEnd : undefined);
+  assert.match(contract, /all recursively scanned string leaves/, `${docName}: recursive authoring boundary must stay explicit`);
+  assert.match(contract, /non.?exhaustive/, `${docName}: field examples must stay explicitly non-exhaustive`);
+  for (const field of ['excludes', 'files', 'reason', 'verificationEvidence']) {
+    assert.ok(contract.includes(`\`${field}\``), `${docName}: recursive-boundary guidance must name ${field}`);
+  }
+}
+console.log('ok: agent docs preserve the recursive English-authoring boundary');
 console.log('english-early-check smoke passed');

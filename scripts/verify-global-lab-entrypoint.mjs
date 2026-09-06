@@ -21,6 +21,7 @@ import { z } from 'zod';
 const root = process.cwd();
 const mode = process.argv[2] || 'all';
 const cli = join(root, 'bin', 'proof-or-stop.js');
+const coreCli = join(root, 'packages', 'main', 'dist', 'cli.js');
 const EXPECTED_CORE_VERSION = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const EXPECTED_LAB_VERSION = '0.3.65';
 const EXPECTED_UTILS_VERSION = '0.3.268';
@@ -50,9 +51,18 @@ function run(args, opts = {}) {
   });
 }
 
-function runAllowFailure(args) {
+function runCore(args, opts = {}) {
+  return execFileSync('node', [coreCli, ...args], {
+    cwd: root,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+    ...opts,
+  });
+}
+
+function runAllowFailure(args, runner = run) {
   try {
-    return { ok: true, text: run(args) };
+    return { ok: true, text: runner(args) };
   } catch (error) {
     return {
       ok: false,
@@ -155,44 +165,31 @@ const checks = {
     assert(utils.name === '@proof-or-stop/utils', `utils package name mismatch: ${utils.name}`);
     assert(lab.name === '@proof-or-stop/lab', `lab package name mismatch: ${lab.name}`);
     assert(core.version === EXPECTED_CORE_VERSION, `core version mismatch: ${core.version}`);
-    assert(utils.version === EXPECTED_UTILS_VERSION, `utils version mismatch: ${utils.version}`);
-    assert(lab.version === EXPECTED_LAB_VERSION, `lab version mismatch: ${lab.version}`);
-    assert(core.dependencies?.['@proof-or-stop/lab'] === EXPECTED_LAB_VERSION, `core should depend on @proof-or-stop/lab@${EXPECTED_LAB_VERSION}`);
-    assert(utils.peerDependencies?.['@proof-or-stop/core'] === EXPECTED_UTILS_CORE_PEER_RANGE, `utils should require the first Core extension-runtime release through peer range ${EXPECTED_UTILS_CORE_PEER_RANGE}`);
-    assert(lab.peerDependencies?.['@proof-or-stop/core'] === EXPECTED_LAB_CORE_PEER_RANGE, `lab should accept independently-versioned core releases through peer range ${EXPECTED_LAB_CORE_PEER_RANGE}`);
-    assert(!utils.dependencies?.['@proof-or-stop/core'], 'utils should not pin core as an exact runtime dependency');
-    assert(!lab.dependencies?.['@proof-or-stop/core'], 'lab should not pin core as an exact runtime dependency');
-    assert(!core.dependencies?.['@proof-or-stop-agent/lab'], 'core should not depend on retired @proof-or-stop-agent/lab');
-    assert(!utils.dependencies?.['@proof-or-stop-agent/core'], 'utils should not depend on retired @proof-or-stop-agent/core');
-    assert(!lab.dependencies?.['@proof-or-stop-agent/core'], 'lab should not depend on retired @proof-or-stop-agent/core');
+    assert(utils.version === EXPECTED_EXTENSION_VERSION, `utils version mismatch: ${utils.version}`);
+    assert(lab.version === EXPECTED_EXTENSION_VERSION, `lab version mismatch: ${lab.version}`);
+    assert(core.dependencies?.['@proof-or-stop/lab'] === EXPECTED_EXTENSION_VERSION, `core should depend on @proof-or-stop/lab@${EXPECTED_EXTENSION_VERSION}`);
+    assert(core.bin?.['proof-or-stop'] === 'dist/cli.js', 'core package should publish only the proof-or-stop bin');
+    assert(!Object.prototype.hasOwnProperty.call(core.bin ?? {}, 'lattice'), 'core package must not publish the lattice npm bin alias');
+    assert(utils.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `utils should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
+    assert(lab.dependencies?.['@proof-or-stop/core'] === EXPECTED_EXTENSION_VERSION, `lab should depend on @proof-or-stop/core@${EXPECTED_EXTENSION_VERSION}`);
+    assert(!core.dependencies?.['@lattice-agent/lab'], 'core should not depend on retired @lattice-agent/lab');
+    assert(!utils.dependencies?.['@lattice-agent/core'], 'utils should not depend on retired @lattice-agent/core');
+    assert(!lab.dependencies?.['@lattice-agent/core'], 'lab should not depend on retired @lattice-agent/core');
     assert(!core.dependencies?.['@koala-agent/lab'], 'core should not depend on legacy @koala-agent/lab');
     assert(!utils.dependencies?.['@koala-agent/core'], 'utils should not depend on legacy @koala-agent/core');
     assert(!lab.dependencies?.['@koala-agent/core'], 'lab should not depend on legacy @koala-agent/core');
   },
   'lab-help': () => {
-    const out = run(['lab', 'help']);
-    assert(out.includes('Proof-or-Stop Lab commands:'), 'global core bin should run the real nested lab help command');
-    for (const command of ['create', 'run', 'eval', 'compare', 'promote', 'help']) {
-      assert(out.includes(`proof-or-stop lab ${command}`), `nested Lab help should advertise lab ${command}`);
-    }
-    assert(out.includes('flat compatibility: lab_create'), 'nested Lab help should preserve the flat compatibility surface');
-    assert(!out.includes('koala'), 'nested Lab help should not advertise a retired product command');
-
-    const flatOut = run(['lab_help']);
-    assert(flatOut === out, 'flat lab_help compatibility command should match nested lab help');
-
-    for (const command of ['create', 'run', 'eval', 'compare', 'promote', 'help']) {
-      const nestedHelp = run(['lab', command, '--help']);
-      assert(nestedHelp.includes(`proof-or-stop lab ${command} —`), `nested lab ${command} heading should retain canonical nested syntax`);
-      assert(nestedHelp.includes(`Usage: proof-or-stop lab ${command}`), `nested lab ${command} Usage should retain canonical nested syntax`);
-      assert(!nestedHelp.includes(`proof-or-stop lab_${command} —`), `nested lab ${command} heading must not fall back to flat compatibility syntax`);
-
-      const flatHelp = run([`lab_${command}`, '--help']);
-      assert(flatHelp.includes(`proof-or-stop lab_${command} —`), `flat lab_${command} compatibility help should retain flat syntax`);
-      assert(flatHelp.includes(`Usage: proof-or-stop lab_${command}`), `flat lab_${command} compatibility Usage should retain flat syntax`);
-    }
+    const out = run(['lab_create', '--help']);
+    assert(out.includes('proof-or-stop lab_create'), 'global core bin should show lab_create help through the proof-or-stop bootstrap');
+    assert(!out.includes('koala lab_create'), 'global core bin should not advertise retired koala lab_create alias help');
   },
-  'lab-create': () => {
+  'published-core-lab-help': () => {
+    const out = runCore(['lab_create', '--help']);
+    assert(out.includes('proof-or-stop lab_create'), 'published core bin should resolve the canonical @proof-or-stop/lab sibling');
+    assert(!out.includes('koala lab_create'), 'published core bin should not advertise retired koala lab_create alias help');
+  },
+  'lab-create-policy-gate': () => {
     const temp = createTempProject();
     try {
       const config = 'experiments/configs/lab-reviewer-reviewer-quality-v1.json';
@@ -244,8 +241,10 @@ const checks = {
 
       const out = isolatedRun(['session_brief']);
       assert(out.includes('# proof-or-stop session brief'), 'core command should still work when lab dist is absent');
-      const failed = isolatedFailure(['lab', 'help']);
-      assert(!failed.ok, 'nested lab command should fail when lab extension is unavailable');
+      const coreOut = runCore(['--root', temp, 'session_brief']);
+      assert(coreOut.includes('# proof-or-stop session brief'), 'published core command should still work when lab dist is absent');
+      const failed = runAllowFailure(['--root', temp, 'lab_create', '--help']);
+      assert(!failed.ok, 'lab command should fail when lab extension is unavailable');
       assert(
         failed.text.includes('Unknown command: lab_help') || failed.text.includes('未知命令: lab_help') || failed.text.includes('Recovery'),
         'nested Lab failure should show unavailable canonical command or recovery hint',
@@ -471,6 +470,12 @@ const checks = {
       assert(
         canonicalStoryGet.includes('"checklist"') && canonicalStoryGet.includes('"review"') && !canonicalStoryGet.includes('evil'),
         `after rejected override, canonical CLI must still execute the original story_get implementation: ${canonicalStoryGet.slice(0, 300)}`,
+      );
+      const coreFailed = runAllowFailure(['--root', temp, 'lab_create', '--help'], runCore);
+      assert(!coreFailed.ok, 'published core lab command should fail when lab extension is unavailable');
+      assert(
+        coreFailed.text.includes('Unknown command: lab_create') || coreFailed.text.includes('未知命令: lab_create') || coreFailed.text.includes('Recovery'),
+        'published core lab failure should remain fail-closed',
       );
     } finally {
       rmSync(dev.dir, { recursive: true, force: true });

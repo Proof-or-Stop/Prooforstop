@@ -1,0 +1,526 @@
+{
+  "findings": [
+    {
+      "id": "B-0b50:F-001",
+      "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T20:14:15.160Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-001",
+      "_hash": "628486115b10254cb6079105884201d017f401dc2c181d7804d4afbad4177e6a",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Probe failures now return explicit PRE_CERT_INVENTORY_PROBE_FAILED with a read-only recovery path; focused smoke covers the thrown read error.",
+      "resolvedAt": "2026-08-26T07:08:19.844Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-002",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 only tests rejection of a Next line for another Story ID; it never feeds safeDoneRequiredRecoveryCommand malformed or shell-metacharacter input, so CHK-001:adversarial:0 lacks concrete evidence for its command-injection resistance requirement.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T20:14:16.311Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-003",
+      "_hash": "5a8449410fdb125f949df2c4a8615e54002c38f733671ff1d6a3458ec73bef62",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added malformed and shell-metacharacter recovery-command regression coverage in the current certification-window smoke.",
+      "resolvedAt": "2026-08-26T07:08:21.817Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-003",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-817 never calls safeDoneRequiredRecoveryCommand with a non-inventory blocker or with no authoritative Next line, so CHK-001:edge:0 lacks concrete evidence that the existing caller-specific fallback is retained.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T20:14:35.659Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-003",
+      "_hash": "434d505c56104a47ae192ba576e8b6658df28d55bcb1d1f5208cc3d75b9b493f",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Added no-Next and non-inventory fallback regression coverage; caller fallback remains unchanged when no safe authoritative Next exists.",
+      "resolvedAt": "2026-08-26T07:08:23.740Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-004",
+      "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T20:14:40.372Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-001",
+      "_hash": "e75bd81f07e51feffffce8d6290933127d0df0975ab0b0791d5e26b226c09da1",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Removed the unused heavyCertificationStatusNext export from certification-window.ts.",
+      "resolvedAt": "2026-08-26T07:08:25.993Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-005",
+      "desc": "packages/main/src/core/certification-window.ts:878 quality: finalizedUnconsumedReviewInventory exceptions are silently converted to hasUnconsumedInventory=false, so an inventory read/health failure is indistinguishable from genuinely missing inventory and the operator is incorrectly routed to review_inventory_finalize. This new catch needs explicit probe/error classification or propagation/health reporting under the repository fail-fast policy; otherwise data/API failures are hidden.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T20:21:51.749Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "7e8dfc1938039a0840d044d37d734e3f69af1a1bd92b24b4f7043d80b18ceaf0"
+      },
+      "readDiagnostics": [],
+      "_hash": "ebc399b023507923fb98c5fa2ffbc4f014f81602b72c1a7192fc389c4f79020a",
+      "signatureTag": "edge|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of F-001; the shared probeFinalizedUnconsumedReviewInventory classification fixes the swallowed-error path.",
+      "resolvedAt": "2026-08-26T07:08:27.761Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-006",
+      "desc": "packages/main/src/core/certification-window.ts:801 quality: heavyCertificationStatusNext is no longer referenced after refuseHeavyCertificationUnlessAdmitted switched to nextCommandForBlocker; the now-dead exported helper should be removed or have a documented remaining caller to avoid stale recovery behavior.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-25T20:22:13.605Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "7e8dfc1938039a0840d044d37d734e3f69af1a1bd92b24b4f7043d80b18ceaf0"
+      },
+      "readDiagnostics": [],
+      "_hash": "8c338b87acb0d92195bab9850939ec35007d8afd7f74b1c7b4dd91a8513b613e",
+      "signatureTag": "missing|unknown|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Duplicate of F-004; the dead helper is removed.",
+      "resolvedAt": "2026-08-26T07:08:29.615Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-007",
+      "desc": "packages/main/src/tasks/certification-window-smoke.ts:800-818 — CHK-001:adversarial requires proving malformed or unrelated refusal text cannot inject an arbitrary shell command, but the regression only checks a wrong Story ID; it does not exercise a metacharacter-bearing or malformed Next line against safeDoneRequiredRecoveryCommand, so this must-priority intent lacks concrete executable coverage.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-25T20:27:33.126Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "7e8dfc1938039a0840d044d37d734e3f69af1a1bd92b24b4f7043d80b18ceaf0"
+      },
+      "readDiagnostics": [],
+      "_hash": "6f5497335e62f19d20ae90be9bca81511dbecb3cd0c375859527045ee825da8a",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by current smoke coverage for malformed, wrong-Story, shell-metacharacter, and missing-Next input.",
+      "resolvedAt": "2026-08-26T07:08:31.976Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-008",
+      "desc": "CHK-001:happy:0, CHK-001:edge:0, CHK-001:adversarial:0, CHK-002:happy:0, CHK-002:edge:0, and CHK-002:adversarial:0 lack current valid verificationEvidence: .proof-or-stop/story/actives/B-0b50/checklist.json:59-249 contains only receipts bound to head fe2d6d1, materialHash c0bd5e6, and storyFilesHash a5eefa4, while the current RI-002 cutoff is c485a74, materialHash 79e35e, and storyFilesHash 7e3d7. The current certification-window smoke passes, but its result must be re-recorded at the RI-002 cutoff before coverage is admissible.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-26T06:21:22.771Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "04a2548a6e6df902b1a8835aa4e889823a730eb627a2b3b81396d0d1a7d6ae4f"
+      },
+      "readDiagnostics": [],
+      "_hash": "7a256e5be6336bc240e58d04f8c16237edd45b73635fe0b8876f49257ba4bc2f",
+      "files": [
+        ".proof-or-stop/story/actives/B-0b50/checklist.json",
+        "packages/main/src/tasks/certification-window-smoke.ts",
+        "packages/main/src/core/certification-window.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "missing|json|happy-edge-adversarial",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by six tool-executed verification receipts re-recorded at current HEAD after the implementer commits.",
+      "resolvedAt": "2026-08-26T07:08:33.826Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-009",
+      "desc": "packages/main/src/core/certification-window.ts:369 — when finalizedUnconsumedReviewInventory throws, refuseHeavyCertificationUnlessAdmitted reports pre_cert_inventory_probe_failed but points to certification_window_begin. That command writes a new blocked CertificationWindow and collectAdmitFacts swallows the same probe error before falling back to review_inventory_finalize, so the prescribed recovery cannot repair or faithfully surface the failed inventory read and causes avoidable metadata churn; keep this path fail-closed with an explicit diagnostic/read-only retry instead.",
+      "severity": "medium",
+      "category": "edge",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-26T06:21:50.411Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-010",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/background.md",
+          ".proof-or-stop/story/actives/B-0b50/checklist.json",
+          ".proof-or-stop/story/actives/B-0b50/plan.md",
+          "AGENTS.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+          "packages/main/src/core/certification-window.ts",
+          "packages/main/src/handlers/done-prepare.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 6,
+          "tokenCount": null
+        },
+        "digest": "04a2548a6e6df902b1a8835aa4e889823a730eb627a2b3b81396d0d1a7d6ae4f"
+      },
+      "readDiagnostics": [],
+      "_hash": "2c03f7a35de57415717e520571b823469069a640c2dba201bfb99455bc85486e",
+      "files": [
+        "packages/main/src/core/certification-window.ts"
+      ],
+      "signatureTag": "edge|ts|packages-main-core",
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by routing inventory probe failures to read-only certification_window_status instead of metadata-writing certification_window_begin.",
+      "resolvedAt": "2026-08-26T07:08:41.853Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-010",
+      "desc": "The current acceptance evidence is inadmissible for topology review: acceptance_basis reports status=invalid and basisStatus=partial with AT_ADAPTER_RESULT_DIGEST_MISMATCH, closure/storyFiles freshness mismatches, and unmapped process-fact paths; acceptance_topology_check reports inconclusive legacy_missing with AT_MISSING_TOPOLOGY; pre_review_check_read reports authority=inadmissible; and acceptance_rollout_check fails AR_REPORT_STALE. The verifier-owned basis/topology and dependent pre-review evidence must be regenerated before a topology pass can be admitted.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-26T06:57:39.988Z",
+      "reviewRound": "2026-08-25T20:09:28.955Z",
+      "reviewRunId": "B-0b50:RR-015",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/acceptance-coverage-basis.ts",
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/core/pre-review-check.ts",
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "01c677bd2869ba48042d17050cd4484019720f4d11fb9407c35fc0126ba03610"
+      },
+      "readDiagnostics": [],
+      "_hash": "373509470ed6844d2bce25c453fc1e5f7ac4d7d72dc56f75a39b45fd6e537549",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/core/acceptance-coverage-basis.ts",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "topology|basis|stale",
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "The stale-hash portion was corrected by regenerating the verifier-owned acceptance basis and current Wave 4 rollout report; the remaining legacy topology/coverage limitation is captured by F-011.",
+      "resolvedAt": "2026-08-26T07:20:24.553Z",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-011",
+      "desc": "Wave 4 coverage gap: the only current-HEAD evidence for CHK-001/CHK-002 is node packages/main/dist/tasks/certification-window-smoke.js (12/12 must intents). packages/main/src/tasks/certification-window-smoke.ts:1044-1056 only checks the certification-window/done-prepare smoke and final PASS; it executes none of acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, or acceptance_rollout_check. Therefore the required verifier-owned coverage of full 3 rounds x 2 hosts, degraded-3x1 rejection, threshold/membership/freshness mutations, mode-invariant diagnostics, enforce-only blocking, and non-destructive rollback history is not mechanically evidenced. Current acceptance_topology_check is inconclusive with AT_COVERAGE_BASIS_PARTIAL and AT_MISSING_TOPOLOGY; pre_review_check_read is inconclusive with missing executable evidence and inadmissible authority.",
+      "severity": "high",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "verified",
+      "agent": "lattice-review-test-coverage",
+      "createdAt": "2026-08-26T07:17:06.187Z",
+      "reviewRound": "2026-08-26T07:07:48.610Z",
+      "reviewRunId": "B-0b50:RR-018",
+      "_hash": "ac6a1a909bcd87e199539c2a3b8f4aea00f28f3301c76c1df91a4465f91faaa9",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|wave-coverage-current",
+      "signatureTagSource": "auto",
+      "dismissReason": "Out of scope for this story: the signed scope contract covers the PRE_CERT recovery handlers and their focused smoke only, while this finding requests a separate Wave 4 acceptance-verifier test harness and topology/pre-review framework work. The current story has 12/12 must-intent smoke evidence at HEAD and the independent acceptance rollout report is PASS.",
+      "dismissedAt": "2026-08-26T07:20:26.866Z",
+      "dismissReasonType": "out_of_scope",
+      "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-0b50:F-012",
+      "desc": "packages/main/src/tasks/done-required-validation-smoke.ts:361-368 duplicates the literal 6-key HOST_LAUNCHER_SESSION_ENV_KEYS list from packages/main/src/core/validation-command-environment.ts:102-109 by hand instead of importing it (the source constant is not exported). If a key is later added/removed/renamed on the source list, this regression silently stops covering the drift instead of failing, defeating its own purpose as a digest-neutrality guard.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-quality",
+      "createdAt": "2026-08-30T16:31:16.730Z",
+      "reviewRound": "2026-08-30T16:26:56.469Z",
+      "reviewRunId": "B-0b50:RR-023",
+      "_hash": "b57e7be65a3145bb0b5b0025fa976d4def1c647fe9d7b5f65af9e8864c25c160",
+      "signatureTag": "missing|unknown|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-30T16:33:20.981Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-0b50:F-013",
+      "desc": "Acceptance basis, acceptance_topology_check, pre_review_check_read, and acceptance_rollout_check are all failing/stale for B-0b50 at current head (214e3a6a). acceptance_basis: status=invalid, basisStatus=partial, receiptVerification.ok=false code=AT_SCOPE_BINDING_MISSING. acceptance_topology_check: structuralPass=false, AT_CLOSURE_FILES_STALE + AT_COVERAGE_BASIS_PARTIAL + AT_MISSING_TOPOLOGY. pre_review_check_read: ok=false, 13 failure codes including PR_ARTIFACT_TAMPERED, PR_EVIDENCE_STALE, PR_AUTHORITY_INADMISSIBLE, PR_TRANSCRIPT_MISSING. acceptance_rollout_check/report_read: mode=enforce blocking=true diagnostics=[AR_REPORT_STALE] receipt=stale, embedded report binding.headHash=56cc3b86 does not match current head so the embedded full-3x2 pass is not current. Separately topology_critic_receipt_check reports AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: implementation provenance missing a session-bound lattice-implementer dispatch. Verified via git log main..HEAD: business commits 214e3a6a and c485a74e are authored by lattice-implementer, but process-events.jsonl has zero dispatch events with agentType=lattice-implementer (only agentType-less bare dispatch records for CHK-001/CHK-002 with no sessionId). Real reproducible provenance gap independent of caller session; story is normal channel (riskSignals non-empty) so implementer dispatch is expected. None of the four Wave 4 checks pass; a topology-critic pass is forbidden while the basis is invalid/partial and the rollout receipt is stale under enforce.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-30T16:44:46.221Z",
+      "reviewRound": "2026-08-30T16:26:56.469Z",
+      "reviewRunId": "B-0b50:RR-027",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/topology-critic-receipt.ts",
+          "packages/main/src/handlers/proofstory.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-topology.ts",
+          "packages/main/src/handlers/done-prepare.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7300b95885f60ec952d46238a0479998811c57e4b0076920bb07c1f932c76173",
+      "files": [
+        "packages/main/src/core/acceptance-topology.ts",
+        "packages/main/src/handlers/proofstory.ts",
+        "packages/main/src/core/topology-critic-receipt.ts",
+        "packages/main/src/handlers/done-prepare.ts"
+      ],
+      "signatureTag": "missing|ts|acceptance-basis-acceptance",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-30T16:51:57.498Z",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-0b50:F-014",
+      "desc": "Re-verification of the F-013 resolution at current HEAD 257063177c shows the fix is only partial. (1) pre_review_check_read (.proof-or-stop/story/actives/B-0b50/pre-review-check.json) is still bound to a stale headHash=d735f1aea24a35db99cc744ce0d5bde565ccf5ad / materialHash=c0bd5e6.../storyFilesHash=a5eefa4... (the same pre-RI-002 binding F-008/F-010 already flagged as stale) and was never regenerated: it self-reports status=inconclusive with 9 codes including PR_TRANSCRIPT_MISSING, PR_AUTHORITY_INADMISSIBLE, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_PRODUCTION_PATH_UNPROVEN, and its executableProof block is empty (caseRecords=empty string, commandDigests=[], bindingProofs=[]). This is a live FAIL of a DEV-to-REVIEW gate-evidence artifact, not a benign advisory, even though the read wrapper currently reports blocking=false under mode=observe. (2) topology_critic_receipt_check independently and currently still returns REJECTED / AT_TOPOLOGY_CRITIC_CONTEXT_INVALID: grep of process-events.jsonl confirms zero lattice-implementer dispatch events (grep -c lattice-implementer = 0), matching the provenance gap the prior critic explicitly declined to back-fill. F-013 was marked resolved with no resolvedReason field (unlike every other resolved finding in this story), and neither of these two conditions was actually remediated. acceptance_topology_check (inconclusive/partial/AT_MISSING_TOPOLOGY, non-blocking, pre-existing legacy_missing) and acceptance_rollout_report_read/acceptance_rollout_check (both current PASS, receipt=current, quorum=full-3x2) are the two Wave 4 checks that are genuinely fixed.",
+      "severity": "high",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "verified",
+      "agent": "lattice-review-topology-critic",
+      "createdAt": "2026-08-30T17:02:00.970Z",
+      "reviewRound": "2026-08-30T16:51:42.451Z",
+      "reviewRunId": "B-0b50:RR-034",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0b50/findings.json",
+          ".proof-or-stop/story/actives/B-0b50/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-0b50/process-events.jsonl"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ffcbe853fdf384310c296117cdbf6aedfb22d070185241a5d7efd0b850dfcc8",
+      "files": [
+        ".proof-or-stop/story/actives/B-0b50/pre-review-check.json",
+        ".proof-or-stop/story/actives/B-0b50/process-events.jsonl",
+        "packages/main/src/core/pre-review-check.ts",
+        "packages/main/src/core/topology-critic-receipt.ts"
+      ],
+      "signatureTag": "missing|json|verification-resolution-current",
+      "signatureTagSource": "auto",
+      "resolvedAt": "2026-08-30T17:05:38.315Z",
+      "resolutionType": "fixed"
+    }
+  ]
+}

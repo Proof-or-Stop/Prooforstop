@@ -1,0 +1,361 @@
+{
+  "storyId": "B-9f2c",
+  "checkedAt": "2026-09-02T08:26:55.625Z",
+  "features": [
+    {
+      "feature": "Port dossier.js verbatim (byte-identical) from upstream into packages/graph/src/shells/web",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Apply upstream diffs to app.css, app.body.html (dossierSlot span) and app.js (drawer dossier button, relationsOf/openDossierFor/dossierPath routing, popstate listener, boot-time deep-link cover)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Preserve pre-existing app.js entry points (e.g. playback) so the port does not delete existing behavior",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Serve /story/<id> in io/http.ts matching the same app.html as / and /index.html, with nested paths like /story/a/b excluded",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Concatenate dossier.js after playback.js in scripts/build-web.mjs so window.openStoryDossier is registered",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Preserve the local uncommitted d3-missing hard-failure branch in scripts/build-web.mjs across the port",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add optional --story=<id> flag to the graph command schema, default documented in description (not via .default())",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "With --story set, handler opens/reports http://localhost:<port>/story/<id> (URL-encoded) instead of /",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Without --story, reported URL is byte-for-byte unchanged from before this story",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "An unresolvable/unknown --story id is refused BEFORE startServer is called, mirroring the existing --root precedent",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Validation happens at the handler entry (not only in the Zod schema), so it cannot be bypassed by calling the handler directly",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Unknown-id error names near-miss candidate ids, validated against resolveStories(root).primary (no new export added)",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Extend the graph command's longHelp to document --story",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Port the upstream README dossier section into packages/graph/README.md, preserving this repository's proof-or-stop graph header and How the CLI reaches this package section",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Add the /story/<id> endpoint row to the README endpoint table",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "README must not present proof-or-stop-graph as a runnable binary this repository ships",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Update root CLAUDE.md Story graph section flag table to list --story and mention the dossier page",
+      "covered_by": "CHK-004",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    },
+    {
+      "feature": "Test-surface placement: validate.commands and test:serial-reference are two separately-maintained lists, neither a subset of the other; a new smoke task must be registered in BOTH or it silently runs nowhere",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "New smoke task registered in lattice.config.json validate.commands as node packages/main/dist/tasks/<name>-smoke.js",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "New smoke task given an npm script alias in package.json and wired into test:serial-reference",
+      "covered_by": "CHK-005",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Decision 1: packages/graph subpackage architecture with a thin packages/main handler (not merged into packages/main, not consumed as a published npm dependency)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing architecture decision from B-3e16; this story adds a flag and a page to the already-established packages/graph subpackage, it does not re-decide package placement",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Decision 2: vendored browser bundles are gitignored build output, reproduced by npm --prefix packages/graph run build, enforced by verify-assets-ignored",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing B-3e16 mechanism this story does not touch; dossier.js is source, not a vendored bundle",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Decision 3: explicit Node >=22.5.0 engines floor on packages/graph for node:sqlite",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing B-3e16 constraint; this story adds no new node:sqlite usage and does not change the engines field",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Decision 4: index cache lives outside the inspected repository; graph command needs no runtime-artifact-registry entry",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Pre-existing B-3e16 mechanism; the --story flag and dossier page write no new files into the inspected repository, so the no-registry-entry invariant is unaffected",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "scripts/verify-lattice-residue.mjs SRC_SCAN_ROOTS must name any new package or it stays unscanned",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Not applicable: this story adds no new package. packages/graph/src is already present in SRC_SCAN_ROOTS (verified at scripts/verify-lattice-residue.mjs:262) from B-3e16, and all CHK-001..005 touchpoints live inside packages/graph, packages/main or root config, all already-scanned surfaces",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Decision 5: the runtime dynamic import(...) of packages/graph from packages/main/src/handlers/graph.ts must stay dynamic, not converted to a static import",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "This story only adds a Zod field and pre-listen validation to the existing handler; no checklist item proposes converting the dynamic import to static, and no touchpoint requires it",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Registering a new top-level command touches ~8-9 fail-closed surfaces (command-ownership-contract, command-catalog-smoke, cli-surface-smoke, verify-orphan-surface, lifecycle-registry-contract, test:process-fact-contract, process-fact-levels.ts, etc.)",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Not applicable: graph is an already-registered top-level command (command-catalog.ts:2100, from B-3e16). CHK-003 adds one optional field to its existing schema; it does not register a new command, so the new-command registration surface set is not triggered",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "Recursive tsc gate (validate --lint and .githooks/pre-push) auto-discovers any tsconfig.json, including in new packages",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Not applicable: no new package/tsconfig.json is added by this story; packages/graph's existing tsconfig.json is already covered by the recursive gate since B-3e16",
+      "source": "decisions:decisions/graph-command-migration.md"
+    },
+    {
+      "feature": "The dossier is also reachable from a button in the graph drawer (understanding.json outcome)",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "description"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      "docs/requirements/decisions/graph-command-migration.md"
+    ],
+    "filesTriagedByName": [
+      "docs/requirements/decisions/annotation-system.md",
+      "docs/requirements/decisions/authority-client-role.md",
+      "docs/requirements/decisions/authority-done-material-overlap-audit-cli-fix.md",
+      "docs/requirements/decisions/authority-receipt-cross-repo-live-smoke.md",
+      "docs/requirements/decisions/authority-receipt-gate-integration-execution-plan.md",
+      "docs/requirements/decisions/authority-runner-session-evidence-envelope.md",
+      "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+      "docs/requirements/decisions/authority-session-receipt-gate-execution.md",
+      "docs/requirements/decisions/autopilot-v2-reliability-execution-plan.md",
+      "docs/requirements/decisions/bounded-document-context-scaling-execution-plan.md",
+      "docs/requirements/decisions/brand-rename-mapping.md",
+      "docs/requirements/decisions/cc-learnings.md",
+      "docs/requirements/decisions/cell06-docker-server-execution-checklist.md",
+      "docs/requirements/decisions/claim-admissibility-adapter-pack-framework.md",
+      "docs/requirements/decisions/cli-engine-english-open-source-execution-plan.md",
+      "docs/requirements/decisions/cli-engine-english-translation-manifest.md",
+      "docs/requirements/decisions/cli-engine-modularization-execution-plan.md",
+      "docs/requirements/decisions/closeout-convergence-and-burn-alert-root-cause.md",
+      "docs/requirements/decisions/complex-role-modular-recall-recovery-execution-plan.md",
+      "docs/requirements/decisions/control-plane-proof-capability-closure-audit.md",
+      "docs/requirements/decisions/decision-doc-promotion-execution-plan.md",
+      "docs/requirements/decisions/dev-memory.md",
+      "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+      "docs/requirements/decisions/done-full-test-gate-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-generated-metadata-auto-closeout-execution-plan.md",
+      "docs/requirements/decisions/done-prepare-heartbeat-review-assurance-ux-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md",
+      "docs/requirements/decisions/experience-layer-fresh-failure-recurrence-execution-plan.md",
+      "docs/requirements/decisions/f009-gap-analyze-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/f009-layer2-engineering-proof-gap-execution-plan.md",
+      "docs/requirements/decisions/formal-unlock-artifact-isolation-execution-plan.md",
+      "docs/requirements/decisions/framework.md",
+      "docs/requirements/decisions/global-lifecycle-control-plane-execution-plan.md",
+      "docs/requirements/decisions/host-neutral-observability-console.md",
+      "docs/requirements/decisions/host-overflow.md",
+      "docs/requirements/decisions/language-neutral-gates-execution-plan.md",
+      "docs/requirements/decisions/lattice-authority-customer-api-key-access.md",
+      "docs/requirements/decisions/lattice-authority-live-integration.md",
+      "docs/requirements/decisions/lattice-authority-m1-m16-generated-proof-and-live-e2e.md",
+      "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+      "docs/requirements/decisions/lattice-authority-remote-evidence-bundle.md",
+      "docs/requirements/decisions/lattice-baseline-two-host-multi-agent-execution-plan.md",
+      "docs/requirements/decisions/lattice-cli-authority-client-receipt-ref.md",
+      "docs/requirements/decisions/lattice-codex-command-boundary-execution-plan.md",
+      "docs/requirements/decisions/lattice-console-demo-mvp-requirements.md",
+      "docs/requirements/decisions/lattice-experience-layer-effectiveness-record.md",
+      "docs/requirements/decisions/lattice-experience-layer-execution-plan.md",
+      "docs/requirements/decisions/lattice-experiment-protocol.md",
+      "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md",
+      "docs/requirements/decisions/lattice-llm-usage-ledger-execution-plan.md",
+      "docs/requirements/decisions/lattice-midflight-story-repair-and-gitroot-worktree-plan.md",
+      "docs/requirements/decisions/lattice-parallel-wave.md",
+      "docs/requirements/decisions/lattice-runtime-owned-agent-assets-execution-plan.md",
+      "docs/requirements/decisions/lattice-strengthening-roadmap-execution-plan.md",
+      "docs/requirements/decisions/lattice-unattended-completion-plan.md",
+      "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
+      "docs/requirements/decisions/legacy-to-lattice-role-naming-execution-plan.md",
+      "docs/requirements/decisions/lifecycle-artifact-scope.md",
+      "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-and-hardening-plan.md",
+      "docs/requirements/decisions/milestone-ledger-status-review-findings.md",
+      "docs/requirements/decisions/milestone-not-applicable-justification.md",
+      "docs/requirements/decisions/milestone-status-done-gate-reconciliation.md",
+      "docs/requirements/decisions/milestone-triggered-gate-mode-default-decision.md",
+      "docs/requirements/decisions/multi-host-keyword-candidate-spec-routing-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-m2-provider-execution-plan.md",
+      "docs/requirements/decisions/multi-model-ablation-replication.md",
+      "docs/requirements/decisions/orchestrate-retirement.md",
+      "docs/requirements/decisions/owner-session-contract-execution-plan.md",
+      "docs/requirements/decisions/parent-roadmap-intent-totality-gate-execution-plan.md",
+      "docs/requirements/decisions/plan-init-reopen.md",
+      "docs/requirements/decisions/playbook-memory-entry-layer-optimization-plan.md",
+      "docs/requirements/decisions/playbook-memory-performance-index-optimization-plan.md",
+      "docs/requirements/decisions/playbook-promotion-worker-execution-plan.md",
+      "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+      "docs/requirements/decisions/pos-agent-drivability-optimization.md",
+      "docs/requirements/decisions/pre-story-mechanism-placement-proof-execution-plan.md",
+      "docs/requirements/decisions/product-capability-release-playbook-lineage-execution-plan.md",
+      "docs/requirements/decisions/project-vision.md",
+      "docs/requirements/decisions/proof-admissibility-hardening-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-environment-adapter-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-evidence-instrument-replay-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+      "docs/requirements/decisions/proof-or-stop-pinn-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-quantum-claim-admissibility-execution-plan.md",
+      "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+      "docs/requirements/decisions/red-evidence-legacy-v1-record-validation-audit.md",
+      "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+      "docs/requirements/decisions/repro-first-gate-enforce-execution-plan.md",
+      "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+      "docs/requirements/decisions/resolve-gap-analyze-three-high-gaps-execution-plan.md",
+      "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+      "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+      "docs/requirements/decisions/review-run-binding-race.md",
+      "docs/requirements/decisions/review-run-start-signed-workspace-resolution-execution-plan.md",
+      "docs/requirements/decisions/review-run-start-workspace-diagnostics-execution-plan.md",
+      "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+      "docs/requirements/decisions/role-separation.md",
+      "docs/requirements/decisions/root-document-migration-guide.md",
+      "docs/requirements/decisions/root-markdown-migration-execution-solution.md",
+      "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+      "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md",
+      "docs/requirements/decisions/session-ownership-and-write-leases.md",
+      "docs/requirements/decisions/slim-fields-token-savings-execution-plan.md",
+      "docs/requirements/decisions/source-lineage-dedup-playbook-seed-promotion-execution-plan.md",
+      "docs/requirements/decisions/stack-layering.md",
+      "docs/requirements/decisions/stash-split-execution-plan.md",
+      "docs/requirements/decisions/story-files-hash-material-drift.md",
+      "docs/requirements/decisions/story-lifecycle.md",
+      "docs/requirements/decisions/test-fixture-spec.md",
+      "docs/requirements/decisions/test-intent-review.md",
+      "docs/requirements/decisions/test-runner-consolidation-plan.md",
+      "docs/requirements/decisions/testing-completeness.md",
+      "docs/requirements/decisions/testing-infra.md",
+      "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-execution-plan.md",
+      "docs/requirements/decisions/tier-c-crosshost-quorum-threat-model.md",
+      "docs/requirements/decisions/truth-first-host-handoff-stale-doc-guard-execution-plan.md",
+      "docs/requirements/decisions/truth-source.md",
+      "docs/requirements/decisions/unattended-develop-mode-no-false-done-baseline.md",
+      "docs/requirements/decisions/unlock-layer2-ENG-suite.md",
+      "docs/requirements/decisions/unlock-layer3-loop-engineering-suite.md",
+      "docs/requirements/decisions/unlock-layer3-real-execution-udm-baseline.md",
+      "docs/requirements/decisions/unlock-layer4-production-safety-suite.md",
+      "docs/requirements/decisions/usage-ledger-prototype-pollution-hardening.md",
+      "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+      "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+      "docs/requirements/decisions/verification-context-pack.md",
+      "docs/requirements/decisions/workflow-convergence-failure-remediation-execution-plan.md"
+    ],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 29,
+    "covered": 21,
+    "excluded": 8,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "18adddfe65caa2e212fe1d3b98c8a58636c75dd577a84fd972c9008292d99ee3",
+  "openQuestions": []
+}

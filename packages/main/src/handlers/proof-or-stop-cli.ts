@@ -44,10 +44,11 @@ function readPackageVersion(path: string): string | null {
   }
 }
 
-function packageBinHasProofOrStop(path: string): boolean {
+function packageBinIsCanonicalOnly(path: string): boolean {
   try {
     const parsed = JSON.parse(readFileSync(path, 'utf8')) as { bin?: Record<string, unknown> };
-    return parsed.bin?.['proof-or-stop'] === 'dist/cli.js';
+    return parsed.bin?.['proof-or-stop'] === 'dist/cli.js'
+      && !Object.prototype.hasOwnProperty.call(parsed.bin ?? {}, 'lattice');
   } catch {
     return false;
   }
@@ -207,10 +208,8 @@ function buildConfigDoctor(ctx: HandlerContext) {
     },
     {
       id: 'package-bin-aliases',
-      ok: packageBinHasProofOrStop(mainPackagePath),
-      // B-cdf6:F-046 — this said 'only the proof-or-stop bin', which became FALSE when the
-      // rename added proof-or-stop as the primary bin alongside the retained alias.
-      detail: 'packages/main package.json exposes the proof-or-stop bin (with the proof-or-stop alias retained for compatibility)',
+      ok: packageBinIsCanonicalOnly(mainPackagePath),
+      detail: 'packages/main package.json exposes only the canonical proof-or-stop bin; lattice is not an active npm alias',
     },
   ];
   const ok = checks.every(check => check.ok);
@@ -239,7 +238,7 @@ function renderConfigDoctorText(result: ReturnType<typeof buildConfigDoctor>): s
   return [
     `${formatProofOrStopProductLine()} config doctor (${result.schemaVersion})`,
     `status: ${result.status}`,
-    `migration: cliFirst=${result.migration.cliFirst}; macAppRequired=${result.migration.macAppRequired}; macAppRole=${result.migration.macAppRole}; activeCommand=proofOrStop`,
+    `migration: cliFirst=${result.migration.cliFirst}; macAppRequired=${result.migration.macAppRequired}; macAppRole=${result.migration.macAppRole}; activeCommand=proof-or-stop`,
     `versions: root=${result.versions.root ?? 'unreadable'}; main=${result.versions.main ?? 'unreadable'}; expected=${result.versions.expected}`,
     `localAssurance: admissibilityStatus=local-only; receiptBundleVerified=${result.authority.receiptVerified}`,
     '',

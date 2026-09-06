@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-3e16",
+  "mode": "feature",
+  "allowed": [
+    "Create packages/graph as a workspace subpackage by copying the source tree (src/, scripts/build-web.mjs, scripts/copy-assets.mjs, tsconfig.json) from the proof-or-stop-graph package",
+    "Declare an engines.node floor of >=22.5.0 on packages/graph for the node:sqlite dependency, and fail readably on older runtimes",
+    "Keep the SQLite index cache outside the inspected repository so running the command leaves the worktree clean",
+    "Port the source package self-checks (anchor-check, audit, bench) as packages/graph npm scripts and document the command in CLAUDE.md plus a docs/requirements/decisions entry",
+    "Register a new top-level graph command in packages/main across its eight command-surface touchpoints, with a thin handler that calls the existing packages/graph library surface",
+    "Serve the browser client and vendored asset bundles out of packages/graph rather than through the packages/main build",
+    "Wire the packages/graph build into the root build script"
+  ],
+  "excluded": [
+    "Changing the behavior of the graph rendering, the full-text search, or the timeline playback and export features",
+    "Changing this repository story lifecycle, gate semantics, or any command other than the new graph command",
+    "Committing the vendored browser bundles or the assembled assets/app.html into git; they remain gitignored build output",
+    "Deleting or modifying the source repository at ~/work/repo/proof-or-stop-graph",
+    "Publishing @proof-or-stop/graph to the npm registry",
+    "Rewriting or redesigning the browser web shell"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "User confirmed on 2026-08-28 that this is a pure migration with no behavior changes: move the existing proof-or-stop-graph package into packages/graph and expose it as the proof-or-stop graph command, without redesigning the web shell or altering graph, search or playback behavior.",
+  "createdAt": "2026-08-28T08:38:44.270Z",
+  "updatedAt": "2026-08-28T08:38:44.270Z",
+  "_hash": "33f16dea96cb68135bd2a34a87f3c93ef3304754dd00b562c1c501480c04a8b1"
+}

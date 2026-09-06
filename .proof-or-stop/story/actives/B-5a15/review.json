@@ -1,0 +1,906 @@
+{
+  "reviews": [
+    {
+      "timestamp": "2026-08-20T08:34:56.286Z",
+      "issueCount": 31,
+      "blockerCount": 17,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_milestone_ledger: Milestone triggers exist but no milestone ledger is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-001",
+          "message": "CHK-001 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-002",
+          "message": "CHK-002 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-003",
+          "message": "CHK-003 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-004",
+          "message": "CHK-004 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-005",
+          "message": "CHK-005 missing verificationIntent.happy. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-005",
+          "message": "CHK-005 missing verificationIntent.edge. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "missing_verification_intent",
+          "severity": "blocker",
+          "itemId": "CHK-005",
+          "message": "CHK-005 missing verificationIntent.adversarial. The second-generation flow preserves happy/edge/adversarial test discipline: write intent in PLAN, cover via verification_evidence_add or validate in DEV/TEST."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Which existing metadata transaction and runtime artifact facilities can be composed without moving HEAD during receipt persistence.; The smallest integration seam that supports both single and batch verification evidence without duplicating selector or freshness logic.; The exact current command/environment identity fields available at each execution call site and the safest legacy fallback behavior."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "missing_plan_md",
+          "severity": "blocker",
+          "message": "High-risk stories must have plan.md (execution plan). Write it following the plan.md template in CLAUDE.md, one section per CHK-xxx"
+        },
+        {
+          "type": "missing_scope_check",
+          "severity": "blocker",
+          "message": "missing_scope_check: scope-check.json is missing PLAN gate evidence. Start a story-level PLAN scope reviewer with `proof-or-stop dispatch --storyId=B-5a15 --agentType=lattice-review-scope-plan`; dispatch output is not gate evidence, and the lattice-review-scope-plan / scope-plan reviewer must finish by calling `proof-or-stop scope_check_save`. The implementation/main agent must not self-sign this evidence or manually edit story metadata. Local CLI guidance is not remote completion and must not be presented as receipt verification or production/full completion."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-5a15 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "1ba41291c35c8b35a1e695850e242d6993b219c9634dccedbb943f912a7e1882"
+    },
+    {
+      "timestamp": "2026-08-20T08:59:07.319Z",
+      "issueCount": 56,
+      "blockerCount": 42,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_milestone_ledger: Milestone triggers exist but no milestone ledger is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Which existing metadata transaction and runtime artifact facilities can be composed without moving HEAD during receipt persistence.; The smallest integration seam that supports both single and batch verification evidence without duplicating selector or freshness logic.; The exact current command/environment identity fields available at each execution call site and the safest legacy fallback behavior."
+        },
+        {
+          "type": "touchpoint_mapping_missing",
+          "severity": "advisory",
+          "message": "None of the checklist items have the files field filled in (legacy story compatibility mode); cannot perform coverage validation on understanding.touchpoints. Please list the changed files in files.modify/create/test for at least one item to enable strict touchpoint-to-files validation"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Aggregate commands must not recursively re-execute already-covered child commands.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Selector identity uses stable structured assertion IDs rather than display-count text.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Command-backed evidence uses structured command/bootstrap specs and bounded redacted output.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A transaction retry revalidates the receipt against the same material, environment, and policy.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Infrastructure failure and test failure have distinct dispositions.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A failed transaction does not leave fresh-looking dirty state that blocks safe retry.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Stale, raw, unsigned, or receipt-less output cannot satisfy a gate.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Canonical import/closeout writes are isolated and must not adopt pre-existing evidence bytes.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"The existing whole-tree materialHash strict fallback is retained.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"storyFilesHash is secondary and never replaces materialHash.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Stored hashes are not rewritten and old output is not disguised as new evidence.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Dependency invalidation is shadow-compared before it is used for CertificationWindow decisions.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"CertificationWindow consumes the precise affected-node invalidation result.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"DONE-required whole-tree drift remains strict and reruns the required suite.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Current-state evidence remains bound to current head/material/story hashes and stale tuples are rejected.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A mismatching storyFilesHash is stale; a missing or uncomputable storyFilesHash falls back to strict materialHash.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Matching storyFilesHash with whole-tree material drift is an explicit advisory, never silently fresh.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"The signed delivery-check storyFilesHash is not forgeable and requires re-attestation on unrelated drift.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Preflight classifies clean-tree/material dirt while allowing only permitted runtime metadata dirt.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Preflight verifies resource availability and declared resource boundaries.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Preflight verifies the output/progress side channel needed by the parent controller.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A failed preflight refuses before any expensive child command starts.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"The refusal names the failed preflight check precisely.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A preflight refusal records zero command executions.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Preflight is a readiness check, not a freshness relaxation.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Only a complete structured commandExecution PASS is reusable.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Failure, timeout, infrastructure failure, cancellation, skip, and partial execution are never reusable.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Current required verification coverage must be complete before reuse.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Reuse rejects material/unknown dirty paths while allowing only registered runtime metadata dirt.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Reuse requires matching materialHash and storyFilesHash.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Reuse requires exact HEAD or a metadata-only descendant with unambiguous lineage.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"A HEAD race or unreadable/non-ancestor lineage rejects reuse.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Legacy or incomplete identity evidence executes normally rather than being upgraded in place.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Coverage gaps are not hidden with waivers.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"The story is not called complete while its lifecycle phase is not DONE.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Final full validation and DONE-required validation are not removed.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"Overlapping U-01/U-02 savings are not added to claim a larger U-03 saving.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "scope_gap",
+          "severity": "blocker",
+          "message": "scope gap: description mentions \"New gate-consumed receipt/freshness semantics are registered as process facts, not prompt-only prose.\" but there is no corresponding checklist item and it is not excluded"
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-5a15 is unreadable; allowing (fail-open)"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-001 unresolved — \"Are the two primary relatedDocs intended to be restored into the current requ...\". Please run `proof-or-stop scope_question_resolve --storyId=B-5a15 --oqId=OQ-001 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-002 unresolved — \"Does U-03 introduce a new registered CausalEvidence receipt/cache boundary, o...\". Please run `proof-or-stop scope_question_resolve --storyId=B-5a15 --oqId=OQ-002 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-003 unresolved — \"Which CausalEvidence consumers may accept a storyFilesHash advisory downgrade...\". Please run `proof-or-stop scope_question_resolve --storyId=B-5a15 --oqId=OQ-003 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        },
+        {
+          "type": "scope_open_question_unresolved",
+          "severity": "blocker",
+          "message": "scope_open_question_unresolved: OQ-004 unresolved — \"Are CAS receipts runtime-owned evidence artifacts that must use the local art...\". Please run `proof-or-stop scope_question_resolve --storyId=B-5a15 --oqId=OQ-004 --resolution=...` to provide a written resolution (the main agent is responsible for the conclusion)"
+        }
+      ],
+      "_hash": "a8ccea8f27575ad4c255c412b7b85df667ccca10a3ba7d78e5a430e8b24bbdb6"
+    },
+    {
+      "timestamp": "2026-08-20T09:23:56.797Z",
+      "issueCount": 13,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-004",
+          "message": "CHK-004 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-005",
+          "message": "CHK-005 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_milestone_ledger: Milestone triggers exist but no milestone ledger is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "unresolved_unknowns",
+          "severity": "advisory",
+          "message": "understanding still has 3 undigested unknowns: Which existing metadata transaction and runtime artifact facilities can be composed without moving HEAD during receipt persistence.; The smallest integration seam that supports both single and batch verification evidence without duplicating selector or freshness logic.; The exact current command/environment identity fields available at each execution call site and the safest legacy fallback behavior."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-5a15 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "232ed39f9711fdb1bb0809f27507b73d33db0271d4ba1550f2c0fadb252a1e89"
+    },
+    {
+      "timestamp": "2026-08-20T09:25:15.595Z",
+      "issueCount": 7,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_original_intent_snapshot: Intent MVP requires original_intent_snapshot_set with sourceText, normalizedOutcome, and acceptanceClaim. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_milestone_ledger: Milestone triggers exist but no milestone ledger is configured. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_intent_collision: Intent collision is triggered but no pass decision with acceptedInterpretation is present. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "missing_red_evidence: Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        },
+        {
+          "type": "decomposition_advisory",
+          "severity": "advisory",
+          "message": "own scope contract for B-5a15 is unreadable; allowing (fail-open)"
+        }
+      ],
+      "_hash": "12d82414ba5482e78ecc5460379c6140ecd79d9cb512d0359fb28bfdd3c59516"
+    },
+    {
+      "timestamp": "2026-08-20T11:51:40.429Z",
+      "issueCount": 3,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "proofstory_advisory",
+          "severity": "advisory",
+          "message": "acceptance_binding_unknown_verification_intent_ref: ACC-001 references unknown verificationIntent CHK-004:adversarial:2. This story_review row is advisory only; ProofStory gates consume CLI-written artifacts, not prompt text."
+        }
+      ],
+      "_hash": "0c92ab9ed2f0c7c9ae2413964486e25534a9e724c8d5bf7cc4851a6949da77f1"
+    },
+    {
+      "timestamp": "2026-08-20T13:30:05.600Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "1a1be76b4c46d0e677e14dff23d7d473e987644a23f8a2003b40ae6a02156b21"
+    },
+    {
+      "timestamp": "2026-08-20T15:51:26.299Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (none) does not match the current review round (2026-08-20T14:36:09.282Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "9a9f013c5146b0ed03c2ed7de81a1e7abbe7761fea4a57ac5e07dd63a29ad498"
+    },
+    {
+      "timestamp": "2026-08-20T15:57:43.160Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "53d9ddf3e0599f110b5d8e683d3f6b07e92e5182323dc72c24d37435af77b4e6"
+    },
+    {
+      "timestamp": "2026-08-20T23:15:11.112Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-20T14:36:09.282Z) does not match the current review round (2026-08-20T21:07:41.337Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "1f9650d8c74f4594fa76d5d0b72b50949687dd73ade0a0ea324f2698e6d6372c"
+    },
+    {
+      "timestamp": "2026-08-20T23:16:32.714Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-20T14:36:09.282Z) does not match the current review round (2026-08-20T21:07:41.337Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "84e6e7cd42e8f047a712b38076a539fbbbd1218d7d610686fde8717041bc3fb5"
+    },
+    {
+      "timestamp": "2026-08-20T23:21:12.098Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "be4ff837891081ce888119f98da3b588ac5782b8a8d85e7e8eb8e7810a8532ac"
+    },
+    {
+      "timestamp": "2026-08-24T04:16:36.901Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-20T21:07:41.337Z) does not match the current review round (2026-08-24T02:49:45.599Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "4e60377e44011196390892357e913df01a42729be12bc484863c0a0e2df7c3f8"
+    },
+    {
+      "timestamp": "2026-08-24T04:26:13.783Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "7def4663f249c03f578bb56017ac70410c819f771185c1b57870b46ae1b24915"
+    },
+    {
+      "timestamp": "2026-08-24T04:29:51.682Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "bc2819a3d3213bf160d4f338c4dd75c717229d23d28865919ad36876c0e43444"
+    },
+    {
+      "timestamp": "2026-08-24T08:33:10.018Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-24T02:49:45.599Z) does not match the current review round (2026-08-24T06:58:21.638Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "2cc2c12d77a19eb22590b790f800a78357e0c2c02c2a3df36e395b98126418ef"
+    },
+    {
+      "timestamp": "2026-08-24T08:41:07.830Z",
+      "issueCount": 3,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-08-24T02:49:45.599Z) does not match the current review round (2026-08-24T06:58:21.638Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "ee4fea42b0f2d7faff7c98a4879a13572d903434afd64ac3980930b691855b01"
+    },
+    {
+      "timestamp": "2026-08-24T08:49:33.895Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "7bb3e9977e6fd14015db78aed21e1e40c6023b0019437325e6a8aa1dc6550a13"
+    },
+    {
+      "timestamp": "2026-08-24T09:06:13.933Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "2dcb2548290841bd3c79b326d778990f48e295973b18f6029c73b260a3f022e0"
+    },
+    {
+      "timestamp": "2026-08-24T09:12:13.856Z",
+      "issueCount": 2,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "5 checklist items; please check for missing combined scenarios (e.g., what happens when Give every pinned command a content-addressed execution key and run each unique key once + Write CAS receipts before canonical evidence import and retry the transaction instead of re-running the command are performed simultaneously?)"
+        },
+        {
+          "type": "risk_signals",
+          "severity": "advisory",
+          "message": "story hit 1 high-risk signal(s): Production/Emergency. Recommend stricter review standards (>= 3 preMortem scenarios, explicit rollback path). If this story only mentions rather than modifies that area (false positive), run proof-or-stop story_review_dismiss '{\"storyId\":\"B-5a15\",\"category\":\"<category>\",\"reason\":\"...\"}' to fully roll back the auto-elevation (after all auto-elevated riskSignals are dismissed, priority auto-reverts and high-risk gates are lifted)."
+        }
+      ],
+      "_hash": "bbe587581d1adbe45da77acbd11d9a75962cc9b34c23e6dd16d5f7b46cea38dd"
+    }
+  ]
+}

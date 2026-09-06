@@ -2,200 +2,204 @@
   "schemaVersion": "proof-or-stop.prompt-baseline.v8",
   "storyId": "B-3928",
   "sourcePlan": "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
-  "expectedRoleCount": 17,
+  "expectedRoleCount": 18,
   "promptPolicyApproval": {
     "model": "independent-hardcoded-role-and-mode-aware-whole-prompt-digest-manifest",
     "algorithm": "sha256",
-    "roleCount": 17,
+    "roleCount": 18,
     "primaryBoundary": "The independent code-reviewed approval manifest binds every exact role ID and selected complete prompt body by SHA-256. For the five modular reviewer roles it additionally binds the immutable legacy body, modular body, Role Contract, and Claude/Codex host-render digests before policy findings can be collected. Diagnostic occurrence scanners describe registered content inside those approved bodies; they do not authorize prompt changes.",
     "roles": [
       {
-        "role": "implementation-reviewer",
+        "role": "proof-or-stop-implementation-reviewer",
         "templateHash": "fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd"
       },
       {
         "role": "proof-or-stop-evaluator-cli",
-        "templateHash": "21689fb84c56357320f92972ac66f02c578bb67f1089f0f8890b547880e8c4e6"
+        "templateHash": "bbec313f09595dd1b5b49271494daea4e03060881b6f7d2215ad123620e214cc"
       },
       {
         "role": "proof-or-stop-evaluator",
-        "templateHash": "acde1b784011d08d144700cc879511963fc70d374d66354fad7182a21c8e645e"
+        "templateHash": "dd8cf73174e1ddf292b7b4cf9ebb70ff8c32584f44ccb78f2221b33da8407b97"
       },
       {
         "role": "proof-or-stop-implementer",
-        "templateHash": "028d733d3d2832e182d1b9a5921e49f9ec583e73e8ae25f132c011fcf1f20012"
+        "templateHash": "820853ba6390ac8db9cfd6d784a2e06424eb5c5da168d4874e3d12213fa35435"
       },
       {
         "role": "proof-or-stop-review-behavior",
-        "templateHash": "27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb"
+        "templateHash": "a1f019e3f4bbe6952c7eef6a26a5d15f070ab364f6b9b49cad19642525303d54"
       },
       {
         "role": "proof-or-stop-review-channel",
-        "templateHash": "bb8246f924215fe6bcc9b2e1c7ad6c7cc9c6e44e9f7a72619c7ec7f667b9131b"
+        "templateHash": "dbde8cbb34a3ecab06473af4d97a48e3783ef587a38ac8e7519438a2a0f0de6f"
       },
       {
         "role": "proof-or-stop-review-concept",
-        "templateHash": "95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae"
+        "templateHash": "642296478639ba90557b65df65782f4a81f6c3bea6219b9c1d7289dd6d62d5a1"
       },
       {
         "role": "proof-or-stop-review-delivery",
-        "templateHash": "caa813c1f1bc6ed54a8d7d48b0bfda8f0492cf922656f2227ae600ee7a9d8d16"
+        "templateHash": "4b3b207a265c5b9a1ba9845761720c19cddcdee6eec9bfd5f672b55bbc1b50af"
       },
       {
         "role": "proof-or-stop-review-docs",
-        "templateHash": "e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36"
+        "templateHash": "86c4c91c613a89da9a46b751d0fe3911500a81746527d9384ed95fcbb56fd7cf"
       },
       {
         "role": "proof-or-stop-review-quality",
-        "templateHash": "85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9"
+        "templateHash": "e2cafec3242837c489faf74b808ea0474f082dd93f4ae8b01d20f225c3d4751f"
       },
       {
         "role": "proof-or-stop-review-scope-plan",
-        "templateHash": "935913dfd492de56bb1b2d5b2507a2ae6b714e59f6c067e6c94a9e54755b75cd"
+        "templateHash": "9ac7cff64b53fc33555e4c5ef6f963a5c5bd09e7420d317a2312aafac9cfbd07"
       },
       {
         "role": "proof-or-stop-review-story-init",
-        "templateHash": "c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432"
+        "templateHash": "a03b6bac5a6b5e8e270b6e92dc7cbd373ec4e2c8e50f532335cf10143d12dd9c"
       },
       {
         "role": "proof-or-stop-review-test-coverage",
-        "templateHash": "556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203"
+        "templateHash": "35f9ae8dc5c1182b79630d4b1391b28c4a8617bf6339daeaab08a272876749f9"
       },
       {
         "role": "proof-or-stop-review-topology-critic",
-        "templateHash": "6213dbefff421ea810c281982fed39d4d3daeaf2ce8d77c8bf4774dda50162c3"
+        "templateHash": "9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99"
       },
       {
-        "role": "product-reviewer",
-        "templateHash": "f160fd39f77f4461b830e914617090d51e2026ef970e2103cb9cb273b2a19705"
+        "role": "proof-or-stop-product-reviewer",
+        "templateHash": "e23eec314c5a5f3dff0d34768c15ff94546881999a223544456cfe695f995b2a"
       },
       {
-        "role": "test-case-reviewer",
-        "templateHash": "3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5"
+        "role": "proof-or-stop-test-case-reviewer",
+        "templateHash": "5c2533459d08b513f0079e675e29586748267dba022dbfa921642aeb1cbf8b57"
       },
       {
-        "role": "test-intent",
-        "templateHash": "168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2"
+        "role": "proof-or-stop-test-intent",
+        "templateHash": "ebf595e7a90bd8b2a29fbb260bf3e90404dd33848507108657277316f5111b2d"
+      },
+      {
+        "role": "proof-or-stop-verification-intent",
+        "templateHash": "45816aa6de69df16a893b8a29cd1775366d58ec624838a30fd5e70facd3e79f4"
       }
     ],
     "roleBodyRollout": [
       {
         "role": "proof-or-stop-review-behavior",
-        "legacyBodySha256": "e71931ff4b465178b9192c30ae9a892212f086598f5d43abdaa30626ec8ce7dc",
-        "modularBodySha256": "27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb",
-        "roleSemanticDigest": "2ba770838c177aa99106da93a5c35abd5a378649b9bf952bbb3fca365c405f7c",
-        "roleRenderDigest": "6552d8fb6099be2aee6b59c06f6b9e523772bbbb7e68639ed0b4e74fccfcce49",
-        "legacyClaudeRenderDigest": "8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541",
-        "legacyCodexRenderDigest": "5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a",
-        "modularClaudeRenderDigest": "8137e7399f51b02e0545db4c9c8fc2bdf42869eb00f4db9bf0443eb8cc580541",
-        "modularCodexRenderDigest": "5be42211c99795ca875db557bd23e3aa4601fac03d34b5343793daf578aa541a"
+        "legacyBodySha256": "a080d3aa9d47ec6062ee4181e3b57b2b4ead3f427cb0659a2f54d459cfe52ef2",
+        "modularBodySha256": "d485faa700196506a07dc8704f534b215eba1fd1ac1c111acbbd1a830098e7e4",
+        "roleSemanticDigest": "af59ecd12840fddf54f63038cb844bb54395814fdf330e385631ac18057256d8",
+        "roleRenderDigest": "3ebf56716b7a9354a147df2ee221ba63e3439cf837a67393dea2bc26d649eab0",
+        "legacyClaudeRenderDigest": "0ce97a4f6fafaac9c89a729502924fcdd121ae846b5588bc1055f5065e18f02d",
+        "legacyCodexRenderDigest": "0691de5b1497033422f8c0a31103e9473a5a58ee4add491dcd0846919ac0442a",
+        "modularClaudeRenderDigest": "32683356fbb8b38e6b5b2f423d275c1cc9dd17b0010c9308a37fab0a1b65e767",
+        "modularCodexRenderDigest": "3072ff34e5cce36f95471204bd05dcacc6c60671027cd91299c8ebdebf39ec99"
       },
       {
         "role": "proof-or-stop-review-concept",
-        "legacyBodySha256": "37e57cf6c2be5c035a0bf4cc1c4e2d07458f586ed305cd0f835ed6643114bca6",
-        "modularBodySha256": "95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae",
-        "roleSemanticDigest": "662a3bd15d165ce5231ca99d1a9f1d837267c779286937b190edfa6e5d313a70",
-        "roleRenderDigest": "8015c7666b706a3f3c82656e453b0170e0488d3f8c5e742a6b9c59bfd06303e2",
-        "legacyClaudeRenderDigest": "77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0",
-        "legacyCodexRenderDigest": "a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e",
-        "modularClaudeRenderDigest": "77fa298b712696c0c6a35567ea3e6195e43a390fc162e5f9b3f8f5d8e3d528a0",
-        "modularCodexRenderDigest": "a97a2173632da232ec72c92661c44a449981504ff51a1fc715c4308345f3547e"
+        "legacyBodySha256": "c53202553b19cada7d13a7bef8cf6c7e268ccbc5310a7349620bca3f455b726c",
+        "modularBodySha256": "3bca56bbd0c5666bfa5553136140f0fc955e0a89f2378af28699bd8b38d0ed7a",
+        "roleSemanticDigest": "197d76c8d93d85f4ec8cc45b581be70fd8526b4f971f5eeaaad23ca1b04f0ff2",
+        "roleRenderDigest": "aa959585d8566f2974f4de6b636b92ec63a1d433eaebe7416341b12bf7e38f43",
+        "legacyClaudeRenderDigest": "cdb5f4abe7224db712a61b7c5fc1912a5af1551371262132ff07ffc6a9ea4622",
+        "legacyCodexRenderDigest": "1e45b2db67503b833934d78c489267c8964a45faa9c67e77a476060f7bb0ca63",
+        "modularClaudeRenderDigest": "5333050f9af3b04ef751a73fb49382a0446f371ddc9cd4dc63bd219cc2bf86e1",
+        "modularCodexRenderDigest": "daaee0f7c78df598ca5c9180a00527bb0ef401cc472b4e0a48995b6d6a564eb1"
       },
       {
         "role": "proof-or-stop-review-docs",
-        "legacyBodySha256": "c46d3cddfac0de303c7882cf3394655b597b59c7681dba81a21e96bf65402187",
-        "modularBodySha256": "e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36",
-        "roleSemanticDigest": "2f953f81bdb37182f2b62c5af7505e55b4bc49630362dad169c93dca998ab8ba",
-        "roleRenderDigest": "2f79cbe2131ab262d773c3ff3f97a3acb8ce20d48dd491460872ece48b784fe0",
-        "legacyClaudeRenderDigest": "990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4",
-        "legacyCodexRenderDigest": "47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea",
-        "modularClaudeRenderDigest": "990731082a5b22b43b1d51e54e3a3a375b9ead4224f1807aa93b44ffe76d44e4",
-        "modularCodexRenderDigest": "47d1a348d09678453e42202193b1665489ff8bd9aaf655e5df846f09b95ea8ea"
+        "legacyBodySha256": "ec9b7fec4b4a67beaeda0da095be5de1d2c35d80104edbc8486b2101fd6e03af",
+        "modularBodySha256": "835a0182ce5480c7d7cef9d350ae26a2a3aa11db4fcd3fea418f3c99e38b92a6",
+        "roleSemanticDigest": "9aaa80a9426a04ea031a7feeb6cd409a236ca6493286bf50f3e5deed012009f7",
+        "roleRenderDigest": "6dc808cd000a19b8f897011d8e84ccb221320b9141c4538b5de95208b8a96a47",
+        "legacyClaudeRenderDigest": "904e311351654b9e16917747d459a05c46a31e2b6db892ddb796a1f63efce76b",
+        "legacyCodexRenderDigest": "10bb3416dd7081f3bed5c2569210e1b40e7c7f8e766582f5a8fcc0d340b30b1f",
+        "modularClaudeRenderDigest": "776ee19f31724fc24b02047627113b3c1211ca25295e3111c953c89ad2b502e5",
+        "modularCodexRenderDigest": "5866702beea655d933491ebfef927d0446f371ddc9cd4dc63bd219cc2bf86e5"
       },
       {
         "role": "proof-or-stop-review-quality",
-        "legacyBodySha256": "89a12840851dd785bdec0737cd95087d274dac950a2775a4e74c0f6447a82b34",
-        "modularBodySha256": "85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9",
-        "roleSemanticDigest": "9dfa73bfc2f10e3d8e849c481b59c83a38ce20d0def78d88156697ce7a40698b",
-        "roleRenderDigest": "95d7461125302f36bb41b63622347c1d6baf221c765b2f602c6b4be447cfbd19",
-        "legacyClaudeRenderDigest": "f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120",
-        "legacyCodexRenderDigest": "6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304",
-        "modularClaudeRenderDigest": "f5ca49defed75291b22d6b2c362aa2583acc70cfac12c657f4bebe6bb1470120",
-        "modularCodexRenderDigest": "6fac57851152e91404a11ba6b390d7914360f893d7ca3855ac5ba4141598d304"
+        "legacyBodySha256": "1a11e779e4b877d7c75e4fbc98538db25f8ded2e53428fb627d2bf8734f3a504",
+        "modularBodySha256": "4bbf141d64e12ca6e16ec82d1cb397ca2011267100ec8596760349c1c0b17f15",
+        "roleSemanticDigest": "ea63f5812defd28c23b8f6b9bdbcd058ac25cad6569484a85a15614e26a346f0",
+        "roleRenderDigest": "10ad8484f6f24c3a92041a64c26ca82ac394139e7c51ea984e265241d21ab15b",
+        "legacyClaudeRenderDigest": "ea06fe995cad296be48b924bbf52a32955c69606bebee9d56be843c5587ff539",
+        "legacyCodexRenderDigest": "969abfc83df845b61c2cfc2149d57e22c290928dbccdc62bce04491315035d27",
+        "modularClaudeRenderDigest": "1c2fe6227362a4b8dbdd8ab3e2de550bbbc89a8e4b9881c41327d96645dde52a",
+        "modularCodexRenderDigest": "f8385e50c90f1ad9ffe3f14b6ae5f2d3e408d74240b169787d2ccf2a79b8b249"
       },
       {
         "role": "proof-or-stop-review-test-coverage",
-        "legacyBodySha256": "aa146d8ebfb6d46c39dfbeba4cfeeea9f2801b99f9789632b4e466c8ea080ea1",
-        "modularBodySha256": "556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203",
-        "roleSemanticDigest": "3aa40c0b90355343edce8cf30a7e71b3056e6a7f385b3c7b7041b963a695e088",
-        "roleRenderDigest": "b9ab1333855c2b14ba8d18a907d2d488cd61dbf5826c55da0d688d7ec1c800d8",
-        "legacyClaudeRenderDigest": "a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c",
-        "legacyCodexRenderDigest": "d16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50",
-        "modularClaudeRenderDigest": "a2b0bd719cbae6c33b5c03f46f978ccd0379e4f0a88382939cc617f6dd95596c",
-        "modularCodexRenderDigest": "d16289af5df1060bfa5d8f39bf99b3ffb365091559ee375130555a910384af50"
+        "legacyBodySha256": "2eadef36e4da2e034d722b0d5b0be0a2e9e61fc8e4200cd2ed373f4c8573ca88",
+        "modularBodySha256": "99d5e95ee4d3075b1808c5f1f48ecd2ece3e785b7402c744627f2ffbd2dbc6c0",
+        "roleSemanticDigest": "9845080b4d332e675cced9230749066c0a72bab5e830d54417c7f6206a5e7dc7",
+        "roleRenderDigest": "f605de383aca246bbfc1d107237d89cb8c377f01168e81d2cdf61331200358d3",
+        "legacyClaudeRenderDigest": "f09f04111090048a98f80224e72c224cba7c9469fa6ed24fb6f90cd2b94e6256",
+        "legacyCodexRenderDigest": "683a981cb491c7efcdcf737d64e100e37e9667f18a2276392ddb0023e5dc3e3f",
+        "modularClaudeRenderDigest": "f632600b708c6a05a24e94c4c9ec805567eaa1d5db81e51f17bf5f98f8a8f495",
+        "modularCodexRenderDigest": "71895876e4451e4e7ff20887432daafccabe0a2e724b6dbf4d216901f543b5e2"
       }
     ]
   },
   "registry": {
     "module": "packages/main/dist/core/prompt-registry.js",
-    "schemaVersion": "lattice.prompt-registry.v1",
+    "schemaVersion": "proof-or-stop.prompt-registry.v1",
     "source": "@proof-or-stop/core/templates/agents",
-    "agentCount": 17,
-    "materialHash": "b294de0efd12297caf65a9b5e4337ac7bcda16d494c29da6327e8680836eff37",
+    "agentCount": 18,
+    "materialHash": "6204e20f52c2b2ae54bb16c5ba82e691ed46af7307a341e32b0f5610a42020a9",
     "roles": [
-      {
-        "role": "implementation-reviewer",
-        "file": "implementation-reviewer.md",
-        "relPath": "templates/agents/implementation-reviewer.md",
-        "templateHash": "fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd",
-        "bytes": 2157,
-        "lines": 82
-      },
-      {
-        "role": "product-reviewer",
-        "file": "product-reviewer.md",
-        "relPath": "templates/agents/product-reviewer.md",
-        "templateHash": "f160fd39f77f4461b830e914617090d51e2026ef970e2103cb9cb273b2a19705",
-        "bytes": 3273,
-        "lines": 91
-      },
       {
         "role": "proof-or-stop-evaluator-cli",
         "file": "proof-or-stop-evaluator-cli.md",
         "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
-        "templateHash": "21689fb84c56357320f92972ac66f02c578bb67f1089f0f8890b547880e8c4e6",
-        "bytes": 4408,
-        "lines": 119
+        "templateHash": "db4c2712365ed4142b0d54269738130abe8eeda91a8accb27f2e7391657c3c89",
+        "bytes": 9480,
+        "lines": 213
       },
       {
         "role": "proof-or-stop-evaluator",
         "file": "proof-or-stop-evaluator.md",
         "relPath": "templates/agents/proof-or-stop-evaluator.md",
-        "templateHash": "acde1b784011d08d144700cc879511963fc70d374d66354fad7182a21c8e645e",
-        "bytes": 9040,
+        "templateHash": "77c8cfdc26b98f15f628e9779bf1c0dff94110244993945bfd5eef021976ad28",
+        "bytes": 9014,
         "lines": 201
+      },
+      {
+        "role": "proof-or-stop-implementation-reviewer",
+        "file": "proof-or-stop-implementation-reviewer.md",
+        "relPath": "templates/agents/proof-or-stop-implementation-reviewer.md",
+        "templateHash": "8bc6ea4e4b498131a3b837929f2c7f26f4017756cad0106980941b5cd96ab0d2",
+        "bytes": 2199,
+        "lines": 82
       },
       {
         "role": "proof-or-stop-implementer",
         "file": "proof-or-stop-implementer.md",
         "relPath": "templates/agents/proof-or-stop-implementer.md",
-        "templateHash": "028d733d3d2832e182d1b9a5921e49f9ec583e73e8ae25f132c011fcf1f20012",
-        "bytes": 16564,
+        "templateHash": "a437c66ca5b14358fd9e526fe6bd3b944be9211c9c009939b252c1778b942198",
+        "bytes": 16560,
         "lines": 245
+      },
+      {
+        "role": "proof-or-stop-product-reviewer",
+        "file": "proof-or-stop-product-reviewer.md",
+        "relPath": "templates/agents/proof-or-stop-product-reviewer.md",
+        "templateHash": "0206b195e26ba067e863b2f54c9117f75bd56f2ea86d345bee8ed00187a3bbda",
+        "bytes": 3371,
+        "lines": 91
       },
       {
         "role": "proof-or-stop-review-behavior",
         "file": "proof-or-stop-review-behavior.md",
         "relPath": "templates/agents/proof-or-stop-review-behavior.md",
-        "templateHash": "27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb",
-        "bytes": 20455,
+        "templateHash": "ed3d5c2c8e995f63ea8b874bd88eb8d9801efb4ad4bed6094f8c56da91ff1a84",
+        "bytes": 20458,
         "lines": 146
       },
       {
         "role": "proof-or-stop-review-channel",
         "file": "proof-or-stop-review-channel.md",
         "relPath": "templates/agents/proof-or-stop-review-channel.md",
-        "templateHash": "bb8246f924215fe6bcc9b2e1c7ad6c7cc9c6e44e9f7a72619c7ec7f667b9131b",
+        "templateHash": "3ce5d558cd8c328f9995f8db752186aaa1dd42e24202a3ae4ae71988ac345213",
         "bytes": 12364,
         "lines": 193
       },
@@ -203,81 +207,89 @@
         "role": "proof-or-stop-review-concept",
         "file": "proof-or-stop-review-concept.md",
         "relPath": "templates/agents/proof-or-stop-review-concept.md",
-        "templateHash": "95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae",
-        "bytes": 16229,
+        "templateHash": "5335ede5b775e089236cc9fbde78c2018d2e26fb9c30155911282dbcbe3a805c",
+        "bytes": 16232,
         "lines": 115
       },
       {
         "role": "proof-or-stop-review-delivery",
         "file": "proof-or-stop-review-delivery.md",
         "relPath": "templates/agents/proof-or-stop-review-delivery.md",
-        "templateHash": "caa813c1f1bc6ed54a8d7d48b0bfda8f0492cf922656f2227ae600ee7a9d8d16",
-        "bytes": 13895,
+        "templateHash": "9d680469210a47fff4af184f0f895cc03c7f58fcfefba534c146df74f82c9b4c",
+        "bytes": 13887,
         "lines": 290
       },
       {
         "role": "proof-or-stop-review-docs",
         "file": "proof-or-stop-review-docs.md",
         "relPath": "templates/agents/proof-or-stop-review-docs.md",
-        "templateHash": "e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36",
-        "bytes": 18699,
+        "templateHash": "a7e15cf4791cebc7ecb96f05ce7457dc36eb6430287682a3dbcd13fd28011567",
+        "bytes": 18702,
         "lines": 163
       },
       {
         "role": "proof-or-stop-review-quality",
         "file": "proof-or-stop-review-quality.md",
         "relPath": "templates/agents/proof-or-stop-review-quality.md",
-        "templateHash": "85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9",
-        "bytes": 16680,
+        "templateHash": "1016d4394e1f825d97b56e540c58d0fe21023d9d19d284f38b34f6935e7ccd4f",
+        "bytes": 16683,
         "lines": 139
       },
       {
         "role": "proof-or-stop-review-scope-plan",
         "file": "proof-or-stop-review-scope-plan.md",
         "relPath": "templates/agents/proof-or-stop-review-scope-plan.md",
-        "templateHash": "935913dfd492de56bb1b2d5b2507a2ae6b714e59f6c067e6c94a9e54755b75cd",
-        "bytes": 15089,
+        "templateHash": "98fc1827842a3b2d3a3b1dc29a338baa3933eb54e26e7216b7e0863fb6cd835b",
+        "bytes": 15075,
         "lines": 206
       },
       {
         "role": "proof-or-stop-review-story-init",
         "file": "proof-or-stop-review-story-init.md",
         "relPath": "templates/agents/proof-or-stop-review-story-init.md",
-        "templateHash": "c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432",
-        "bytes": 18226,
+        "templateHash": "b915cdfa3625ad1049ddc9662731ce73f5608ab315eea3931729621aa85599c0",
+        "bytes": 18232,
         "lines": 259
       },
       {
         "role": "proof-or-stop-review-test-coverage",
         "file": "proof-or-stop-review-test-coverage.md",
         "relPath": "templates/agents/proof-or-stop-review-test-coverage.md",
-        "templateHash": "556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203",
-        "bytes": 13935,
+        "templateHash": "3de5453dbf7d161d1bfef29112ff1cfb1d3eb0d48bfc49307e45289f94d36604",
+        "bytes": 13938,
         "lines": 99
       },
       {
         "role": "proof-or-stop-review-topology-critic",
         "file": "proof-or-stop-review-topology-critic.md",
         "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
-        "templateHash": "6213dbefff421ea810c281982fed39d4d3daeaf2ce8d77c8bf4774dda50162c3",
-        "bytes": 1603,
-        "lines": 24
+        "templateHash": "2376497e2190ec5349312839417adccc200ccecc30dc357671a4bd045637e8c7",
+        "bytes": 17728,
+        "lines": 174
       },
       {
-        "role": "test-case-reviewer",
-        "file": "test-case-reviewer.md",
-        "relPath": "templates/agents/test-case-reviewer.md",
-        "templateHash": "3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5",
-        "bytes": 9368,
-        "lines": 158
+        "role": "proof-or-stop-test-case-reviewer",
+        "file": "proof-or-stop-test-case-reviewer.md",
+        "relPath": "templates/agents/proof-or-stop-test-case-reviewer.md",
+        "templateHash": "501c7cf78589d9e78f4657e5e5bad2ffb9dfa3fd0cf7a837545f4a6fe2d701bc",
+        "bytes": 599,
+        "lines": 22
       },
       {
-        "role": "test-intent",
-        "file": "test-intent.md",
-        "relPath": "templates/agents/test-intent.md",
-        "templateHash": "168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2",
-        "bytes": 7601,
-        "lines": 167
+        "role": "proof-or-stop-test-intent",
+        "file": "proof-or-stop-test-intent.md",
+        "relPath": "templates/agents/proof-or-stop-test-intent.md",
+        "templateHash": "d1ec6e8903ff4b953015b7836a7f88e9894b7dd0f4306138b4e32e435405dc27",
+        "bytes": 576,
+        "lines": 21
+      },
+      {
+        "role": "proof-or-stop-verification-intent",
+        "file": "proof-or-stop-verification-intent.md",
+        "relPath": "templates/agents/proof-or-stop-verification-intent.md",
+        "templateHash": "a0883d46e5f0abf38651078c27bf9e52dd79688d938d131126df9f01b8b886bf",
+        "bytes": 1588,
+        "lines": 40
       }
     ]
   },
@@ -286,34 +298,34 @@
     "metadata": "sha256, bytes, and lines are computed from raw stdout; registry parity strips the CLI print newline only.",
     "outputs": [
       {
-        "role": "implementation-reviewer",
-        "sha256": "4ff8b0b0bf551dee0371f692870f69228d3ab42f935203935345c4fb4e7e1ae6",
-        "bytes": 2158,
-        "lines": 83
-      },
-      {
-        "role": "product-reviewer",
-        "sha256": "efc57f019644cc2c33cc47d7250605d3608a4d5be6de83a1dad021251b49eedc",
-        "bytes": 3274,
-        "lines": 92
-      },
-      {
         "role": "proof-or-stop-evaluator-cli",
-        "sha256": "5209d39fd77590083261ccdc9c80ec17086c3050719457dc8fe04ef58e7ebc2f",
-        "bytes": 4409,
-        "lines": 120
+        "sha256": "8ce54cefe45b342a26588df7f411074a6327c8c7f3c63c9a4c57a91ab51bfd71",
+        "bytes": 9481,
+        "lines": 214
       },
       {
         "role": "proof-or-stop-evaluator",
-        "sha256": "a72bf2e6cca1f2c749539d8d71fc3f25f76702ad41c39f262c71321e6b3978e4",
-        "bytes": 9041,
+        "sha256": "6428dde90a9b5a40f7d783d2c00157743b7b0dde58c7549e290c0126822f5711",
+        "bytes": 9027,
         "lines": 202
       },
       {
+        "role": "proof-or-stop-implementation-reviewer",
+        "sha256": "cfe0b174ec199260bf951aaad060a3c4524c0f2d87a417d99f65de3fe1070102",
+        "bytes": 2200,
+        "lines": 83
+      },
+      {
         "role": "proof-or-stop-implementer",
-        "sha256": "0ddb3a21df0b4030ad351c5cbb336f88cad7c85baf1ac474f66611431dc6fc93",
-        "bytes": 16565,
+        "sha256": "0569c99e5820d792ac5550d2f9cecbdd8ce4b0d68f1072fc39c29d0b37e0007d",
+        "bytes": 16573,
         "lines": 246
+      },
+      {
+        "role": "proof-or-stop-product-reviewer",
+        "sha256": "48c7ec5e6168de83324bd49b5081a34cddbe5cf011582a93fb73c4a2ee8eba79",
+        "bytes": 3372,
+        "lines": 92
       },
       {
         "role": "proof-or-stop-review-behavior",
@@ -323,7 +335,7 @@
       },
       {
         "role": "proof-or-stop-review-channel",
-        "sha256": "bf7163ab2a8eff2930d12e1d91c583d5e24d40e4a1963e0395c3b09b7cb4d06c",
+        "sha256": "e8b66844ba897a417a7853e95ff28f05ab8ed619f6f6fca07c12b7f372cdfadf",
         "bytes": 12365,
         "lines": 194
       },
@@ -335,8 +347,8 @@
       },
       {
         "role": "proof-or-stop-review-delivery",
-        "sha256": "c4a81e0f827bd6fe2982b5b5d11c4d737e08400fef6d5118bb45c6174f1f2d01",
-        "bytes": 13896,
+        "sha256": "b3a088f02ef56c1f6ac448eeb208908d3b266a6a21c8f86246a8d2b374bb9f6e",
+        "bytes": 13900,
         "lines": 291
       },
       {
@@ -353,14 +365,14 @@
       },
       {
         "role": "proof-or-stop-review-scope-plan",
-        "sha256": "96447bfb4b97b985e81f801943bb00f2ae0f95051534972bfa672a100653f289",
-        "bytes": 15090,
+        "sha256": "abc11f2e3797d9f36401131eee7138c54c89d764c8ff9105cf9c01accf8b1bd6",
+        "bytes": 15088,
         "lines": 207
       },
       {
         "role": "proof-or-stop-review-story-init",
-        "sha256": "ee00dac5128c2195366998e9670caec6c63117465f3a0677c9d234d4df0c3606",
-        "bytes": 18227,
+        "sha256": "733819f117bb23d6a93f98e7f75379a577fdc5d5c44780bbf729c29bb4e21639",
+        "bytes": 18245,
         "lines": 260
       },
       {
@@ -371,51 +383,31 @@
       },
       {
         "role": "proof-or-stop-review-topology-critic",
-        "sha256": "0097fa5147026781e386467ed4dea8d3881354f3809ebe745db1c6f7f6dac872",
-        "bytes": 1604,
-        "lines": 25
+        "sha256": "29745fd916098059516d4c6d6cb318e5fc20c193dfecaa1d68b02a3a860d93b3",
+        "bytes": 1648,
+        "lines": 26
       },
       {
-        "role": "test-case-reviewer",
-        "sha256": "a5746ce6bd5eb0661063752e270587fdf0924e487e1f484f55fe55c9e0505b7f",
-        "bytes": 9369,
-        "lines": 159
+        "role": "proof-or-stop-test-case-reviewer",
+        "sha256": "31d07494bd0a9e0de49c083dc30adb77d6fe0652b32c85b23227a9c35c75de5f",
+        "bytes": 600,
+        "lines": 23
       },
       {
-        "role": "test-intent",
-        "sha256": "8e4ca13c7c12952833b13ebe80cec1849ab35c427dcc4b32538e4e479a6b25c1",
-        "bytes": 7602,
-        "lines": 168
+        "role": "proof-or-stop-test-intent",
+        "sha256": "962ea3768e3b707df13f5e0453807286cdae21449f6c5058e56e3f2675a86c1c",
+        "bytes": 577,
+        "lines": 22
+      },
+      {
+        "role": "proof-or-stop-verification-intent",
+        "sha256": "688115ce57b87358c9e3594f85229f17cc86f4a00b4ce796bcff56e18e8c57e1",
+        "bytes": 1589,
+        "lines": 41
       }
     ]
   },
   "roleMatrix": [
-    {
-      "role": "implementation-reviewer",
-      "status": "fold-candidate",
-      "phase": "REVIEW advisory",
-      "purpose": "Legacy implementation risk reviewer for code risks and maintainability.",
-      "commands": "none",
-      "directFileAccess": "Reads diff and implementation context; no direct story writes.",
-      "inputs": "Diff and implementation context.",
-      "outputs": "Text review notes.",
-      "capabilities": "Code risk review; edge condition review; maintainability review.",
-      "overlapCategory": "duplicates behavior and quality",
-      "notes": "Not in current review-run lanes; planned to fold into behavior and quality."
-    },
-    {
-      "role": "product-reviewer",
-      "status": "compatibility",
-      "phase": "INIT/DONE advisory",
-      "purpose": "Reviews user-facing transcript and product closure.",
-      "commands": "init_check_set when asked to perform INIT compatibility review; otherwise none.",
-      "directFileAccess": "Reads transcript/product context and optional transcript diff; no code, test, or story metadata writes.",
-      "inputs": "Final transcript, product outcome, optional transcript diff.",
-      "outputs": "Text product review or product-reviewer init_check_set record.",
-      "capabilities": "User-value closure; product wording review.",
-      "overlapCategory": "overlaps delivery and evaluator",
-      "notes": "INIT compatibility remains until product reviewer routing is migrated."
-    },
     {
       "role": "proof-or-stop-evaluator-cli",
       "status": "optional",
@@ -443,6 +435,19 @@
       "notes": "Advisory unless a policy consumes saved evaluator evidence."
     },
     {
+      "role": "proof-or-stop-implementation-reviewer",
+      "status": "fold-candidate",
+      "phase": "REVIEW advisory",
+      "purpose": "Legacy implementation risk reviewer for code risks and maintainability.",
+      "commands": "none",
+      "directFileAccess": "Reads diff and implementation context; no direct story writes.",
+      "inputs": "Diff and implementation context.",
+      "outputs": "Text review notes.",
+      "capabilities": "Code risk review; edge condition review; maintainability review.",
+      "overlapCategory": "duplicates behavior and quality",
+      "notes": "Not in current review-run lanes; planned to fold into behavior and quality."
+    },
+    {
       "role": "proof-or-stop-implementer",
       "status": "active",
       "phase": "DEV",
@@ -454,6 +459,19 @@
       "capabilities": "Code editing; focused tests; checklist status recording; commit preparation.",
       "overlapCategory": "DEV owner",
       "notes": "Does not own review, test phase advancement, or DONE closure."
+    },
+    {
+      "role": "proof-or-stop-product-reviewer",
+      "status": "compatibility",
+      "phase": "INIT/DONE advisory",
+      "purpose": "Reviews user-facing transcript and product closure.",
+      "commands": "init_check_set when asked to perform INIT compatibility review; otherwise none.",
+      "directFileAccess": "Reads transcript/product context and optional transcript diff; no code, test, or story metadata writes.",
+      "inputs": "Final transcript, product outcome, optional transcript diff.",
+      "outputs": "Text product review or product-reviewer init_check_set record.",
+      "capabilities": "User-value closure; product wording review.",
+      "overlapCategory": "overlaps delivery and evaluator",
+      "notes": "INIT compatibility remains until product reviewer routing is migrated."
     },
     {
       "role": "proof-or-stop-review-behavior",
@@ -586,7 +604,7 @@
       "notes": "Cannot override partial or unsupported discovery and cannot approve its own exclusions."
     },
     {
-      "role": "test-case-reviewer",
+      "role": "proof-or-stop-test-case-reviewer",
       "status": "legacy",
       "phase": "TEST_CASE_REVIEW legacy",
       "purpose": "Legacy reviewer for fixture coverage of testIntent.",
@@ -599,7 +617,7 @@
       "notes": "Legacy-only prompt tied to old TEST_CASE_REVIEW phase."
     },
     {
-      "role": "test-intent",
+      "role": "proof-or-stop-test-intent",
       "status": "legacy",
       "phase": "PLAN legacy",
       "purpose": "Legacy checklist split reviewer and testIntent writer.",
@@ -610,11 +628,24 @@
       "capabilities": "Checklist split review; legacy acceptance-intent writing.",
       "overlapCategory": "replaced by verificationIntent flow",
       "notes": "Conflicts with the current verificationIntent model for new stories."
+    },
+    {
+      "role": "proof-or-stop-verification-intent",
+      "status": "active",
+      "phase": "PLAN",
+      "purpose": "Authors verificationIntent for one checklist item.",
+      "commands": "checklist_update with verificationIntent only; story_get; checklist_get; aux_doc_list and relevant read-only source/decision reads.",
+      "directFileAccess": "Reads source and decision documents; writes checklist intent only through Proof-or-Stop CLI.",
+      "inputs": "Story, one checklist item, relevant source and decision documents.",
+      "outputs": "Structured verificationIntent with happy, edge, and adversarial coverage lanes.",
+      "capabilities": "Adversarial acceptance-intent authoring; observable coverage design; verification boundary enforcement.",
+      "overlapCategory": "PLAN verification-intent owner",
+      "notes": "Active replacement for legacy test-intent authoring; does not write status or verificationEvidence."
     }
   ],
   "roleMatrixAudit": {
     "machineChecks": [
-      "Lock the exact 17 role snapshots and role IDs.",
+      "Lock the exact 18 role snapshots and role IDs.",
       "Require each selected complete prompt body and registry template hash to match the independent code-reviewed approval manifest.",
       "For five modular reviewer roles, bind immutable legacy/modular bodies, Role Contract, and Claude/Codex host renders.",
       "Lock agent_prompt output hashes.",
@@ -642,89 +673,94 @@
       "purpose": "Navigation and drift anchors for manual review only; relPath and templateHash do not prove role semantics.",
       "roles": [
         {
-          "role": "implementation-reviewer",
-          "relPath": "templates/agents/implementation-reviewer.md",
-          "templateHash": "fed9fddce46760a0110ef14ae976480a219d391902b8718df0ad767859cfeafd"
-        },
-        {
-          "role": "product-reviewer",
-          "relPath": "templates/agents/product-reviewer.md",
-          "templateHash": "f160fd39f77f4461b830e914617090d51e2026ef970e2103cb9cb273b2a19705"
-        },
-        {
           "role": "proof-or-stop-evaluator-cli",
           "relPath": "templates/agents/proof-or-stop-evaluator-cli.md",
-          "templateHash": "21689fb84c56357320f92972ac66f02c578bb67f1089f0f8890b547880e8c4e6"
+          "templateHash": "db4c2712365ed4142b0d54269738130abe8eeda91a8accb27f2e7391657c3c89"
         },
         {
           "role": "proof-or-stop-evaluator",
           "relPath": "templates/agents/proof-or-stop-evaluator.md",
-          "templateHash": "acde1b784011d08d144700cc879511963fc70d374d66354fad7182a21c8e645e"
+          "templateHash": "77c8cfdc26b98f15f628e9779bf1c0dff94110244993945bfd5eef021976ad28"
+        },
+        {
+          "role": "proof-or-stop-implementation-reviewer",
+          "relPath": "templates/agents/proof-or-stop-implementation-reviewer.md",
+          "templateHash": "8bc6ea4e4b498131a3b837929f2c7f26f4017756cad0106980941b5cd96ab0d2"
         },
         {
           "role": "proof-or-stop-implementer",
           "relPath": "templates/agents/proof-or-stop-implementer.md",
-          "templateHash": "028d733d3d2832e182d1b9a5921e49f9ec583e73e8ae25f132c011fcf1f20012"
+          "templateHash": "a437c66ca5b14358fd9e526fe6bd3b944be9211c9c009939b252c1778b942198"
+        },
+        {
+          "role": "proof-or-stop-product-reviewer",
+          "relPath": "templates/agents/proof-or-stop-product-reviewer.md",
+          "templateHash": "0206b195e26ba067e863b2f54c9117f75bd56f2ea86d345bee8ed00187a3bbda"
         },
         {
           "role": "proof-or-stop-review-behavior",
           "relPath": "templates/agents/proof-or-stop-review-behavior.md",
-          "templateHash": "27c6a2260598634c82855f9c274f4400e975319c11bb1543bc44f80eb0ef7adb"
+          "templateHash": "ed3d5c2c8e995f63ea8b874bd88eb8d9801efb4ad4bed6094f8c56da91ff1a84"
         },
         {
           "role": "proof-or-stop-review-channel",
           "relPath": "templates/agents/proof-or-stop-review-channel.md",
-          "templateHash": "bb8246f924215fe6bcc9b2e1c7ad6c7cc9c6e44e9f7a72619c7ec7f667b9131b"
+          "templateHash": "3ce5d558cd8c328f9995f8db752186aaa1dd42e24202a3ae4ae71988ac345213"
         },
         {
           "role": "proof-or-stop-review-concept",
           "relPath": "templates/agents/proof-or-stop-review-concept.md",
-          "templateHash": "95a93eb802e78c26e03e5832cd9362904bc9e539da2f6162d05dd18277eb69ae"
+          "templateHash": "5335ede5b775e089236cc9fbde78c2018d2e26fb9c30155911282dbcbe3a805c"
         },
         {
           "role": "proof-or-stop-review-delivery",
           "relPath": "templates/agents/proof-or-stop-review-delivery.md",
-          "templateHash": "caa813c1f1bc6ed54a8d7d48b0bfda8f0492cf922656f2227ae600ee7a9d8d16"
+          "templateHash": "9d680469210a47fff4af184f0f895cc03c7f58fcfefba534c146df74f82c9b4c"
         },
         {
           "role": "proof-or-stop-review-docs",
           "relPath": "templates/agents/proof-or-stop-review-docs.md",
-          "templateHash": "e3ffc713dd6171947b7e85d716751b5d11fe05832b46f7a8ae0171b86e91fb36"
+          "templateHash": "a7e15cf4791cebc7ecb96f05ce7457dc36eb6430287682a3dbcd13fd28011567"
         },
         {
           "role": "proof-or-stop-review-quality",
           "relPath": "templates/agents/proof-or-stop-review-quality.md",
-          "templateHash": "85ef24d28f8b600f6c02cd1d861ddda409588fc70598209732c83b3bba49fad9"
+          "templateHash": "1016d4394e1f825d97b56e540c58d0fe21023d9d19d284f38b34f6935e7ccd4f"
         },
         {
           "role": "proof-or-stop-review-scope-plan",
           "relPath": "templates/agents/proof-or-stop-review-scope-plan.md",
-          "templateHash": "935913dfd492de56bb1b2d5b2507a2ae6b714e59f6c067e6c94a9e54755b75cd"
+          "templateHash": "98fc1827842a3b2d3a3b1dc29a338baa3933eb54e26e7216b7e0863fb6cd835b"
         },
         {
           "role": "proof-or-stop-review-story-init",
           "relPath": "templates/agents/proof-or-stop-review-story-init.md",
-          "templateHash": "c9ce768a4ae13fc16e326e3343e116f3add8db03c6ede2bcb6e763ed0c7d5432"
+          "templateHash": "b915cdfa3625ad1049ddc9662731ce73f5608ab315eea3931729621aa85599c0"
         },
         {
           "role": "proof-or-stop-review-test-coverage",
           "relPath": "templates/agents/proof-or-stop-review-test-coverage.md",
-          "templateHash": "556aa6251dc0f79f85a77eada43d203755d609179666049042f14c674db90203"
+          "templateHash": "3de5453dbf7d161d1bfef29112ff1cfb1d3eb0d48bfc49307e45289f94d36604"
         },
         {
           "role": "proof-or-stop-review-topology-critic",
           "relPath": "templates/agents/proof-or-stop-review-topology-critic.md",
-          "templateHash": "6213dbefff421ea810c281982fed39d4d3daeaf2ce8d77c8bf4774dda50162c3"
+          "templateHash": "2376497e2190ec5349312839417adccc200ccecc30dc357671a4bd045637e8c7"
         },
         {
-          "role": "test-case-reviewer",
-          "relPath": "templates/agents/test-case-reviewer.md",
-          "templateHash": "3292b8c15a696f588c9fcda45218aefeabb56668d47fa0e74cd163cbaf9da0a5"
+          "role": "proof-or-stop-test-case-reviewer",
+          "relPath": "templates/agents/proof-or-stop-test-case-reviewer.md",
+          "templateHash": "501c7cf78589d9e78f4657e5e5bad2ffb9dfa3fd0cf7a837545f4a6fe2d701bc"
         },
         {
-          "role": "test-intent",
-          "relPath": "templates/agents/test-intent.md",
-          "templateHash": "168d1a5b862f0949aaa44223f21f42e67ff4df938805ac6ebf0fd55677be3fc2"
+          "role": "proof-or-stop-test-intent",
+          "relPath": "templates/agents/proof-or-stop-test-intent.md",
+          "templateHash": "d1ec6e8903ff4b953015b7836a7f88e9894b7dd0f4306138b4e32e435405dc27"
+        },
+        {
+          "role": "proof-or-stop-verification-intent",
+          "relPath": "templates/agents/proof-or-stop-verification-intent.md",
+          "templateHash": "a0883d46e5f0abf38651078c27bf9e52dd79688d938d131126df9f01b8b886bf"
         }
       ]
     }
@@ -776,15 +812,15 @@
     ],
     "findings": [
       {
-        "id": "2ff6f2781444e189",
-        "role": "implementation-reviewer",
+        "id": "b78279a4fb911cfb",
+        "role": "proof-or-stop-implementation-reviewer",
         "line": 14,
         "clauseIndex": 2,
         "occurrence": 1,
         "term": "testIntent",
         "matchedText": "testIntent",
         "clause": "Your job is not to review fixtures / testIntent, nor to review user value",
-        "excerpt": "You are the `implementation-reviewer`. Your job is not to review fixtures / testIntent, nor to review user value, but to review **whether the implementation code itself has obvious risks**.",
+        "excerpt": "You are the `proof-or-stop-implementation-reviewer`. Your job is not to review fixtures / testIntent, nor to review user value, but to review **whether the implementation code itself has obvious risks**.",
         "classification": "legacy-overlap-wording",
         "note": "Legacy wording called out for later prompt consolidation.",
         "roleStatus": "fold-candidate",
@@ -793,8 +829,8 @@
         "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "ab2e7b5a0c970ada",
-        "role": "implementation-reviewer",
+        "id": "6fc3ddf1cd2e6d9c",
+        "role": "proof-or-stop-implementation-reviewer",
         "line": 25,
         "clauseIndex": 1,
         "occurrence": 1,
@@ -810,8 +846,8 @@
         "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "1979de4a42eb5199",
-        "role": "implementation-reviewer",
+        "id": "2f3902f8525408ea",
+        "role": "proof-or-stop-implementation-reviewer",
         "line": 59,
         "clauseIndex": 1,
         "occurrence": 1,
@@ -827,8 +863,8 @@
         "policyReason": "Role status fold-candidate is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "58fb869a0dcdf601",
-        "role": "product-reviewer",
+        "id": "a6d872fb58385898",
+        "role": "proof-or-stop-product-reviewer",
         "line": 26,
         "clauseIndex": 1,
         "occurrence": 1,
@@ -844,8 +880,8 @@
         "policyReason": "The whole occurrence clause matches the closed safe-negative grammar."
       },
       {
-        "id": "b7539ae1f98af668",
-        "role": "product-reviewer",
+        "id": "d99fef02a8063fa1",
+        "role": "proof-or-stop-product-reviewer",
         "line": 27,
         "clauseIndex": 1,
         "occurrence": 1,
@@ -895,15 +931,15 @@
         "policyReason": "Exact role/term/excerpt occurrence is registered as current historical context."
       },
       {
-        "id": "6b1b84edfe4bbcc7",
-        "role": "test-case-reviewer",
+        "id": "79ef52db9f2a8943",
+        "role": "proof-or-stop-test-case-reviewer",
         "line": 2,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "TEST_CASE",
         "matchedText": "test-case",
-        "clause": "name: test-case-reviewer",
-        "excerpt": "name: test-case-reviewer",
+        "clause": "name: proof-or-stop-test-case-reviewer",
+        "excerpt": "name: proof-or-stop-test-case-reviewer",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -912,15 +948,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "ff4c2cceb90105f1",
-        "role": "test-case-reviewer",
+        "id": "96ef22b19e4f635e",
+        "role": "proof-or-stop-test-case-reviewer",
         "line": 2,
         "clauseIndex": 1,
         "occurrence": 2,
         "term": "TEST_CASE_REVIEW",
         "matchedText": "test-case-reviewer",
-        "clause": "name: test-case-reviewer",
-        "excerpt": "name: test-case-reviewer",
+        "clause": "name: proof-or-stop-test-case-reviewer",
+        "excerpt": "name: proof-or-stop-test-case-reviewer",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -929,763 +965,15 @@
         "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
       },
       {
-        "id": "a432af3991230f70",
-        "role": "test-case-reviewer",
-        "line": 3,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "description: Review testIntent coverage item by item, record results, and report back to the main agent",
-        "excerpt": "description: Review testIntent coverage item by item, record results, and report back to the main agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "d995b20af40b5d70",
-        "role": "test-case-reviewer",
-        "line": 12,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test-case",
-        "clause": "# test-case-reviewer agent",
-        "excerpt": "# test-case-reviewer agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "f71504fa6ea0cb38",
-        "role": "test-case-reviewer",
-        "line": 12,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "test-case-reviewer",
-        "clause": "# test-case-reviewer agent",
-        "excerpt": "# test-case-reviewer agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "24d2bdc93e612763",
-        "role": "test-case-reviewer",
-        "line": 14,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "The main agent (role=author) writes the code and tests, the test-intent agent (role=intent) writes the acceptance criteria, and you review whether the main agent's tests satisfy the acceptance criteria.",
-        "excerpt": "You are an independent reviewer (role=reviewer). The main agent (role=author) writes the code and tests, the test-intent agent (role=intent) writes the acceptance criteria, and you review whether the main agent's tests satisfy the acceptance criteria.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "fc393f02cb4f20d2",
-        "role": "test-case-reviewer",
-        "line": 26,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
-        "excerpt": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "c7f0792235e36128",
-        "role": "test-case-reviewer",
-        "line": 26,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "TEST_CASE_REVIEW",
-        "clause": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
-        "excerpt": "You review, item by item, whether each testIntent has a corresponding test that covers it and passes, during the TEST_CASE_REVIEW phase.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "224554a886af16d6",
-        "role": "test-case-reviewer",
-        "line": 32,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "TEST_CASE_REVIEW",
-        "clause": "- The current phase is already TEST_CASE_REVIEW",
-        "excerpt": "- The current phase is already TEST_CASE_REVIEW",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "0685ddd37fbe2121",
-        "role": "test-case-reviewer",
-        "line": 36,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "### Step 1: Get the checklist and testIntent",
-        "excerpt": "### Step 1: Get the checklist and testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "b81c6a7dea0bb78a",
-        "role": "test-case-reviewer",
-        "line": 54,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "⚠ The X-th testIntent has reached the 5-round cap.",
-        "excerpt": "⚠ The X-th testIntent has reached the 5-round cap. The current segment cannot continue review.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "d4da366d7952b3b4",
-        "role": "test-case-reviewer",
-        "line": 57,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "First, reflect: 5 rounds without consensus suggests the testIntent description itself or the checklist breakdown may have problems",
-        "excerpt": "1. First, reflect: 5 rounds without consensus suggests the testIntent description itself or the checklist breakdown may have problems",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "4ab4b33e1b160906",
-        "role": "test-case-reviewer",
-        "line": 76,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "How to review: **read fixture JSON files directly** and check whether the case's language-agnostic test protocol covers the scenario described by the testIntent.",
-        "excerpt": "How to review: **read fixture JSON files directly** and check whether the case's language-agnostic test protocol covers the scenario described by the testIntent. Valid evidence may come from `executor`, `command`, or legacy `execute`; do not pass a case just because \"the JS runner cannot import a non-JS language\" — that only proves the lack of corresponding executor evidence.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "9441500ad4bd56d2",
-        "role": "test-case-reviewer",
-        "line": 79,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test case",
-        "clause": "Find the corresponding test case in the fixture file (matched via `intentRef`)",
-        "excerpt": "1. Find the corresponding test case in the fixture file (matched via `intentRef`)",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "1aea355508c06dac",
-        "role": "test-case-reviewer",
-        "line": 81,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "Verify that `input` / `expect` / `throws` assertions cover the scenario described by the testIntent",
-        "excerpt": "3. Verify that `input` / `expect` / `throws` assertions cover the scenario described by the testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "ea3969e4ea67df37",
-        "role": "test-case-reviewer",
-        "line": 89,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "For each testIntent, call the CLI to record the review result:",
-        "excerpt": "For each testIntent, call the CLI to record the review result:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "16b1080a10f157ae",
-        "role": "test-case-reviewer",
-        "line": 92,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test-case",
-        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "e4c0a0124c53a7cd",
-        "role": "test-case-reviewer",
-        "line": 92,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "test-case-reviewer",
-        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"happy\",\"index\":0,\"pass\":true,\"note\":\"fixture/xxx.json:5 — case covers normal path | severity:info\",\"agent\":\"test-case-reviewer\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "7a0fbfe27d15b61f",
-        "role": "test-case-reviewer",
-        "line": 96,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test-case",
-        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "28b30f16a221e801",
-        "role": "test-case-reviewer",
-        "line": 96,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "test-case-reviewer",
-        "clause": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "excerpt": "proof-or-stop testintent_record '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"CHK-001\",\"lane\":\"edge\",\"index\":0,\"pass\":false,\"note\":\"no matching case found — missing edge case for empty input | severity:high\",\"agent\":\"test-case-reviewer\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "0abf8786d025f306",
-        "role": "test-case-reviewer",
-        "line": 110,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **pass=true**: A corresponding case is found, and the case's executor/command/execute + input/expect covers the scenario described by the testIntent.",
-        "excerpt": "- **pass=true**: A corresponding case is found, and the case's executor/command/execute + input/expect covers the scenario described by the testIntent. **The note must state the reason for passing**: cite the fixture file:line, explain which executor or command verified the behavior described by the intent, and why the assertions are sufficient. Writing only \"ok\" or \"case exists\" is not allowed.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "94b45f906b1828fe",
-        "role": "test-case-reviewer",
-        "line": 113,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "input/expect does not cover the key scenario described by the testIntent",
-        "excerpt": "- The case exists but input/expect does not cover the key scenario described by the testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "21a356d09083be70",
-        "role": "test-case-reviewer",
-        "line": 132,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Do not modify testIntent** (review only, do not change)",
-        "excerpt": "- **Do not modify testIntent** (review only, do not change)",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "19eee2883be0d5b3",
-        "role": "test-case-reviewer",
-        "line": 135,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Do not decide on your own to skip** any testIntent item",
-        "excerpt": "- **Do not decide on your own to skip** any testIntent item",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "09f2d6a94efef7c5",
-        "role": "test-intent",
+        "id": "2035f4c7118375ae",
+        "role": "proof-or-stop-test-intent",
         "line": 2,
         "clauseIndex": 1,
         "occurrence": 1,
         "term": "testIntent",
         "matchedText": "test-intent",
-        "clause": "name: test-intent",
-        "excerpt": "name: test-intent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "29c7cacb4a8518d1",
-        "role": "test-intent",
-        "line": 3,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "description: Adversarially review checklist split quality and write testIntent",
-        "excerpt": "description: Adversarially review checklist split quality and write testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "e995df1982f88702",
-        "role": "test-intent",
-        "line": 12,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "# test-intent agent",
-        "excerpt": "# test-intent agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "5ad74a7b829e9b96",
-        "role": "test-intent",
-        "line": 14,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "You are the test-intent agent.",
-        "excerpt": "You are the test-intent agent. You have two responsibilities, **which must be executed in order**:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "8cb1968f574575eb",
-        "role": "test-intent",
-        "line": 17,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "**Write testIntent for each item** (only after the split passes review)",
-        "excerpt": "2. **Write testIntent for each item** (only after the split passes review)",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "e362eafd72aa3e43",
-        "role": "test-intent",
-        "line": 85,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "re-invoke the test-intent agent",
-        "excerpt": "→ Please have the main agent adjust the checklist, then re-invoke the test-intent agent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "ed749e90910bf7d5",
-        "role": "test-intent",
-        "line": 88,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "**Stop when review fails** — do not proceed to Step 2 to write testIntent.",
-        "excerpt": "**Stop when review fails** — do not proceed to Step 2 to write testIntent. Continue only after the main agent has corrected the checklist.",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "c8cf4ee0a31f9684",
-        "role": "test-intent",
-        "line": 94,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "## Step 2: Identify Item Type and Write testIntent",
-        "excerpt": "## Step 2: Identify Item Type and Write testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "7d1ce167021eee80",
-        "role": "test-intent",
-        "line": 98,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Testable**: involves code behavior changes (functions, CLI commands, UI interactions) → write testIntent",
-        "excerpt": "- **Testable**: involves code behavior changes (functions, CLI commands, UI interactions) → write testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "b724934adbd255aa",
-        "role": "test-intent",
-        "line": 99,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Not testable**: pure documentation updates, configuration changes, process conventions → mark `testIntent: null` with a reason",
-        "excerpt": "- **Not testable**: pure documentation updates, configuration changes, process conventions → mark `testIntent: null` with a reason",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "7ed1c3fa88c0633f",
-        "role": "test-intent",
-        "line": 103,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "024b999e549a07cd",
-        "role": "test-intent",
-        "line": 103,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":null,\"agent\":\"test-intent\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "620a70162b8a9fd0",
-        "role": "test-intent",
-        "line": 106,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "### Writing testIntent",
-        "excerpt": "### Writing testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "d93372834c27a475",
-        "role": "test-intent",
-        "line": 108,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "For testable items, write a three-column testIntent:",
-        "excerpt": "For testable items, write a three-column testIntent:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "11f54fba0388db2b",
-        "role": "test-intent",
-        "line": 114,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "Each testIntent entry is annotated with `type`:",
-        "excerpt": "Each testIntent entry is annotated with `type`:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "f4adf1b53adff7f2",
-        "role": "test-intent",
-        "line": 122,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "When an item involves CLI / pure functions / file I/O and will clearly need fixtures written later, prefer writing testIntent in a reviewer-friendly structure:",
-        "excerpt": "When an item involves CLI / pure functions / file I/O and will clearly need fixtures written later, prefer writing testIntent in a reviewer-friendly structure:",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "596d6a5956c8c5b1",
-        "role": "test-intent",
-        "line": 128,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "TEST_CASE",
-        "matchedText": "test-case",
-        "clause": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
-        "excerpt": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "b449a5de741f3a19",
-        "role": "test-intent",
-        "line": 128,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "TEST_CASE_REVIEW",
-        "matchedText": "test-case-reviewer",
-        "clause": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
-        "excerpt": "\"input\": {\"target\": \"test-case-reviewer\", \"profile\": \"reviewer-quality-v1\"},",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "9c59cbe993dad514",
-        "role": "test-intent",
-        "line": 142,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "0300ef8c211596d7",
-        "role": "test-intent",
-        "line": 142,
-        "clauseIndex": 1,
-        "occurrence": 2,
-        "term": "testIntent",
-        "matchedText": "test-intent",
-        "clause": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "excerpt": "proof-or-stop checklist_update '{\"storyId\":\"<STORY_ID>\",\"itemId\":\"<ITEM_ID>\",\"testIntent\":{\"happy\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"edge\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}],\"adversarial\":[{\"desc\":\"...\",\"type\":\"cli_blackbox\"}]},\"agent\":\"test-intent\"}'",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "50f7297545354c8c",
-        "role": "test-intent",
-        "line": 158,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Do not write code** — only review + write testIntent",
-        "excerpt": "- **Do not write code** — only review + write testIntent",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "5a781e5845d2e884",
-        "role": "test-intent",
-        "line": 159,
-        "clauseIndex": 1,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "- **Do not write testIntent if the review did not pass**",
-        "excerpt": "- **Do not write testIntent if the review did not pass**",
-        "classification": "legacy-prompt-body",
-        "note": "Legacy compatibility prompt; visible until migration or retirement.",
-        "roleStatus": "legacy",
-        "statusClassification": "exempt",
-        "policyStatus": "allowed-role-status",
-        "policyReason": "Role status legacy is explicitly exempt from live-role legacy-vocabulary enforcement."
-      },
-      {
-        "id": "b14377d717e1cef2",
-        "role": "test-intent",
-        "line": 165,
-        "clauseIndex": 2,
-        "occurrence": 1,
-        "term": "testIntent",
-        "matchedText": "testIntent",
-        "clause": "how many testIntent entries you wrote for each item (e.g., CHK-001: 2h/2e/2a)",
-        "excerpt": "2. how many testIntent entries you wrote for each item (e.g., CHK-001: 2h/2e/2a)",
+        "clause": "name: proof-or-stop-test-intent",
+        "excerpt": "name: proof-or-stop-test-intent",
         "classification": "legacy-prompt-body",
         "note": "Legacy compatibility prompt; visible until migration or retirement.",
         "roleStatus": "legacy",
@@ -1718,7 +1006,47 @@
           "excerpt": "- The full text of `docs/story/actives/<storyId>/process-events.jsonl` (dispatch evidence source)"
         },
         {
-          "role": "product-reviewer",
+          "role": "proof-or-stop-review-story-init",
+          "classification": "read-only-reference",
+          "excerpt": "3. `docs/story/actives/<storyId>/background.md` (full text)"
+        },
+        {
+          "role": "proof-or-stop-review-story-init",
+          "classification": "read-only-reference",
+          "excerpt": "4. `docs/story/actives/<storyId>/index.json` — read only the `title` / `description` / `type` / `priority` / `riskSignals` fields"
+        },
+        {
+          "role": "proof-or-stop-review-story-init",
+          "classification": "read-only-reference",
+          "excerpt": "5. `docs/story/actives/<storyId>/checklist.json` — read only `items[].title` / `items[].context`"
+        },
+        {
+          "role": "proof-or-stop-review-story-init",
+          "classification": "other",
+          "excerpt": "- Other story directories (`docs/story/actives/<other-id>/` or `docs/story/archived/`)"
+        },
+        {
+          "role": "proof-or-stop-review-story-init",
+          "classification": "direct-read",
+          "excerpt": "2. **Read background.md**: `Read docs/story/actives/<storyId>/background.md` in full. Note all letter codes, abbreviations, jargon, and where they are first defined, **and mark all factual claims about the existing system** (e.g., \"X only supports Y\", \"all projects have Z\")."
+        },
+        {
+          "role": "proof-or-stop-review-story-init",
+          "classification": "direct-read",
+          "excerpt": "3. **Read index.json**: `Read docs/story/actives/<storyId>/index.json` and extract `title` / `description` / `type` / `priority` / `riskSignals`."
+        },
+        {
+          "role": "proof-or-stop-review-story-init",
+          "classification": "direct-read",
+          "excerpt": "4. **Read checklist.json**: `Read docs/story/actives/<storyId>/checklist.json`, iterate over `items[]`, look only at `title` and `context`."
+        },
+        {
+          "role": "proof-or-stop-review-story-init",
+          "classification": "direct-read",
+          "excerpt": "cat docs/story/actives/<storyId>/init-self-check.json"
+        },
+        {
+          "role": "proof-or-stop-product-reviewer",
           "classification": "read-only-reference",
           "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`"
         }
@@ -1737,21 +1065,21 @@
     ],
     "findings": [
       {
-        "id": "9aaa90a8209bb2f3",
-        "role": "product-reviewer",
-        "line": 48,
-        "references": [
-          "docs/story/actives/"
-        ],
-        "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`",
-        "classification": "read-only-reference",
-        "grandfathered": true,
-        "note": "Exact code-reviewed current story-file reference."
-      },
-      {
         "id": "3dc10ad8ea7eb3c0",
         "role": "proof-or-stop-evaluator",
         "line": 21,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "0bde1c7e688f2ccd",
+        "role": "proof-or-stop-evaluator-cli",
+        "line": 22,
         "references": [
           "docs/story/"
         ],
@@ -1783,6 +1111,18 @@
         "classification": "policy-reminder",
         "grandfathered": false,
         "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "5d84651ff1119fdc",
+        "role": "proof-or-stop-product-reviewer",
+        "line": 48,
+        "references": [
+          "docs/story/actives/"
+        ],
+        "excerpt": "- If available, `docs/story/actives/<storyId>/evidence/live-smoke-transcript.json`",
+        "classification": "read-only-reference",
+        "grandfathered": true,
+        "note": "Exact code-reviewed current story-file reference."
       },
       {
         "id": "e4c44e22234013b5",
@@ -1860,6 +1200,18 @@
         "id": "884936ceaf903acd",
         "role": "proof-or-stop-review-story-init",
         "line": 28,
+        "references": [
+          "docs/story/"
+        ],
+        "excerpt": "- Story operations must use Proof-or-Stop CLI commands. Do not directly read or write story metadata under `docs/story/`, and do not write fixtures directly under `tests/fixtures/`.",
+        "classification": "policy-reminder",
+        "grandfathered": false,
+        "note": "Prompt reminds agents not to bypass CLI-mediated story operations."
+      },
+      {
+        "id": "6ac805b5d795e574",
+        "role": "proof-or-stop-review-topology-critic",
+        "line": 22,
         "references": [
           "docs/story/"
         ],

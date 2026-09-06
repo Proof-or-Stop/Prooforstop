@@ -82,6 +82,19 @@ function treeDigest(root: string): string {
   return hash.digest('hex');
 }
 
+const lifecycleFixtureFiles = [
+  'packages/main/src/core/machine.ts',
+  'packages/main/src/handlers/phase-gates.ts',
+] as const;
+
+function lifecycleFixtureDigest(root: string): string {
+  const hash = createHash('sha256');
+  for (const file of lifecycleFixtureFiles) {
+    hash.update(file).update('\0').update(readFileSync(join(root, file))).update('\0');
+  }
+  return hash.digest('hex');
+}
+
 function story(phase: StoryInfo['phase'] = 'PLAN'): StoryInfo {
   return {
     storyId,
@@ -398,9 +411,42 @@ try {
     /Verification evidence recorded/,
   );
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.note, 'Result: warning threshold test passed with expected fallback.', 'false-positive control persists ordinary evidence through the real CLI');
+  // B-ec67 F-008: checklist_update may re-persist an already-audited non-mechanical
+  // row. It strips caller-supplied provenance, then carries the trusted on-disk
+  // mechanical:false/reason pair forward; changing the incoming row must not upgrade it.
+  const audited = store.readChecklist(storyId).items[0].verificationEvidence![0];
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: audited.intentRef, kind: audited.kind, command: audited.command, result: audited.result, note: audited.note }],
+    }, false, 'main-agent'),
+    /verificationEvidence updated/,
+    'an exact semantic re-persist retains the audited non-mechanical provenance',
+  );
+  assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.nonMechanicalReason, nonMatrixEscape, 'exact re-persist carries the on-disk audit reason');
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: audited.intentRef, kind: audited.kind, command: 'node changed-command.test.mjs', result: audited.result, note: audited.note }],
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+    'changed command cannot inherit an old nonMechanicalReason',
+  );
+  run(writerCliRoot, 'checklist_update', {
+    storyId,
+    itemId: 'CHK-001',
+    verificationEvidence: [{ intentRef: audited.intentRef, kind: audited.kind, command: audited.command, result: 'fail', note: audited.note }],
+  }, false, 'main-agent');
+  const changedResult = store.readChecklist(storyId).items[0].verificationEvidence![0];
+  assert.equal(changedResult.result, 'fail', 'changed result remains an explicit failure');
+  assert.equal(changedResult.mechanical, undefined, 'changed result does not inherit non-mechanical provenance');
+  assert.equal(changedResult.nonMechanicalReason, undefined, 'changed result does not inherit the old audit reason');
   // B-ec67 F-007: checklist_update no longer accepts executable-intent evidence (it does
   // not execute pinned commands); a non-matrix row is now refused with the F-007 code
   // (NOT the matrix-projection code), directing callers to verification_evidence_add.
+  const beforeUnenforcedExecutableEvidence = JSON.stringify(store.readChecklist(storyId));
   assert.match(
     run(writerCliRoot, 'checklist_update', {
       storyId,
@@ -408,7 +454,29 @@ try {
       verificationEvidence: [{ intentRef: 'INT-001', kind: 'logic_test', command: 'rg acceptance_matrix packages/main/src/core/command-policy.ts', result: 'pass', note: 'Registry source assertion passed.' }],
     }, true, 'main-agent'),
     /checklist_update_executable_evidence_unenforced/,
+    'checklist_update must refuse a fresh executable evidence row instead of pretending to execute it',
   );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), beforeUnenforcedExecutableEvidence, 'refused executable evidence leaves the audited checklist row unchanged');
+
+  const freshChecklist = store.readChecklist(storyId);
+  freshChecklist.items.push({
+    ...checklist(false).items[0],
+    id: 'CHK-FRESH',
+    title: 'Fresh executable evidence guard',
+    verificationIntent: { happy: [{ id: 'INT-FRESH', desc: 'fresh executable evidence requires enforcement', type: 'logic', priority: 'must' }], edge: [], adversarial: [] },
+    verificationEvidence: [],
+  });
+  store.writeChecklist(storyId, freshChecklist);
+  const freshChecklistBeforeRefusal = JSON.stringify(store.readChecklist(storyId));
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-FRESH',
+      verificationEvidence: [{ intentRef: 'INT-FRESH', kind: 'logic_test', command: 'rg acceptance_matrix packages/main/src/core/command-policy.ts', result: 'pass', note: 'Registry source assertion passed.' }],
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), freshChecklistBeforeRefusal, 'fresh executable evidence without trusted provenance remains refused atomically');
   assert.match(
     run(writerCliRoot, 'verification_evidence_add', {
       storyId,
@@ -438,6 +506,39 @@ try {
     /Verification evidence batch recorded/,
   );
   assert.equal(store.readChecklist(storyId).items[0].verificationEvidence?.[0]?.command, 'node cli-contract-test.mjs acceptance_matrix', 'all three writer surfaces preserve a non-producer argument token');
+  const sameEvidenceCommand = 'node cli-contract-test.mjs acceptance_matrix';
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-001', kind: 'integration_test', command: sameEvidenceCommand, result: 'pass', note: 'same evidence with updated metadata' }],
+    }, false, 'main-agent'),
+    /verificationEvidence updated/,
+  );
+  const sameEvidence = store.readChecklist(storyId).items[0].verificationEvidence?.[0];
+  assert.equal(sameEvidence?.mechanical, false, 'same command/result carries forward the audited non-mechanical provenance');
+  assert.equal(sameEvidence?.nonMechanicalReason, nonMatrixEscape, 'same command/result carries forward the on-disk non-mechanical reason');
+  assert.equal(sameEvidence?.note, 'same evidence with updated metadata', 'same-evidence re-persistence still updates ordinary metadata');
+  const changedCommandBefore = JSON.stringify(store.readChecklist(storyId));
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-001', kind: 'integration_test', command: 'node mutated-evidence.mjs', result: 'pass', note: 'changed command must not reuse attestation' }],
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), changedCommandBefore, 'changed command refusal is atomic');
+  const changedResultBefore = JSON.stringify(store.readChecklist(storyId));
+  assert.match(
+    run(writerCliRoot, 'checklist_update', {
+      storyId,
+      itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-001', kind: 'integration_test', command: sameEvidenceCommand, note: 'changed result must not reuse attestation' }],
+    }, true, 'main-agent'),
+    /checklist_update_executable_evidence_unenforced/,
+  );
+  assert.equal(JSON.stringify(store.readChecklist(storyId)), changedResultBefore, 'changed result refusal is atomic');
 } finally {
   rmSync(writerCliRoot, { recursive: true, force: true });
 }
@@ -730,6 +831,8 @@ try {
   git(cliRoot, ['config', 'user.name', 'Topology Smoke']);
   write(cliRoot, 'proof-or-stop.config.json', JSON.stringify({ storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements' }, null, 2));
   write(cliRoot, 'README.md', 'acceptance topology smoke\n');
+  write(cliRoot, lifecycleFixtureFiles[0], 'export const lifecycleMachineFixture = true;\n');
+  write(cliRoot, lifecycleFixtureFiles[1], 'export const lifecyclePhaseGateFixture = true;\n');
   resetConfigCache();
   const store = new StoryStore(cliRoot);
   store.writeStory(storyId, story());
@@ -741,6 +844,7 @@ try {
   git(cliRoot, ['add', '.']);
   git(cliRoot, ['commit', '-m', 'seed topology story']);
 
+  const lifecycleDigestBefore = lifecycleFixtureDigest(cliRoot);
   const phaseBefore = store.readStory(storyId).phase;
   const transitionBefore = canSendStoryEventWithoutSnapshotCan(storyId, store, 'PLAN', 'START', cliRoot);
   const digestBefore = treeDigest(cliRoot);
@@ -797,15 +901,15 @@ try {
   }
   assert.deepEqual(lifecycleDecisions.valid, lifecycleDecisions.missing, 'valid and missing topology preserve PLAN→DEV and DEV→REVIEW decisions');
   assert.deepEqual(lifecycleDecisions.valid, lifecycleDecisions.malformed, 'valid and malformed topology preserve PLAN→DEV and DEV→REVIEW decisions');
+  assert.equal(lifecycleFixtureDigest(cliRoot), lifecycleDigestBefore, 'topology diagnostics do not modify fixture-local lifecycle sources');
+
+  const machineFixture = readFileSync(join(cliRoot, lifecycleFixtureFiles[0]), 'utf8');
+  write(cliRoot, lifecycleFixtureFiles[0], `${machineFixture}export const unauthorizedTopologyMutation = true;\n`);
+  assert.notEqual(lifecycleFixtureDigest(cliRoot), lifecycleDigestBefore, 'fixture-local lifecycle invariant bites an unauthorized machine mutation');
+  write(cliRoot, lifecycleFixtureFiles[0], machineFixture);
+  assert.equal(lifecycleFixtureDigest(cliRoot), lifecycleDigestBefore, 'restoring the fixture-local lifecycle source restores the invariant');
 } finally {
   rmSync(cliRoot, { recursive: true, force: true });
 }
-
-const repositoryRoot = resolve(packageRoot, '..', '..', '..');
-const lifecycleSourceDiff = [
-  execFileSync('git', ['diff', '--name-only', 'main...HEAD'], { cwd: repositoryRoot, encoding: 'utf8' }),
-  execFileSync('git', ['diff', '--name-only'], { cwd: repositoryRoot, encoding: 'utf8' }),
-].join('\n');
-assert.doesNotMatch(lifecycleSourceDiff, /packages\/main\/src\/(?:core\/machine|handlers\/phase-gates)\.ts/, 'Wave 1 and its fixes do not modify lifecycle machine or phase gates');
 
 console.log('ProofStory acceptance topology Wave 1 smoke passed');

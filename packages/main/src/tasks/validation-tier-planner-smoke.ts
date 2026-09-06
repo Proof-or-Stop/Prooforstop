@@ -447,10 +447,7 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
   assert.notEqual(relativeUnit.id, absoluteUnit.id, 'the portable side hashes the declared literal, so the two declarations differ');
 });
 
-testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is cwd-neutral (equals an explicit "." declaration) and carries no absolute-cwd warning', () => {
-  // B-83aa CHK-004: this case used to pin the real commandSetDigest to a literal sha, which moved
-  // whenever any story registered a validate.commands entry. The property under test is cwd
-  // neutrality, so it is asserted structurally against the same inventory instead of a literal.
+testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolute-cwd warning', () => {
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
   assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
   const commands = configuredValidationCommands(repoRoot);
@@ -461,6 +458,29 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   // every entry must reach the same digest: the real inventory is not bound to any checkout location.
   const explicitDot = buildValidationCommandInventory({ commands: commands.map((entry) => ({ ...entry, cwd: '.' })) });
   assert.equal(real.commandSetDigest, explicitDot.commandSetDigest, 'the real commandSetDigest must equal the digest of the same commands with an explicit "." cwd');
+  // origin/main merge 3 (B-1482): moved again to 511e1906... because origin added one
+  // more validate.commands entry; the union is now 128. Verified before repinning that
+  // NO origin-only entry was dropped. Earlier notes retained below.
+  // origin/main merge 2 (B-9a49): moved again to d30d7b92... because origin added one
+  // more validate.commands entry, taking the union from 126 to 127. Verified before
+  // repinning that NO origin-only entry was dropped this time (the check that caught the
+  // previous merge losing two). Earlier note retained below.
+  // origin/main merge 1: moved to f23779fb... because validate.commands really did change,
+  // as the maintenance note above requires me to state. Our main carried 124 entries and
+  // origin 122, diverging BOTH ways: ours had cli-surface-smoke,
+  // command-ownership-contract, verify-orphan-surface and `npm --prefix packages/graph
+  // run check`; origin had validation-tier-planner-smoke and single-owner-extraction-smoke.
+  // The first merge kept only our four and DROPPED origin's two, which is a real
+  // regression by those entries' own labels -- validate.commands is the planner's command
+  // universe, so a suite missing from it makes every evidence pin naming it resolve to
+  // pinned_command_missing, and one of the dropped suites is this very file. Restored
+  // both, giving the 126-entry union, and repinned to what that union produces through
+  // the same configuredValidationCommands -> buildValidationCommandInventory path.
+  // B-212f CHK-001/CHK-003 register original parity, shared predicate proof and
+  // post-DONE snapshot smoke: the complete inventory grows from 128 to 131.
+  // B-e256 CHK-002 registers the global CLI executable-bit regression smoke;
+  // keep the exact digest pin in addition to the structural cwd-neutrality proof above.
+  assert.equal(real.commandSetDigest, 'cdf402cd529e5cafef0d377c588bb406d029fa4a2e97d02c63975304ca3fc293', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

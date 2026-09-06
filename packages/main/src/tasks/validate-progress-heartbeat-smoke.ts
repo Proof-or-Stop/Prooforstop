@@ -33,6 +33,7 @@ import { tmpdir } from 'node:os';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { StoryStore } from '../core/store.js';
 import type { ChecklistData, StoryInfo } from '../core/types.js';
 import { stripCanonicalBrandEnvTwins } from '../core/brand-env.js';
@@ -48,6 +49,7 @@ const HEARTBEAT_MS = 250;
 // their guards wide so only rows explicitly named "max" exercise a tight max.
 const NON_MAX_OUTER_TIMEOUT_MS = 120_000;
 const NON_MAX_HARNESS_CEILING_MS = 60_000;
+const DESCENDANT_PID_READY_TIMEOUT_MS = 30_000;
 
 type CliResult = {
   status: number | null;
@@ -168,6 +170,14 @@ function setupFixture(): { root: string; started: string; finished: string } {
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-heartbeat-'));
   const started = join(root, 'command-started.txt');
   const finished = join(root, 'command-finished.txt');
+  write(root, '.gitignore', [
+    'command-started.txt',
+    'command-finished.txt',
+    '.lattice/activity.jsonl',
+    '.lattice/locks/',
+    '.proof-or-stop/locks/',
+    '',
+  ].join('\n'));
   write(root, 'silent-active-validate.mjs', `
 import { writeFileSync } from 'node:fs';
 
@@ -192,11 +202,18 @@ writeFileSync(finished, 'finished ' + Date.now() + '\\n', 'utf8');
       }],
     },
   }, null, 2) + '\n');
+  // Routine validation now binds lock and evidence paths through Git even for
+  // an unscoped invocation.  Make the direct heartbeat fixture a clean Git
+  // repository, just as the story_advance fixture below already does.
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  commitAll(root, 'seed validate heartbeat fixture');
   return { root, started, finished };
 }
 
 function setupTimeoutFixture(): { root: string } {
-  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-validate-heartbeat-timeout-'));
+  const root = mkdtempSync(join(tmpdir(), 'lattice-validate-heartbeat-timeout-'));
+  write(root, '.gitignore', '.proof-or-stop/locks/\n');
   write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
@@ -209,6 +226,9 @@ function setupTimeoutFixture(): { root: string } {
       }],
     },
   }, null, 2) + '\n');
+  git(root, ['init']);
+  git(root, ['checkout', '-B', 'main']);
+  commitAll(root, 'seed validate timeout fixture');
   return { root };
 }
 
@@ -216,16 +236,8 @@ function setupStoryAdvanceFixture(): { root: string; storyId: string; started: s
   const fixture = setupFixture();
   const { root } = fixture;
   const storyId = 'B-heartbeat-advance';
-  write(root, '.gitignore', [
-    'command-started.txt',
-    'command-finished.txt',
-    '.proof-or-stop/activity.jsonl',
-    '.proof-or-stop/locks/',
-    '',
-  ].join('\n'));
+
   write(root, 'packages/main/src/index.ts', 'export const heartbeatAdvanceSmoke = true;\n');
-  git(root, ['init']);
-  git(root, ['checkout', '-B', 'main']);
   commitAll(root, 'seed heartbeat story_advance fixture');
 
   const now = '2026-07-07T00:00:00.000Z';
@@ -256,16 +268,18 @@ function setupStoryAdvanceFixture(): { root: string; storyId: string; started: s
     }],
   } as ChecklistData);
   commitAll(root, 'seed heartbeat story metadata');
-  persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root });
+  persistFixtureCertificationWindow(store, storyId, root);
   return { ...fixture, storyId };
 }
 
+function persistFixtureCertificationWindow(store: StoryStore, storyId: string, root: string): void {
+  const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+  assert.ok(causalInputHashes, 'synthetic certification fixture must derive causal input hashes');
+  persistSyntheticAdmittedWindowForTest({ store, storyId, projectRoot: root, causalInputHashes });
+}
+
 function admitSyntheticWindow(root: string, storyId: string): void {
-  persistSyntheticAdmittedWindowForTest({
-    store: new StoryStore(root),
-    storyId,
-    projectRoot: root,
-  });
+  persistFixtureCertificationWindow(new StoryStore(root), storyId, root);
 }
 
 function startCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): CliRun {
@@ -903,9 +917,11 @@ async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
   try {
     const result = await runValidate(root, NON_MAX_HARNESS_CEILING_MS);
     assert.equal(result.status, 0, `validate command should return JSON even for failed validation:\n${result.stderr}`);
+    const parsed = parseValidateJson(result.stdout);
+    assert.equal(parsed.commands?.length, 1, 'canonical timeout fixture must schedule its configured command');
+    assert.equal(parsed.commands[0].label, 'true-hang', 'the configured hanging command must actually execute');
     assert.ok(!result.stderr.includes('without output; forcing exit'), `true hang should fail by command timeout, not idle watchdog:\n${result.stderr}`);
     assert.match(result.stderr, /validate timeout: command 1\/1 true-hang: command=.* args=.* timeoutMs=1000 elapsedMs=/);
-    const parsed = parseValidateJson(result.stdout);
     assert.equal(parsed.allPass, false, 'true hang validate JSON should fail closed');
     assert.equal(parsed.failureKind, 'infra_failure', 'true hang should be classified as infra_failure');
     const command = parsed.commands?.find((entry) => entry.label === 'true-hang');

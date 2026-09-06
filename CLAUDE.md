@@ -315,6 +315,54 @@ curl -X POST $API/bridge/replay -d '[{"event":"MOVE","input":{"row":7,"col":7}}]
 # 或直接打开 Dashboard URL（.proof-or-stop-serve.json 里的 dashboard 字段）
 ```
 
+## Story 图谱（`proof-or-stop graph`）
+
+交互式 story + evidence 图谱，读本仓 story 状态、建全文索引、起 HTTP 服务、开浏览器。
+由 B-3e16 从独立仓 `proof-or-stop-graph` 迁入，行为与源仓一致（未重写 web shell）。
+
+```bash
+proof-or-stop graph                  # 默认端口 8731，自动开浏览器
+proof-or-stop graph --port=9000      # 显式端口
+proof-or-stop graph --no-open        # 不开浏览器
+proof-or-stop graph --json           # 只打印状态 JSON 并退出（不起服务）
+proof-or-stop graph --root=<dir>     # 指定仓库（默认从 cwd 向上找）
+proof-or-stop graph --story=B-xxxx   # 直接打开该 story 的 dossier 详情页
+```
+
+| Flag | 含义 |
+|---|---|
+| `--root=<dir>` | 要读的仓库（默认：从 cwd 向上找最近的 Proof-or-Stop 根） |
+| `--port=<n>` | HTTP 端口（默认 8731） |
+| `--no-open` | 不启动浏览器 |
+| `--json` | 打印状态 JSON 后退出，不起服务 |
+| `--story=<id>` | 直接打开该 story 的 dossier 详情页（`/story/<id>`），而不是图谱首页。未知 id 在服务器 listen 之前就被拒绝，并列出相近候选（与 `--root` 的既有先例一致） |
+
+页面提供 d3 图谱视图、FTS5 全文搜索、单 story detail drawer、mermaid 相位流程图，以及
+timeline playback（含 MP4/GIF 导出，需 Chrome/Edge）。
+
+**Story dossier（详情页）**：drawer 头部的 `open dossier` 按钮、或命令行 `--story=<id>`，打开
+单个 story 的全窗口详情页——finding map、七相 lifecycle loop、依赖 web、checklist/outcome、
+findings feed、dispatch swarm、pulse 图和 wire log。它有自己的 URL `/story/<id>`（与 `/` 同一个
+server、同一份 app.html），可直接按路径打开、分享、用浏览器前进后退驱动。全部面板由客户端从
+既有的 `/api/story` 明细派生，不新增服务端接口。
+
+**worktree 优先级是关键**：从 PLAN 起 story 的实时产物在它自己的 linked worktree 里，主
+checkout 只留 INIT_CHECK 快照。只读主 checkout 会把所有在飞 story 都报成 INIT_CHECK。
+
+**不脏工作树**：Proof-or-Stop 的 DONE 门禁要求干净工作树，所以索引缓存放在用户 cache 目录
+（按仓库根路径的 sha256 分目录），不写任何文件进被检查的仓库——因此它**不需要**
+`runtime-artifact-registry` 条目（`serve` 需要，因为它往项目里写 `.lattice-serve.json`）。
+
+**代码位置**：`packages/graph`（子包），`packages/main` 只有一个 thin handler 调它的
+library surface（`createApp` / `startServer`）。`packages/graph/assets/` 是 gitignored 的
+build 产物（`app.html` 由 `scripts/build-web.mjs` 组装，vendor bundle 从 node_modules 复制），
+由 `npm --prefix packages/graph run build` 重新生成，**不入 git**。
+
+**Node 版本**：全文索引用 `node:sqlite`，要求 Node ≥ 22.5（`packages/graph` 是本仓第一个
+声明 `engines` 的包）。
+
+设计决策真相源：`docs/requirements/decisions/graph-command-migration.md`。
+
 ## 目录结构
 
 所有源码统一放在 `src/` 下。逻辑核心放 `core/`（平台无关），表现层放 `shells/`。
@@ -417,7 +465,7 @@ project/
 
 **DONE 门禁**：进入 DONE 前要求 story 分支已包含 main 的所有提交（`git merge-base --is-ancestor`）。DONE 必须在期望的 `story/<storyId>` 分支对应 worktree 中执行；若 linked worktree 当前分支不匹配或不是 story 分支，CLI 会在写入 DONE 状态、merge、删除分支或清理 worktree 前拒绝。有冲突在 worktree 里 `git merge main` 解决。
 
-**Sub agent 工作目录约定**：sub agent（`proof-or-stop-implementer` 等）在主 agent 的 worktree 中工作，通过 `proof-or-stop validate` 验证后提交。
+**Sub agent 工作目录约定**：sub agent（proof-or-stop-implementer 等）在主 agent 的 worktree 中工作，通过 `proof-or-stop validate` 验证后提交。
 
 ### 多 session 写协调（设计真相源）
 
@@ -444,6 +492,10 @@ Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 roll
 1. **PLAN→DEV 推进时**：列出全部 relatedDocs 去重清单
 2. **`checklist_update` 标 done 时**：列出该 item 的关联文档
 3. **DONE 推进时**：列出 `git diff main...HEAD` 没出现过的文档
+
+### English authoring and legacy relatedDocs recovery
+
+English-artifact gates scan all recursively scanned string leaves of story metadata. The listed examples (`excludes`, `files`, `reason`, `verificationEvidence`) are non-exhaustive. Recover leftover CJK in relatedDocs and other leaves before REVIEW→TEST.
 
 ## PLAN 阶段产物
 
@@ -530,7 +582,7 @@ Proof-or-Stop 支持多 worktree 并行，写权限的跨 session 协调按 roll
 
 **触发**：所有 INIT → INIT_CHECK 转换（`story_advance INIT_CHECK`）。其他来源（IDEA→INIT_CHECK 等）不门禁。
 
-**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "proof-or-stop-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `.proof-or-stop/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
+**机制**：`story_create` 完成后停在 INIT 阶段，主 agent 必须 `Agent({ subagent_type: "proof-or-stop-review-story-init" })` spawn reviewer 审查 background + checklist 初版。reviewer 调 `proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"<self-id>","issues":[...]}'` 写带签名的 `docs/story/actives/B-xxx/init-check.json`。`story_advance INIT_CHECK` 在 xstate guard `canEnterInitCheck` + `getGuardFailureReason` 双层校验。
 
 **签名域**（真相源是 [init-check-gate.ts](packages/main/src/core/init-check-gate.ts) 的 `INIT_CHECK_SIGNATURE_DOMAIN`；`describeInitCheckSignatureDomain()` 渲染当前列表，别照抄下面这行）：
 
@@ -659,6 +711,28 @@ proof-or-stop scope_question_resolve '{
 - **PLAN→DEV gate**：`story_review` 把未 resolved 的 OQ 作为 blocker（`type: scope_open_question_unresolved`），必须全部 resolve 才能进 DEV
 - 老 scope-check.json 无 `openQuestions` 字段时视为空集，不触发 gate
 
+### acceptance basis 与 pre_review_check 的顺序约束（B-45a0 F-435/F-438）
+
+**先 `acceptance_basis_generate`，再 `pre_review_check`，顺序不能反。**
+
+`pre_review_check` 会把当时的 plan `basisDigest` 快照进 `priorPlanBasisDigest`，
+而 `basisDigest` 覆盖 `binding`（headHash/materialHash/storyFilesHash）与 `receiptRef`。
+所以事后再跑一次 `acceptance_basis_generate`——哪怕 acceptance 语义完全没变——也会移动那个 digest，
+把刚拿到的 PASS 打成 `PR_COVERAGE_BASIS_CHANGED`（通常伴随 `PR_ARTIFACT_TAMPERED`），
+而 `storyFilesHash` 根本没动。
+
+这是**操作顺序陷阱，不是代码缺陷**：fail-closed 符合 Section 9 Rule 3「never a silent pass」（Rule 9 讲的是 coverage-basis freshness，不是这条）。
+但补救只能靠重跑 `pre_review_check`，而它是 `allowedPhases: ['DEV']`——
+在 REVIEW 撞上这个的 story 无法自愈，必须回 DEV。
+
+代码里已有 `acceptanceCoverageBasisSemanticDigest`（剥掉 `basisDigest`/`binding`/`receiptRef`）
+专门识别这种 hash-only rebinding，`verifyAcceptanceBasisReceipt` 也在用；
+但要接进 `PR_COVERAGE_BASIS_CHANGED` 的比较需要持久化一个 semantic digest，
+因为 `priorPlanBasisDigest` 只存原始 hash。
+
+真相源：`docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md`
+Section 9 Rule 10。
+
 ### TEST→DONE 硬门槛（delivery-check）
 
 TEST 阶段自动 spawn `proof-or-stop-review-delivery` 产出 `delivery-check.json`。`story_advance DONE` 校验：
@@ -768,7 +842,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 
 **正常通道**（> 2 项 或 有 riskSignals）：
 - **主 agent 不写业务代码**，只做 PLAN + plan.md + 分配 + 验收
-- 代码由 `proof-or-stop-implementer` subagent 写（在主 agent 的 worktree 里，不额外开 worktree）
+- 代码由 proof-or-stop-implementer subagent 写（在主 agent 的 worktree 里，不额外开 worktree）
 - REVIEW 阶段 reviewer 检查 commit author——正常通道全是主 agent 写的 → critical finding → 卡住 REVIEW→TEST
 
 **通道实时计算**：不存储，每次进 DEV 时从 checklist.items.length + story.riskSignals 实时判定。checklist_add/remove 改变 items 数量后自动生效。PLAN 阶段新增 item 必须提供 `reason`（≥10 字符）作为 replan/scope audit 信号，避免用 remove+add 静默绕过 title/context 冻结。
@@ -776,7 +850,7 @@ checklist + plan.md 写完后必须 `story_review` 通过（issueCount=0）才�
 ### 主 agent 行为准则
 
 - **正常通道必须分配**：用 `Agent({ subagent_type: "proof-or-stop-implementer", prompt: "..." })` 分配
-- **fresh worker per item**：每个 CHK-xxx 派一个新的 `proof-or-stop-implementer`，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
+- **fresh worker per item**：每个 CHK-xxx 派一个新的 proof-or-stop-implementer，不复用上下文。prompt 只给该 item 需要的最小信息（storyId + plan.md 对应章节 + 必读文件），不给整段会话历史
 - **fresh worker 机械边界**：prompt-only worker claims are not mechanical evidence。可审计证据只来自 `proof-or-stop dispatch` / dispatch/process-event/commit evidence / commit author 等结构化事实。Proof-or-Stop cannot mechanically prove true subagent context isolation，只能证明可观察 assignment evidence；prompt 里说“已派 fresh worker”不能作为 gate 证据。
 - **并行条件**：只有同时满足以下条件的 item 才能并行派发：(1) DependsOn 为空或依赖已 done (2) Files 写集不重叠 (3) 不共享稀缺资源。不满足时串行
 - **REVIEW Finding handling**: after reviewers return, use `finding_list` to confirm that every Finding was registered through `finding_add`. Every Finding reported only in reviewer prose must be redispatched for structured registration; prose alone is not a Finding. Process each registered Finding. Decide current-Story repair versus routing from applicability, gate impact, and evidence, never from severity alone or a desire to make the repository globally green.
@@ -890,7 +964,7 @@ executable intent（logic|cli|browser）的 evidence 会真的 **执行** pinned
 
 | 约束 | 规则 |
 |---|---|
-| 上限 | `EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 7_200_000`（2h）——即 `proof-or-stop.config.json` 给 DONE-required 根套件的同一预算；**边界含等号**（恰好等于上限允许） |
+| 上限 | `EVIDENCE_COMMAND_TIMEOUT_CAP_MS = 21_600_000`（6h）——覆盖完整的历史回放与成对动态验证保证活动；**边界含等号**（恰好等于上限允许） |
 | 超上限 | **拒绝**（`[command_timeout_above_cap]`），**不静默 clamp** |
 | 理由 | `commandTimeoutReason` 必填且 trim 后 ≥ 30 字符（同 `nonMechanicalReason` 口径），否则 `[command_timeout_reason_too_short]`；只给理由不给预算 → `[command_timeout_reason_without_override]` |
 | gate 可见 | 武装的预算记在 **tool-owned receipt** 上：`receipt.timeoutMs` 恒记录，raise 时另加 `receipt.timeoutOverride{timeoutMs, defaultTimeoutMs, reason}`。receipt 块被所有 caller-facing schema `.strip()`，故**无法被 caller 注入**到实际按默认预算挣到的 receipt 上；handler 输出也追加 `timeoutOverride=<n>ms` |
@@ -1061,6 +1135,71 @@ proof-or-stop dispatch '{"storyId":"B-xxx","clusterId":"CL-001"}'  # 输出 impl
 
 > 这里是短摘要。**canonical 详细版（含完整枚举检查清单与 incident 溯源）在 `docs/requirements/decisions/story-lifecycle.md` 的「合并态组合审查」节** —— 以那份为准，本段只作快速提示。
 
+## Defect triage discipline
+
+Fix major or acceptance-blocking defects on the spot. Record non-major, non-blocking
+defects with evidence and defer them. Never widen scope to chase all-green.
+
+### Step 1 — classify before acting
+
+For every new defect found during development, first decide: is this a major risk to
+the current story, or does it block its acceptance? Do not start fixing before this
+question is answered. The reviewer's job is to find; the main agent's job is to triage.
+
+### Step 2 — fix in the current story
+
+Mandatory when the defect is any of:
+
+- critical / high severity
+- security, data integrity, or destructive-compatibility impact
+- blocks the current story's acceptance, REVIEW, TEST, or DONE
+- makes already-registered evidence false (a selector that cannot match the real
+  verdict, a receipt claiming `pass` for a command that failed) — this is the subtlest
+  case and the easiest to wave past
+
+Action: fix, add the regression test, `finding_resolve` with mechanical evidence — the
+command run and its actual output, not a description of it.
+
+### Step 3 — record and defer
+
+Applies when the defect is medium / low **and** all of:
+
+- not a direct regression of the current acceptance scope
+- does not affect the user's core outcome
+- does not distort a lifecycle gate
+
+Action: preserve reproduction steps, evidence, blast radius, and a recommended fix.
+Record it in a finding / gap / backlog entry and name the follow-up story that owns it.
+Do not widen the current story's scope. Convenience is not a reason to fix out-of-scope
+work.
+
+### Step 4 — deferral must be traceable, and is reversible
+
+A deferral decided verbally does not count. It needs a durable, followable record:
+`finding_add`, `gap_log`, or a follow-up `story_create` with the evidence linked, plus a
+line in this story's resolution or summary saying it was recorded and deferred.
+
+If later evidence shows the severity was underestimated, or the defect turns out to
+block acceptance after all, pull it back into the current story immediately. Step 3 is a
+classification, not a commitment.
+
+### Why rule 3 has teeth
+
+Green is not the goal; trustworthy evidence is. Never make a check pass by relaxing its
+decision rule, widening an allowlist, or bending acceptance inputs to fit your own change.
+
+B-45a0 case: adding files to `REPLAY_ADMISSION_NONEXECUTING_PATHS` looked like a cheap
+way to make the replay admission pass. Measuring the actual diff showed the drift was in
+`story-aware-validation.ts` — where `discoverValidationInventory` and
+`compileValidationCatalog` are defined — i.e. producer-side drift, precisely what that
+allowlist refuses by design. The honest fix was re-running the campaign for a fresh report.
+
+Every out-of-scope fix is also another material change: it can invalidate an open review
+inventory epoch, re-stale acceptance surfaces, and force another review round.
+
+One-line test: **if this defect goes unfixed, is this story's acceptance conclusion
+false?** Yes → step 2. No → step 3.
+
 ## Debugging Contract
 
 遇到 `proof-or-stop validate` / reviewer finding / bug 反馈报红时，**禁止直接猜修**，必须先走 Systematic Debugging：
@@ -1123,7 +1262,7 @@ pre-push hook 的核心设计约束：**不调用旧 CLI alias**。原因：hook
 
 - 临时文件用 `mktemp -d` 创建唯一临时目录，`trap '... cleanup' EXIT` 在 hook 退出时清理（避免并发 push 同名互覆盖、`/tmp` 累积）。`mktemp` 失败 → push 被拒
 - 先 `git rev-parse --show-toplevel` 拿 REPO_ROOT
-- **远端写入纪律**：读取 pre-push stdin 的 ref update；任何非 `refs/heads/main` 的 `refs/heads/*` 直接拒绝。`refs/heads/main` 也默认拒绝，除非 `.proof-or-stop/tmp/remote-push-approval.json` 的 schema / remote / branch / exact SHA / TTL 全匹配；匹配后 hook 会消费该 one-shot approval。Proof-or-Stop 并行开发只使用本地 worktree/local branch，完成后合回本地 main、清理 worktree，并停止在本地。
+- **远端写入纪律**：读取 pre-push stdin 的 ref update；任何非 `refs/heads/main` 的 `refs/heads/*` 直接拒绝。`refs/heads/main` 也默认拒绝，除非由 `proof-or-stop release_approve_push --confirm` 创建的 `.proof-or-stop/tmp/remote-push-approval.json` 的 schema / remote / branch / exact SHA / TTL 全匹配；匹配后 hook 会消费该 one-shot approval。Hook 仅为已创建且未过期的审批保留 `.lattice/tmp/remote-push-approval.json` 的 legacy read compatibility。Proof-or-Stop 并行开发只使用本地 worktree/local branch，完成后合回本地 main、清理 worktree，并停止在本地。
 - **Proof-or-Stop 自举仓检测**：
   1. `$REPO_ROOT/packages/main/package.json` 文件存在——不存在则非 Proof-or-Stop 仓，立即 `exit 0`（对非 Proof-or-Stop 仓零摩擦）
   2. **`node` 可用性检测**：用 `command -v node` 探测。`node` 缺失时 **fail-closed**——无法判断本仓是否 Proof-or-Stop 自举仓，向 stderr 打印明确警告并 `exit 1` 拒绝 push（不静默 `exit 0`，否则 tsc gate 会被无声绕过）

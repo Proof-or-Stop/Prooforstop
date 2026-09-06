@@ -1,0 +1,56 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5a88",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git status",
+    "node",
+    "npm run build",
+    "npm test",
+    "proof-or-stop",
+    "rg",
+    "sed"
+  ],
+  "allowedTools": [
+    "proof-or-stop",
+    "shell"
+  ],
+  "allowedPaths": [
+    ".githooks/pre-push",
+    "package-lock.json",
+    "package.json",
+    "packages/lab/**",
+    "packages/lab/package-lock.json",
+    "packages/main/**",
+    "packages/main/package-lock.json",
+    "packages/main/templates/agents/**",
+    "packages/utils/**",
+    "packages/utils/package-lock.json",
+    "scripts/**",
+    "tests/**"
+  ],
+  "excludedCommands": [
+    "git checkout --",
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [
+    "network",
+    "production"
+  ],
+  "excludedPaths": [
+    ".git/**",
+    ".worktrees/**",
+    "docs/story/**",
+    "tests/fixtures/**"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "仅实现 B-5a88 CHK-001..CHK-007；保留既有未相关工作区改动；不改归档 story JSON，不执行远端发布或破坏性清理",
+  "createdAt": "2026-08-20T04:48:37.549Z",
+  "updatedAt": "2026-08-20T04:48:37.549Z",
+  "_hash": "af8496d7661c78b6c8faa22dc622aa6ef7e2c62187538b4891df8c4883b18b8e"
+}

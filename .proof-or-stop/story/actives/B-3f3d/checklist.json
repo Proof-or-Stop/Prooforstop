@@ -5,45 +5,984 @@
       "title": "Represent the frozen review-inventory epoch and its receipt as signed gate-consumed process facts",
       "context": "Create one deep owner for epochId, cutoff hashes, scope digest, required lanes, wave identities, host and prompt identities, terminal states, verified finding-set digest, coverage or read evidence, saturation result, state OPEN FINALIZED INVALIDATED CANCELLED, and bounded-budget adjudication. Expose supported start and status operations. Status must return epochId, frozen cutoff, state, required lanes, current wave, per-lane progress or terminal state, verified/new finding counts, blockers and one exact next command. Do not reuse audit-only signatureTag as gate authority without a new validated canonical duplicate or finding-family disposition contract. The receipt proves inventory saturation on the frozen candidate, not correctness of later remediation.",
       "relatedDocs": [
-        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
         "docs/evidence-integrity-program-spec.md",
         "docs/requirements/decisions/story-lifecycle.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "The operator can start an inventory epoch and inspect one consolidated status view showing the frozen cutoff, lane and wave progress, blocker codes and the exact next command; the finalized signed receipt is recognizable and cannot be confused with final implementation approval."
+      "status": "done",
+      "startTime": "2026-08-14T14:06:16.709Z",
+      "endTime": "2026-08-14T14:58:53.875Z",
+      "userSees": "After start, the terminal includes the exact fields \"Review inventory epoch: <id>\", \"State: OPEN\", \"Frozen cutoff: <hash>\" and \"Next: lattice review_inventory_status --storyId=<id>\"; status prints one row per required lane and exactly one \"Next:\" command.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-001-H1",
+            "desc": "Starting inventory on a REVIEW candidate creates exactly one unique epoch bound to the current story, review round, headHash, materialHash, storyFilesHash, scope digest, required lanes, wave identity, host identity and prompt identity; the returned signed artifact verifies through the canonical gate verifier.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-001-H2",
+            "desc": "Inventory status for an OPEN epoch deterministically shows epochId, frozen cutoff hashes, state, required lanes, current wave, every lane progress or terminal state, verified and newly verified finding counts, blocker codes, and exactly one executable next command.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-001-H3",
+            "desc": "After complete clean saturation, finalization emits a signed ReviewInventoryReceipt whose finding-set and coverage digests match the recorded epoch and which the transition gate recognizes only as inventory-completeness authority, never as approval of remediated code or authorization for TEST.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-001-E1",
+            "desc": "Begin or finalize fails closed with an actionable blocker when cutoff identity, scope digest, required lane set, host or prompt identity, coverage evidence, wave terminal state, or bounded-budget adjudication is missing or internally inconsistent.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-001-E2",
+            "desc": "Repeated begin and status calls across process reloads preserve one authoritative epoch and stable identities without creating duplicate OPEN epochs or changing the frozen cutoff; terminal FINALIZED, INVALIDATED and CANCELLED projections remain distinguishable.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-001-E3",
+            "desc": "Explicit cancellation records an auditable CANCELLED terminal state, retains incomplete verdicts only as advisory history, cannot be finalized later, and status provides the exact command to begin a fresh epoch.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-001-A1",
+            "desc": "Tampering with any signature, story or round binding, cutoff hash, scope digest, lane or wave identity, host or prompt identity, finding-set digest, or coverage digest causes canonical verification and every gate consumer to reject the artifact.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-001-A2",
+            "desc": "A valid receipt replayed across another story, review round, epoch, material lineage, or after terminal consumption is rejected; duplicate epoch IDs, duplicate lane identities and duplicate receipt submissions cannot increase coverage or satisfy saturation.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-001-A3",
+            "desc": "An audit-only signatureTag, prose PASS, raw finding claim, or forged duplicate or finding-family disposition cannot be promoted into gate authority without the separately validated canonical signed contract.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/store.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/registry.ts",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/command-policy.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/process-fact-levels.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B3F3D-001-H1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:15:59.042Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-001-H2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:15:59.700Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-001-H3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:00.312Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-001-E1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:00.846Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-001-E2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:01.455Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-001-E3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:02.075Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-001-A1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:02.747Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-001-A2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:03.499Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-001-A3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies signed epoch/receipt identity, status phases, tamper/replay rejection, cancellation, and inventory-only authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:04.306Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "958279600987ae96b8112740a185a96094b0ab0473a22e48fae09630dab68a8e",
+        "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
+        "headHash": "61ec7348081114eca0f0b217f1e65de26132db08",
+        "attestedAt": "2026-08-14T14:58:54.102Z",
+        "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
+      }
     },
     {
       "id": "CHK-002",
       "title": "Enforce the OPEN-epoch material mutation barrier at every authoritative write boundary",
       "context": "While an epoch is OPEN, reject edits or commits that change source, tests, verifier, workflow policy, prompt contract or other review-subject material. Prompt guidance is insufficient: handler admission, Codex or Claude mutation hooks where supported, Git or commit checks, finding and pass binding, and lifecycle transitions must consume the same epoch fact. Revalidate the cutoff before every receipt, finalization and transition. Any unmediated material drift fail-closes the epoch to INVALIDATED, makes prior verdicts advisory only, and status reports the changed lineage plus an exact recovery command: cancel and start a fresh epoch or return to DEV. Explicit cancel preserves unfinished verdicts only as advisory history.",
       "relatedDocs": [
-        "AGENTS.md#流程事实双层契约",
-        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+        "AGENTS.md",
+        "docs/evidence-integrity-program-spec.md",
         "docs/requirements/decisions/story-files-hash-material-drift.md",
-        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+        "docs/guide-scope-guard.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "An attempted material change during OPEN is rejected with the epoch ID, changed subject and recovery command; if drift bypasses an admission boundary, the next authoritative operation visibly invalidates the epoch instead of silently accepting stale reviews."
+      "status": "done",
+      "startTime": "2026-08-14T14:58:57.282Z",
+      "endTime": "2026-08-14T14:59:00.427Z",
+      "userSees": "A blocked change prints \"OPEN_REVIEW_INVENTORY_MATERIAL_MUTATION\", \"Epoch: <id>\", \"Changed lineage: <old> -> <new>\" and one \"Recovery:\" command; bypassed drift changes status to the exact state \"INVALIDATED\".",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-002-H1",
+            "desc": "While an epoch is OPEN, every authoritative handler, supported Codex or Claude mutation hook, commit guard and lifecycle transition rejects a change to source, tests, verifier, workflow policy, prompt contract or other review-subject material and reports epochId, changed subject, blocker code and an exact recovery command.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-002-H2",
+            "desc": "Before accepting each lane receipt, pass, finding, wave completion, finalization or transition, the consumer recomputes and compares the frozen material lineage; unchanged material proceeds and remains bound to the same epoch cutoff.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-002-H3",
+            "desc": "Explicit cancel safely releases the material barrier, records unfinished verdicts as advisory history only, and status directs the operator to start a fresh epoch or return to DEV without allowing the cancelled epoch to authorize remediation.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-002-E1",
+            "desc": "A non-material metadata-only update classified by the canonical material registry does not spuriously invalidate the epoch, while any story-owned material or review-contract change does invalidate it; classification and lineage are visible in status.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-002-E2",
+            "desc": "Material drift that bypasses admission is detected at the next authoritative operation, atomically changes OPEN to INVALIDATED, rejects that operation, marks every prior verdict advisory, shows old and current lineage, and emits exactly one recovery command.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-002-E3",
+            "desc": "Concurrent receipt and mutation attempts at the cutoff boundary cannot produce a mixed state: exactly one wins under authoritative serialization and the other is rejected or invalidates the epoch with no partially accepted gate evidence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-002-A1",
+            "desc": "Direct filesystem edits, alternate write handlers, git commit paths, generated-file changes and unsupported hook bypasses cannot yield a valid current receipt; revalidation catches resulting material drift even when the preventative hook did not run.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-002-A2",
+            "desc": "A time-of-check/time-of-use mutation inserted after a successful precheck but before receipt persistence or transition consumption is rejected through an atomic or second lineage check and cannot leave a gate-valid stale artifact.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-002-A3",
+            "desc": "Forged old-cutoff passes, findings, duplicate dispositions or a manually restored hash cannot revive INVALIDATED or CANCELLED state, suppress the drift record, or authorize finalization or remediation DEV.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/prewrite-guard.ts",
+          "packages/main/src/core/prewrite-guard-check.ts",
+          "packages/main/src/handlers/prewrite-guard.ts",
+          ".claude/hooks/lattice-scope-pretool.cjs",
+          ".codex/hooks/lattice-scope-pretool.cjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/prewrite-guard-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B3F3D-002-H1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:04.919Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-002-H2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:05.535Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-002-H3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:06.072Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-002-E1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:06.559Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-002-E2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:07.037Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-002-E3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:07.530Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-002-A1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:08.027Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-002-A2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:08.544Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        },
+        {
+          "intentRef": "B3F3D-002-A3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies OPEN mutation denial, stale cutoff invalidation, TOCTOU/freshness rejection, cancellation recovery, and no stale authority.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:09.090Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.098Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "6dd44b82f74464667cbb4a20bf7f5b84d504a2c284abf6d856d422dfe456326a",
+        "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
+        "headHash": "e1e7d5d68916c07de04b10f534b84a746ada87a6",
+        "attestedAt": "2026-08-14T14:59:00.650Z",
+        "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
+      }
     },
     {
       "id": "CHK-003",
       "title": "Require complete discovery lenses and a verified zero-new-finding saturation wave before inventory finalization",
       "context": "Run all scope and risk selected required lanes on the same cutoff, then run the completeness critic over the verified finding set. A wave is clean only when every required lane has a valid terminal receipt, mechanical coverage or bounded read evidence is complete, raw findings and duplicate claims are independently verified, and the wave adds zero new verified findings. Status exposes current wave, lane progress, new verified findings, remaining blockers and next dispatch or finalize command. Repeating the same reviewer, missing output, timeout, cancellation, unsupported host or prose-only PASS cannot satisfy saturation. New findings reopen another bounded wave on the same material; exhaustion visibly requires replan, decomposition, root-cause escalation or human adjudication and provides the corresponding command, never PASS.",
       "relatedDocs": [
-        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
+        "docs/evidence-integrity-program-spec.md",
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "The operator sees whether discovery is still finding new verified issues, which lanes or critic remain, and why finalization is blocked; budget exhaustion produces a visible replan or human-adjudication action rather than a manufactured PASS."
+      "status": "done",
+      "startTime": "2026-08-14T15:00:06.371Z",
+      "endTime": "2026-08-14T15:00:09.757Z",
+      "userSees": "Status prints \"Wave: n/max\", \"New verified findings: n\", every lane as \"pending|complete|blocked\", \"Completeness critic: pending|complete\", blocker codes, and either one exact dispatch command or \"Next: lattice review_inventory_finalize --storyId=<id>\".",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-003-H1",
+            "desc": "On one unchanged cutoff, every scope/risk-selected required lane completes with a valid signed terminal receipt, mechanical coverage or bounded read evidence is complete, the completeness critic evaluates the verified finding set, and a zero-new-verified-finding wave alone permits finalization.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-003-H2",
+            "desc": "When a wave adds one or more independently verified findings, the immutable aggregate finding-set digest grows, finalization remains blocked, and status provides the exact next-wave dispatch command while keeping all waves on the same material cutoff.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-003-H3",
+            "desc": "At every step, status exposes current wave and bounded budget, per-lane progress or terminal outcome, coverage/read-evidence completeness, raw versus verified and newly verified counts, critic state, blocker codes and the single actionable dispatch or finalize command.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-003-E1",
+            "desc": "Missing output, timeout, cancellation, unsupported host, unavailable reviewer or prose-only PASS remains a visible nonterminal blocker and cannot count as lane coverage, clean saturation or permission to finalize.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-003-E2",
+            "desc": "Semantically duplicate raw findings are counted only after an independent canonical finding-family disposition verifies identity and evidence; an unresolved duplicate neither inflates the new count nor disappears from blockers.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-003-E3",
+            "desc": "If the configured wave budget is reached with new verified findings or incomplete lanes/critic, status enters a bounded-exhaustion blocker and offers replan, decomposition, root-cause escalation or human adjudication; no receipt or PASS is emitted.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-003-A1",
+            "desc": "Repeating the same reviewer, host identity, prompt identity, lane receipt or wave result under a different label cannot satisfy a missing required lane, two-host assurance or the zero-new saturation requirement.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-003-A2",
+            "desc": "A forged duplicate disposition, suppressed raw finding, omitted required file or evidence segment, missing critic, or fabricated coverage/read claim causes finalization to fail closed under canonical validation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-003-A3",
+            "desc": "Changing severity, marking verified findings advisory, exhausting retries, or manually setting a clean counter cannot manufacture a zero-new wave or bypass required-lane, evidence and critic predicates.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/adversarial-review.ts",
+          "packages/main/src/core/adversarial-review-round.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "packages/main/src/handlers/reviewer-batch.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B3F3D-003-H1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:10.040Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-003-H2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:10.607Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-003-H3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:11.478Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-003-E1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:12.090Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-003-E2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:12.674Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-003-E3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:13.416Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-003-A1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:14.160Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-003-A2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:14.926Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-003-A3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies every required lane, independent signed critic receipt, duplicate/timeout/budget blockers, two-wave zero-new saturation, and no manufactured PASS.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:15.527Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "743838604d73689f7f10edf808b13b9b7d8465da68fa8d7b88e51a3565aa674d",
+        "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
+        "headHash": "8a1281513f60244b4348796c0035641a79601e5c",
+        "attestedAt": "2026-08-14T15:00:09.952Z",
+        "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
+      }
     },
     {
       "id": "CHK-004",
@@ -55,25 +994,1121 @@
         "docs/requirements/decisions/three-round-two-host-review-escalation-execution-plan.md",
         "docs/requirements/decisions/lattice-lifecycle-readiness-check-execution-plan.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "The operator gets one deliberate remediation transition containing the complete frozen finding set, then sees which fresh final-review lanes are required on the repaired material and an actionable reason whenever a transition is rejected."
+      "status": "done",
+      "startTime": "2026-08-14T15:00:13.605Z",
+      "endTime": "2026-08-14T15:00:21.433Z",
+      "userSees": "The accepted rollback prints \"Remediation authorized once by epoch <id>\", the aggregate finding count/digest, and \"This receipt does not authorize TEST\"; final review prints \"Impacted required lanes:\" followed by the exact lanes and corrective command on rejection.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-004-H1",
+            "desc": "A fresh FINALIZED ReviewInventoryReceipt authorizes exactly one REVIEW-to-remediation-DEV transition carrying the immutable complete verified finding set; the transition output identifies epoch, lineage and findings and explicitly states that the defective cutoff is not certified for TEST.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-004-H2",
+            "desc": "After remediation creates new material, the inventory receipt becomes historical, dependency closure computes and displays impacted required final-review lanes, and every such lane supplies current signed evidence on the repaired head before REVIEW can pass.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-004-H3",
+            "desc": "When remediation introduces no regression, one fresh final-review epoch with all impacted lane, host and escalation requirements satisfied can advance normally; each rejected transition reports a stable blocker and exact corrective command.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-004-E1",
+            "desc": "A provably narrow repair uses the canonical dependency closure to select impacted lanes without reducing required host assurance; if scope, policy impact or closure is unknown, the system fails closed to the full required lane set.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-004-E2",
+            "desc": "Missing, stale, INVALIDATED, CANCELLED, wrong-round, wrong-story, wrong-lineage or already-consumed inventory receipts reject remediation DEV and show whether to finalize, begin a fresh inventory epoch, replan or return to REVIEW.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-004-E3",
+            "desc": "Explicit cancel or replan remains auditable, cannot be confused with remediation authorization, preserves prior evidence as historical only, and leaves lifecycle state with exactly one valid next action.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-004-A1",
+            "desc": "Replaying one valid inventory receipt for a second DEV transition, using it to enter TEST directly, or treating its defective-cutoff saturation as implementation approval is rejected at every transition consumer.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-004-A2",
+            "desc": "The historical round-2-plus single-receipt condition cannot claim sufficient final review when any impacted lane, required host, escalation verdict or repaired-material binding is absent or stale.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-004-A3",
+            "desc": "A post-remediation regression or scope expansion found by any final-review lane reopens the appropriate finding and remediation flow, invalidates clean-final-review claims, and cannot be hidden by old passes, narrow-closure claims or the inventory receipt.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B3F3D-004-H1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:16.228Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-004-H2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:16.814Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-004-H3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:17.617Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-004-E1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:18.192Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-004-E2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:18.765Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-004-E3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:19.310Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-004-A1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:19.858Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-004-A2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:20.412Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-004-A3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Behavioral inventory smoke verifies one-time remediation receipt consumption, live cutoff match, consume-before-phase-write safety, replay rejection, and fresh final-review invariants.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:21.037Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "93c9e32e389be2f921775cb507982e6b5ae1c4312100d06bfe9bca61060e7b16",
+        "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
+        "headHash": "21ca063b1ebc399fe378515cbe1026dcd0c32ae3",
+        "attestedAt": "2026-08-14T15:00:21.631Z",
+        "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
+      }
     },
     {
       "id": "CHK-005",
       "title": "Prove the epoch reduces review churn without weakening escaped-defect assurance",
       "context": "Replay the deterministic B-cdf6 RR-043 through RR-046 failure shape, whose baseline accepted a material commit after the first lane and forced at least five later reviewer redispatches RR-047 through RR-051. Acceptance requires exactly one frozen discovery epoch before remediation, zero accepted material commits while OPEN, zero stale old-cutoff passes accepted, one aggregated remediation-DEV transition, and at most one final-review epoch when the injected remediation introduces no regression; redispatches caused by first-finding mutation must fall from at least five to zero. Required lane and host counts must not decrease, all historical critical/high cases must still be caught, and escaped critical/high findings, historical mutation survival, post-cert source commits, stale acceptance or budget-manufactured PASS must remain zero. Cover timeout, cancelled lane, duplicate identity, forged duplicate disposition, scope expansion, related drift, stale receipt, wave-budget exhaustion and post-remediation regression. Report before/after cycles, reviewer executions and wall-time projection. Round reduction is a metric, never a gate input.",
       "relatedDocs": [
-        "docs/requirements/decisions/claude-session-b-cdf6-review-convergence-analysis-and-optimization.md",
-        "docs/requirements/decisions/codex-session-performance-and-workflow-optimization-plan.md",
+        "docs/evidence-integrity-program-spec.md",
         "docs/requirements/decisions/lattice-workflow-efficiency-baseline.md",
         "docs/requirements/decisions/testing-completeness.md"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null,
-      "userSees": "A reproducible report compares the B-cdf6 baseline with the new workflow and fails unless mutation-driven redispatches drop from at least five to zero while reviewer/host coverage is unchanged and every stated quality invariant remains at zero regressions."
+      "status": "done",
+      "startTime": "2026-08-14T15:00:26.388Z",
+      "endTime": "2026-08-14T15:00:31.352Z",
+      "userSees": "The replay report prints \"Baseline mutation-driven redispatches: >=5\", \"New mutation-driven redispatches: 0\", \"Accepted OPEN commits: 0\", \"Remediation DEV transitions: 1\", \"Clean final-review epochs: <=1\", unchanged lane/host counts, and every quality-regression counter as 0; otherwise it prints FAIL.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-005-H1",
+            "desc": "A deterministic B-cdf6 RR-043-through-RR-046 replay records the baseline first-finding material mutation and at least five later reviewer redispatches RR-047-through-RR-051, then records exactly one frozen discovery epoch, zero accepted OPEN material commits, one aggregated remediation DEV transition and zero mutation-driven redispatches under the new flow.",
+            "type": "cli",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-B3F3D-REPLAY-REPORT",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-B3F3D-REPLAY-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+                  "expectedSymbolOrFact": "replay",
+                  "fileDeclarationRef": "CHK-005:files:test:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-B3F3D-REPLAY-CONSUMER",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+                    "expectedSymbolOrFact": "runReplayAcceptance",
+                    "fileDeclarationRef": "CHK-005:files:test:0"
+                  }
+                ],
+                "outputFactRef": "process-fact:review-inventory-efficiency-report"
+              }
+            ],
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-005-H2",
+            "desc": "With remediation introducing no regression, the replay completes in at most one fresh final-review epoch while required lane count, required host count and escalation policy equal the baseline and every historical critical/high defect is still detected.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-005-H3",
+            "desc": "The reproducible report shows before/after discovery/remediation cycles, reviewer executions, mutation-driven redispatches and wall-time projection, and fails unless baseline redispatches are at least five, new redispatches are zero, and all declared quality-invariant counters remain zero.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-005-E1",
+            "desc": "Replay variants for timeout, cancelled lane, unsupported host, duplicate identity and forged duplicate disposition remain blocked or explicitly adjudicated and never improve the efficiency result by being counted as successful coverage.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-005-E2",
+            "desc": "Replay variants for scope expansion, related material drift, stale receipt and post-remediation regression require fresh appropriate review, preserve lane/host assurance, and do not count necessary regression work as eliminated mutation-driven redispatch.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-005-E3",
+            "desc": "Repeated runs from the same fixture and configuration produce the same baseline and proposed counters, and any missing baseline event, ambiguous attribution or nonzero quality invariant makes the comparison inconclusive or failed rather than PASS.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-005-A1",
+            "desc": "Reducing reviewer lanes, host diversity, evidence freshness, completeness-critic coverage or escalation requirements cannot satisfy the efficiency gate even if elapsed time or raw review count improves.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-005-A2",
+            "desc": "Injected historical critical/high mutations, stale old-cutoff pass acceptance, post-cert source commit, escaped critical/high finding and historical mutation survival are each detected; every corresponding accepted or escaped counter must remain exactly zero.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-005-A3",
+            "desc": "Wave-budget exhaustion, metric relabeling, excluding failed reviewers, merging multiple redispatches into one label, or using round reduction as a gate fact cannot manufacture PASS or the required at-least-five-to-zero result.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          }
+        ]
+      },
+      "files": {
+        "modify": [
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B3F3D-005-H1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:21.672Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-005-H2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:22.427Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-005-H3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:23.317Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-005-E1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:23.887Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-005-E2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:24.433Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-005-E3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:25.014Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-005-A1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:25.558Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-005-A2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:26.084Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-005-A3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Current deterministic B-cdf6 replay and adversarial variants satisfy the exact efficiency and quality invariant for this intent.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:16:26.572Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "43b44909bdc4c4dce8e3b8ac1968588fe4b4bfc5dbbc9d328d5fd72829ed0eb5",
+        "storyFilesHash": "122782eb81cd2427c8b5ffe8d52b86da8fbc62821bfa6a4b092701a05bdf88b2",
+        "headHash": "5217cce749d4e9f3893b2052ddc62ebd4503c198",
+        "attestedAt": "2026-08-14T15:00:30.189Z",
+        "materialHash": "ddba52115f886e1c95333945c2fa89eb362cc1535f489093512616d5d0ae0151"
+      }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Implement canonical post-remediation impact closure and repair the broken evidence provenance link",
+      "context": "The current remediation made every later review round require all active lanes and removed the old targeted guidance. That preserves assurance but violates CHK-004 H2/E1 and the Story time-saving promise. Compute impacted final-review lanes from repaired material and canonical dependency closure, fail closed to all required lanes when closure, scope, or policy impact is unknown, never reduce required host assurance, and expose selected lanes and reason in operator status. Replace the decision document link to an excluded untracked B-cdf6 analysis file with tracked authoritative RR, Finding, and commit provenance.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "docs/requirements/decisions/review-assurance-floor-execution-plan.md",
+        "docs/requirements/decisions/story-lifecycle.md"
+      ],
+      "userSees": "After remediation, status prints Final-review lanes with the lane list and Selection: dependency-closure for a proven narrow repair, or Selection: full-set with unknown impact when it fails closed; every displayed source link resolves inside the tracked repository.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/handlers/transition-effects.ts",
+          "packages/main/src/handlers/reviewer-list.ts",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/parallel-decomposition-gate-integration-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-14T16:16:00.976Z",
+      "endTime": "2026-08-14T16:41:48.062Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "B3F3D-006-H1",
+            "desc": "For a repair whose changed files and canonical dependency closure prove a narrow impact, final-review selection contains exactly the impacted active reviewer lanes, excludes only demonstrably unrelated lanes, records the closure inputs and reason, and preserves the same required host count and host-diversity policy.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
+          },
+          {
+            "id": "B3F3D-006-H2",
+            "desc": "Operator status deterministically prints `Final-review lanes: <ordered lane list>` and `Selection: dependency-closure (<machine-derived reason>)` for a proven narrow repair, plus one exact next command; the displayed lanes equal the gate-consumed selection.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
+          },
+          {
+            "id": "B3F3D-006-H3",
+            "desc": "The tracked review-inventory decision document cites repository-resolvable authoritative RR identifiers, Finding identifiers and exact commit provenance for the B-cdf6 failure, and contains no dependency on the excluded untracked analysis document.",
+            "type": "docs",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "B3F3D-006-H3 docs/provenance: PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "id": "B3F3D-006-E1",
+            "desc": "If changed scope, policy impact, dependency closure, source inventory, or material lineage is missing, unsupported, ambiguous or stale, selection fails closed to the complete active required-lane set, keeps required host assurance unchanged, and status prints `Selection: full-set` with the specific unknown-impact reason.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
+          },
+          {
+            "id": "B3F3D-006-E2",
+            "desc": "Canonical closure is deterministic across ordering and duplicate inputs, follows transitive and shared-dependency impacts, never emits inactive or duplicate lanes, and cannot select an empty set for a material remediation unless a separately authoritative policy explicitly proves that outcome.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
+          },
+          {
+            "id": "B3F3D-006-E3",
+            "desc": "A post-remediation regression, newly discovered dependency, or scope expansion invalidates the prior narrow selection, broadens or recomputes required lanes on current material, reopens the finding/remediation path, and updates status without accepting stale passes.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "B3F3D-006-A1",
+            "desc": "A forged, unsigned, cross-story, cross-round, wrong-head, wrong-material, wrong-storyFilesHash or otherwise stale impact-closure artifact cannot narrow final review; every consumer rejects it or falls back to the full required-lane set.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
+          },
+          {
+            "id": "B3F3D-006-A2",
+            "desc": "The historical round-2-plus `any one current receipt` shortcut cannot reappear: REVIEW remains blocked when any selected impacted lane, required host verdict, escalation result or current-material binding is missing, even if one valid pass exists.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+              "selector": "\"result\": \"PASS\""
+            }
+          },
+          {
+            "id": "B3F3D-006-A3",
+            "desc": "Path aliases, renames, symlinks, ignored or untracked files, fabricated RR/Finding labels, abbreviated or nonexistent commits, and links outside the tracked repository cannot be used either to hide an impacted lane or to satisfy the decision-document provenance check.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+              "selector": "review inventory real handler smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "B3F3D-006-H1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Signed narrow repair selects the exact impacted lanes and preserves host assurance.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5be18cb13b0b666214007d988545a33e847a2a36c8c5be5a88345b3c1e84650e",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB3F3D-006-H3 docs/provenance: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:18:11.915Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-006-H2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Status and gate consume the same ordered selection with one next action.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5be18cb13b0b666214007d988545a33e847a2a36c8c5be5a88345b3c1e84650e",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB3F3D-006-H3 docs/provenance: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:20:02.679Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-006-H3",
+          "kind": "docs_check",
+          "file": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Real handler smoke mechanically verifies tracked RR/finding/commit provenance and excludes the untracked analysis source.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5be18cb13b0b666214007d988545a33e847a2a36c8c5be5a88345b3c1e84650e",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB3F3D-006-H3 docs/provenance: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:21:52.056Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-006-E1",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Unknown, dirty, untracked, rename, ignored, or opaque impact falls back to the full lane set.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5be18cb13b0b666214007d988545a33e847a2a36c8c5be5a88345b3c1e84650e",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB3F3D-006-H3 docs/provenance: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:23:51.223Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-006-E2",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Dependency closure is deterministic, transitive, unique, active-only, and nonempty.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5be18cb13b0b666214007d988545a33e847a2a36c8c5be5a88345b3c1e84650e",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB3F3D-006-H3 docs/provenance: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:25:30.406Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-006-E3",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Dependency or scope expansion invalidates and recomputes the current-material selection.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5be18cb13b0b666214007d988545a33e847a2a36c8c5be5a88345b3c1e84650e",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB3F3D-006-H3 docs/provenance: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:27:09.717Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-006-A1",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Unsigned, cross-story, wrong-round, wrong-head, wrong-material, and stale selections are rejected.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5be18cb13b0b666214007d988545a33e847a2a36c8c5be5a88345b3c1e84650e",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB3F3D-006-H3 docs/provenance: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:28:50.588Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-006-A2",
+          "kind": "integration_test",
+          "file": "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+          "result": "pass",
+          "note": "Replay preserves lanes 3 to 3 and hosts 2 to 2 with no round-two any-one shortcut.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "61fe19f295be5782c8abf7c21b1c9d4a3107029c5da684d4a5184641661d4892",
+            "outputTail": "Baseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:28:51.067Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        },
+        {
+          "intentRef": "B3F3D-006-A3",
+          "kind": "logic_test",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+          "result": "pass",
+          "note": "Traversal, symlink, rename, ignored, untracked, and false provenance inputs fail closed.",
+          "headHash": "21748007f7e5e70ac2be21749c3b9a3180213efd",
+          "materialHash": "d137260b802ec305a109369e0e47b95dc80afc5fc3d38946d873b8cb76b42f92",
+          "storyFilesHash": "37e6b2d2d8913cf42686c0bb2e2b774eb7605aafb7d961f04ff182833896f4d2",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5be18cb13b0b666214007d988545a33e847a2a36c8c5be5a88345b3c1e84650e",
+            "outputTail": "⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nB3F3D-006-H3 docs/provenance: PASS\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\n⚠ lattice.config.json is deprecated; rename it to proof-or-stop.config.json (the deprecated name is still read, but only the canonical name is written).\nreview inventory real handler smoke: PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-08-20T07:30:23.053Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-08-20T07:30:23.099Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "b44e1fcf35e06b4315648920ae32e5944d9e07c8213db528e0ba8e4465348210",
+        "storyFilesHash": "85c33bf8f53cbaa4a652f2f16793c8b4169f748c061277e4979bd468074c9015",
+        "headHash": "38c711311f0950dd0c822a47c36a2bc5280dd5f9",
+        "attestedAt": "2026-08-14T16:41:48.237Z",
+        "materialHash": "86319ce328a0d827e39c7e8b8926a87572032c8ddf606f3c2fe27ceef794a5f1"
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-14T14:06:16.709Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "DEV implementation started by dispatched lattice-implementer",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T14:58:53.875Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T14:58:57.282Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation completed in commits 23d9bf2939, c346bf7f4b, and 42963332a4; recording truthful lifecycle before completion.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T14:59:00.427Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:00:06.371Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation completed in commits 23d9bf2939, c346bf7f4b, and 42963332a4; recording truthful lifecycle before completion.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:00:09.757Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:00:13.605Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation completed in commits 23d9bf2939, c346bf7f4b, and 42963332a4; recording truthful lifecycle before completion.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:00:21.433Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:00:26.388Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implementation completed in commits 23d9bf2939, c346bf7f4b, and 42963332a4; recording truthful lifecycle before completion.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T15:00:30.007Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by lattice-implementer; all nine must intents have tool-executed PASS evidence from the behavioral review-inventory smoke.",
+      "agent": "lattice-implementer"
+    },
+    {
+      "timestamp": "2026-08-14T16:07:52.281Z",
+      "phase": "PLAN",
+      "itemId": "CHK-006",
+      "action": "add",
+      "from": "pending",
+      "to": "pending",
+      "reason": "Round-4 scope review found one unimplemented CHK-004 promise and one broken tracked evidence link; add an explicit remediation slice before returning to DEV.",
+      "addedTitle": "Implement canonical post-remediation impact closure and repair the broken evidence provenance link",
+      "addedContext": "The current remediation made every later review round require all active lanes and removed the old targeted guidance. That preserves assurance but violates CHK-004 H2/E1 and the Story time-saving promise. Compute impacted final-review lanes from repaired material and canonical dependency closure, fail closed to all required lanes when closure, scope, or policy impact is unknown, never reduce required host assurance, and expose selected lanes and reason in operator status. Replace the decision document link to an excluded untracked B-cdf6 analysis file with tracked authoritative RR, Finding, and commit provenance."
+    },
+    {
+      "timestamp": "2026-08-14T16:16:00.976Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Dispatched lattice-implementer is implementing the approved canonical impacted-lane closure and tracked provenance repair."
+    },
+    {
+      "timestamp": "2026-08-14T16:41:48.062Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "All nine CHK-006 verification intents have current tool-executed or docs evidence on 38c711311f."
     }
   ]
 }

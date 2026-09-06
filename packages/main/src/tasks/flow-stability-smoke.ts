@@ -137,6 +137,9 @@ function writeAcceptanceBasisDiscoveryFixture(root: string): void {
   ].join('\n'));
   write(root, 'packages/main/src/core/process-fact-registry.ts', 'export const acceptance_basis_generate = "acceptance_basis read-only receipt verification and diagnostic rendering boundary";\n');
   write(root, 'packages/main/src/core/acceptance-topology.ts', 'export const acceptanceTopology = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/core/review-inventory-epoch.ts', 'export const reviewInventoryEpoch = "acceptance_basis acceptance_basis_generate";\n');
+  write(root, 'packages/main/src/handlers/review-inventory.ts', 'export const reviewInventory = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/agent-dispatch-registry.ts', 'export const agentDispatchRegistry = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/pre-review-check.ts', 'export const preReviewCheck = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'packages/main/src/core/pre-review-live-proof.ts', 'export const preReviewLiveProof = "acceptance_basis acceptance_basis_generate";\n');
@@ -752,6 +755,19 @@ function assertFlowFactPolicyRegistry(): void {
   const express = getProcessFactRegistryEntry('flow-policy:express-verification-policy');
   assert.equal(express?.kind, 'flow-policy');
   assert.equal(hasProcessFactSemantic('flow-policy:express-verification-policy', 'verification-policy'), true);
+
+  const finishDecision = getProcessFactRegistryEntry('runtime:done_finish_decision_presence');
+  assert.equal(finishDecision?.level, 'L4');
+  assert.match(finishDecision?.consumerGate ?? '', /storyMachine\.canFinish DONE gate/);
+  assert.match(finishDecision?.consumerGate ?? '', /done_closure\/done_prepare preflight/);
+  assert.equal(hasProcessFactSemantic('runtime:done_finish_decision_presence', 'blocker-state'), true);
+
+  const reviewerVerdict = getProcessFactRegistryEntry('runtime:done_phase_agnostic_reviewer_verdict');
+  assert.equal(reviewerVerdict?.level, 'L4');
+  assert.match(reviewerVerdict?.producer ?? '', /evaluateReviewVerdict/);
+  assert.match(reviewerVerdict?.consumerGate ?? '', /storyMachine\.canFinish DONE gate/);
+  assert.match(reviewerVerdict?.consumerGate ?? '', /done_closure\/done_prepare preflight/);
+  assert.equal(hasProcessFactSemantic('runtime:done_phase_agnostic_reviewer_verdict', 'freshness-policy'), true);
 
   assert.equal(
     isPassOnlyReviewFindingRecord({
@@ -2423,8 +2439,11 @@ async function assertStoryAdvanceReviewEchoOmitsRetiredChannel(): Promise<void> 
       scanRoot: join(root, 'packages/main'),
     }).story_advance({ storyId, phase: 'REVIEW' });
 
-    assert.match(output, /Active reviewers: concept, quality, test-coverage/);
-    assert.doesNotMatch(output, /proof-or-stop-review-channel/);
+    assert.match(
+      output,
+      /Active reviewers: proof-or-stop-review-concept \(legacy alias: lattice-review-concept\), proof-or-stop-review-quality \(legacy alias: lattice-review-quality\), proof-or-stop-review-test-coverage \(legacy alias: lattice-review-test-coverage\)/,
+    );
+    assert.doesNotMatch(output, /lattice-review-channel/);
     assert.doesNotMatch(output, /channel \(normal channel\)/);
   } finally {
     process.chdir(oldCwd);
@@ -3093,7 +3112,7 @@ function assertDoneClosureProjectionSeparatesAuthority(): void {
     }, storyId);
     const byId = new Map(runbook.blockers.map(row => [row.id, row]));
 
-    assert.equal(runbook.schemaVersion, 'lattice.done_closure.v1');
+    assert.equal(runbook.schemaVersion, 'proof-or-stop.done_closure.v1');
     assert.equal(runbook.phase, 'TEST');
     assert.equal(runbook.canAttemptDone, false, 'TEST PASS with missing closure artifacts must not be DONE-ready');
     assert.equal(byId.get('test-evidence')?.status, 'pass');
@@ -4155,17 +4174,41 @@ async function assertPhaseGatesAndEffectsExtraction(): Promise<void> {
       priority: 'medium', createdAt: now, startedAt: now, endedAt: null,
       currentReviewRound: now, events: [],
     });
+    store.writeChecklist(storyId, {
+      items: [{
+        id: 'CHK-001',
+        title: 'Configured validation failure reaches the gate',
+        context: 'Minimal checklist required for the verifier to execute the configured failing command.',
+        status: 'done',
+        startTime: now,
+        endTime: now,
+      }],
+    });
     let stopped = false;
     const actor = { stop() { stopped = true; } };
+    let rejectionMessage = '';
     await assert.rejects(
       () => runValidateGate({ store, root: failRoot, scanRoot: join(failRoot, 'packages/main') }, storyId, actor),
-      /Cannot enter TEST: proof-or-stop validate did not pass/,
+      (error: unknown) => {
+        rejectionMessage = error instanceof Error ? error.message : String(error);
+        return /Cannot enter TEST: proof-or-stop validate (?:did not pass|execution error)/.test(rejectionMessage);
+      },
       'runValidateGate must block TEST when proof-or-stop validate fails',
     );
     assert.equal(stopped, false, 'runValidateGate must leave actor stop to transition-orchestrator');
-    // The fail-closed path still persists a FAIL test-evidence record (the
-    // behavior-preserving side effect annotated in phase-gates.ts).
-    assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
+    const causalPreflightRefusal = /Cannot enter TEST: proof-or-stop validate execution error/.test(rejectionMessage)
+      && /writerLease/.test(rejectionMessage)
+      && /causal_preflight_refused/.test(rejectionMessage);
+    if (causalPreflightRefusal) {
+      assert.match(rejectionMessage, /commandExecutions=0/);
+      assert.match(rejectionMessage, /evidenceWrites=0/);
+      assert.equal(store.readTestEvidence(storyId), null, 'causal preflight refusal must not persist test evidence');
+    } else {
+      assert.match(rejectionMessage, /Cannot enter TEST: proof-or-stop validate did not pass/);
+      // An ordinary validation failure still persists a FAIL test-evidence
+      // record (the behavior-preserving side effect annotated in phase-gates.ts).
+      assert.equal(store.readTestEvidence(storyId)?.result, 'FAIL', 'validate FAIL must persist a FAIL test-evidence record');
+    }
   } finally {
     rmSync(failRoot, { recursive: true, force: true });
     resetConfigCache();
@@ -4343,6 +4386,28 @@ function assertDoneOracleSameSource(): void {
     /from '\.\.\/handlers\//,
     'core/done-oracle.ts must not import from any handlers/ module (core→handlers layer violation)',
   );
+  assert.match(
+    doneOracleImportLines,
+    /evaluateDonePredicates.*from '\.\/machine\.js'/,
+    'DONE preflight must import the shared DONE predicate source',
+  );
+  assert.match(
+    doneOracleSrc,
+    /const donePredicates = completedSnapshot \? null : \[\.\.\.evaluateDonePredicates\(\{ storyId, store, projectRoot: root, gitCwd \}\)\];/,
+    'Active DONE preflight must evaluate shared predicates with the current root, story and git cwd',
+  );
+  assert.match(
+    doneOracleSrc,
+    /const reviewVerdict = donePredicateValue<ReturnType<typeof evaluateReviewVerdict>>\(donePredicates, 'review-verdict'\);/,
+    'DONE preflight review-verdict row must consume the already evaluated shared verdict',
+  );
+  assert.match(
+    doneOracleSrc,
+    /const finishDecision = donePredicates \? donePredicateValue<ReturnType<typeof readDevMemoryFinishDecision>>\(donePredicates, 'dev-memory-finish-decision'\) : null;/,
+    'DONE preflight finish-decision row must consume the already evaluated shared presence fact',
+  );
+  assert.match(doneOracleSrc, /const completedSnapshot = store\.readStory\(storyId\)\.phase === 'DONE' \? options\.completedSnapshot : undefined;/,
+    'Historical presentation must not exempt TEST admission');
 
   // --- 1 & 3. Behavioral same-source + regression baseline ---
   const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-done-oracle-same-source-'));
@@ -4437,6 +4502,11 @@ function assertDoneOracleSameSource(): void {
     const byId = new Map(gateRows.map(r => [r.id, r]));
     assert.equal(byId.get('test-evidence')?.status, 'pass', 'baseline: test-evidence passes');
     assert.equal(byId.get('bugs-fixed')?.status, 'pass', 'baseline: no bugs → pass');
+    assert.equal(byId.get('dev-memory-finish-decision')?.status, 'fail', 'baseline: missing finish decision fails preflight');
+    assert.match(byId.get('dev-memory-finish-decision')?.detail ?? '', /missing_dev_memory_finish_decision/);
+    assert.equal(byId.get('review-verdict')?.status, 'fail', 'baseline: reviewer runs without a pass fail the shared verdict');
+    assert.match(byId.get('review-verdict')?.detail ?? '', /review_evidence_missing/);
+    assert.equal(byId.get('review-verdict')?.source, 'review-runs.json + review-passes.json + findings.json');
     assert.equal(byId.get('delivery-check')?.status, 'fail', 'baseline: missing delivery-check → fail');
     assert.equal(byId.get('delivery-check')?.blocking, true, 'baseline: missing delivery-check is blocking');
     assert.equal(byId.get('story-summary')?.status, 'fail', 'baseline: missing summary → fail');
@@ -4468,7 +4538,8 @@ function assertDoneOracleSameSource(): void {
     const hashMismatchRows = buildDoneChecklist(storyId, store, root);
     const hashMismatchRow = new Map(hashMismatchRows.map(r => [r.id, r])).get('delivery-check');
     assert.equal(hashMismatchRow?.status, 'fail', 'delivery-check hash mismatch must fail');
-    assert.equal(hashMismatchRow?.detail, 'delivery-check.json _hash mismatch');
+    assert.match(hashMismatchRow?.detail ?? '', /^delivery-check\.json _hash mismatch — Cannot enter DONE:/);
+    assert.match(hashMismatchRow?.detail ?? '', /\[delivery_check_tampered\]/);
     assert.equal(hashMismatchRow?.source, 'delivery-check.json._hash');
     assert.match(hashMismatchRow?.hint ?? '', /Re-run the proof-or-stop-review-delivery reviewer to generate a new delivery-check\.json/);
 
@@ -4496,7 +4567,8 @@ function assertDoneOracleSameSource(): void {
     const unverifiedDocsRows = buildDoneChecklist(storyId, store, root);
     const unverifiedDocsRow = new Map(unverifiedDocsRows.map(r => [r.id, r])).get('delivery-check');
     assert.equal(unverifiedDocsRow?.status, 'fail', 'unverified docsPromise must fail');
-    assert.equal(unverifiedDocsRow?.detail, '1 docsPromise entries are unverified and not waived');
+    assert.match(unverifiedDocsRow?.detail ?? '', /^1 docsPromise entries are unverified and not waived — Cannot enter DONE:/);
+    assert.match(unverifiedDocsRow?.detail ?? '', /\[unverified_promise\]/);
     assert.equal(unverifiedDocsRow?.source, 'delivery-check.json.docsPromises');
     assert.match(unverifiedDocsRow?.hint ?? '', /Use delivery_waiver_add to write a waiver/);
     assert.match(unverifiedDocsRow?.hint ?? '', /re-run the proof-or-stop-review-delivery reviewer to add verification evidence/);

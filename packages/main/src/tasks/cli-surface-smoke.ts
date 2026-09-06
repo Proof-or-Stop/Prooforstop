@@ -90,14 +90,14 @@ assert.deepEqual(
   },
 );
 assert.deepEqual(
-  normalizeNestedSpaceAlias(['lab', 'create', '--help']),
+  normalizeNestedSpaceAlias(['handoff', 'create', '--help']),
   {
     matched: true,
-    argv: ['lab_create', '--help'],
-    cmd: 'lab_create',
+    argv: ['handoff_create', '--help'],
+    cmd: 'handoff_create',
     arg: '--help',
-    canonicalAlias: 'lab_create',
-    displayAlias: 'lab create',
+    canonicalAlias: 'handoff_create',
+    displayAlias: 'handoff create',
     consumed: 2,
     aliasStart: 0,
   },
@@ -107,16 +107,31 @@ assert.deepEqual(
   ['capability_claim_formal_evaluate', '--help'],
 );
 assert.deepEqual(
-  normalizeNestedSpaceAlias(['proof-or-stop', 'lab', 'create', '--target=test-case-reviewer']).argv,
-  ['lab_create', '--target=test-case-reviewer'],
+  normalizeNestedSpaceAlias(['proof-or-stop', 'handoff', 'create', '--storyId=B-smoke']).argv,
+  ['handoff_create', '--storyId=B-smoke'],
 );
 assert.deepEqual(
-  normalizeNestedSpaceAlias(['lab', 'run', '--config=experiment.json', '--dryRun']).argv,
-  ['lab_run', '--config=experiment.json', '--dryRun'],
+  normalizeNestedSpaceAlias(['host', 'run', '--host=local', '--dryRun']).argv,
+  ['host_run', '--host=local', '--dryRun'],
 );
-assert.deepEqual(normalizeNestedSpaceAlias(['lab', 'eval', '{}']).argv, ['lab_eval', '{}']);
-assert.deepEqual(normalizeNestedSpaceAlias(['lab', 'help']).argv, ['lab_help']);
-assert.equal(normalizeNestedSpaceAlias(['lab', 'unknown']).matched, false, 'unknown Lab subcommands are not normalized');
+assert.deepEqual(normalizeNestedSpaceAlias(['dispatch', 'status', '{}']).argv, ['dispatch_status', '{}']);
+assert.deepEqual(normalizeNestedSpaceAlias(['host', 'list']).argv, ['host_list']);
+function assertCurrentConfigAliases(): void {
+  const observed = Object.fromEntries(['doctor', 'repair'].map(action => [action,
+    normalizeNestedSpaceAlias(['proof-or-stop', 'config', action, '--help']).argv,
+  ]));
+  assert.deepEqual(observed, {
+    doctor: ['proof_or_stop_config_doctor', '--help'],
+    repair: ['proof_or_stop_config_repair', '--help'],
+  }, 'config aliases must target the current registered commands');
+}
+assertCurrentConfigAliases();
+for (const prefix of [[], ['proof-or-stop'], ['lattice']]) {
+  for (const action of ['create', 'run', 'eval', 'help', 'unknown']) {
+    assert.equal(normalizeNestedSpaceAlias([...prefix, 'lab', action, '--help']).matched, false,
+      `retired Lab alias stays unavailable, including redundant bin tokens: ${[...prefix, 'lab', action].join(' ')}`);
+  }
+}
 
 // B-cdf6 CHK-005: the product name asserted below is now 'Proof-or-Stop'
 // (PROOF_OR_STOP_PRODUCT_NAME, approved RENAMED row in brand-rename-mapping.md; `Proof-or-Stop` is a legacy
@@ -176,6 +191,9 @@ const configDoctor = runJson<{ schemaVersion: string; migration: { cliFirst: boo
 ]);
 assert.equal(configDoctor.schemaVersion, 'lattice.config_doctor.v1');
 assert.equal(configDoctor.migration.cliFirst, true);
+const configRepairHelp = runCli(['proof-or-stop', 'config', 'repair', '--help']);
+assert.match(configRepairHelp, /--setGitRoot|--set-git-root/, 'nested repair reaches its registered argument contract');
+assert.match(configRepairHelp, /--confirm/, 'repair help preserves the explicit write-confirmation boundary');
 
 const conduitExplain = runJson<{ schemaVersion: string; authorityChanged: boolean }>([
   'proof-or-stop',

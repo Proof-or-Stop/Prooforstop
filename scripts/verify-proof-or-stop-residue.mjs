@@ -24,10 +24,11 @@
  * ---------------------------------------------------------------------------
  *   The `proof-or-stop` token CANNOT be scanned with a zero-tolerance detector the way
  *   `koala` can. Measured fact: 602 files under the src roots legitimately contain it
- *   — signature salts, `.proof-or-stop/` state paths, `PROOF_OR_STOP_*` env vars, `@proof-or-stop/core`
- *   imports, the 13 frozen `proof-or-stop-*` role IDs, `proof-or-stop.config.json`. Every one of
- *   those is an explicit FROZEN / FROZEN-THIS-STORY row in the mapping table. A
- *   `/proofOrStop/i` sweep would flag all 602 and be useless, so this check is deliberately
+ *   — signature salts, `.lattice/` state paths, `LATTICE_*` env vars, `@lattice/core`
+ *   imports, the historical `lattice-*` role IDs retained as compatibility-only
+ *   legacy reads, and `lattice.config.json`. The genuinely frozen rows and the
+ *   compatibility-read rows are explicit in the mapping table. A
+ *   `/lattice/i` sweep would flag all 602 and be useless, so this check is deliberately
  *   NOT modelled on check 1.
  *
  *   Instead it detects the ONE token shape the mapping table marks RENAMED and that a
@@ -38,10 +39,10 @@
  *   CHK-003 file re-introduces `proofOrStop <cmd>` and fails the gate (verified in CHK-004
  *   by reverting CLAUDE.md to main — 40+ hits, exit 1).
  *
- *   Why FROZEN identifiers do NOT false-positive: they are all structurally
+ *   Why preserved identifiers do NOT false-positive: they are all structurally
  *   distinguishable from an invocation by the character that follows the token —
- *   `.proof-or-stop/` and `bin/proofOrStop.js` carry a path separator or dot, `PROOF_OR_STOP_*` and
- *   `proof-or-stop-review-*` / `@proof-or-stop/core` carry `_` `-` `/`, `proof-or-stop.config.json`
+ *   `.lattice/` and `bin/lattice.js` carry a path separator or dot, `LATTICE_*` and
+ *   historical `lattice-review-*` role IDs / `@lattice/core` carry `_` `-` `/`, `lattice.config.json`
  *   carries a dot. The detector requires WHITESPACE after the token and a lowercase
  *   subcommand-shaped word after that, so none of those classes can match. That is
  *   a structural exclusion, not an allowlist.
@@ -270,7 +271,25 @@ export const isBrandDecisionResidue = makeBrandDecisionDetector(DEPRECATED_BRAND
 // ---------------------------------------------------------------------------
 
 /** Product runtime source — the koala zero-tolerance surface (check 1). */
-const SRC_SCAN_ROOTS = ['packages/main/src', 'packages/lab/src', 'packages/utils/src'];
+const SRC_SCAN_ROOTS = ['packages/main/src', 'packages/lab/src', 'packages/utils/src', 'packages/graph/src'];
+
+/**
+ * The npm package may keep old filesystem/read fallbacks, but it must not publish
+ * the retired `lattice` executable alias. Keep this guard structural so adding the
+ * alias back to either package.json or package-lock.json fails the residue gate.
+ */
+export function isCanonicalNpmBinMap(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  return value['proof-or-stop'] === 'dist/cli.js'
+    && !Object.prototype.hasOwnProperty.call(value, 'lattice');
+}
+
+export function isCanonicalMainPackageMetadata(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false;
+  const record = value;
+  const bin = record.bin ?? record.packages?.['']?.bin;
+  return isCanonicalNpmBinMap(bin);
+}
 
 /**
  * Active docs — the brand-prose surface CHK-003 rewrote (check 2).
@@ -286,9 +305,11 @@ const SRC_SCAN_ROOTS = ['packages/main/src', 'packages/lab/src', 'packages/utils
  * changed. Both are real defects a reader/agent would act on: unlike a doc, a stale
  * host prompt is fed verbatim to a spawned agent, so it actively teaches the retired
  * bin name. Gating them costs no exemptions — the invocation detector already
- * ignores every FROZEN identifier shape that legitimately appears here
- * (`proof-or-stop-implementer` and the other 12 role IDs, `.proof-or-stop/` paths, `PROOF_OR_STOP_*`
- * env vars, `proof-or-stop-*-v1` salts) because its lookbehind excludes `-`, `.`, `/`, `_`.
+ * ignores every preserved identifier shape that legitimately appears here
+ * (`lattice-implementer` and the other 12 historical role aliases, `.lattice/` paths,
+ * `LATTICE_*` env vars, `lattice-*-v1` salts) because its lookbehind excludes `-`, `.`,
+ * `/`, `_`. B-5a88 makes `proof-or-stop-*` canonical for new writes; these `lattice-*`
+ * role IDs remain compatibility-only legacy reads.
  */
 const DOC_SCAN_ROOTS = [
   'README.md',
@@ -325,7 +346,9 @@ const DOC_SCAN_ROOTS = [
  *     original finding: they are overwhelmingly (a) smoke/verifier fixtures that embed stale
  *     prose as the SPECIMEN under test — rewriting them destroys the positive test case, which
  *     is how Pass B broke and then restored this very file's self-test — and (b) tests that
- *     deliberately exercise the retained `bin/proofOrStop.js` alias. Gating still fails closed.
+ *     deliberately exercise legacy `bin/lattice.js` provenance and compatibility paths. The
+ *     alias is removed from the shipped bin map; these read-both probes remain outside the
+ *     brand detector so they do not erase historical compatibility evidence. Gating still fails closed.
  *   - `scripts` — 173 hits / 24 files, same specimen-fixture class (77 of them in
  *     verify-entrypoints.mjs alone, which asserts on the deprecated bin on purpose).
  *   - `CHANGELOG.md` — 19 hits, FROZEN historical release record per the mapping table.
@@ -562,6 +585,31 @@ function runScan() {
     );
   }
 
+  // --- CHECK 3b: npm metadata must publish only the canonical executable ---
+  const npmBinProblems = [];
+  for (const rel of ['packages/main/package.json', 'packages/main/package-lock.json']) {
+    const content = readTracked(rel);
+    if (content === null) {
+      npmBinProblems.push(`${rel}: file is not readable from the tracked tree`);
+      continue;
+    }
+    try {
+      const metadata = JSON.parse(content);
+      if (!isCanonicalMainPackageMetadata(metadata)) {
+        npmBinProblems.push(`${rel}: npm bin map must contain only proof-or-stop -> dist/cli.js`);
+      }
+    } catch (error) {
+      npmBinProblems.push(`${rel}: invalid JSON (${error instanceof Error ? error.message : String(error)})`);
+    }
+  }
+  if (npmBinProblems.length === 0) {
+    console.log('PASS lattice-residue [npm-bin]: packages/main publishes only the proof-or-stop bin');
+  } else {
+    failed = true;
+    console.error('FAIL lattice-residue [npm-bin]: retired lattice npm bin alias is active or metadata is invalid');
+    for (const problem of npmBinProblems) console.error(`  ${problem}`);
+  }
+
   // --- CHECK 4: FORBIDDEN deprecated-brand DECISION SITES in runtime source ---
   // The B-cc10 CHK-007 row flip. Scans the same product runtime source as check 1,
   // but SKIPS `**/tasks/**`: those are migration fixtures whose whole job can be to
@@ -615,8 +663,8 @@ function runScan() {
  *     hashed into `_hash` fields already persisted on live artifacts; renaming it
  *     would invalidate every stored signature and make active stories read as
  *     tampered.
- *   - `./proofOrStop.js` is the deprecated-but-retained bin alias (RENAMED-additive row:
- *     add `proof-or-stop`, KEEP `proof-or-stop`), so the module path legitimately survives.
+ *   - `./lattice.js` is a retired bin alias that can still occur in historical/read-both
+ *     provenance, so the module path remains a compatibility specimen rather than a shipped bin.
  * Both are therefore correctly outside the koala detector's remit, and both are
  * separately outside the brand-prose detector's remit by structural exclusion
  * (see BRAND_PROSE_CASES).
@@ -630,8 +678,8 @@ const RESIDUE_CASES = [
   ['existsSync(.claude/skills/koala)', true],
   // frozen signature salt (mapping table: FROZEN) — not koala residue
   ['const REVIEW_SALT = "lattice-review-integrity-v1";', false],
-  // deprecated-but-retained bin alias (mapping table: RENAMED-additive, keeps `proof-or-stop`)
-  ['import { proofOrStop } from "./proofOrStop.js";', false],
+  // retired bin alias in historical/read-both provenance (not a shipped executable)
+  ['import { lattice } from "./lattice.js";', false],
   ['a clean line with no brand token at all', false],
 ];
 
@@ -653,37 +701,30 @@ const BRAND_PROSE_CASES = [
   [`${LEGACY_BIN[0].toUpperCase()}${LEGACY_BIN.slice(1)} validate is the single entry point`, true],
 
   // --- MUST NOT FLAG: FROZEN identifier classes (each a mapping-table row) ---
-  // .proof-or-stop/ state directory (FROZEN)
-  ['state lives in .proof-or-stop/story/actives/B-xxxx/', false],
-  ['writes .proof-or-stop/locks/main-write.lock/', false],
-  // PROOF_OR_STOP_* env prefix (FROZEN, 56 vars)
-  ['export PROOF_OR_STOP_SESSION_BRIEF_FRESH_MINUTES=60', false],
-  ['`PROOF_OR_STOP_CLI_VERSION` must be bumped', false],
-  // the 13 frozen proof-or-stop-* role IDs (FROZEN-THIS-STORY)
-  ['Agent({ subagent_type: "proof-or-stop-implementer" })', false],
-  ['| `proof-or-stop-review-scope-plan` | PLAN |', false],
+  // .lattice/ state directory (FROZEN)
+  ['state lives in .lattice/story/actives/B-xxxx/', false],
+  ['writes .lattice/locks/main-write.lock/', false],
+  // LATTICE_* env prefix (FROZEN, 56 vars)
+  ['export LATTICE_SESSION_BRIEF_FRESH_MINUTES=60', false],
+  ['`LATTICE_CLI_VERSION` must be bumped', false],
+  // the 13 historical lattice-* role IDs (B-5a88: compatibility-only legacy reads;
+  // proof-or-stop-* is canonical for new writes)
+  ['Agent({ subagent_type: "lattice-implementer" })', false],
+  ['| `lattice-review-scope-plan` | PLAN |', false],
   // signature salts (FROZEN)
   ['salt = `lattice-delivery-check-integrity-v1`', false],
-  // Deprecated-but-still-READ npm package name.
-  //
-  // B-cc10 CHK-007 reconciles a STALE rationale here: this case used to be justified
-  // as "npm package name (FROZEN — pre-push hook gates on it)". That is no longer
-  // true. CHK-005 renamed the package (`packages/main/package.json` now declares
-  // `@proof-or-stop/core`) and the pre-push hook accepts BOTH spellings, so the
-  // token is deprecated-but-read, not frozen. The EXPECTATION is unchanged (`false`)
-  // and for an unchanged structural reason: `@proof-or-stop/core` carries `@` and `/`, and
-  // the brand-prose detector's fences reject both, so it can never match an
-  // INVOCATION. It is check 4, not check 2, that governs whether a deprecated
-  // spelling may be used as a decision.
+  // Canonical package import. The deprecated @lattice/core spelling is forbidden
+  // in product runtime source by CHK-007; compatibility remains only at the
+  // explicitly named readers, not as a frozen residue fixture.
   ["import { devHost } from '@proof-or-stop/core/dev-host';", false],
   // Deprecated-but-still-READ config filename (B-cc10 CHK-004 flipped canonical to
   // `proof-or-stop.config.json`; this spelling still resolves for reads).
-  ['edit `proof-or-stop.config.json` directly', false],
-  // bin wrapper paths (deprecated alias retained)
-  ['node bin/proofOrStop.js verify_codex', false],
-  ['node bin/proof-or-stop-codex.js session_brief', false],
-  // canonical managed-block markers
-  ['<!-- proof-or-stop:start -->', false],
+  ['edit `lattice.config.json` directly', false],
+  // legacy bin wrapper paths in read-both provenance (the shipped bin map is canonical-only)
+  ['node bin/lattice.js verify_codex', false],
+  ['node bin/lattice-codex.js session_brief', false],
+  // managed-block markers (FROZEN)
+  ['<!-- lattice:start -->', false],
   // runtime discovery file (FROZEN)
   ['reads .proof-or-stop-serve.json for the port', false],
   // brand-name PROSE proper noun — a different mapping row, not an invocation
@@ -700,10 +741,10 @@ const BRAND_PROSE_CASES = [
   // is followed by `-`, which the left/right fences reject. Byte-frozen by the mapping table.
   ['const SALT = "lattice-review-integrity-v1";', false],
   ['lattice-closeout-write-receipt-integrity-v3', false],
-  // Retained deprecated bin ALIAS paths — a file path, not an invocation. Never flagged,
-  // which is what makes the rename additive: keeping the alias cannot fail the gate.
-  ["path.join(root, 'bin', 'proofOrStop.js'),", false],
-  ["const BOOTSTRAP_WRAPPERS = ['proof-or-stop.js', 'proofOrStop.js'];", false],
+  // Retired deprecated bin ALIAS paths in compatibility probes — file paths, not invocations.
+  // Never flag these historical/read-both specimens; the shipped alias itself is absent.
+  ["path.join(root, 'bin', 'lattice.js'),", false],
+  ["const BOOTSTRAP_WRAPPERS = ['proof-or-stop.js', 'lattice.js'];", false],
   ['import \'./proof-or-stop-codex.js\';', false],
   // Read-both bin-name lists: the deprecated name appears as a quoted STRING, not as a
   // `proofOrStop <cmd>` invocation, so the read-both compat pattern is gate-safe.
@@ -766,6 +807,14 @@ const BRAND_DECISION_CASES = [
   [`if (path.startsWith('${LEGACY_STATE_DIR}/')) return false; // legacy`, true],
 ];
 
+const NPM_BIN_CASES = [
+  [{ bin: { 'proof-or-stop': 'dist/cli.js' } }, true],
+  [{ bin: { 'proof-or-stop': 'dist/cli.js', lattice: 'dist/cli.js' } }, false],
+  [{ bin: { lattice: 'dist/cli.js' } }, false],
+  [{ packages: { '': { bin: { 'proof-or-stop': 'dist/cli.js' } } } }, true],
+  [{ packages: { '': { bin: { 'proof-or-stop': 'dist/cli.js', lattice: 'dist/cli.js' } } } }, false],
+];
+
 /**
  * Run the inline detector unit tests. Throws on the first failure.
  * @returns {number} count of assertions run
@@ -788,6 +837,15 @@ export function runSelfTest() {
       }
       passed++;
     }
+  }
+  for (const [metadata, expected] of NPM_BIN_CASES) {
+    const actual = isCanonicalMainPackageMetadata(metadata);
+    if (actual !== expected) {
+      throw new Error(
+        `isCanonicalMainPackageMetadata() unit test FAILED:\n  input:    ${JSON.stringify(metadata)}\n  expected: ${expected}\n  actual:   ${actual}`,
+      );
+    }
+    passed++;
   }
   return passed;
 }

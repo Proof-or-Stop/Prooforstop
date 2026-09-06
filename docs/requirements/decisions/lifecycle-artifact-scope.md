@@ -247,11 +247,13 @@ receipt-backed authority remain separate gate inputs.
 
 The package prompt registry (`packages/main/templates/agents/*.md` via
 `promptRegistryManifest()`) is the single source for ordinary role bodies and
-for the five migrated reviewer definitions. The registry host resolver exposes
-those five reviewers as a body-free bootstrap; `review_run_start` selects and
-returns exactly one legacy or modular role body. Each host keeps only a *thin
-adapter* or that canonical bootstrap. The adapter shape is dictated by the
-host's loader, but the selected-body source remains the package registry.
+for the six migrated reviewer definitions. The registry host resolver exposes
+the five active REVIEW lanes as a body-free bootstrap; `review_run_start`
+selects and returns exactly one legacy or modular role body for those lanes.
+Topology-critic stays a modular body and is not a REVIEW-lane bootstrap.
+Each host keeps only a *thin adapter* or that canonical bootstrap. The adapter
+shape is dictated by the host's loader, but the selected-body source remains
+the package registry.
 
 | Host | Thin adapter (what lives in the project/global) | Prompt content source |
 | --- | --- | --- |
@@ -277,9 +279,10 @@ keeps one file per role, but that file is a **content-free shim**.
 
 2. **The registry host render is the shared bootstrap/body endpoint.**
    `proof-or-stop agent_prompt --role=<name>` returns the canonical registry host
-   render: a body-free `review_run_start` bootstrap for the five migrated
-   reviewers, and the canonical role body for ordinary roles. Codex registry
-   mode resolves the same host render. For migrated reviewers,
+   render: a body-free `review_run_start` bootstrap for the five active REVIEW
+   lanes among the six migrated reviewer definitions, and the canonical role
+   body for ordinary roles including topology-critic. Codex registry
+   mode resolves the same host render. For the five active REVIEW lanes,
    `review_run_start` alone supplies exactly one selected role body.
 
    `review_run_start` and Story-aware `agent_prompt` share one bakery-style

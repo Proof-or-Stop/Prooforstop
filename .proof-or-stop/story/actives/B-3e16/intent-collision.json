@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-3e16",
+  "id": "IC-20260828092840",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "The request is a pure migration: move the existing, already working proof-or-stop-graph source into this repository as packages/graph and expose it through a new top-level CLI command named graph, without rewriting the web shell or altering graph, search or playback behavior. The competing reading that was rejected is a reimplementation of a story visualizer inside packages/main, which the user did not ask for and which the scope boundary explicitly excludes. The user also settled two sub-questions directly: the code lands in a new packages/graph subpackage rather than inside packages/main or as an external npm dependency, and the vendored browser bundles stay out of source as dependency build output.",
+  "acceptedInterpretationHash": "sha256:3ff4947c96f4c084bf76776c3cbbd8119b2c5017f51389281e4f436277222c19",
+  "notes": "No residual ambiguity. The user answered the placement question and the command-name question explicitly, and pushed back on the vendored-bundle question as having an obvious answer. Scope boundary recorded in scope-boundary.json with 7 allowed and 6 excluded entries.",
+  "createdAt": "2026-08-28T09:28:40.100Z",
+  "updatedAt": "2026-08-28T09:28:40.100Z"
+}

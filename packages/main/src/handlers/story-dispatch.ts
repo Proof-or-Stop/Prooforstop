@@ -171,7 +171,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   function appendDispatchEvent(args: {
     storyId: string;
     agentType?: string;
-    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'story-review' | 'delivery-review' | 'checklist' | 'finding' | 'cluster';
+    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'story-review' | 'delivery-review' | 'rollout-verify' | 'checklist' | 'finding' | 'cluster';
     itemId?: string;
     findingId?: string;
     clusterId?: string;
@@ -387,7 +387,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         `- Regardless of whether the conclusion is pass or fail, you must call init_check_set once to record the result; merely outputting a textual conclusion does not count as complete.`,
         `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"low","desc":"..."}],"agentId":"proof-or-stop-review-story-init"}'`,
         `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"proof-or-stop-review-story-init"}'`,
-        '- The INIT_CHECK gate also requires product-reviewer to call init_check_set; you are only responsible for the proof-or-stop-review-story-init record.',
+        '- The INIT_CHECK gate also requires proof-or-stop-product-reviewer to call init_check_set; you are only responsible for the proof-or-stop-review-story-init record.',
         '- Do not directly edit story files.',
       ].join('\n'),
     };
@@ -409,7 +409,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       prompt: [
         `Review whether the INIT of story ${args.storyId} is ready to advance, from a user value perspective.`,
         '',
-        'You are product-reviewer, not proof-or-stop-review-story-init. Please review in a fresh context, do not carry over the main agent\'s conclusions.',
+        'You are proof-or-stop-product-reviewer, not proof-or-stop-review-story-init. Please review in a fresh context, do not carry over the main agent\'s conclusions.',
         `Must read: ${bgPath}`,
         `Required reading: ${checklistPath}`,
         '',
@@ -418,13 +418,13 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         '- Whether each checklist item has a user-observable outcome',
         '- Whether the post-completion outcome lets the user recognize the work as complete, rather than still wondering what comes next',
         '',
-        renderAgentLivenessGuidance({ label: 'product-reviewer/story', startSignal: 'DISPATCH_START:product-reviewer/story' }),
+        renderAgentLivenessGuidance({ label: 'proof-or-stop-product-reviewer/story', startSignal: 'DISPATCH_START:proof-or-stop-product-reviewer/story' }),
         '',
         'Hard requirements:',
         '- Whether the conclusion is pass or fail, you must call init_check_set once to record the result; outputting only a text conclusion does not count as complete.',
-        `- agentId must be passed exactly as "product-reviewer". Do not pass "proof-or-stop-review-story-init"; that is a different reviewer and will cause the INIT_CHECK gate to keep reporting a missing product-reviewer.`,
-        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"product-reviewer"}'`,
-        `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"product-reviewer"}'`,
+        `- agentId must be passed exactly as "proof-or-stop-product-reviewer". Do not pass "proof-or-stop-review-story-init"; that is a different reviewer and will cause the INIT_CHECK gate to keep reporting a missing proof-or-stop-product-reviewer.`,
+        `- When issues are found, also call: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[{"severity":"medium","desc":"..."}],"agentId":"proof-or-stop-product-reviewer"}'`,
+        `- If there are no issues, pass an empty array for issues: proof-or-stop init_check_set '{"storyId":"${args.storyId}","issues":[],"agentId":"proof-or-stop-product-reviewer"}'`,
         '- critical/high issues will hard-block INIT_CHECK; medium/low will be recorded as advisory.',
         '- Do not edit story files directly.',
       ].join('\n'),
@@ -507,7 +507,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     if (!['PLAN', 'DEV', 'REVIEW'].includes(story.phase)) {
       throw new Error(`topology critic dispatch is unsupported during ${story.phase}`);
     }
-    return { prompt: [
+    const lines = [
       `Independently review the current ProofStory acceptance topology for ${args.storyId}.`,
       `Working directory: ${root}`,
       '',
@@ -519,7 +519,16 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       'Every exclusion must already have a separately attributable proof-or-stop-review-scope-plan approval.',
       `Finish with proof-or-stop topology_critic_receipt_set '{"storyId":"${args.storyId}","verdict":"pass"}' or verdict=request_changes.`,
       `Then run proof-or-stop topology_critic_receipt_check '{"storyId":"${args.storyId}"}' to verify the persisted signed receipt.`,
-    ].join('\n') };
+    ];
+    if (story.phase === 'REVIEW') {
+      lines.push('',
+        'For an OPEN review inventory wave, act as an independent completeness critic only after every required lane has terminal evidence.',
+        `Start a fresh critic run with proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"proof-or-stop-review-topology-critic"}', inspect the aggregate finding set and required-lane read coverage, then submit finding_add or review_pass_set with complete read evidence.`,
+        `Finally bind that terminal evidence with proof-or-stop review_inventory_critic_set '{"storyId":"${args.storyId}","epochId":"<current epoch>","reviewRunId":"<critic ReviewRun>","agent":"proof-or-stop-review-topology-critic","findingDispositions":[{"findingId":"<verified finding id>","disposition":"verified_family","familyKey":"<independently assessed family>","reason":"<critic evidence>"}]}'. Use findingDispositions:[] only when the aggregate verified finding set is empty; classify every finding exactly once.`,
+      );
+    }
+    return { prompt: lines.join('\n') };
+
   }
 
   function buildStoryReviewPrompt(args: {
@@ -598,7 +607,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     appendDispatchLivenessGuidance(lines, `${args.resolved.canonicalType}/${args.itemId}`);
     lines.push('Role boundary:');
     lines.push('- Define adversarial acceptance intent only; do not implement, edit code/tests, or change checklist completion.');
-    lines.push('- The legacy requested alias, if any, has exactly the same verification-intent authority.');
+    lines.push('- You may write only verificationIntent through checklist_update; do not write status, verificationEvidence, or checklist definition fields.');
     lines.push('');
     lines.push('Required reading:');
     lines.push(`1. ${storyDir}/background.md`);
@@ -646,7 +655,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
 
       // 4. agent-type tiered injection decision (fully reuses story_dispatch's AGENT_BG_POLICY)
       const bgPolicy = resolveBackgroundPolicy(agentType);
-      const displayAgent = agentType || 'proof-or-stop-implementer';
+      const displayAgent = resolveAgentDispatchType(agentType).canonicalType;
 
       // 5. finding field fallback. Note: Finding schema has no separate location/suggestion fields—
       //    reviewer writes file:line and fix suggestions directly in the desc body (by convention), so they are no longer rendered separately here.
@@ -807,7 +816,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
 
       // 8. Assemble implementer prompt
       const lines: string[] = [];
-      lines.push(`As proof-or-stop-implementer implementing ${args.storyId} ${args.itemId}: ${item.title}`);
+      lines.push(`As ${resolvedAgent.canonicalType} implementing ${args.storyId} ${args.itemId}: ${item.title}`);
       lines.push('');
       // B-9d95 CHK-001: inject worktree absolute path. Root cause retrospective (B-ed3e F-001): subagent inherits parent process cwd
       // which does not necessarily land in the worktree (especially cross-repo scenarios), causing reviewer/handler to read docs/story/... in the main repo cwd
@@ -815,7 +824,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       // and is currently the most reliable absolute path source (better than process.cwd()—the latter depends on the caller's shell current directory).
       lines.push(`Working directory (subagent must cd here): ${root}`);
       lines.push('');
-      appendDispatchLivenessGuidance(lines, `${agentType || 'proof-or-stop-implementer'}/${args.itemId}`);
+      appendDispatchLivenessGuidance(lines, `${resolvedAgent.canonicalType}/${args.itemId}`);
       lines.push('Required reading (in order):');
       let idx = 1;
       if (bgPolicy === 'required') {
@@ -957,11 +966,35 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
         const authorityBinding = topologyAuthorityDispatchBinding(story, true);
+        const envelopeMode = resolvePromptEnvelopeRolloutMode(canonicalType, loadConfig(root).promptEnvelope);
+        if (!story.currentReviewRound && envelopeMode === 'full-envelope') {
+          throw new Error(`review dispatch requires currentReviewRound for story ${args.storyId}`);
+        }
+        const reviewerBinding = story.currentReviewRound ? (() => {
+          const hostRenderHost = currentReviewerPromptHost();
+          const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost, envelopeMode);
+          const dispatchPromptDigest = reviewerDispatchPromptDigest(result.prompt);
+          return {
+            dispatchPrompt: result.prompt,
+            dispatchPromptDigest,
+            hostRenderHost,
+            hostRenderIdentityDigest: hostIdentity.identityDigest,
+            dispatchBindingDigest: reviewerDispatchBindingDigest({
+              storyId: args.storyId,
+              lane: canonicalType,
+              reviewRound: story.currentReviewRound!,
+              dispatchPromptDigest,
+              hostRenderIdentityDigest: hostIdentity.identityDigest,
+            }),
+            reviewRound: story.currentReviewRound,
+          };
+        })() : {};
         appendDispatchEvent({
           storyId: args.storyId,
           agentType: canonicalType,
           targetKind: 'topology-critic-review',
           ...authorityBinding,
+          ...reviewerBinding,
           ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
           ...(wrapped.promptBudget ? { promptBudget: wrapped.promptBudget } : {}),
         });
@@ -1006,6 +1039,21 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
           });
         }
         return result;
+      }
+      if (promptBuilder === 'rollout-verify') {
+        const lines = [
+          `As ${canonicalType}, run the registered acceptance-rollout cohort for ${args.storyId}.`,
+          `Working directory (subagent must cd here): ${root}`,
+          '',
+        ];
+        appendDispatchLivenessGuidance(lines, `${canonicalType}/story`);
+        lines.push(`Start the reviewer run: proof-or-stop review_run_start '{"storyId":"${args.storyId}","agent":"${canonicalType}"}' and copy the returned reviewRunId.`);
+        appendDispatchEvent({
+          storyId: args.storyId,
+          agentType: canonicalType,
+          targetKind: 'rollout-verify',
+        });
+        return { prompt: lines.join('\n') };
       }
       if (promptBuilder === 'delivery-review') {
         const result = buildDeliveryReviewPrompt({ storyId: args.storyId, resolved });

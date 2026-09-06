@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-212f",
+  "checkedAt": "2026-09-05T11:11:01.778Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "5584fe267f154f5b72cac702e355ac787ae902dab7e8d8267c1a793b84099655",
+  "executionBoundaryHash": "ff0ef92d7358e6be81e56a0869611cb8b025a7c148d60cec5d9b653ba5a7d580",
+  "freshnessHash": "2f9cc52a133346b6a92121f2a383aa1f3e2e6d38747ec07b89baf0e5e89449d5",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "customerKeyRef",
+    "Do not auto-refresh, re-sign, rebind, or fabricate reviewer evidence from done_prepare.",
+    "Do not expand into unrelated refactors or make the repository globally green.",
+    "Do not push any branch or local main to a remote.",
+    "Do not reimplement or duplicate B-c86f dev-memory materialHash/storyFilesHash classification work.",
+    "Do not relax DONE, reviewer, freshness, signature, scope-binding, or delivery gates.",
+    "Do not repair otherwise eligible unrelated nonblocking low/medium defects in this Story; retain reproduction, evidence, impact, recommendation, and a traceable later route.",
+    "Layer4",
+    "repair UX"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Do not auto-refresh, re-sign, rebind, or fabricate reviewer evidence from done_prepare.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not auto-refresh, re-sign, rebind, or fabricate reviewer evidence from done_prepare.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not expand into unrelated refactors or make the repository globally green.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not expand into unrelated refactors or make the repository globally green.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not push any branch or local main to a remote.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not push any branch or local main to a remote.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not reimplement or duplicate B-c86f dev-memory materialHash/storyFilesHash classification work.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not reimplement or duplicate B-c86f dev-memory materialHash/storyFilesHash classification work.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not relax DONE, reviewer, freshness, signature, scope-binding, or delivery gates.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not relax DONE, reviewer, freshness, signature, scope-binding, or delivery gates.",
+      "excluded": true
+    },
+    {
+      "keyword": "Do not repair otherwise eligible unrelated nonblocking low/medium defects in this Story; retain reproduction, evidence, impact, recommendation, and a traceable later route.",
+      "source": "scopeBoundary.excluded",
+      "text": "Do not repair otherwise eligible unrelated nonblocking low/medium defects in this Story; retain reproduction, evidence, impact, recommendation, and a traceable later route.",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "8b29b7f03f2783e4a5b89928999f877875f723c87b41da2eae83cc99924f764f"
+}

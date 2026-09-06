@@ -11,6 +11,10 @@ import {
   type RuntimeFactScope,
   type RuntimeFactSeverity,
 } from './runtime-fact-registry.js';
+import {
+  PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME,
+  PROOF_OR_STOP_ROOT_PACKAGE_NAME,
+} from './proof-or-stop-brand.js';
 import { readBrandEnv } from './brand-env.js';
 import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 import { findBrandExport } from './version-bump.js';
@@ -174,10 +178,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const MIN_NODE_MAJOR = 20;
-// B-022e CHK-003: the root package identity is part of the clean-break cutover.
-const CANONICAL_ROOT_PACKAGE_NAME = 'proof-or-stop';
+const CANONICAL_ROOT_PACKAGE_NAME = PROOF_OR_STOP_ROOT_PACKAGE_NAME;
+const DEPRECATED_ROOT_PACKAGE_NAME = PROOF_OR_STOP_DEPRECATED_ROOT_PACKAGE_NAME;
 const CANONICAL_CORE_PACKAGE_NAME = '@proof-or-stop/core';
-const DEPRECATED_CORE_PACKAGE_NAME = '@proof-or-stop/core';
+const DEPRECATED_CORE_PACKAGE_NAME = '@lattice/core';
+const SELF_ROOT_PACKAGE_NAMES: ReadonlySet<string> = new Set([
+  CANONICAL_ROOT_PACKAGE_NAME,
+  DEPRECATED_ROOT_PACKAGE_NAME,
+]);
 // Self-project detection must accept EITHER core spelling: a miss makes runtimeScope flip
 // self -> external, which downgrades drift checks to advisory (the B-cdf6 regression class).
 const SELF_CORE_PACKAGE_NAMES: ReadonlySet<string> = new Set([
@@ -1199,7 +1207,7 @@ function compatibilityRuntimeMessage(source: RuntimeModeSource): string {
     case 'repo-local-dist':
       return 'compatibility launcher is using the repository-local Proof-or-Stop dist runtime; run npm --prefix packages/main run build after core edits';
     case 'project-node-modules':
-      return 'the launcher is using the project node_modules Proof-or-Stop package without requiring node_modules/.bin/proof-or-stop as the active CLI';
+      return 'compatibility launcher is using the project node_modules Proof-or-Stop package without requiring node_modules/.bin/proof-or-stop as the active CLI';
     case 'packaged-runtime':
       return 'compatibility launcher is using a packaged Proof-or-Stop runtime; project package.json/node_modules are not required';
     case 'external-development-engine':
@@ -1478,10 +1486,10 @@ function runAuthoritativeIdentityCommand(args: string[], cwd: string, budget: Id
 }
 
 function resolveCliCommandPath(projectRoot: string): string | null {
-  return resolveCommandOnPath('proof-or-stop', projectRoot);
+  return resolveCommandOnPath('proof-or-stop', projectRoot) ?? resolveCommandOnPath('lattice', projectRoot);
 }
 
-function resolveCommandOnPath(command: 'proof-or-stop', projectRoot: string): string | null {
+function resolveCommandOnPath(command: 'proof-or-stop' | 'lattice', projectRoot: string): string | null {
   const pathEnv = process.platform === 'win32'
     ? process.env.Path ?? process.env.PATH ?? ''
     : process.env.PATH ?? '';
@@ -1496,7 +1504,7 @@ function resolveCommandOnPath(command: 'proof-or-stop', projectRoot: string): st
   return null;
 }
 
-function commandPathNames(command: 'proof-or-stop'): string[] {
+function commandPathNames(command: 'proof-or-stop' | 'lattice'): string[] {
   if (process.platform !== 'win32') return [command];
   const extensions = (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
     .split(';')
@@ -1631,7 +1639,7 @@ function detectSelfProject(projectRoot: string): boolean {
   const corePackage = readPackageJson(join(projectRoot, 'packages', 'main'));
   const rootName = rootPackage?.name;
   const coreName = corePackage?.name;
-  return rootName === CANONICAL_ROOT_PACKAGE_NAME
+  return SELF_ROOT_PACKAGE_NAMES.has(rootName)
     && typeof coreName === 'string'
     && SELF_CORE_PACKAGE_NAMES.has(coreName);
 }
@@ -1845,6 +1853,13 @@ function isPackagedRuntime(): boolean {
     || Boolean((process as typeof process & { pkg?: unknown }).pkg);
 }
 
+// B-cc10 CHK-006: the deprecated basenames below remain recognized for older checkouts and
+// compatibility provenance. This predicate
+// asks "was a retained COMPATIBILITY launcher used?", so recognizing the old names is the
+// whole point — adding the canonical spellings would make every ordinary canonical
+// invocation look like a compatibility launcher and invert the classification at line 626.
+// The current package ships only the proof-or-stop bin; an older checkout may still reach this
+// signal through its legacy launcher and must remain classifiable as compatibility traffic.
 function compatibilityLauncherSignal(activePath: string | null): boolean {
   if (readBrandEnv('ACTIVITY_SOURCE') === 'codex') return true;
   if (readBrandEnv('CODEX_ENTRYPOINT') === 'global-fallback' || readBrandEnv('CODEX_ENTRYPOINT') === 'local-wrapper') return true;

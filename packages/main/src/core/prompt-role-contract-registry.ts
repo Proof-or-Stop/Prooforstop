@@ -9,9 +9,9 @@ import {
   type RoleContract,
   type RoleLifecycleStatus,
   validateRoleContract,
+  ROLE_CONTRACT_SCHEMA,
 } from './prompt-contracts.js';
 import {
-  MODULAR_REVIEWER_ROLE_IDS,
   MODULAR_COMPLEX_ROLE_IDS,
   isModularReviewerRoleId,
   isModularRoleId,
@@ -23,12 +23,17 @@ import {
   type PromptHost,
   type PromptRegistrySnapshot,
 } from './prompt-registry.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
+import { isCodexAdapterManifestOwner } from '../init-assets.js';
 
-export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proofbound.prompt-role-contract-registry.v1';
-export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proofbound.prompt-envelope-rollout.v1';
+export { ACTIVE_MODULAR_REVIEWER_ROLE_IDS, isActiveModularReviewerRoleId } from './prompt-registry.js';
+
+export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION = 'proof-or-stop.prompt-role-contract-registry.v1';
+export const PROMPT_ROLE_CONTRACT_REGISTRY_VERSION_LEGACY = 'proofbound.prompt-role-contract-registry.v1';
+export const PROMPT_ENVELOPE_ROLLOUT_VERSION = 'proof-or-stop.prompt-envelope-rollout.v1';
+export const PROMPT_ENVELOPE_ROLLOUT_VERSION_LEGACY = 'proofbound.prompt-envelope-rollout.v1';
 export type PromptEnvelopeRolloutMode = 'legacy-full-context' | 'full-envelope';
-export const ACTIVE_MODULAR_REVIEWER_ROLE_IDS = Object.freeze([...MODULAR_REVIEWER_ROLE_IDS]);
-export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
+export const ACTIVE_MODULAR_COMPLEX_ROLE_IDS: readonly string[] = Object.freeze([...MODULAR_COMPLEX_ROLE_IDS]);
 
 export interface ResolvedPromptRoleBody {
   roleId: string;
@@ -39,7 +44,7 @@ export interface ResolvedPromptRoleBody {
 }
 
 export interface ReviewerHostRenderIdentity {
-  schemaVersion: 'proofbound.reviewer-host-render-identity.v1';
+  schemaVersion: 'proof-or-stop.reviewer-host-render-identity.v1' | 'proofbound.reviewer-host-render-identity.v1';
   roleId: string;
   rolloutMode: PromptEnvelopeRolloutMode;
   host: PromptHost;
@@ -115,7 +120,7 @@ function reviewerHostRenderSource(
     if (globalSource === 'package-registry') return globalSource;
     if (codexSource === 'full-asset') return codexSource;
     if (
-      codexManifest?.adapterOwner === 'proof-or-stop'
+      isCodexAdapterManifestOwner(codexManifest?.adapterOwner)
       && codexManifest.adapterKind === 'codex'
       && codexManifest.promptMode === undefined
     ) {
@@ -155,11 +160,12 @@ export function reviewerHostRenderIdentity(
   host: PromptHost = 'codex',
   rolloutMode: PromptEnvelopeRolloutMode = 'full-envelope',
 ): ReviewerHostRenderIdentity {
+  const canonicalRoleId = canonicalAgentRoleId(roleId);
   const registry = readPromptRegistry();
-  const entry = registry.agents.find(candidate => candidate.agentId === roleId);
+  const entry = registry.agents.find(candidate => candidate.agentId === canonicalRoleId);
   if (!entry) throw new PromptRoleContractRegistryError(`unknown reviewer prompt role "${roleId}"`);
-  if (!isPromptRoleEligibleForReviewEvidence(roleId)) {
-    throw new PromptRoleContractRegistryError(`role "${roleId}" is not eligible for reviewer host rendering`);
+  if (!isPromptRoleEligibleForReviewEvidence(canonicalRoleId)) {
+    throw new PromptRoleContractRegistryError(`role "${canonicalRoleId}" is not eligible for reviewer host rendering`);
   }
   const packageTemplate = resolvePromptTemplateBody(entry, rolloutMode);
   const source = reviewerHostRenderSource(projectRoot, host, entry.file);
@@ -178,8 +184,8 @@ export function reviewerHostRenderIdentity(
   }
   const selectedRoleBody = renderPromptForHost(packageTemplate, host);
   const semantic = {
-    schemaVersion: 'proofbound.reviewer-host-render-identity.v1' as const,
-    roleId,
+    schemaVersion: 'proof-or-stop.reviewer-host-render-identity.v1' as const,
+    roleId: canonicalRoleId,
     rolloutMode,
     host,
     source,
@@ -232,7 +238,7 @@ const ACTIVE = 'active' as const;
 const COMPATIBILITY = 'compatibility' as const;
 
 const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
-  'implementation-reviewer': {
+  'proof-or-stop-implementation-reviewer': {
     ...commonPolicy,
     status: COMPATIBILITY,
     replacementAgentType: 'proof-or-stop-review-quality',
@@ -246,7 +252,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
-    responsibility: 'Evaluate ProofOrStop outcomes from project evidence.',
+    responsibility: 'Evaluate Proof-or-Stop outcomes from project evidence.',
     allowedCommandIds: [],
     requiredOutputIds: ['evaluation-report'],
   },
@@ -254,7 +260,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
-    responsibility: 'Evaluate ProofOrStop outcomes through the CLI surface.',
+    responsibility: 'Evaluate Proof-or-Stop outcomes through the CLI surface.',
     allowedCommandIds: [],
     requiredOutputIds: ['evaluation-report'],
   },
@@ -331,8 +337,8 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     status: ACTIVE,
     defaultDispatch: true,
     responsibility: 'Independently challenge acceptance topology, discovery, closure, and exclusions.',
-    allowedCommandIds: ['topology_critic_receipt_set', 'topology_critic_receipt_check'],
-    requiredOutputIds: ['topology-critic-receipt'],
+    allowedCommandIds: ['topology_critic_receipt_set', 'topology_critic_receipt_check', 'review_run_start', 'finding_add', 'review_pass_set', 'review_inventory_critic_set'],
+    requiredOutputIds: ['topology-critic-receipt', 'review-finding-or-pass'],
   },
   'proof-or-stop-review-story-init': {
     ...commonPolicy,
@@ -351,7 +357,7 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['review_run_start', 'finding_add', 'review_pass_set'],
     requiredOutputIds: ['review-finding-or-pass'],
   },
-  'product-reviewer': {
+  'proof-or-stop-product-reviewer': {
     ...commonPolicy,
     status: ACTIVE,
     defaultDispatch: true,
@@ -359,25 +365,33 @@ const ROLE_POLICIES: Readonly<Record<string, RolePolicy>> = Object.freeze({
     allowedCommandIds: ['init_check_set'],
     requiredOutputIds: ['init-check'],
   },
-  'test-case-reviewer': {
+  'proof-or-stop-verification-intent': {
     ...commonPolicy,
-    status: COMPATIBILITY,
-    replacementAgentType: 'verification-intent',
-    migrationHint: 'Use canonical verification-intent during PLAN.',
-    defaultDispatch: false,
-    responsibility: 'Legacy verification-intent review alias.',
+    status: ACTIVE,
+    defaultDispatch: true,
+    responsibility: 'Author PLAN verificationIntent for one checklist item.',
     allowedCommandIds: ['checklist_update'],
     requiredOutputIds: ['verification-intent'],
   },
-  'test-intent': {
+  'proof-or-stop-test-case-reviewer': {
     ...commonPolicy,
     status: COMPATIBILITY,
-    replacementAgentType: 'verification-intent',
-    migrationHint: 'Use canonical verification-intent during PLAN.',
+    replacementAgentType: 'proof-or-stop-review-test-coverage',
+    migrationHint: 'Legacy read-side identity only; use proof-or-stop-review-test-coverage for current REVIEW coverage.',
+    defaultDispatch: false,
+    responsibility: 'Legacy verification-intent review alias.',
+    allowedCommandIds: [],
+    requiredOutputIds: ['migration-guidance'],
+  },
+  'proof-or-stop-test-intent': {
+    ...commonPolicy,
+    status: COMPATIBILITY,
+    replacementAgentType: 'proof-or-stop-verification-intent',
+    migrationHint: 'Legacy read-side identity only; use proof-or-stop-verification-intent during PLAN.',
     defaultDispatch: false,
     responsibility: 'Legacy verification-intent authoring alias.',
-    allowedCommandIds: ['checklist_update'],
-    requiredOutputIds: ['verification-intent'],
+    allowedCommandIds: [],
+    requiredOutputIds: ['migration-guidance'],
   },
 });
 
@@ -390,7 +404,7 @@ export class PromptRoleContractRegistryError extends Error {
 
 function roleSemanticValue(roleId: string, policy: RolePolicy): Record<string, unknown> {
   return {
-    schemaVersion: 'proofbound.role-contract.v1',
+    schemaVersion: ROLE_CONTRACT_SCHEMA,
     registryVersion: PROMPT_ROLE_CONTRACT_REGISTRY_VERSION,
     roleId,
     status: policy.status,
@@ -413,7 +427,7 @@ export function buildPromptRoleContracts(snapshot: PromptRegistrySnapshot = read
   const contracts = snapshot.agents.map(entry => {
     const policy = ROLE_POLICIES[entry.agentId]!;
     const contract: RoleContract = {
-      schemaVersion: 'proofbound.role-contract.v1',
+      schemaVersion: ROLE_CONTRACT_SCHEMA,
       roleId: entry.agentId,
       status: policy.status,
       ...(policy.replacementAgentType ? { replacementAgentType: policy.replacementAgentType } : {}),
@@ -477,7 +491,7 @@ export function validatePromptRoleContracts(contracts: readonly unknown[], expec
   const active = contracts.filter(contract => (contract as RoleContract).status === 'active').length;
   const compatibility = contracts.filter(contract => (contract as RoleContract).status === 'compatibility').length;
   const retired = contracts.filter(contract => (contract as RoleContract).status === 'retired').length;
-  if (active !== 13 || compatibility !== 3 || retired !== 1) {
+  if (active !== 14 || compatibility !== 3 || retired !== 1) {
     throw new PromptRoleContractRegistryError(`invalid role partition active=${active} compatibility=${compatibility} retired=${retired}`);
   }
   const byId = new Map(contracts.map(contract => [(contract as RoleContract).roleId, contract as RoleContract]));
@@ -518,8 +532,8 @@ export function validatePromptRoleContracts(contracts: readonly unknown[], expec
   if (byId.get('proof-or-stop-review-channel')?.status !== 'retired' || byId.get('proof-or-stop-review-channel')?.defaultDispatch !== false) {
     throw new PromptRoleContractRegistryError('proof-or-stop-review-channel must be retired and non-default');
   }
-  if (byId.get('product-reviewer')?.status !== 'active') throw new PromptRoleContractRegistryError('product-reviewer must remain active');
-  for (const roleId of ['implementation-reviewer', 'test-intent', 'test-case-reviewer']) {
+  if (byId.get('proof-or-stop-product-reviewer')?.status !== 'active') throw new PromptRoleContractRegistryError('proof-or-stop-product-reviewer must remain active');
+  for (const roleId of ['proof-or-stop-implementation-reviewer', 'proof-or-stop-test-intent', 'proof-or-stop-test-case-reviewer']) {
     const row = byId.get(roleId);
     if (row?.status !== 'compatibility' || row.defaultDispatch !== false) {
       throw new PromptRoleContractRegistryError(`${roleId} must be compatibility and non-default`);
@@ -548,7 +562,8 @@ export const PROMPT_ROLE_CONTRACTS = Object.freeze(
 const PROMPT_ROLE_CONTRACT_BY_ID = new Map(PROMPT_ROLE_CONTRACTS.map(contract => [contract.roleId, contract]));
 
 export function promptRoleContract(roleId: string): Readonly<RoleContract> {
-  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId);
+  const canonicalRoleId = canonicalAgentRoleId(roleId);
+  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(canonicalRoleId);
   if (!contract) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
   return contract;
 }
@@ -556,7 +571,7 @@ export function promptRoleContract(roleId: string): Readonly<RoleContract> {
 /** Gate evidence is owned only by active canonical REVIEW lanes, never compatibility/retired prompts. */
 export function isPromptRoleEligibleForReviewEvidence(roleId: string | undefined | null): boolean {
   if (!roleId) return false;
-  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(roleId);
+  const contract = PROMPT_ROLE_CONTRACT_BY_ID.get(canonicalAgentRoleId(roleId));
   return contract?.status === 'active'
     && contract.allowedCommandIds.includes('review_run_start')
     && contract.allowedCommandIds.includes('review_pass_set');
@@ -566,7 +581,8 @@ export function resolvePromptEnvelopeRolloutMode(
   roleId: string,
   config: unknown,
 ): PromptEnvelopeRolloutMode {
-  const contract = promptRoleContract(roleId);
+  const canonicalRoleId = canonicalAgentRoleId(roleId);
+  const contract = promptRoleContract(canonicalRoleId);
   if (config === undefined || config === null) return 'legacy-full-context';
   if (typeof config !== 'object' || Array.isArray(config) || Object.getPrototypeOf(config) !== Object.prototype) {
     throw new PromptRoleContractRegistryError('promptEnvelope config must be a plain object');
@@ -575,29 +591,39 @@ export function resolvePromptEnvelopeRolloutMode(
   for (const key of Object.keys(record)) {
     if (!['version', 'roles'].includes(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.${key} is unknown`);
   }
-  if (record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION) {
+  if (record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION
+    && record.version !== PROMPT_ENVELOPE_ROLLOUT_VERSION_LEGACY) {
     throw new PromptRoleContractRegistryError(`promptEnvelope.version must be ${PROMPT_ENVELOPE_ROLLOUT_VERSION}`);
   }
   if (!record.roles || typeof record.roles !== 'object' || Array.isArray(record.roles) || Object.getPrototypeOf(record.roles) !== Object.prototype) {
     throw new PromptRoleContractRegistryError('promptEnvelope.roles must be a plain object');
   }
   const roles = record.roles as Record<string, unknown>;
+  const logicalRoles = new Map<string, { key: string; mode: unknown }>();
   for (const key of Object.keys(roles)) {
-    if (!PROMPT_ROLE_CONTRACT_BY_ID.has(key)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
+    const canonicalKey = canonicalAgentRoleId(key);
+    if (!PROMPT_ROLE_CONTRACT_BY_ID.has(canonicalKey)) throw new PromptRoleContractRegistryError(`promptEnvelope.roles contains unknown role "${key}"`);
+    const previous = logicalRoles.get(canonicalKey);
+    if (previous) {
+      throw new PromptRoleContractRegistryError(
+        `promptEnvelope.roles contains duplicate logical role "${canonicalKey}" via keys "${previous.key}" and "${key}"`,
+      );
+    }
+    logicalRoles.set(canonicalKey, { key, mode: roles[key] });
     if (!['legacy-full-context', 'full-envelope'].includes(roles[key] as string)) {
       throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} has unsupported mode`);
     }
-    if (roles[key] === 'full-envelope' && promptRoleContract(key).status !== 'active') {
-      throw new PromptRoleContractRegistryError(`${key} is ${promptRoleContract(key).status} and cannot enable full-envelope`);
+    if (roles[key] === 'full-envelope' && promptRoleContract(canonicalKey).status !== 'active') {
+      throw new PromptRoleContractRegistryError(`${key} is ${promptRoleContract(canonicalKey).status} and cannot enable full-envelope`);
     }
-    if (!isModularReviewerRoleId(key) && !MODULAR_COMPLEX_ROLE_IDS.includes(key as typeof MODULAR_COMPLEX_ROLE_IDS[number])) {
+    if (!isModularReviewerRoleId(canonicalKey) && !MODULAR_COMPLEX_ROLE_IDS.includes(canonicalKey as typeof MODULAR_COMPLEX_ROLE_IDS[number])) {
       throw new PromptRoleContractRegistryError(`promptEnvelope.roles.${key} is outside the approved modular rollout`);
     }
   }
   if (Object.prototype.hasOwnProperty.call(roles, '__proto__') || Object.prototype.hasOwnProperty.call(roles, 'constructor')) {
     throw new PromptRoleContractRegistryError('promptEnvelope.roles contains a forbidden prototype key');
   }
-  const configured = roles[contract.roleId];
+  const configured = logicalRoles.get(contract.roleId)?.mode;
   return configured === undefined ? 'legacy-full-context' : configured as PromptEnvelopeRolloutMode;
 }
 
@@ -606,12 +632,13 @@ export function resolvePromptRoleBody(
   config: unknown,
   snapshot: PromptRegistrySnapshot = readPromptRegistry(),
 ): ResolvedPromptRoleBody {
-  const mode = resolvePromptEnvelopeRolloutMode(roleId, config);
-  const entry = snapshot.agents.find(candidate => candidate.agentId === roleId);
+  const canonicalRoleId = canonicalAgentRoleId(roleId);
+  const mode = resolvePromptEnvelopeRolloutMode(canonicalRoleId, config);
+  const entry = snapshot.agents.find(candidate => candidate.agentId === canonicalRoleId);
   if (!entry) throw new PromptRoleContractRegistryError(`unknown prompt role "${roleId}"`);
   const body = resolvePromptTemplateBody(entry, mode);
   return Object.freeze({
-    roleId,
+    roleId: canonicalRoleId,
     mode,
     body,
     bodyDigest: domainSeparatedDigest(`reviewer-role-body.${mode}.raw-utf8.v1`, body),

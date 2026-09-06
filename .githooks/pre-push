@@ -1,28 +1,29 @@
 #!/usr/bin/env bash
 #
-# .githooks/pre-push — ProofOrStop 自举仓的外部 tsc gate（B-eab3 / B-5a28 设计）
+# .githooks/pre-push — Proof-or-Stop 自举仓的外部 tsc gate（B-eab3 / B-5a28 设计）
 #
 # 这是 `proof-or-stop validate --lint` 的外部兜底防线。快速通道 REVIEW→TEST 会 skip
 # lint gate，pre-push 是类型错误进 main 前的唯一兜底。
 #
-# 远端写入纪律：ProofOrStop 并行开发只使用本地 git worktree + 本地分支。
+# 远端写入纪律：Proof-or-Stop 并行开发只使用本地 git worktree + 本地分支。
 # agent 默认不应该在 GitHub/origin 创建 story/codex/lab 分支，也不应该顺手 push
 # main。完成路径是本地 DONE 合并回 main、清理 worktree 后停止。若人类确实要发布
 # 远端，必须先运行 `proof-or-stop release_approve_push --confirm` 创建短 TTL 的一次性
 # 本地 approval；本 hook 只在 approval 的 remote/ref/sha/TTL 全匹配时允许 refs/heads/main。
 #
-# 核心约束：本 hook **不调用 `proof-or-stop` 命令**。它要防御的就是「全局 proofOrStop 可执行
-# 文件版本错位」情形——若 hook 自己依赖 proofOrStop，proofOrStop 翻车时 hook 会一起翻
+# 核心约束：本 hook **不调用 `proof-or-stop` 命令**。它要防御的就是「全局
+# proof-or-stop 可执行文件版本错位」情形——若 hook 自己依赖 proof-or-stop，CLI 翻车时
+# hook 会一起翻
 # （B-9bd9 假 DONE 根因之一）。实现只用 git / find / node / npx tsc / npm run build。
 #
-# ProofOrStop 自举仓检测分三步，每步的处置不同（不是「任一不满足一律 exit 0」）：
-#   1. `$REPO_ROOT/packages/main/package.json` 不存在 → 确实非 ProofOrStop 自举仓
-#      → exit 0（对非 ProofOrStop 仓零摩擦放行）。
+# Proof-or-Stop 自举仓检测分三步，每步的处置不同（不是「任一不满足一律 exit 0」）：
+#   1. `$REPO_ROOT/packages/main/package.json` 不存在 → 确实非 Proof-or-Stop 自举仓
+#      → exit 0（对非 Proof-or-Stop 仓零摩擦放行）。
 #   2. package.json 存在但 `node` 不在 PATH → 无法解析 name、也无法跑递归 tsc
 #      gate → **fail-closed**：向 stderr 打印明确警告并 exit 1 拒绝 push。
 #      这里 **不能 fail-open**——静默 exit 0 会让 tsc gate 被无声绕过（F-002）。
-#   3. `node` 可用，但 package.json 的 `name` 字段不在名字集合内（`@proof-or-stop/core` / `@proof-or-stop/core`）
-#      → 确实非 ProofOrStop 自举仓 → exit 0 放行。
+#   3. `node` 可用，但 package.json 的 `name` 字段不在 canonical/legacy 名字集合内
+#      （`@proof-or-stop/core` / `@lattice/core`）→ 确实非 Proof-or-Stop 自举仓 → exit 0 放行。
 # 注意：本仓是扁平布局 `packages/main`。
 #
 # 递归 tsc：find REPO_ROOT 下所有 tsconfig.json（排除黑名单目录），对每个所在
@@ -31,8 +32,8 @@
 #
 # 构建顺序约束：`packages/utils` 的源码 import `packages/main/dist` 的编译产物。
 # 若 `packages/main/dist` 不存在，递归 tsc 跑到 `packages/utils` 时会因找不到
-# 模块而 FAIL。所以本 hook 在递归 tsc 前先 `npm run build`（即 tsc，非 proofOrStop
-# 命令，符合约束）构建 `packages/main`，让 `packages/utils` 能解析依赖。
+# 模块而 FAIL。所以本 hook 在递归 tsc 前先 `npm run build`（即 tsc，非 proof-or-stop
+# CLI 命令，符合约束）构建 `packages/main`，让 `packages/utils` 能解析依赖。
 #
 set -u
 
@@ -82,7 +83,11 @@ try {
 } catch {
   reject(`missing one-shot approval file: ${path.relative(root, approvalPath)}`);
 }
-if (!approval || approval.schema !== "lattice.remote-push-approval.v1") {
+const acceptedApprovalSchemas = new Set([
+  "proof-or-stop.remote-push-approval.v1",
+  "lattice.remote-push-approval.v1",
+]);
+if (!approval || !acceptedApprovalSchemas.has(approval.schema)) {
   reject("approval schema is missing or invalid");
 }
 if (approval.branch !== "refs/heads/main" || remoteRef !== "refs/heads/main") {
@@ -115,7 +120,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   case "$remote_ref" in
     refs/heads/main)
       if ! command -v node >/dev/null 2>&1; then
-        echo "[pre-push] FAIL: 'node' not found in PATH — cannot validate ProofOrStop remote publish approval." >&2
+        echo "[pre-push] FAIL: 'node' not found in PATH — cannot validate Proof-or-Stop remote publish approval." >&2
         echo "[pre-push] Refusing push (fail-closed)." >&2
         exit 1
       fi
@@ -126,7 +131,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     refs/heads/*)
       branch="${remote_ref#refs/heads/}"
       echo "[pre-push] REJECTED: refusing to push remote branch '$branch'." >&2
-      echo "[pre-push] ProofOrStop parallel work is local-only: use local worktrees/branches, merge to local main, clean the worktree, and do not push task branches." >&2
+      echo "[pre-push] Proof-or-Stop parallel work is local-only: use local worktrees/branches, merge to local main, clean the worktree, and do not push task branches." >&2
       echo "[pre-push] Remote publish is main-only and requires a one-shot local approval." >&2
       exit 1
       ;;
@@ -135,17 +140,17 @@ done <"$REF_UPDATES"
 
 MAIN_PKG="$REPO_ROOT/packages/main/package.json"
 
-# --- ProofOrStop 自举仓检测 ---
+# --- Proof-or-Stop 自举仓检测 ---
 if [ ! -f "$MAIN_PKG" ]; then
-  # 非 ProofOrStop 自举仓：无 packages/main/package.json，立即放行
+  # 非 Proof-or-Stop 自举仓：无 packages/main/package.json，立即放行
   exit 0
 fi
 
 # node 用于解析 package.json 的 name 字段。若 node 不在 PATH，无法判断本仓是否
-# ProofOrStop 自举仓——此时 **不能 fail-open**：静默 exit 0 会让 tsc gate 被无声绕过
+# Proof-or-Stop 自举仓——此时 **不能 fail-open**：静默 exit 0 会让 tsc gate 被无声绕过
 # （F-002）。改为 fail-closed：打印明确警告并 exit 1 拒绝 push。
 if ! command -v node >/dev/null 2>&1; then
-  echo "[pre-push] FAIL: 'node' not found in PATH — cannot determine if this is the ProofOrStop self-host repo." >&2
+  echo "[pre-push] FAIL: 'node' not found in PATH — cannot determine if this is the Proof-or-Stop self-host repo." >&2
   echo "[pre-push] Refusing push (fail-closed): the recursive tsc gate cannot run without node." >&2
   echo "[pre-push] Install node and retry, or bypass intentionally with 'git push --no-verify'." >&2
   exit 1

@@ -50,7 +50,7 @@ function createTempProject(initialPrompt) {
   execFileSync('git', ['config', 'user.email', 'proof-or-stop-lab@example.com'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['add', '.'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
   execFileSync('git', ['commit', '-m', 'init'], { cwd: dir, stdio: ['pipe', 'pipe', 'pipe'] });
-  run(dir, ['lab', 'create', '--target=test-case-reviewer', '--profile=reviewer-quality-v1']);
+  run(dir, ['lab_create', '--target=test-case-reviewer', '--profile=reviewer-quality-v1']);
   return dir;
 }
 

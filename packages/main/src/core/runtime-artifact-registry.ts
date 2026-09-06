@@ -129,6 +129,19 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     repairableTrackedArtifact: true,
   },
   {
+    // B-5a15: immutable command receipts are lookup/runtime state, not story
+    // source material. The CAS bytes remain auditable and story-scoped, but
+    // writing them must not invalidate materialHash or make DONE's clean-tree
+    // gate depend on a verification retry.
+    id: 'runtime-causal-evidence-receipts',
+    description: 'Story-scoped CausalEvidence CAS receipt bytes and execution-key index.',
+    matchers: [{ kind: 'regexp', value: rx(String.raw`(?:^|/)(?:\.lattice|\.proof-or-stop)/story/actives/[^/]+/causal-evidence(?:/|$)|(?:^|/)docs/story/actives/[^/]+/causal-evidence(?:/|$)`) }],
+    ignorePatterns: ['**/causal-evidence/'],
+    materialHash: 'exclude',
+    volatile: true,
+    repairableTrackedArtifact: true,
+  },
+  {
     // B-bbaf CHK-002/006: the convergence-breaker runtime state — breaker-state.json
     // (graduated freeze + auto-recovery budget), takeover-count.json (per-story
     // takeover counter), and gate-failure-counts.json (repeated-identical-gate-
@@ -196,6 +209,34 @@ export const RUNTIME_ARTIFACT_REGISTRY: RuntimeArtifactRegistryEntry[] = [
     // tried auto-committing the write instead (that approach moved HEAD and
     // broke delivery-check materialHash freshness; excluding from materialHash
     // computation avoids the problem at its root instead).
+    // B-5a15: dev_memory_capture writes <state-dir>/dev-memory/experience.jsonl,
+    // a sibling of finish-decisions/ that the entry below does NOT match. Without
+    // an entry it counted as story MATERIAL, and that broke certification:
+    // deriveCertificationDomainInputHashes (handlers/certification-window.ts)
+    // returns undefined for any story-owned path matching no CERTIFICATION_DOMAIN_PATH_RULES
+    // entry, which drove causalInputHashes absent -> identityComplete false ->
+    // certification_window_begin BLOCKED [pre_cert_causal_freshness_required]. The
+    // DONE gate itself requires dev_memory_finish_decision, so capturing a lesson is
+    // a mandatory closeout step that must not be able to block certification.
+    // Same rationale and same shape as the finish-decision entry below: git-tracked
+    // and shared across agents/hosts (hence NO ignorePatterns), but
+    // materialHash:'exclude' so writing a lesson can never perturb currentMaterialHash
+    // and invalidate an already-signed evidence freshness binding.
+    id: 'dev-memory-experience-log',
+    description: 'Append-only dev_memory_capture experience log under <state-dir>/dev-memory/experience.jsonl, tracked but non-authoritative.',
+    // stateDirExact, not stateDirPrefix (B-5a15:F-392): this is always one fixed
+    // filename -- resolveProjectMemoryPath/resolveGlobalMemoryPath never produce a
+    // variant -- so it follows the activity.jsonl / learning-log.jsonl convention.
+    // The prefix form was an imprecise copy from the finish-decisions sibling, which
+    // is genuinely a directory; prefix also wrongly matched nested paths under the
+    // filename, widening the materialHash exclusion beyond the one real file.
+    matchers: stateDirExact('dev-memory/experience.jsonl'),
+    ignorePatterns: [],
+    materialHash: 'exclude',
+    volatile: false,
+    repairableTrackedArtifact: false,
+  },
+  {
     id: 'dev-memory-finish-decision',
     description: 'Per-story dev_memory_finish_decision record under <state-dir>/dev-memory/finish-decisions/, tracked but non-authoritative.',
     matchers: stateDirPrefix('dev-memory/finish-decisions/'),

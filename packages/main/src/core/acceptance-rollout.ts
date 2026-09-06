@@ -10,6 +10,7 @@ import {
 } from './authority-signing.js';
 import { digestCanonicalJson } from './digest.js';
 import { STATE_DIR_NAMES } from './brand-paths.js';
+import { readGitBlobAt } from './git-blob-reader.js';
 import {
   checkEvidenceFreshnessForGit,
   currentGitHead,
@@ -250,7 +251,10 @@ function replayProductionGateState(args: {
       env: {
         ...process.env,
         PROOF_OR_STOP_SESSION_ID: `rollout-replay-${args.storyId}-${command}`,
-        PROOF_OR_STOP_AGENT: 'acceptance-rollout-verifier',
+        // The verifier name is an artifact issuer, not a registered mutation
+        // role. Use the trusted host actor for the nested gate replay; any
+        // reviewer identity remains carried by the signed gate payload.
+        PROOF_OR_STOP_AGENT: 'main',
       },
       maxBuffer: 16 * 1024 * 1024,
     });
@@ -363,23 +367,21 @@ export function issueAcceptanceRolloutObservationFromProduction(args: {
   // B-cc10 F-005: read BOTH state-dir spellings. A quorum commit made after the
   // migration stores process-events.jsonl under the canonical dir, so a
   // deprecated-only path made this git-show fail for every post-migration commit.
-  let rawCommittedEvents = '';
-  let lastShowError: unknown = null;
+  let committedEvents: Record<string, unknown>[] | null = null;
+  let lastReadError = '';
   for (const dir of STATE_DIR_NAMES) {
     const storyPath = `${dir}/story/actives/${args.storyId}/process-events.jsonl`;
-    try {
-      rawCommittedEvents = execFileSync('git', hardenedGitArgs(['show', `${quorum.metadataCommitSha}:${storyPath}`]), {
-        cwd: args.evidenceGitCwd,
-        encoding: 'utf8',
-      }).trim();
-      lastShowError = null;
+    const committedRead = readGitBlobAt(args.evidenceGitCwd, quorum.metadataCommitSha, storyPath);
+    if (committedRead.status === 'ok') {
+      committedEvents = committedRead.content.toString('utf8').trim().split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line) as Record<string, unknown>);
+      lastReadError = '';
       break;
-    } catch (e) {
-      lastShowError = e;
     }
+    lastReadError = committedRead.status === 'missing' ? 'are missing' : `could not be read (${committedRead.reason})`;
   }
-  if (lastShowError) throw lastShowError;
-  const committedEvents = rawCommittedEvents.split(/\r?\n/).filter(Boolean).map(line => JSON.parse(line) as Record<string, unknown>);
+  if (!committedEvents) {
+    throw new Error(`acceptance rollout observation: immutable quorum process-events ${lastReadError || 'are missing'}`);
+  }
   const committedVerdicts = committedEvents.filter(event => event.type === 'host_verdict');
   const committedById = new Map(committedVerdicts.map(event => [String(event.verdictId), event]));
   if (evidence.hostVerdicts.length !== 6

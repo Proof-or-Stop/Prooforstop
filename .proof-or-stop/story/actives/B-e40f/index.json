@@ -1,0 +1,29 @@
+{
+  "storyId": "B-e40f",
+  "name": "quorum-submit-case-harness-20260906",
+  "title": "Make quorum-submit smoke selection complete, isolated, and safely parallel",
+  "description": "Correct and refactor the TypeScript quorum-submit integration suite in one Story: make selection exact and fail-closed, register every existing check without loss, separate pure and quorum_prune partitions, reuse isolated fixture templates, and add truthful resource declarations plus bounded process parallelism. Preserve the compiled black-box contract and production quorum semantics; exclude Rust and unrelated validation-runner redesign.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-09-06T12:01:35.270Z",
+  "startedAt": "2026-09-06T12:01:35.270Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-06T12:01:36.064Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-a81742b94284d4257aec7f52024c185b",
+      "agent": "main"
+    }
+  ]
+}

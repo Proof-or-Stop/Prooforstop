@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-0b50",
+  "allowedCommands": [
+    "git diff *",
+    "git log *",
+    "git status *",
+    "node bin/proof-or-stop.js *",
+    "npm run build *",
+    "npm test *"
+  ],
+  "allowedTools": [
+    "proof-or-stop CLI",
+    "terminal"
+  ],
+  "allowedPaths": [
+    "AGENTS.md",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+    "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+    "package.json",
+    "packages/main/package.json",
+    "packages/main/src",
+    "packages/main/tests"
+  ],
+  "excludedCommands": [
+    "git clean *",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".git",
+    "docs/story",
+    "tests/fixtures"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Keep implementation and focused tests scoped to the missing PRE_CERT inventory finalization path.",
+  "createdAt": "2026-08-25T19:28:04.082Z",
+  "updatedAt": "2026-08-25T19:28:04.082Z",
+  "_hash": "01e61707f15606447fbafbe1c56f8111ae4d7915f8de57d82a68706972a139f7"
+}

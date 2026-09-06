@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-5a15",
+  "records": [
+    {
+      "id": "RED-20260820092657",
+      "trigger": "U-03 pre-fix absence of CausalEvidence execution-key deduplication and receipt-first import",
+      "acceptanceTargetRef": "CHK-001",
+      "baselineHeadHash": "747eddd85301d376fa7472867dc42cf32962b784",
+      "baselineMaterialHash": "5c35bcaef1220b1e6b7839d62830a1495953985389acb9b88b43cee3d0d955c5",
+      "observedFailure": "Before implementation, checklist batch verification routes executable intents through the existing per-intent runner; no content-addressed execution key, CAS receipt store, or zero-rerun import transaction is present in the declared source touchpoints.",
+      "failingCommand": "rg -n 'runSingleAllowlistedCommand|verification_evidence_batch_add' packages/main/src/handlers/checklist.ts",
+      "expectedGreenCommand": "node packages/main/tests/causal-evidence.test.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/tests/causal-evidence.test.mjs"
+      },
+      "note": "Source-backed red baseline only; this records the pre-fix implementation gap and does not claim a passing test before DEV. Green evidence must be recorded after implementation from the actual test command.",
+      "createdAt": "2026-08-20T09:26:57.713Z"
+    },
+    {
+      "id": "RED-B5A15-ACC-001",
+      "trigger": "\"U-03 pre-fix absence of CausalEvidence execution-key deduplication and receipt-first import\"",
+      "acceptanceTargetRef": "ACC-001",
+      "baselineHeadHash": "a1edd339e1bf5cf1ff687219b4f0043ac149929f",
+      "baselineMaterialHash": "5c35bcaef1220b1e6b7839d62830a1495953985389acb9b88b43cee3d0d955c5",
+      "observedFailure": "\"Before implementation, checklist batch verification routes executable intents through the existing per-intent runner; no content-addressed execution key, CAS receipt store, or zero-rerun import transaction is present in the declared source touchpoints.\"",
+      "failingCommand": "\"rg -n 'runSingleAllowlistedCommand|verification_evidence_batch_add' packages/main/src/handlers/checklist.ts\"",
+      "expectedGreenCommand": "\"node packages/main/tests/causal-evidence.test.mjs\"",
+      "greenRelation": {
+        "targetRef": "ACC-001",
+        "relation": "regression_to_green",
+        "command": "\"node packages/main/tests/causal-evidence.test.mjs\""
+      },
+      "note": "\"Source-backed red baseline for the bound acceptance claim; no passing test is asserted before DEV. Green evidence must be recorded after the implementation test runs.\"",
+      "createdAt": "2026-08-20T09:27:57.261Z"
+    }
+  ],
+  "createdAt": "2026-08-20T09:26:57.713Z",
+  "updatedAt": "2026-08-20T09:27:57.261Z"
+}

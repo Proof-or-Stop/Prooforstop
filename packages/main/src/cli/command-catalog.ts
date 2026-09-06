@@ -65,6 +65,28 @@ import { AGENT_DISPATCH_ACCEPTED_TYPES } from '../core/agent-dispatch-registry.j
 import { STALL_RESOLUTION_ACTIONS } from '../core/review-convergence.js';
 import { normalizeDeliveryPromiseOutcome } from '../core/delivery-promise-outcome.js';
 
+// review_run_start accepts canonical reviewer lanes for new callers and the
+// historical lattice spellings for persisted/compatibility callers. Runtime
+// phase and evidence eligibility checks remain in core/review-run.ts.
+const REVIEW_RUN_LANE_INPUTS = [
+  'proof-or-stop-review-topology-critic',
+  'proof-or-stop-review-concept',
+  'proof-or-stop-review-quality',
+  'proof-or-stop-review-behavior',
+  'proof-or-stop-review-docs',
+  'proof-or-stop-review-channel',
+  'proof-or-stop-review-test-coverage',
+  'proof-or-stop-review-delivery',
+  'lattice-review-topology-critic',
+  'lattice-review-concept',
+  'lattice-review-quality',
+  'lattice-review-behavior',
+  'lattice-review-docs',
+  'lattice-review-channel',
+  'lattice-review-test-coverage',
+  'lattice-review-delivery',
+] as const;
+
 const HIDDEN_LOCAL_ASSURANCE_REFUSAL = '@help-hidden local-assurance refusal sentinel';
 
 const READ_ONLY_STATUS_UNSUPPORTED_FLAGS = {
@@ -481,8 +503,8 @@ Behavior:
     verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('Evidence verdict semantics; does not override the result pass/fail gate.'),
     waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('When kind=waiver, this can mark temporary gate self-test evidence.'),
     file: z.string().optional().describe('Test or documentation file path.'),
-    command: z.string().optional().describe('Command to run. For an executable intent (logic|cli|browser) this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
-    selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it (with command) pins the executable intent and makes evidence tool-executed; result is then derived from the actual exit + selector match.'),
+    command: z.string().optional().describe('Command to run. For logic|cli|browser, or a docs/manual intent deliberately given a verifier, this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
+    selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it with command pins the intent verifier (including a mechanically checked docs/manual intent) and makes evidence tool-executed; result is derived from the actual exit + selector match.'),
     result: z.enum(['pass', 'fail']).optional().describe('Command result. For a tool-executed (pinned) executable intent this is DERIVED from the receipt and a contradicting caller pass is refused.'),
     note: z.string().describe('Why this evidence satisfies the intent.'),
     nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape: record a non-mechanical attestation for an executable intent WITHOUT execution (execution impossible in this environment). Attributable + gate-visible; never grants coverage.'),
@@ -498,8 +520,8 @@ Behavior:
       verdict: z.enum(VERIFICATION_EVIDENCE_VERDICTS).optional().describe('Evidence verdict semantics; does not override the result pass/fail gate.'),
       waiverType: z.enum(['permanent', 'deferred_gate_evidence']).optional().describe('When kind=waiver, this can mark temporary gate self-test evidence.'),
       file: z.string().optional().describe('Test or documentation file path.'),
-      command: z.string().optional().describe('Command to run. For an executable intent (logic|cli|browser) this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
-      selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it (with command) pins the executable intent and makes evidence tool-executed.'),
+      command: z.string().optional().describe('Command to run. For logic|cli|browser, or a docs/manual intent deliberately given a verifier, this is the pinned command the tool RUNS; executable+argv only (no raw shell); pinned immutably on the first selector-bearing write.'),
+      selector: z.string().optional().describe('B-ec67: proof selector — a string that MUST appear in the pinned command output. Providing it with command pins the intent verifier (including a mechanically checked docs/manual intent) and makes evidence tool-executed.'),
       result: z.enum(['pass', 'fail']).optional().describe('Command result. For a tool-executed (pinned) executable intent this is DERIVED from the receipt and a contradicting caller pass is refused.'),
       note: z.string().describe('Why this evidence satisfies the intent.'),
       nonMechanicalReason: z.string().min(30, 'nonMechanicalReason must be ≥ 30 characters').optional().describe('B-ec67 audited escape for an executable intent: record a non-mechanical attestation WITHOUT execution. Attributable + gate-visible; never grants coverage.'),
@@ -656,22 +678,56 @@ Behavior:
     storyId: z.string().min(1).describe('Story ID'),
     reason: z.string().min(5).describe('Why the window is cancelled (at least 5 characters).'),
   }},
-  { name: 'review_inventory_finalize', description: 'Write a FINALIZED unconsumed inventory-completeness receipt bound to current head/material/storyFiles hashes; does not authorize PRE_CERT', schema: {
-    storyId: z.string().min(1).describe('Story ID'),
-  }},
   { name: 'review_run_start', description: 'Start a reviewer run for the current REVIEW round; write signed review-runs.json', schema: {
     storyId: z.string().describe('Story ID'),
     agent: z.string().optional().describe('Reviewer agent ID, for example proof-or-stop-review-quality; defaults to PROOF_OR_STOP_AGENT.'),
-    lane: z.enum([
-      'proof-or-stop-review-concept',
-      'proof-or-stop-review-quality',
-      'proof-or-stop-review-test-coverage',
-      'proof-or-stop-review-behavior',
-      'proof-or-stop-review-docs',
-      'proof-or-stop-review-channel',
-    ]).optional().describe('Explicit reviewer lane; synonym for agent, provide only one.'),
+    lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Explicit canonical reviewer lane; historical lattice aliases remain readable, provide only one.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
+  }},
+  { name: 'review_run_list', description: 'Read compact signed reviewer-run metadata for recovery and inspection; never writes evidence or prompt bytes', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+    lane: z.enum([
+      'lattice-review-concept',
+      'lattice-review-quality',
+      'lattice-review-test-coverage',
+      'lattice-review-behavior',
+      'lattice-review-docs',
+      'lattice-review-channel',
+      'lattice-review-topology-critic',
+    ]).optional().describe('Optional reviewer lane filter.'),
+    latest: z.boolean().optional().describe('Return only the newest matching signed ReviewRun.'),
+    json: z.boolean().optional().describe('Emit compact machine-readable signed run metadata.'),
+  }},
+  { name: 'review_inventory_begin', description: 'Begin one signed frozen-candidate REVIEW inventory epoch', schema: {
+    storyId: z.string().min(1).describe('Story ID in REVIEW.'),
+    maxWaves: z.number().int().min(1).max(5).optional().describe('Bounded discovery-wave budget; defaults to 3.'),
+  }},
+  { name: 'review_inventory_status', description: 'Inspect the latest inventory epoch; OPEN drift is fail-closed to INVALIDATED', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+  }},
+  { name: 'review_inventory_critic_set', description: 'Record independent completeness-critic authority for the current frozen inventory wave', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+    epochId: z.string().min(1).describe('Current OPEN inventory epoch ID.'),
+    reviewRunId: z.string().min(1).describe('Fresh proof-or-stop-review-topology-critic ReviewRun with terminal read evidence.'),
+    agent: z.literal('proof-or-stop-review-topology-critic').optional().describe('Critic actor; must agree with the dispatched PROOF_OR_STOP_AGENT authority.'),
+    findingDispositions: z.array(z.object({
+      findingId: z.string().min(1),
+      disposition: z.enum(['verified_family', 'duplicate', 'not_verified']),
+      familyKey: z.string().min(1).optional(),
+      canonicalFindingId: z.string().min(1).optional(),
+      reason: z.string().min(10),
+    }).strict()).describe('Independent signed disposition for every raw finding in this wave; unresolved findings block finalization.'),
+  }},
+  { name: 'review_inventory_wave_advance', description: 'Persist one complete nonzero-new discovery wave and open the next unchanged-material wave', schema: {
+    storyId: z.string().min(1).describe('Story ID with a complete critic-certified current wave that added verified finding families.'),
+  }},
+  { name: 'review_inventory_finalize', description: 'With an OPEN saturation epoch, mint a receipt only when the current complete unchanged-material wave adds zero verified finding families. With no OPEN epoch, write a FINALIZED unconsumed inventory-completeness receipt bound to current hashes; completeness is not PRE_CERT and authorizesTest stays false.', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+  }},
+  { name: 'review_inventory_cancel', description: 'Cancel an OPEN epoch or invalidate an unconsumed FINALIZED receipt without granting transition authority', schema: {
+    storyId: z.string().min(1).describe('Story ID.'),
+    reason: z.string().trim().min(10).describe('Auditable cancellation and recovery reason.'),
   }},
   { name: 'review_pass_set', description: 'Record a reviewer pass credential (reviewer checked, found no blocking findings)', schema: {
     storyId: z.string().describe('Story ID'),
@@ -2048,6 +2104,7 @@ Behavior:
   { name: 'validate', description: 'Run project verification under shared workspace validation capacity; bare npm test is outside this lease', longHelp: VALIDATE_LONG, schema: {
     full: z.union([z.string(), z.boolean()]).optional().describe('Include real-machine tests (--full or --full=PvE to filter by name).'),
     focus: z.string().optional().describe('Run an explicit focused validate profile, for example --focus=fast. Configured commands must opt in with focus tags; no-focus validate remains full.'),
+    dynamicMode: z.enum(['off', 'observe', 'shadow', 'enforce-low-risk']).optional().describe('Story-aware validation mode. Defaults to off; observe/shadow retain the complete-plan oracle.'),
     story: z.string().optional().describe('Run only transitions affected by the story changes (used by TEST gate).'),
     storyId: z.string().optional().describe('B-a30e: alias for --story; error when both are provided with different values.'),
     json: z.boolean().optional().describe('Structured JSON output (ExternalVerifierResult).'),
@@ -2065,6 +2122,49 @@ Behavior:
   { name: 'serve', description: 'Start HTTP API debug server (watch files + live verification + browser proxy)', schema: {
     dev: z.string().optional().describe('Dev server command, for example npm run dev; enables browser proxy.'),
     port: z.number().optional().describe('API port (default: 3456).'),
+  }},
+  { name: 'graph', description: 'Interactive story + evidence graph for this repository (reads story state; writes its index cache outside the repo)', longHelp:
+`proof-or-stop graph [--root=<dir>] [--port=<n>] [--no-open] [--json] [--story=<id>]
+
+Read-only visualizer for the stories and evidence of a Proof-or-Stop repository:
+a browsable graph plus full-text search and per-story detail.
+
+Options:
+  --root=<dir>   Repository to read (default: nearest Proof-or-Stop root from cwd).
+  --port=<n>     HTTP port (default: 8731).
+  --no-open      Do not launch a browser.
+  --json         Print status as JSON and exit without serving.
+  --story=<id>   Open the graph on that story's dossier page (/story/<id>) instead
+                 of the root graph view (default: the root view). An id that is not
+                 a story in this repository is refused before the server listens,
+                 and the error names near-miss candidates.
+
+Behavior:
+  - Reads story state only; it never mutates story metadata, so it is allowed in
+    every phase (readOnly / destructiveRisk none).
+  - Its search index is written under the user cache directory, keyed by a hash of
+    the repository root, so running it never dirties the worktree that DONE gates
+    on a clean tree.
+  - The graph library, browser client and static assets live in the packages/graph
+    subpackage and are resolved at runtime; if they are missing, the command names
+    the missing directory and the build command instead of failing obscurely.
+  - Long-running when it serves (same shape as serve): the command stays in the
+    foreground until interrupted.`,
+    schema: {
+    root: z.string().optional().describe('Repository to read (default: nearest Proof-or-Stop root from cwd).'),
+    port: z.number().optional().describe('HTTP port (default: 8731).'),
+    // Default true, applied in the handler (`args.open !== false`), NOT via
+    // `.default(true)`: the help renderer detects optionality with
+    // `instanceof ZodOptional`, and a ZodDefault wrapper would render this flag
+    // as required with type `any`. Every other catalog flag follows this same
+    // convention — document the default in the description, apply it in code.
+    open: z.boolean().optional().describe('Launch a browser once the server is listening; default true, use --no-open to suppress.'),
+    json: z.boolean().optional().describe('Print status as JSON and exit without serving.'),
+    // Optional with the default documented here, NOT `.default()` — same reason as
+    // `open` above: a ZodDefault wrapper defeats the help renderer's ZodOptional
+    // check and would render this flag as required with type `any`. The handler
+    // re-validates the value at its entry, so a schema-bypassing call is refused too.
+    story: z.string().optional().describe('Open the graph on that story\'s dossier page (/story/<id>); default is the root graph view. An unknown id is refused before the server listens.'),
   }},
 
   // Evaluate (AI evaluation for browser projects).
@@ -2377,8 +2477,8 @@ Behavior:
       severity: z.enum(['critical', 'high', 'medium', 'low']).describe('Issue severity.'),
       desc: z.string().min(1, 'desc is required and must be at least 1 character').describe('Issue details (reviewer subjective judgment must be specific).'),
     })).describe('List of issues raised by Reviewer; critical/high block INIT_CHECK; empty array allowed.'),
-    agent: z.string().optional().describe('Reviewer self-reported agent name; product-reviewer must pass product-reviewer.'),
-    agentId: z.string().optional().describe('Reviewer self-reported agent ID; product-reviewer must pass product-reviewer and must not pass proof-or-stop-review-story-init.'),
+    agent: z.string().optional().describe('Reviewer self-reported agent name; proof-or-stop-product-reviewer must pass proof-or-stop-product-reviewer.'),
+    agentId: z.string().optional().describe('Reviewer self-reported agent ID; proof-or-stop-product-reviewer must pass proof-or-stop-product-reviewer and must not pass proof-or-stop-review-story-init.'),
   }},
 
   // Init Check fallback/repair (B-95d8 CHK-001: explicit, auditable INIT_CHECK exit
@@ -2705,7 +2805,7 @@ Behavior:
     json: z.boolean().optional(),
     verdict: z.never().optional(), receipt: z.never().optional(), evidence: z.never().optional(), write: z.never().optional(),
   }},
-  { name: 'acceptance_basis_generate', description: 'Run the registered PLAN verifier and atomically persist its signed coverage-basis receipt', schema: {
+  { name: 'acceptance_basis_generate', description: 'Run the registered PLAN verifier and atomically persist its signed coverage-basis receipt. ORDERING (B-45a0): run this BEFORE pre_review_check, never after. pre_review_check snapshots the plan basisDigest, and that digest covers binding/receiptRef, so regenerating the basis afterwards moves it and decays a genuine PASS to PR_COVERAGE_BASIS_CHANGED + PR_ARTIFACT_TAMPERED with no material drift. Recovery needs pre_review_check, which is DEV-only.', schema: {
     storyId: z.string().min(1),
     json: z.boolean().optional(),
     status: z.never().optional().describe('Forbidden: basis status is verifier-derived.'),
@@ -2739,7 +2839,7 @@ Behavior:
     sourceInventoryRefs: z.never().optional(), plannedPathRecords: z.never().optional(), receipt: z.never().optional(), binding: z.never().optional(),
     evidence: z.never().optional(), verdict: z.never().optional(), authority: z.never().optional(),
   }},
-  { name: 'pre_review_check', description: 'Recompute the current-worktree basis and persist the canonical signed executable pre-review result', schema: {
+  { name: 'pre_review_check', description: 'Recompute the current-worktree basis and persist the canonical signed executable pre-review result. ORDERING (B-45a0): any acceptance_basis_generate run AFTER this invalidates the artifact it just signed (PR_COVERAGE_BASIS_CHANGED + PR_ARTIFACT_TAMPERED), because the snapshotted plan basisDigest covers binding/receiptRef. Regenerate the basis first, then issue this last.', schema: {
     storyId: z.string().min(1),
     json: z.boolean().optional(),
     status: z.never().optional(), codes: z.never().optional(), ok: z.never().optional(), mode: z.never().optional(),

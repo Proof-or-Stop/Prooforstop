@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 
 import { resetConfigCache } from '../core/config.js';
+import { DONE_PREPARE_SCHEMA } from '../core/artifact-schema.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { buildDoneChecklist } from '../core/done-oracle.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash, EMPTY_STORY_FILES_HASH } from '../core/evidence-freshness.js';
@@ -410,7 +411,7 @@ async function main(): Promise<void> {
       refreshStale: false,
       json: true,
     }) as { schemaVersion: string; status: string; transcript: string };
-    assert.equal(jsonPrepare.schemaVersion, 'lattice.done_prepare.v1');
+    assert.equal(jsonPrepare.schemaVersion, DONE_PREPARE_SCHEMA);
     assert.equal(jsonPrepare.status, 'blocked');
     assertGuidanceText(jsonPrepare.transcript);
 

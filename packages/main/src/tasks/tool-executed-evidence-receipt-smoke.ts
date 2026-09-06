@@ -16,9 +16,13 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { StoryStore } from '../core/store.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
 import { createChecklistHandlers } from '../handlers/checklist.js';
 import { buildVerificationCoverage } from '../core/verification.js';
+import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
+import { EVIDENCE_COMMAND_TIMEOUT_CAP_MS } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
+import { runValidationCommand } from '../core/validation-executor.js';
 import type { ChecklistData, StoryInfo, VerificationExecutionReceipt, VerificationIntentType } from '../core/types.js';
 
 // Mirror of the private sha256Hex / VERIFICATION_OUTPUT_TAIL_CHARS in
@@ -63,12 +67,17 @@ function makeEnv(intents: Array<{ ref: string; type: VerificationIntentType }>):
   write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
   }, null, 2));
+  // Causal execution keys require a resolved tool version. npm runs this smoke
+  // with packages/main as process.cwd(), so seed the minimal manifest that the
+  // resolver expects in an isolated fixture repo.
+  write(root, 'packages/main/package.json', JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0-smoke' }, null, 2));
   write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
   git(root, ['init', '-b', 'work']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'EC67 Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'seed']);
+  git(root, ['branch', 'main']);
   resetConfigCache();
   const store = new StoryStore(root);
   const storyId = 'B-ec67s';
@@ -89,6 +98,7 @@ function makeEnv(intents: Array<{ ref: string; type: VerificationIntentType }>):
     }],
   };
   store.writeStory(storyId, story);
+  acquireOwnerLease(store.storyDirPath(storyId), { command: 'smoke_fixture_setup', cwd: root });
   store.writeChecklist(storyId, checklist);
   const handlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   return { root, store, handlers, storyId };
@@ -140,6 +150,35 @@ const SELECTOR = 'MARKER_OK';
   } finally { cleanup(env); }
 }
 
+// ── 1b. A docs intent may carry a real verifier pin. Its subject remains docs,
+//         but command+selector earns the same mechanical receipt as any other
+//         executable verifier (B-3f3d F-025). ─────────────────────────────────
+{
+  const env = makeEnv([{ ref: 'INT-DOCS-PIN', type: 'docs' }]);
+  try {
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-DOCS-PIN', kind: 'docs_check',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'mechanically verify documentation provenance',
+    });
+    let cl = env.store.readChecklist(env.storyId);
+    let ev = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-DOCS-PIN');
+    assert.equal(ev?.mechanical, true, 'selector-bearing docs check is mechanical');
+    assert.equal(ev?.receipt?.selectorMatched, true, 'docs verifier selector matched real output');
+    assert.equal(cl.items[0].verificationIntent?.happy[0].type, 'docs', 'docs subject type is preserved');
+    assert.deepEqual(cl.items[0].verificationIntent?.happy[0].verification, {
+      command: PASS_CMD, selector: SELECTOR,
+    }, 'docs verifier is immutably pinned');
+
+    await env.handlers.verification_run({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-DOCS-PIN', note: 're-run pinned docs verifier',
+    });
+    cl = env.store.readChecklist(env.storyId);
+    ev = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-DOCS-PIN');
+    assert.equal(ev?.mechanical, true, 'verification_run preserves mechanical docs authority');
+    assert.equal(ev?.kind, 'docs_check', 'receipt remains classified as documentation evidence');
+  } finally { cleanup(env); }
+}
+
 // ── 2. POSITIVE through verification_evidence_batch_add (parity). ───────────────
 {
   const env = makeEnv([{ ref: 'INT-B', type: 'cli' }]);
@@ -182,6 +221,46 @@ const SELECTOR = 'MARKER_OK';
     // Digest is over the FULL output, not the truncated tail.
     assert.equal(ev.receipt.outputDigest, sha256Hex(full), 'outputDigest == sha256(FULL untruncated output)');
     assert.notEqual(sha256Hex(ev.receipt.outputTail), ev.receipt.outputDigest, 'digest covers more than the tail (bound is real, not a no-op)');
+  } finally { cleanup(env); }
+}
+
+// ── 2c. B-212f BUG-001: receipt judgement must use the complete captured output even
+//        when the selector occurs beyond the ordinary validation-result head window. The
+//        public validation result remains bounded; only the pinned evidence path consumes
+//        the already-captured complete bytes for matching, digesting, and its 4000-char tail.
+{
+  const env = makeEnv([{ ref: 'INT-BEYOND-WINDOW', type: 'cli' }]);
+  try {
+    const full = `${'X'.repeat(12_001)}MARKER_OK`;
+    const command = `node -e "process.stdout.write('X'.repeat(12001) + 'MARKER_OK')"`;
+
+    const routineResult = await runValidationCommand({
+      label: 'bounded-routine-validation-output',
+      command: 'node',
+      args: ['-e', "process.stdout.write('X'.repeat(12001) + 'MARKER_OK')"],
+    }, env.root);
+    assert.equal(routineResult.output.slice(0, 12_000), 'X'.repeat(12_000), 'ordinary validation result retains exactly its bounded head window');
+    assert.doesNotMatch(routineResult.output, /MARKER_OK/, 'ordinary validation result retains only its bounded head window');
+    assert.match(routineResult.output, /\.\.\.\[truncated 10 chars\]$/, 'ordinary validation result describes the omitted bytes');
+
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId,
+      itemId: 'CHK-001',
+      intentRef: 'INT-BEYOND-WINDOW',
+      kind: 'integration_test',
+      command,
+      selector: SELECTOR,
+      result: 'pass',
+      note: 'selector after the ordinary 12000-character validation output window',
+    });
+
+    const evidence = env.store.readChecklist(env.storyId).items[0].verificationEvidence
+      ?.find(entry => entry.intentRef === 'INT-BEYOND-WINDOW');
+    assert.ok(evidence?.receipt, 'selector beyond the ordinary validation window earns a receipt');
+    assert.equal(evidence.receipt.selectorMatched, true, 'complete captured output is used for selector matching');
+    assert.equal(evidence.receipt.outputDigest, sha256Hex(full), 'receipt digest covers complete captured output');
+    assert.equal(evidence.receipt.outputTail.length, VERIFICATION_OUTPUT_TAIL_CHARS, 'persisted outputTail remains exactly 4000 characters');
+    assert.equal(evidence.receipt.outputTail, full.slice(-VERIFICATION_OUTPUT_TAIL_CHARS), 'persisted outputTail is the complete output tail');
   } finally { cleanup(env); }
 }
 
@@ -486,8 +565,10 @@ const SELECTOR = 'MARKER_OK';
     assert.equal(seeded?.mechanical, true, 'seed: genuine receipt recorded as mechanical:true');
     assert.ok(seeded?.receipt, 'seed: genuine receipt present on disk');
     const seededDigest = seeded.receipt.outputDigest;
+    assert.equal(seeded.materialHash, currentMaterialHash(env.root, 'HEAD', env.root), 'seed receipt material binding is current before re-persist');
+    assert.equal(seeded.storyFilesHash, currentStoryFilesHash(env.root, 'HEAD', env.root), 'seed receipt story-files binding is current before re-persist');
 
-    // 12c: a LEGITIMATE re-persist (metadata edit only — SAME on-disk command+result, caller
+    // 12c: a LEGITIMATE exact re-persist (SAME semantics and material, caller
     //      supplies NO receipt) preserves the REAL on-disk receipt (carried forward from disk,
     //      not from the caller) and stays covered. INT-MAN2 is a manual (attestation-only)
     //      intent, covered by a plain manual_transcript row. (Breaking carryForwardOnDiskProvenance
@@ -498,7 +579,7 @@ const SELECTOR = 'MARKER_OK';
       storyId: env.storyId, itemId: 'CHK-001',
       verificationEvidence: [
         { intentRef: 'INT-MAN2', kind: 'manual_transcript', result: 'pass', note: 'manual attestation for an attestation-only intent' },
-        { intentRef: 'INT-EXEC', kind: seeded.kind, command: seeded.command, result: seeded.result, note: 'legitimate re-persist: metadata edit only, no receipt supplied' },
+        { intentRef: 'INT-EXEC', kind: seeded.kind, command: seeded.command, result: seeded.result, note: seeded.note },
       ],
     });
     const cl = env.store.readChecklist(env.storyId);
@@ -506,9 +587,254 @@ const SELECTOR = 'MARKER_OK';
     assert.equal(exec?.mechanical, true, 'on-disk receipt is carried forward as mechanical:true on re-persist');
     assert.ok(exec?.receipt, 'on-disk receipt survives the re-persist (not stripped)');
     assert.equal(exec.receipt.outputDigest, seededDigest, 'carried-forward receipt is the REAL on-disk one (same digest), not a caller fabrication');
-    assert.equal(exec.note, 'legitimate re-persist: metadata edit only, no receipt supplied', 're-persist applied the metadata edit');
+    assert.equal(exec.note, seeded.note, 'exact re-persist preserves the bound evidence semantics');
     const cov = buildVerificationCoverage(cl);
     assert.equal(cov.missingRequired, 0, 'a re-persisted intent with its preserved real receipt + manual attestation cover both intents');
+
+    // 12d: semantic changes cannot inherit the prior receipt. checklist_update does not
+    // execute the verifier, so changed note/command rows are refused and a changed-result
+    // failure remains explicitly non-authoritative.
+    assert.throws(
+      () => env.handlers.checklist_update({
+        storyId: env.storyId, itemId: 'CHK-001',
+        verificationEvidence: [{ intentRef: 'INT-EXEC', kind: seeded.kind, command: seeded.command, result: seeded.result, note: 'changed note cannot inherit execution authority' }],
+      }),
+      /checklist_update_executable_evidence_unenforced/,
+      'semantic note drift drops the prior receipt',
+    );
+    assert.throws(
+      () => env.handlers.checklist_update({
+        storyId: env.storyId, itemId: 'CHK-001',
+        verificationEvidence: [{ intentRef: 'INT-EXEC', kind: seeded.kind, command: 'changed-command --not-executed', result: seeded.result, note: seeded.note }],
+      }),
+      /checklist_update_executable_evidence_unenforced/,
+      'changed command cannot inherit the prior receipt',
+    );
+    env.handlers.checklist_update({
+      storyId: env.storyId, itemId: 'CHK-001',
+      verificationEvidence: [{ intentRef: 'INT-EXEC', kind: seeded.kind, command: seeded.command, result: 'fail', note: seeded.note }],
+    });
+    const failed = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    assert.equal(failed?.result, 'fail', 'changed result remains an explicit failure');
+    assert.equal(failed?.mechanical, undefined, 'changed result does not inherit mechanical authority');
+    assert.equal(failed?.receipt, undefined, 'changed result does not inherit the receipt');
+
+    // Restore a fresh receipt, then mutate committed material. Even an exact semantic
+    // re-persist must fail closed: checklist_update may not restamp old execution as if it
+    // ran against commit B.
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-EXEC', kind: 'logic_test',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'fresh receipt before material drift',
+    });
+    const beforeDrift = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    write(env.root, 'packages/main/src/base.ts', 'export const base = "commit-B";\n');
+    git(env.root, ['add', '.']);
+    git(env.root, ['commit', '-m', 'commit B material drift']);
+    assert.throws(
+      () => env.handlers.checklist_update({
+        storyId: env.storyId, itemId: 'CHK-001',
+        verificationEvidence: [{ intentRef: 'INT-EXEC', kind: beforeDrift!.kind, command: beforeDrift!.command, result: beforeDrift!.result, note: beforeDrift!.note }],
+      }),
+      /checklist_update_executable_evidence_unenforced/,
+      'commit-B material/story-files drift cannot rebind commit-A execution authority',
+    );
+  } finally { cleanup(env); }
+}
+
+// ── 12d. F-045: checklist_update cannot rebind a stale executable receipt to
+//        caller-supplied current-looking hashes. A same-evidence re-persist keeps
+//        the server-owned execution binding before drift; after a material change,
+//        the strict carry-forward guard refuses the write until the verifier reruns. ──
+{
+  const env = makeEnv([{ ref: 'INT-F045', type: 'cli' }]);
+  try {
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-F045', kind: 'integration_test',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'F-045 seed receipt',
+    });
+    const seeded = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    assert.ok(seeded?.mechanical, 'F-045 seed: real receipt is mechanical');
+    assert.ok(seeded?.receipt, 'F-045 seed: real receipt exists');
+    assert.ok(seeded.headHash && seeded.materialHash && seeded.storyFilesHash, 'F-045 seed: all server bindings exist');
+
+    // The ordinary same-evidence carry-forward remains valid before any drift.
+    env.handlers.checklist_update({
+      storyId: env.storyId, itemId: 'CHK-001',
+      verificationEvidence: [{
+        intentRef: 'INT-F045', kind: seeded.kind, command: seeded.command, result: seeded.result,
+        note: seeded.note,
+      }],
+    });
+    const carried = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    assert.equal(carried?.receipt?.outputDigest, seeded.receipt.outputDigest, 'F-045 carry-forward keeps the real receipt');
+    assert.equal(carried?.headHash, seeded.headHash, 'F-045 carry-forward keeps the original head binding');
+    assert.equal(carried?.materialHash, seeded.materialHash, 'F-045 carry-forward keeps the original material binding');
+    assert.equal(carried?.storyFilesHash, seeded.storyFilesHash, 'F-045 carry-forward keeps the original story binding');
+
+    // Move HEAD and the material tree without rerunning PASS_CMD.
+    write(env.root, 'packages/main/src/base.ts', 'export const base = false;\n');
+    git(env.root, ['add', '.']);
+    git(env.root, ['commit', '-m', 'material drift']);
+    const current = {
+      headHash: currentGitHead(env.root),
+      materialHash: currentMaterialHash(env.root, 'HEAD', env.root),
+      storyFilesHash: currentStoryFilesHash(env.root, 'HEAD', env.root),
+    };
+    assert.notEqual(current.headHash, seeded.headHash, 'F-045 fixture must move HEAD');
+    assert.notEqual(current.materialHash, seeded.materialHash, 'F-045 fixture must move materialHash');
+    assert.notEqual(current.storyFilesHash, seeded.storyFilesHash, 'F-045 fixture must move storyFilesHash');
+
+    // These values are current-looking but caller-supplied. They must be ignored;
+    // otherwise the old receipt becomes fresh without another command execution.
+    assert.throws(
+      () => env.handlers.checklist_update({
+        storyId: env.storyId, itemId: 'CHK-001',
+        verificationEvidence: [{
+          intentRef: 'INT-F045', kind: carried.kind, command: carried.command, result: carried.result,
+          note: carried.note,
+          headHash: current.headHash,
+          materialHash: current.materialHash,
+          storyFilesHash: current.storyFilesHash,
+        }],
+      }),
+      /checklist_update_executable_evidence_unenforced/,
+      'F-045 material drift refuses stale receipt re-persist',
+    );
+    const rebound = env.store.readChecklist(env.storyId).items[0].verificationEvidence?.[0];
+    assert.equal(rebound?.receipt?.outputDigest, seeded.receipt.outputDigest, 'F-045 must not rerun or replace the real receipt');
+    assert.equal(rebound?.headHash, seeded.headHash, 'F-045 ignores caller headHash');
+    assert.equal(rebound?.materialHash, seeded.materialHash, 'F-045 ignores caller materialHash');
+    assert.equal(rebound?.storyFilesHash, seeded.storyFilesHash, 'F-045 ignores caller storyFilesHash');
+    const coverage = buildVerificationCoverage(
+      env.store.readChecklist(env.storyId),
+      current.headHash,
+      (headHash, evidence) => checkEvidenceFreshnessForGit(
+        env.root, headHash, evidence?.materialHash, env.root, evidence?.storyFilesHash,
+      ).fresh,
+    );
+    assert.equal(coverage.entries[0]?.status, 'stale', 'F-045 forged hashes cannot make stale executable evidence fresh');
+    assert.equal(coverage.missingRequired, 1, 'F-045 stale executable evidence remains uncovered until rerun');
+  } finally { cleanup(env); }
+}
+
+// ── 12e. F-061/F-065/F-067: semantic mutations must receive fresh server-owned
+//        freshness bindings even when command/result are unchanged. Exact semantic
+//        re-persist remains the only safe carry-forward case. ──────────────────────
+{
+  const env = makeEnv([
+    { ref: 'INT-F067-NOTE', type: 'manual' },
+    { ref: 'INT-F067-VERDICT', type: 'manual' },
+    { ref: 'INT-F067-FILE', type: 'manual' },
+    { ref: 'INT-F067-ATTESTATION', type: 'manual' },
+  ]);
+  try {
+    const command = 'manual-evidence-source';
+    const attestation = {
+      kind: 'human' as const,
+      actor: 'f067-fixture',
+      checkedClaims: ['baseline semantic evidence'],
+      command,
+      result: 'pass' as const,
+    };
+    const baselineRows = [
+      { intentRef: 'INT-F067-NOTE', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline note', verdict: 'success' as const },
+      { intentRef: 'INT-F067-VERDICT', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline verdict', verdict: 'success' as const },
+      { intentRef: 'INT-F067-FILE', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline file', file: 'evidence/baseline.txt' },
+      { intentRef: 'INT-F067-ATTESTATION', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline attestation', attestation },
+    ];
+    env.handlers.checklist_update({ storyId: env.storyId, itemId: 'CHK-001', verificationEvidence: baselineRows });
+    const seeded = env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? [];
+    assert.equal(seeded.length, 4, 'F-067 baseline rows are persisted');
+
+    // The exact same semantic rows retain their original server-owned bindings.
+    env.handlers.checklist_update({ storyId: env.storyId, itemId: 'CHK-001', verificationEvidence: baselineRows });
+    const carried = env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? [];
+    for (const row of seeded) {
+      const rePersisted = carried.find(candidate => candidate.intentRef === row.intentRef);
+      assert.equal(rePersisted?.headHash, row.headHash, `F-067 exact re-persist keeps headHash for ${row.intentRef}`);
+      assert.equal(rePersisted?.materialHash, row.materialHash, `F-067 exact re-persist keeps materialHash for ${row.intentRef}`);
+      assert.equal(rePersisted?.storyFilesHash, row.storyFilesHash, `F-067 exact re-persist keeps storyFilesHash for ${row.intentRef}`);
+    }
+
+    // Move the repository to a new material identity without changing command/result.
+    write(env.root, 'packages/main/src/base.ts', 'export const base = "f067-material-drift";\n');
+    git(env.root, ['add', '.']);
+    git(env.root, ['commit', '-m', 'F-067 material drift']);
+    const current = {
+      headHash: currentGitHead(env.root),
+      materialHash: currentMaterialHash(env.root, 'HEAD', env.root),
+      storyFilesHash: currentStoryFilesHash(env.root, 'HEAD', env.root),
+    };
+    assert.notEqual(current.headHash, seeded[0].headHash, 'F-067 fixture moves HEAD');
+    assert.notEqual(current.materialHash, seeded[0].materialHash, 'F-067 fixture moves materialHash');
+    assert.notEqual(current.storyFilesHash, seeded[0].storyFilesHash, 'F-067 fixture moves storyFilesHash');
+
+    const mutatedRows = [
+      { intentRef: 'INT-F067-NOTE', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'changed note', verdict: 'success' as const },
+      { intentRef: 'INT-F067-VERDICT', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline verdict', verdict: 'audit_only' as const },
+      { intentRef: 'INT-F067-FILE', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline file', file: 'evidence/changed.txt' },
+      { intentRef: 'INT-F067-ATTESTATION', kind: 'manual_transcript' as const, command, result: 'pass' as const, note: 'baseline attestation', attestation: { ...attestation, checkedClaims: ['changed structured attestation'] } },
+    ];
+    env.handlers.checklist_update({ storyId: env.storyId, itemId: 'CHK-001', verificationEvidence: mutatedRows });
+    const mutated = env.store.readChecklist(env.storyId).items[0].verificationEvidence ?? [];
+    for (const row of mutated) {
+      assert.equal(row.headHash, current.headHash, `F-067 semantic mutation receives current headHash for ${row.intentRef}`);
+      assert.equal(row.materialHash, current.materialHash, `F-067 semantic mutation receives current materialHash for ${row.intentRef}`);
+      assert.equal(row.storyFilesHash, current.storyFilesHash, `F-067 semantic mutation receives current storyFilesHash for ${row.intentRef}`);
+    }
+  } finally { cleanup(env); }
+}
+
+// ── 12f. B-5a15 F-342: the AUDITED (mechanical:false) arm of the freshness fork.
+//
+// F-339 made evidenceHashesForPersistence fork on prior.mechanical, matching
+// carryForwardOnDiskProvenance, so a note-only edit to an audited attestation keeps its
+// original binding instead of being silently re-stamped to the current tree. Block 12e
+// above cannot witness that: it seeds through checklist_update with no `mechanical`
+// field, so all four rows persist as mechanical:undefined and only ever exercise the
+// STRICT arm. A reviewer proved the gap by reverting the fork and observing this file
+// still pass. This block seeds a genuinely audited row through the escape entry point
+// so the audited arm is actually executed and asserted.
+{
+  const env = makeEnv([{ ref: 'INT-F342-AUDITED', type: 'cli' }]);
+  try {
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-F342-AUDITED',
+      kind: 'manual_transcript', result: 'pass', note: 'baseline audited note',
+      nonMechanicalReason: 'execution genuinely impossible here; recorded as audited non-mechanical escape',
+    });
+    const seededAudited = env.store.readChecklist(env.storyId).items[0].verificationEvidence
+      ?.find(e => e.intentRef === 'INT-F342-AUDITED');
+    assert.equal(seededAudited?.mechanical, false, 'F-342 fixture really is an audited row, not mechanical:undefined');
+
+    // Move the tree so a re-stamp would be observable.
+    writeFileSync(join(env.root, 'f342-drift.txt'), 'drift\n');
+    git(env.root, ['add', 'f342-drift.txt']);
+    git(env.root, ['commit', '-m', 'F-342 material drift']);
+    const driftedHead = currentGitHead(env.root);
+    assert.notEqual(driftedHead, seededAudited?.headHash, 'F-342 fixture moves HEAD');
+
+    // Note-only edit: identity-bearing fields all unchanged, only `note` differs.
+    env.handlers.checklist_update({
+      storyId: env.storyId, itemId: 'CHK-001',
+      verificationEvidence: [{
+        intentRef: 'INT-F342-AUDITED', kind: 'manual_transcript' as const,
+        result: 'pass' as const, note: 'updated audited note',
+      }],
+    });
+    const afterNoteEdit = env.store.readChecklist(env.storyId).items[0].verificationEvidence
+      ?.find(e => e.intentRef === 'INT-F342-AUDITED');
+    assert.equal(afterNoteEdit?.note, 'updated audited note', 'F-342 note-only edit still updates ordinary metadata');
+    assert.equal(afterNoteEdit?.mechanical, false, 'F-342 note-only edit preserves the audited provenance');
+    assert.ok(afterNoteEdit?.nonMechanicalReason, 'F-342 note-only edit keeps the escape reason attributable');
+    // The load-bearing assertions: a note-only edit must NOT rebind freshness to the
+    // moved tree. Reverting the F-339 fork makes exactly these three fail.
+    assert.equal(afterNoteEdit?.headHash, seededAudited?.headHash,
+      'F-342 audited note-only edit keeps the original headHash');
+    assert.equal(afterNoteEdit?.materialHash, seededAudited?.materialHash,
+      'F-342 audited note-only edit keeps the original materialHash');
+    assert.equal(afterNoteEdit?.storyFilesHash, seededAudited?.storyFilesHash,
+      'F-342 audited note-only edit keeps the original storyFilesHash');
   } finally { cleanup(env); }
 }
 
@@ -681,7 +1007,7 @@ const SLOW_THEN_SELECTOR_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK')
 //        every Zod constraint is re-validated at the handler entry AND at the consuming
 //        enforcement boundary, so an old-JSON / internal-call payload cannot slip past).
 {
-  const CAP = 7_200_000;
+  const CAP = EVIDENCE_COMMAND_TIMEOUT_CAP_MS;
   const env = makeEnv([{ ref: 'INT-CAP', type: 'cli' }]);
   try {
     // 15a: above the cap → REFUSED, explicitly not clamped.
@@ -717,7 +1043,7 @@ const SLOW_THEN_SELECTOR_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK')
       storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-CAP', kind: 'integration_test',
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'exactly at the cap is allowed',
       commandTimeoutMs: CAP,
-      commandTimeoutReason: 'exactly the cap: the same budget the DONE-required root suite already uses in config',
+      commandTimeoutReason: 'exactly the bounded cap permitted for the longest admissible evidence witness',
     });
     cl = env.store.readChecklist(env.storyId);
     const atCap = cl.items[0].verificationEvidence?.find(e => e.intentRef === 'INT-CAP');
@@ -882,3 +1208,4 @@ const SLOW_THEN_SELECTOR_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK')
 }
 
 console.log('tool-executed-evidence-receipt-smoke: PASS');
+console.log('tool-executed evidence receipt smoke passed');

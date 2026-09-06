@@ -26,7 +26,15 @@ import { runDoneRequiredValidation } from '../core/done-required-validation.js';
 import { signDeliveryCheck } from '../core/delivery-check-hash.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { StoryStore } from '../core/store.js';
-import type { ClosingSelfCheck, DocsPromise, ProcessEvent, RealMachineTest, StoryInfo } from '../core/types.js';
+import { signReviewRun, buildReviewRunWorkspaceBinding, hashReviewPrompt, collectReviewerEvidenceState } from '../core/review-run.js';
+import { PROMPT_ENVELOPE_ROLLOUT_VERSION, resolvePromptRoleBody } from '../core/prompt-role-contract-registry.js';
+import { signReviewPass } from '../core/finding-verify.js';
+import { computeReviewScopeBinding } from '../core/review-scope-binding.js';
+import { buildScopeDiffPack } from '../core/scope-diff-pack.js';
+import { evaluateReviewVerdict } from '../core/machine.js';
+import { buildDoneChecklist } from '../core/done-oracle.js';
+import { createPlaybookRuntimeMemoryHandlers } from '../handlers/playbook-runtime-memory.js';
+import type { ClosingSelfCheck, DocsPromise, ProcessEvent, RealMachineTest, ReviewRun, StoryInfo } from '../core/types.js';
 import { buildDoneClosureRunbook } from '../handlers/done-closure.js';
 import { createReviewEscalationHandlers } from '../handlers/review-escalation.js';
 import type { HandlerContext } from '../handlers/context.js';
@@ -96,6 +104,7 @@ async function createDoneReadyFixture(): Promise<{
     createdAt: NOW,
     startedAt: NOW,
     endedAt: null,
+    currentReviewRound: 'round-1',
   };
   store.writeStory(STORY_ID, story);
   store.writeChecklist(STORY_ID, {
@@ -142,6 +151,32 @@ async function createDoneReadyFixture(): Promise<{
     },
   });
   store.writeBugs(STORY_ID, { bugs: [] });
+  createPlaybookRuntimeMemoryHandlers({ store, root, scanRoot: join(root, 'packages/main') }).dev_memory_finish_decision({
+    storyId: STORY_ID, decision: 'no-reusable-lesson', reason: 'Synthetic historical snapshot regression fixture.',
+  });
+  const scopeContract = {
+    storyId: STORY_ID, mode: 'enforce' as const,
+    allowedModify: ['packages/main/src/index.ts'], allowedCreate: [], allowedTest: [],
+    protectedFiles: [], explicitExcludes: [], acknowledgements: [], createdAt: NOW, updatedAt: NOW,
+  };
+  store.writeScopeContract(STORY_ID, scopeContract);
+  const scopeBinding = computeReviewScopeBinding({ contract: scopeContract, diffPack: buildScopeDiffPack(root), projectRoot: root });
+  assert.ok(scopeBinding);
+  const lanes = ['quality', 'concept', 'test-coverage', 'behavior', 'docs'].map(lane => `proof-or-stop-review-${lane}`);
+  store.writeReviewRuns(STORY_ID, { runs: lanes.map(lane => {
+    const reviewRunId = `${STORY_ID}:${lane}`;
+    const promptHash = hashReviewPrompt(resolvePromptRoleBody(lane, {
+      version: PROMPT_ENVELOPE_ROLLOUT_VERSION, roles: { [lane]: 'legacy-full-context' },
+    }).body);
+    return { reviewRunId, storyId: STORY_ID, agent: lane, lane, reviewRound: 'round-1', startedAt: NOW,
+      headHash, materialHash, storyFilesHash: storyFilesHash ?? undefined, promptHash, scopeBinding,
+      _hash: signReviewRun(STORY_ID, reviewRunId, lane, lane, 'round-1', NOW, headHash, materialHash, promptHash, scopeBinding.bindingHash, undefined, storyFilesHash ?? undefined) };
+  }) });
+  store.writeReviewPasses(STORY_ID, { passes: lanes.map((lane, index) => {
+    const id = `RP-${index}`; const reviewRunId = `${STORY_ID}:${lane}`; const note = 'Signed historical snapshot regression fixture';
+    return { id, agent: lane, reviewRound: 'round-1', createdAt: NOW, reviewRunId, note,
+      _hash: signReviewPass(STORY_ID, id, lane, note, NOW, 'round-1', reviewRunId) };
+  }) });
 
   const docsPromises: DocsPromise[] = [];
   const realMachineTests: RealMachineTest[] = [{
@@ -159,13 +194,13 @@ async function createDoneReadyFixture(): Promise<{
     checkedAt: NOW,
     headHash,
     materialHash,
-    reviewRound: '',
+    reviewRound: 'round-1',
     agentId: 'proof-or-stop-review-delivery',
     docsPromises,
     realMachineTests,
     closingSelfCheck,
     ...(storyFilesHash ? { storyFilesHash } : {}),
-    _hash: signDeliveryCheck(STORY_ID, docsPromises, realMachineTests, closingSelfCheck, '', materialHash, storyFilesHash ?? undefined),
+    _hash: signDeliveryCheck(STORY_ID, docsPromises, realMachineTests, closingSelfCheck, 'round-1', materialHash, storyFilesHash ?? undefined),
   });
   store.writeSummary(STORY_ID, {
     storyId: STORY_ID,
@@ -238,6 +273,12 @@ function blockingIds(runbook: ReturnType<typeof buildDoneClosureRunbook>): strin
     .sort();
 }
 
+function resignRun(run: ReviewRun): ReviewRun {
+  return { ...run, _hash: signReviewRun(run.storyId, run.reviewRunId, run.agent, run.lane, run.reviewRound,
+    run.startedAt, run.headHash, run.materialHash, run.promptHash, run.scopeBinding?.bindingHash,
+    run.workspaceBinding?.bindingHash, run.storyFilesHash, run.envelopeId, run.reviewerEscalationReason) };
+}
+
 {
   const { root, store, ctx, materialHash, storyFilesHash } = await createDoneReadyFixture();
   try {
@@ -266,6 +307,53 @@ function blockingIds(runbook: ReturnType<typeof buildDoneClosureRunbook>): strin
     assert.equal(doneRunbook.blockers.find((row) => row.id === 'delivery-check')?.status, 'warn');
     assert.equal(doneRunbook.blockers.find((row) => row.id === 'done-required-validation')?.status, 'warn');
     assert.equal(doneRunbook.blockers.find((row) => row.id === 'review-escalation')?.status, 'pass');
+    assert.equal(doneRunbook.blockers.find((row) => row.id === 'review-verdict')?.status, 'warn', 'historical reviewer eligibility is explicitly not re-evaluated');
+    assert.equal(evaluateReviewVerdict({ storyId: STORY_ID, store, projectRoot: root, gitCwd: root }).ok, false,
+      'default reviewer verdict stays live-strict even for DONE');
+    const savedRuns = store.readReviewRuns(STORY_ID);
+    const retiredRoot = join(root, '.retired-review-worktree');
+    git(root, ['worktree', 'add', '--detach', retiredRoot, savedRuns.runs[0].headHash]);
+    const relocatedRuns = { runs: savedRuns.runs.map(run => resignRun({ ...run, workspaceBinding: buildReviewRunWorkspaceBinding({
+      metadataRoot: retiredRoot, invocationCwd: retiredRoot, repoRoot: root, signedWorkspaceRoot: retiredRoot,
+      workspaceMode: 'story-worktree', headHash: run.headHash, materialHash: run.materialHash, storyFilesHash: run.storyFilesHash,
+    }) })) };
+    git(root, ['worktree', 'remove', retiredRoot]);
+    store.writeReviewRuns(STORY_ID, relocatedRuns);
+    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.length > 0,
+      'default collector still rejects a retired live workspace');
+    // Historical presentation deliberately does not adjudicate live legacy,
+    // full or incremental reviewer eligibility. Unsupported/invalid shapes
+    // below are NOT accepted evidence: the row must remain informational and
+    // never claim a reviewer PASS, while the live admission reader still fails.
+    for (const mode of ['legacy', 'full', 'incremental']) {
+      const historicalRuns = structuredClone(relocatedRuns);
+      if (mode !== 'legacy') {
+        historicalRuns.runs[0].envelopeId = `unavailable-${mode}-historical-envelope`;
+        historicalRuns.runs[0].assembledPrompt = `${mode} historical eligibility is not replayed`;
+      }
+      store.writeReviewRuns(STORY_ID, historicalRuns);
+      const info = buildDoneClosureRunbook(ctx, STORY_ID).blockers.find(row => row.id === 'review-verdict');
+      assert.equal(info?.status, 'warn', `${mode}: historical reviewer is informational`);
+      assert.equal(info?.blocking, false);
+      assert.match(info?.reason ?? '', /not a fresh reviewer PASS/);
+      assert.match(info?.reason ?? '', /not re-evaluated/);
+      assert.equal(evaluateReviewVerdict({ storyId: STORY_ID, store, projectRoot: root, gitCwd: root }).ok, false,
+        `${mode}: default live reviewer admission stays strict`);
+    }
+    store.writeReviewRuns(STORY_ID, savedRuns);
+    const readRuns = store.readReviewRuns.bind(store);
+    store.readReviewRuns = () => { throw new Error('historical reviewer storage intentionally unavailable'); };
+    assert.equal(buildDoneClosureRunbook(ctx, STORY_ID).blockers.find(row => row.id === 'review-verdict')?.status, 'warn',
+      'historical presentation does not silently attempt a new reviewer audit');
+    store.readReviewRuns = readRuns;
+
+    const savedDelivery = store.readDeliveryCheck(STORY_ID)!;
+    for (const docsPromises of [undefined, null, {}, [null], [3]]) {
+      store.writeDeliveryCheck(STORY_ID, { ...savedDelivery, docsPromises } as unknown as typeof savedDelivery);
+      assert.ok(buildDoneClosureRunbook(ctx, STORY_ID).blockers.some(row => row.id === 'delivery-check' && row.blocking),
+        `malformed rejected delivery ${JSON.stringify(docsPromises)} stays structured and blocking`);
+    }
+    store.writeDeliveryCheck(STORY_ID, savedDelivery);
 
     const reviewStatus = createReviewEscalationHandlers(ctx).review_escalation_status({ storyId: STORY_ID, json: true }) as {
       ok: boolean;
@@ -289,6 +377,10 @@ function blockingIds(runbook: ReturnType<typeof buildDoneClosureRunbook>): strin
       blockingIds(strictRunbook).some((id) => id === 'delivery-check' || id === 'done-required-validation'),
       'TEST phase remains strict under stale current-material evidence',
     );
+    assert.ok(buildDoneChecklist(STORY_ID, store, root, { gitCwd: root, completedSnapshot: { materialHash, storyFilesHash } })
+      .some(row => row.id === 'review-verdict' && row.blocking), 'TEST cannot opt into historical reviewer projection');
+    assert.ok(collectReviewerEvidenceState(store, STORY_ID, root).invalid.length > 0, 'default collection is current-material strict');
+
   } finally {
     rmSync(root, { recursive: true, force: true });
     resetConfigCache();

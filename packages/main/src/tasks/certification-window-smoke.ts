@@ -16,6 +16,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { StoryStore } from '../core/store.js';
+import { CERTIFICATION_DOMAIN_PATH_RULES } from '../handlers/certification-window.js';
 import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
 import { PROCESS_FACT_REGISTRY } from '../core/process-fact-registry.js';
 import { COMMAND_POLICIES } from '../core/command-policy.js';
@@ -23,6 +24,7 @@ import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../c
 import { createCertificationWindowHandlers } from '../handlers/certification-window.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
+import { safeDoneRequiredRecoveryCommand } from '../handlers/done-prepare.js';
 import { createVerifierHandlers } from '../handlers/verifier.js';
 import { computeActiveReviewers } from '../handlers/reviewer-list.js';
 import { buildVerificationCoverage } from '../core/verification.js';
@@ -35,6 +37,7 @@ import {
   PRE_CERT_DIRTY_TREE,
   PRE_CERT_INVENTORY_API_ABSENT,
   PRE_CERT_INVENTORY_NOT_FINALIZED,
+  PRE_CERT_INVENTORY_PROBE_FAILED,
   PRE_CERT_MAIN_NOT_MERGED,
   PRE_CERT_WINDOW_REQUIRED,
   PRE_CERT_WINDOW_TAMPERED,
@@ -46,6 +49,7 @@ import {
   evaluateCertificationWindowAdmit,
   inventoryReceiptAuthorizesPrecert,
   loadReviewInventoryAdmitApis,
+  persistBlockedCertificationWindow,
   nextPrecertReceiptId,
   projectCertificationWindowStatus,
   renderCertificationWindowStatus,
@@ -70,7 +74,7 @@ function makeRoot(): string {
   return root;
 }
 
-function makeStore(root: string, storyId: string): StoryStore {
+function makeStore(root: string, storyId: string, phase: 'DEV' | 'TEST' = 'DEV'): StoryStore {
   const store = new StoryStore(root);
   mkdirSync(join(root, '.proof-or-stop', 'story', 'actives', storyId), { recursive: true });
   store.writeStory(storyId, {
@@ -79,7 +83,7 @@ function makeStore(root: string, storyId: string): StoryStore {
     title: 'Certification window smoke',
     description: 'Smoke test story',
     type: 'feature',
-    phase: 'DEV',
+    phase,
     priority: 'high',
     createdAt: new Date().toISOString(),
     startedAt: null,
@@ -138,13 +142,48 @@ assert.doesNotMatch(beginOutput, /^State: ADMITTED$/m);
 const productionApis = loadReviewInventoryAdmitApis();
 assert.ok(productionApis, 'production loader must return the real inventory admit APIs');
 assert.equal(typeof productionApis.finalizedUnconsumedReviewInventory, 'function');
-assert.equal(typeof productionApis.consumeReviewInventoryReceipt, 'function');
+assert.equal(typeof productionApis.consumeReviewInventoryCompletenessReceipt, 'function');
+assert.equal(
+  productionApis.consumeReviewInventoryCompletenessReceipt.name,
+  'consumeReviewInventoryCompletenessReceipt',
+  'production admit APIs must bind PRE_CERT completeness consume, not remediation consume',
+);
 
 const blockedStatus = handlers.certification_window_status({ storyId });
 assertStatusSurface(blockedStatus, 'BLOCKED');
 assert.doesNotMatch(blockedStatus, /^headHash:/m);
 assert.doesNotMatch(blockedStatus, /^expectedMainSha:/m);
 assert.doesNotMatch(blockedStatus, /^storyFilesHash:/m);
+
+const blockedReuseStoryId = 'B-cw-blocked-reuse';
+const blockedReuseStore = makeStore(root, blockedReuseStoryId);
+const firstBlocked = persistBlockedCertificationWindow({
+  store: blockedReuseStore,
+  storyId: blockedReuseStoryId,
+  blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+  blockerDetail: 'No FINALIZED unconsumed Review Inventory receipt is present.',
+});
+const reusedBlocked = persistBlockedCertificationWindow({
+  store: blockedReuseStore,
+  storyId: blockedReuseStoryId,
+  blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+  blockerDetail: 'No FINALIZED unconsumed Review Inventory receipt is present.',
+});
+assert.equal(reusedBlocked.windowId, firstBlocked.windowId, 'same code+detail reuses the BLOCKED window');
+assert.equal(blockedReuseStore.readCertificationWindows(blockedReuseStoryId).windows.length, 1);
+const consumeFailedBlocked = persistBlockedCertificationWindow({
+  store: blockedReuseStore,
+  storyId: blockedReuseStoryId,
+  blockerCode: PRE_CERT_INVENTORY_NOT_FINALIZED,
+  blockerDetail: 'Inventory consume failed: REVIEW_INVENTORY_LIVE_AGGREGATE_CHANGED: final saturated wave is missing or invalid',
+});
+assert.notEqual(consumeFailedBlocked.windowId, firstBlocked.windowId, 'same code+new detail must not reuse the stale BLOCKED window');
+assert.match(consumeFailedBlocked.blockerDetail ?? '', /Inventory consume failed/);
+assert.equal(
+  blockedReuseStore.readCertificationWindows(blockedReuseStoryId).windows.at(-1)?.blockerDetail,
+  consumeFailedBlocked.blockerDetail,
+  'latest BLOCKED window must surface the consume-failure detail',
+);
 
 const inventoryReceipt = {
   receiptId: 'INV-1',
@@ -476,7 +515,7 @@ function mockInventoryApis(args: {
         cutoff: { materialHash, storyFilesHash: args.storyFilesHash },
       },
     }),
-    consumeReviewInventoryReceipt: () => {
+    consumeReviewInventoryCompletenessReceipt: () => {
       consumed.push('INV-1');
       return 'INV-1';
     },
@@ -506,7 +545,7 @@ setReviewInventoryAdmitApisForTest(undefined);
 
 setReviewInventoryAdmitApisForTest({
   finalizedUnconsumedReviewInventory: () => null,
-  consumeReviewInventoryReceipt: () => {
+  consumeReviewInventoryCompletenessReceipt: () => {
     throw new Error('consume must not run without a finalized inventory');
   },
 });
@@ -542,6 +581,7 @@ const admitHandlers = createCertificationWindowHandlers({
 });
 const admittedBegin = admitHandlers.certification_window_begin({ storyId: admitStoryId });
 assertStatusSurface(admittedBegin, 'ADMITTED');
+assert.match(admittedBegin, new RegExp(`^Next: proof-or-stop done_required_validate --storyId=${admitStoryId}$`, 'm'));
 assert.match(admittedBegin, new RegExp(`^headHash: ${admitHead}$`, 'm'));
 assert.match(admittedBegin, /^expectedMainSha: /m);
 assert.match(admittedBegin, new RegExp(`^storyFilesHash: ${admitStoryFiles}$`, 'm'));
@@ -722,10 +762,14 @@ function writeHeavyConfig(dir: string, commit = false): void {
   }
 }
 
+setReviewInventoryAdmitApisForTest({
+  finalizedUnconsumedReviewInventory: () => null,
+  consumeReviewInventoryCompletenessReceipt: () => null,
+});
 const chokeRoot = makeGitRoot();
 writeHeavyConfig(chokeRoot);
 const chokeStoryId = 'B-cw20';
-const chokeStore = makeStore(chokeRoot, chokeStoryId);
+const chokeStore = makeStore(chokeRoot, chokeStoryId, 'TEST');
 chokeStore.writeChecklist(chokeStoryId, { items: [] });
 const chokeCtx = { store: chokeStore, root: chokeRoot, scanRoot: join(chokeRoot, 'packages', 'main'), log: () => {} };
 const chokeDone = createDoneRequiredValidationHandlers(chokeCtx);
@@ -742,7 +786,7 @@ async function caught(fn: () => Promise<unknown> | unknown): Promise<string> {
 
 const prematureDone = await caught(() => chokeDone.done_required_validate({ storyId: chokeStoryId }));
 assert.match(prematureDone, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
-assert.match(prematureDone, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
+assert.match(prematureDone, new RegExp(`Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`));
 assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'done_required_validate must not spawn heavy children without an admitted window');
 for (let i = 0; i < 3; i += 1) {
   const storm = await caught(() => chokeDone.done_required_validate({ storyId: chokeStoryId }));
@@ -752,8 +796,77 @@ assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'retry storm must 
 
 const prematureFull = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, full: true }));
 assert.match(prematureFull, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
-assert.match(prematureFull, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
+assert.match(prematureFull, new RegExp(`Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`));
 assert.equal(existsSync(join(chokeRoot, heavyMarker)), false, 'validate --full must not spawn heavy children without an admitted window');
+
+setReviewInventoryAdmitApisForTest({
+  finalizedUnconsumedReviewInventory: () => {
+    throw new Error('inventory store unreadable');
+  },
+  consumeReviewInventoryCompletenessReceipt: () => null,
+});
+const failedInventoryProbe = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, full: true }));
+assert.match(failedInventoryProbe, new RegExp(`\\[${PRE_CERT_INVENTORY_PROBE_FAILED}\\]`));
+assert.match(failedInventoryProbe, /Review Inventory probe failed: inventory store unreadable/);
+assert.match(failedInventoryProbe, new RegExp(`Next: proof-or-stop certification_window_status --storyId=${chokeStoryId}`));
+assert.doesNotMatch(failedInventoryProbe, new RegExp(`Next: proof-or-stop certification_window_begin --storyId=${chokeStoryId}`));
+setReviewInventoryAdmitApisForTest(null);
+
+const donePrepareFallback = `proof-or-stop done_required_validate --storyId=${chokeStoryId}`;
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `[pre_cert_window_required]\nNext: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`,
+    donePrepareFallback,
+  ),
+  `proof-or-stop review_inventory_finalize --storyId=${chokeStoryId}`,
+  'done_prepare must propagate the authoritative inventory-finalization recovery command',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `Next: proof-or-stop review_inventory_finalize --storyId=B-other`,
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must not propagate a recovery command for another Story',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    'Next: proof-or-stop review_inventory_finalize --storyId=',
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must reject a malformed inventory recovery command',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `Next: proof-or-stop review_inventory_finalize --storyId=${chokeStoryId};touch /tmp/proof-or-stop-smoke`,
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must reject shell metacharacters in a recovery command',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    'refusal without an authoritative Next line',
+    donePrepareFallback,
+  ),
+  donePrepareFallback,
+  'done_prepare must retain the caller fallback when Next is absent',
+);
+assert.equal(
+  safeDoneRequiredRecoveryCommand(
+    chokeStoryId,
+    `Next: proof-or-stop finding_list --storyId=${chokeStoryId}`,
+    donePrepareFallback,
+  ),
+  `proof-or-stop finding_list --storyId=${chokeStoryId}`,
+  'done_prepare must retain a non-inventory caller-specific recovery command',
+);
 
 const cheapChannel = await caught(() => chokeValidate.validate({ storyId: chokeStoryId, channel: true }));
 assert.doesNotMatch(cheapChannel, new RegExp(`\\[${PRE_CERT_WINDOW_REQUIRED}\\]`));
@@ -816,6 +929,42 @@ git(replayRoot, ['commit', '-m', 'metadata-only']);
 const metadataStatus = replayWindowHandlers.certification_window_status({ storyId: replayStoryId });
 assertStatusSurface(metadataStatus, 'RUNNING');
 
+// F-142: the production handler must construct a signed causal decision and
+// pass it through lineage refresh so an unrelated material commit stays
+// admitted while a story-owned commit invalidates the same window.
+const selectiveRoot = makeGitRoot();
+git(selectiveRoot, ['checkout', '-b', 'story/B-cw-selective']);
+mkdirSync(join(selectiveRoot, 'src'), { recursive: true });
+writeFileSync(join(selectiveRoot, 'src', 'app.ts'), 'export const n = 1;\n');
+git(selectiveRoot, ['add', 'src/app.ts']);
+git(selectiveRoot, ['commit', '-m', 'story source baseline']);
+const selectiveStoryId = 'B-cw-selective';
+const selectiveStore = makeStore(selectiveRoot, selectiveStoryId);
+selectiveStore.writeChecklist(selectiveStoryId, { items: [] });
+const selectiveMock = mockInventoryApis({
+  storyId: selectiveStoryId,
+  materialHash: currentMaterialHash(selectiveRoot, 'HEAD', selectiveRoot)!,
+  storyFilesHash: currentStoryFilesHash(selectiveRoot, 'HEAD', selectiveRoot)!,
+});
+setReviewInventoryAdmitApisForTest(selectiveMock.apis);
+const selectiveHandlers = createCertificationWindowHandlers({
+  store: selectiveStore,
+  root: selectiveRoot,
+  scanRoot: join(selectiveRoot, 'packages', 'main'),
+});
+assertStatusSurface(selectiveHandlers.certification_window_begin({ storyId: selectiveStoryId }), 'ADMITTED');
+git(selectiveRoot, ['checkout', 'main']);
+writeFileSync(join(selectiveRoot, 'unrelated.txt'), 'unrelated material\n');
+git(selectiveRoot, ['add', 'unrelated.txt']);
+git(selectiveRoot, ['commit', '-m', 'unrelated material change']);
+git(selectiveRoot, ['checkout', 'story/B-cw-selective']);
+git(selectiveRoot, ['merge', 'main', '--no-edit']);
+assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId }), 'ADMITTED');
+writeFileSync(join(selectiveRoot, 'src', 'app.ts'), 'export const n = 2;\n');
+git(selectiveRoot, ['add', 'src/app.ts']);
+git(selectiveRoot, ['commit', '-m', 'story source change']);
+assertStatusSurface(selectiveHandlers.certification_window_status({ storyId: selectiveStoryId }), 'INVALIDATED');
+
 mkdirSync(join(replayRoot, 'src'), { recursive: true });
 mkdirSync(join(replayRoot, 'tests'), { recursive: true });
 writeFileSync(join(replayRoot, 'src', 'app.ts'), 'export const n = 1;\n');
@@ -872,28 +1021,15 @@ const testIdentityDrift = detectCertificationWindowMaterialDrift(runningWindow!,
 });
 assert.equal(testIdentityDrift.drifted, true, 'official test identity change must drift');
 
-const shippedRoot = process.cwd();
-const windowSource = readFileSync(join(shippedRoot, 'packages/main/src/core/certification-window.ts'), 'utf8');
-const handlerSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/done-required-validation.ts'), 'utf8');
-const verifierSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
-assert.doesNotMatch(windowSource, /main-write-lock|acquireMainWriteLock/, 'CertificationWindow must not take the main write lock');
-assert.match(handlerSource, /refuseHeavyCertificationUnlessAdmitted/, 'done_required_validate must call the shared choke');
-assert.match(verifierSource, /refuseHeavyCertificationUnlessAdmitted/, 'validate --full must call the shared choke');
-const branchFiles = execFileSync('git', ['diff', '--name-only', 'main...HEAD'], {
-  cwd: shippedRoot,
-  encoding: 'utf8',
-});
-assert.doesNotMatch(
-  branchFiles,
-  /review-escalation|three-round-two-host|quorum-submit\.ts|host-quorum/,
-  'this story must not weaken host-quorum or reviewer-lane policy files',
-);
-
 setReviewInventoryAdmitApisForTest(undefined);
 const restoredApis = loadReviewInventoryAdmitApis();
 assert.ok(restoredApis, 'production loader is non-null after test override reset');
 assert.equal(typeof restoredApis.finalizedUnconsumedReviewInventory, 'function');
-assert.equal(typeof restoredApis.consumeReviewInventoryReceipt, 'function');
+assert.equal(typeof restoredApis.consumeReviewInventoryCompletenessReceipt, 'function');
+assert.equal(
+  restoredApis.consumeReviewInventoryCompletenessReceipt.name,
+  'consumeReviewInventoryCompletenessReceipt',
+);
 
 const realInventoryRoot = makeGitRoot();
 const realInventoryStoryId = 'B-cw-real';
@@ -917,14 +1053,48 @@ assert.equal(
   1,
   'finalize must be idempotent on the same cutoff',
 );
-const realAdmitHandlers = createCertificationWindowHandlers({
-  store: realInventoryStore,
-  root: realInventoryRoot,
-  scanRoot: join(realInventoryRoot, 'packages', 'main'),
-});
-const realAdmittedBegin = realAdmitHandlers.certification_window_begin({ storyId: realInventoryStoryId });
-assertStatusSurface(realAdmittedBegin, 'ADMITTED');
+const realPair = restoredApis.finalizedUnconsumedReviewInventory(realInventoryStore, realInventoryStoryId);
+assert.ok(realPair?.receipt?.receiptId, 'production loader must see the FINALIZED completeness receipt');
+const realCutoff = {
+  materialHash: realPair?.receipt?.cutoff?.materialHash ?? '',
+  ...(realPair?.receipt?.cutoff?.storyFilesHash
+    ? { storyFilesHash: realPair.receipt.cutoff.storyFilesHash }
+    : {}),
+};
+const consumedViaLoader = restoredApis.consumeReviewInventoryCompletenessReceipt(
+  realInventoryStore,
+  realInventoryStoryId,
+  realPair?.epoch?.reviewRound ?? realPair?.receipt?.reviewRound ?? '',
+  realCutoff,
+);
+assert.equal(consumedViaLoader, realPair?.receipt?.receiptId);
 assert.ok(realInventoryStore.readReviewInventoryEpochs(realInventoryStoryId).receipts[0]?.consumedAt);
+assert.throws(
+  () => restoredApis.consumeReviewInventoryCompletenessReceipt(
+    realInventoryStore,
+    realInventoryStoryId,
+    realPair?.epoch?.reviewRound ?? realPair?.receipt?.reviewRound ?? '',
+    realCutoff,
+  ),
+  /REVIEW_INVENTORY_RECEIPT_ALREADY_CONSUMED/,
+);
+
+const shippedRoot = process.cwd();
+const windowSource = readFileSync(join(shippedRoot, 'packages/main/src/core/certification-window.ts'), 'utf8');
+const handlerSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/done-required-validation.ts'), 'utf8');
+const verifierSource = readFileSync(join(shippedRoot, 'packages/main/src/handlers/verifier.ts'), 'utf8');
+assert.doesNotMatch(windowSource, /main-write-lock|acquireMainWriteLock/, 'CertificationWindow must not take the main write lock');
+assert.match(handlerSource, /refuseHeavyCertificationUnlessAdmitted/, 'done_required_validate must call the shared choke');
+assert.match(verifierSource, /refuseHeavyCertificationUnlessAdmitted/, 'validate --full must call the shared choke');
+const branchFiles = execFileSync('git', ['diff', '--name-only', 'main...HEAD'], {
+  cwd: shippedRoot,
+  encoding: 'utf8',
+});
+assert.doesNotMatch(
+  branchFiles,
+  /review-escalation|three-round-two-host|quorum-submit\.ts|host-quorum/,
+  'this story must not weaken host-quorum or reviewer-lane policy files',
+);
 
 console.log('PRE_CERT replay: premature_heavy_runs=0 admitted_heavy_runs=1 post_cert_source_commits=0');
 console.log(prematureDone);
@@ -936,3 +1106,69 @@ console.log(absentApiOutput);
 console.log(noInventoryOutput);
 console.log(unmergedOutput);
 console.log(findingOutput);
+
+// B-5a15:F-393 regression guard. certificationDomainForPath requires
+// `matches.length === 1`, so a path matching TWO rules fails closed to undefined
+// exactly like a path matching none -- and that aborts the entire
+// deriveCertificationDomainInputHashes pass, which surfaces as
+// certification_window_begin [pre_cert_causal_freshness_required]. The rules must
+// therefore stay mutually exclusive BY HAND, and until now nothing enforced that.
+//
+// This bites for real: an earlier draft of the packages/*/scripts/ rule omitted its
+// `(?!utils\/|lab\/)` lookahead and double-matched packages/utils/scripts/** and
+// packages/lab/scripts/**. It passed every check at the time only because the story
+// that introduced it touched neither package -- i.e. the defect was latent and would
+// have detonated on some unrelated future story.
+{
+  const probePaths = [
+    // one representative per declared domain
+    'packages/main/tests/foo.test.mjs',
+    'packages/main/src/tasks/foo.ts',
+    'packages/main/src/core/foo.ts',
+    'package.json',
+    'packages/main/tsconfig.json',
+    'proof-or-stop.config.json',
+    'lattice.config.json',
+    '.claude/agents/foo.md',
+    '.proof-or-stop/proof-or-stop.json',
+    'bin/proof-or-stop.js',
+    'scripts/foo.mjs',
+    '.githooks/pre-push',
+    'docs/requirements/decisions/foo.md',
+    'CLAUDE.md',
+    'AGENTS.md',
+    'README.md',
+    // the packages/*/scripts/ family -- the exact shape that regressed
+    'packages/utils/scripts/foo.mjs',
+    'packages/lab/scripts/foo.mjs',
+    'packages/graph/scripts/verify-missing-assets-fail.mjs',
+    'packages/main/scripts/foo.mjs',
+    // adjacent names that must NOT be caught by the utils/lab lookahead
+    'packages/utils-extra/scripts/foo.mjs',
+    'packages/lab-extra/scripts/foo.mjs',
+    // non-scripts paths under the wholesale utils/lab rule
+    'packages/utils/src/foo.ts',
+    'packages/lab/src/foo.ts',
+  ];
+  const ambiguous: string[] = [];
+  for (const probe of probePaths) {
+    const hits = CERTIFICATION_DOMAIN_PATH_RULES.filter(([, pattern]) => pattern.test(probe));
+    if (hits.length > 1) ambiguous.push(`${probe} -> ${hits.map(([domain]) => domain).join('+')}`);
+  }
+  assert.deepEqual(
+    ambiguous,
+    [],
+    `CERTIFICATION_DOMAIN_PATH_RULES must be mutually exclusive; these paths match multiple rules and would fail closed: ${ambiguous.join(', ')}`,
+  );
+
+  // Positive control: the guard must be able to FAIL. A deliberately overlapping
+  // rule set has to be detected, otherwise the assertion above proves nothing.
+  const overlapping: ReadonlyArray<readonly [string, RegExp]> = [
+    ['integration', /^packages\/[^/]+\/scripts\//],
+    ['integration', /^packages\/(?:utils|lab)\//],
+  ];
+  const controlHits = overlapping.filter(([, pattern]) => pattern.test('packages/utils/scripts/foo.mjs'));
+  assert.equal(controlHits.length, 2, 'positive control: overlapping rules must be observable as a double match');
+
+  console.log('certification domain path rules: mutually exclusive across 24 probe paths (F-393 guard, with positive control)');
+}

@@ -1,0 +1,15 @@
+{
+  "name": "story-review-touchpoint-excludes-ignored",
+  "title": "The touchpoint coverage check tells authors to use excludes, then never reads it",
+  "description": "story_review raises touchpoint_uncovered for any understanding.touchpoints path absent from a checklist item's files.modify/create/test, and its blocker message offers excludes as the alternative remedy. The check at packages/main/src/handlers/story-review.ts around line 525 builds its covered set from the three files arrays only and never consults excludes, so following the instruction does not clear the blocker. The field is real and accepted by checklist_update, which makes the misdirection convincing. The only route through is deleting the path from touchpoints, which records that the file is not a touchpoint rather than that it is deliberately unmodified, losing the distinction a later reviewer needs.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "story-review",
+    "touchpoints",
+    "excludes",
+    "plan-gate",
+    "error-message"
+  ],
+  "createdAt": "2026-09-04T04:02:29.927Z"
+}

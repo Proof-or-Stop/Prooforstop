@@ -10,13 +10,15 @@
  * Covers:
  *   (a) fresh claude-marker project: project has 0 `.claude/agents/*.md`;
  *       global `$HOME/.claude/agents` has one regular file per managed role
- *       (currently 17; the smoke derives the count, never hardcodes it). Five migrated
- *       reviewers contain only the canonical review_run_start bootstrap; the
- *       other roles retain the agent_prompt thin shim. No shim contains a
+ *       (currently 17; the smoke derives the count, never hardcodes it). The six migrated
+ *       reviewer definitions keep modular bodies; five active REVIEW lanes
+ *       contain only the canonical review_run_start bootstrap, while topology-critic
+ *       and the other roles retain the agent_prompt thin shim. No shim contains a
  *       migrated reviewer role body.
  *   (b) `proof-or-stop agent_prompt --role=<name>` returns the same actual Claude
- *       registry render: bootstrap for the five migrated reviewers, package
- *       body for ordinary roles.
+ *       registry render: bootstrap for the five active REVIEW lanes among the
+ *       six migrated reviewer definitions, package body for ordinary roles
+ *       including topology-critic.
  *   (c) `--upgrade` migration: all managed removed, user file kept, normal init
  *       only warns (no delete).
  *   (d) idempotency: re-running init reports synced=0 (all shims already ok).
@@ -32,7 +34,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
-  isModularReviewerRoleId,
+  isActiveModularReviewerRoleId,
   readPromptRegistry,
   renderPromptEntryForHost,
 } from '../core/prompt-registry.js';
@@ -105,7 +107,7 @@ function listProjectAgentMd(root: string): string[] {
       // `proof-or-stop agent_prompt --role=`, 5x `proof-or-stop review_run_start`,
       // zero `proof-or-stop`. Each canonical check is paired with a doesNotMatch on the
       // deprecated form so the generated shims cannot regress to the old bin name.
-      if (isModularReviewerRoleId(role)) {
+      if (isActiveModularReviewerRoleId(role)) {
         assert.match(content, /proof-or-stop review_run_start/, `${basename} must use the canonical reviewer bootstrap`);
         assert.doesNotMatch(content, /proof-or-stop review_run_start/, `${basename} must not teach the deprecated bin`);
         assert.doesNotMatch(content, /agent_prompt --role=/, `${basename} must not preload a role body through agent_prompt`);
@@ -115,7 +117,7 @@ function listProjectAgentMd(root: string): string[] {
         assert.match(content, /thin pointer/, `${basename} shim body must declare it is a thin pointer`);
       }
       // No role body content (load-bearing slice / role-specific prose) leaked
-      assert.doesNotMatch(content, /<!-- proofOrStop:start -->/, `${basename} shim must NOT contain the role body slice`);
+      assert.doesNotMatch(content, /<!-- proof-or-stop:start -->/, `${basename} shim must NOT contain the role body slice`);
     }
   } finally {
     rmSync(home, { recursive: true, force: true });

@@ -50,6 +50,17 @@ try {
     name: 'testintent-handoff',
     title: 'Generate testIntent handoff',
     description: 'PLAN gate should tell the main agent how to hand missing testIntent work to the test-intent agent.',
+    background: `## Trigger Event
+Round 22 finding F-129 requires this handoff to emit the canonical proof-or-stop-test-intent role.
+
+## Key Insights
+The handler must preserve legacy testIntent reads while making newly generated guidance canonical.
+
+## Solution Tradeoffs
+The existing handoff regression is the narrowest place to assert role identity and command guidance.
+
+## Conversational Texture
+Keep the handoff concise, explicit, and useful to the agent receiving the checklist context.`,
     type: 'feature',
     priority: 'medium',
     checklist: [
@@ -57,8 +68,8 @@ try {
       {
         title: 'Keep existing intent visible',
         context: 'The handoff should include existing testIntent counts so the agent does not duplicate work.',
-        testIntent: {
-          happy: [{ desc: 'Existing happy intent -> remains visible', type: 'cli_blackbox' }],
+        verificationIntent: {
+          happy: [{ desc: 'Existing happy intent -> remains visible', type: 'cli', priority: 'must' }],
           edge: [],
           adversarial: [],
         },
@@ -69,19 +80,24 @@ try {
   const storyId = created.match(/B-[a-f0-9]+/)?.[0];
   assert(storyId, `story id not found in ${created}`);
 
-  const review = parseJson(run(dir, 'story_review', { storyId }));
-  assert(review.actionSummary.nextFix.includes('testintent_handoff'), 'story_review nextFix should point to testintent_handoff');
-  assert(review._hint.includes('testintent_handoff'), 'story_review hint should point to testintent_handoff');
-
   const handoff = parseJson(run(dir, 'testintent_handoff', { storyId }));
-  assert(handoff.agent === 'test-intent', 'handoff should target the test-intent agent');
+  assert(handoff.agent === 'proof-or-stop-verification-intent', 'handoff should target the canonical proof-or-stop-verification-intent agent');
   assert(handoff.summary.missingIntentItems.includes('CHK-001'), 'missing item should be summarized');
   assert(handoff.summary.existingIntentItems.some((item) => item.itemId === 'CHK-002' && item.happy === 1), 'existing intent counts should be summarized');
   assert(handoff.prompt.includes(`story ${storyId}`), 'prompt should include story id');
-  assert(handoff.prompt.includes('Main agent must not write testIntent'), 'prompt should preserve role boundary');
+  assert(handoff.prompt.includes('You are the proof-or-stop-verification-intent agent'), 'prompt should target the canonical agent');
+  assert(handoff.prompt.includes('write verificationIntent for each testable item via proof-or-stop checklist_update'), 'prompt should use canonical verificationIntent guidance');
+  assert(handoff.prompt.includes('Main agent must not write verificationIntent'), 'prompt should preserve role boundary');
+  assert(!handoff.prompt.includes('write testIntent'), 'prompt should not instruct the agent to write legacy testIntent');
   assert(handoff.prompt.includes('proof-or-stop checklist_update'), 'prompt should include update command guidance');
   assert(handoff.prompt.includes('CHK-001'), 'prompt should include checklist item ids');
-  assert(handoff.commandExamples.length === 1 && handoff.commandExamples[0].includes('CHK-001'), 'command examples should focus missing items');
+  assert(handoff.nextActions[0] === 'Send prompt to the proof-or-stop-verification-intent agent in the story worktree.', 'next action should target the canonical agent');
+  assert(handoff.commandExamples.length === 1
+    && handoff.commandExamples[0].includes('CHK-001')
+    && handoff.commandExamples[0].includes('"verificationIntent"')
+    && !handoff.commandExamples[0].includes('testIntent')
+    && handoff.commandExamples[0].includes('"agent":"proof-or-stop-verification-intent"'),
+  'command examples should focus missing items and use the canonical agent');
 
   const scoped = parseJson(run(dir, 'testintent_handoff', { storyId, itemIds: ['CHK-002'] }));
   assert(scoped.summary.totalItems === 1, 'itemIds should scope handoff items');

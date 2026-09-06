@@ -46,7 +46,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { StoryStore } from '../core/store.js';
-import { createChecklistHandlers } from '../handlers/checklist.js';
+import { acquireOwnerLease } from '../core/story-owner-lease.js';
+import { createChecklistHandlers, refreshStaleEvidenceMetadataOnly } from '../handlers/checklist.js';
 import { createEvidencePinGuardHandlers } from '../handlers/evidence-pin-guard.js';
 import { buildVerificationCoverage } from '../core/verification.js';
 import { currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
@@ -113,12 +114,17 @@ function makeEnv(storyId: string, intents: VerificationIntentItem[]): Env {
   write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
   }, null, 2));
+  // Causal execution keys require a resolved tool version. npm runs this smoke
+  // with packages/main as process.cwd(), so seed the minimal manifest that the
+  // resolver expects in an isolated fixture repo.
+  write(root, 'packages/main/package.json', JSON.stringify({ name: '@proof-or-stop/core', version: '0.0.0-smoke' }, null, 2));
   write(root, 'packages/main/src/base.ts', 'export const base = true;\n');
   git(root, ['init', '-b', 'work']);
   git(root, ['config', 'user.email', 'smoke@example.test']);
   git(root, ['config', 'user.name', 'B1507 Smoke']);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'seed']);
+  git(root, ['branch', 'main']);
   resetConfigCache();
   const store = new StoryStore(root);
   const at = '2026-07-25T00:00:00.000Z';
@@ -135,6 +141,7 @@ function makeEnv(storyId: string, intents: VerificationIntentItem[]): Env {
     }],
   };
   store.writeStory(storyId, story);
+  acquireOwnerLease(store.storyDirPath(storyId), { command: 'smoke_fixture_setup', cwd: root });
   store.writeChecklist(storyId, checklist);
   const handlers = createChecklistHandlers({ store, root, scanRoot: join(root, 'packages/main') });
   const guard = createEvidencePinGuardHandlers({ store, root, scanRoot: join(root, 'packages/main') });
@@ -255,6 +262,8 @@ async function partB(): Promise<void> {
     intent('INT-REEXEC', 'cli'),  // pinned via add to PASS_CMD (always re-passes)
     intent('INT-FAIL', 'cli'),    // pinned via add to READ_FLAG_CMD (re-fails once flag flips)
     intent('INT-PINLESS', 'cli'), // NO pin — a hand-written mechanical row (B-3b88 coexistence)
+    intent('INT-DOC', 'docs'),    // docs intent with a deliberate pinned mechanical verifier
+    intent('INT-MANUAL', 'manual'), // manual intent can also deliberately pin a verifier
   ]);
   try {
     // Seed a material file the READ_FLAG pin depends on, so re-execution outcome is controllable.
@@ -272,13 +281,21 @@ async function partB(): Promise<void> {
       storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-FAIL', kind: 'integration_test',
       command: READ_FLAG_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the flag-dependent verifier',
     });
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-DOC', kind: 'docs_check',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the documentation verifier',
+    });
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-MANUAL', kind: 'manual_transcript',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the manual intent verifier',
+    });
 
     // Hand-write a pin-LESS mechanical row bound to the CURRENT head+material. The intent
     // has NO verification pin, so refresh's re-exec loop must SKIP it → demote-only path.
     const head0 = git(env.root, ['rev-parse', 'HEAD']);
     const material0 = currentMaterialHash(env.root, 'HEAD', env.root);
-    const storyFiles0 = currentStoryFilesHash(env.root, 'HEAD', env.root); // undefined (no main branch)
-    assert.equal(storyFiles0, undefined, 'B: no-main temp repo has no storyFilesHash (so material drift => stale, no advisory downgrade)');
+    const storyFiles0 = currentStoryFilesHash(env.root, 'HEAD', env.root);
+    assert.ok(storyFiles0, 'B: main-backed temp repo has a storyFilesHash for causal freshness');
     const fakeReceipt: VerificationExecutionReceipt = {
       exitCode: 0, outputDigest: sha256Hex('MARKER_OK\n'), outputTail: 'MARKER_OK\n', selectorMatched: true,
       executedAt: '2026-07-25T00:00:00.000Z',
@@ -301,12 +318,22 @@ async function partB(): Promise<void> {
     const executedAtBefore = reexecBefore!.receipt!.executedAt;
     const materialBefore = reexecBefore!.materialHash;
 
-    // DRIFT: flip flag.txt to BROKEN and commit → material tree changes → all 3 rows go stale.
+    // DRIFT: flip flag.txt to BROKEN and commit → material tree changes → all rows go stale.
     write(env.root, 'flag.txt', 'BROKEN');
     git(env.root, ['add', 'flag.txt']);
     git(env.root, ['commit', '-m', 'flag=BROKEN (material drift)']);
     const material1 = currentMaterialHash(env.root, 'HEAD', env.root);
     assert.ok(material1 && material1 !== materialBefore, 'B: material drift produced a NEW materialHash');
+
+    // Reproduce the real recovery state: a metadata-only refresh cannot execute
+    // commands, so it demotes and rebinds receipts to the current material.
+    // The subsequent async refresh must recover these CURRENT non-mechanical
+    // rows, not report that there is no stale evidence.
+    refreshStaleEvidenceMetadataOnly({ store: env.store, root: env.root, scanRoot: env.root }, env.storyId);
+    assert.equal(findEvidence(env, 'INT-DOC')?.mechanical, false,
+      'B: metadata-only refresh demotes the pinned docs receipt before recovery');
+    assert.equal(findEvidence(env, 'INT-MANUAL')?.mechanical, false,
+      'B: metadata-only refresh demotes the pinned manual receipt before recovery');
 
     // Run the REAL async re-executing refresh.
     const out = await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
@@ -338,11 +365,26 @@ async function partB(): Promise<void> {
     assert.equal(pinlessAfter?.mechanical, false, 'B3: pin-less stale mechanical row is DEMOTED (demote-only)');
     assert.equal(pinlessAfter?.receipt, undefined, 'B3: pin-less demotion strips the receipt');
 
-    // Gate cross-check: only the re-executed row still covers; the other two are uncovered.
+    // B4: a deliberately pinned docs verifier is recovered too. This locks the
+    // B3F3D-006-H3 path: docs/manual types are not skipped merely because their
+    // intent type is non-executable by default.
+    const manualAfter = findEvidence(env, 'INT-MANUAL');
+    assert.equal(manualAfter?.mechanical, true, 'B4: pinned manual verifier re-earns mechanical authority');
+    assert.equal(manualAfter?.receipt?.selectorMatched, true, 'B4: pinned manual selector matched on recovery');
+    assert.equal(manualAfter?.receipt?.exitCode, 0, 'B4: pinned manual verifier actually exited zero');
+    assert.equal(manualAfter?.materialHash, material1, 'B4: recovered manual receipt binds current material');
+    const docAfter = findEvidence(env, 'INT-DOC');
+    assert.equal(docAfter?.mechanical, true, 'B4: pinned docs verifier re-earns mechanical authority');
+    assert.equal(docAfter?.receipt?.selectorMatched, true, 'B4: pinned docs selector matched on recovery');
+    assert.equal(docAfter?.materialHash, material1, 'B4: recovered docs receipt binds current material');
+
+    // Gate cross-check: only successfully re-executed rows cover; failing/pinless stay uncovered.
     const cov = buildVerificationCoverage(env.store.readChecklist(env.storyId));
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-REEXEC')?.status, 'covered', 'B: re-executed row covers');
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-FAIL')?.status, 'non_mechanical', 'B: demoted-fail row is uncovered');
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-PINLESS')?.status, 'non_mechanical', 'B: demoted pin-less row is uncovered');
+    assert.equal(cov.entries.find(e => e.intentRef === 'INT-DOC')?.status, 'covered', 'B: recovered pinned docs row covers');
+    assert.equal(cov.entries.find(e => e.intentRef === 'INT-MANUAL')?.status, 'covered', 'B: recovered pinned manual row covers');
   } finally { cleanup(env); }
 }
 
@@ -361,7 +403,7 @@ async function partC(): Promise<void> {
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin the immutable verifier',
     });
 
-    const addBlob = (o: Record<string, unknown>) => `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify(o)}`;
+    const addBlob = (o: Record<string, unknown>) => `node bin/proof-or-stop.js verification_evidence_add ${JSON.stringify(o)}`;
 
     // C1: DENY — mismatched --command (JSON-blob form). selector matches; only command differs.
     const denyCmd = guardVerdict(env, {
@@ -371,7 +413,7 @@ async function partC(): Promise<void> {
 
     // C2: DENY — mismatched --selector (--k=v form). No --command; only the selector differs.
     const denySel = guardVerdict(env, {
-      commandString: `node bin/proofOrStop.js verification_evidence_add --storyId=${env.storyId} --itemId=CHK-001 --intentRef=INT-PIN --selector=WRONG_SELECTOR --note=x`,
+      commandString: `node bin/proof-or-stop.js verification_evidence_add --storyId=${env.storyId} --itemId=CHK-001 --intentRef=INT-PIN --selector=WRONG_SELECTOR --note=x`,
     });
     assert.equal(denySel.verdict, 'deny', 'C2: mismatched --selector (--k=v) is DENIED');
 
@@ -383,7 +425,7 @@ async function partC(): Promise<void> {
 
     // C4: ALLOW — verification_run derives its command from the pin (nothing to mismatch).
     const allowRun = guardVerdict(env, {
-      commandString: `node bin/proofOrStop.js verification_run --storyId=${env.storyId} --intentRef=INT-PIN`,
+      commandString: `node bin/proof-or-stop.js verification_run --storyId=${env.storyId} --intentRef=INT-PIN`,
     });
     assert.equal(allowRun.verdict, 'allow', 'C4: verification_run is ALLOWED');
 
@@ -459,8 +501,8 @@ async function partD(): Promise<string> {
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin for the hook e2e',
     });
 
-    const mismatchCmd = `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: DIFFERENT_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e mismatch' })}`;
-    const matchCmd = `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: PASS_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e match' })}`;
+    const mismatchCmd = `node bin/proof-or-stop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: DIFFERENT_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e mismatch' })}`;
+    const matchCmd = `node bin/proof-or-stop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: PASS_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e match' })}`;
 
     // D1: Claude Bash matcher — FULLY asserted (the real emitted tool_name is `Bash`).
     assert.equal(runHook(CLAUDE_HOOK, env.root, 'Bash', mismatchCmd), 2, 'D1: Claude Bash hook exits 2 (deny) on a mismatched evidence write');

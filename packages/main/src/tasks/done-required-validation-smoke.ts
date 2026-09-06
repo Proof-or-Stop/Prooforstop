@@ -26,9 +26,11 @@ import {
 } from '../core/validation-executor.js';
 import type { DoneRequiredCommandReceipt, DoneRequiredEvidenceData, StoryInfo, TestEvidenceData } from '../core/types.js';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
+import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
 import { createDoneRequiredValidationHandlers } from '../handlers/done-required-validation.js';
 import {
   effectiveValidationCommandEnvironment,
+  HOST_LAUNCHER_SESSION_ENV_KEYS,
   VALIDATION_TRANSPORT_ENV_KEY_LIST,
 } from '../core/validation-command-environment.js';
 
@@ -181,7 +183,9 @@ function fixture(doneRequiredCommands?: unknown, proofAdmissibility?: unknown): 
       endTime: now,
     }],
   });
-  persistSyntheticAdmittedWindowForTest({ store, storyId: STORY_ID, projectRoot: root });
+  const causalInputHashes = deriveCertificationDomainInputHashes(root, 'HEAD', root);
+  assert.ok(causalInputHashes, 'synthetic certification fixture must derive causal input hashes');
+  persistSyntheticAdmittedWindowForTest({ store, storyId: STORY_ID, projectRoot: root, causalInputHashes });
   return { root, store };
 }
 
@@ -350,14 +354,49 @@ function assertDoneRequiredBlocked(
       consumer.commands.map(command => command.effectiveEnvironmentDigest),
       'owner and independent delivery-review sessions share DONE-required command identity',
     );
-    // The exported list is a frozen persisted-evidence surface and therefore
-    // intentionally retains historical spellings. Runtime filtering derives
-    // canonical Proof-or-Stop keys from it; exercise those effective keys here.
-    const canonicalTransportKeys = VALIDATION_TRANSPORT_ENV_KEY_LIST.map((key) =>
-      key.startsWith(['LAT', 'TICE_'].join(''))
-        ? `PROOF_OR_STOP_${key.slice(['LAT', 'TICE_'].join('').length)}`
-        : key);
-    for (const key of canonicalTransportKeys) {
+    // Host-launcher session identity is stripped at the filter rather than added
+    // to the digest-pinned list, so iterating VALIDATION_TRANSPORT_ENV_KEY_LIST
+    // below would not cover it. These keys change every session (CLAUDE_PID is a
+    // pid; the socket path embeds it), and leaving them ambient made a receipt
+    // written in one session unverifiable in the next -- surfacing as
+    // effective-environment-digest-mismatch on a story that had actually passed.
+    // Imported, never re-listed: a hand-copied literal would silently stop
+    // covering a key added to the source list later (B-0b50:F-012).
+    for (const key of HOST_LAUNCHER_SESSION_ENV_KEYS) {
+      const ownerSession = buildDoneRequiredExecutionIdentity({
+        projectRoot: root, policy,
+        processEnvironment: { ...common, [key]: 'session-one' }, platform: 'linux',
+      });
+      const otherSession = buildDoneRequiredExecutionIdentity({
+        projectRoot: root, policy,
+        processEnvironment: { ...common, [key]: 'session-two' }, platform: 'linux',
+      });
+      assert.deepEqual(
+        ownerSession.commands.map(command => command.effectiveEnvironmentDigest),
+        otherSession.commands.map(command => command.effectiveEnvironmentDigest),
+        `host-launcher session key is digest-neutral: ${key}`,
+      );
+    }
+
+    // The inventory is frozen evidence identity, not today's active spelling.
+    // Derive canonical inputs without changing that inventory or its digest.
+    for (const frozenKey of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
+      const key = frozenKey.replace(/^LATTICE_/, 'PROOF_OR_STOP_');
+      if (key !== frozenKey) {
+        for (const platform of ['linux', 'win32'] as const) {
+          const retiredOwner = buildDoneRequiredExecutionIdentity({
+            projectRoot: root, policy, processEnvironment: { ...common, [frozenKey]: 'owner-value' }, platform,
+          });
+          const retiredReviewer = buildDoneRequiredExecutionIdentity({
+            projectRoot: root, policy, processEnvironment: { ...common, [frozenKey]: 'reviewer-value' }, platform,
+          });
+          assert.notDeepEqual(
+            retiredOwner.commands.map(command => command.effectiveEnvironmentDigest),
+            retiredReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+            `retired ambient key remains semantic on ${platform}: ${frozenKey}`,
+          );
+        }
+      }
       const owner = { ...common, [key]: 'owner-identity' };
       const reviewer = { ...common, [key]: 'reviewer-identity' };
       const posixOwner = buildDoneRequiredExecutionIdentity({
@@ -1103,7 +1142,7 @@ function assertDoneRequiredBlocked(
     const evidence = await runDoneRequiredValidation({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });
     assert.equal(evidence.status, 'PASS', evidence.reasons.join(', '));
     assert.equal(evidence.receipts.length, 1);
-    assert.equal(evidence.receipts[0].commandSpec?.schema, 'lattice.command-spec.v2');
+    assert.equal(evidence.receipts[0].commandSpec?.schema, 'proof-or-stop.command-spec.v2');
     assert.equal(evidence.receipts[0].commandSpec?.command, 'node');
 
     const evaluation = evaluateDoneRequiredEvidence({ projectRoot: root, storyId: STORY_ID, store, gitCwd: root });

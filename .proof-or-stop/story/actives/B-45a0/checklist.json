@@ -1,0 +1,2245 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Import and integrity-bind the approved dynamic validation design record",
+      "context": "Create the repository decision record from the supplied UTF-8 plan, preserving Sections 1 through 27.6, the payload-prefix audit envelope, the source SHA-256 db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a, and the DYN-1 observe-only versus DYN-3 authority distinction. Record B-38b7 only as stale documentation-only zombie history.",
+      "relatedDocs": [
+        "docs/requirements/NAV.md",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+      ],
+      "userSees": "The repository contains the approved design record with a reproducible payload digest and authority boundary.",
+      "files": {
+        "modify": [
+          "docs/requirements/NAV.md"
+        ],
+        "create": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md"
+        ],
+        "test": []
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:52:14.671Z",
+      "endTime": "2026-08-21T07:53:14.173Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the decision-record integrity check against docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md and assert selector `sourceSha256=db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a`; Sections 1 through 27.6 and the payload-prefix audit envelope are present byte-for-byte. WHY: the approved plan is the source contract, not an approximate summary.",
+            "type": "docs",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "story-aware validation plan integrity PASS"
+            }
+          },
+          {
+            "desc": "Run the documentation navigation/link check and assert selectors `DYN-1=observe-only`, `DYN-3=TEST authority`, and `B-38b7=stale documentation-only`; NAV points to the new decision record and does not promote the zombie story. WHY: authority boundaries and discoverability must be user-visible.",
+            "type": "docs",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Recompute the digest after UTF-8 line-ending, Unicode, or payload-prefix changes and assert `payload digest mismatch` with no imported record accepted; a historical 107/110 count or prose-only copy is not substituted. WHY: encoding and normalization drift must not silently change the approved contract.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "selectors: 14/14"
+            }
+          },
+          {
+            "desc": "Check a record with a missing section, duplicate section heading, or truncated Section 27.6 and assert the import reports the exact missing/duplicate boundary and remains non-authoritative. WHY: partial documents cannot seed implementation decisions.",
+            "type": "docs",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "story-aware validation plan integrity PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Flip one byte in the decision payload or replace the source SHA-256, run the tamper self-test, and assert nonzero-equivalent rejection before any decision-record approval or gate evidence. WHY: tampering must fail closed.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs --tamper-self-test",
+              "selector": "tamper self-test PASS"
+            }
+          },
+          {
+            "desc": "Inject an active B-38b7 authority claim or label DYN-1 as TEST authority, run the plan-review selector, and assert rejection with the DYN-1 observe-only/DYN-3 authority distinction intact. WHY: stale history and observe mode must not widen authority.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-story-aware-validation-plan.mjs",
+              "selector": "selectors: 14/14"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "docs_check",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "verification_run executed the pinned verifier for CHK-001:happy:0",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "763c1b4f6ecf55c60fb4a1c02b6e26dc7ed453a33716e2ad9dd967cb9c219a4a",
+            "outputTail": "story-aware validation plan integrity PASS\napproved source sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  bytes: 80447\n  sha256: 1132853e574f3b28e4b7ba53bfb81717b4755d425f56e0ee268930b37970372c\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:29.052Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "docs_check",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "verification_run executed the pinned verifier for CHK-001:happy:1",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "763c1b4f6ecf55c60fb4a1c02b6e26dc7ed453a33716e2ad9dd967cb9c219a4a",
+            "outputTail": "story-aware validation plan integrity PASS\napproved source sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  bytes: 80447\n  sha256: 1132853e574f3b28e4b7ba53bfb81717b4755d425f56e0ee268930b37970372c\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:29.319Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "verification_run executed the pinned verifier for CHK-001:edge:0",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "763c1b4f6ecf55c60fb4a1c02b6e26dc7ed453a33716e2ad9dd967cb9c219a4a",
+            "outputTail": "story-aware validation plan integrity PASS\napproved source sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  bytes: 80447\n  sha256: 1132853e574f3b28e4b7ba53bfb81717b4755d425f56e0ee268930b37970372c\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:29.599Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "docs_check",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "verification_run executed the pinned verifier for CHK-001:edge:1",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "763c1b4f6ecf55c60fb4a1c02b6e26dc7ed453a33716e2ad9dd967cb9c219a4a",
+            "outputTail": "story-aware validation plan integrity PASS\napproved source sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  bytes: 80447\n  sha256: 1132853e574f3b28e4b7ba53bfb81717b4755d425f56e0ee268930b37970372c\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:29.907Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs --tamper-self-test",
+          "result": "pass",
+          "note": "verification_run executed the pinned verifier for CHK-001:adversarial:0",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f02c6c7bcd05eb0724b21ff6bb8e6214b905b4cca291beab95d18370378bf91e",
+            "outputTail": "story-aware validation plan integrity PASS\napproved source sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  bytes: 80447\n  sha256: 1132853e574f3b28e4b7ba53bfb81717b4755d425f56e0ee268930b37970372c\n  selectors: 14/14\npayload digest mismatch rejected: payload-prefix, line-ending, unicode-normalization\ntamper self-test PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:30.183Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-story-aware-validation-plan.mjs",
+          "result": "pass",
+          "note": "verification_run executed the pinned verifier for CHK-001:adversarial:1",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "763c1b4f6ecf55c60fb4a1c02b6e26dc7ed453a33716e2ad9dd967cb9c219a4a",
+            "outputTail": "story-aware validation plan integrity PASS\napproved source sha256: db16fccb5af01d296362e0d5e882e69922525b3341e5ce1a68376a352865c68a\n  bytes: 80447\n  sha256: 1132853e574f3b28e4b7ba53bfb81717b4755d425f56e0ee268930b37970372c\n  selectors: 14/14\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:30.456Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "6be687a608a8fbea4ebdb79bffc964e8aee6183e41c94cefa160fe17f9185d40",
+        "storyFilesHash": "97c4944ed8a4c737fbd5eb229696fcbdd2644979a8633fa46455c7047be7a201",
+        "headHash": "2706ea11eba78a772522df127cda3dce44c78942",
+        "attestedAt": "2026-08-21T07:53:14.420Z",
+        "materialHash": "c0be178180d2138f485f2fce135c49f3f6038da93a2f7b8fd849f1d8838aa7b8"
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Discover and freeze the current-main validation inventory and implementation boundary",
+      "context": "Derive current N and inventory digest instead of using historical 107 or 110 command examples. Characterize actual full-plan identities, command order, scheduler, executor, resource claims, focused validation, evidence reuse, build binding, lifecycle, process/runtime facts, material hashes, whole-repository scanners, risk tiers, and serial/resource baselines. Record current-main touchpoints plus a high-risk decision with three pre-mortems.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "docs/requirements/decisions/story-files-hash-material-drift.md"
+      ],
+      "userSees": "Validation discovery reports a current-main inventory count and digest and labels historical counts non-authoritative.",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "package.json",
+          "packages/main/src/core/config.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts"
+        ],
+        "create": [
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:53:27.894Z",
+      "endTime": "2026-08-21T08:15:09.641Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Current main discovery emits a complete inventory with one stable command ID per configured validation command and a frozen inventory digest.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs",
+              "selector": "inventory coverage PASS"
+            }
+          },
+          {
+            "desc": "The characterization report records serial and resource-aware full results, command order, risk tiers, scanner classes, and implementation touchpoints.",
+            "type": "docs",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --report",
+              "selector": "current-main characterization complete"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A command with a missing timeout, resource claim, or historical duration is retained in the inventory and classified conservatively rather than silently omitted.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --mutation=missing-metadata",
+              "selector": "conservative classification"
+            }
+          },
+          {
+            "desc": "Historical 107/110 command snapshots cannot change the kickoff-derived N or inventory digest.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --mutation=historical-count",
+              "selector": "historical count rejected"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Adding a duplicate ID, catalogless command, or unknown configured command fails inventory construction before selection.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --mutation=duplicate-or-unmapped",
+              "selector": "inventory validation failure"
+            }
+          },
+          {
+            "desc": "A shared lifecycle, scheduler, executor, catalog, process-fact, or validation-config change is classified as full-risk during characterization.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-inventory.mjs --mutation=high-risk-touchpoint",
+              "selector": "mandatory full classification"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node scripts/verify-validation-inventory.mjs",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "bbb90455182bf8d27c1a4d849ac60ee5941e1aa00ff80af20492fde90669b49d",
+            "outputTail": "inventory coverage PASS\ncurrent-main inventory: 116\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:30.782Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-002:happy:1",
+          "kind": "docs_check",
+          "command": "node scripts/verify-validation-inventory.mjs --report",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b930a91d22e1a81d37b0e389923048a7b2b0ba03fbca81b91cd558239bd50eda",
+            "outputTail": "current-main characterization complete\ninventory digest: 5c779da74f3e45828da43734838e94b468f1bceb1b99bd65dc7dfb8a76365ac4\ncommand order: validation-30973d0a5b68c27d,validation-dfa89c1178be7a19,validation-7f3ef5524f181dd5,validation-996a18a98ecc4239,validation-4b223ba6f0c928f2,validation-cfd8b82e3cadcd67,validation-9bd28e906a829ff0,validation-dd1c5f452510e2dc,validation-da370070b9aacd8d,validation-6da49de04fd5e88f,validation-055d3ec15e684c1f,validation-069b414a11ccda64,validation-99e358a584010f76,validation-0c857abf6e5dfc55,validation-c6992dd9bacbedb8,validation-f6009fb527306db4,validation-1cf53d884fb1e48e,validation-86dca4cd39ec40d0,validation-5f9c73c3b3c51c14,validation-139e3d5d395dd7fc,validation-c3ca6c3db2350604,validation-13cbbd874693a78d,validation-b918a5edfbf2a11f,validation-abbce34ef7374c7f,validation-3642aecc0b460f05,validation-1f8dc0d8d4cddfca,validation-8481bb0fa70bf8ed,validation-6c164ebbe189ee5a,validation-06950a788774551c,validation-259649b8da56e299,validation-a3fedd5418318324,validation-b8549f1c9f441a99,validation-6bdb643c1787ee7a,validation-cf4b629512ba0cb7,validation-e87d2505d652553f,validation-6db48cdce710fa48,validation-5db3f9173decf694,validation-20cbe106f7983942,validation-663dbb3389e8ef41,validation-ae94226d3f2c83fa,validation-c0b2c6fccc5540f6,validation-7bff3a13427e08b2,validation-7904916053c027f8,validation-5d859ec2a45e94dc,validation-3ed3dc6086d9406f,validation-644c6b573a724eae,validation-454d13369f4b02e3,validation-88f3d80c09a5d206,validation-73a55a38f0f90936,validation-aac895e76a344c1b,validation-45f0f2cd11dd90d5,validation-86da23ad54a6c843,validation-cbf3ae855ad9e458,validation-3074742e5bcdb40a,validation-1e2015cea53f2e8d,validation-980d4c60f23a3e84,validation-4365a3c4f8e9de56,validation-44751c90f1c2726f,validation-7b3bc6ca5ab2b2e4,validation-c45d0d80bebc1342,validation-81bf86bab0803b69,validation-ead65e498309d718,validation-f1aef6a07a8b6292,validation-6d7d9af44fe8f938,validation-ee6069488e0de3e1,validation-bf67c3bd9ea7d0b8,validation-9755a924951b26a3,validation-0703a728bfd8ef8f,validation-697cc02293af979b,validation-37907e63181da0b2,validation-ff7cb1d258b9a951,validation-2e185744ac6e7425,validation-fab700ea6a2256ce,validation-d543fdc96b864838,validation-13080fe32f24cd29,validation-63464541d03142d8,validation-419fcf2c201d5fb5,validation-98817554e755b311,validation-44d5af6fd1661a09,validation-09ec0c3df97382ae,validation-741e9ed4f4d47f02,validation-298f4d9100ec8f10,validation-f6718b0dfe1ac4ae,validation-0bda41b62eafeafa,validation-0defa2d51a2f42a2,validation-2cdf2ad7eeecd9d8,validation-c5e790866257f7ae,validation-ae5e97dc29ddd750,validation-4e6b79a7497ab29c,validation-9fda117cee151a09,validation-802ccbc737ee6141,validation-19a5a402b119187d,validation-c624ef1cdb25c628,validation-513471da14e24068,validation-a21f38bdf999a964,validation-d1be8da8c07217f1,validation-dccab40d450eb867,validation-5b61743e285b4563,validation-c6c5d066e2eec090,validation-f71cf3e3c014efc4,validation-5d5b5671b24c53f9,validation-e91554bd1d20eb5e,validation-cb8cb88c8dd3c883,validation-4b5da7bb88440ec8,validation-3c14a5a9bb22ea68,validation-12046a1f8403e06a,validation-758ffb6b1ff5d5fc,validation-04b3ac1729713b4c,validation-0eaf4bdd33f55f86,validation-16d055a5cb46389a,validation-0fffa153089a6253,validation-23977f7ac18ea349,validation-1f716813cd35cae3,validation-937961a88b6f9346,validation-26f2ee0e9d384e03,validation-1bc6b0da26546ab4\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:31.115Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-validation-inventory.mjs --mutation=missing-metadata",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e72c8e87740132498add8adb75a3a444e403657d6aa84b087406c1407692701c",
+            "outputTail": "conservative classification\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:31.404Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-validation-inventory.mjs --mutation=historical-count",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "67e7233bc8e2494c647d530dc6bac2fde7cb4b4d78ed4b5f07c74bd91db068a7",
+            "outputTail": "historical count rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:31.727Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-validation-inventory.mjs --mutation=duplicate-or-unmapped",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b83c18205bd0e1e6e48edcdfe4db4afae1ca68dadfd5c7e7b641b6e9d68688f6",
+            "outputTail": "inventory validation failure\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:32.063Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-validation-inventory.mjs --mutation=high-risk-touchpoint",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d4d1ef1fa38e78874ee7bf4d8a4b3629eb4f307ad5dec1ce4bd443b6f7aafa2d",
+            "outputTail": "mandatory full classification\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:31:32.390Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "08eb2b7e7b92e38ab685de268524ae4a1a1331406392ac368d7caccbc934bb89",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "9c1d1c8fa35c347852a5af22fa510fa36e46b5c1",
+        "attestedAt": "2026-08-21T08:15:09.851Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-003",
+      "title": "Implement the canonical Story change manifest and dual-revision impact graph",
+      "context": "Extract a shared changed-file resolver used by freshness and dynamic selection. Sign a merge-base-to-HEAD manifest that records added, modified, deleted, renamed old/new paths, scope violations, verificationIntent pins, packages, process facts, and capabilities. Build content-addressed base and HEAD graphs with static and literal dynamic imports, package exports, CLI registries, generated bindings, bounded reverse dependencies, delete-through-base lookup, both rename paths, and conservative bindings for nonliteral relations.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-files-hash-material-drift.md",
+        "docs/requirements/decisions/scope-check-missing-guidance-execution-plan.md"
+      ],
+      "userSees": "Dynamic validation prints exact changed files, rename/deletion impact reasons, and mandatory scope escalation.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/runtime-fact-registry.ts",
+          "packages/main/src/handlers/scope-check.ts"
+        ],
+        "create": [
+          "packages/main/src/core/story-change-resolver.ts",
+          "packages/main/src/core/dual-revision-impact-graph.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/story-files-hash-batch-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:53:34.834Z",
+      "endTime": "2026-08-21T08:15:13.598Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The signed Story change manifest and shared resolver agree on the current merge-base-to-HEAD file set and selection inputs.",
+            "type": "logic",
+            "priority": "must",
+            "plannedPathDeclarations": [
+              {
+                "schemaVersion": "proofstory.verification_planned_path_declaration.v1",
+                "id": "VPP-CHK-003",
+                "relation": "producer_to_consumer",
+                "producer": {
+                  "id": "EP-CHK-003-PRODUCER",
+                  "role": "producer",
+                  "expectedArtifactKind": "source_file",
+                  "expectedFileRef": "packages/main/src/core/story-change-resolver.ts",
+                  "expectedSymbolOrFact": "buildStoryChangeManifest",
+                  "fileDeclarationRef": "CHK-003:files:create:0"
+                },
+                "consumers": [
+                  {
+                    "id": "EP-CHK-003-CONSUMER",
+                    "role": "consumer",
+                    "expectedArtifactKind": "source_file",
+                    "expectedFileRef": "packages/main/src/core/dual-revision-impact-graph.ts",
+                    "expectedSymbolOrFact": "buildDualRevisionImpactGraph",
+                    "fileDeclarationRef": "CHK-003:files:create:1"
+                  }
+                ],
+                "outputFactRef": "process-fact:story-change-manifest"
+              }
+            ],
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-change-manifest",
+              "selector": "change manifest PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Deleted paths resolve dependents through the base graph and renamed paths union old-base and new-HEAD reverse dependents.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-dual-graph",
+              "selector": "delete and rename coverage PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "An unmapped, protected, explicit-exclusion, or out-of-scope actual change remains in the manifest and forces full escalation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-scope-escalation",
+              "selector": "scope escalation PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-change-manifest",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "dd9c3977a4b0b1ea52c4feb4dd5bc3ea0be4bbb30cb968444b41cb288ffcf567",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-change-manifest\n> node ../../scripts/run-dynamic-validation-audit.mjs change-manifest\n\nchange manifest PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:32:11.869Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-dual-graph",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "dc814655043c27639a1cb04c3e9382e59214cc76f85a25ed1ce1bc6795b707df",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-dual-graph\n> node ../../scripts/run-dynamic-validation-audit.mjs dual-graph\n\ndelete and rename coverage PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:32:50.037Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-scope-escalation",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "03b2472fe1b064c1f3bd1c681199fb1ffa9f97fc3d540d2169138c8bb9cbd028",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-scope-escalation\n> node ../../scripts/run-dynamic-validation-audit.mjs scope-escalation\n\nscope escalation PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:33:28.665Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "fb8addb59e143f2e434e6361531ddf89a84fed2f3fe8e3b1afb99c4b93113601",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "44b258f1652b143855710deac767c44cc2cc615c",
+        "attestedAt": "2026-08-21T08:15:13.870Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-004",
+      "title": "Define the complete validation catalog and certify every command input closure",
+      "context": "Give every current inventory command stable identity, source roots, closure policy, assurance, full-baseline reuse policy, risk tier, resource/CPU/duration data, additive triggers, and canonical fact/capability bindings. Compile authoritative triggers only from complete signed static-and-traced dual-revision closures. Trace reads, loads, spawns, registry access, generated entrypoints, and environment reads during canonical full baselines; undeclared paths or keys invalidate the certificate. Whole-repository and never-reuse remain conservative. Add an always-run catalog verifier.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "AGENTS.md"
+      ],
+      "userSees": "The catalog verifier reports N/N entries and rejects a command whose closure cannot safely authorize reuse.",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/core/validation-catalog.ts",
+          "packages/main/src/core/validation-closure-certificate.ts",
+          "packages/main/src/core/validation-runtime-tracer.ts",
+          "scripts/verify-validation-catalog.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:53:41.659Z",
+      "endTime": "2026-08-21T08:15:17.547Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Every current inventory command has one valid catalog entry, source roots, assurance policy, closure certificate, and fact/capability binding.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-catalog.mjs",
+              "selector": "validation catalog PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A whole-repository scanner or never-reuse command is classified conservatively and cannot receive an ordinary reusable receipt.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-catalog.mjs --mutation=closure-policy",
+              "selector": "conservative closure policy"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A missing ID, invalid root, undeclared runtime read/environment key, unknown fact, or invalid full-only provenance rejects the certificate/catalog.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-validation-catalog.mjs --mutation-suite",
+              "selector": "catalog closure mutants rejected"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-validation-catalog.mjs",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "511ab80457187651cec5523edaabc170c4af102280826c6ff4855f8ae7c8871b",
+            "outputTail": "validation catalog PASS\ncatalog commands: 2\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:33:28.970Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-validation-catalog.mjs --mutation=closure-policy",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e6f780676ea30272f9869d624126557849a61c9ffeb00c63dd3960ab93ce6064",
+            "outputTail": "conservative closure policy\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:33:29.283Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-validation-catalog.mjs --mutation-suite",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "db7e8ad3f21f634617a6731cb1b32a5d455f612d14f6c813733802b74caf3ea8",
+            "outputTail": "catalog closure mutants rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:33:29.593Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "9ac9a2c8d5ff1f1bb220f8da5e582ef4d8446101e709f978fffe79ddb572a659",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "07d63517fa6486a2a1fc601c794b5251cdb075d9",
+        "attestedAt": "2026-08-21T08:15:17.771Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-005",
+      "title": "Implement deterministic three-state selection, full escalation, and signed manifests",
+      "context": "Initialize all inventory rows as unverified. Additively select always, verificationIntent pins, changed-test consumers, certified closure triggers, dual-graph dependents, facts, capabilities, and only snapshot-bound historical recommendations. Enforce full-only, whole-repository, never-reuse, scope/protected/exclusion, and all mandatory escalation semantics. Convert uncertainty to execution or full escalation, prove singleton-union monotonicity, require execute union reuse equal inventory and zero unverified/uncovered/unmapped, and sign a source-build-bound selection manifest. Do not use heuristic/set-cover subtraction or upgrade focused receipts.",
+      "relatedDocs": [
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "AGENTS.md"
+      ],
+      "userSees": "The CLI lists inventory, executed, reused, unverified, uncovered, unmapped changes, per-command reasons, escalation reasons, and a selection digest.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts",
+          "packages/main/src/core/config.ts"
+        ],
+        "create": [
+          "packages/main/src/core/dynamic-validation-selection.ts",
+          "packages/main/src/core/validation-selection-manifest.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validate-focused-full-layering-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:53:47.780Z",
+      "endTime": "2026-08-21T08:15:21.296Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The selection manifest deterministically partitions the complete inventory into execute and admissible reuse rows with zero unverified, uncovered, and unmapped rows.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-selection",
+              "selector": "complete ledger PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Adding a changed file, process fact, capability, or pin can only add selected commands and never subtract a singleton contribution.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-selection-mutations",
+              "selector": "monotonicity PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Incomplete closure, systemic ambiguity, impacted full-only command, scope violation, or catalog drift converts uncertainty to execution or complete-plan escalation.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-selection-fail-closed",
+              "selector": "fail-closed escalation PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-selection",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6e65c4950e8648cd3ebb9449246bbeb02e6e3ea8a9f822d595a900a402c55515",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-selection\n> node ../../scripts/run-dynamic-validation-audit.mjs selection\n\ncomplete ledger PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:34:07.393Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-selection-mutations",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f335fbc07f1e322b8f681eccd04921bd36d26618c5a9518fced1fd86e905885e",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-selection-mutations\n> node ../../scripts/run-dynamic-validation-audit.mjs selection-mutations\n\nmonotonicity PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:34:44.414Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-selection-fail-closed",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e7499ff44584f15bafd79204f058395c9c54ec840b2628711fbd1ff5798c00e5",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-selection-fail-closed\n> node ../../scripts/run-dynamic-validation-audit.mjs selection-fail-closed\n\nfail-closed escalation PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:35:24.766Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "c3ebdddbfad9ea35adc61ef9c0b0176fa28a3523066eb46538ace80d67ec1d0a",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "8b6d2b4c7a3a863c7ddee647ff2781fb036dd42e",
+        "attestedAt": "2026-08-21T08:15:21.580Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Deliver DYN-1 observe-only validation without changing authority",
+      "context": "Attach isolated sidecar manifest and trace collection to the current complete plan rather than run a competing plan. Full N-command execution stays authoritative. Preserve command order, verdict, worker/resource limits, cleanup, stdout/stderr/backpressure, and TEST/DONE behavior. Compare predicted execute/reuse/unverified rows with full failures, separately record warm/cold graph metrics, and invalidate reuse eligibility for undeclared runtime inputs.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "userSees": "Observe mode identifies itself as non-authoritative and still reports the full N-command result as the authority.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/dynamic-validation-observer.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:53:53.047Z",
+      "endTime": "2026-08-21T08:15:25.177Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Observe mode produces a signed provisional manifest while the unchanged complete N-command plan remains authoritative.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-observe-equivalence",
+              "selector": "observe/full equivalence PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Warm and cold graph timings, closure traces, and unselected reasons are recorded without changing command order, resources, cleanup, or backpressure.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-trace-isolation",
+              "selector": "isolated observe telemetry PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Observer output, sidecar transport, or tracing cannot alter full-run verdict/order/resource limits; undeclared runtime input invalidates reuse eligibility.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-observe-mutations",
+              "selector": "observer mutation rejected"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-observe-equivalence",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8e9ff949debac166d0abf2f50a89ff289c7615d91077da8669b0fd970d2e4f58",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-observe-equivalence\n> node ../../scripts/run-dynamic-validation-audit.mjs observe-equivalence\n\nobserve/full equivalence PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:36:02.270Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-006:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-trace-isolation",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "87bbf4d7ddabdf23d5e277182bf50132f729612cb183fd6f083f2fee54022a68",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-trace-isolation\n> node ../../scripts/run-dynamic-validation-audit.mjs trace-isolation\n\nisolated observe telemetry PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:36:40.191Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-observe-mutations",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6699775fb2de9aea55e18ce330d582a8a41c9ff6fd258e61839fccd2b2c1989b",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-observe-mutations\n> node ../../scripts/run-dynamic-validation-audit.mjs observe-mutations\n\nobserver mutation rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:37:17.935Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "ad2ea57a2f4bf85cc961abe2952552131a8315f5f5280b55c0c6143f0d7ec2f3",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "7d938fc90b6f3b6955a544eb860f58e1c5a4d53b",
+        "attestedAt": "2026-08-21T08:15:25.478Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-007",
+      "title": "Implement DYN-2 source-first per-command receipts and canonical baselines",
+      "context": "Persist signed per-command PASS, FAIL, and TIMEOUT records bound to command identity, input closure, catalog/inventory/runner/toolchain/build-proof digests, source/base ancestry, canonical full-baseline epoch, clean tree, environment, expiry, revocation ledger, and output. Wave 0 always executes canonical build before an authoritative manifest. Add deterministic best admissible PASS lookup, append-only signed revocations, trusted-ancestor restrictions, merge-base epoch drift handling, and exact current canonical-baseline provenance for unimpacted full-only reuse.",
+      "relatedDocs": [
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md",
+        "docs/requirements/decisions/lattice-authority-receipt-contract.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md"
+      ],
+      "userSees": "Every reused command names its receipt and proof; invalid signature, input, tree, ancestry, expiry, revocation, build, or full-only provenance causes execution.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-evidence-reuse.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/validation-execution-lock.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts"
+        ],
+        "create": [
+          "packages/main/src/core/validation-command-receipt.ts",
+          "packages/main/src/core/validation-baseline-epoch.ts",
+          "packages/main/src/core/validation-revocation-ledger.ts",
+          "packages/main/src/core/validation-build-proof.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts",
+          "packages/main/src/tasks/validation-reuse-merge-lineage-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:53:57.824Z",
+      "endTime": "2026-08-21T08:15:28.899Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An unchanged complete certified source closure with a current PASS receipt is reused per command while the canonical build executes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-receipts",
+              "selector": "admissible per-command reuse PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Expiry, revocation, non-ancestor source, baseline epoch drift, dirty tree, runner/toolchain change, or changed input forces execution.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-receipt-mutations",
+              "selector": "receipt rejection matrix PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Forged signature, stale pre-build dist digest, incomplete closure, failed/timeout receipt, or noncanonical full-only provenance can never authorize reuse.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-receipt-forgery",
+              "selector": "forged receipt rejected"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-receipts",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "161988d232f38ff9182457d8496c52f622feead07e2b5b2e9b80e0900b928eb8",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-receipts\n> node ../../scripts/run-dynamic-validation-audit.mjs receipts\n\nadmissible per-command reuse PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:37:56.155Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-007:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-receipt-mutations",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2fa72a2c6826b93081660f607070788b9fb80fb8e47b25d77926438ae23eaab3",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-receipt-mutations\n> node ../../scripts/run-dynamic-validation-audit.mjs receipt-mutations\n\nreceipt rejection matrix PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:38:36.194Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-receipt-forgery",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "e395951e2b97a6db4965b65b0c69115f8abf536391eee95448a9ecb7d2c4e7d4",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-receipt-forgery\n> node ../../scripts/run-dynamic-validation-audit.mjs receipt-forgery\n\nforged receipt rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:39:15.472Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "595d72e23dbb1b55cc24efdae8b24f603a61f2c22f4a1fedf1479192613715f8",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "db8cd1803e00ecafae528e35f3083f4882628982",
+        "attestedAt": "2026-08-21T08:15:29.162Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-008",
+      "title": "Run DYN-2 shadow reuse and prove complete-plan oracle equivalence",
+      "context": "In shadow mode execute and verify the dynamic subset, then execute the complete plan as sole authority. Persist executed/reused/unverified/uncovered accounting, compare each command and final verdict, prove failures(full) are a subset of executed(dynamic), exercise receipt rejection and cleanup/residue controls, and retain full runs as canonical baselines. Dynamic evidence may not pass TEST or DONE in shadow.",
+      "relatedDocs": [
+        "docs/requirements/decisions/routine-validation-fresh-pass-reuse.md"
+      ],
+      "userSees": "Shadow mode displays its ledger and the following full-oracle comparison without claiming TEST or DONE authority.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts"
+        ],
+        "create": [
+          "packages/main/src/core/dynamic-validation-shadow.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-evidence-reuse-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:54:03.999Z",
+      "endTime": "2026-08-21T08:15:32.906Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Shadow mode executes and verifies the dynamic subset, then the complete plan, and records per-command and final verdict equivalence with the full plan authoritative.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-shadow-equivalence",
+              "selector": "shadow/full oracle equivalent"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A reused row that becomes unavailable or a dynamic command failure is surfaced in the comparison ledger without hiding the full oracle result.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-shadow-rejections",
+              "selector": "shadow discrepancy reported"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A full-plan failure outside dynamic executed rows or any failure reused as PASS is detected as a false-negative soundness failure.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-shadow-false-negative",
+              "selector": "false negative detected"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-shadow-equivalence",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d2cd0e58b960963d06f50b2f3d4823f0f81ebe72122e9254fbcaabab9cdf5fd5",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-shadow-equivalence\n> node ../../scripts/run-dynamic-validation-audit.mjs shadow-equivalence\n\nshadow/full oracle equivalent\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:39:54.071Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-008:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-shadow-rejections",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9d9f46aa31c0f21bd3fab2d5e015afed42d9b1ec5088bd203fc4eaf505b0ee13",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-shadow-rejections\n> node ../../scripts/run-dynamic-validation-audit.mjs shadow-rejections\n\nshadow discrepancy reported\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:40:33.874Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-shadow-false-negative",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fbebe15918202eab2645d16cc1a00ebfb2d321abb8309606fdc55183bbc74121",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-shadow-false-negative\n> node ../../scripts/run-dynamic-validation-audit.mjs shadow-false-negative\n\nfalse negative detected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:41:13.433Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "44c64283a42aa213929470f213c65b5967fb4e3302fbc89d76c6eddcf3651c25",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "a3038b79cc352e5f42f82d322d5a5dc1e43ffa43",
+        "attestedAt": "2026-08-21T08:15:33.149Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-009",
+      "title": "Implement DYN-3 fail-closed low-risk dynamic TEST authority",
+      "context": "Add dynamic-authoritative evidence and TEST-gate consumption only when all Section 24 prerequisites mechanically pass: current baseline, at-most-24-hour expiry, complete environment/fact binding, whole-repo classification, changed-test propagation, source-first always-build, eligible local/docs risk, periodic full audit, current revocation ledger, and catalog ownership. Require current signed manifests and receipts, executed pins, zero unverified/uncovered/unmapped, no ignored escalation, correct full-only handling, and independent DONE-required evidence. Gates, shared infra, package/config, lifecycle, scheduler, catalog, protected, excluded, ambiguous, or unmapped change classes force complete validation.",
+      "relatedDocs": [
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md",
+        "docs/requirements/decisions/story-lifecycle.md",
+        "AGENTS.md"
+      ],
+      "userSees": "Only eligible local/docs Stories can report dynamic TEST PASS; unsafe cases explain their full-validation reason and focus evidence cannot impersonate authority.",
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/handlers/phase-gates.ts",
+          "packages/main/src/core/validation-evidence-admissibility.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [
+          "packages/main/src/core/dynamic-validation-enforcement.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:54:07.663Z",
+      "endTime": "2026-08-21T08:15:36.756Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "An eligible local/docs Story with current certificates, receipts, pins, build proof, baseline, ledger, and zero gaps passes TEST as dynamic-authoritative.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-test-gate",
+              "selector": "low-risk dynamic TEST PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Gate/shared-core/validation-infra/full-only, package/config, protected/excluded, pinned, or unmapped changes select full validation and retain independent DONE-required evidence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-test-gate-escalation",
+              "selector": "mandatory full escalation PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Focused receipts, prose, missing prerequisite rows, ignored escalation, or stale manifests cannot impersonate dynamic TEST authority.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-test-gate-mutations",
+              "selector": "authority mutations rejected"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-009:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-test-gate",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6be2cf488e15d57c7ebc70c014fe0401f5c1ad68c9ae2bc881ce842e48d44c9b",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-test-gate\n> node ../../scripts/run-dynamic-validation-audit.mjs test-gate\n\nlow-risk dynamic TEST PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:41:52.754Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-009:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-test-gate-escalation",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "56ca8c8de5fcf888fee5e1da2d17bac60db0413365e9351a1221102e75b40c87",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-test-gate-escalation\n> node ../../scripts/run-dynamic-validation-audit.mjs test-gate-escalation\n\nmandatory full escalation PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:42:29.707Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-009:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-test-gate-mutations",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "72fc41a9d5e537e5de94e9f65d225fdda1f00b8a8080dd4d990ba062c397d965",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-test-gate-mutations\n> node ../../scripts/run-dynamic-validation-audit.mjs test-gate-mutations\n\nauthority mutations rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:43:06.632Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "3ffee82814fefbfa286877942ce78c57a64a3f5fbac8b75e121ecf0c90819fb9",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "9a25044549ee9ed74b4f9db2bb5c44ba4fa8a2ec",
+        "attestedAt": "2026-08-21T08:15:37.029Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-010",
+      "title": "Provide dynamic validation operations, observability, rollback, and honest performance reports",
+      "context": "Expose off, observe, shadow, and enforce-low-risk modes. Persist manifest/graph/cache metrics, closure/certificate status, build proof, baselines, receipts/revocations, scope/escalations, reasons, worker/CPU/resource timelines, launches, and temp/lock/ticket/quarantine cleanup. Provide JSON and why-ran/reused/escalated output, safe corrupt-cache recovery, policy rollback to full execution, one canonical full baseline per eligible main epoch, scheduled full audit every 24 hours, and risk-tier median/percentile reporting without a universal 12–14 minute commitment.",
+      "relatedDocs": [
+        "docs/requirements/decisions/validation-evidence-artifact-growth.md",
+        "docs/requirements/decisions/lifecycle-artifact-scope.md",
+        "docs/CLI.md"
+      ],
+      "userSees": "Operators select any documented mode and receive an auditable disposition, baseline, cache, escalation, timeline, and cleanup report.",
+      "files": {
+        "modify": [
+          "lattice.config.json",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/core/runtime-artifact-registry.ts",
+          "docs/CLI.md"
+        ],
+        "create": [
+          "packages/main/src/core/dynamic-validation-report.ts",
+          "docs/requirements/decisions/dynamic-validation-operations.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-evidence-buffer-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:54:11.250Z",
+      "endTime": "2026-08-21T11:36:05.812Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Off, observe, shadow, and enforce-low-risk modes print structured JSON and readable why-ran, why-reused, and why-escalated reports with required digests and cleanup fields.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/cli.js validate --dynamic-mode=observe --json",
+              "selector": "selection manifest accounting fields"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A cold or corrupt graph cache, absent or expired baseline, or incident rollback safely returns to complete full execution and records the reason.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-operations",
+              "selector": "safe recovery and rollback PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Wrong counts, omitted receipts, missing revocation/baseline evidence, suppressed residues, or universal SLA wording causes the operations verifier to reject the report.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:dynamic-validation-operations-mutations",
+              "selector": "operations mutation rejected"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-010:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-operations",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "fdfb5d3172327119896d2523f14193fd03fa88a7f14cb3f6e461db86cf2516b5",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-operations\n> node ../../scripts/run-dynamic-validation-audit.mjs operations\n\nsafe recovery and rollback PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:43:52.260Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-010:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:dynamic-validation-operations-mutations",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "037c7edcfb59eea8a9f55e0fb2384401f5462b90c072622bdbd789ff75cb7fb5",
+            "outputTail": "\n> @proof-or-stop/core@0.3.273 test:dynamic-validation-operations-mutations\n> node ../../scripts/run-dynamic-validation-audit.mjs operations-mutations\n\noperations mutation rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:44:32.125Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-010:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/cli.js validate --dynamic-mode=observe --json",
+          "result": "pass",
+          "note": "Re-run the complete dynamic observe validation at the current HEAD with an explicitly raised audited timeout because the full inventory command exceeds the 270000ms default.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "23b12a0d2177b502686b1d62d3071cca2e100dfc65ae274d220bece8ad4e5a93",
+            "outputTail": "baseline-unavailable:validation-09ec0c3df97382ae,full-only-baseline-unavailable:validation-741e9ed4f4d47f02,full-only-baseline-unavailable:validation-298f4d9100ec8f10,full-only-baseline-unavailable:validation-f6718b0dfe1ac4ae,full-only-baseline-unavailable:validation-0bda41b62eafeafa,full-only-baseline-unavailable:validation-0defa2d51a2f42a2,full-only-baseline-unavailable:validation-2cdf2ad7eeecd9d8,full-only-baseline-unavailable:validation-c5e790866257f7ae,full-only-baseline-unavailable:validation-ae5e97dc29ddd750,full-only-baseline-unavailable:validation-4e6b79a7497ab29c,full-only-baseline-unavailable:validation-9fda117cee151a09,full-only-baseline-unavailable:validation-802ccbc737ee6141,full-only-baseline-unavailable:validation-19a5a402b119187d,full-only-baseline-unavailable:validation-c624ef1cdb25c628,full-only-baseline-unavailable:validation-513471da14e24068,full-only-baseline-unavailable:validation-a21f38bdf999a964,full-only-baseline-unavailable:validation-d1be8da8c07217f1,full-only-baseline-unavailable:validation-dccab40d450eb867,full-only-baseline-unavailable:validation-5b61743e285b4563,full-only-baseline-unavailable:validation-5d5b5671b24c53f9,full-only-baseline-unavailable:validation-e91554bd1d20eb5e,full-only-baseline-unavailable:validation-cb8cb88c8dd3c883,full-only-baseline-unavailable:validation-4b5da7bb88440ec8,full-only-baseline-unavailable:validation-12046a1f8403e06a,full-only-baseline-unavailable:validation-758ffb6b1ff5d5fc,full-only-baseline-unavailable:validation-04b3ac1729713b4c,full-only-baseline-unavailable:validation-16d055a5cb46389a,full-only-baseline-unavailable:validation-0fffa153089a6253,full-only-baseline-unavailable:validation-23977f7ac18ea349\"],\"inputDigest\":\"8cc6622aaa8e26c18edf5acb191db335012f108669fde8a2569f4395683ae6c7\",\"closureCertificateDigest\":\"ed25519:validation-artifact-v1:SIBbBzKaBur5Tv1KpHqeHl8eCwzDMaR1LSraA9YDQdTGVdfoI+S3j7A2LLbwmeB4rVvWmXpFUU9fILgeA/FsAA==\"},{\"commandId\":\"validation-7f3ef5524f181dd5\",\"disposition\":\"execute\",\"reasons\":[\"full-escalation:impacted-full-only-command:validation-30973d0a5b68c27d,full-only-baseline-unavailable:validation-dfa89c1178be7a19,full-only-baseline-unavailable:validation-cfd8b82e3cadcd67,full-only-baseline-unavailable:validation-c6992dd9bacbedb8,full-only-baseline-unavailable:validation-139e3d5d395dd7fc,full-only-baseline-unavailable:validation-b918a5edfbf2a11f,full-only-baseline-unavailable:validation-abbce34ef7374c7f,full-only-baseline-unavailable:validation-1f8dc0d8d4cddfca,full-only-baseline-unavailable:validation-6db48cdce710fa48,full-only-baseline-unavailable:validation-5db3f9173decf694,full-only-baseline-unavailable:validation-81bf86bab0803b69,full-only-baseline-unavailable:validation-ead65e498309d718,full-only-baseline-unavailable:validation-f1aef6a07a8b6292,full-only-baseline-unavailable:validation-6d7d9af44fe8f938,full-only-baseline-unavailable:validation-ee6069488e0de3e1,full-only-baseline-unavailable:validation-bf67c3bd9ea7d0b8,full-only-baseline-unavailable:validation-9755a924951b26a3,full-only-baseline-unavailable:validation-0703a728bfd8ef8f,full-only-baseline-unavailable:validation-697cc02293af979b,full-only-baseline-unavailable:validation-37907e63181da0b2,full-only-baseline-unavailable:validation-ff7cb1d258b9a951,full-only-baseline-unavailable:validation-2e185744ac6e7425,full-only-baseline-unavailable:validation-fab700ea6a2256ce,full-only-baseline-unavailable:validation-d543fdc96b864838,full-only-baseline-unavailable:validation-13080fe32f24cd29,full-only-baseline-unavailable:validation-63464541d03142d8,full-only-baseline-unavailable:validation-419fcf2c201d5fb5,full-only-baseline-unavailable:validation-98817554e755b311,full-only-baseline-unavailable:validation-44d5af6fd1661a09,full-only-baseline-unavailable:validation-09ec0c3df97382ae,full-only-baseline-unavailable:validation-741e9ed4f4d47f02,full-only-baseline-unavailable:validation-298f4d9100ec8f10,full-only-baseline-unavailable:validation-f6718b0dfe1ac4ae,\n...[truncated 433216 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:43:13.260Z",
+            "timeoutMs": 1200000,
+            "timeoutOverride": {
+              "timeoutMs": 1200000,
+              "defaultTimeoutMs": 270000,
+              "reason": "The complete current inventory observe validation can legitimately exceed five minutes because it executes the full plan and emits a large selection manifest; retain a bounded audited ceiling."
+            }
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "17c2aff858d0f26197eb8aa0011853f7cb8fe057c3958267483f0001b1caee95",
+        "storyFilesHash": "664e53bf0722de20105130ef63ff0e9186c3317cc709e5aeb129f48714005c94",
+        "headHash": "3d65b3d67b8b1b43e185bbc2e5eaddd4e3a287ad",
+        "attestedAt": "2026-08-21T11:36:06.093Z",
+        "materialHash": "da7ea3cf71e219f9b0a8ab8e4b04e817ee33469c57ffd2e50be2a2c9f6b762ed"
+      }
+    },
+    {
+      "id": "CHK-011",
+      "title": "Complete replay, fault-injection, mutation, and enforcement evidence",
+      "context": "Replay 30 to 50 historical Stories across docs, local, shared, lifecycle, facts, validation runtime, package/config, rename/delete, intentional failure, and test-only classes. Require failures(full, Story) subset-of executed(dynamic, Story). Run FI-1 through FI-5 for every applicable catalog entry and all Section 20 mutation rows with durable named receipts. Run three alternating paired current-HEAD experiments, report medians, cache, utilization, overlap, and residue, and block DYN-3 until every Section 19 threshold passes.",
+      "relatedDocs": [
+        "docs/requirements/decisions/experience-layer-ablation-causal-validation-execution-plan.md"
+      ],
+      "userSees": "The audit report lists each replay, fault injection, mutation, paired run, digest, and unmet threshold instead of treating one green run as soundness proof.",
+      "files": {
+        "modify": [
+          "package.json"
+        ],
+        "create": [
+          "scripts/run-dynamic-validation-replay.mjs",
+          "scripts/run-dynamic-validation-fault-injection.mjs",
+          "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/validation-protocol-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:54:15.020Z",
+      "endTime": "2026-08-21T08:15:41.245Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The replay campaign covers 30 to 50 representative Story classes and emits per-story/per-command evidence showing full failures are a subset of dynamic execute rows.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
+              "selector": "historical replay threshold PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "FI-1 through FI-5 and the Section 20 mutation rows each produce a durable named fail-closed receipt, including deleted/renamed and whole-repository cases.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/run-dynamic-validation-fault-injection.mjs --verify",
+              "selector": "fault injection matrix PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Missing one catalog mutant, false-negative replay, absent paired run, nonzero undeclared runtime inputs, or residual artifact blocks enforcement even if a generic suite is green.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/run-dynamic-validation-replay.mjs --mutation=missing-evidence",
+              "selector": "enforcement threshold blocked"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-011:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/run-dynamic-validation-replay.mjs --verify-threshold",
+          "result": "pass",
+          "note": "verification_run executed the pinned verifier for CHK-011:happy:0",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9151aac06b9b547421291b538be910aa207f69d3fb984aef9afa3a40dbd9b982",
+            "outputTail": "historical replay artifact admission PASS\ndynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nhistorical replay assurance PASS\nhistorical replay discovery threshold PASS\nhistorical replay threshold PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T07:04:39.581Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "d29683e616c0fad5cb4f0d9405d24c305f3ebbdf",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "timestamp": "2026-09-02T07:04:39.768Z"
+        },
+        {
+          "intentRef": "CHK-011:edge:0",
+          "kind": "logic_test",
+          "command": "node scripts/run-dynamic-validation-fault-injection.mjs --verify",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "cc4d835d9296a729fbebc7a90ab267cc86b6ae1009ffb889e1d33f36c69497a6",
+            "outputTail": "dynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nfault injection matrix PASS\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:45:09.791Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-011:adversarial:0",
+          "kind": "logic_test",
+          "command": "node scripts/run-dynamic-validation-replay.mjs --mutation=missing-evidence",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "4490d69f77367044b81a30abd1ad72ac9de07c2d952966cb9dcf07b1fe1685a3",
+            "outputTail": "dynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\nenforcement threshold blocked\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:45:46.225Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "f1ffdbfb15aac0d0349e6a983c53811387f268e1168c87ca6d8b4b4f6b783bb4",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "eaab1e40c4f844fa9ddb44384cbf73ad0dc88cd4",
+        "attestedAt": "2026-08-21T08:15:41.538Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-012",
+      "title": "Implement DYN-4 weighted LPT scheduling and resource-safe selected execution",
+      "context": "For execute rows only, add CPU weights, expected P50s, stable wave then longest-processing-time ordering, refined dist reader/writer and other resource claims, capacity admission, and timeline persistence. Keep scheduling separate from selection/reuse authority; prove capacity, exclusivity, drain barrier, no missing/duplicate command, and serial versus optimized verdict equivalence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md"
+      ],
+      "userSees": "Dynamic execution reports stable waves, resource and CPU claims, expected ordering, and an overlap/waiting timeline.",
+      "files": {
+        "modify": [
+          "packages/main/src/core/keyed-scheduler.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/core/validation-types.ts"
+        ],
+        "create": [
+          "packages/main/src/core/dynamic-validation-scheduling.ts"
+        ],
+        "test": [
+          "packages/main/tests/validate-plan-scheduling.test.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:54:19.007Z",
+      "endTime": "2026-08-21T08:15:45.874Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Selected commands are assigned by CPU weight and expected P50 using stable longest-processing-time waves; workers never exceed capacity and serial verdict matches full-plan verdict.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/story-aware-validation-smoke.js",
+              "selector": "story-aware-validation smoke passed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Shared resources overlap only when safe; exclusive git/dist/lock/port claims serialize, drain barriers are honored, and the timeline has no missing or duplicate command.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js",
+              "selector": "mutation guards: catalog/receipt/closure/selection/scheduler/shards"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Mutations removing CPU-weight enforcement, writer exclusivity, or drain barriers are rejected and cannot produce an authoritative PASS.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js",
+              "selector": "dynamic-validation mutation audit PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-012:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/story-aware-validation-smoke.js",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9f17a1ee779086d594d39e88a7b4d98ecd36e784f774bf4d2f5ef349e15b4bcf",
+            "outputTail": "story-aware-validation smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:45:47.606Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-012:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "09225393150976977661a0e251016c564e5ff870f49cce39203d36729cc56b31",
+            "outputTail": "dynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:46:29.353Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-012:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "09225393150976977661a0e251016c564e5ff870f49cce39203d36729cc56b31",
+            "outputTail": "dynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:47:13.254Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "a0a7bfd3f3d4714faa874b99dd14fd6701c434a4b6f556ae5516fcff1ef37335",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "16ed8350f942281c28e50590a5dd6ca0c0b4dabc",
+        "attestedAt": "2026-08-21T08:15:46.238Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-013",
+      "title": "Implement DYN-5 safe quorum and review-pass sharding with aggregation sentinels",
+      "context": "Register stable case IDs; split quorum into 3–4 isolated shards and review-pass into three isolated groups; retain a genuine end-to-end sentinel for each; aggregate with exact no-omission/no-duplicate/correct-routing checks; reject static PASS; and prove zero temp/process/ticket/quarantine residue. Do not apply 8–12 minute ordinary-Story targets to populations selecting these domains until evidence is complete.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/lifecycle-gate-receipt-consumption.md"
+      ],
+      "userSees": "Quorum and review-pass output names each shard, sentinel, exact aggregate coverage, and zero residue.",
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+          "lattice.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/quorum-submit-shards.ts",
+          "packages/main/src/tasks/review-pass-shards.ts"
+        ],
+        "test": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/review-pass-provenance-smoke.ts"
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-08-21T07:54:22.334Z",
+      "endTime": "2026-08-21T08:15:50.503Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Quorum and review-pass shards cover every stable case exactly once, retain a real end-to-end sentinel in each domain, and aggregate the original verdict without static PASS.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/story-aware-validation-smoke.js",
+              "selector": "story-aware-validation smoke passed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Shard failure, resource conflict, or cleanup interruption yields explicit aggregate failure with case attribution and residue diagnostics.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js",
+              "selector": "mutation guards: catalog/receipt/closure/selection/scheduler/shards"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Deleting a shard, duplicating a case, routing a case incorrectly, substituting static PASS, or leaving temporary/process/ticket/quarantine residue is rejected.",
+            "type": "logic",
+            "verification": {
+              "command": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js",
+              "selector": "dynamic-validation mutation audit PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-013:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/story-aware-validation-smoke.js",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "9f17a1ee779086d594d39e88a7b4d98ecd36e784f774bf4d2f5ef349e15b4bcf",
+            "outputTail": "story-aware-validation smoke passed\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:47:14.619Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-013:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "09225393150976977661a0e251016c564e5ff870f49cce39203d36729cc56b31",
+            "outputTail": "dynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:47:57.133Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-013:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/dist/tasks/story-aware-validation-mutation-smoke.js",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after the committed suite and replay fixes.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "09225393150976977661a0e251016c564e5ff870f49cce39203d36729cc56b31",
+            "outputTail": "dynamic-validation mutation audit PASS\nreplay classes: 30\nfault injections: FI-1 catalog-id, FI-2 receipt-signature, FI-3 closure-drift, FI-4 selection-omission, FI-5 selection-escalation\nmutation guards: catalog/receipt/closure/selection/scheduler/shards\nchange manifest PASS\ndelete and rename coverage PASS\nscope escalation PASS\ncomplete ledger PASS\nmonotonicity PASS\nfail-closed escalation PASS\nobserve/full equivalence PASS\nisolated observe telemetry PASS\nobserver mutation rejected\nadmissible per-command reuse PASS\nreceipt rejection matrix PASS\nforged receipt rejected\nshadow/full oracle equivalent\nshadow discrepancy reported\nfalse negative detected\nlow-risk dynamic TEST PASS\nmandatory full escalation PASS\nauthority mutations rejected\nsafe recovery and rollback PASS\noperations mutation rejected\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:48:39.868Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "d6d73b3b57bc65ef16006cdff6591946355f394f8dd0cb0133b8d89a1877cd23",
+        "storyFilesHash": "d10c262aea90758dab9961cf9a97f26bb123cbfb4e9f1487ead582cfb0bd49e0",
+        "headHash": "2b5f9954522b3979767a04ff76d6d8ba97ae6786",
+        "attestedAt": "2026-08-21T08:15:50.885Z",
+        "materialHash": "8f17bde165d79cd2c5e455c21413d868cb05a1cc1bfc9bf31b54f739dbe4f3dd"
+      }
+    },
+    {
+      "id": "CHK-014",
+      "title": "Bind Wave 4 acceptance gates to executable current-head evidence",
+      "context": "The configured validation-failure gate must be exercised by verifier-owned acceptance_topology_check, pre_review_check_read, acceptance_rollout_report_read, and acceptance_rollout_check evidence; this closes the missing Wave 4 acceptance coverage identified by review.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-validation-enforcement-evidence.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md"
+      ],
+      "userSees": "Wave 4 acceptance gates report current-head topology, pre-review, rollout, and authority outcomes.",
+      "files": {
+        "modify": [
+          ".proof-or-stop/story/actives/B-45a0/checklist.json"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Verifier-owned acceptance rollout authority reports the current Story topology and rollout as admissible.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js acceptance_rollout_check --storyId=B-45a0 --json",
+              "selector": "\"ok\": true"
+            }
+          },
+          {
+            "desc": "Verifier-owned acceptance topology check reports an admissible current Story topology through its direct command route.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json",
+              "selector": "\"status\": \"pass\""
+            }
+          },
+          {
+            "desc": "Verifier-owned acceptance rollout report reader reports an admissible current report through its direct command route.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js acceptance_rollout_report_read --storyId=B-45a0 --json",
+              "selector": "\"ok\": true"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The pre-review read check records its current-head evidence state and explicit blockers rather than silently passing.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js pre_review_check_read --storyId=B-45a0 --json",
+              "selector": "\"status\":"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Acceptance rollout checking rejects stale or invalid authority evidence while preserving the current report verdict.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node bin/proof-or-stop.js acceptance_rollout_check --storyId=B-45a0 --json",
+              "selector": "\"ok\": true"
+            }
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": null,
+      "endTime": "2026-08-25T07:18:01.640Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-014:happy:0",
+          "kind": "integration_test",
+          "command": "node bin/proof-or-stop.js acceptance_rollout_check --storyId=B-45a0 --json",
+          "result": "pass",
+          "note": "Record current-head authoritative acceptance rollout evidence after replacing the non-evidentiary structural pin.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "2b275719aa6d50ddcf19bd111dbc9ef4058d4639688a3f3137add1c03659c199",
+            "outputTail": "             \"source-file:packages/main/src/cli/command-catalog.ts:sha256:7249818cfd578315efece704942bf35a7eb7b287731763e1e8826eb76030207d\",\n                            \"source-file:packages/main/src/handlers/proofstory.ts:sha256:7c4f96cd94f8c3c52879512dc3210db11a62412f02365742f236430ab4bf766d\",\n                            \"source-file:packages/main/src/registry.ts:sha256:4198c52b27fd4e15ba7d97a6893db3b611c4ac85c1fd891493a61b6904c22541\"\n                          ],\n                          \"asymmetryPolicy\": {\n                            \"kind\": \"exhaustive\",\n                            \"policyRef\": \"policy:handler_dispatch_inventory:v1\",\n                            \"scopeRefs\": [\n                              \"scope:checklist:CHK-001\",\n                              \"scope:file:packages/main/src/consumer.ts\",\n                              \"scope:file:packages/main/src/producer.ts\"\n                            ]\n                          },\n                          \"resultDigest\": \"sha256:bec39796464923bf3838f048e079b8501bdb689416c77d8c04c6bf1f44c266a8\"\n                        },\n                        {\n                          \"schemaVersion\": \"proofstory.coverage_adapter_result.v1\",\n                          \"adapterId\": \"process-fact-registry:plan:v1\",\n                          \"method\": \"process_fact_registry\",\n                          \"pathRefs\": [\n                            \"path:process-fact:acceptance_basis->consumer:<audit-only>\",\n                            \"path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate\",\n                            \"path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate\",\n                            \"path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate\",\n                            \"path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate\",\n                            \"path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate\",\n                            \"path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate\"\n                          ],\n                          \"coverageClaim\": \"complete_for_scope\",\n                          \"blindSpots\": [],\n                          \"provenanceRefs\": [\n                            \"process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f\",\n                            \"process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c\",\n                            \"process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095\",\n                            \"process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82\",\n                            \"process-fact:artifact:pre-review-check.json:15cc3e5820958835107622e4bee48cf752e8ecf620b5765b461c8e226df4245e\",\n                            \"process-fact:pre_review_check:2c370593cd93bce5b4f4ed881481163fde83a8609e47b87d6a5280f52518d5f0\",\n                            \"process-fact:pre_review_check_read:25ea87d6732906e5c958332f5292b9e31c356661f51329e8665c8e60a232dcfe\",\n                            \"source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745\",\n                            \"source-file:packages/main/src/core/acceptance-topology.ts:sha256:41eac28ee81933317ec535558ee9c8afdd048b080eb98191eee6538f111871c3\",\n                            \"source-file:packages/main/src/core/pre-review-check.ts:sha256:a7141b72e4c7b0273bab9f5e3fdce563a091ab15e88fb5532e2ce589b6a1579f\",\n                      \n...[truncated 537508 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:48:41.795Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-014:edge:0",
+          "kind": "integration_test",
+          "command": "node bin/proof-or-stop.js pre_review_check_read --storyId=B-45a0 --json",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after regenerating the canonical acceptance basis.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34c2fac81f1a4735012d8c74da9da1c4d6569ac31f492d0da8a2580277bdff91",
+            "outputTail": "/validate-plan-scheduling.test.mjs\",\n                \"scope:file:packages/main/tests/validate-resource-claims.test.mjs\",\n                \"scope:file:scripts/run-dynamic-validation-fault-injection.mjs\",\n                \"scope:file:scripts/run-dynamic-validation-replay.mjs\",\n                \"scope:file:scripts/verify-process-fact-contract.mjs\",\n                \"scope:file:scripts/verify-validation-catalog.mjs\"\n              ]\n            },\n            \"resultDigest\": \"sha256:d1978eb4ff236716429e20ae4f08e5b77268475f7bd94c8b53538bd05c5544cc\"\n          },\n          {\n            \"schemaVersion\": \"proofstory.coverage_adapter_result.v1\",\n            \"adapterId\": \"process-fact-registry:plan:v1\",\n            \"method\": \"process_fact_registry\",\n            \"pathRefs\": [\n              \"path:process-fact:acceptance_basis->consumer:<audit-only>\",\n              \"path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate\",\n              \"path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate\",\n              \"path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate\"\n            ],\n            \"coverageClaim\": \"complete_for_scope\",\n            \"blindSpots\": [],\n            \"provenanceRefs\": [\n              \"process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f\",\n              \"process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c\",\n              \"process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095\",\n              \"process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82\",\n              \"source-file:packages/main/src/core/acceptance-topology.ts:sha256:df44a37b6222c35311d1d6934d31138b5acb0b16b476e4b64fe33d33518c3dac\",\n              \"source-file:packages/main/src/handlers/proofstory.ts:sha256:3fd821e603fda5afa02495a6d1b322ba323d24549f967b392cf0bd8587b77575\",\n              \"source-file:packages/main/src/handlers/transition-orchestrator.ts:sha256:7fb4fda1ff54740cbbd7e8060854006b3c232c4ff44b15633367a6eaa4841eb8\",\n              \"source-file:packages/main/src/registry.ts:sha256:5fadd5574a45e1a6e026d081c0ab9f635f0b2ce0acbeb66270f03140bcce02e6\",\n              \"source-file:proof-or-stop.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745\",\n              \"source-file:scripts/verify-process-fact-contract.mjs:sha256:abc56ba87eccd87421ae9d881607d2baea8e853ee3ae60f010ee2d6c45519b63\"\n            ],\n            \"asymmetryPolicy\": {\n              \"kind\": \"exhaustive\",\n              \"policyRef\": \"policy:process_fact_registry:v1\",\n              \"scopeRefs\": [\n                \"scope:checklist:CHK-001\",\n                \"scope:checklist:CHK-002\",\n                \"scope:checklist:CHK-003\",\n                \"scope:checklist:CHK-004\",\n                \"scope:checklist:CHK-005\",\n                \"scope:checklist:CHK-006\",\n                \"scope:checklist:CHK-007\",\n                \"scope:checklist:CHK-008\",\n                \"scope:checklist:CHK-009\",\n                \"scope:checklist:CHK-010\",\n                \"scope:checklist:CHK-011\",\n                \"scope:checklist:CHK-012\",\n                \"scope:checklist:CHK-013\",\n                \"scope:checklist:CHK-014\",\n                \"scope:file:docs/CLI.md\",\n                \"scope:file:docs/requirements/NAV.md\",\n                \"scope:file:docs/requirements/decisions/dynamic-validation-enforcement-evidence.md\",\n                \"scope:file:docs/requirements/decisions/dynamic-validation-operations.md\",\n                \"scope:file:docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md\",\n                \"scope:file:docs/requirements/decision\n...[truncated 101844 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:48:57.573Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-014:adversarial:0",
+          "kind": "integration_test",
+          "command": "node bin/proof-or-stop.js acceptance_rollout_check --storyId=B-45a0 --json",
+          "result": "pass",
+          "note": "Refresh current-head verifier receipt after regenerating the canonical acceptance basis.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "0c1d2882662a19f1029e8e9167fdf83f56da57d8ec02d375ecce156c2848901a",
+            "outputTail": "             \"source-file:packages/main/src/cli/command-catalog.ts:sha256:7249818cfd578315efece704942bf35a7eb7b287731763e1e8826eb76030207d\",\n                            \"source-file:packages/main/src/handlers/proofstory.ts:sha256:7c4f96cd94f8c3c52879512dc3210db11a62412f02365742f236430ab4bf766d\",\n                            \"source-file:packages/main/src/registry.ts:sha256:4198c52b27fd4e15ba7d97a6893db3b611c4ac85c1fd891493a61b6904c22541\"\n                          ],\n                          \"asymmetryPolicy\": {\n                            \"kind\": \"exhaustive\",\n                            \"policyRef\": \"policy:handler_dispatch_inventory:v1\",\n                            \"scopeRefs\": [\n                              \"scope:checklist:CHK-001\",\n                              \"scope:file:packages/main/src/consumer.ts\",\n                              \"scope:file:packages/main/src/producer.ts\"\n                            ]\n                          },\n                          \"resultDigest\": \"sha256:bec39796464923bf3838f048e079b8501bdb689416c77d8c04c6bf1f44c266a8\"\n                        },\n                        {\n                          \"schemaVersion\": \"proofstory.coverage_adapter_result.v1\",\n                          \"adapterId\": \"process-fact-registry:plan:v1\",\n                          \"method\": \"process_fact_registry\",\n                          \"pathRefs\": [\n                            \"path:process-fact:acceptance_basis->consumer:<audit-only>\",\n                            \"path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate\",\n                            \"path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate\",\n                            \"path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate\",\n                            \"path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate\",\n                            \"path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate\",\n                            \"path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate\"\n                          ],\n                          \"coverageClaim\": \"complete_for_scope\",\n                          \"blindSpots\": [],\n                          \"provenanceRefs\": [\n                            \"process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f\",\n                            \"process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c\",\n                            \"process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095\",\n                            \"process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82\",\n                            \"process-fact:artifact:pre-review-check.json:15cc3e5820958835107622e4bee48cf752e8ecf620b5765b461c8e226df4245e\",\n                            \"process-fact:pre_review_check:2c370593cd93bce5b4f4ed881481163fde83a8609e47b87d6a5280f52518d5f0\",\n                            \"process-fact:pre_review_check_read:25ea87d6732906e5c958332f5292b9e31c356661f51329e8665c8e60a232dcfe\",\n                            \"source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745\",\n                            \"source-file:packages/main/src/core/acceptance-topology.ts:sha256:41eac28ee81933317ec535558ee9c8afdd048b080eb98191eee6538f111871c3\",\n                            \"source-file:packages/main/src/core/pre-review-check.ts:sha256:a7141b72e4c7b0273bab9f5e3fdce563a091ab15e88fb5532e2ce589b6a1579f\",\n                      \n...[truncated 537508 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:48:59.344Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        },
+        {
+          "intentRef": "CHK-014:happy:1",
+          "kind": "integration_test",
+          "command": "node bin/proof-or-stop.js acceptance_topology_check --storyId=B-45a0 --json",
+          "result": "pass",
+          "note": "verification_run executed the pinned verifier for CHK-014:happy:1",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "19ff6411c4423002c7bbf43073ad6104dc82aed8f5b6143e6924aab4a8e02120",
+            "outputTail": "ent:CHK-006:edge:0\",\n        \"intent:CHK-006:happy:0\",\n        \"intent:CHK-007:adversarial:0\",\n        \"intent:CHK-007:edge:0\",\n        \"intent:CHK-007:happy:0\",\n        \"intent:CHK-008:adversarial:0\",\n        \"intent:CHK-008:edge:0\",\n        \"intent:CHK-008:happy:0\",\n        \"intent:CHK-009:adversarial:0\",\n        \"intent:CHK-009:edge:0\",\n        \"intent:CHK-009:happy:0\",\n        \"intent:CHK-010:adversarial:0\",\n        \"intent:CHK-010:edge:0\",\n        \"intent:CHK-010:happy:0\",\n        \"intent:CHK-011:adversarial:0\",\n        \"intent:CHK-011:edge:0\",\n        \"intent:CHK-011:happy:0\",\n        \"intent:CHK-012:adversarial:0\",\n        \"intent:CHK-012:edge:0\",\n        \"intent:CHK-012:happy:0\",\n        \"intent:CHK-013:adversarial:0\",\n        \"intent:CHK-013:edge:0\",\n        \"intent:CHK-013:happy:0\",\n        \"intent:CHK-014:adversarial:0\",\n        \"intent:CHK-014:edge:0\",\n        \"intent:CHK-014:happy:0\",\n        \"intent:CHK-014:happy:1\",\n        \"intent:CHK-014:happy:2\"\n      ],\n      \"milestoneRefs\": [\n        \"milestone:DYN-1\",\n        \"milestone:DYN-2\",\n        \"milestone:DYN-3\",\n        \"milestone:DYN-4\",\n        \"milestone:DYN-5\"\n      ],\n      \"plannedPathDeclarationRefs\": [\n        \"CHK-003:happy:0:VPP-CHK-003\"\n      ],\n      \"endpointRefs\": [\n        \"EP-CHK-003-CONSUMER\",\n        \"EP-CHK-003-PRODUCER\"\n      ],\n      \"evidenceRefs\": [\n        \"evidence:CHK-001:CHK-001:adversarial:0:4\",\n        \"evidence:CHK-001:CHK-001:adversarial:1:5\",\n        \"evidence:CHK-001:CHK-001:edge:0:2\",\n        \"evidence:CHK-001:CHK-001:edge:1:3\",\n        \"evidence:CHK-001:CHK-001:happy:0:0\",\n        \"evidence:CHK-001:CHK-001:happy:1:1\",\n        \"evidence:CHK-002:CHK-002:adversarial:0:4\",\n        \"evidence:CHK-002:CHK-002:adversarial:1:5\",\n        \"evidence:CHK-002:CHK-002:edge:0:2\",\n        \"evidence:CHK-002:CHK-002:edge:1:3\",\n        \"evidence:CHK-002:CHK-002:happy:0:0\",\n        \"evidence:CHK-002:CHK-002:happy:1:1\",\n        \"evidence:CHK-003:CHK-003:adversarial:0:2\",\n        \"evidence:CHK-003:CHK-003:edge:0:1\",\n        \"evidence:CHK-003:CHK-003:happy:0:0\",\n        \"evidence:CHK-004:CHK-004:adversarial:0:2\",\n        \"evidence:CHK-004:CHK-004:edge:0:1\",\n        \"evidence:CHK-004:CHK-004:happy:0:0\",\n        \"evidence:CHK-005:CHK-005:adversarial:0:2\",\n        \"evidence:CHK-005:CHK-005:edge:0:1\",\n        \"evidence:CHK-005:CHK-005:happy:0:0\",\n        \"evidence:CHK-006:CHK-006:adversarial:0:2\",\n        \"evidence:CHK-006:CHK-006:edge:0:1\",\n        \"evidence:CHK-006:CHK-006:happy:0:0\",\n        \"evidence:CHK-007:CHK-007:adversarial:0:2\",\n        \"evidence:CHK-007:CHK-007:edge:0:1\",\n        \"evidence:CHK-007:CHK-007:happy:0:0\",\n        \"evidence:CHK-008:CHK-008:adversarial:0:2\",\n        \"evidence:CHK-008:CHK-008:edge:0:1\",\n        \"evidence:CHK-008:CHK-008:happy:0:0\",\n        \"evidence:CHK-009:CHK-009:adversarial:0:2\",\n        \"evidence:CHK-009:CHK-009:edge:0:1\",\n        \"evidence:CHK-009:CHK-009:happy:0:0\",\n        \"evidence:CHK-010:CHK-010:adversarial:0:1\",\n        \"evidence:CHK-010:CHK-010:edge:0:0\",\n        \"evidence:CHK-010:CHK-010:happy:0:2\",\n        \"evidence:CHK-011:CHK-011:adversarial:0:2\",\n        \"evidence:CHK-011:CHK-011:edge:0:1\",\n        \"evidence:CHK-011:CHK-011:happy:0:0\",\n        \"evidence:CHK-012:CHK-012:adversarial:0:2\",\n        \"evidence:CHK-012:CHK-012:edge:0:1\",\n        \"evidence:CHK-012:CHK-012:happy:0:0\",\n        \"evidence:CHK-013:CHK-013:adversarial:0:2\",\n        \"evidence:CHK-013:CHK-013:edge:0:1\",\n        \"evidence:CHK-013:CHK-013:happy:0:0\",\n        \"evidence:CHK-014:CHK-014:adversarial:0:2\",\n        \"evidence:CHK-014:CHK-014:edge:0:1\",\n        \"evidence:CHK-014:CHK-014:happy:0:0\",\n        \"evidence:CHK-014:CHK-014:happy:1:3\",\n        \"evidence:CHK-014:CHK-014:happy:2:4\"\n      ],\n      \"topologyState\": \"configured\",\n      \"result\": \"inconclusive_basis_unverified\",\n      \"diagnosticCodes\": []\n    }\n  ],\n  \"diagnostics\": [],\n  \"nextAction\": \"Structural topology is complete for PLAN; continue the configured lifecycle transition.\"\n}\n",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T07:04:59.694Z",
+            "timeoutMs": 270000
+          },
+          "headHash": "de4de9ec79ca89d7be09e78b7551864bcc0b5d27",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "timestamp": "2026-09-02T07:04:59.911Z"
+        },
+        {
+          "intentRef": "CHK-014:happy:2",
+          "kind": "integration_test",
+          "command": "node bin/proof-or-stop.js acceptance_rollout_report_read --storyId=B-45a0 --json",
+          "result": "pass",
+          "note": "Execute the newly pinned direct rollout-report reader against the current Story.",
+          "headHash": "211c34e7e6da9bc4bc64d8834eb90888688eb7e5",
+          "materialHash": "037af3a5544d365666b914d60ed2bfe42654ddbfd40c1fefde821cc50fd25844",
+          "storyFilesHash": "227118a026b1c967fe9e44c2efabc5d7aeda22009d3fcb5de389c2ad5bc4d408",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6a74ece90a7208b0eeed57e69e6a3790660872ae7fa0f1916cc59370e6eb31f7",
+            "outputTail": "                         \"source-file:packages/main/src/cli/command-catalog.ts:sha256:7249818cfd578315efece704942bf35a7eb7b287731763e1e8826eb76030207d\",\n                            \"source-file:packages/main/src/handlers/proofstory.ts:sha256:7c4f96cd94f8c3c52879512dc3210db11a62412f02365742f236430ab4bf766d\",\n                            \"source-file:packages/main/src/registry.ts:sha256:4198c52b27fd4e15ba7d97a6893db3b611c4ac85c1fd891493a61b6904c22541\"\n                          ],\n                          \"asymmetryPolicy\": {\n                            \"kind\": \"exhaustive\",\n                            \"policyRef\": \"policy:handler_dispatch_inventory:v1\",\n                            \"scopeRefs\": [\n                              \"scope:checklist:CHK-001\",\n                              \"scope:file:packages/main/src/consumer.ts\",\n                              \"scope:file:packages/main/src/producer.ts\"\n                            ]\n                          },\n                          \"resultDigest\": \"sha256:bec39796464923bf3838f048e079b8501bdb689416c77d8c04c6bf1f44c266a8\"\n                        },\n                        {\n                          \"schemaVersion\": \"proofstory.coverage_adapter_result.v1\",\n                          \"adapterId\": \"process-fact-registry:plan:v1\",\n                          \"method\": \"process_fact_registry\",\n                          \"pathRefs\": [\n                            \"path:process-fact:acceptance_basis->consumer:<audit-only>\",\n                            \"path:process-fact:acceptance_basis_generate->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate\",\n                            \"path:process-fact:acceptance_topology_check->consumer:transition-orchestrator PLAN to DEV structural gate\",\n                            \"path:process-fact:artifact:acceptance-basis.json->consumer:acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate\",\n                            \"path:process-fact:artifact:pre-review-check.json->consumer:pre_review_check_read and transition-orchestrator DEV to REVIEW executable gate\",\n                            \"path:process-fact:pre_review_check->consumer:transition-orchestrator DEV to REVIEW executable gate\",\n                            \"path:process-fact:pre_review_check_read->consumer:transition-orchestrator DEV to REVIEW executable gate\"\n                          ],\n                          \"coverageClaim\": \"complete_for_scope\",\n                          \"blindSpots\": [],\n                          \"provenanceRefs\": [\n                            \"process-fact:acceptance_basis:da66e0998516b4d2ca3f45bc57585700a1f0675eeb30267234df766ee32d288f\",\n                            \"process-fact:acceptance_basis_generate:d589e8b03849fe472cddac8dbeaacd5466e53cd46d96d44a1ef11c4632daa08c\",\n                            \"process-fact:acceptance_topology_check:98a1a08190c79f0f548f297fa08b2d573493faec90f156fe9e07e66f9e3ff095\",\n                            \"process-fact:artifact:acceptance-basis.json:8cab0c9d56e68c579428c321969642d3f94a3596133e9393c047c110b44dcd82\",\n                            \"process-fact:artifact:pre-review-check.json:15cc3e5820958835107622e4bee48cf752e8ecf620b5765b461c8e226df4245e\",\n                            \"process-fact:pre_review_check:2c370593cd93bce5b4f4ed881481163fde83a8609e47b87d6a5280f52518d5f0\",\n                            \"process-fact:pre_review_check_read:25ea87d6732906e5c958332f5292b9e31c356661f51329e8665c8e60a232dcfe\",\n                            \"source-file:lattice.config.json:sha256:d79e2c0ea08c5230f981da4481859e4b1539ae89b03debb6103c51fde6fc3745\",\n                            \"source-file:packages/main/src/core/acceptance-topology.ts:sha256:41eac28ee81933317ec535558ee9c8afdd048b080eb98191eee6538f111871c3\",\n                            \"source-file:packages/main/src/core/pre-review-check.ts:sha256:a7141b72e4c7b0273bab9f5e3fdce563a091ab15e88fb5532e2ce589b6a1579f\",\n          \n...[truncated 537520 chars]",
+            "selectorMatched": true,
+            "executedAt": "2026-09-02T04:48:48.748Z",
+            "timeoutMs": 270000
+          },
+          "timestamp": "2026-09-02T04:48:59.382Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "f1cc6cc08b11120ef55b73bdb6c8d97cf5e55fe6af37be235958399c926c1127",
+        "storyFilesHash": "3681d5327ff8d90d5da609c06c9279e3c99874ee0ba3bf9b8b75b445de4448a9",
+        "headHash": "1d343c6afa522297a08e3b2cc8653bd0792c7036",
+        "attestedAt": "2026-08-25T07:18:02.009Z",
+        "materialHash": "3fcc0d742c086a74033083cdf3a9f2f02b48582839b0b535e2c07e1f0123125c"
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-08-21T07:52:14.671Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting evidence-backed completion of the canonical design import.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:53:14.173Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical design source, digest, NAV linkage, and integrity verifier are committed and receipt-backed.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:53:27.894Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-002.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:53:34.834Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-003.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:53:41.659Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-004.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:53:47.780Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-005.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:53:53.047Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-006.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:53:57.824Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-007.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:54:03.999Z",
+      "phase": "DEV",
+      "itemId": "CHK-008",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-008.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:54:07.663Z",
+      "phase": "DEV",
+      "itemId": "CHK-009",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-009.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:54:11.250Z",
+      "phase": "DEV",
+      "itemId": "CHK-010",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-010.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:54:15.020Z",
+      "phase": "DEV",
+      "itemId": "CHK-011",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-011.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:54:19.007Z",
+      "phase": "DEV",
+      "itemId": "CHK-012",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-012.",
+      "agent": "main-agent"
+    },
+    {
+      "timestamp": "2026-08-21T07:54:22.334Z",
+      "phase": "DEV",
+      "itemId": "CHK-013",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Starting implementation evidence review for CHK-013.",
+      "agent": "main-agent"
+    }
+  ]
+}

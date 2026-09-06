@@ -1,0 +1,16 @@
+{
+  "name": "convergence-breaker-productive-vs-thrash",
+  "title": "The convergence breaker cannot distinguish a story surfacing real defects from one thrashing, and its trip reason reads as self-contradictory",
+  "description": "The advance signal counts advances without regard to what they produced, so a story whose rounds keep closing genuine reviewer findings is frozen on the same evidence as one re-attempting a gate that refuses for the same reason. Separately, the trip reason is built from the delta rather than the raw counter, so a story at count 21 over baseline 0 and one at count 42 over baseline 21 record the identical string advance-count 21>20; combined with the re-baselining that auto-recovery performs, the persisted state reads as though nothing changed between the recovery and the freeze, and predicting remaining headroom from it fails. A third class of advance, forced re-work caused by main moving underneath the story with no finding attached, is misclassified as thrash by the obvious fix. Includes a confirmed uncaught EISDIR in the experience-log reader.",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "convergence-breaker",
+    "advance-budget",
+    "freeze",
+    "dev-memory",
+    "EISDIR",
+    "freshness-pack"
+  ],
+  "createdAt": "2026-09-04T03:51:49.110Z"
+}

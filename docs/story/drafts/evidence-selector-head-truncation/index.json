@@ -1,0 +1,15 @@
+{
+  "name": "evidence-selector-head-truncation",
+  "title": "Match pinned evidence selectors against the full command output, not a 12000-character head",
+  "description": "verification_evidence_add computes selectorMatched as run.output.includes(pinSelector) (packages/main/src/handlers/checklist.ts:771) but run.output is trimOutput(stripAnsi(output)) (packages/main/src/core/validation-executor.ts:1313), which keeps only the first MAX_OUTPUT_CHARS=12000 characters (validation-executor.ts:40, 199-203). Any command whose pass line is printed after 12000 characters of output can never be pinned: node scripts/verify-process-fact-contract.mjs prints 55116 bytes and node packages/main/dist/cli.js validate prints 231766 bytes, and both were refused with [receipt_selector_absent] in B-8d60 although their summary lines are present. Operators are pushed into node -e spawnSync wrappers that print a compact final line, which hides the real command from the pin. Recorded as B-META F-037 (root cause verified after the gap was logged).",
+  "type": "bug",
+  "priority": "medium",
+  "keywords": [
+    "verification_evidence_add",
+    "receipt_selector_absent",
+    "trimOutput",
+    "MAX_OUTPUT_CHARS",
+    "validation-executor"
+  ],
+  "createdAt": "2026-09-02T16:20:58.537Z"
+}

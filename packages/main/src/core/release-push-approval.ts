@@ -2,13 +2,10 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { PROOF_OR_STOP_STATE_DIR } from './brand-paths.js';
 import { dirname, join } from 'node:path';
 
-export const RELEASE_PUSH_APPROVAL_SCHEMA = 'lattice.remote-push-approval.v1';
-// B-cc10 F-046: the approval is WRITTEN under the canonical state dir. This was a hardcoded
-// deprecated path, so every release_approve_push recreated `.proof-or-stop/tmp/` on a migrated repo.
-// The `lattice.remote-push-approval.v1` SCHEMA literal is deliberately FROZEN and unchanged —
-// only the path moves. .githooks/pre-push is updated in the same commit to read BOTH spellings,
-// because a one-sided rename here silently breaks release approval. The hook keeps its own
-// inline deprecated-path fallback, so no exported deprecated constant is needed here.
+export const RELEASE_PUSH_APPROVAL_SCHEMA = 'proof-or-stop.remote-push-approval.v1';
+export const LEGACY_RELEASE_PUSH_APPROVAL_SCHEMA = 'lattice.remote-push-approval.v1';
+// B-5a88: new approvals use the proof-or-stop schema. The hook keeps accepting the
+// legacy schema so an already-created, unexpired one-shot approval remains usable.
 export const RELEASE_PUSH_APPROVAL_REL_PATH = `${PROOF_OR_STOP_STATE_DIR}/tmp/remote-push-approval.json`;
 export const DEFAULT_RELEASE_PUSH_TTL_SECONDS = 300;
 export const MAX_RELEASE_PUSH_TTL_SECONDS = 900;

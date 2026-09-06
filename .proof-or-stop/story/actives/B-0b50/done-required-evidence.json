@@ -1,0 +1,91 @@
+{
+  "schema": "lattice.done-required-evidence",
+  "version": 1,
+  "storyId": "B-0b50",
+  "status": "PASS",
+  "startedAt": "2026-08-30T19:21:13.320Z",
+  "endedAt": "2026-08-30T19:25:59.762Z",
+  "durationMs": 286442,
+  "headHash": "2e0f8dad07bc7e0beb3c01f4bb161704fc4faad8",
+  "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+  "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-0b50",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-0b50",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 417,
+      "outputDigest": "6cc5aa34134da2b9299983b24c95a9ec3a1a9669800f6636c83822079b5cbd56",
+      "outputTail": "\n> @proof-or-stop/core@0.3.270 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-08-30T19:21:13.321Z",
+      "endedAt": "2026-08-30T19:21:13.738Z",
+      "effectiveEnvironmentDigest": "16bd78fa4a519d5465bca51ebc0ab198834f61799a810fbdbbf4573be8a3089c",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "2e0f8dad07bc7e0beb3c01f4bb161704fc4faad8",
+      "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+      "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "lattice.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-0b50",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-0b50",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 285724,
+      "outputDigest": "39fe745ccabf345d64eb0ccd40f1b50370fb20b0bca9a82dbe5e1c853fb7002e",
+      "outputTail": "\n> lattice@0.3.270 pretest\n> node scripts/ensure-dist.mjs\n\n\n> lattice@0.3.270 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nPASS test:proofstory-intent-hardening-smoke 126.3s\nPASS test:flow-stability-smoke 127.6s\nPASS test:proofstory-acceptance-rollout 157.5s\nPASS test:milestone-status 39.7s\nPASS test:experiments 16.0s\nPASS test:brief-output 43.7s\nPASS test:main-write-lock-coverage 0.2s\nPASS test:production-test-seam-guard 1.4s\nPASS test:lattice-residue 0.3s\nPASS test:residue-inject-repro 1.2s\nPASS test:full-suite-runner-smoke 33.9s\nPASS test:full-suite-resource-sentinel 0.2s\nPASS test:proof-or-stop-prompt-baseline 10.1s\nPASS test:codex-heartbeat-timeout 2.8s\nPASS test:audit-scan-bin-token 0.2s\nPASS test:review-convergence-smoke 0.2s\nPASS test:review-loop-smoke 0.8s\nPASS test:delivery-context-pack-smoke 7.6s\nPASS test:review-incremental-context-smoke 116.1s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 1.2s\nPASS test:withdrawn-disposition-smoke 1.9s\nPASS test:global-core-realpath 0.6s\nPASS test:brand-path-resolver-smoke 0.4s\nPASS test:review-assurance-floor-smoke 8.9s\nPASS test:retired-authority-vocabulary-guard 43.7s\nPASS test:core-package-rename 0.3s\nPASS test:config-filename-migration-smoke 1.8s\nPASS test:state-dir-migration 0.5s\nPASS test:docs-drift-smoke 0.2s\nPASS test:review-assurance-floor-storyfileshash-smoke 0.4s\nPASS test:migration-contract 0.6s\nPASS test:gitroot-cwd-contract 0.2s\nPASS test:docs-drift-wrapper-root 0.9s\nPASS test:runtime-fact-contract 2.6s\nPASS test:evidence-quality 0.2s\nPASS test:anti-stall 0.2s\nPASS test:process-fact-contract 4.1s\nPASS test:storydir-inside-gitroot-smoke 0.9s\nPASS test:bare-gate-gitroot-cwd 0.4s\nPASS test:project-gitroot-cwd 0.4s\nPASS test:gitroot-cwd-routing 2.0s\nPASS test:done-oracle-wrapper-root 1.9s\nPASS test:done-escalation-drift-advisory 1.4s\nPASS test:review-escalation-freshness-root 4.2s\nPASS test:dispatch-checklist-doctor-wrapper-root 1.0s\nPASS test:done-premerge-mainsha-recheck 7.9s\nPASS test:graceful-sites-gitroot-cwd 0.8s\nPASS test:experience-hint-worktree-cache 1.2s\nPASS test:experience-coverage-gap 1.4s\nPASS test:done-merge-experience-refresh 2.7s\nPASS test:e2e 3.1s\nPASS test:experience-arm-gate 0.3s\nPASS test:experience-arm-isolation-e2e 10.8s\nPASS test:convergence-breaker 0.4s\nPASS test:topology-signing-source-guard 0.2s\nPASS test:signing-guard-mutation-proof 0.3s\nPASS test:nested-worktree-bootstrap 17.5s\nPASS test:closeout-trust 35.3s\nfull-suite: 58/58 passed in 284.5s; retries=0; jobs=3\n",
+      "startedAt": "2026-08-30T19:21:13.887Z",
+      "endedAt": "2026-08-30T19:25:59.611Z",
+      "effectiveEnvironmentDigest": "16bd78fa4a519d5465bca51ebc0ab198834f61799a810fbdbbf4573be8a3089c",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "2e0f8dad07bc7e0beb3c01f4bb161704fc4faad8",
+      "materialHash": "9fd1a248ff279ff34b6fa7faee0b6b0a87807720c1191d7fd09636c4243e70b2",
+      "storyFilesHash": "e2e7ac825c52d37630f50197253ddbfc9563666f7cb1743af5af9ba64925cb98"
+    }
+  ],
+  "reasons": []
+}

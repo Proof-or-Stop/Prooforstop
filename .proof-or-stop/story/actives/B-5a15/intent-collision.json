@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-5a15",
+  "id": "IC-20260820092656",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "B-5a15 implements only the U-03 CausalEvidence DAG contract: exact content-addressed execution deduplication, receipt-first import retries, causal dependency invalidation with strict materialHash/DONE fallback, fail-closed expensive-run preflight, and canonical correctness/efficiency metrics. U-01/U-02 implementation and remote publish remain excluded.",
+  "acceptedInterpretationHash": "sha256:a6f93466428d98e78775efca9ddbdf350548fdbd03f44d4f46ac9947de44691b",
+  "notes": "Independent collision check against the original request, frozen plan, checklist scope review, and decision record; no alternate interpretation changes the five-item delivery boundary.",
+  "ledgerHashBeforeDecision": "sha256:5d9860d9666f6e5a8d596d2bd6d3139b2f716a069b50eefe6c7eddb0c7b726a8",
+  "confirmedLedgerHash": "sha256:5d9860d9666f6e5a8d596d2bd6d3139b2f716a069b50eefe6c7eddb0c7b726a8",
+  "createdAt": "2026-08-20T09:26:56.989Z",
+  "updatedAt": "2026-08-20T09:26:56.989Z"
+}

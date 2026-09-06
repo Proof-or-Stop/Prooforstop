@@ -1,0 +1,49 @@
+{
+  "task": "Implement the complete Story-Aware Dynamic Validation program from the approved plan, including observe, shadow, low-risk authority, receipts, scheduling, sharding, and audit evidence.",
+  "outcome": "After a dynamic validation run, the terminal prints a signed plan with inventory N, execute/reuse counts, zero unverified and unmapped rows, exact reasons and receipts, or explicitly says full validation was selected; eligible low-risk TEST output says Dynamic validation PASS only when every prerequisite is true.",
+  "facts": [
+    "The approved source plan is 1,826 lines and requires DYN-1 observe-only before any DYN-3 authority.",
+    "Current validate has configured commands, focus tags, resource claims, executor scheduling, full-suite runner, and plan-wide routine evidence reuse but no per-command dynamic selection authority.",
+    "Current Story change freshness hashes exist in evidence-freshness.ts but selection needs a shared manifest with add/modify/delete/rename paths.",
+    "Process-fact and runtime-fact registries are gate-consumed registries and must remain separate from runtime artifact paths.",
+    "The current full inventory N must be discovered from current main at kickoff; historical 107/110 command counts are non-normative.",
+    "Focused validation explicitly remains non-authoritative and DONE-required evidence is independent."
+  ],
+  "constraints": [
+    "Every inventory command starts unverified and complete coverage is executed plus admissible reuse equals inventory.",
+    "Unmapped, ambiguous, incomplete, stale, revoked, dirty, non-ancestor, malformed, or uncertified uncertainty fails closed to execution or full escalation.",
+    "Selection is deterministic, additive, singleton-union monotonic, and never uses Story prose, similarity, historical success, or set-cover subtraction to omit commands.",
+    "Source-first Wave 0 build proof is required before an authoritative manifest; stale dist bytes cannot authorize reuse.",
+    "DYN-3 can only admit eligible local/docs Stories after all twelve Section 24 prerequisites are blocking machine checks.",
+    "Full validation remains fallback, periodic baseline, and audit oracle; focused receipts cannot impersonate dynamic authority.",
+    "All changes must stay within B-45a0 scope and preserve unrelated dirty/generated files."
+  ],
+  "unknowns": [
+    "Exact current inventory count and command identity digest after kickoff discovery.",
+    "Which current commands have bounded versus nonliteral runtime closures and therefore need whole-repository or never-reuse policy.",
+    "Current reverse dependency graph and process-fact/capability producer-consumer edges for deleted and renamed paths.",
+    "Which current resource claims and historical durations permit safe weighted LPT scheduling without changing command order dependencies.",
+    "Which stable internal quorum and review-pass cases can be sharded while retaining end-to-end sentinels.",
+    "Current repository mechanism for signed artifacts, revocation ledgers, periodic baseline epochs, and runtime trace transport."
+  ],
+  "touchpoints": [
+    "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+    "lattice.config.json",
+    "package.json",
+    "packages/main/src/core/evidence-freshness.ts",
+    "packages/main/src/core/validation-types.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/core/validation-evidence-reuse.ts",
+    "packages/main/src/core/validation-evidence-admissibility.ts",
+    "packages/main/src/core/keyed-scheduler.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/runtime-fact-registry.ts",
+    "packages/main/src/core/runtime-artifact-registry.ts",
+    "packages/main/src/handlers/verifier.ts",
+    "packages/main/src/handlers/phase-gates.ts",
+    "packages/main/src/tasks/quorum-submit-smoke.ts",
+    "packages/main/src/tasks/review-pass-provenance-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-08-21T05:25:13.518Z"
+}

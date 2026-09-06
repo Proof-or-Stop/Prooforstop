@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-212f",
+  "executionKey": "ce:v1:8a2af72c1ad539a00f0d1de1e552f35bea59db6a20051dbe1c096be30329192e",
+  "identityDigest": "8a2af72c1ad539a00f0d1de1e552f35bea59db6a20051dbe1c096be30329192e",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-212f",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f",
+    "command": {
+      "executable": "node",
+      "args": [
+        "scripts/verify-process-fact-contract.mjs"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "61fc533166bc8232903a987717e4934f8f40bc9d57104e4ae91e69c5aa61df19",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f/.proof-or-stop/story/actives/B-212f/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f/.proof-or-stop/story/actives/B-212f/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:afdedba8518f5470524c4c06d6fcca80d3409a470359dcaf9c49814d65a9d82e",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-212f/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "8168160d5160b8a858632f891589c29b44497a25",
+          "materialHash": "61fc533166bc8232903a987717e4934f8f40bc9d57104e4ae91e69c5aa61df19",
+          "storyFilesHash": "163103f71effb594cf8f5872a1b1f267e2dc41306a670f2100d14765cb31f564"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-212f",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "163103f71effb594cf8f5872a1b1f267e2dc41306a670f2100d14765cb31f564",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/49bfef8b-d1b7-4471-84a8-3ad0baf1dd9b.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg03Ki9di:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.276",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "a1ac3c5c3f4c432cbcb81a165e4ea1763d07a983520835520ae4bc92617eff5c",
+  "outputTail": "Done and validate verification coverage artifact=checklist.json\n- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist gate=validate verification freshness gate artifact=checklist.json\n- verification_intent_repair [L2/command] producer=handlers/checklist\n- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard\n- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match\n- verification_run [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\n- workflow_explain [L0/command] producer=core/config\n- workflow_set [L1/command] producer=core/config\n- workflow_show [L0/command] producer=core/config\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- phase advance\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/transition-orchestrator.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/core/machine.ts\n- review_run_start\n  packages/main/src/core/owner-session-adapters.ts\n  packages/main/src/handlers/story-dispatch.ts\n  packages/main/src/handlers/review-run.ts\n  packages/main/src/cli/command-catalog.ts\n- finding_add\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n- flow fact policy\n  packages/main/src/core/flow-fact-policy.ts\n  packages/main/src/core/process-fact-registry.ts\n- finding evidenceState gate dimension\n  packages/main/src/core/advisory.ts\n  packages/main/src/core/machine.ts\n  packages/main/src/core/types.ts\n- gap_log\n  packages/main/src/handlers/gap-log.ts\n  packages/main/src/core/audit-meta-store.ts\n  packages/main/src/registry.ts\n- review_pass_set\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/review-pass-provenance.ts\n  packages/main/src/core/finding-verify.ts\n- verification evidence\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts\n  packages/main/src/core/verification.ts\n  packages/main/src/core/machine.ts\n- init check\n  packages/main/src/handlers/init-check.ts\n  packages/main/src/core/init-check-gate.ts\n  packages/main/src/core/machine.ts\n- scope anti-expansion\n  packages/main/src/core/machine.ts\n  packages/main/src/handlers/story-create.ts\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/handlers/story-query.ts\n  packages/main/src/handlers/scope-anti-expansion.ts\n  packages/main/src/core/scope-anti-expansion.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/command-policy.ts\n  packages/main/src/handlers/worktree.ts\n  packages/main/src/core/process-fact-registry.ts\n  packages/main/src/core/lifecycle-registry.ts\n- scope check\n  packages/main/src/handlers/scope-check.ts\n  packages/main/src/handlers/story-review.ts\n- delivery check\n  packages/main/src/handlers/delivery-check.ts\n  packages/main/src/core/machine.ts\n- REVIEW/TEST/DONE gates\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/handlers/review-preflight.ts\n  packages/main/src/core/machine.ts\n- lifecycle registry\n  packages/main/src/core/lifecycle-registry.ts\n  packages/main/src/core/phase-flow.ts\n  packages/main/src/handlers/context.ts\n  packages/main/src/tasks/flow-stability-smoke.ts\n- CLI schema\n  packages/main/src/cli/command-catalog.ts\n  packages/main/src/core/config.ts\n\nProcess fact contract verified\nProcess-fact contract verification passed\n",
+  "outputProbe": "Process Fact Contract\nPrompt guides; CLI/handler/gate decides\n\nScope: process facts only — phase/state transitions, pass/no-issue confirmations, findings/categories/roles, and evidence/check artifacts.\nOut of scope: ordinary explanatory prose, narrative rationale, and benign Claude/Codex wording differences that do not alter commands or artifact paths.\n\nGREEN shared DONE predicates: 20 production-consumer fixture cases\nGREEN shared DONE predicates: lazy first failure and legacy diagnostic precedence\nGREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row\nGREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected\nGREEN historical DONE presentation: original assurance preserved; no new reviewer PASS/audit; TEST future predicates remain strict\nGREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure\nShared DONE predicate parity passed\nDONE/preflight predicate inventory parity passed\n\nProcess Fact Registry\n- entries: 477 (363 CLI, 52 runtime, 10 reviewer lanes, 48 artifacts)\n- levels: L0=165, L1=44, L2=69, L3=12, L4=187\n- kinds: artifact=25, command=278, execution-status=7, finding=3, flow-policy=7, gate-evidence=65, host-availability-probe=1, host-verdict=2, review-pass=1, review-run=1, reviewer-lane=10, runtime-behavior=52, signed-artifact=23, validation-status=2\n- flow fact policies:\nflow fact policy: express-verification-policy -> express-exempt -> gate validate verification coverage and story_review PLAN fast-path advisory gate\nflow fact policy: finding -> artifact findings.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: pass-only-normalization -> finding_add:pass-only->review_pass_set -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-pass-supersession -> artifact review-passes.json -> gate storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-round-iso-string -> artifact findings.json -> gate review signatures and storyMachine.canPassReview REVIEW to TEST gate\nflow fact policy: review-run-boundary -> artifact review-runs.json -> gate storyMachine.canPassReview REVIEW to TEST gate\n- registry entries:\n- acceptance_basis [L0/command] producer=handlers/proofstory\n- acceptance_basis_generate [L4/signed-artifact] producer=handlers/proofstory gate=acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate artifact=acceptance-basis.json:signed\n- acceptance_matrix [L0/command] producer=handlers/proofstory\n- acceptance_rollout_check [L4/gate-evidence] producer=core/acceptance-rollout + handlers/proofstory gate=transition-orchestrator DEV to REVIEW rollout gate\n- acceptance_rollout_report [L4/signed-artifact] producer=core/acceptance-rollout + handlers/proofstory gate=acceptance_rollout_check and transition-orchestrator DEV to REVIEW rollout gate artifact=acceptance-rollout-report.json:signed\n- acceptance_rollout_report_read [L4/gate-evidence] producer=core/acceptance-rollout + handlers/proofstory gate=transition-orchestrator DEV to REVIEW rollout gate\n- acceptance_topology_check [L4/gate-evidence] producer=handlers/proofstory gate=transition-orchestrator PLAN to DEV structural gate\n- admissibility_waterline [L0/command] producer=handlers/lifecycle-control\n- agent_prompt [L1/command] producer=handlers/agent-prompt artifact=prompt-envelopes.json\n- artifact_declare [L4/gate-evidence] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\n- artifact_release_list [L0/command] producer=handlers/artifact-release\n- artifact_release_status [L0/command] producer=handlers/artifact-release\n- artifact:acceptance-basis.json [L4/signed-artifact] producer=handlers/proofstory.acceptance_basis_generate gate=acceptance_topology_check and transition-orchestrator PLAN to DEV structural gate artifact=acceptance-basis.json:signed\n- artifact:acceptance-rollout-report.json [L4/signed-artifact] producer=handlers/proofstory.acceptance_rollout_report gate=acceptance_rollout_report_read, acceptance_rollout_check, and transition-orchestrator DEV to REVIEW rollout gate artifact=acceptance-rollout-report.json:signed\n- artifact:candidate-spec-set.json [L4/signed-artifact] producer=handlers/candidate-spec-routing gate=scope_check_save, reviewer read-evidence candidate routing gate, and review inventory candidate-universe freshness gate artifact=candidate-spec-set.json:signed\n- artifact:certification-window.json [L4/signed-artifact] producer=handlers/certification-window gate=done_required_validate / validate --full PRE_CERT certification-window gate artifact=certification-window.json:signed\n- artifact:checklist.json [L4/artifact] producer=handlers/checklist gate=storyMachine.checklistAllDone DEV to REVIEW gate and validate verification coverage/freshness gates artifact=checklist.json\n- artifact:closeout-write-receipts.jsonl [L4/artifact] producer=core/auto-commit-metadata gate=review-run metadata-only retention classifier (artifact gate validation remains independent) artifact=closeout-write-receipts.jsonl\n- artifact:decision-doc-proposals.json [L4/artifact] producer=handlers/decision-doc-promotion gate=decision_doc_save proposal freshness and target render gate artifact=decision-doc-proposals.json\n- artifact:declared-artifacts.json [L4/artifact] producer=handlers/artifact-declare gate=dirty-worktree classifier and DONE declared artifact gate artifact=declared-artifacts.json\n- artifact:delivery-check.json [L4/signed-artifact] producer=handlers/delivery-check gate=storyMachine.canFinish DONE gate artifact=delivery-check.json:signed\n- artifact:done-required-evidence.json [L4/artifact] producer=handlers/done-required-validation gate=story_adva\n<causal-output-gap>\nce] producer=handlers/summary gate=story_advance DONE summary checklist artifact=summary.json\n- task_coverage [L1/command] producer=handlers/task-coverage\n- test_add [L4/execution-status] producer=handlers/test gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- test_auto [L2/command] producer=handlers/test-auto\n- test_fixture [L2/command] producer=handlers/test-fixture\n- test_list [L0/command] producer=handlers/test\n- test_story [L4/execution-status] producer=handlers/test-story gate=storyMachine.canFinish DONE gate artifact=test-evidence.json\n- testintent_handoff [L1/command] producer=handlers/testintent-handoff\n- topology_critic_receipt_check [L0/command] producer=handlers/proofstory + core/topology-critic-receipt\n- topology_critic_receipt_set [L3/command] producer=handlers/proofstory + core/topology-critic-receipt artifact=topology-critic-receipt.json:signed\n- topology_exclusion_approval_set [L3/command] producer=handlers/proofstory + core/topology-critic-receipt artifact=topology-exclusion-approvals.json:signed\n- truth_analyze [L0/command] producer=handlers/truth\n- truth_extract [L2/command] producer=handlers/truth\n- truth_nav [L2/command] producer=handlers/truth\n- truth_scan [L0/command] producer=handlers/truth\n- truth_to_story [L0/command] producer=handlers/truth\n- understanding_get [L0/command] producer=handlers/understanding\n- understanding_set [L1/command] producer=handlers/understanding\n- usage_sweep [L0/command] producer=handlers/usage-sweep\n- validate [L4/validation-status] producer=handlers/verifier gate=story_advance TEST and DONE validation gate artifact=test-evidence.json\n- validation_plan [L0/command] producer=handlers/validation-plan\n- verification_context_pack_create [L1/command] producer=handlers/verification-context-pack\n- verification_context_pack_expand [L1/command] producer=handlers/verification-context-pack\n- verification_evidence_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist gate=validate verification freshness gate artifact=checklist.json\n- verification_intent_repair [L2/command] producer=handlers/checklist\n- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard\n- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match\n- verification_run [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\n- workflow_explain [L0/command] producer=core/config\n- workflow_set [L1/command] producer=core/config\n- workflow_show [L0/command] producer=core/config\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- phase advance\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/transition-orchestrator.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/core/machine.ts\n- review_run_start\n  packages/main/src/core/owner-session-adapters.ts\n  packages/main/src/handlers/story-dispatch.ts\n  packages/main/src/handlers/review-run.ts\n  packages/main/src/cli/command-catalog.ts\n- finding_add\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n- flow fact policy\n  packages/main/src/core/flow-fact-policy.ts\n  packages/main/src/core/process-fact-registry.ts\n- finding evidenceState gate dimension\n  packages/main/src/core/advisory.ts\n  packages/main/src/core/machine.ts\n  packages/main/src/core/types.ts\n- gap_log\n  packages/main/src/handlers/gap-log.ts\n  packages/main/src/core/audit-meta-store.ts\n  packages/main/src/registry.ts\n- review_pass_set\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/review-pass-provenance.ts\n  packages/main/src/core/finding-verify.ts\n- verification evidence\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts\n  packages/main/src/core/verification.ts\n  packages/main/src/core/machine.ts\n- init check\n  packages/main/src/handlers/init-check.ts\n  packages/main/src/core/init-check-gate.ts\n  packages/main/src/core/machine.ts\n- scope anti-expansion\n  packages/main/src/core/machine.ts\n  packages/main/src/handlers/story-create.ts\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/handlers/story-query.ts\n  packages/main/src/handlers/scope-anti-expansion.ts\n  packages/main/src/core/scope-anti-expansion.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/command-policy.ts\n  packages/main/src/handlers/worktree.ts\n  packages/main/src/core/process-fact-registry.ts\n  packages/main/src/core/lifecycle-registry.ts\n- scope check\n  packages/main/src/handlers/scope-check.ts\n  packages/main/src/handlers/story-review.ts\n- delivery check\n  packages/main/src/handlers/delivery-check.ts\n  packages/main/src/core/machine.ts\n- REVIEW/TEST/DONE gates\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/handlers/review-preflight.ts\n  packages/main/src/core/machine.ts\n- lifecycle registry\n  packages/main/src/core/lifecycle-registry.ts\n  packages/main/src/core/phase-flow.ts\n  packages/main/src/handlers/context.ts\n  packages/main/src/tasks/flow-stability-smoke.ts\n- CLI schema\n  packages/main/src/cli/command-catalog.ts\n  packages/main/src/core/config.ts\n\nProcess fact contract verified\nProcess-fact contract verification passed\n",
+  "outputLength": 60223,
+  "executedAt": "2026-09-05T14:26:17.462Z",
+  "durationMs": 4553,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "2ywbryQXvRlfWiYqdlQhjQAagPmTPikmARWdG2WUE6pJb0TD3CzTEkkUU/4otIaPieIHmhfiymFlMRrhfZzcCw==",
+  "receiptHash": "23eeef6389cf3ee372f8150240fc2cea81cc631a971a6f51efde6a5ff6b42069"
+}

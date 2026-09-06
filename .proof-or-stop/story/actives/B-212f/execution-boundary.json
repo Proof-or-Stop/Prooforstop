@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-212f",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/proof-or-stop.js *",
+    "node packages/main/dist/tasks/dev-memory-lifecycle-gates-smoke.js",
+    "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+    "node packages/main/tests/red/red-done-shared-predicates.mjs",
+    "node scripts/verify-process-fact-contract.mjs",
+    "npm --prefix packages/main run build",
+    "npm --prefix packages/main run test:flow-stability-smoke",
+    "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
+    "npm run test:closeout-trust",
+    "proof-or-stop *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "proof-or-stop"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/evidence",
+    ".proof-or-stop/story/actives/B-212f",
+    "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+    "packages/main/src/core/done-oracle.ts",
+    "packages/main/src/core/done-transition-prerequisites.ts",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/validation-executor.ts",
+    "packages/main/src/tasks/flow-stability-smoke.ts",
+    "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+    "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+    "packages/main/tests/red/red-done-shared-predicates.mjs",
+    "proof-or-stop.config.json",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [],
+  "excludedTools": [
+    "remote publication"
+  ],
+  "excludedPaths": [],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Human approved shared DONE evaluator after convergence freeze on 2026-09-05. machine.ts edits are limited to the DONE evaluator, guard, diagnostic adapter and required types/imports. New executable shared-predicate test verifies future blockers and adapter mutations. Existing user execution-scoping rules continue to apply.",
+  "createdAt": "2026-09-05T11:10:55.597Z",
+  "updatedAt": "2026-09-05T11:10:55.597Z",
+  "_hash": "ff0ef92d7358e6be81e56a0869611cb8b025a7c148d60cec5d9b653ba5a7d580"
+}

@@ -46,12 +46,12 @@ import { resolveGitCwd } from './story-signed-workspace-resolution.js';
 import { currentGitHead, currentMaterialHash, currentStoryFilesHash } from './evidence-freshness.js';
 import {
   CLOSEOUT_ARTIFACT_POLICIES,
-  CLOSEOUT_WRITE_RECEIPT_SCHEMA,
   appendCloseoutWriteReceipt,
   buildCloseoutWriteReceipt,
   rawArtifactDigest,
   readCloseoutWriteReceipts,
 } from './closeout-trust.js';
+import { isCloseoutWriteReceiptSchema } from './artifact-schema.js';
 import {
   captureDonePrepareGeneratedMetadataTransaction,
   commitImmutableMetadataTree,
@@ -129,8 +129,13 @@ function appendLocalCausalReceiptsBeforeCommit(args: {
     const artifactPath = join(storyDir, policy.path);
     if (!existsSync(artifactPath)) continue;
     const bytes = readFileSync(artifactPath);
-    const previous = readCloseoutWriteReceipts(storyDir)
-      .filter((receipt) => receipt.schemaVersion === CLOSEOUT_WRITE_RECEIPT_SCHEMA && receipt.artifactPath === policy.path)
+    const artifactReceipts = readCloseoutWriteReceipts(storyDir)
+      .filter((receipt) => receipt.artifactPath === policy.path);
+    if (artifactReceipts.some((receipt) => !isCloseoutWriteReceiptSchema(receipt.schemaVersion))) {
+      throw new Error(`unsupported closeout receipt schema for ${policy.path}`);
+    }
+    const previous = artifactReceipts
+      .filter((receipt) => isCloseoutWriteReceiptSchema(receipt.schemaVersion))
       .at(-1);
     const receipt = buildCloseoutWriteReceipt({
       storyId: args.storyId,

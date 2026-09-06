@@ -168,6 +168,11 @@ async function main(): Promise<void> {
   const runnerSmokeFixedPort = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-runner-smoke')?.resources.find(resource => resource.class === 'fixed-port');
   const sentinelFixedPort = FULL_SUITE_ENTRIES.find(item => item.name === 'test:full-suite-resource-sentinel')?.resources.find(resource => resource.class === 'fixed-port');
   assert(runnerSmokeFixedPort?.access === 'exclusive' && runnerSmokeFixedPort.canonicalKey === sentinelFixedPort?.canonicalKey, 'canonical runner smoke declares the real fixed-port collision it probes');
+  const heavyKey = stateDirKey('runtime', 'full-suite-heavy');
+  for (const member of ['test:flow-stability-smoke', 'test:milestone-status', 'test:proofstory-acceptance-rollout', 'test:proofstory-intent-hardening-smoke', 'test:review-incremental-context-smoke']) {
+    const heavyClaim = FULL_SUITE_ENTRIES.find(item => item.name === member)?.resources.find(resource => resource.class === 'fixed-path' && resource.key === heavyKey);
+    assert(heavyClaim?.access === 'exclusive', `high-fan-out member ${member} shares the exclusive heavy-smoke resource claim`);
+  }
 
   const scripts = { 'test:a': 'x', 'test:b': 'x' };
   const policy = { 'test:a': entry('test:a'), 'test:b': entry('test:b') };
@@ -345,7 +350,7 @@ async function main(): Promise<void> {
   // Default concurrency is derived from the machine. Asserted across cpu counts
   // rather than against this host's own number, which would make the assertion
   // pass for the wrong reason on any other box.
-  assert(defaultJobs(10) === 2, 'a 10-cpu host budgets one job per four cpus');
+  assert(defaultJobs(10) === 2 && defaultJobs(12) === 2, 'hosts up to 12 logical CPUs cap at two workers for heavy fan-out');
   assert(defaultJobs(4) === 1 && defaultJobs(2) === 1 && defaultJobs(1) === 1, 'small hosts fall back to serial rather than oversubscribing');
   assert(defaultJobs(64) === 4 && defaultJobs(128) === 4, 'the former hardcoded default is the ceiling, so deriving can only reduce oversubscription');
   assert(!shouldEnforceFullSuiteBudget(1) && shouldEnforceFullSuiteBudget(4), 'serial oracle is exempt while canonical parallel execution enforces the performance budget');

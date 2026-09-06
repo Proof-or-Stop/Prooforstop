@@ -9,7 +9,7 @@ import { resolveAuditConfig } from './audit-config.js';
 import { evaluateDecompositionGate, computeWriteSet, type ParallelDecompositionBlock } from './parallel-decomposition.js';
 import { safeReadScopeContract } from './proof-or-stop-parallel-wave.js';
 import { TERMINAL_PHASES } from './parallel-policy.js';
-import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, describeInitCheckSignatureDomain, initCheckSignatureIsValid, missingRequiredInitCheckAgents } from './init-check-gate.js';
+import { REQUIRED_INIT_CHECK_AGENTS, blockingInitCheckIssues, describeInitCheckSignatureDomain, initCheckSignatureIsValid, missingRequiredInitCheckAgents, recomputeInitCheckHash } from './init-check-gate.js';
 import { deriveLatestLoopRecord, listActiveLoops } from './review-loop.js';
 import { evaluateDeliveryCheckFreshness } from './delivery-check-hash.js';
 import { deliveryPromiseBlocksDone } from './delivery-promise-outcome.js';
@@ -19,7 +19,7 @@ import { isTerminalChecklistStatus } from './checklist-status.js';
 import { normalizeLegacyPhase } from './phase-flow.js';
 import { findingAgentMatchesReviewer } from './reviewer-opt-in.js';
 import { detectMdTouchpointsFromGit } from './touchpoints-fallback.js';
-import { computeActiveReviewers } from '../handlers/reviewer-list.js';
+import { computeActiveReviewers, computeFinalReviewRoster } from '../handlers/reviewer-list.js';
 import { collectReviewerEvidenceState } from './review-run.js';
 import { isFindingBlocking } from './advisory.js';
 import { evaluateReviewMintStallAdjudication, type StallAdjudication } from './review-convergence.js';
@@ -57,7 +57,9 @@ import {
   renderRedEvidenceQuarantineNotice,
 } from './red-evidence-artifact-validation.js';
 import { renderAgentLivenessGuidance } from './agent-liveness-policy.js';
+import { reviewInventoryRemediationGate } from './review-inventory-epoch.js';
 import { readDevMemoryFinishDecision } from './playbook-runtime-memory.js';
+import { canonicalAgentRoleId } from './agent-role-identity.js';
 
 /**
  * Resolve effective blocking severities with round decay.
@@ -229,11 +231,12 @@ function initPreflightGuidance(storyId: string): string {
 
 function renderMissingInitReviewerDispatches(storyId: string, missingAgents: string[]): string {
   const dispatches = missingAgents.map(agentId => {
-    if (agentId === 'proof-or-stop-review-story-init') {
+    const canonicalAgentId = canonicalAgentRoleId(agentId);
+    if (canonicalAgentId === 'proof-or-stop-review-story-init') {
       return `   Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}'\` })`;
     }
-    if (agentId === 'product-reviewer') {
-      return `   Agent({ subagent_type: "product-reviewer", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"product-reviewer"}'\` })`;
+    if (canonicalAgentId === 'proof-or-stop-product-reviewer') {
+      return `   Agent({ subagent_type: "proof-or-stop-product-reviewer", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-product-reviewer"}'\` })`;
     }
     throw new Error(`unsupported required INIT reviewer: ${agentId}`);
   });
@@ -770,17 +773,32 @@ export function canSkipPlanGuard(context: StoryMachineContext): boolean {
 
 /**
  * F-006: the ROLLBACK doors REVIEW→DEV and TEST→DEV ("rework" via story_advance DEV). These are
- * NOT subject to the review/express gates (a rollback must not re-demand a clean review), but they
- * ARE doors into DEV, so they must enforce the SAME ProofStory DEV admission gate and parallel
- * hard-block used by PLAN/INIT_CHECK DEV entry.
+ * do not re-demand a clean final review, but REVIEW→DEV now requires the signed
+ * frozen-inventory saturation receipt that authorizes one aggregated remediation. Both doors
+ * ARE doors into DEV, so they also enforce the SAME ProofStory DEV admission gate and parallel
+ * hard-block used by PLAN/INIT_CHECK DEV entry. Inventory authority is the
+ * exception to the legacy rollback fail-open rule: unreadable/invalid inventory
+ * evidence fails closed before entering the legacy rollback gates.
  * Returns true to ALLOW re-entry, false to refuse. FAIL-OPEN: any infra error → allow (a rollback
  * must never be stranded by a gate/config error), via proofStoryDevGateFailure,
  * parallelDevEntryBlock, and the outer catch.
  */
 export function canReenterDevGuard(context: StoryMachineContext): boolean {
+  let inventoryStory: StoryInfo | undefined;
+  try {
+    inventoryStory = context.store.readStory(context.storyId);
+    if (inventoryStory.phase === 'REVIEW') {
+      const inventory = reviewInventoryRemediationGate(
+        context.store, context.storyId, inventoryStory.currentReviewRound,
+      );
+      if (!inventory.ok) return false;
+    }
+  } catch {
+    if (inventoryStory?.phase === 'REVIEW') return false;
+  }
   try {
     const config = loadConfig(context.projectRoot);
-    const story = context.store.readStory(context.storyId);
+    const story = inventoryStory ?? context.store.readStory(context.storyId);
     const policy = resolveWorkflowPolicy(config, story);
     // B-a7c5 CHK-001: a rollback (REVIEW/TEST→DEV) is ALSO a door into DEV. The ack
     // persists for the story's whole lifetime once written by the first PLAN/INIT_CHECK
@@ -856,9 +874,11 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
     if (policy.review.requireReviewerFinding) {
       const currentRoundReviewerEvidence = evidenceState.valid.map((e) => ({ agent: e.agent, kind: e.kind }));
 
-      const { roundCount } = resolveEffectiveBlockingSeverities(context.store, context.storyId, policy);
-      if (roundCount <= 1) {
-        // Round 1: require findings from every opt-in reviewer (same source as reviewer_list).
+      {
+        // The former round-2+ single-receipt shortcut could call one lane sufficient
+        // after remediation changed material. Consume only the current signed
+        // canonical impact closure; unknown impact fails closed to all active lanes.
+        // Round number alone never narrows the required set.
         let checklist: { items: unknown[] } = { items: [] };
         try { checklist = context.store.readChecklist(context.storyId); } catch {}
         let decision = null;
@@ -866,7 +886,13 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
         const understanding = context.store.readUnderstanding(context.storyId);
         const touchpoints = understanding?.touchpoints
           ?? detectMdTouchpointsFromGit(context.projectRoot ?? process.cwd());
-        const optIn = computeActiveReviewers(story, checklist, decision, touchpoints);
+        const active = computeActiveReviewers(story, checklist, decision, touchpoints);
+        const optIn = computeFinalReviewRoster(
+          context.store,
+          context.projectRoot ?? process.cwd(),
+          context.storyId,
+          active,
+        ).requiredReviewers;
         const missing = optIn.filter(reviewer => !currentRoundReviewerEvidence.some(
           e => findingAgentMatchesReviewer(e.agent, reviewer.name),
         ));
@@ -897,11 +923,6 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
         if (!quorum.ok) {
           return { ok: false, code: 'review_quorum', message: quorum.blocking.join('; ') };
         }
-      } else {
-        // Round 2+: require at least 1 reviewer finding or pass receipt
-        if (currentRoundReviewerEvidence.length === 0) {
-          return { ok: false, code: 'review_evidence_missing', message: `Round ${roundCount} has no current reviewer finding/pass` };
-        }
       }
     }
 
@@ -931,83 +952,104 @@ export function canPassReviewGuard(context: StoryMachineContext): boolean {
   return evaluateReviewVerdict(context).ok;
 }
 
-export function canFinishGuard(context: StoryMachineContext): boolean {
-  // verifier result (test-evidence.json) must be PASS + all bugs fixed
-  const evidence = context.store.readTestEvidence(context.storyId);
-  const hasEvidence = evidence !== null && evidence.result === 'PASS';
-  const bugs = context.store.readBugs(context.storyId);
-  const bugsOk = bugs.bugs.every(b => b.status === 'fixed');
-  if (!hasEvidence || !bugsOk) return false;
+/** One ordered source for the boolean DONE gate, diagnostic, and preflight. */
+export interface DonePredicateResult {
+  id: string;
+  oracleRowId: string;
+  ok: boolean;
+  failureReason: string | null;
+  value: unknown;
+}
 
-  // B-a7c5 CHK-003: dev_memory_finish_decision presence (existence-only, like
-  // the test-evidence check above). DELIBERATE OVERRIDE: `authority:
-  // 'non_authoritative'`/`gateEvidence:false` on the record describe LESSON
-  // CONTENT's status, not a promise that no gate reads record EXISTENCE as a
-  // completeness signal. Any of captured/no-reusable-lesson/defer-with-reason
-  // satisfies this — see playbook-runtime-memory-consumption-execution-plan.md
-  // M8/4.3 for the full reconciliation.
-  const finishDecision = readDevMemoryFinishDecision(context.projectRoot, context.storyId);
-  if (!finishDecision) return false;
+function donePredicate<T>(id: string, oracleRowId: string, value: T, failureReason: string | null): DonePredicateResult {
+  return { id, oracleRowId, value, ok: failureReason === null, failureReason };
+}
 
-  // delivery-check.json must exist, be untampered, and be bound to current material.
-  const deliveryCheckFreshness = evaluateDeliveryCheckFreshness(
-    context.storyId,
-    context.store,
-    context.gitCwd ?? resolveGitCwd({
-      store: context.store,
-      storyId: context.storyId,
-      metadataRoot: context.projectRoot,
-      projectRoot: context.projectRoot,
-    }),
-    context.projectRoot,
-  );
-  if (!deliveryCheckFreshness.ok) return false;
+/**
+ * Lazy evaluation preserves the first-failure diagnostic order. The oracle
+ * collects all results, while the guard and diagnostic stop at the first
+ * failure. Adding a predicate here automatically reaches all three consumers.
+ * Record contents and reviewer evidence are only read, never repaired here.
+ */
+export function* evaluateDonePredicates(context: StoryMachineContext): Generator<DonePredicateResult> {
+  const { storyId, store, projectRoot } = context;
+  const evidence = store.readTestEvidence(storyId);
+  yield donePredicate('test-evidence', 'test-evidence', evidence,
+    !evidence ? 'Cannot enter DONE: no test evidence (run proof-or-stop validate first)'
+      : evidence.result !== 'PASS' ? `Cannot enter DONE: test ${evidence.result}: ${evidence.output}` : null);
+
+  const bugs = store.readBugs(storyId);
+  const openBugs = bugs.bugs.filter(b => b.status !== 'fixed');
+  yield donePredicate('bugs-fixed', 'bugs-fixed', bugs, openBugs.length > 0
+    ? `Cannot enter DONE: ${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}` : null);
+
+  // Presence alone is a completeness signal; lesson contents are not authority.
+  const finishDecision = readDevMemoryFinishDecision(projectRoot, storyId);
+  yield donePredicate('dev-memory-finish-decision', 'dev-memory-finish-decision', finishDecision, !finishDecision
+    ? `Cannot enter DONE: dev_memory_finish_decision has not been recorded. [missing_dev_memory_finish_decision]\n` +
+      `→ Run \`proof-or-stop dev_memory_finish_decision --storyId=${storyId} --decision=captured|no-reusable-lesson|defer-with-reason\`.`
+    : null);
+
+  const gitCwd = context.gitCwd ?? resolveGitCwd({ store, storyId, metadataRoot: projectRoot, projectRoot });
+  const deliveryCheckFreshness = evaluateDeliveryCheckFreshness(storyId, store, gitCwd, projectRoot);
   const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
-  if (!deliveryCheck) return false;
+  yield donePredicate('delivery-presence', 'delivery-check', deliveryCheckFreshness, !deliveryCheck
+    ? 'Cannot enter DONE: missing delivery-check.json (requires proof-or-stop-review-delivery reviewer signature). [missing_delivery_check] → Run story_advance DEV to rework and fill in'
+    : null);
 
-  // A canonical live-smoke artifact is optional for legacy stories. Once one
-  // exists, however, a timeout/spawn failure/non-zero exit cannot be laundered
-  // through a later signed delivery-check.
-  if (!evaluateOptionalLiveSmokeTranscript(context.store, context.storyId).ok) return false;
+  // Keep the established diagnostic precedence: missing delivery first, then
+  // a failed optional transcript, then delivery signature/material failures.
+  const liveSmokeTranscript = evaluateOptionalLiveSmokeTranscript(store, storyId);
+  yield donePredicate('live-smoke-transcript', 'live-smoke-transcript', liveSmokeTranscript, !liveSmokeTranscript.ok
+    ? `Cannot enter DONE: ${liveSmokeTranscript.reason}. [live_smoke_transcript_failed] → Re-run proof-or-stop live_smoke_transcript with a passing command and --write` : null);
 
-  // every docsPromise must be verified or waived
-  const unverified = deliveryCheck.docsPromises.filter(deliveryPromiseBlocksDone);
-  if (unverified.length > 0) {
-    return false;
+  yield donePredicate('delivery-integrity', 'delivery-check', deliveryCheckFreshness,
+    deliveryCheckFreshness.code === 'delivery_check_tampered'
+      ? 'Cannot enter DONE: delivery-check.json _hash mismatch (content has been tampered with); please re-run proof-or-stop-review-delivery reviewer. [delivery_check_tampered] → Run story_advance DEV to rework and fill in'
+      : deliveryCheckFreshness.code === 'stale_delivery_check'
+        ? `Cannot enter DONE: ${deliveryCheckFreshness.reason}; please re-run proof-or-stop-review-delivery reviewer. [stale_delivery_check] → Run story_advance DEV to rework and fill in`
+        : !deliveryCheckFreshness.ok
+          ? `Cannot enter DONE: ${deliveryCheckFreshness.reason}. [${deliveryCheckFreshness.code}]`
+          : null);
+
+  // Rejected artifacts are opaque: eager preflight must not traverse contents
+  // after the lazy guard has already rejected their integrity predicate.
+  const unverifiedPromises = deliveryCheckFreshness.ok && deliveryCheck
+    ? deliveryCheck.docsPromises.filter(deliveryPromiseBlocksDone) : [];
+  yield donePredicate('delivery-promises', 'delivery-check', unverifiedPromises, unverifiedPromises.length > 0
+    ? `Cannot enter DONE: ${unverifiedPromises.length} docsPromise entries unverified and not waived: ${unverifiedPromises.map(p => p.docPath).join(', ')}. [unverified_promise] → Use delivery_waiver_add to write a waiver or re-run reviewer → Run story_advance DEV to rework and fill in` : null);
+
+  const reviewVerdict = evaluateReviewVerdict(context);
+  yield donePredicate('review-verdict', 'review-verdict', reviewVerdict, !reviewVerdict.ok
+    ? reviewVerdict.code === 'review_evidence_invalid'
+      ? `Cannot enter DONE: ${reviewVerdict.message}. [stale_closeout_review] → Return to DEV/REVIEW and record current reviewer evidence before TEST`
+      : `Cannot enter DONE: ${reviewVerdict.message}. [${reviewVerdict.code}] → Return to DEV/REVIEW and record current reviewer evidence before TEST`
+    : null);
+
+  const reviewEscalation = evaluateReviewEscalation({ projectRoot, gitCwd, storyId, store });
+  yield donePredicate('review-escalation', 'review-escalation', reviewEscalation,
+    !reviewEscalation.ok ? formatReviewEscalationFailure(reviewEscalation) : null);
+  const reviewAssuranceFloor = evaluateReviewAssuranceFloor({ projectRoot, gitCwd, storyId, store });
+  yield donePredicate('review-assurance-floor', 'review-assurance-floor', reviewAssuranceFloor,
+    !reviewAssuranceFloor.ok ? formatReviewAssuranceFloorFailure(reviewAssuranceFloor) : null);
+}
+
+export function firstDonePredicateFailure(context: StoryMachineContext): DonePredicateResult | null {
+  for (const result of evaluateDonePredicates(context)) {
+    if (!result.ok) return result;
   }
+  return null;
+}
 
-  // Reconsume the exact phase-agnostic REVIEW verdict. A hand-edited TEST
-  // phase cannot bypass reviewer presence, required lanes/quorum, review-loop,
-  // current bindings, or open blocking findings.
-  if (!evaluateReviewVerdict(context).ok) return false;
+/** Presentation consumes the already-read fact rather than invoking a second reader. */
+export function donePredicateValue<T>(results: readonly DonePredicateResult[], id: string): T {
+  const result = results.find(candidate => candidate.id === id);
+  if (!result) throw new Error(`Missing shared DONE predicate result: ${id}`);
+  return result.value as T;
+}
 
-  const reviewEscalation = evaluateReviewEscalation({
-    projectRoot: context.projectRoot,
-    gitCwd: context.gitCwd ?? resolveGitCwd({
-      store: context.store,
-      storyId: context.storyId,
-      metadataRoot: context.projectRoot,
-      projectRoot: context.projectRoot,
-    }),
-    storyId: context.storyId,
-    store: context.store,
-  });
-  if (!reviewEscalation.ok) return false;
-
-  const reviewAssuranceFloor = evaluateReviewAssuranceFloor({
-    projectRoot: context.projectRoot,
-    gitCwd: context.gitCwd ?? resolveGitCwd({
-      store: context.store,
-      storyId: context.storyId,
-      metadataRoot: context.projectRoot,
-      projectRoot: context.projectRoot,
-    }),
-    storyId: context.storyId,
-    store: context.store,
-  });
-  if (!reviewAssuranceFloor.ok) return false;
-
-  return true;
+export function canFinishGuard(context: StoryMachineContext): boolean {
+  return firstDonePredicateFailure(context) === null;
 }
 
 export function canSendStoryEventWithoutSnapshotCan(
@@ -1218,20 +1260,14 @@ export function getGuardFailureReason(
         `Missing required reviewer records: ${REQUIRED_INIT_CHECK_AGENTS.join(', ')}\n` +
         `→ Preferred: spawn an independent reviewer\n` +
         `   Agent({ subagent_type: "proof-or-stop-review-story-init", prompt: \`proof-or-stop dispatch '{"storyId":"${storyId}","agentType":"proof-or-stop-review-story-init"}'\` })\n` +
-        `   and have product-reviewer call init_check_set as well.\n` +
+        `   and have proof-or-stop-product-reviewer call init_check_set as well.\n` +
         `${renderAgentLivenessGuidance({ label: 'INIT reviewers' })}\n` +
         `→ Fallback (only when subagents cannot be spawned, controlled and audited):\n` +
         `   proof-or-stop init_check_repair '{"storyId":"${storyId}","acknowledge":true,"fallbackReason":"<why the reviewer cannot run + what you manually verified, >=30 chars>"}'`;
     }
-    // Same snapshot discipline as canEnterInitCheckGuard: judge the record that was read,
-    // through the one shared trust predicate (B-8df9 CHK-003).
-    if (!initCheckSignatureIsValid(storyId, store, projectRoot ?? process.cwd(), initCheck)) {
-      // The signed components are RENDERED from the domain declaration
-      // (INIT_CHECK_SIGNATURE_DOMAIN), never restated here: a hand-written list would
-      // go stale the next time the domain moves and send the reader to debug fields
-      // nobody touched — which is exactly what happened before B-8df9 CHK-002 widened
-      // the domain to cover the reviewer verdict.
-      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch — one of the signed components changed after signing (signed: ${describeInitCheckSignatureDomain()}); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
+    const expected = recomputeInitCheckHash(storyId, store, projectRoot ?? process.cwd());
+    if (initCheck._hash !== expected) {
+      return `Cannot enter INIT_CHECK: init-check.json _hash mismatch (${describeInitCheckSignatureDomain()} were modified); please re-run the proof-or-stop-review-story-init agent. [init_check_tampered]`;
     }
     const missingAgents = missingRequiredInitCheckAgents(initCheck);
     if (missingAgents.length > 0) {
@@ -1280,6 +1316,18 @@ export function getGuardFailureReason(
     // re-demand a clean review (canReenterDevGuard applies ONLY the parallel check), so the review
     // block must be skipped for those phases too, leaving the parallel reason to render below.
     const isRollbackDoor = story.phase === 'REVIEW' || story.phase === 'TEST';
+    if (story.phase === 'REVIEW') {
+      try {
+        const inventory = reviewInventoryRemediationGate(store, storyId, story.currentReviewRound);
+        if (!inventory.ok) {
+          return `Cannot enter remediation DEV: ${inventory.reason}. ` +
+            `Next: ${inventory.nextCommand ?? `proof-or-stop review_inventory_status --storyId=${storyId}`}`;
+        }
+      } catch (error) {
+        return `Cannot enter remediation DEV: inventory evidence is unreadable or invalid (${error instanceof Error ? error.message : String(error)}). ` +
+          `Next: proof-or-stop review_inventory_status --storyId=${storyId}`;
+      }
+    }
     let tookExpressChannel = false;
     if (story.phase === 'INIT_CHECK') {
       // Express channel failure reasons — read WorkflowPolicy
@@ -1410,109 +1458,8 @@ export function getGuardFailureReason(
     if (!verdict.ok) return `Cannot enter TEST: ${verdict.message} [${verdict.code}]`;
   }
 
-  if (targetPhase === 'DONE') {
-    const evidence = store.readTestEvidence(storyId);
-    if (!evidence) {
-      return 'Cannot enter DONE: no test evidence (run proof-or-stop validate first)';
-    }
-    if (evidence.result !== 'PASS') {
-      return `Cannot enter DONE: test ${evidence.result}: ${evidence.output}`;
-    }
-    const bugs = store.readBugs(storyId);
-    const openBugs = bugs.bugs.filter(b => b.status !== 'fixed');
-    if (openBugs.length > 0) {
-      return `Cannot enter DONE: ${openBugs.length} unfixed bug(s): ${openBugs.map(b => b.id).join(', ')}`;
-    }
-
-    // B-a7c5 CHK-003: dev_memory_finish_decision presence, same slot as the
-    // test-evidence message above.
-    const finishDecision = readDevMemoryFinishDecision(projectRoot ?? process.cwd(), storyId);
-    if (!finishDecision) {
-      return `Cannot enter DONE: dev_memory_finish_decision has not been recorded. ` +
-        `[missing_dev_memory_finish_decision]\n` +
-        `→ Run \`proof-or-stop dev_memory_finish_decision --storyId=${storyId} ` +
-        `--decision=captured|no-reusable-lesson|defer-with-reason\`.`;
-    }
-
-    // delivery-check.json signature and material freshness verification
-    const deliveryCheckFreshness = evaluateDeliveryCheckFreshness(
-      storyId,
-      store,
-      gitCwd ?? resolveGitCwd({
-        store,
-        storyId,
-        metadataRoot: projectRoot ?? process.cwd(),
-        projectRoot: projectRoot ?? process.cwd(),
-      }),
-      projectRoot ?? process.cwd(),
-    );
-    const deliveryCheck = deliveryCheckFreshness.deliveryCheck;
-    if (!deliveryCheck) {
-      return `Cannot enter DONE: missing delivery-check.json (requires proof-or-stop-review-delivery reviewer signature). [missing_delivery_check] → Run story_advance DEV to rework and fill in`;
-    }
-    const liveSmokeTranscript = evaluateOptionalLiveSmokeTranscript(store, storyId);
-    if (!liveSmokeTranscript.ok) {
-      return `Cannot enter DONE: ${liveSmokeTranscript.reason}. [live_smoke_transcript_failed] → Re-run proof-or-stop live_smoke_transcript with a passing command and --write`;
-    }
-    if (deliveryCheckFreshness.code === 'delivery_check_tampered') {
-      return `Cannot enter DONE: delivery-check.json _hash mismatch (content has been tampered with); please re-run proof-or-stop-review-delivery reviewer. [delivery_check_tampered] → Run story_advance DEV to rework and fill in`;
-    }
-    if (deliveryCheckFreshness.code === 'stale_delivery_check') {
-      return `Cannot enter DONE: ${deliveryCheckFreshness.reason}; please re-run proof-or-stop-review-delivery reviewer. [stale_delivery_check] → Run story_advance DEV to rework and fill in`;
-    }
-
-    // every docsPromise must be verified or waived
-    const unverifiedPromises = deliveryCheck.docsPromises.filter(deliveryPromiseBlocksDone);
-    if (unverifiedPromises.length > 0) {
-      const names = unverifiedPromises.map(p => p.docPath).join(', ');
-      return `Cannot enter DONE: ${unverifiedPromises.length} docsPromise entries unverified and not waived: ${names}. [unverified_promise] → Use delivery_waiver_add to write a waiver or re-run reviewer → Run story_advance DEV to rework and fill in`;
-    }
-
-    const reviewVerdict = evaluateReviewVerdict({
-      storyId,
-      store,
-      projectRoot: projectRoot ?? process.cwd(),
-      ...(gitCwd ? { gitCwd } : {}),
-    });
-    if (!reviewVerdict.ok) {
-      // Keep the established closeout-freshness tag stable while all other
-      // reviewer verdict failures expose their shared machine-readable code.
-      if (reviewVerdict.code === 'review_evidence_invalid') {
-        return `Cannot enter DONE: ${reviewVerdict.message}. [stale_closeout_review] → Return to DEV/REVIEW and record current reviewer evidence before TEST`;
-      }
-      return `Cannot enter DONE: ${reviewVerdict.message}. [${reviewVerdict.code}] → Return to DEV/REVIEW and record current reviewer evidence before TEST`;
-    }
-
-    const reviewEscalation = evaluateReviewEscalation({
-      projectRoot: projectRoot ?? process.cwd(),
-      gitCwd: gitCwd ?? resolveGitCwd({
-        store,
-        storyId,
-        metadataRoot: projectRoot ?? process.cwd(),
-        projectRoot: projectRoot ?? process.cwd(),
-      }),
-      storyId,
-      store,
-    });
-    if (!reviewEscalation.ok) {
-      return formatReviewEscalationFailure(reviewEscalation);
-    }
-
-    const reviewAssuranceFloor = evaluateReviewAssuranceFloor({
-      projectRoot: projectRoot ?? process.cwd(),
-      gitCwd: gitCwd ?? resolveGitCwd({
-        store,
-        storyId,
-        metadataRoot: projectRoot ?? process.cwd(),
-        projectRoot: projectRoot ?? process.cwd(),
-      }),
-      storyId,
-      store,
-    });
-    if (!reviewAssuranceFloor.ok) {
-      return formatReviewAssuranceFloorFailure(reviewAssuranceFloor);
-    }
-
+if (targetPhase === 'DONE') {
+    return firstDonePredicateFailure({ storyId, store, projectRoot: projectRoot ?? process.cwd(), ...(gitCwd ? { gitCwd } : {}) })?.failureReason ?? null;
   }
 
   return null;
