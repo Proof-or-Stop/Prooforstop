@@ -2164,6 +2164,54 @@
       ],
       "signatureTag": "approved-test-wrapper-authority-action-synonym-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-045",
+      "desc": "Post-remediation full Task Context composition remains limited to the negative-dismissal family. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject each combined same-leaf control but admit its equivalent split across story.description and checklist.context: [Severity is the only factor.] plus [It determines Story scope.]; [Applicability remains unknown.] plus [It permits routing away from this Story.]; [defer_with_proof is recorded.] plus [It transfers responsibility to another Story.]; and [Reviewers inspect a signed defer_with_proof disposition.] plus [It binds the Finding.]. In packages/main/src/core/prompt-envelope.ts, crossSourceNegativeDismissalAuthority at lines 1129-1148 composes only negative-dismissal observations with later scope or ownership conclusions; every other controlled authority and state relation is classified one source leaf at a time. The smoke cross-leaf matrix likewise covers dismissal only. This is a distinct incomplete-closure residual after F-009 and F-015: the same prohibited proposition is accepted solely by moving its continuation to another trusted leaf, across severity, unknown-applicability, deferral-transfer, and signed-disposition binding families. Add location-preserving cross-source state for every controlled family with all-role split and same-leaf controls, while retaining safe unrelated cross-leaf prose. Severity high because Story-authored context can still establish scope, route, or disposition authority before envelope digests.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T19:59:34.414Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-074",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "93641299842705ff10a337fd7d2f1210ab1dd3168164e29e66a9733470fc425a",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "cross-leaf-non-dismissal-authority-split-bypass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
+      "ledgerCommitReceiptId": "lrc_mtq8jp5b_eyh_2695e1839f854033bbe7b178dbd1c4a0"
     }
   ]
 }
