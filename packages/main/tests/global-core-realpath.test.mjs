@@ -54,6 +54,39 @@ function git(cwd, ...args) {
   execFileSync('git', args, { cwd, stdio: 'pipe', env: { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_SYSTEM: '/dev/null' } });
 }
 
+const isWindowsHost = process.platform === 'win32';
+const canEnforcePosixPermissions = !isWindowsHost && (typeof process.getuid !== 'function' || process.getuid() !== 0);
+
+// Every fixture below models npm link with a directory link. Windows may lack
+// the privilege/capability even for this test setup; only the documented host
+// capability errnos are an explicit suite skip. Any other construction error
+// remains a hard failure.
+function probeDirectoryLinkCapability() {
+  const base = mkdtempSync(join(tmpdir(), 'gcr-link-capability-'));
+  const target = join(base, 'target');
+  const link = join(base, 'link');
+  try {
+    mkdirSync(target, { recursive: true });
+    symlinkSync(target, link, isWindowsHost ? 'junction' : 'dir');
+    assert.equal(realpathSync(link), realpathSync(target), 'directory-link capability probe resolved to the wrong target');
+    return { supported: true, reason: null };
+  } catch (error) {
+    if (isWindowsHost && ['EPERM', 'EACCES', 'ENOSYS'].includes(error?.code)) {
+      return { supported: false, reason: `${error.code}: ${error.message}` };
+    }
+    throw error;
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+const directoryLinkCapability = probeDirectoryLinkCapability();
+if (!directoryLinkCapability.supported) {
+  console.log(`SKIP global-core-realpath: Windows directory-link capability unavailable (${directoryLinkCapability.reason})`);
+  console.log('ok global-core-realpath');
+  process.exit(0);
+}
+
 // Writes a realistic core package (package.json `bin` -> dist/cli.js) so the
 // executable-bit facts are exercised; `binMode` controls the target's mode and
 // `binTarget` its shape: 'file' (default), 'absent' (declared but never
@@ -107,7 +140,7 @@ function makeRepoWithWorktree(base, { binMode = 0o755, binTarget = 'file', workt
 function makeGlobalRootLinkedTo(base, target) {
   const globalRoot = join(base, 'global', 'node_modules');
   mkdirSync(join(globalRoot, '@proof-or-stop'), { recursive: true });
-  symlinkSync(target, join(globalRoot, '@proof-or-stop', 'core'), 'dir');
+  symlinkSync(target, join(globalRoot, '@proof-or-stop', 'core'), isWindowsHost ? 'junction' : 'dir');
   return globalRoot;
 }
 
@@ -136,6 +169,21 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
   });
 }
 
+function expectedCommandPath(path, platform = process.platform) {
+  if (platform === 'win32') return `"${path}"`;
+  return /^[A-Za-z0-9_./:@%+=,-]+$/.test(path) ? path : `'${path.replace(/'/g, `'\\''`)}'`;
+}
+
+function expectedRelink(root, platform = process.platform) {
+  return platform === 'win32'
+    ? `cd /d ${expectedCommandPath(root, platform)} && npm link`
+    : `cd -- ${expectedCommandPath(root, platform)} && npm link`;
+}
+
+function expectedRebuild(root, platform = process.platform) {
+  return `npm --prefix ${expectedCommandPath(root, platform)} run build`;
+}
+
 // 1. Worktree-built CLI + global resolving to the canonical main checkout → pass.
 {
   const base = mkdtempSync(join(tmpdir(), 'gcr-worktree-pass-'));
@@ -151,10 +199,12 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     assert.equal(actual.realpath, realpathSync(join(repo, 'packages', 'main')));
     assert.equal(actual.version, '0.0.0');
     assert.equal(actual.binTarget, realpathSync(join(repo, 'packages', 'main', 'dist', 'cli.js')));
-    assert.equal(actual.binMode, '0755');
+    if (!isWindowsHost) assert.equal(actual.binMode, '0755');
+    else assert.match(actual.binMode, /^0[0-7]{3}$/, 'Windows mode remains display-only but must be a formatted observed fact');
     assert.equal(actual.executable, true);
     assert.equal(actual.worktreeCheckout, false);
     assert.equal(actual.remediation, null);
+    assert.match(renderRuntimeEnvironmentReport(report), /contract: global-core-realpath-pass/, 'doctor rendering must expose the path-invariant pass selector');
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
@@ -198,8 +248,10 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
   }
 }
 
-// 4. B-e256 CHK-003: canonical realpath but the bin target lost its executable bit
-//    -> warning row with the exact `chmod +x <absolute path>` remediation.
+// 4. B-e256 CHK-003: POSIX canonical realpath but the bin target lost its
+//    executable bit -> warning row with the exact chmod remediation. On Windows
+//    the same 0644-shaped fixture follows production semantics: mode is display
+//    only and npm's generated command shim makes the target executable.
 {
   const base = mkdtempSync(join(tmpdir(), 'gcr-nonexec-warn-'));
   try {
@@ -208,14 +260,21 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
     const actual = report.globalCoreRealpath.actual;
     const expectedBin = realpathSync(join(repo, 'packages', 'main', 'dist', 'cli.js'));
-    assert.notEqual(report.globalCoreRealpath.status, 'pass', 'non-executable bin target must never pass silently');
-    assert.equal(actual.executable, false);
-    assert.equal(actual.binMode, '0644');
-    assert.equal(actual.binTarget, expectedBin);
-    assert.equal(actual.remediation, `chmod +x ${expectedBin}`);
-    const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
-    assert.ok(warnings.includes(`chmod +x ${expectedBin}`), `warning must carry the exact chmod command, got: ${warnings}`);
-    assert.doesNotMatch(warnings, /resolves to/, 'canonical realpath must not be reported as drift');
+    if (isWindowsHost) {
+      assert.equal(report.globalCoreRealpath.status, 'pass', 'Windows must not apply a POSIX X_OK/mode-bit failure to an npm shim target');
+      assert.equal(actual.executable, true, 'production Windows executable semantics are the npm command-shim contract');
+      assert.equal(actual.remediation, null);
+      assert.doesNotMatch((report.globalCoreRealpath.warnings ?? []).join('\n'), /chmod \+x|cd --|ls -ld/);
+    } else {
+      assert.notEqual(report.globalCoreRealpath.status, 'pass', 'non-executable bin target must never pass silently');
+      assert.equal(actual.executable, false);
+      assert.equal(actual.binMode, '0644');
+      assert.equal(actual.binTarget, expectedBin);
+      assert.equal(actual.remediation, `chmod +x ${expectedBin}`);
+      const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
+      assert.ok(warnings.includes(`chmod +x ${expectedBin}`), `warning must carry the exact chmod command, got: ${warnings}`);
+      assert.doesNotMatch(warnings, /resolves to/, 'canonical realpath must not be reported as drift');
+    }
   } finally {
     rmSync(base, { recursive: true, force: true });
   }
@@ -233,7 +292,7 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
     const actual = report.globalCoreRealpath.actual;
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
+    const relink = expectedRelink(canonical);
     assert.notEqual(report.globalCoreRealpath.status, 'pass', 'realpath inside .worktrees/ must never pass silently');
     assert.equal(actual.worktreeCheckout, true);
     assert.equal(actual.realpath, realpathSync(join(worktree, 'packages', 'main')));
@@ -258,7 +317,7 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     mkdirSync(emptyGlobalRoot, { recursive: true });
     const report = runChecks(base, join(worktree, 'packages', 'main'), emptyGlobalRoot);
     const actual = report.globalCoreRealpath.actual;
-    const relink = `cd -- ${realpathSync(join(repo, 'packages', 'main'))} && npm link`;
+    const relink = expectedRelink(realpathSync(join(repo, 'packages', 'main')));
     assert.equal(report.globalCoreRealpath.status, 'pass', 'missing global install is informational, not a warning');
     assert.equal(report.globalCoreRealpath.warnings, undefined);
     assert.equal(actual.installed, false);
@@ -267,6 +326,7 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     assert.equal(actual.executable, null);
     assert.equal(actual.verification, null, 'an ABSENT install has nothing to verify and must not be classified as unverifiable');
     assert.equal(actual.remediation, relink);
+    assert.doesNotMatch(renderRuntimeEnvironmentReport(report), /contract: global-core-realpath-pass/, 'the stable resolved-install selector must not be emitted for an informational missing-global pass');
     const details = (report.globalCoreRealpath.details ?? []).join('\n');
     assert.ok(details.includes(relink), `informational row must name how to link one, got: ${details}`);
 
@@ -301,7 +361,7 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     const actual = report.globalCoreRealpath.actual;
     const canonical = realpathSync(join(repo, 'packages', 'main'));
     const expectedBin = join(canonical, 'dist', 'cli.js');
-    const rebuild = `npm --prefix ${canonical} run build`;
+    const rebuild = expectedRebuild(canonical);
     assert.notEqual(report.globalCoreRealpath.status, 'pass', 'absent bin target must never pass silently');
     assert.equal(actual.executable, false);
     assert.equal(actual.binMode, null, 'an absent target has no mode to report');
@@ -328,10 +388,11 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     const actual = report.globalCoreRealpath.actual;
     const canonical = realpathSync(join(repo, 'packages', 'main'));
     const expectedBin = join(canonical, 'dist', 'cli.js');
-    const rebuild = `npm --prefix ${canonical} run build`;
+    const rebuild = expectedRebuild(canonical);
     assert.notEqual(report.globalCoreRealpath.status, 'pass', 'a directory at the bin target must never pass silently');
     assert.equal(actual.executable, false);
-    assert.equal(actual.binMode, '0755', 'the mode of the non-file entry is still reported');
+    if (!isWindowsHost) assert.equal(actual.binMode, '0755', 'the mode of the non-file entry is still reported');
+    else assert.match(actual.binMode, /^0[0-7]{3}$/, 'the observed non-file mode remains display-only on Windows');
     assert.equal(actual.binTarget, expectedBin);
     assert.equal(actual.remediation, rebuild);
     const warnings = (report.globalCoreRealpath.warnings ?? []).join('\n');
@@ -351,7 +412,9 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
 //    denying, the row reports executable=no; with the bit clear and the probe
 //    allowing, executable=yes. The default probe is then exercised on files
 //    owned by the current user (0700 -> yes, 0600 -> no).
-{
+if (isWindowsHost) {
+  console.log('SKIP global-core-realpath case 9: POSIX access(2)/mode-bit matrix is not applicable on Windows; the Windows npm-shim contract is covered below');
+} else {
   const base = mkdtempSync(join(tmpdir(), 'gcr-xok-probe-'));
   try {
     const { repo, worktree } = makeRepoWithWorktree(base, { binMode: 0o755 });
@@ -367,8 +430,8 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     const denied = runChecks(join(base, 'deny'), join(worktree, 'packages', 'main'), globalRoot, {
       executableAccessProbe: (path) => { probed.push(path); return false; },
     });
-    const rebuild = `npm --prefix ${canonical} run build`;
-    const relink = `cd -- ${canonical} && npm link`;
+    const rebuild = expectedRebuild(canonical);
+    const relink = expectedRelink(canonical);
     assert.deepEqual(probed, [expectedBin], 'the probe must be asked about exactly the bin target');
     assert.notEqual(denied.globalCoreRealpath.status, 'pass', 'a target the current user cannot execute must never pass, whatever its mode bits say');
     assert.equal(denied.globalCoreRealpath.actual.executable, false, 'executable is the X_OK verdict, not the mode bits');
@@ -426,8 +489,8 @@ for (const [variant, reasonCode, reasonText] of [
     const globalRoot = makeGlobalRootLinkedTo(base, canonical);
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
     const actual = report.globalCoreRealpath.actual;
-    const rebuild = `npm --prefix ${canonical} run build`;
-    const relink = `cd -- ${canonical} && npm link`;
+    const rebuild = expectedRebuild(canonical);
+    const relink = expectedRelink(canonical);
     assert.notEqual(report.globalCoreRealpath.status, 'pass', `[${variant}] an installed but unverifiable package must never pass`);
     assert.equal(actual.installed, true, `[${variant}] the package directory exists, so it IS installed`);
     assert.equal(actual.realpath, canonical);
@@ -456,7 +519,7 @@ for (const [variant, reasonCode, reasonText] of [
     const globalRoot = makeGlobalRootLinkedTo(base, unrelated);
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
     const actual = report.globalCoreRealpath.actual;
-    const relink = `cd -- ${canonical} && npm link`;
+    const relink = expectedRelink(canonical);
     assert.notEqual(report.globalCoreRealpath.status, 'pass');
     assert.equal(actual.verification, 'package-json-unreadable');
     assert.equal(actual.executable, null);
@@ -477,7 +540,9 @@ for (const [variant, reasonCode, reasonText] of [
 //    is the SOLE actionable remediation. No chmod/rebuild against the obsolete
 //    checkout is appended, so the remediation never reads
 //    `relink && chmod/rebuild <old path>`.
-{
+if (isWindowsHost) {
+  console.log('SKIP global-core-realpath case 14: POSIX chmod remediation is not applicable on Windows; Windows command-shim behavior is covered below');
+} else {
   const base = mkdtempSync(join(tmpdir(), 'gcr-drift-nonexec-'));
   try {
     const worktreeDir = join(base, 'repo', '.worktrees', 'B-test');
@@ -485,7 +550,7 @@ for (const [variant, reasonCode, reasonText] of [
     const globalRoot = makeGlobalRootLinkedTo(base, join(worktree, 'packages', 'main'));
     const oldBin = realpathSync(join(worktree, 'packages', 'main', 'dist', 'cli.js'));
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
+    const relink = expectedRelink(canonical);
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot, { executableAccessProbe: () => false });
     const actual = report.globalCoreRealpath.actual;
     assert.notEqual(report.globalCoreRealpath.status, 'pass', 'drift + non-executable old target must never pass');
@@ -514,7 +579,7 @@ for (const [variant, reasonCode, reasonText] of [
     const oldRealpath = realpathSync(join(worktree, 'packages', 'main'));
     const oldBin = join(oldRealpath, 'dist', 'cli.js');
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
+    const relink = expectedRelink(canonical);
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
     const actual = report.globalCoreRealpath.actual;
     assert.notEqual(report.globalCoreRealpath.status, 'pass', 'drift + missing old target must never pass');
@@ -540,18 +605,22 @@ for (const [variant, reasonCode, reasonText] of [
 {
   const base = mkdtempSync(join(tmpdir(), 'gcr-canonical-single-remediation-'));
   try {
-    const { repo, worktree } = makeRepoWithWorktree(join(base, 'chmod'), { binMode: 0o644 });
-    const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const globalRoot = makeGlobalRootLinkedTo(join(base, 'chmod'), canonical);
-    const chmodReport = runChecks(join(base, 'chmod'), join(worktree, 'packages', 'main'), globalRoot);
-    assert.equal(chmodReport.globalCoreRealpath.actual.remediation, `chmod +x ${join(canonical, 'dist', 'cli.js')}`, 'canonical non-executable target keeps the single chmod remediation');
-    assert.doesNotMatch(chmodReport.globalCoreRealpath.actual.remediation, /&&/, 'exactly one command');
+    if (!canEnforcePosixPermissions) {
+      console.log(`SKIP global-core-realpath case 16a: POSIX chmod fixture is not enforceable on ${isWindowsHost ? 'Windows' : 'uid 0'}`);
+    } else {
+      const { repo, worktree } = makeRepoWithWorktree(join(base, 'chmod'), { binMode: 0o644 });
+      const canonical = realpathSync(join(repo, 'packages', 'main'));
+      const globalRoot = makeGlobalRootLinkedTo(join(base, 'chmod'), canonical);
+      const chmodReport = runChecks(join(base, 'chmod'), join(worktree, 'packages', 'main'), globalRoot);
+      assert.equal(chmodReport.globalCoreRealpath.actual.remediation, `chmod +x ${join(canonical, 'dist', 'cli.js')}`, 'canonical non-executable target keeps the single chmod remediation');
+      assert.doesNotMatch(chmodReport.globalCoreRealpath.actual.remediation, /&&/, 'exactly one command');
+    }
 
     const absent = makeRepoWithWorktree(join(base, 'rebuild'), { binTarget: 'absent' });
     const canonicalAbsent = realpathSync(join(absent.repo, 'packages', 'main'));
     const globalRootAbsent = makeGlobalRootLinkedTo(join(base, 'rebuild'), canonicalAbsent);
     const rebuildReport = runChecks(join(base, 'rebuild'), join(absent.worktree, 'packages', 'main'), globalRootAbsent);
-    assert.equal(rebuildReport.globalCoreRealpath.actual.remediation, `npm --prefix ${canonicalAbsent} run build`, 'canonical missing target keeps the single rebuild remediation');
+    assert.equal(rebuildReport.globalCoreRealpath.actual.remediation, expectedRebuild(canonicalAbsent), 'canonical missing target keeps the single rebuild remediation');
     assert.doesNotMatch(rebuildReport.globalCoreRealpath.actual.remediation, /&&/, 'exactly one command');
   } finally {
     rmSync(base, { recursive: true, force: true });
@@ -569,7 +638,7 @@ for (const [variant, reasonCode, reasonText] of [
   try {
     const { repo, worktree } = makeRepoWithWorktree(base);
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
+    const relink = expectedRelink(canonical);
     const removed = join(base, 'removed-core');
     writeCorePackage(removed);
     const globalRoot = makeGlobalRootLinkedTo(base, removed);
@@ -614,7 +683,9 @@ for (const [variant, reasonCode, reasonText] of [
 // 18. B-e256-xhr-r11 MAJOR (b) regression guard: when the execute bits really
 //    ARE clear, `chmod +x` remains the plausible repair and must still be
 //    offered - the mode-aware branch only diverts the bits-set case.
-{
+if (isWindowsHost) {
+  console.log('SKIP global-core-realpath case 18: POSIX chmod remediation is not applicable on Windows; Windows command-shim behavior is covered below');
+} else {
   const base = mkdtempSync(join(tmpdir(), 'gcr-noexec-bits-chmod-'));
   try {
     const { repo, worktree } = makeRepoWithWorktree(base, { binMode: 0o644 });
@@ -639,13 +710,15 @@ for (const [variant, reasonCode, reasonText] of [
 //    Nothing was observed about the installation, so the row must be
 //    unverifiable drift naming the errno - never the green "not installed"
 //    informational pass the old catch-all produced.
-{
+if (!canEnforcePosixPermissions) {
+  console.log(`SKIP global-core-realpath case 19: mode-000 EACCES fixture is not enforceable on ${isWindowsHost ? 'Windows' : 'uid 0'}`);
+} else {
   const base = mkdtempSync(join(tmpdir(), 'gcr-probe-eacces-'));
   const scope = join(base, 'global', 'node_modules', '@proof-or-stop');
   try {
     const { repo, worktree } = makeRepoWithWorktree(base);
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
+    const relink = expectedRelink(canonical);
     const globalRoot = join(base, 'global', 'node_modules');
     writeCorePackage(join(scope, 'core'));
     const packagePath = join(scope, 'core');
@@ -689,7 +762,7 @@ for (const [variant, reasonCode, reasonText] of [
   try {
     const { repo, worktree } = makeRepoWithWorktree(base);
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
+    const relink = expectedRelink(canonical);
     const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
     const packagePath = join(globalRoot, '@proof-or-stop', 'core');
     const probed = [];
@@ -724,7 +797,7 @@ for (const [variant, reasonCode, reasonText] of [
   const base = mkdtempSync(join(tmpdir(), 'gcr-absent-errnos-'));
   try {
     const { repo, worktree } = makeRepoWithWorktree(base);
-    const relink = `cd -- ${realpathSync(join(repo, 'packages', 'main'))} && npm link`;
+    const relink = expectedRelink(realpathSync(join(repo, 'packages', 'main')));
 
     const enoentRoot = join(base, 'enoent', 'node_modules');
     mkdirSync(enoentRoot, { recursive: true });
@@ -763,8 +836,8 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
     const { repo, worktree } = makeRepoWithWorktree(base, { version });
     const canonical = realpathSync(join(repo, 'packages', 'main'));
     const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
-    const rebuild = `npm --prefix ${canonical} run build`;
-    const relink = `cd -- ${canonical} && npm link`;
+    const rebuild = expectedRebuild(canonical);
+    const relink = expectedRelink(canonical);
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
     const actual = report.globalCoreRealpath.actual;
     assert.notEqual(report.globalCoreRealpath.status, 'pass', `[${label}] a global install without a usable version must never pass`);
@@ -794,7 +867,7 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
   try {
     const { repo, worktree } = makeRepoWithWorktree(base, { version: '0.0.0' });
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
+    const relink = expectedRelink(canonical);
     const stale = join(base, 'stale-core');
     writeCorePackage(stale, { version: '9.9.9' });
     const globalRoot = makeGlobalRootLinkedTo(base, stale);
@@ -829,7 +902,8 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
     assert.equal(matched.globalCoreRealpath.warnings, undefined);
     assert.equal(matched.globalCoreRealpath.actual.version, '1.2.3');
     assert.equal(matched.globalCoreRealpath.actual.expectedVersion, '1.2.3');
-    assert.ok(globalCoreRow(matched).includes(`${canonical} version=1.2.3 mode=0755 executable=yes`), `got: ${globalCoreRow(matched)}`);
+    if (!isWindowsHost) assert.ok(globalCoreRow(matched).includes(`${canonical} version=1.2.3 mode=0755 executable=yes`), `got: ${globalCoreRow(matched)}`);
+    else assert.ok(globalCoreRow(matched).includes(`${canonical} version=1.2.3 mode=`) && globalCoreRow(matched).includes('executable=yes'), `got: ${globalCoreRow(matched)}`);
 
     // Drifted path, identical version (the worktree copy of the same commit):
     // the repoint is reported, the version is not.
@@ -889,7 +963,7 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
       globalNpmRootProbeResolver: () => ({ root: emptyGlobalRoot, failureReason: null }),
     });
     const actual = report.globalCoreRealpath.actual;
-    const relink = `cd -- ${realpathSync(join(repo, 'packages', 'main'))} && npm link`;
+    const relink = expectedRelink(realpathSync(join(repo, 'packages', 'main')));
     assert.equal(report.globalCoreRealpath.status, 'pass', 'a resolved root with nothing installed under it is informational, not a warning');
     assert.equal(actual.installed, false);
     assert.equal(actual.presence, 'absent');
@@ -910,8 +984,8 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
   try {
     const { repo, worktree } = makeRepoWithWorktree(base, { version: '2.0.0', compiledVersion: '1.9.0' });
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
-    const rebuild = `npm --prefix ${canonical} run build`;
+    const relink = expectedRelink(canonical);
+    const rebuild = expectedRebuild(canonical);
     const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
     const actual = report.globalCoreRealpath.actual;
@@ -958,8 +1032,8 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
   try {
     const { repo, worktree } = makeRepoWithWorktree(base);
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
-    const rebuild = `npm --prefix ${canonical} run build`;
+    const relink = expectedRelink(canonical);
+    const rebuild = expectedRebuild(canonical);
     const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot, {
       compiledCoreVersionProbe: () => ({ version: null, failureReason: 'compiled runtime version probe timed out after 5000ms' }),
@@ -987,8 +1061,8 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
   try {
     const { repo, worktree } = makeRepoWithWorktree(base, { compiledVersion: null });
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
-    const rebuild = `npm --prefix ${canonical} run build`;
+    const relink = expectedRelink(canonical);
+    const rebuild = expectedRebuild(canonical);
     const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
     const actual = report.globalCoreRealpath.actual;
@@ -1011,8 +1085,8 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
   try {
     const { repo, worktree } = makeRepoWithWorktree(base, { compiledVersion: null });
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
-    const rebuild = `npm --prefix ${canonical} run build`;
+    const relink = expectedRelink(canonical);
+    const rebuild = expectedRebuild(canonical);
     writeFileSync(join(repo, 'packages', 'main', 'dist', 'core', 'proof-or-stop-brand.js'), 'export const SOMETHING_ELSE = \'1.2.3\';\n');
     const globalRoot = makeGlobalRootLinkedTo(base, join(repo, 'packages', 'main'));
     const report = runChecks(base, join(worktree, 'packages', 'main'), globalRoot);
@@ -1036,8 +1110,8 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
   try {
     const { repo, worktree } = makeRepoWithWorktree(base, { compiledVersion: null });
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
-    const rebuild = `npm --prefix ${canonical} run build`;
+    const relink = expectedRelink(canonical);
+    const rebuild = expectedRebuild(canonical);
     writeFileSync(
       join(repo, 'packages', 'main', 'dist', 'core', 'proof-or-stop-brand.js'),
       'export const PROOF_OR_STOP_CLI_VERSION = \'1.0.0\';\nexport const PROOF_OR_STOP_CLI_VERSION = \'2.0.0\';\n',
@@ -1067,8 +1141,8 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
   try {
     const { repo, worktree } = makeRepoWithWorktree(base, { compiledVersion: null });
     const canonical = realpathSync(join(repo, 'packages', 'main'));
-    const relink = `cd -- ${canonical} && npm link`;
-    const rebuild = `npm --prefix ${canonical} run build`;
+    const relink = expectedRelink(canonical);
+    const rebuild = expectedRebuild(canonical);
     writeFileSync(
       join(repo, 'packages', 'main', 'dist', 'core', 'proof-or-stop-brand.js'),
       '/*\nexport const PROOF_OR_STOP_CLI_VERSION = \'9.9.9\';\n*/\nexport const PROOF_OR_STOP_CLI_VERSION = \'3.1.4\';\n',
@@ -1142,6 +1216,68 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
     assert.match(warnings, /could not be inspected \[EACCES\]/);
     assert.doesNotMatch(warnings, /does not exist|rebuild:/);
     assert.match(globalCoreRow(report), /unverifiable=bin-target-stat-failed error=EACCES/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+// 34. F-026/F-028: exact Windows semantics and cmd.exe remediation rendering,
+// exercised on every host through the explicit platform seam.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-win32-contract-'));
+  try {
+    const fixtureBase = join(base, 'Windows Fixture');
+    const { repo, worktree } = makeRepoWithWorktree(fixtureBase, { binMode: 0o644 });
+    const canonical = realpathSync(join(repo, 'packages', 'main'));
+    const expectedBin = realpathSync(join(canonical, 'dist', 'cli.js'));
+    const globalRoot = makeGlobalRootLinkedTo(fixtureBase, canonical);
+    const relink = expectedRelink(canonical, 'win32');
+
+    const shimPass = runChecks(join(fixtureBase, 'shim-pass'), join(worktree, 'packages', 'main'), globalRoot, { platform: 'win32' });
+    assert.equal(shimPass.globalCoreRealpath.status, 'pass', 'Windows npm-shim semantics must not reject a POSIX-0644-shaped target');
+    assert.equal(shimPass.globalCoreRealpath.actual.executable, true);
+    assert.equal(shimPass.globalCoreRealpath.actual.remediation, null);
+    assert.doesNotMatch((shimPass.globalCoreRealpath.warnings ?? []).join('\n'), /chmod \+x|cd --|ls -ld/);
+
+    const driftBase = join(base, 'Windows Drift Fixture');
+    const worktreeDir = join(driftBase, 'repo', '.worktrees', 'B-test');
+    const drift = makeRepoWithWorktree(driftBase, { worktreeDir });
+    const driftCanonical = realpathSync(join(drift.repo, 'packages', 'main'));
+    const driftGlobalRoot = makeGlobalRootLinkedTo(driftBase, join(drift.worktree, 'packages', 'main'));
+    const driftRelink = expectedRelink(driftCanonical, 'win32');
+    const driftReport = runChecks(driftBase, join(drift.worktree, 'packages', 'main'), driftGlobalRoot, { platform: 'win32' });
+    assert.equal(driftReport.globalCoreRealpath.actual.remediation, driftRelink);
+    assert.ok((driftReport.globalCoreRealpath.warnings ?? []).join('\n').includes(`repoint: ${driftRelink}`));
+
+    const absentBase = join(base, 'Windows Missing Target');
+    const absent = makeRepoWithWorktree(absentBase, { binTarget: 'absent' });
+    const absentCanonical = realpathSync(join(absent.repo, 'packages', 'main'));
+    const absentGlobalRoot = makeGlobalRootLinkedTo(absentBase, absentCanonical);
+    const rebuild = expectedRebuild(absentCanonical, 'win32');
+    const absentReport = runChecks(absentBase, join(absent.worktree, 'packages', 'main'), absentGlobalRoot, { platform: 'win32' });
+    assert.equal(absentReport.globalCoreRealpath.actual.remediation, rebuild);
+    assert.ok((absentReport.globalCoreRealpath.warnings ?? []).join('\n').includes(`rebuild: ${rebuild}`));
+
+    const statDenied = runChecks(join(fixtureBase, 'stat-denied'), join(worktree, 'packages', 'main'), globalRoot, {
+      platform: 'win32',
+      binTargetStatProbe: () => {
+        const error = new Error('permission denied');
+        error.code = 'EACCES';
+        throw error;
+      },
+    });
+    const inspectTarget = `dir /a "${expectedBin}"`;
+    assert.equal(statDenied.globalCoreRealpath.actual.remediation, inspectTarget);
+    assert.ok((statDenied.globalCoreRealpath.warnings ?? []).join('\n').includes(`inspect filesystem access: ${inspectTarget}`));
+
+    const packagePath = join(globalRoot, '@proof-or-stop', 'core');
+    const realpathDenied = runChecks(join(fixtureBase, 'realpath-denied'), join(worktree, 'packages', 'main'), globalRoot, {
+      platform: 'win32',
+      globalCoreRealpathProbe: () => ({ realpath: null, errorCode: 'EIO' }),
+    });
+    const inspectPackage = `dir /a "${packagePath}"`;
+    assert.ok((realpathDenied.globalCoreRealpath.warnings ?? []).join('\n').includes(`inspect then repoint: ${inspectPackage} && ${relink}`));
+    assert.equal(realpathDenied.globalCoreRealpath.actual.remediation, relink);
   } finally {
     rmSync(base, { recursive: true, force: true });
   }

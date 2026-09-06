@@ -198,6 +198,7 @@ expect(directRestoreLabel, () => {
       assert.equal(after & 0o644, 0o644, `original permission bits must be preserved (mode 0${after.toString(8)})`);
     }
     assert.equal(readFileSync(target, 'utf8'), CLI_BODY, 'bin target content changed');
+    console.log('contract: global-cli-bin-target-restored');
   });
 });
 

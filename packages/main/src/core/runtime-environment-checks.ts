@@ -78,6 +78,9 @@ export interface RuntimeEnvironmentOptions {
   // global-core-realpath executable fact (owner/group cases cannot be built
   // hermetically by an unprivileged test). Production always uses the default.
   executableAccessProbe?: (path: string) => boolean;
+  // Test seam for host-specific command rendering and executable semantics.
+  // Production always uses process.platform.
+  platform?: NodeJS.Platform;
   // Test seam for failures while inspecting the declared global bin target.
   // Production uses statSync; tests can inject EACCES/EPERM without depending
   // on the uid or host filesystem permissions.
@@ -136,6 +139,7 @@ interface RuntimeCheckContext {
   globalNpmRoot: string | null;
   globalNpmRootProbe: GlobalNpmRootProbeResult;
   executableAccessProbe: (path: string) => boolean;
+  platform: NodeJS.Platform;
   binTargetStatProbe: (path: string) => { mode: number; isFile(): boolean };
   globalCoreRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
   compiledCoreVersionProbe: (globalRealpath: string) => CompiledCoreVersionProbeResult;
@@ -247,6 +251,7 @@ export function runRuntimeEnvironmentChecks(
       : probeGlobalNpmRoot(resolvedRoot);
   const globalNpmRoot = globalNpmRootProbe.root;
   const isSelfProject = detectSelfProject(resolvedRoot);
+  const platform = options.platform ?? process.platform;
   const context: RuntimeCheckContext = {
     projectRoot: resolvedRoot,
     isSelfProject,
@@ -257,7 +262,8 @@ export function runRuntimeEnvironmentChecks(
     activeCliEntrypoint: resolveActiveCliEntrypoint(resolvedRoot, corePackageRoot, cliEntrypoint),
     globalNpmRoot,
     globalNpmRootProbe,
-    executableAccessProbe: options.executableAccessProbe ?? defaultExecutableAccessProbe,
+    executableAccessProbe: options.executableAccessProbe ?? ((path) => defaultExecutableAccessProbe(path, platform)),
+    platform,
     binTargetStatProbe: options.binTargetStatProbe ?? statSync,
     globalCoreRealpathProbe: options.globalCoreRealpathProbe ?? defaultGlobalCoreRealpathProbe,
     compiledCoreVersionProbe: options.compiledCoreVersionProbe ?? defaultCompiledCoreVersionProbe,
@@ -297,6 +303,20 @@ export function renderRuntimeEnvironmentReport(report: RuntimeEnvironmentReport)
     const result = report[entry.outputKey];
     const detail = compactFactDetail(result);
     lines.push(`  ${statusIcon(result.status)} ${entry.id} [${result.severity}] ${detail}`);
+    const actual = result.actual && typeof result.actual === 'object'
+      ? result.actual as Record<string, unknown>
+      : null;
+    if (
+      entry.id === 'global-core-realpath'
+      && result.status === 'pass'
+      && actual?.installed === true
+      && typeof actual.realpath === 'string'
+      && typeof actual.version === 'string'
+      && typeof actual.binMode === 'string'
+      && actual.executable === true
+    ) {
+      lines.push('    contract: global-core-realpath-pass');
+    }
     if (result.warnings && result.warnings.length > 0) {
       for (const warning of result.warnings.slice(0, 4)) {
         lines.push(`    - ${warning}`);
@@ -619,11 +639,13 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
 // repoint a drifted `proof-or-stop` executable without guessing, and it must
 // only REPORT — doctor never mutates the host's global install.
 //   (1) realpath inside a `.worktrees/` checkout (or any non-canonical path)
-//       -> drift + exact `cd -- <canonical core root> && npm link` repoint
+//       -> drift + an exact host-shell repoint (`cd --` on POSIX, `cd /d` on
+//       Windows), with every path safely quoted for that shell
 //   (2) package.json bin target not executable -> `chmod +x <abs path>` ONLY when
 //       the execute bits are actually clear; a target that IS marked executable
 //       yet fails X_OK is an ownership/ACL/noexec denial that chmod cannot
-//       repair, so it gets the rebuild-and-relink action (B-e256-xhr-r11 MAJOR)
+//       repair, so it gets the rebuild-and-relink action (B-e256-xhr-r11 MAJOR).
+//       Windows uses npm-generated command shims and never prescribes chmod.
 //   (3) no global install -> informational (pass) row naming how to link one
 //   (3b) the global package entry EXISTS but is a broken link (its checkout was
 //       removed) -> drift naming the broken target + the relink; never a pass
@@ -668,8 +690,8 @@ function describeGlobalCoreVerification(verification: Exclude<GlobalCoreExecutab
 // execute the target (access(2) X_OK), not whether any 0o111 bit is set. A
 // root-owned 0100 file is "executable" by mode yet fails with EACCES for an
 // unprivileged operator. win32 has no execute bit, so the probe short-circuits.
-function defaultExecutableAccessProbe(path: string): boolean {
-  if (process.platform === 'win32') return true;
+function defaultExecutableAccessProbe(path: string, platform: NodeJS.Platform = process.platform): boolean {
+  if (platform === 'win32') return true;
   try {
     accessSync(path, constants.X_OK);
     return true;
@@ -678,8 +700,26 @@ function defaultExecutableAccessProbe(path: string): boolean {
   }
 }
 
-function globalCoreRelinkCommand(canonicalCoreRoot: string): string {
-  return `cd -- ${shellQuote(canonicalCoreRoot)} && npm link`;
+function commandPathQuote(value: string, platform: NodeJS.Platform): string {
+  // Double quote is not a legal Windows filename character, so wrapping the
+  // whole path is sufficient for cmd.exe path arguments (including spaces and
+  // metacharacters such as &). Keep the established POSIX quoting byte-for-byte.
+  return platform === 'win32' ? `"${value}"` : shellQuote(value);
+}
+
+function globalCoreRelinkCommand(canonicalCoreRoot: string, platform: NodeJS.Platform): string {
+  return platform === 'win32'
+    ? `cd /d ${commandPathQuote(canonicalCoreRoot, platform)} && npm link`
+    : `cd -- ${shellQuote(canonicalCoreRoot)} && npm link`;
+}
+
+function globalCoreRebuildCommand(packageRoot: string, platform: NodeJS.Platform): string {
+  return `npm --prefix ${commandPathQuote(packageRoot, platform)} run build`;
+}
+
+function globalCoreInspectCommand(path: string, platform: NodeJS.Platform, endOfOptions: boolean): string {
+  if (platform === 'win32') return `dir /a ${commandPathQuote(path, platform)}`;
+  return `ls -ld${endOfOptions ? ' --' : ''} ${shellQuote(path)}`;
 }
 
 function pathSegments(path: string): string[] {
@@ -739,7 +779,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
   const globalRealpath = realpathProbe.realpath;
   const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : resolveCanonicalCoreRoot(context.corePackageRoot);
   const expectedVersion = readExpectedCoreVersion(expected);
-  const relink = globalCoreRelinkCommand(expected);
+  const relink = globalCoreRelinkCommand(expected, context.platform);
   if (globalRoot === null && context.globalNpmRootProbe.failureReason) {
     // (3a) B-e256 cross-host review B-e256-xhr-r13 MAJOR: the `npm root -g`
     // PROBE failed (npm missing, non-zero exit, timeout, unparsable output).
@@ -844,7 +884,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       expected,
       warnings: [
         `global ${describeCorePackageCandidate(globalPackage)} at ${globalPackagePath} could not be probed [${code}]: the filesystem refused the lookup, so this installation is UNVERIFIABLE - it is not known to be absent`,
-        `inspect then repoint: ls -ld ${shellQuote(globalPackagePath)} && ${relink}`,
+        `inspect then repoint: ${globalCoreInspectCommand(globalPackagePath, context.platform, false)} && ${relink}`,
       ],
     };
   }
@@ -876,7 +916,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       expected,
       warnings: [
         `global ${describeCorePackageCandidate(globalPackage)} at ${globalPackagePath} is installed but its realpath could not be resolved [${code}], so it is UNVERIFIABLE - it is not known to be absent`,
-        `inspect then repoint: ls -ld ${shellQuote(globalPackagePath)} && ${relink}`,
+        `inspect then repoint: ${globalCoreInspectCommand(globalPackagePath, context.platform, false)} && ${relink}`,
       ],
     };
   }
@@ -930,7 +970,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     addRemediation(relink);
   }
   if (executableFacts.verification === 'bin-target-stat-failed' && executableFacts.binTarget) {
-    const inspect = `ls -ld -- ${shellQuote(executableFacts.binTarget)}`;
+    const inspect = globalCoreInspectCommand(executableFacts.binTarget, context.platform, true);
     warnings.push(`global bin target ${executableFacts.binTarget} could not be inspected [${executableFacts.verificationErrorCode ?? 'UNKNOWN'}]; its existence, mode, and executable state are unknown`);
     if (pathMatches) {
       warnings.push(`inspect filesystem access: ${inspect}`);
@@ -945,7 +985,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     const reason = describeGlobalCoreVerification(executableFacts.verification);
     warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} cannot be verified [${executableFacts.verification}]: ${reason} (${join(globalRealpath, 'package.json')})`);
     if (pathMatches) {
-      const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+      const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
       warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
       addRemediation(rebuild);
       addRemediation(relink);
@@ -960,7 +1000,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     // command never keeps mutating a path the repoint already abandons.
     if (!executableFacts.binTargetExists) {
       if (pathMatches) {
-        const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+        const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
         warnings.push(`global bin target ${executableFacts.binTarget} does not exist; rebuild: ${rebuild}`);
         addRemediation(rebuild);
       } else {
@@ -971,8 +1011,17 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       // `chmod +x` is a no-op here (it would set bits that are already set) and
       // naming it as "the fix" leaves the operator with a global CLI that stays
       // unusable. The denial comes from something chmod cannot reach.
-      const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+      const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
       warnings.push(`global bin target ${executableFacts.binTarget} is marked executable (mode ${executableFacts.binMode}) but the current user still cannot execute it; \`chmod +x\` cannot repair this - the likely causes are file ownership or an ACL denying execute to this user, or a filesystem mounted noexec`);
+      warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+      addRemediation(rebuild);
+      addRemediation(relink);
+    } else if (pathMatches && context.platform === 'win32') {
+      // Defensive only: the production Windows probe returns true because npm
+      // launches package bins through generated .cmd/.ps1 shims. If an injected
+      // access probe nevertheless denies, chmod is never a valid Windows repair.
+      const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
+      warnings.push(`global npm command-shim target ${executableFacts.binTarget} could not be launched; Windows has no POSIX execute-bit repair`);
       warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
       addRemediation(rebuild);
       addRemediation(relink);
@@ -1003,7 +1052,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       ? `declares no version in ${join(globalRealpath, 'package.json')}`
       : `reports version ${version}`;
     if (pathMatches) {
-      const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+      const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
       warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} ${observed}; expected ${expectedVersion}`);
       warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
       addRemediation(rebuild);
@@ -1031,7 +1080,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     if (compiledVersionProbe.failureReason) {
       warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} compiled runtime version could not be verified: ${compiledVersionProbe.failureReason}`);
       if (pathMatches) {
-        const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+        const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
         warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
         addRemediation(rebuild);
         addRemediation(relink);
@@ -1040,7 +1089,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       }
     } else if (compiledVersion !== expectedVersion) {
       if (pathMatches) {
-        const rebuild = `npm --prefix ${shellQuote(globalRealpath)} run build`;
+        const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
         warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} compiled runtime reports version ${compiledVersion}; expected ${expectedVersion} (dist appears stale)`);
         warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
         addRemediation(rebuild);
