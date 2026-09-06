@@ -3213,6 +3213,46 @@
       },
       "readDiagnostics": [],
       "_hash": "4aae8693334220080d90add746ed68ae91a3d0305b0c4f54165be912a37ab10b"
+    },
+    {
+      "id": "B-fe8f:RP-084",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent Claude CLI host quality lane, Round 30, RR-135 (head c227ae5, story c0ccab0, scope 8b1e47f/6fbf032). LANE CONCLUSION ONLY: not standard validation, not DONE, no quorum; current full-132 and root DONE-required suites remain PENDING and the old PASS is historical. Read the complete assembled prompt untruncated. Bounded delta since my prior review head f08b9c8 is exactly the two acknowledged files (+52/-8); scope ack 16/16 binds exactly handlers/certification-window.ts and tasks/certification-window-smoke.ts under mode enforce. BUG-CERT-002 fix verified independently: the decision site entry.path.startsWith('.lattice/') is REMOVED and the branch is now gated on the HISTORICAL_STORY_MIGRATION_PATH constant at :188, so the sole remaining retired literal lives inside a declaration. The RED log states the guard's own rule verbatim, that declaring the literal is allowed and only using it as a decision is forbidden, so this is the sanctioned route with no scanner exemption and no tag-registry change. Semantics preserved: a .lattice path failing the regex previously entered the branch and returned undefined, and now falls through to certificationDomainForPath where no rule matches, so it still refuses. The build-input pattern is now anchored to explicit current build roots (repo root, bin, scripts, .githooks, packages/<one-segment>) instead of matching a build basename at any depth, and the non-build-input lookahead was correctly simplified from ^(?!.*X) to ^(?!X) because X is now itself anchored; exact-one classification via matches.length===1 is unchanged. Tombstone set is exactly the 8 declared filenames. Tests: 56 positive paths across all current build roots assert exactly ['build-input'] and bind real Git blobs; 6 unknown-namespace negatives (including the sharp near-misses packages-extra/ and scripts-extra/) each assert the real resolver status before asserting refusal, so they are not vacuous; the prior 9-scenario live/near-miss tombstone fail-closed block is retained. Independent evidence read, not rerun: red-residue.log shows the exact 1 forbidden decision site at :189 pre-fix; green-residue, green-certification, green-residue-inject and green-retired-guard all PASS. Receipts read in memory via checklist_get: 71 evidence, 71 mechanical, 71 pass, 0 fail, all bound to 2bee7e3, and git shows zero source drift from that GREEN commit to HEAD. No dead code, no as-any, no swallowing catch; no docs changed. NO new defect found. F-061 and F-062 are the Owner's resolved records against this same RED/GREEN and I neither reopen nor re-claim them. Limitations preserved: F-057's historical refusal root remains UNKNOWN; F-048 high suspected and F-049 low suspected remain open with their drafts. No source edits, phase change, heavy suite runs, scope expansion or owner takeover. Session: sess-6caebb34c1ed02b54e92ef4f13d647ac, host-adapter provider claude-code, non-owner.",
+      "createdAt": "2026-09-06T17:15:46.786Z",
+      "reviewRound": "2026-09-06T17:00:19.197Z",
+      "reviewRunId": "B-fe8f:RR-135",
+      "envelopeId": "4a058910dfc0b65faa2ca39babba8acf6df20e5a1254b66907aa3586588a17b2",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "scripts/verify-proof-or-stop-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "dfa9a762ebf52d6e9c48723cfe4f7c7ca96b7affe54a41bdaf29f6e28879f72a"
     }
   ]
 }
