@@ -3501,7 +3501,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:1172-1196 crossSourceNegativeDismissalAuthority scans every later source leaf after a negative dismissal observation without carrying the local-antecedent reset used by the same-leaf state machine at :567-586. Against current built public assembleFullPromptEnvelope at GREEN 14081c71ac plus merged main, all five active REVIEW roles ACCEPTED the complete description [No parent Finding is closed by this intake. Cache routing is a separate decision. It is outside this Story.]. All five REJECTED the same ordered propositions split as story.description=[No parent Finding is closed by this intake.], checklist.context=[Cache routing is a separate decision.], checklist.userSees=[It is outside this Story.], with the diagnostic across story.description -> checklist.CHK-001.userSees. The pronoun now refers to the explicitly nearer Cache routing decision, but the second scanner ignores that intervening leaf and falsely treats the independent scope statement as Finding applicability proof. Replacing Cache routing with [Audit evidence is preserved.] correctly remains rejected 5/5, providing the necessary unsafe evidence-aside control. The new whole-context controlled scan does not fix this because this older dedicated cross-source scanner throws first. Round-4 smoke :1330-1350 exercises local resets within a leaf and :1396-1406 unsafe cross-leaf composition separately, but not their composition, so PASS misses this regression. Reuse one ordered state interpretation across source leaves while retaining locations for diagnostics, and add safe same-leaf/cross-leaf parity plus the unsafe evidence-aside control. This is a direct scoped reviewer-startup false-positive blocker, not an unrelated scope expansion.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T23:12:45.118Z",
@@ -3543,7 +3543,11 @@
       "signatureTag": "cross-source-dismissal-reset-disagrees-with-same-leaf",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqfg4lc_127t_ba520701f1c8458da056c172fcf5f327",
-      "ledgerCommitReceiptId": "lrc_mtqfg4lc_127t_dd644ad2e4924a7196de0abccee95c89"
+      "ledgerCommitReceiptId": "lrc_mtqfg4lc_127t_dd644ad2e4924a7196de0abccee95c89",
+      "resolvedAt": "2026-09-06T23:52:12.057Z",
+      "resolvedReason": "Commit 689f1817de removes the divergent cross-source dismissal scanner and uses the ordered controlled state machine across requirement leaves. Committed same/cross-leaf local-reset parity and evidence-only aside tests pass for every role; independent mechanical intent statements do not erase the requirement antecedent. Verification: npm run build --prefix packages/main and node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with prompt full-context envelope smoke PASS; all 13 pinned verification receipts refreshed by the CLI at 689f1817de. Original observations remain retained; resolution is not deferral.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-071",
