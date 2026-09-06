@@ -583,7 +583,7 @@
       "reviewRound": "2026-09-06T17:43:17.573Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T18:09:04.936Z",
-      "updatedAt": "2026-09-06T18:09:04.936Z",
+      "updatedAt": "2026-09-06T18:16:07.294Z",
       "cutoff": {
         "headHash": "2aa009f9b95895dfa299e6929c2ee1a9e4e46e53",
         "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
@@ -597,7 +597,64 @@
       ],
       "initialRunSequenceBoundary": 37,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T18:09:04.936Z",
+          "completedAt": "2026-09-06T18:16:07.294Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-038",
+              "terminal": "finding",
+              "hostIdentity": "1f72c9eb4b053df6305df94756c23518f13b148a3387a098378cebffc56ea5c2",
+              "promptIdentity": "a5cec5a4aea5aea4e378a0c578e375032db7ba72f4b9115cd9ad2e87d8a6e5fd",
+              "evidenceIds": [
+                "B-8a40:F-022"
+              ],
+              "coverageDigest": "785197dce51302bd49ae1fb915cebd2369195997ae7a203d40e6841e2449dadf"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-040",
+              "terminal": "pass",
+              "hostIdentity": "1f72c9eb4b053df6305df94756c23518f13b148a3387a098378cebffc56ea5c2",
+              "promptIdentity": "9151c19b6d5d476115ca9afcb5afd671c36db56fdfc97efd844fd7aba53150d0",
+              "evidenceIds": [
+                "B-8a40:RP-022"
+              ],
+              "coverageDigest": "2b73e34d27d15184d748d980b30ebac6e596d8a3e43a76d6863b3fdc66b2b2b9"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-039",
+              "terminal": "pass",
+              "hostIdentity": "1f72c9eb4b053df6305df94756c23518f13b148a3387a098378cebffc56ea5c2",
+              "promptIdentity": "1baccac71d9d4d7322692e9beed48898639d5695f2f4ad587f2060c04951e951",
+              "evidenceIds": [
+                "B-8a40:RP-021"
+              ],
+              "coverageDigest": "04043f65556f486e5c7dff34293f34eee88719506fd9217ddfa12abb6f521776"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-active-voice-negative-observation-bypass",
+            "prompt-envelope-cross-leaf-direct-coreference-bypass",
+            "prompt-envelope-cross-source-local-antecedent-false-positive",
+            "prompt-envelope-double-negation-polarity-bypass",
+            "prompt-envelope-interrogative-wrapper-authority-laundering",
+            "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+            "prompt-envelope-negative-quantifier-number-agreement-gap",
+            "prompt-envelope-rendered-structural-leaf-authority-injection",
+            "prompt-envelope-same-leaf-unrelated-exclusion-false-positive"
+          ],
+          "verifiedFindingSetDigest": "87388a4b05352ff748a6d7e1b0fb272eaba5fa7824f42c9b8f5600de0c8bb145",
+          "newVerifiedFindingCount": 9,
+          "criticDigest": "8b8498efa4d640bd73582fc6743d2db2ac5314ff24a09a20cfb42c731f7faa16",
+          "saturated": false,
+          "nextRunSequenceBoundary": 41
+        }
+      ],
       "baselineFindingIds": [
         "B-8a40:F-012",
         "B-8a40:F-013",
@@ -610,7 +667,7 @@
         "B-8a40:F-020",
         "B-8a40:F-021"
       ],
-      "_hash": "6bbf6d610098a4f33fbcb35d678d20d17271ad6af9409c1f6327a406f12582a2"
+      "_hash": "077548d45d062d52b426b88b323b2ce592177e78bd7e49600e24d7bad67ccc3f"
     }
   ],
   "receipts": [
@@ -1047,6 +1104,99 @@
       ],
       "createdAt": "2026-09-06T18:07:42.647Z",
       "_hash": "8fcb6d33e3bbf18a42840bb6b56f1f60bbe5dbed264b59cf851f09643ed70b70"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-004:CRIT-01",
+      "epochId": "B-8a40:RI-004",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "2aa009f9b95895dfa299e6929c2ee1a9e4e46e53",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "aggregateFindingSetDigest": "87388a4b05352ff748a6d7e1b0fb272eaba5fa7824f42c9b8f5600de0c8bb145",
+      "requiredLaneCoverageDigest": "1bd6d479c6bd42876bd0e9bb1a657fc8d6024b67f7a7a0f68ab8a9b659871749",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-041",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-023"
+      ],
+      "readEvidenceDigest": "381b8a36975fc741fa59d2feb33ee4807047fef20842af53eb708952e41b4f27",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-012",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-source-local-antecedent-false-positive",
+          "reason": "Preserved RI-003 family: a later leaf with its own unrelated local causal antecedent is falsely joined to an earlier negative observation across sources."
+        },
+        {
+          "findingId": "B-8a40:F-013",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-cross-leaf-direct-coreference-bypass",
+          "reason": "Preserved RI-003 family: direct or coreferent later-leaf conclusions bypass cross-source authority classification when no explicit causal token is present."
+        },
+        {
+          "findingId": "B-8a40:F-014",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-active-voice-negative-observation-bypass",
+          "reason": "Preserved RI-003 family: active-voice negative observations escape the passive-only observation recognizer."
+        },
+        {
+          "findingId": "B-8a40:F-015",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-cross-leaf-direct-coreference-bypass",
+          "canonicalFindingId": "B-8a40:F-013",
+          "reason": "Preserved duplicate of F-013; its noun-target and explicitExcludes witnesses exercise the same missing direct or coreferent cross-leaf linkage."
+        },
+        {
+          "findingId": "B-8a40:F-016",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+          "reason": "Preserved RI-003 family: the same-leaf all-later-segments scan falsely links an unrelated ordinary exclusion by ordering alone."
+        },
+        {
+          "findingId": "B-8a40:F-017",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+          "canonicalFindingId": "B-8a40:F-016",
+          "reason": "Preserved duplicate of F-016; the explicit Separately topic-break witness reaches the same same-leaf all-later-segments mechanism."
+        },
+        {
+          "findingId": "B-8a40:F-018",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-double-negation-polarity-bypass",
+          "reason": "Preserved RI-003 family: polarity checks presence rather than parity, allowing affirmative double-negation conclusions to bypass."
+        },
+        {
+          "findingId": "B-8a40:F-019",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-rendered-structural-leaf-authority-injection",
+          "reason": "Preserved RI-003 family: rendered user-authorable structural strings have neither authority scanning nor a closed structural grammar."
+        },
+        {
+          "findingId": "B-8a40:F-020",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-negative-quantifier-number-agreement-gap",
+          "reason": "Preserved RI-003 family: negative quantifier spelling and singular or plural agreement cause equivalent propositions to diverge into false-positive and fail-open outcomes."
+        },
+        {
+          "findingId": "B-8a40:F-021",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+          "reason": "Preserved RI-003 family: the verificationIntent mutation/proof-outcome heuristic exempts an entire multi-sentence leaf and launders unrelated middle authority."
+        },
+        {
+          "findingId": "B-8a40:F-022",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-interrogative-wrapper-authority-laundering",
+          "reason": "Independent family: the pure-interrogative predicate grants a whole-leaf exemption from only a question-like first token and a sole final question mark, laundering declarative middle authority across every scanned prose source. It is not a duplicate of F-021 because it uses a different predicate and source scope and survives an isolated repair of the verificationIntent mutation wrapper."
+        }
+      ],
+      "createdAt": "2026-09-06T18:15:47.247Z",
+      "_hash": "23d41130e0369fce1cd5ffd3f98e43ae3323b4fc743933c57053cd606e8f9d92"
     }
   ]
 }
