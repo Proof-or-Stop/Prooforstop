@@ -795,9 +795,9 @@
       "epochId": "B-8a40:RI-005",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T17:43:17.573Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-06T18:29:50.563Z",
-      "updatedAt": "2026-09-06T18:48:03.552Z",
+      "updatedAt": "2026-09-06T19:04:49.756Z",
       "cutoff": {
         "headHash": "72a1055a6b77a619121bbeab09b1d55765332184",
         "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
@@ -937,6 +937,82 @@
           "criticDigest": "a1343ce399653942f39163d28f3021629bc2fa4410471541e161729d1806b530",
           "saturated": false,
           "nextRunSequenceBoundary": 58
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T18:48:03.552Z",
+          "completedAt": "2026-09-06T19:04:49.217Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-059",
+              "terminal": "finding",
+              "hostIdentity": "ccaa4684de071203bd5c46499f1b21924be07f5424f98cb2e5c6f954624b36e9",
+              "promptIdentity": "1a8b941bb56a83c78acd02f47fe813a3c2110ce49eba2caab66547a22cc5a95f",
+              "evidenceIds": [
+                "B-8a40:F-033"
+              ],
+              "coverageDigest": "69e49730dc43ccd26c6b18865d74f7f21a9d690c5144ced6ddec517bd1f4b2a7"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-060",
+              "terminal": "finding",
+              "hostIdentity": "ccaa4684de071203bd5c46499f1b21924be07f5424f98cb2e5c6f954624b36e9",
+              "promptIdentity": "69bf000880d9b983e8cecd2b1b71fd2f90175e2802d7625dda12f6d87d02f60f",
+              "evidenceIds": [
+                "B-8a40:F-034"
+              ],
+              "coverageDigest": "fad254d9fc84a053a095e7f2397b624252e6b4d0603cf8f78929efefa56414a3"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-061",
+              "terminal": "finding",
+              "hostIdentity": "ccaa4684de071203bd5c46499f1b21924be07f5424f98cb2e5c6f954624b36e9",
+              "promptIdentity": "737957f9eff90eebd5c458111dc59e6c2835f1b80c5663f44b8d02a3b4834c73",
+              "evidenceIds": [
+                "B-8a40:F-035",
+                "B-8a40:F-036",
+                "B-8a40:F-037",
+                "B-8a40:F-038",
+                "B-8a40:F-039",
+                "B-8a40:F-040"
+              ],
+              "coverageDigest": "39c7f1667eb3dc8aa218f20963e39c0472c165a4dda20414be6682dcef0cd252"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-active-voice-negative-observation-bypass",
+            "prompt-envelope-approved-segment-open-body-laundering",
+            "prompt-envelope-causal-boundary-negation-scope-bypass",
+            "prompt-envelope-cross-leaf-direct-coreference-bypass",
+            "prompt-envelope-cross-segment-disposition-target-synonym-bypass",
+            "prompt-envelope-cross-segment-negative-prefix-assignment-laundering",
+            "prompt-envelope-cross-source-local-antecedent-false-positive",
+            "prompt-envelope-deferral-benign-intervening-state-machine-bypass",
+            "prompt-envelope-double-negation-polarity-bypass",
+            "prompt-envelope-dynamic-authority-prohibition-open-tail-laundering",
+            "prompt-envelope-dynamic-subordinate-open-body-laundering",
+            "prompt-envelope-evidence-continuation-assignment-laundering",
+            "prompt-envelope-interrogative-wrapper-authority-laundering",
+            "prompt-envelope-negative-mutation-wrapper-authority-laundering",
+            "prompt-envelope-negative-quantifier-number-agreement-gap",
+            "prompt-envelope-quoted-fixture-greedy-span-laundering",
+            "prompt-envelope-rejected-wrapper-polarity-inversion",
+            "prompt-envelope-rendered-structural-leaf-authority-injection",
+            "prompt-envelope-reviewer-actor-synonym-disposition-bypass",
+            "prompt-envelope-reviewer-disposition-negative-quantifier-false-positive",
+            "prompt-envelope-same-leaf-unrelated-exclusion-false-positive",
+            "prompt-envelope-schema-invariant-open-tail-laundering",
+            "prompt-envelope-signed-disposition-inspection-action-synonym-false-positive",
+            "prompt-envelope-signed-disposition-safe-terminal-state-synonym-false-positive"
+          ],
+          "verifiedFindingSetDigest": "02d6734e102e07257f42eddef4b5c9ccb30ffdcdfe34c96369387dac2001bb98",
+          "newVerifiedFindingCount": 7,
+          "criticDigest": "3a79c750d54c976b8850a7b8a609faff9de43be7d961ba13c69bdb920bff4846",
+          "saturated": false,
+          "nextRunSequenceBoundary": 62
         }
       ],
       "baselineFindingIds": [
@@ -956,7 +1032,65 @@
         "B-8a40:F-025",
         "B-8a40:F-026"
       ],
-      "_hash": "29502c4f0eab143cf9031e541b08af4e06abed88c2826d9e0b367f104e796264"
+      "cancelledAt": "2026-09-06T19:04:49.756Z",
+      "cancelReason": "Replan the classifier around the complete atomic-proposition and state-machine families after review inventory budget exhaustion.",
+      "terminalRunSequenceBoundary": 62,
+      "_hash": "e04334dd7469e55e97f7e569975549b16cf88eafee29275332f0896c32fc8c12"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-8a40:RI-006",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T19:04:50.963Z",
+      "updatedAt": "2026-09-06T19:04:50.963Z",
+      "cutoff": {
+        "headHash": "9b4266b49f0552930ae608a669ae2f060614cea5",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "scopeDigest": "7220b13ea87f043afe60045b89ddf80029939a9eaf68df90e74062810c3e9753",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 62,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-8a40:F-012",
+        "B-8a40:F-013",
+        "B-8a40:F-014",
+        "B-8a40:F-015",
+        "B-8a40:F-016",
+        "B-8a40:F-017",
+        "B-8a40:F-018",
+        "B-8a40:F-019",
+        "B-8a40:F-020",
+        "B-8a40:F-021",
+        "B-8a40:F-022",
+        "B-8a40:F-023",
+        "B-8a40:F-024",
+        "B-8a40:F-025",
+        "B-8a40:F-026",
+        "B-8a40:F-027",
+        "B-8a40:F-028",
+        "B-8a40:F-029",
+        "B-8a40:F-030",
+        "B-8a40:F-031",
+        "B-8a40:F-032",
+        "B-8a40:F-033",
+        "B-8a40:F-034",
+        "B-8a40:F-035",
+        "B-8a40:F-036",
+        "B-8a40:F-037",
+        "B-8a40:F-038",
+        "B-8a40:F-039",
+        "B-8a40:F-040"
+      ],
+      "_hash": "0141a0efbb11323afba7b0c7d15e6fce106c1e4bd7276f875ee5a1f8dcafd1b7"
     }
   ],
   "receipts": [
@@ -1741,6 +1875,80 @@
       ],
       "createdAt": "2026-09-06T18:47:42.577Z",
       "_hash": "e24db1fbf206e53699754a1b996a4f2a6aec58df36563fc8eb00645a799d2a6b"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-005:CRIT-03",
+      "epochId": "B-8a40:RI-005",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "72a1055a6b77a619121bbeab09b1d55765332184",
+        "materialHash": "5a6adab60535c1e968261d3c8c4c4ccbb4287173206a24687a909f20bedbeafc",
+        "storyFilesHash": "b672db2696749001778ca8f8c8ed0f6316ff62facc4ec3d412b6f94738d42876"
+      },
+      "aggregateFindingSetDigest": "02d6734e102e07257f42eddef4b5c9ccb30ffdcdfe34c96369387dac2001bb98",
+      "requiredLaneCoverageDigest": "702bbd7393da72406c402eef2e829358959596a8eb3873629b0eefe47daf54b9",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-062",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-032"
+      ],
+      "readEvidenceDigest": "adc155509c5820eb562d948c72c8a05d123567b3d8da5e3cedef773d3694c7db",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-033",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-dynamic-authority-prohibition-open-tail-laundering",
+          "reason": "Independent family: the Dynamic Finding amendment detector's explicit-prohibition branch consumes arbitrary contradictory residual verbs before the authority noun, allowing a negative first verb followed by an affirmative replacement. This is separate from schemaInvariant and approved-segment filters."
+        },
+        {
+          "findingId": "B-8a40:F-034",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-dynamic-subordinate-open-body-laundering",
+          "reason": "Canonical family: subordinateBefore accepts an unconstrained tests-covering body without independently checking embedded amendments to Dynamic Finding authority. F-034 was created first and isolates the production branch with direct and safe controls."
+        },
+        {
+          "findingId": "B-8a40:F-035",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-dynamic-subordinate-open-body-laundering",
+          "canonicalFindingId": "B-8a40:F-034",
+          "reason": "Duplicate of F-034: both exploit the same subordinateBefore open body in the Dynamic Finding amendment detector. F-035 preserves extra adversarial-tests, schema-field, and gate-predicate witnesses but identifies no distinct mechanism."
+        },
+        {
+          "findingId": "B-8a40:F-036",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-deferral-benign-intervening-state-machine-bypass",
+          "reason": "Independent family: the deferral cross-segment state machine inspects only the immediately following segment and loses the antecedent across benign audit or evidence continuations, admitting later transfer or blocker-clearing outcomes. This differs from open-body deletion inside one continuation."
+        },
+        {
+          "findingId": "B-8a40:F-037",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-reviewer-actor-synonym-disposition-bypass",
+          "reason": "Independent family: the unauthorized disposition actor grammar omits equivalent reviewer collectives and auditor nouns, so direct and cross-segment assignments fail open before the state machine despite a literal Finding target."
+        },
+        {
+          "findingId": "B-8a40:F-038",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-signed-disposition-inspection-action-synonym-false-positive",
+          "reason": "Independent family: safe signed-disposition inspection accepts only five action verbs and falsely classifies examine, assess, check, review, and evaluate as minting. Canonical actor and target remain present, distinguishing it from actor or target fail-open families."
+        },
+        {
+          "findingId": "B-8a40:F-039",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-signed-disposition-safe-terminal-state-synonym-false-positive",
+          "reason": "Independent family: after a canonical inspection, the continuation state machine admits only a closed terminal-state list and false-reds equivalent unaffected, untouched, no-authority, and unchanged relations while correctly rejecting binding."
+        },
+        {
+          "findingId": "B-8a40:F-040",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-reviewer-disposition-negative-quantifier-false-positive",
+          "reason": "Independent family: direct disposition prohibitions recognize modal-not and one neither form but reject equivalent no-reviewer, not-one, and forbidden-from negative propositions. The defect is direct-prohibition polarity grammar, not inspection or continuation handling."
+        }
+      ],
+      "createdAt": "2026-09-06T19:04:25.220Z",
+      "_hash": "27e4255e53da8a7fcecd38b3be4a5f2c6bc0555f5e910886a53e372a98b03ac6"
     }
   ]
 }
