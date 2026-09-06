@@ -299,6 +299,46 @@
       },
       "readDiagnostics": [],
       "_hash": "82cbfeaabfda83bd53176c6fd3d7770d510f8c4c572a05d57b951787c7149abc"
+    },
+    {
+      "id": "B-8a40:RP-008",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-002 wave 1 inventory saturation only: reviewed the committed classifier/smoke diff, Story requirements and evidence, both bounded decision sources, and frozen Findings B-8a40:F-001 through B-8a40:F-008; focused smoke passed, no mutant residue remained, and no additional distinct concept-deletion, residual-reference, causal-boundary, or promised-but-undelivered defect family was found. This signed no-new-family pass explicitly does not override, resolve, weaken, or close any existing Finding or blocker.",
+      "createdAt": "2026-09-06T17:04:01.364Z",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "reviewRunId": "B-8a40:RR-015",
+      "envelopeId": "4ea7d57ad856dc92017d3fb5ff875c71efb8e303b597548a569717b1decc8a42",
+      "writerSessionId": "sess-471646266cedca58af1ce412fca82860",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/findings.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "1a37a697584862cffec8424dfa79bb43fdac76fdf569e9d79b8513daed5faee9"
     }
   ]
 }
