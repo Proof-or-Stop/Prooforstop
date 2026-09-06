@@ -3044,6 +3044,52 @@
       },
       "readDiagnostics": [],
       "_hash": "2e84b2f6f891b63bb735b1ecca641b99308fbb3cc9734cd8868704d4c2164bfd"
+    },
+    {
+      "id": "B-fe8f:RP-080",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI005 wave2 bounded saturation coverage re-attestation after boundary128. Canonical RR131 at5c0d35a selected SAFE_INCREMENTAL from RR127/RP077 with no material, impacted-file or intent delta. Independently checked intervening committed diff and worktree status: only reviewer/process/inventory metadata changed; no source, tests, checklist intent or evidence change. Reused actual prior full Story-level coverage and receipt inspection as authorized by this canonical basis: six happy/edge/adversarial groups,71must intents,71current mechanical coverage,missing0,waiver0, source9754c4b/materialff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d/storyFiles15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607 unchanged. No test or evidence-refresh rerun was performed in this wave. Read the complete current trusted Store record B-fe8f:F-061: open, verified, medium, quality RR126, corresponding to registered BUG-CERT-002. It remains a current acceptance/DONE-required blocker and is not cleared by this coverage-only PASS. Its brand-residue failure is the same defect I independently reproduced earlier with npm run test:proof-or-stop-residue exit1 at certification-window.ts189 and observed in the fully read official DONE-required FAIL record; no additional root family or coverage gap was found. Independently read brand-paths.ts1-75 and confirm normal helpers are canonical-only, so blindly replacing the historical-only branch with isStateDirPath would not preserve the tombstone positive controls. The existing actual-Git certification tests and existing residue guard together discriminate the required repair: exact deleted/rename-old-side tombstones and their digests remain, live/unknown paths refuse, and the residue guard must pass without loosening policy. Preserve all prior controls and full-suite separation;71intent coverage and prior focused GREEN do not make current root npmtest green. No aggregate validation, quorum, final inventory saturation, repair, deferral or DONE claim. F048/F049 remain unchanged suspected. No new Finding registered because the one known family is already F061; no original observation or status altered. Manifest full reads are reused unchanged actual reads; brand-paths and guard excerpts are not falsely claimed as whole-document reads. All writes stop after this terminal; Owner alone handles inventory advance and remediation.",
+      "createdAt": "2026-09-06T16:37:08.249Z",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "reviewRunId": "B-fe8f:RR-131",
+      "envelopeId": "7e35b8d74a68030416817d5b9c8463438c7e5bfcb1fcabb654f47a50dd5d545d",
+      "writerSessionId": "sess-6d2c0609b0d0cdcf53060e334118e702",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/background.md",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/brand-rename-mapping.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c2b59a44777504bbb955631ab45930942fc95a514d2803eb5eeb16207a7258c8"
+      },
+      "readDiagnostics": [],
+      "_hash": "8e9a47036389d40d992dd47d65ae2970eb4c64f00a74e161e5ed811a6719eac5"
     }
   ]
 }
