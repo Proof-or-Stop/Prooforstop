@@ -728,6 +728,55 @@
       },
       "readDiagnostics": [],
       "_hash": "472687f6469d632d3d34ae577dbf55ba490b3a1e307707016fee39bbda936fe8"
+    },
+    {
+      "id": "B-8a40:RP-018",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-003 wave 2 completeness terminal only: no raw observation beyond F-016 through F-019. F-016 is the canonical same-leaf unrelated exclusion false-positive and F-017 is its duplicate topic-break witness. F-018 double-negation polarity bypass and F-019 rendered structural-leaf authority injection are separate verified mechanisms. The topology receipt remains request_changes for unsupported discovery.",
+      "createdAt": "2026-09-06T18:01:33.749Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-033",
+      "envelopeId": "001a34c5506236d7cd1c3b9b1419bfdb810adb0762867dc5b87363d0e89da156",
+      "writerSessionId": "sess-6874831dff42694280c9024d6b580cfa",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/findings.json",
+          ".proof-or-stop/story/actives/B-8a40/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-8a40/review-passes.json",
+          ".proof-or-stop/story/actives/B-8a40/review-runs.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-8a40/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-8a40/proofstory.json",
+          ".proof-or-stop/story/actives/B-8a40/scope-check.json",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "0273ac330eb391b0793d0a247cd46e50f28b8ae8a66431f1ee4cc504ba605e27"
+      },
+      "readDiagnostics": [],
+      "_hash": "9521a06e4aeab480282609d9375a88166a51d1360e26b2d1640d143953c0e48b"
     }
   ]
 }
