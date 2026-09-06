@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "d24ee52df37e52b59922d5acd581c59e39c08a862f28fde0351fda3ccb433987",
+  "committedLedgerDigest": "cdb3ad5c5b655c970e047f3eec05af105b552427e50caa86fa3e5680b163d1f7",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2056,6 +2056,63 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:23:19.738Z"
+    },
+    {
+      "recordId": "lr_mtqfttla_hgh_8bf418ad00c145d6a1d189a098eb72ee",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:f32f3896-b296-46e7-8c8c-e518d76ea59a",
+      "payload": {
+        "id": "B-8a40:F-078",
+        "desc": "Wave-2 duplicate re-attestation of canonical B-8a40:F-070; no repair or no-blocker claim. packages/main/src/core/prompt-envelope.ts:1172-1196 still searches later leaves without respecting the substantive local-antecedent reset. Fresh git diff 14081c71ac HEAD over the two scoped files is empty and direct reread confirms this loop. The verified five-role witness splitting [No parent Finding is closed by this intake.] into story.description, [Cache routing is a separate decision.] into checklist.context, and [It is outside this Story.] into checklist.userSees remains applicable to unchanged material; canonical F-070 preserves same-leaf acceptance and unsafe evidence-aside rejection controls. This terminal preserves the existing high blocker for inventory wave 2; propose critic disposition duplicate of B-8a40:F-070, not a new verified family. No additional family is claimed.",
+        "severity": "high",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-06T23:23:24.044Z",
+        "reviewRound": "2026-09-06T23:05:45.070Z",
+        "reviewRunId": "B-8a40:RR-133",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "3128f15add32c8ddc82ea12184a077aea799c6a56251bd45d76d34f538e34302"
+        },
+        "readDiagnostics": [],
+        "_hash": "4b144a8694706a22a234c887bb2b3e2874a76e43c9e32c0f046fac92d3683dc3",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "cross-source-dismissal-reset-disagrees-with-same-leaf",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "53056b36afaead3ba0aba0236f92d20aedf9220c5b120df2fbb021b8c2d6d01e",
+      "priorDigest": "d24ee52df37e52b59922d5acd581c59e39c08a862f28fde0351fda3ccb433987",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T23:23:24.046Z"
     }
   ],
   "receipts": [
@@ -5104,6 +5161,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "144ea943abeef8d6cb4d2e43c7fc603e1a0f22371d68e60981fa05a1a226aef8",
         "signature": "354qvYtxEdqwCwI76UZ1K47A6H8Wkg+7YS1D8l2OzNirr97Fbr8AY6SPmSIv4Y0sO26VXGvNxqdL6kdZneJtBA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqfttla_hgh_b2da79ae36464d4ba186be846a9ff3e1",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:f32f3896-b296-46e7-8c8c-e518d76ea59a",
+      "requestDigest": "bfe37b8c98f6c582bb9b9c3170a2e33600ffb13764ab05c53d11b82baf90bca4",
+      "recordIds": [
+        "lr_mtqfttla_hgh_8bf418ad00c145d6a1d189a098eb72ee"
+      ],
+      "priorLedgerDigest": "d24ee52df37e52b59922d5acd581c59e39c08a862f28fde0351fda3ccb433987",
+      "committedLedgerDigest": "cdb3ad5c5b655c970e047f3eec05af105b552427e50caa86fa3e5680b163d1f7",
+      "writerSessionId": "sess-9de450e3485c005ac8327ed97c1fc9f4",
+      "writerFenceToken": "971520c5-5638-4ac1-bcd8-cccd835e7367",
+      "committedAt": "2026-09-06T23:23:24.046Z",
+      "replayed": false,
+      "exactRequestDigest": "c0e9610f347c53fad1734e35ce87552b9bb920d5e9361a6ead17dacb0a023510",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqfttla_hgh_b2da79ae36464d4ba186be846a9ff3e1",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:f32f3896-b296-46e7-8c8c-e518d76ea59a",
+        "exactRequestDigest": "c0e9610f347c53fad1734e35ce87552b9bb920d5e9361a6ead17dacb0a023510",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqfttla_hgh_8bf418ad00c145d6a1d189a098eb72ee"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "d24ee52df37e52b59922d5acd581c59e39c08a862f28fde0351fda3ccb433987",
+        "committedLedgerDigest": "cdb3ad5c5b655c970e047f3eec05af105b552427e50caa86fa3e5680b163d1f7",
+        "replayed": false,
+        "committedAt": "2026-09-06T23:23:24.046Z",
+        "writerSessionId": "sess-9de450e3485c005ac8327ed97c1fc9f4",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "971520c5-5638-4ac1-bcd8-cccd835e7367",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "15d9af39c788ce78e7dfd31c43157acaa543fa044d79c18c8e0e9755bb6f9735",
+        "signature": "zDkRVssIYv1JwYsk8bBKB7Df97kvOiw6GXoqRLs3I+MgWPVFsqyFTf3M/Ms5uAbli0z244xezlIywFbG4krLCA=="
       }
     }
   ]

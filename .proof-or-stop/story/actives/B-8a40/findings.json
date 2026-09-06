@@ -3875,6 +3875,55 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqftq9m_fg1_c1b0047f0e204580819405854fa70bc4",
       "ledgerCommitReceiptId": "lrc_mtqftq9m_fg1_459c1f030e95450eb8cf630848e44ad9"
+    },
+    {
+      "id": "B-8a40:F-078",
+      "desc": "Wave-2 duplicate re-attestation of canonical B-8a40:F-070; no repair or no-blocker claim. packages/main/src/core/prompt-envelope.ts:1172-1196 still searches later leaves without respecting the substantive local-antecedent reset. Fresh git diff 14081c71ac HEAD over the two scoped files is empty and direct reread confirms this loop. The verified five-role witness splitting [No parent Finding is closed by this intake.] into story.description, [Cache routing is a separate decision.] into checklist.context, and [It is outside this Story.] into checklist.userSees remains applicable to unchanged material; canonical F-070 preserves same-leaf acceptance and unsafe evidence-aside rejection controls. This terminal preserves the existing high blocker for inventory wave 2; propose critic disposition duplicate of B-8a40:F-070, not a new verified family. No additional family is claimed.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T23:23:24.044Z",
+      "reviewRound": "2026-09-06T23:05:45.070Z",
+      "reviewRunId": "B-8a40:RR-133",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3128f15add32c8ddc82ea12184a077aea799c6a56251bd45d76d34f538e34302"
+      },
+      "readDiagnostics": [],
+      "_hash": "4b144a8694706a22a234c887bb2b3e2874a76e43c9e32c0f046fac92d3683dc3",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "cross-source-dismissal-reset-disagrees-with-same-leaf",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqfttla_hgh_8bf418ad00c145d6a1d189a098eb72ee",
+      "ledgerCommitReceiptId": "lrc_mtqfttla_hgh_b2da79ae36464d4ba186be846a9ff3e1"
     }
   ]
 }
