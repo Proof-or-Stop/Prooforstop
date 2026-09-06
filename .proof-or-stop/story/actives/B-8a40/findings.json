@@ -3344,7 +3344,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:864-893 grants a whole verificationIntent leaf meta-safe status when its last prove/verify/assert/ensure suffix ends in a rejection-looking substring, while :891 recognizes a negated reject/refuse/block/fail outcome only when the negative modal lies within 48 characters of that terminal verb. An atomic negative-test statement can therefore put the terminal `semantic validation rejects it` inside a longer negated proposition and regain the blanket exemption. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED the genuine control `Inject wording that severity alone determines Story scope and prove semantic validation rejects it.` and correctly REJECTED the short negative `... prove semantic validation does not reject it.`. However, all five ACCEPTED `Inject wording that severity alone determines Story scope and prove semantic validation does not under any compatibility interpretation supported by extensive attributable historical audit documentation establish that semantic validation rejects it.` The outcome explicitly does not establish rejection, yet the distant terminal substring makes the unsafe authority input meta-safe; the same genuine control on Story rather than verificationIntent provenance was rejected 5/5. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:982-984 covers short negative or unrelated mutation outcomes but not the production 48-character polarity boundary or a negated outer outcome containing a nested rejection phrase. This is distinct from F-021 because the input is one atomic statement with no unrelated middle sentence, and from F-061/F-065 because it executes through the verificationIntent-only negative-mutation outcome helper rather than retired-vocabulary or controlled-relation polarity. Parse the top-level proof outcome structurally instead of matching a bounded negative window plus terminal substring, and add all-role short/long negative, nested, genuine-rejection, and provenance controls. Severity high because Story-authored verification metadata can state forbidden severity authority without requiring its rejection while every REVIEW envelope is still minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T21:16:03.264Z",
@@ -3383,7 +3383,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "negative-mutation-outcome-negation-window-laundering",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf9vqj_1ncg_1dd121dcf3214f9ba26cceced4c60b0e",
+      "resolvedAt": "2026-09-06T23:07:53.718Z",
+      "resolvedReason": "Check negation across the proof outcome, including a negated outer establishment, without a 48-character cutoff; long nested negative rejection is rejected. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-068",
