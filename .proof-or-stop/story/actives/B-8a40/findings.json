@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:539-542 and :788-791 remove every standalone negative-dismissal observation from the whole-source dismissal scan after checking only the next three segments, while isLinkedResponsibilityConclusion also requires a closed sentence-start vocabulary. This creates fail-open paths relative to main: No parent Finding is closed by this intake. A. B. C. The issue is out of scope. falls beyond the slice, while No parent Finding is closed by this intake. We therefore consider the issue out of scope. is adjacent but misses the anchored prefix grammar; in both cases the dismissal subject is filtered out before joined classification. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1094 and :1562 cover only the short sentence-start matrix, so the focused smoke still prints PASS and the broad-deletion mutant cannot detect either bypass. This is a high-severity Task Context authority-safety regression: preserve the safe B-bcae observation without making later linkage depend on an evadable distance or closed prefix list.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T16:39:19.111Z",
@@ -44,7 +44,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-negative-dismissal-bounded-linkage-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Replaced the evadable bounded-prefix relation scan with full location-preserving context classification and added distant, inverted, and open-wording witnesses.",
+      "resolvedAt": "2026-09-06T17:43:38.475Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-002",
