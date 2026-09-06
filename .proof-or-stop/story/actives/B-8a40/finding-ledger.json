@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "6bc5c5dd2066e8b66c62643c3cc1a6bac988d3941b9a7e06760b26ab741681eb",
+  "committedLedgerDigest": "9d44b3fa85db88f7cf33f9ce7d64b35f0f9125d440479caa71081e8398c657a6",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -226,6 +226,62 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T20:55:08.963Z"
+    },
+    {
+      "recordId": "lr_mtqaspyi_1hul_7c6c62caa5a0489c931eb4f408317ce8",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:7e47fef7-540e-4860-bda9-a6c8ed60b518",
+      "payload": {
+        "id": "B-8a40:F-061",
+        "desc": "packages/main/src/core/prompt-envelope.ts lines 997-1010 recognize a safe explicit rejection of retired applicability vocabulary only when [not] lies within a fixed 48-character window before [current|official applicability verdict]. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject the unsafe control [stale_or_not_reproduced is the current applicability verdict.] and accept the short safe control [stale_or_not_reproduced is not the current applicability verdict.], but reject [stale_or_not_reproduced is not under any compatibility interpretation preserved solely for historical audit documentation the current applicability verdict.]. The relation-level detector correctly sees the relation verb as negated; the false block occurs because explicitlyRejected becomes false solely when the neutral modifier exceeds the separate 48-character window, after which the fallback rejects every retired alias. The focused smoke covers direct rejected vocabulary and short negative forms but has no 47, 48, and 49-character polarity boundary or long safe negative control. This is distinct from F-054 through F-059 unsafe concept-pair distance bypasses and F-058 safe wrapper claim-length cutoff: it is a separate retired-vocabulary explicit-negative classifier with a local fixed distance. Replace the raw character horizon with structural polarity spanning the single clause, retaining unsafe affirmative and double-negative rejection, and add all-role short, boundary, long-safe, and unsafe controls. Severity high because legitimate migration or compatibility documentation can prevent every REVIEW role from assembling.",
+        "severity": "high",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-06T21:02:34.601Z",
+        "reviewRound": "2026-09-06T19:49:59.446Z",
+        "reviewRunId": "B-8a40:RR-113",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "2af730e88e8cd9a2c719650292a47a664f17fc9c8134fa9c74ee69a79e42e2b2",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "retired-verdict-negative-span-false-positive",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "fa9ad969ec665ffe01fcb4d56a11efc373ec80cba789f7ce29e190c76783a0eb",
+      "priorDigest": "6bc5c5dd2066e8b66c62643c3cc1a6bac988d3941b9a7e06760b26ab741681eb",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T21:02:34.602Z"
     }
   ],
   "receipts": [
@@ -399,6 +455,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "d4afe27947c5cac3b29c43995bc54c87e72cb01a54ad4e3859fd12bcc2ddeb31",
         "signature": "k5Hlz7wuLGLb388iKNBqffvbWxF026hUroUqhF42qLwJ6oJQ7zfVp9TrbMeU84OdvdBmsdkDltLOB53h+FudBA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqaspyi_1hul_086a435f62974c6b9135017361317aa5",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:7e47fef7-540e-4860-bda9-a6c8ed60b518",
+      "requestDigest": "8130d9bbdaa9a75343b01db074f24166ecf574693adc2ae6e1199782062c1de8",
+      "recordIds": [
+        "lr_mtqaspyi_1hul_7c6c62caa5a0489c931eb4f408317ce8"
+      ],
+      "priorLedgerDigest": "6bc5c5dd2066e8b66c62643c3cc1a6bac988d3941b9a7e06760b26ab741681eb",
+      "committedLedgerDigest": "9d44b3fa85db88f7cf33f9ce7d64b35f0f9125d440479caa71081e8398c657a6",
+      "writerSessionId": "sess-81915237b33ce2b455d4d23b6f14e349",
+      "writerFenceToken": "093f8d27-dcb7-4f2c-93e6-1b1d0b6e482d",
+      "committedAt": "2026-09-06T21:02:34.602Z",
+      "replayed": false,
+      "exactRequestDigest": "d6a1b6755d44f48159d2d414697b143c788ae69aca49a3821c79cbf5c67b9c45",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqaspyi_1hul_086a435f62974c6b9135017361317aa5",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:7e47fef7-540e-4860-bda9-a6c8ed60b518",
+        "exactRequestDigest": "d6a1b6755d44f48159d2d414697b143c788ae69aca49a3821c79cbf5c67b9c45",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqaspyi_1hul_7c6c62caa5a0489c931eb4f408317ce8"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "6bc5c5dd2066e8b66c62643c3cc1a6bac988d3941b9a7e06760b26ab741681eb",
+        "committedLedgerDigest": "9d44b3fa85db88f7cf33f9ce7d64b35f0f9125d440479caa71081e8398c657a6",
+        "replayed": false,
+        "committedAt": "2026-09-06T21:02:34.602Z",
+        "writerSessionId": "sess-81915237b33ce2b455d4d23b6f14e349",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "093f8d27-dcb7-4f2c-93e6-1b1d0b6e482d",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "c6152fad9e33abe622ada5f03314828c763699cc9296bd7de76fcf6fc5c3d23d",
+        "signature": "PrtYtH96Ju4UnIpluTwOfqcAU5YOD+SmRwK9jQbHRbpxTf0swqsrSW/XgNIkTL4zvKs1y4T6Cio72Efb0l8CDQ=="
       }
     }
   ]
