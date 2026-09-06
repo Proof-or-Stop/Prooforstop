@@ -202,8 +202,14 @@ function relationIsNegated(
     prefix.lastIndexOf(' although '),
     prefix.lastIndexOf(' and '),
     prefix.lastIndexOf(' then '),
+    prefix.lastIndexOf(' accordingly '),
+    prefix.lastIndexOf(' consequently '),
     prefix.lastIndexOf(' therefore '),
+    prefix.lastIndexOf(' thus '),
+    prefix.lastIndexOf(' hence '),
     prefix.lastIndexOf(' so '),
+    prefix.lastIndexOf(' as a result '),
+    prefix.lastIndexOf(' for that reason '),
     prefix.lastIndexOf(';'),
   );
   const localPrefix = prefix.slice(boundary + 1);
@@ -321,12 +327,22 @@ function controlledConceptPairIsExplicitlyNegative(
         relationship.lastIndexOf(' yet '),
         relationship.lastIndexOf(' although '),
         relationship.lastIndexOf(' while '),
+        relationship.lastIndexOf(' accordingly '),
         relationship.lastIndexOf(' consequently '),
+        relationship.lastIndexOf(' therefore '),
+        relationship.lastIndexOf(' thus '),
+        relationship.lastIndexOf(' hence '),
+        relationship.lastIndexOf(' so '),
+        relationship.lastIndexOf(' as a result '),
+        relationship.lastIndexOf(' for that reason '),
       );
       const scopedRelationship = relationship.slice(relationshipBoundary + 1);
       const immediateSuffix = text.slice(end, Math.min(text.length, end + 48));
-      const negativeRelationship = /\bnot\b|\bno\s+longer\b|\b(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b|\bcannot\b|\bnever\b|\bneither\b[^.;]{0,120}\bnor\b|\bnot\s+permitted\b|\bnot\s+allowed\b|\bunavailable\b|\bunsupported\b|\bforbidden\b|\bprohibited\b|\brather\s+than\b|\bexplicitly\s+not\b/u.test(scopedRelationship)
-        || /^\s*(?:(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never|is\s+forbidden|is\s+prohibited)\b/u.test(immediateSuffix);
+      const doubleNegative = /\b(?:not|cannot|never)\s+(?:[\p{L}\p{N}_]+\s+){0,3}not\b/u.test(scopedRelationship);
+      const negativeRelationship = !doubleNegative && (
+        /\bnot\b|\bno\s+longer\b|\b(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not\b|\bcannot\b|\bnever\b|\bneither\b[^.;]{0,120}\bnor\b|\bnot\s+permitted\b|\bnot\s+allowed\b|\bunavailable\b|\bunsupported\b|\bforbidden\b|\bprohibited\b|\brather\s+than\b|\bexplicitly\s+not\b/u.test(scopedRelationship)
+        || /^\s*(?:(?:does?|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never|is\s+forbidden|is\s+prohibited)\b/u.test(immediateSuffix)
+      );
       const negativeLead = /^(?:do\s+not\s+let|verify\s+(?:the\s+)?guidance\s+never\s+claims?\s+that)\b/u.test(localPrefix.trim())
         || /^no\s+reviewer$/u.test(localPrefix.trim())
         || /^neither\b.*\bnor$/u.test(localPrefix.trim())
@@ -368,14 +384,22 @@ type ControlledTriageRelationSpec = {
 
 const TRIAGE_SEVERITY_SUBJECT = /\b(?:severity(?:\s+(?:rating|rank|level|score))?|defect\s+severity|criticality|priority|seriousness(?:\s+(?:rating|rank|level|score))?|(?:risk|impact|harm)\s+(?:rating|rank|level|score))\b/u;
 const TRIAGE_UNKNOWN_APPLICABILITY_SUBJECT = /\b(?:(?:unknown|uncertain|undetermined|indeterminate|pending|unassessed|unevaluated|unresolved)\s+applicability|applicability\s+(?:is|remains|stays|awaits)?\s*(?:unknown|uncertain|undetermined|indeterminate|pending|unassessed|unevaluated|unresolved|determination)|applicability\s+(?:is|remains|stays|has)?\s*(?:not\s+yet|not\s+been)\s+(?:known|determined|assessed|evaluated))\b/u;
-const TRIAGE_DISMISSAL_SUBJECT = /\b(?:finding\s+dismiss|dismissal|dismissed\s+finding|(?:closed|archived)\s+finding|finding\s+(?:is|was|becomes?|counts?\s+as)\s+(?:closed|dismissed|archived)|(?:archiv(?:e|es|ed|ing)|clos(?:e|es|ed|ing)|dismiss(?:es|ed|ing)?)(?:\s+the)?\s+finding|once\s+(?:archived|closed|dismissed))\b/u;
+const TRIAGE_DISMISSAL_SUBJECT = /\b(?:finding\s+dismiss|dismissal|dismissed\s+findings?|(?:closed|archived)\s+findings?|findings?\s+(?:is|are|was|were|becomes?|counts?\s+as)\s+(?:closed|dismissed|archived)|(?:archiv(?:e|es|ed|ing)|clos(?:e|es|ed|ing)|dismiss(?:es|ed|ing)?)(?:\s+(?:the|any))?\s+findings?|once\s+(?:archived|closed|dismissed))\b/u;
 const TRIAGE_DEFERRAL_SUBJECT = /\b(?:defer\s+with\s+proof|finding\s+deferral\s+disposition|deferral(?!\s+lineage))\b/u;
 const TRIAGE_SEVERITY_RESPONSIBILITY_OUTCOME = /\b(?:story\s+(?:scope|ownership|responsibility)|(?:this|the|current)\s+story|scope|ownership|owns?|owned|belongs?|responsibility|routing|repair)\b/u;
 const TRIAGE_STORY_RESPONSIBILITY_OUTCOME = /\b(?:out\s+of\s+scope|non\s+applicable|nonapplicable|not\s+owned\s+by\s+(?:(?:this|the|current)\s+)?story|no\s+responsibility|nonownership|(?:another|separate|other)\s+(?:story|party)|belongs?\s+elsewhere|belongs?\s+to\s+(?:another|a\s+separate|an?\s+other)\s+story|outside\s+(?:(?:this|the|current)\s+)?story|beyond\s+(?:(?:this|the|current)\s+)?story|later\s+work|exclusion\s+from\s+(?:(?:this|the|current)\s+)?story|story\s+(?:scope|ownership|responsibility)|(?:this|the|current)\s+story|scope|ownership|owns?|owned|belongs?|responsibility|routing|repair|resolution|resolved|resolv(?:e|es|ed|ing)\s+(?:the\s+)?finding|applicability(?:\s+verdict)?)\b/u;
 const TRIAGE_UNSAFE_DISMISSAL_OUTCOME = /\b(?:out\s+of\s+scope|non\s+applicable|nonapplicable|not\s+owned\s+by\s+(?:(?:this|the|current)\s+)?story|no\s+responsibility|nonownership|(?:another|separate|other)\s+(?:story|party)|belongs?\s+elsewhere|belongs?\s+to\s+(?:another|a\s+separate|an?\s+other)\s+story|outside\s+(?:(?:this|the|current)\s+)?story|beyond\s+(?:(?:this|the|current)\s+)?story|later\s+work|exclusion\s+from\s+(?:(?:this|the|current)\s+)?story)\b/u;
-const TRIAGE_DISMISSAL_CONCLUSION_TARGET = /\b(?:it|this|that|issue|finding|work|defect)\b/u;
+const TRIAGE_DISMISSAL_CONCLUSION_TARGET = /\b(?:it|this(?!\s+story\b)|that|issue|finding|work|defect)\b/u;
 const TRIAGE_CAUSAL_LINK = /\b(?:accordingly|consequently|therefore|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\b/u;
+const TRIAGE_TOPIC_BREAK = /^(?:separately|independently|unrelatedly|on\s+a\s+separate\s+topic)\b/u;
+const REVIEW_AUTHORITY_ACTOR = /\b(?:the\s+)?(?:reviewers?|review\s+lanes?|review\s+teams?|review\s+panels?|independent\s+auditors?|auditors?|agents?|story\s+owners?)\b/u;
+const REVIEW_AUTHORITY_ACTOR_SOURCE = '(?:the\\s+)?(?:reviewers?|review\\s+lanes?|review\\s+teams?|review\\s+panels?|independent\\s+auditors?|auditors?|agents?|story\\s+owners?)';
+const DISPOSITION_INSPECTION_ACTION_SOURCE = '(?:inspect|read|audit|verify|consume|examine|assess|check|review|evaluate)';
+const DISPOSITION_AUTHORITY_ACTION_SOURCE = '(?:mint(?:s|ed|ing)?|sign(?:s|ed|ing)?|suppl(?:y|ies|ied|ying)|bestow(?:s|ed|ing)?|confer(?:s|red|ring)?|grant(?:s|ed|ing)?|assign(?:s|ed|ing)?|attach(?:es|ed|ing)?|issue(?:s|d|ing)?|creat(?:e|es|ed|ing)|set(?:s|ting)?|giv(?:e|es|en|ing)|bind(?:s|ed|ing)?)';
+const DISPOSITION_TARGET_SOURCE = '(?:finding|issue|defect|work)';
+const TRIAGE_INVENTORY_AUTHORITY_ACTION = /\b(?:let|allow(?:s|ed|ing)?|permit(?:s|ted|ting)?|authoriz(?:e|es|ed|ing)|establish(?:es|ed|ing)?|certif(?:y|ies|ied|ying)|prov(?:e|es|ed|ing)|determin(?:e|es|ed|ing)|decid(?:e|es|ed|ing)|control(?:s|led|ling)?|govern(?:s|ed|ing)?|defin(?:e|es|ed|ing)|dictat(?:e|es|ed|ing)|overrid(?:e|es|den|ing)|mint(?:s|ed|ing)?|sign(?:s|ed|ing)?|grant(?:s|ed|ing)?|bestow(?:s|ed|ing)?|confer(?:s|red|ring)?|assign(?:s|ed|ing)?|attach(?:es|ed|ing)?|issue(?:s|d|ing)?|adds?|provisions?|reshapes?|rewrites?|replaces?|recognizes?)\b/u;
 const TRIAGE_ROUTING_OR_GATE_OUTCOME = /\b(?:routing|route|routes|routed|handoff|hand\s+off|handing\s+(?:the\s+)?(?:finding|issue|defect)\s+off|eligible\s+for\s+handoff|park(?:s|ed|ing)?|postpon(?:e|es|ed|ing)|transfer(?:s|red|ring)?|send(?:s|ing)?|sending|leave(?:s|d|ing)?|defer|deferral|non\s+blocking|advisory|away\s+from\s+(?:(?:this|the|current)\s+)?story|(?:finding|issue|defect|work)\s+(?:to|into|beyond)\s+(?:(?:another|separate|this|current|the)\s+)?story|(?:another|separate)\s+story|later\s+work|(?:finding|issue|defect|work)\s+elsewhere|outside\s+(?:(?:this|the|current)\s+)?story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|(?:removal|clearance)\s+of\s+(?:the\s+)?(?:review\s+)?blocker|(?:review\s+)?gate\s+relief|unblock(?:s|ed)?)\b/u;
+const TRIAGE_DEFERRAL_RESPONSIBILITY_OUTCOME = new RegExp(`(?:${TRIAGE_STORY_RESPONSIBILITY_OUTCOME.source}|${TRIAGE_ROUTING_OR_GATE_OUTCOME.source})`, 'u');
 
 // Bare `priority` is this repository's story risk-signal vocabulary (see the
 // keyword elevation rule in the project guide), not a Finding severity, and a
@@ -516,33 +540,32 @@ function classifyControlledRelationSegment(
  * observing actor. Responsibility conclusions remain outside this grammar.
  */
 function isStandaloneNegativeDismissalObservation(segment: string): boolean {
-  const subjectRanges = matchRanges(segment, TRIAGE_DISMISSAL_SUBJECT);
-  if (subjectRanges.length !== 1 || TRIAGE_UNSAFE_DISMISSAL_OUTCOME.test(segment)) return false;
-  const [subjectRange] = subjectRanges;
-  const prefix = segment.slice(0, subjectRange.start).trim();
-  const suffix = segment.slice(subjectRange.end).trim();
-  const negativeDeterminers = matchRanges(prefix, /\bno\b/u);
-  const negativeDeterminer = negativeDeterminers.at(-1);
-  if (!negativeDeterminer || /\b(?:not|never)\s+no\b/u.test(prefix)) return false;
-  const boundSubjectPrefix = prefix.slice(negativeDeterminer.end).trim();
-  if (boundSubjectPrefix.length === 0
-    || /\b(?:and|but|however|yet|although|while|except|unless|therefore|accordingly|consequently|so)\b/u.test(boundSubjectPrefix)) {
+  if (TRIAGE_UNSAFE_DISMISSAL_OUTCOME.test(segment)
+    || /\b(?:and|but|however|yet|although|while|except|unless|therefore|accordingly|consequently|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\b/u.test(segment)) {
     return false;
   }
-  return suffix.length === 0
-    || (/^by\b/u.test(suffix)
-      && !/\b(?:and|but|however|yet|although|while|therefore|accordingly|consequently|so)\b/u.test(suffix));
+  const passiveNegative = /^(?:by\s+[\p{L}\p{N}_\s]+\s+)?(?:no|not\s+a\s+single|zero)\s+[\p{L}\p{N}_\s]*findings?\s+(?:is|are|was|were|becomes?|counts?\s+as)\s+(?:closed|dismissed|archived)(?:\s+by\s+[\p{L}\p{N}_\s]+)?$/u;
+  const activeNoQuantifier = /^[\p{L}\p{N}_\s]+\s+(?:closes?|closed|dismisses?|dismissed|archives?|archived)\s+(?:no|zero)\s+[\p{L}\p{N}_\s]*findings?$/u;
+  const activeNotAny = /^[\p{L}\p{N}_\s]+\s+(?:does?|did|will|would|can|could|should|must)\s+not\s+(?:close|dismiss|archive)\s+any\s+[\p{L}\p{N}_\s]*findings?$/u;
+  return passiveNegative.test(segment)
+    || activeNoQuantifier.test(segment)
+    || activeNotAny.test(segment);
 }
 
 function isLinkedResponsibilityConclusion(segment: string): boolean {
   if (!TRIAGE_UNSAFE_DISMISSAL_OUTCOME.test(segment)
-    || !TRIAGE_DISMISSAL_CONCLUSION_TARGET.test(segment)) return false;
-  return !controlledConceptPairIsExplicitlyNegative(
+    || !TRIAGE_DISMISSAL_CONCLUSION_TARGET.test(segment)
+    || TRIAGE_TOPIC_BREAK.test(segment)) return false;
+  if (controlledConceptPairIsExplicitlyNegative(
     segment,
     TRIAGE_DISMISSAL_CONCLUSION_TARGET,
     TRIAGE_UNSAFE_DISMISSAL_OUTCOME,
     Number.MAX_SAFE_INTEGER,
-  );
+  )) return false;
+  const directTarget = /^(?:(?:accordingly|consequently|therefore|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\s+)?(?:(?:the\s+)?(?:issue|finding|work|defect)|it|this|that)\b/u.test(segment);
+  const invertedTarget = matchRanges(segment, TRIAGE_UNSAFE_DISMISSAL_OUTCOME).some(outcome =>
+    matchRanges(segment, TRIAGE_DISMISSAL_CONCLUSION_TARGET).some(target => outcome.start <= target.start));
+  return directTarget || invertedTarget || TRIAGE_CAUSAL_LINK.test(segment);
 }
 
 /**
@@ -562,12 +585,13 @@ function hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal(
 function isPureInterrogative(text: string): boolean {
   const trimmed = text.trim();
   if (!/\?\s*$/u.test(trimmed) || trimmed.slice(0, -1).includes('?')) return false;
+  if (/[.!;\n。！？；]/u.test(trimmed.slice(0, -1))) return false;
   return /^(?:do|does|did|can|could|may|might|must|should|would|will|is|are|was|were|has|have|had|what|when|where|which|who|why|how|whether)\b/iu.test(trimmed);
 }
 
 function isExplicitFailClosedQuotedFixture(text: string): boolean {
   const trimmed = text.trim();
-  const match = /^(?:negative\s+)?(?:fixture|test\s+fixture|example\s+input|quoted\s+statement)\s*:\s*["“][\s\S]+["”]\s+(.+)$/iu.exec(trimmed);
+  const match = /^(?:negative\s+)?(?:fixture|test\s+fixture|example\s+input|quoted\s+statement)\s*:\s*(?:"[^"\r\n]+"|“[^“”\r\n]+”)\s+([^"“”]+)$/iu.exec(trimmed);
   if (!match) return false;
   const expectedOutcome = normalizeTriageAuthorityText(match[1]);
   if (/\b(?:does|did|must|should|will|would|can|could)\s+not\b[^.;]{0,40}\b(?:reject|refuse|block|fail)\w*\b/u.test(expectedOutcome)) return false;
@@ -597,12 +621,13 @@ function isExplicitRejectedAuthorityStatement(text: string): boolean {
   if (claim.length === 0 || claim.length > 240) return false;
   if (!/^[\p{L}\p{N}_\s]+$/u.test(claim)) return false;
   if (/\b(?:and|or|nor|but|however|yet|although|while|then|therefore|so|if|unless|because|whereas)\b/iu.test(claim)) return false;
-  return rejectedAuthorityRelationCount(claim) === 1;
+  return rejectedAuthorityRelationCount(claim) === 1
+    && reviewTriageAuthorityViolation({ location: 'rejected-claim', kind: 'story', text: claim }) !== null;
 }
 
 function rejectedAuthorityRelationCount(claim: string): number {
   const normalized = normalizeTriageAuthorityText(claim);
-  const reviewerActor = /\b(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\b/u;
+  const reviewerActor = REVIEW_AUTHORITY_ACTOR;
   const collapsedOutcome = /\b(?:applicability\s+verdict|non\s+applicability\s+verdict|out\s+of\s+scope|nonownership\s+by\s+(?:(?:this|the|current)\s+)?story|resolved|resolution|repaired|repair|dismissed|finding\s+dismiss|disproven|duplicate|pre\s+existing\s+unaffected)\b/u;
   const storyAuthoredChange = /\b(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b/u;
   const relations: Array<[RegExp, RegExp, number?]> = [
@@ -618,28 +643,23 @@ function rejectedAuthorityRelationCount(claim: string): number {
 }
 
 function isBoundedSignedDispositionInspection(segment: string): boolean {
-  return /^(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\s+(?:(?:may|can|must|should)\s+)?(?:only\s+)?(?:inspect|read|audit|verify|consume)\s+(?:an?\s+|the\s+)?signed\s+(?:defer\s+with\s+proof(?:\s+disposition)?|finding\s+deferral\s+disposition)(?:\s+(?:receipt|record))?(?:\s+(?:for|as)\s+(?:evidence|review\s+evidence|an?\s+input))?$/u.test(segment);
+  return new RegExp(`^${REVIEW_AUTHORITY_ACTOR_SOURCE}\\s+(?:(?:may|can|must|should)\\s+)?(?:only\\s+)?${DISPOSITION_INSPECTION_ACTION_SOURCE}\\s+(?:an?\\s+|the\\s+)?signed\\s+(?:defer\\s+with\\s+proof(?:\\s+disposition)?|finding\\s+deferral\\s+disposition)(?:\\s+(?:receipt|record))?(?:\\s+(?:for|as)\\s+(?:evidence|review\\s+evidence|an?\\s+input))?$`, 'u').test(segment);
 }
 
 function isExplicitlyProhibitedDispositionAuthority(segment: string): boolean {
-  const actor = '(?:reviewers?|review\\s+lanes?|agents?|story\\s+owners?)';
-  // A direct prohibition is safe only when negation binds a direct
-  // disposition-authority action. Control and timing verbs such as avoid,
-  // postpone, resist, delay, hesitate, or refuse cannot inherit that safety
-  // merely because a later complement names a grant action.
-  const action = '(?:mint(?:s|ed|ing)?|sign(?:s|ed|ing)?|suppl(?:y|ies|ied|ying)|bestow(?:s|ed|ing)?|confer(?:s|red|ring)?|grant(?:s|ed|ing)?|assign(?:s|ed|ing)?|attach(?:es|ed|ing)?|issue(?:s|d|ing)?|creat(?:e|es|ed|ing)|set(?:s|ting)?|giv(?:e|es|en|ing))';
-  const actionList = `${action}(?:(?:\\s+or)?\\s+${action}){0,5}`;
+  const actionList = `${DISPOSITION_AUTHORITY_ACTION_SOURCE}(?:(?:\\s+or)?\\s+${DISPOSITION_AUTHORITY_ACTION_SOURCE}){0,5}`;
   const disposition = '(?:defer\\s+with\\s+proof(?:\\s+disposition)?|finding\\s+deferral\\s+disposition)';
-  const target = '(?:\\s+(?:on|to|for)\\s+(?:the\\s+)?finding)?';
-  const direct = new RegExp(`^${actor}\\s+(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\\s+not|cannot|never)\\s+${actionList}\\s+${disposition}${target}$`, 'u');
-  const neither = new RegExp(`^neither\\s+${actor}\\s+nor\\s+${actor}\\s+(?:may|can|must|should|will|would)\\s+${actionList}\\s+${disposition}${target}$`, 'u');
-  return direct.test(segment) || neither.test(segment);
+  const target = `(?:\\s+(?:on|to|for)\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE})?`;
+  const direct = new RegExp(`^${REVIEW_AUTHORITY_ACTOR_SOURCE}\\s+(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\\s+not|cannot|never)\\s+${actionList}\\s+${disposition}${target}$`, 'u');
+  const neither = new RegExp(`^neither\\s+${REVIEW_AUTHORITY_ACTOR_SOURCE}\\s+nor\\s+${REVIEW_AUTHORITY_ACTOR_SOURCE}\\s+(?:may|can|must|should|will|would)\\s+${actionList}\\s+${disposition}${target}$`, 'u');
+  const noActor = new RegExp(`^(?:no|not\\s+one)\\s+${REVIEW_AUTHORITY_ACTOR_SOURCE}\\s+(?:may|can|must|should|will|would)\\s+${actionList}\\s+${disposition}${target}$`, 'u');
+  const forbiddenActor = new RegExp(`^every\\s+${REVIEW_AUTHORITY_ACTOR_SOURCE}\\s+is\\s+(?:forbidden|prohibited)\\s+from\\s+${actionList}\\s+${disposition}${target}$`, 'u');
+  return direct.test(segment) || neither.test(segment) || noActor.test(segment) || forbiddenActor.test(segment);
 }
 
 function hasCrossSegmentDispositionAssignment(segments: readonly string[]): boolean {
-  const inspection = /^(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\s+(?:(?:may|can|must|should)\s+)?(?:only\s+)?(?:inspect|read|audit|verify|consume)\s+(?:an?\s+|the\s+)?signed\s+(?:defer\s+with\s+proof(?:\s+disposition)?|finding\s+deferral\s+disposition)(?:\s+(?:receipt|record))?(?:\s+(?:for|as)\s+(?:evidence|review\s+evidence|an?\s+input))?$/u;
   for (let index = 0; index < segments.length - 1; index += 1) {
-    if (!inspection.test(segments[index])) continue;
+    if (!isBoundedSignedDispositionInspection(segments[index])) continue;
     // Evidence-only asides do not discharge the controlled antecedent. Scan
     // the remaining source so a longer list of audit/reporting sentences
     // cannot launder a later coreferent assignment.
@@ -647,18 +667,17 @@ function hasCrossSegmentDispositionAssignment(segments: readonly string[]): bool
       continuationIndex < segments.length;
       continuationIndex += 1) {
       const continuation = segments[continuationIndex];
-      const findingTarget = /\b(?:the\s+)?finding\b/u.test(continuation);
-      if (!findingTarget) continue;
+      const dispositionTarget = new RegExp(`\\b(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}\\b`, 'u').test(continuation);
+      if (!dispositionTarget) continue;
       // Negative polarity is safe only when the complete continuation is one
       // bounded negative assignment relation. A negative adjective followed
       // by `and grant ...` must not exempt the later affirmative assignment.
-      const negativeCoreferentAssignment = /^(?:then\s+)?(?:it|this|the\s+same|that\s+(?:disposition|artifact|record|result|receipt)|the\s+(?:(?:signed|inspected|reviewed|verified|audited|same)\s+){0,2}(?:disposition|artifact|record|result|receipt))\s+(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\s+(?:bind(?:s|ed|ing)?|assign(?:s|ed|ing)?|attach(?:es|ed|ing)?|grant(?:s|ed|ing)?|giv(?:e|es|en|ing)|bestow(?:s|ed|ing)?|confer(?:s|red|ring)?|issue(?:s|d|ing)?|creat(?:e|es|ed|ing)|set(?:s|ting)?)(?:\s+(?:it|this|that|the\s+(?:disposition|artifact|record|result|receipt)))?(?:\s+(?:on|to|for))?\s+(?:the\s+)?finding$/u.test(continuation);
-      const findingRemainsUnbound = /^(?:then\s+)?(?:the\s+)?finding\s+(?:remains?|stays?|is|must\s+remain)\s+(?:open|visible|unresolved|unchanged|unbound|nonbinding)$/u.test(continuation);
-      const evidenceOnlyContinuation = /^(?:then\s+)?(?:record|preserve|log|report|attach|store|retain|compare|verify|audit)\b[^.;]{0,180}\b(?:audit|evidence|receipt|record|result|output|trail|check)\b[^.;]{0,80}\b(?:the\s+)?finding$/u.test(continuation);
+      const negativeCoreferentAssignment = new RegExp(`^(?:then\\s+)?(?:it|this|the\\s+same|that\\s+(?:disposition|artifact|record|result|receipt)|the\\s+(?:(?:signed|inspected|reviewed|verified|audited|same)\\s+){0,2}(?:disposition|artifact|record|result|receipt))\\s+(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\\s+not|cannot|never)\\s+${DISPOSITION_AUTHORITY_ACTION_SOURCE}(?:\\s+(?:it|this|that|the\\s+(?:disposition|artifact|record|result|receipt)))?(?:\\s+(?:on|to|for))?\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}$`, 'u').test(continuation);
+      const safeTerminalState = new RegExp(`^(?:then\\s+)?(?:(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}\\s+(?:remains?|stays?|is|must\\s+remain)\\s+(?:open|visible|unresolved|unchanged|unbound|nonbinding|unaffected|untouched)|it\\s+carries\\s+no\\s+authority\\s+over\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}|it\\s+leaves\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE}\\s+unchanged)$`, 'u').test(continuation);
+      const evidenceOnlyContinuation = new RegExp(`^(?:then\\s+)?(?:record|preserve|log|report|attach|store|retain|compare|verify|audit)\\s+(?:the\\s+)?(?:audit|evidence|receipt|record|result|output|trail|check)(?:\\s+(?:result|results|evidence|receipt|receipts|output))?(?:\\s+(?:for|about|on)\\s+(?:the\\s+)?${DISPOSITION_TARGET_SOURCE})?$`, 'u').test(continuation);
       if (negativeCoreferentAssignment
-        || findingRemainsUnbound
-        || evidenceOnlyContinuation
-        || /^(?:then\s+)?(?:(?:do|does|did|must|may|should|can|could|will|would|is|are|was|were|be)\s+not|cannot|never)\b/u.test(continuation)) continue;
+        || safeTerminalState
+        || evidenceOnlyContinuation) continue;
       // Once a signed disposition is the live antecedent, later Story-authored
       // prose may report evidence or state that the Finding remains unbound.
       // Any other Finding-bearing outcome is authority-bearing by default;
@@ -671,7 +690,10 @@ function hasCrossSegmentDispositionAssignment(segments: readonly string[]): bool
 }
 
 function isCanonicalTriageInventorySegment(segment: string): boolean {
-  return /^(?:own\s+all\s+review\s+lane\s+behavior\s+and\s+prohibitions\s+in\s+one\s+canonical\s+agent\s+contract|add\s+adversarial\s+tests\s+covering)\s+.+$/u.test(segment);
+  const canonicalContractProtocol = /^own\s+all\s+review\s+lane\s+behavior\s+and\s+prohibitions\s+in\s+one\s+canonical\s+agent\s+contract\s*:\s*current\s+review\s+run\s+start\s+review\s+run\s+id\s+finding\s+add\s+review\s+pass\s+set\s+protocol$/u.test(segment);
+  const testInventory = /^add\s+adversarial\s+tests\s+covering\s+(.+)\s+and\s+the\s+subordinate\s+agent\s+side\s+projection\s+of\s+dynamic\s+finding\s+authority$/u.exec(segment);
+  if (canonicalContractProtocol) return true;
+  return testInventory !== null && !TRIAGE_INVENTORY_AUTHORITY_ACTION.test(testInventory[1]);
 }
 
 function isApprovedFutureDeferralBoundary(segment: string): boolean {
@@ -691,7 +713,11 @@ function isApprovedOwnerDispositionInvariant(segment: string): boolean {
 }
 
 function isApprovedIndependentAxesInvariant(segment: string): boolean {
-  return /^(?:inspect|verify|audit|check)\s+.+\b(?:evidence\s+state\s+)?severity\s+applicability\s+candidate\s+and\s+gate\s+impact\s+(?:are|remain)\s+independent\s+axes$/u.test(segment);
+  const shape = /^(?:inspect|verify|audit|check)\s+.+\b(?:evidence\s+state\s+)?severity\s+applicability\s+candidate\s+and\s+gate\s+impact\s+(?:are|remain)\s+independent\s+axes$/u.test(segment);
+  if (!shape) return false;
+  const body = segment.replace(/^(?:inspect|verify|audit|check)\s+/u, '')
+    .replace(/\b(?:evidence\s+state\s+)?severity\s+applicability\s+candidate\s+and\s+gate\s+impact\s+(?:are|remain)\s+independent\s+axes$/u, '');
+  return !TRIAGE_INVENTORY_AUTHORITY_ACTION.test(body);
 }
 
 function hasNothingButSeverityAuthority(text: string): boolean {
@@ -741,16 +767,20 @@ function hasCrossSegmentControlledAuthority(
   spec: ControlledTriageRelationSpec,
 ): boolean {
   const coreferent = /^(?:then\s+)?(?:it|this|that)\b/u;
-  const authorityLink = /\b(?:determin(?:e|es|ed|ing)|permit(?:s|ted|ting)?|allow(?:s|ed|ing)?|authoriz(?:e|es|ed|ing)|prov(?:e|es|ed|ing)|establish(?:es|ed|ing)?|show(?:s|ed|ing)?|mean(?:s|t|ing)?|transfer(?:s|red|ring)?)\b/u;
+  const authorityLink = /\b(?:determin(?:e|es|ed|ing)|permit(?:s|ted|ting)?|allow(?:s|ed|ing)?|authoriz(?:e|es|ed|ing)|prov(?:e|es|ed|ing)|establish(?:es|ed|ing)?|show(?:s|ed|ing)?|mean(?:s|t|ing)?|transfer(?:s|red|ring)?|clear(?:s|ed|ing)?)\b/u;
   return segments.some((segment, index) => spec.subject.test(segment)
-    && segments.slice(index + 1, index + 2).some(candidate => {
-      if (!coreferent.test(candidate) || !spec.outcome.test(candidate)) return false;
+    && segments.slice(index + 1, spec.family === 'deferral-story-responsibility' ? undefined : index + 2).some(candidate => {
+      const continuationOutcome = spec.family === 'deferral-story-responsibility' && !spec.outcome.test(candidate)
+        ? TRIAGE_DEFERRAL_RESPONSIBILITY_OUTCOME
+        : spec.outcome;
+      if (!coreferent.test(candidate) || !continuationOutcome.test(candidate)) return false;
       const coreferentRange = matchRanges(candidate, coreferent)[0];
-      const outcomeRange = matchRanges(candidate, spec.outcome)[0];
+      const outcomeRange = matchRanges(candidate, continuationOutcome)[0];
       if (!coreferentRange || !outcomeRange || coreferentRange.end > outcomeRange.start) return false;
       const relation = candidate.slice(coreferentRange.end, outcomeRange.start);
-      return authorityLink.test(relation)
-        && !controlledConceptPairIsExplicitlyNegative(candidate, coreferent, spec.outcome, spec.maxSpan);
+      const relationWithOutcomeVerb = candidate.slice(coreferentRange.end, outcomeRange.end);
+      return (authorityLink.test(relation) || authorityLink.test(relationWithOutcomeVerb))
+        && !controlledConceptPairIsExplicitlyNegative(candidate, coreferent, continuationOutcome, spec.maxSpan);
     }));
 }
 
@@ -833,7 +863,20 @@ function controlledTriageViolation(
 
 function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthoritySource): boolean {
   if (source.kind !== 'verificationIntent') return false;
-  const normalized = normalizeTriageAuthorityText(source.text);
+  const rawStatements = source.text
+    .split(/[.!?;。！？；\r\n]+/u)
+    .map(statement => normalizeTriageAuthorityText(statement))
+    .filter(Boolean);
+  const [primary, ...continuations] = rawStatements;
+  if (primary === undefined) return false;
+  const gapLogBoundary = /^gap\s+log\s+remains\s+a\s+main\s+agent\s+or\s+human\s+archive\s+for\s+proof\s+or\s+stop\s+framework\s+gaps\s+never\s+a\s+general\s+product\s+defect\s+routing\s+or\s+backlog\s+shortcut$/u;
+  const proofContinuation = /^(?:prove|verify|assert|ensure)\b[\s\S]*\b(?:reject|refuse|block|fail)\w*\b/u;
+  let normalized = primary;
+  if (continuations.length === 1 && proofContinuation.test(continuations[0])) {
+    normalized = `${primary} ${continuations[0]}`;
+  } else if (!continuations.every(continuation => gapLogBoundary.test(continuation))) {
+    return false;
+  }
   if (!/^(?:inject|attempt\s+to|present|give|change|replace|mutate|alter|delete\s+or\s+alter)\b/u.test(normalized)) return false;
   const outcomeStart = Math.max(
     normalized.lastIndexOf(' prove '),
@@ -846,8 +889,7 @@ function isNegativeMutationVerificationIntent(source: ReviewerTaskContextAuthori
   if (outcomeStart < 0) return false;
   const outcome = normalized.slice(outcomeStart);
   if (/\b(?:does|did|must|should|will|would|can|could)\s+not\b[^.;]{0,48}\b(?:reject|refuse|block|fail)\w*\b/u.test(outcome)) return false;
-  const boundedOutcome = outcome.replace(/[.!?]+\s+gap\s+log\s+remains\s+a\s+main\s+agent\s+or\s+human\s+archive\s+for\s+proof\s+or\s+stop\s+framework\s+gaps\s+never\s+a\s+general\s+product\s+defect\s+routing\s+or\s+backlog\s+shortcut[.!?]*$/u, '');
-  return /(?:\b(?:reject|refuse|block)\w*\s+(?:it|them|these|every\s+(?:permission|mutation|claim)|the\s+(?:wording|mutation|claim|statement|label))|\b(?:semantic\s+)?(?:contract|guard|validation|guidance)\s+(?:reject|refuse|block)\w*\s+(?:it|them|these|the\s+(?:wording|mutation|claim|statement|label))|\b(?:the\s+)?(?:story\s+owner\s+)?(?:contract|guard|validation|guidance)\s+(?:remains?\s+)?fail(?:s)?\s+closed\b[^.;]*|\b(?:contract\s+)?tests?\s+fail\b[^.;]*|\brequires?\b[^.;]*(?:current\s+story\s+repair|structured\s+evidence|traceable\s+owner|valid\s+route)|\bmust\s+remain\b[^.;]*future\s+system\s+work)\s*[.!?]*$/u.test(boundedOutcome);
+  return /(?:\b(?:reject|refuse|block)\w*\s+(?:it|them|these|every\s+(?:permission|mutation|claim)|the\s+(?:wording|mutation|claim|statement|label))|\b(?:semantic\s+)?(?:contract|guard|validation|guidance)\s+(?:reject|refuse|block)\w*\s+(?:it|them|these|the\s+(?:wording|mutation|claim|statement|label))|\b(?:the\s+)?(?:story\s+owner\s+)?(?:contract|guard|validation|guidance)\s+(?:remains?\s+)?fail(?:s)?\s+closed\b[^.;]*|\b(?:contract\s+)?tests?\s+fail\b[^.;]*|\brequires?\b[^.;]*(?:current\s+story\s+repair|structured\s+evidence|traceable\s+owner|valid\s+route)|\bmust\s+remain\b[^.;]*future\s+system\s+work)\s*[.!?]*$/u.test(outcome);
 }
 
 function isWholeSourceDynamicFindingInvariantAssertion(text: string): boolean {
@@ -913,25 +955,19 @@ function hasDynamicFindingAuthorityAmendmentAssertion(
       && /^(?:contract\s+)?(?:remains?|stays?|is|are|must\s+remain)\s+(?:completely\s+)?(?:unchanged|unaltered|unmodified|identical)(?:\s+by\s+(?:the\s+)?(?:metadata|prompt|implementation|code)(?:\s+only)?\s+(?:registration|change|update))?$/u.test(afterAuthority);
     if (directInvariant) continue;
 
-    const subordinateBefore = /^(?:this\s+proposal\s+and\s+story|this\s+(?:proposal|story)|the\s+(?:prompt|guidance))\s+(?:is|are|remains?|must\s+remain)\s+subordinate(?:\s+agent\s+side)?(?:\s+projections?)?\s+(?:of|to)(?:\s+the)?$/u.test(beforeAuthority)
-      || /^(?:use\s+red\s+then\s+green\s+)?add\s+(?:adversarial\s+)?tests\s+covering\s+.+\s+and\s+the\s+subordinate(?:\s+agent\s+side)?\s+projections?\s+of(?:\s+the)?$/u.test(beforeAuthority);
+    const directSubordination = /^(?:this\s+proposal\s+and\s+story|this\s+(?:proposal|story)|the\s+(?:prompt|guidance))\s+(?:is|are|remains?|must\s+remain)\s+subordinate(?:\s+agent\s+side)?(?:\s+projections?)?\s+(?:of|to)(?:\s+the)?$/u.test(beforeAuthority);
+    const testSubordination = /^(?:use\s+red\s+then\s+green\s+)?add\s+(?:adversarial\s+)?tests\s+covering\s+(.+)\s+and\s+the\s+subordinate(?:\s+agent\s+side)?\s+projections?\s+of(?:\s+the)?$/u.exec(beforeAuthority);
+    const testBodyPublishesAuthority = testSubordination !== null
+      && TRIAGE_INVENTORY_AUTHORITY_ACTION.test(testSubordination[1]);
+    const subordinateBefore = directSubordination || (testSubordination !== null && !testBodyPublishesAuthority);
     const subordinateAfter = /^(?:document)?(?:\s+and\s+they\s+do\s+not\s+amend\s+that\s+authority)?$/u.test(afterAuthority);
     if (subordinateBefore && subordinateAfter) continue;
 
-    const lastConjunction = beforeAuthority.lastIndexOf(' and ');
-    const prohibitionLead = (lastConjunction >= 0
-      ? beforeAuthority.slice(lastConjunction + ' and '.length)
-      : beforeAuthority).trim();
-    const precedingLead = lastConjunction >= 0
-      ? beforeAuthority.slice(0, lastConjunction).trim()
-      : '';
-    const prohibitedAuthorityAction = '(?:amend|change|modify|rewrite|override|replace|extend|update)';
-    const imperativeProhibition = new RegExp(`^do\\s+not\\s+${prohibitedAuthorityAction}(?:\\s+(?!(?:and|but|while|although|however|yet|then|therefore|so)\\b)[a-z0-9]+){0,28}$`, 'u').test(prohibitionLead);
-    const subjectProhibition = new RegExp(`^(?:(?:this|the|current|proposed)\\s+(?:story|proposal|change|update|implementation|prompt|guidance|contract)|(?:story|proposal|prompt|guidance))\\s+(?:does|must|may|should|can|could|will|would)\\s+not\\s+${prohibitedAuthorityAction}(?:\\s+(?!(?:and|but|while|although|however|yet|then|therefore|so)\\b)[a-z0-9]+){0,28}$`, 'u').test(prohibitionLead);
-    const boundedNegativePrefix = precedingLead.length === 0
-      || /^(?:it\s+is\s+never|retired\s+verdict\s+vocabulary\s+is\s+never)\s+(?:retained|used|accepted)\s+as\s+an\s+active\s+alias$/u.test(precedingLead);
-    const boundedProhibitionObject = /^(?:document(?:\s+in\s+this\s+story)?|or\s+(?:its\s+runtime|lifecycle\s+gate\s+predicates))?$/u.test(afterAuthority);
-    if ((imperativeProhibition || subjectProhibition) && boundedNegativePrefix && boundedProhibitionObject) continue;
+    const negativeAction = '(?:amend|change|modify|rewrite|override|replace|extend|update)';
+    const actorNegativeLead = new RegExp(`^(?:(?:(?:it\\s+is\\s+never|retired\\s+verdict\\s+vocabulary\\s+is\\s+never)\\s+(?:retained|used|accepted)\\s+as\\s+an\\s+active\\s+alias\\s+and\\s+)?(?:(?:this|the|current|proposed)\\s+(?:story|proposal|change|update|implementation|prompt|guidance|contract)|(?:story|proposal|prompt|guidance))\\s+(?:does|must|may|should|can|could|will|would)\\s+not\\s+${negativeAction}(?:\\s+the)?)$`, 'u').test(beforeAuthority);
+    const imperativeNegativeLead = new RegExp(`^do\\s+not\\s+${negativeAction}(?:\\s+runtime\\s+finding\\s+schemas\\s+handlers\\s+predicates\\s+process\\s+fact\\s+registries\\s+lifecycle\\s+gates\\s+or)?(?:\\s+the)?$`, 'u').test(beforeAuthority);
+    const closedProhibitionObject = /^(?:document(?:\s+in\s+this\s+story)?|or\s+(?:its\s+runtime|lifecycle\s+gate\s+predicates))?$/u.test(afterAuthority);
+    if ((actorNegativeLead || imperativeNegativeLead) && closedProhibitionObject) continue;
 
     return true;
   }
@@ -987,7 +1023,7 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
       return 'disposition collapsed into applicability';
     }
 
-    const unauthorizedActor = /\b(?:reviewers?|review\s+lanes?|agents?|story\s+owners?)\b/u;
+    const unauthorizedActor = REVIEW_AUTHORITY_ACTOR;
     const signedDispositionInspection = isBoundedSignedDispositionInspection(segment);
     if (!signedDispositionInspection
       && hasConceptPair(segment, unauthorizedActor, deferral)
@@ -1002,11 +1038,13 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
 
     const schemaOrGate = /\b(?:finding\s+schemas?|applicability\s+fields?|severity\s+fields?|(?:review|test|done|lifecycle)\s+gate(?:\s+predicates?)?|blocking\s+predicates?|process\s+facts?)\b/u;
     const storyAuthoredChange = /(?:^(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b|\bby\s+(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\b)/u;
-    const schemaInvariant = wholeSourceIsInvariantAssertion
-      || /^(?:the\s+)?(?:finding\s+schemas?|(?:review|test|done|lifecycle)\s+gate(?:\s+predicates?)?)\s+(?:remains?|stays?|is|are|must\s+remain)\s+(?:unchanged|unaltered|unmodified|identical)$/u.test(segment)
-      || /^do\s+not\s+(?:amend|change|modify|rewrite|override|replace|extend|update)\s+.+$/u.test(segment)
-      || /^no\s+.+\s+is\s+in\s+scope$/u.test(segment)
-      || /^assert\s+(?:the\s+)?change\s+introduces\s+no\s+.+$/u.test(segment);
+    const residualSchemaAmendment = /\b(?:this|the)\s+(?:story|prompt|guidance|change|update|implementation)\s+(?:adds?|provisions?|reshapes?|defines?|creates?|changes?|modifies?|rewrites?|replaces?)\b[\s\S]*\b(?:finding\s+schemas?|applicability\s+fields?|severity\s+fields?|(?:review|test|done|lifecycle)\s+gate(?:\s+predicates?)?|blocking\s+predicates?|process\s+facts?)\b/u.test(segment);
+    if (residualSchemaAmendment) {
+      return 'Dynamic Finding authority amendment asserted from Task Context';
+    }
+    const schemaSubject = '(?:(?:the\\s+)?finding\\s+schemas?|(?:the\\s+)?(?:review|test|done|lifecycle)\\s+gate(?:\\s+predicates?)?|(?:the\\s+)?applicability\\s+field(?:\\s+in\\s+(?:the\\s+)?finding\\s+schema)?)';
+    const closedSchemaInvariant = new RegExp(`^(?:${schemaSubject}\\s+(?:remains?|stays?|is|are|must\\s+remain)\\s+(?:unchanged|unaltered|unmodified|identical)|do\\s+not\\s+(?:amend|change|modify|rewrite|override|replace|extend|update)\\s+${schemaSubject}(?:\\s+or\\s+${schemaSubject})*|no\\s+${schemaSubject}\\s+change\\s+is\\s+in\\s+scope|assert\\s+(?:the\\s+)?change\\s+introduces\\s+no\\s+${schemaSubject})$`, 'u').test(segment);
+    const schemaInvariant = wholeSourceIsInvariantAssertion || closedSchemaInvariant;
     if (hasConceptPair(segment, schemaOrGate, storyAuthoredChange)
       && !schemaInvariant
       && !controlledConceptPairIsExplicitlyNegative(segment, schemaOrGate, storyAuthoredChange)) {
@@ -1015,6 +1053,14 @@ function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySour
 
   }
   return null;
+}
+
+function renderedStructuralAuthorityText(text: string, allowHeadingFragment = false): string | null {
+  if (allowHeadingFragment && text.includes('#')) {
+    const heading = text.slice(text.indexOf('#') + 1).trim();
+    return heading.length > 0 ? heading : null;
+  }
+  return /^[\p{L}\p{N}@._/+*{}:[\]-]+$/u.test(text) ? null : text;
 }
 
 function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): ReviewerTaskContextAuthoritySource[] {
@@ -1026,6 +1072,16 @@ function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): Reviewe
     values.push({ location: `checklist.${item.id}.title`, kind: 'checklist', text: item.title });
     if (item.context !== undefined) values.push({ location: `checklist.${item.id}.context`, kind: 'checklist', text: item.context });
     if (item.userSees !== undefined) values.push({ location: `checklist.${item.id}.userSees`, kind: 'checklist', text: item.userSees });
+    item.relatedDocs.forEach((text, index) => {
+      const authorityText = renderedStructuralAuthorityText(text, true);
+      if (authorityText !== null) values.push({ location: `checklist.${item.id}.relatedDocs.${index}`, kind: 'checklist', text: authorityText });
+    });
+    for (const fileKind of ['modify', 'create', 'test'] as const) {
+      item.files[fileKind].forEach((text, index) => {
+        const authorityText = renderedStructuralAuthorityText(text);
+        if (authorityText !== null) values.push({ location: `checklist.${item.id}.files.${fileKind}.${index}`, kind: 'checklist', text: authorityText });
+      });
+    }
     for (const lane of ['happy', 'edge', 'adversarial'] as const) {
       for (const intent of item.verificationIntent[lane]) {
         values.push({ location: `verificationIntent.${intent.id}.desc`, kind: 'verificationIntent', text: intent.desc });
@@ -1033,6 +1089,12 @@ function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): Reviewe
     }
   }
   if (taskContext.scope !== undefined) {
+    for (const fileKind of ['allowedModify', 'allowedCreate', 'allowedTest', 'protectedFiles'] as const) {
+      taskContext.scope[fileKind].forEach((text, index) => {
+        const authorityText = renderedStructuralAuthorityText(text);
+        if (authorityText !== null) values.push({ location: `scope.${fileKind}.${index}`, kind: 'scope', text: authorityText });
+      });
+    }
     taskContext.scope.explicitExcludes.forEach((text, index) => {
       values.push({ location: `scope.explicitExcludes.${index}`, kind: 'scope', text });
     });
@@ -1040,6 +1102,8 @@ function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): Reviewe
       values.push({ location: `scope.protectedAnchors.${index}`, kind: 'scope', text });
     });
     taskContext.scope.fileRules.forEach((rule, ruleIndex) => {
+      const pathAuthorityText = renderedStructuralAuthorityText(rule.path);
+      if (pathAuthorityText !== null) values.push({ location: `scope.fileRules.${ruleIndex}.path`, kind: 'scope', text: pathAuthorityText });
       rule.allowedAnchors.forEach((text, index) => {
         values.push({ location: `scope.fileRules.${ruleIndex}.allowedAnchors.${index}`, kind: 'scope', text });
       });
@@ -1048,6 +1112,14 @@ function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): Reviewe
       });
       rule.protectedAnchors.forEach((text, index) => {
         values.push({ location: `scope.fileRules.${ruleIndex}.protectedAnchors.${index}`, kind: 'scope', text });
+      });
+      rule.allowedChangeKinds.forEach((text, index) => {
+        const authorityText = renderedStructuralAuthorityText(text);
+        if (authorityText !== null) values.push({ location: `scope.fileRules.${ruleIndex}.allowedChangeKinds.${index}`, kind: 'scope', text: authorityText });
+      });
+      rule.intentRefs.forEach((text, index) => {
+        const authorityText = renderedStructuralAuthorityText(text);
+        if (authorityText !== null) values.push({ location: `scope.fileRules.${ruleIndex}.intentRefs.${index}`, kind: 'scope', text: authorityText });
       });
     });
   }
@@ -1067,8 +1139,9 @@ function crossSourceNegativeDismissalAuthority(
     const observation = eligibleSources[observationIndex];
     if (!observation.segments.some(isStandaloneNegativeDismissalObservation)) continue;
     for (const conclusion of eligibleSources.slice(observationIndex + 1)) {
-      if (conclusion.segments.some(segment => TRIAGE_CAUSAL_LINK.test(segment)
-        && isLinkedResponsibilityConclusion(segment))) {
+      const sourceLeadingConclusion = conclusion.segments[0];
+      if (sourceLeadingConclusion !== undefined
+        && isLinkedResponsibilityConclusion(sourceLeadingConclusion)) {
         return { observation: observation.source, conclusion: conclusion.source };
       }
     }
