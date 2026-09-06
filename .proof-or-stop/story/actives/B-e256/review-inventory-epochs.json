@@ -2535,6 +2535,37 @@
       ],
       "createdAt": "2026-09-06T22:03:12.932Z",
       "_hash": "c5dd32e42e979648fe1f7d8c5076072b86a81e3ab7ccb2a0612ad3cb60cd7704"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-008:CRIT-03",
+      "epochId": "B-e256:RI-008",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "a2791eb95eca140125a26676452bf1f4c10f2bfa",
+        "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+        "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9"
+      },
+      "aggregateFindingSetDigest": "415a0fb9864131f0feb52c19f03c236f7fb78666093a297b998f6d06c8e29ccd",
+      "requiredLaneCoverageDigest": "307826c15b14fad2d345aa3a06bda63c0b21d7d8931e5983ee90c9503b7507f0",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-129",
+      "terminalEvidenceIds": [
+        "B-e256:RP-089"
+      ],
+      "readEvidenceDigest": "dbef70627e9950e137fa076a26b3452036a1281ecc6de1868b8b36d2ede07883",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-044",
+          "disposition": "verified_family",
+          "familyKey": "test-coverage-validation-plan-discoverability-unreceipted",
+          "reason": "Independently verified as a distinct high evidence-integrity acceptance blocker: CHK-002 edge promises that the regression is registered and appears in validation_plan output, while its pinned mechanical receipt only parses proof-or-stop.config.json and never invokes validation_plan. The current planner identifies the selected command only by configured ordinal and does not mechanically prove the promised discoverability. This is not the F-043 build-wrapper/promote-wiring false-green family. It requires repair_current. Prior RI-008 dispositions F-037 through F-043 remain unchanged; F-031 is outside this epoch."
+        }
+      ],
+      "createdAt": "2026-09-06T22:12:47.158Z",
+      "_hash": "634ffc830b90e9e9dbaa8d25297b9e2ba68fceb6020ca00d283296883d5a5d42"
     }
   ]
 }
