@@ -2107,7 +2107,7 @@
       "desc": "RI-003 wave1 independent critic corroboration of F-041 validation-inventory-fixed-pin-maintenance. I independently evaluated configuredValidationCommands -> buildValidationCommandInventory: current count131, digest e1b85f5c0ecd1cbdf95c62e442eeabe398ce44b5f55cf36c17d03f953f682e86, no declared cwd and all normalized cwdRelative dot. Source smoke line491 still pins511e1906; main/head config diff contains exactly the three B-212f registrations, so this is introduced fixed-pin maintenance omission, not permission for dynamic expected values or removing tests. It directly blocks current formal validation and needs bounded current-Story repair. For inventory completeness I inspected F-034 through F-042, all four lanes' signed read coverage, and every failed-command output in the frozen test-evidence.json at2026-09-05T16:22:02.145Z, binding material5f21d60f/story8c9a7add. The artifact records complete131 commands and9 required failures, not a PASS. Independent bounded source inspection supports eight existing registered roots F-034 through F-041; F-042 duplicates F-038. The red-b49d4 failed attribution row names the red-b8df9 child whose sole failure is M2 handwritten INIT tamper diagnostic, so those two failed commands share F-039 rather than another registration root. Other observed failures align with pinned-docs refresh filtering, canonical timeout fixture filename, retired ambient env expectation, repository-root depth, retired Lab alias expectation and canonical mutation-variable propagation. Main/head source checks establish the pre-existing seven roots separately from the introduced pin omission. No broad proof reruns, implementation or lifecycle changes; this terminal corroborates F-041 and preserves originals, not a new family or acceptance credential. Current unsupported acceptance basis receives only a separately checked request_changes topology receipt.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-09-05T16:45:39.839Z",
@@ -2148,7 +2148,11 @@
         "proof-or-stop.config.json"
       ],
       "signatureTag": "validation-inventory-fixed-pin-maintenance",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Corroborating observation of B-212f:F-041, preserved in the original finding. Its underlying defect is repaired, not waived: 61ea99033b maintains the fixed expected 131-command inventory digest e1b85f5c0ecd1cbdf95c62e442eeabe398ce44b5f55cf36c17d03f953f682e86 after Story test registration. No dynamic expected digest or inventory removal. CHK-005:edge:0. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:43:56.885Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-044",
