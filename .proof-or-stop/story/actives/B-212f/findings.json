@@ -1526,7 +1526,7 @@
       "desc": "RI-003 wave 1 verified family canonical-ambient-env-fixture. packages/main/src/tasks/done-required-validation-smoke.ts:380-413 iterates the frozen VALIDATION_TRANSPORT_ENV_KEY_LIST and incorrectly expects retired LATTICE_ACTIVITY_RECORD_READONLY and other LATTICE-prefixed keys to be ambient session-neutral. validation-command-environment.ts:66-72 intentionally derives canonical PROOF_OR_STOP aliases while excluding retired names from active matching; the frozen inventory/digest is past-evidence data, not the active key set. Exact actual smoke executions on main69403365 and current B-212f, both with PROOF_OR_STOP_MAX_TIMEOUT_MS absent and with31090000, all exit1 at compiled344 with POSIX ambient transport key is session-neutral: LATTICE_ACTIVITY_RECORD_READONLY. Repro commands: node packages/main/dist/tasks/done-required-validation-smoke.js and node /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/tasks/done-required-validation-smoke.js, repeated with that single outer timeout assignment. Source lines318-324 construct a bounded environment containing PATH/CI/LANG/LC_ALL/NODE_OPTIONS, so caller timeout is not an input to this assertion. Independent effectiveValidationCommandEnvironment controls show retired activity key ambientEqual:false, canonical activity key ambientEqual:true, CODEX_THREAD_ID ambientEqual:true; explicit overlays remain unequal for all three. Tests/helpers are unchanged versus main and source unchanged since prior signed docs read (git diff e611a05 HEAD across code/tests/docs/config/Story plan/background/checklist empty). This pre-existing medium test-contract defect currently blocks configured B-212f validation, hence requires bounded current-Story repair rather than global-green expansion or restoring retired runtime behavior. Repair only test inputs to canonical active spellings, preserve frozen list/digest and legitimate host identity filtering, retain retired-key semantic controls, Windows case behavior and explicit-overlay coverage. Earlier read-both migration prose is not permission to change current canonical runtime; no separate docs rewrite is requested. Prior complete reads reused, implicated test inspected at bounded sections; decisions title-triaged with relevant excerpts, never claimed full. No source, lifecycle or owner mutation; diagnostic temporary fixtures cleaned.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-05T16:35:52.919Z",
@@ -1599,7 +1599,11 @@
         "docs/requirements/decisions/brand-rename-mapping.md"
       ],
       "signatureTag": "canonical-ambient-env-fixture",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "61ea99033b repairs the ambient fixture to active canonical environment keys while retaining frozen inventory and explicit-overlay controls. CHK-005:edge:2. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:43:44.470Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-035",
