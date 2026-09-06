@@ -1,0 +1,64 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Prevent transient missing-module failure during concurrent initial bootstrap import",
+      "context": "Fix only the reproduced check-to-import/promotion window. Original probe rp-mtptbazb-cvxkwb, accepted candidate review rr-mtpu1szj-90a952, durable source/log spike sr-mtpu1soj-559bfe and binding seb-mtpu1unj-lqy1pg. The experimental mutex GREEN is feasibility evidence, not an approved production algorithm. PLAN must choose the smallest production-safe coordination and declare exact files before DEV.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md"
+      ],
+      "userSees": "A legitimate concurrent rebuild does not cause the initial local bootstrap to report missing build artifacts after passing readiness checks.",
+      "excludes": [
+        "B-1734 lifecycle reconciliation",
+        "B-e256 global executable and symlink repair",
+        "Full F-032 reviewer credential contamination",
+        "All direct dist consumers and lazy imports",
+        "Source changes during compilation, package-desktop locking and rename-crash recovery",
+        "Unrelated repository-wide green cleanup"
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Preserve and integrate the existing RED, candidate GREEN and removed-protection regression witness",
+      "context": "Reuse, do not rediscover, the 119-file UTF-8 archive in spike sr-mtpu1soj-559bfe (digest e9681e2487b23d4325dfa580eec2898392c4079388701ae8b106cd4c51462d90), payload.steps[2]. JSON.parse yields files with relative paths, exact content and SHA256; includes scripts, fixed production snapshots, candidate copy, final reports, controls and raw traces. Restore only in isolated/Story-authorized paths; preserve original evidence and qualify the harness repository dependency-path assumption. Historical results are baseline RED 3/3, candidate GREEN 0/3, removed-lease mutant RED 3/3, builder failures 0 and controls 3/3 in each. Integrate a final-code regression and obtain fresh tool-owned evidence; archived candidate success is not current verificationEvidence.",
+      "relatedDocs": [
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md"
+      ],
+      "userSees": "The same missing-module assertion fails on the recorded baseline, passes on the final repair and fails when the necessary protection is removed, with genuine builder success and unchanged controls.",
+      "excludes": [
+        "B-1734 lifecycle reconciliation",
+        "B-e256 global executable and symlink repair",
+        "Full F-032 reviewer credential contamination",
+        "All direct dist consumers and lazy imports",
+        "Source changes during compilation, package-desktop locking and rename-crash recovery",
+        "Unrelated repository-wide green cleanup"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Preserve bootstrap diagnostics and bounded concurrency compatibility",
+      "context": "Cover stable startup, a builder already holding the lock, real missing dist remaining fail-closed, and a dependency-missing fresh checkout retaining actionable bootstrap diagnostics. The temporary candidate imports proper-lockfile too early and must not be copied blindly. Qualify lock release/error handling and relevant platform behavior for the chosen bounded repair. Maintain the user triage rule: current applicable critical/high and acceptance/REVIEW/TEST/DONE or misleading-gate blockers require repair; unrelated nonblocking medium/low defects need traceable reproduction, impact and follow-up owner, with immediate reclassification if evidence escalates. No scope expansion merely to make all repository tests green.",
+      "relatedDocs": [
+        "AGENTS.md#defect-triage-and-bounded-scope"
+      ],
+      "userSees": "Normal startup still works, genuinely unbuilt checkouts still fail with useful instructions, and the repair does not introduce dependency-loading errors or unbounded waits.",
+      "excludes": [
+        "B-1734 lifecycle reconciliation",
+        "B-e256 global executable and symlink repair",
+        "Full F-032 reviewer credential contamination",
+        "All direct dist consumers and lazy imports",
+        "Source changes during compilation, package-desktop locking and rename-crash recovery",
+        "Unrelated repository-wide green cleanup"
+      ],
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
