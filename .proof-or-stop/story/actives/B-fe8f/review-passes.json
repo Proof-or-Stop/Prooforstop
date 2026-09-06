@@ -2810,6 +2810,49 @@
       },
       "readDiagnostics": [],
       "_hash": "8611619ed503cfc626dc5c642a4f45a7e777af0754447dbf745dcd36725bcb16"
+    },
+    {
+      "id": "B-fe8f:RP-074",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Current-round independent Story-level coverage review RR-120, source 9754c4b3174ca1e36b3748539f417ebaab93dac5. Reused prior actual Section 9.3 integrated ledger/runtime and authoritative Store reader audit only after git diff confirmed those sources and the fully read Story inputs unchanged. All six frozen intent definitions are unchanged since RP-071; each has happy/edge/adversarial columns, 71 must intents total, zero waivers. Independently executed the production strict coverage/freshness readers: 71/71 covered, zero missing/stale; independently verified all 71 causal receipt signatures, receipt hashes, execution-key binding, Story identity, pass status, exitCode=0 and selectorMatched=true. All bind source 9754c4b with current material ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d and storyFiles 15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607. intent_coverage_check reports zero gaps; acceptance_rollout_check independently returns current signed receipt, enforce/pass/nonblocking with no diagnostics. Cohort admission is not this round's actual independent-host quorum. Reviewed the complete certification-window smoke and the complete two-file BUG-CERT-001 diff. Tests use the actual Git resolver/production derivation, assert four deletions plus four rename-old-side tombstones and their exact review digest, sibling current blob/deletion hash changes and independent domain stability, 48 exact sibling build classifications plus six nearby integration controls, and nine actual unknown/live/near-miss refusal cases. Original admission, tamper, inventory non-authority, blocking finding, coverage, dirty/main drift, heavy-spawn choke, signed receipt preservation, unrelated-main versus owned-source drift, verifier/test identity and inventory consume controls remain. The one old selective fixture now uses a supported packages/main/src/core path without changing its admit/invalidate assertions. Independently read current real Git entries: 56 entries, all eight historical tombstones retained, complete derivation and exact review-subject digest. Inspected Owner-provided /tmp/bfe8f-cert-path.dPFrjS/red-bug-cert-001.log and green.log: the former reaches the two target regression failures after the bounded fixture correction, the latter reaches all three new group passes and the final aggregate PASS. These are inspected original execution logs, not independently rerun or CLI-signed focused receipts; the smoke's earlier legacy PASS line alone is not completion evidence. Also inspected real-production-derivation.log and retired-guard-green.log. The focused certification smoke is not covered by the 132-command/root serial-reference suite, and the 71 intent receipts are not substituted for it. Prior 132/132 validation, old round passes and quorum are historical after this source change; current heavy validation and certification remain Owner work. No new coverage blocker found; F048/F049 remain unchanged open suspected with existing accountable drafts, not repaired or signed-deferral claims. F055-F060 remain resolved; historical F057 root branch remains unknown. No source, phase, scope, lease, finding disposition or quorum mutation performed.",
+      "createdAt": "2026-09-06T16:12:09.723Z",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "reviewRunId": "B-fe8f:RR-120",
+      "envelopeId": "1f5ff2adff77ac38f72f7d4b5ad119a7676651fd04b74d8922c26c84b5bb5d60",
+      "writerSessionId": "sess-6d2c0609b0d0cdcf53060e334118e702",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/background.md",
+          "packages/main/src/tasks/certification-window-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2c551a03e168ddf3a288e032575e926e0005714011f101e07fb6d88e29df425a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b7cd995c06f095adaa300a0e9f9597fbff249ab30b1fbef3e59aa3a3aeb0ffd1"
     }
   ]
 }
