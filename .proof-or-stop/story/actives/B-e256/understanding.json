@@ -1,18 +1,19 @@
 {
-  "task": "Keep the global Proof-or-Stop executable working after dist rebuilds and diagnose global runtime drift accurately.",
-  "outcome": "After npm --prefix packages/main run build, packages/main/dist/cli.js has mode 0755 and proof-or-stop --version succeeds; proof-or-stop doctor prints the compiled runtime version or version=unknown when that probe fails.",
+  "task": "Keep the global Proof-or-Stop executable working after dist rebuilds and make its diagnostics and evidence portable across POSIX and Windows hosts.",
+  "outcome": "After npm --prefix packages/main run build, the red regression prints \"contract: global-cli-bin-target-restored\" and proof-or-stop --version succeeds; proof-or-stop doctor prints \"contract: global-core-realpath-pass\" with the compiled version, or version=unknown when that probe fails.",
   "facts": [
-    "TypeScript emits fresh dist entrypoints without executable bits.",
-    "The global executable may be a symlink to packages/main/dist/cli.js, so replacing that target with mode 0644 breaks the command.",
+    "TypeScript emits fresh POSIX dist entrypoints without executable bits.",
+    "The global executable may be a symlink or npm command shim targeting packages/main/dist/cli.js, so promotion must preserve the host-specific executable contract.",
     "promoteDist validates and restores staging bin targets before evicting the working dist.",
     "Final symlinks and intermediate-directory symlink escapes must not be followed by chmod.",
+    "POSIX validates executable mode bits; Windows validates the byte-identical Node entrypoint and npm-generated command shim rather than POSIX mode bits.",
     "A failed compiled-version probe is not evidence for the package manifest version."
   ],
   "constraints": [
     "Use only node: built-ins in scripts/promote-dist.mjs.",
     "Preserve atomic promotion and leave the old dist intact when staging validation fails.",
     "Treat only ENOENT as a benign absent-target condition.",
-    "Doctor remains read-only and must not repair host state.",
+    "Doctor remains read-only and must emit remediation executable by the current host shell.",
     "Story metadata and implementation remain English."
   ],
   "unknowns": [],
@@ -22,5 +23,5 @@
     "packages/main/tests/red/red-global-cli-exec-bit.mjs",
     "packages/main/tests/global-core-realpath.test.mjs"
   ],
-  "timestamp": "2026-09-06T16:17:01.868Z"
+  "timestamp": "2026-09-06T18:11:57.754Z"
 }

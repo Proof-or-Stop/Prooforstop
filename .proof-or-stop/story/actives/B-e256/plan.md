@@ -10,10 +10,10 @@ Evidence pack (gitignored, copied into this worktree): `.proof-or-stop/evidence/
 - Modify: scripts/promote-dist.mjs, scripts/build-main-with-binding.mjs (comment/header only if needed), scripts/build-utils-with-binding.mjs (only if it needs a different packageRoot)
 - Test: packages/main/tests/red/red-global-cli-exec-bit.mjs (run from the evidence pack until CHK-002 commits it)
 
-Apply the proven candidate: in `scripts/promote-dist.mjs` add and export `restoreBinExecutableBits(tree, dist = tree)` (reads `<dirname(dist)>/package.json`, resolves each declared `bin` beneath the real promoted tree, rejects non-regular/final-symlink targets and intermediate-symlink escapes, chmods valid targets with `mode | 0o111`, swallows ENOENT per target, returns the restored list, and returns `[]` when package.json is missing/unparseable or has no `bin`). `promoteDist` must run this restoration against the staging tree before evicting the current dist, so a failed restoration leaves the working dist in place. Only `node:` built-ins (the module's fresh-checkout footprint rule). Keep the crash-safety comments; add a short comment citing this story and the RED symptom.
+Apply the proven candidate: in `scripts/promote-dist.mjs` add and export `restoreBinExecutableBits(tree, dist = tree)` (reads `<dirname(dist)>/package.json`, resolves each declared `bin` beneath the real promoted tree, rejects non-regular/final-symlink targets and intermediate-symlink escapes, restores POSIX executable bits with `mode | 0o111`, preserves the byte-identical Node entrypoint used by npm command shims on Windows, swallows ENOENT per target, returns the restored list, and returns `[]` when package.json is missing/unparseable or has no `bin`). `promoteDist` must run this validation and restoration against the staging tree before evicting the current dist, so a failed restoration leaves the working dist in place. Only `node:` built-ins (the module's fresh-checkout footprint rule). Keep the crash-safety comments; add a short comment citing this story and the RED symptom.
 
 **Verify**:
-- `npm --prefix packages/main run build` then `ls -la packages/main/dist/cli.js` shows `-rwxr-xr-x`
+- `npm --prefix packages/main run build` then the red regression prints `contract: global-cli-bin-target-restored`; on POSIX, `ls -la packages/main/dist/cli.js` also shows executable bits, while Windows validates the byte-identical Node entrypoint used by the npm command shim
 - `RED_REPO_ROOT=$PWD node .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/red-global-cli-exec-bit.mjs` exits 0 with the GREEN line
 - A second `npm --prefix packages/main run build` skips (content-bound binding still verifies)
 - `node packages/main/tests/red/red-1734-content-binding.mjs` still passes
@@ -30,11 +30,11 @@ Apply the proven candidate: in `scripts/promote-dist.mjs` add and export `restor
 - Modify: proof-or-stop.config.json
 - Test: packages/main/tests/red/red-global-cli-exec-bit.mjs
 
-Copy the script from the evidence pack; extend it with two hermetic cases that import `restoreBinExecutableBits` from `scripts/promote-dist.mjs`: (a) a temp package with a 0644 bin target becomes executable, content unchanged; (b) a temp package with no bin field / absent target returns `[]` without throwing. Register in `proof-or-stop.config.json` like the sibling red entries (`node`, `timeoutMs: 180000`, git-common-dir shared).
+Copy the script from the evidence pack; extend it with hermetic cases that import `restoreBinExecutableBits` from `scripts/promote-dist.mjs`: (a) on POSIX, a temp package with a 0644 bin target becomes executable and content stays unchanged; on Windows, the byte-identical Node entrypoint remains compatible with the npm command shim; (b) a temp package with no bin field / absent target returns `[]` without throwing. Register in `proof-or-stop.config.json` like the sibling red entries (`node`, `timeoutMs: 180000`, git-common-dir shared).
 
 **Verify**:
 - `node packages/main/tests/red/red-global-cli-exec-bit.mjs` exits 0 from the worktree
-- `RED_REPO_ROOT=/Users/jek/Documents/GitHub/Prooforstop node packages/main/tests/red/red-global-cli-exec-bit.mjs` exits 1 (unfixed main) — manual transcript
+- `RED_REPO_ROOT=<unfixed-main-checkout> node packages/main/tests/red/red-global-cli-exec-bit.mjs` exits 1 against the preserved unfixed baseline — manual transcript
 - `proof-or-stop validation_plan` lists the entry
 
 **DoneWhen**:
@@ -48,11 +48,11 @@ Copy the script from the evidence pack; extend it with two hermetic cases that i
 - Modify: packages/main/src/core/runtime-environment-checks.ts, packages/main/src/handlers/doctor.ts (only if the row is not already rendered from runRuntimeEnvironmentChecks), packages/main/tests/global-core-realpath.test.mjs
 - Test: packages/main/tests/global-core-realpath.test.mjs
 
-Extend `checkGlobalCoreRealpath` (B-fa65) so its result also carries `binTarget`, `binMode` and `executable` for the resolved package's `package.json.bin` target, and: warn when the realpath resolves into a `.worktrees/` checkout of this repository (with the exact `npm link` / repoint command using the canonical main checkout path) or when the bin target is not executable (with `chmod +x <path>`); stay informational when no global install is found. Keep every existing classification and the existing test cases passing.
+Extend `checkGlobalCoreRealpath` (B-fa65) so its result also carries `binTarget`, `binMode` and `executable` for the resolved package's `package.json.bin` target, and warn when the realpath resolves into a `.worktrees/` checkout of this repository. Remediation must be executable by the host shell: POSIX renders quoted `cd --`, `chmod +x`, and `ls -ld` commands; Windows renders cmd.exe-valid `cd /d`, double-quoted paths, `dir /a`, and npm-shim guidance without treating POSIX mode bits as authority. Stay informational when no global install is found, emit the stable `contract: global-core-realpath-pass` marker for a resolved pass, and keep every existing classification and test case passing.
 
 **Verify**:
 - `node packages/main/tests/global-core-realpath.test.mjs` passes with the new non-executable and worktree-realpath cases
-- `proof-or-stop doctor` on this machine prints the global-cli row (realpath, version, mode)
+- `proof-or-stop doctor` prints the global-core row (realpath, version, observed mode) and `contract: global-core-realpath-pass` on any supported host when the global core resolves correctly
 - `proof-or-stop validate --lint` green
 
 **DoneWhen**:
