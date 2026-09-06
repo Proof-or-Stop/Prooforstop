@@ -142,7 +142,7 @@
       "desc": "quality-runtime-probe-parse: packages/main/src/core/runtime-environment-checks.ts:1566-1568 accepts every non-empty `npm root -g` stdout value as a valid filesystem root, although the new structured-probe contract says unparsable output must be a failure. Verified against the built candidate with PATH resolving `npm` to `/bin/echo`: stdout `root -g` produced globalCoreRealpath.status=pass, installed=false, and npmRoot=`root -g`. A noisy, wrapped, or corrupt npm response is therefore misreported as known absence and defeats the fail-closed doctor diagnostic. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T13:38:10.277Z",
@@ -181,7 +181,11 @@
         "packages/main/tests/global-core-realpath.test.mjs"
       ],
       "signatureTag": "quality-runtime-probe-unparsed-output",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 721bb624b0 rejects multiline or non-absolute npm root output as a structured probe failure; the production-path fake npm regression passes.",
+      "resolvedAt": "2026-09-06T15:32:34.608Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-009",
