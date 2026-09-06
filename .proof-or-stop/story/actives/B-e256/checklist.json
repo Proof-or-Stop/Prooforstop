@@ -7,7 +7,7 @@
       "status": "done",
       "startTime": "2026-09-06T16:19:54.550Z",
       "endTime": "2026-09-06T16:19:55.488Z",
-      "userSees": "After npm --prefix packages/main run build re-emits dist, ls -la packages/main/dist/cli.js shows -rwxr-xr-x and proof-or-stop --version prints the version instead of permission denied",
+      "userSees": "After npm --prefix packages/main run build re-emits dist, proof-or-stop --version prints the compiled version instead of permission denied; POSIX keeps executable mode bits and Windows keeps a validated npm command shim bound to the promoted CLI.",
       "files": {
         "modify": [
           "scripts/promote-dist.mjs",
