@@ -1424,7 +1424,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:639-667 carries a valid signed-disposition inspection into later prose only when the continuation contains the literal target  ( at lines 650-651). Equivalent disposition assignments to , , or  therefore skip the state machine, and the per-segment scan cannot recover them because the safe inspection sentence contains the only defer_with_proof subject. Against the committed built assembleFullPromptEnvelope API, every active modular REVIEW role correctly REJECTED the direct control  and the cross-segment control , while all five incorrectly ACCEPTED , , and ; the genuinely safe  control remained accepted. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:916-943 covers several coreference spellings but every cross-segment assignment is ultimately Finding-targeted, so the focused smoke has no target-synonym matrix. This is distinct from F-026, where an unrelated negative prefix deletes an otherwise recognized Finding-target continuation; here no negative prefix exists and the continuation is never examined because of the closed target noun. Expand the state-machine target relation consistently with the existing issue/defect/work triage vocabulary and add all-role positive/negative controls. Severity high because caller-authored Task Context can assign a future official disposition to the underlying defect before envelope digests while the declared guard and smoke remain green.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T18:44:39.132Z",
@@ -1463,7 +1463,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-cross-segment-disposition-target-synonym-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Duplicate of B-8a40:F-032; the canonical familys",
+      "resolvedAt": "2026-09-06T19:50:21.641Z",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-032",
