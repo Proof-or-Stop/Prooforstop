@@ -463,7 +463,7 @@
       "desc": "quality-smoke-descendant-cleanup: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:312-338 and 405-425 kill only the direct CLI child on the harness ceiling or wait bound, then fail without cleaning the command descendants; the alive-descendant assertion also has no cleanup when it detects the regression. A bounded process-tree probe matching this parent-only SIGKILL behavior verified that the parent closed while its sleep descendant remained alive. Because descendantTreeCommand launches sleep 600 for the command, idle, and max rows, the exact failure paths this smoke is meant to diagnose can leave orphan processes running for up to ten minutes and contaminate later validation. Retain a process-group or descendant cleanup handle and terminate/reap it in a finally path before failing. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T14:38:50.699Z",
@@ -505,7 +505,11 @@
         "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
       ],
       "signatureTag": "quality-smoke-descendant-cleanup",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 721bb624b0 adds process-tree cleanup and reaping to startCli plus finally cleanup of published descendant PIDs; validate-progress-heartbeat-smoke passes.",
+      "resolvedAt": "2026-09-06T15:32:41.785Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-015",
