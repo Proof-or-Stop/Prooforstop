@@ -1872,7 +1872,7 @@
       "desc": "machine.ts:1270 still renders background/title/description/checklist were modified instead of the domain renderer exported by init-check-gate.ts:272 and promised by its245-252 contract. Main69403365ae has the identical handwritten diagnostic at1249; B-212f changes only DONE regions, so this is pre-existing production diagnostic drift, not an extraction file-location false alarm. Independent node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs on both trees exits1: all signature shape/determinism/discrimination controls pass, M1 passes, only M2 reports rendersDomain=false and stillCarriesTheOldHandWrittenList=true (1 failed/0 broken/17 rows). Independent red-b49d4-registration-derivation.mjs also exits1 on both trees solely at EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE: the same red-b8df9 child fails without naming the newcomer. That derivative is the same family, not a new registration root. Both are configured validation blockers, making this applicable current acceptance work. Bounded repair: import/use describeInitCheckSignatureDomain in the existing mismatch message; preserve signature computation, tamper rejection and M2. Re-run both focused guards; do not weaken hashing or drop the child from derived coverage. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-05T16:37:04.647Z",
@@ -1916,7 +1916,11 @@
         "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
       ],
       "signatureTag": "init-tamper-diagnostic-domain-drift",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "61ea99033b uses describeInitCheckSignatureDomain for the existing INIT tamper diagnostic without weakening the signature gate. CHK-005:adversarial:1; complete registration harness also passes. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:43:51.487Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-040",
