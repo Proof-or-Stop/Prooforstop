@@ -2183,6 +2183,7 @@
       "signatureTag": "approved-test-wrapper-authority-action-synonym-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf95kf_162r_c777db8853154bd9865d1b86aabc5408",
+      "ledgerCommitReceiptId": "lrc_mtqf95kf_162r_4e93b3d46b244edcab11092e10e9fe50",
       "resolvedAt": "2026-09-06T23:07:19.803Z",
       "resolvedReason": "Duplicate of B-8a40:F-042: the same open test-inventory exemption is closed by independent residual classification; the additional deem/makes/entrusts witnesses are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "duplicate",
@@ -2193,7 +2194,7 @@
       "desc": "Post-remediation full Task Context composition remains limited to the negative-dismissal family. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject each combined same-leaf control but admit its equivalent split across story.description and checklist.context: [Severity is the only factor.] plus [It determines Story scope.]; [Applicability remains unknown.] plus [It permits routing away from this Story.]; [defer_with_proof is recorded.] plus [It transfers responsibility to another Story.]; and [Reviewers inspect a signed defer_with_proof disposition.] plus [It binds the Finding.]. In packages/main/src/core/prompt-envelope.ts, crossSourceNegativeDismissalAuthority at lines 1129-1148 composes only negative-dismissal observations with later scope or ownership conclusions; every other controlled authority and state relation is classified one source leaf at a time. The smoke cross-leaf matrix likewise covers dismissal only. This is a distinct incomplete-closure residual after F-009 and F-015: the same prohibited proposition is accepted solely by moving its continuation to another trusted leaf, across severity, unknown-applicability, deferral-transfer, and signed-disposition binding families. Add location-preserving cross-source state for every controlled family with all-role split and same-leaf controls, while retaining safe unrelated cross-leaf prose. Severity high because Story-authored context can still establish scope, route, or disposition authority before envelope digests.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T19:59:34.414Z",
@@ -2234,7 +2235,11 @@
       "signatureTag": "cross-leaf-non-dismissal-authority-split-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
-      "ledgerCommitReceiptId": "lrc_mtq8jp5b_eyh_2695e1839f854033bbe7b178dbd1c4a0"
+      "ledgerCommitReceiptId": "lrc_mtq8jp5b_eyh_2695e1839f854033bbe7b178dbd1c4a0",
+      "resolvedAt": "2026-09-06T23:07:21.389Z",
+      "resolvedReason": "Compose location-bearing context sources across every controlled family, with severity, unknown-applicability, deferral and signed-disposition split-leaf regressions. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-046",
