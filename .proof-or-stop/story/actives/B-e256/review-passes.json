@@ -721,6 +721,65 @@
       },
       "readDiagnostics": [],
       "_hash": "e6d691554e9a08dc9a887172dc5a66c0919f58fb35b7b31d74d4a67593a5d6dd"
+    },
+    {
+      "id": "B-e256:RP-024",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-001 final saturation wave 3: no NEW concept-deletion, residual-reference, or promised-but-undelivered family remains beyond represented F-006 through F-009. SAFE_INCREMENTAL reports unchanged material/story files and no changed files, claims, contracts, or intents since RP-022; prior frozen readings were reused. Targeted repository-wide residue checks reconfirm only F-007, while globalNpmRootResolver is explicitly compatibility-documented and F-009 already owns the stat-probe error-collapse family. The existing signed acceptance-rollout receipt remains PASS on the same material with full codex-cli plus claude-cli coverage; no long rollout smoke was rerun.",
+      "createdAt": "2026-09-06T14:03:51.459Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-037",
+      "envelopeId": "e3aad5da57203e71481e5ff513c22032b0d8e0df87578e1cd5b4c33bfe8b6b6c",
+      "writerSessionId": "sess-a5ebb32bb841acfc98b1a1a2cbf511db",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-e256/review-passes.json",
+          ".proof-or-stop/story/actives/B-e256/review-runs.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/process-fact-levels.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/handlers/transition-orchestrator.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-protocol-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "7c2659c35bd4e6d0c6c9d7daba127ef21e8cd18c0c42c253257e6ea7376d23e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "c40388500062111f643bc8955d9710eca5f4f07ae790046ce8639c5f725df138"
     }
   ]
 }
