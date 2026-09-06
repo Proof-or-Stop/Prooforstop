@@ -439,7 +439,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:1001-1020 enumerates Story title and description, checklist title, context, userSees, and verification-intent descriptions as authority sources, but omits the natural-language taskContext.scope.explicitExcludes array even though FullTaskScopeContext defines it at packages/main/src/core/prompt-contracts.ts:136-151 and the complete scope object is serialized into the reviewer prompt. This creates an unscanned-leaf bypass distinct from F-009 cross-leaf composition: one complete unsafe assertion needs no split or ordering trick. Independent reproduction against the committed built public assembleFullPromptEnvelope API set taskContext.scope.explicitExcludes to the single string No parent Finding is closed by this intake as out of scope. Every one of the five active modular reviewer roles ADMITTED an integrity-valid envelope, and each emitted prompt contained the unsafe string. The existing smoke surface matrix at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1356-1377 only injects into Story, checklist, and verificationIntent sources and never exercises scope exclusions, so all mechanical receipts remain green. Add a recursive or explicit natural-language source inventory test proving every rendered authority-bearing FullTaskContext leaf is either scanned or justified as structurally non-authoritative, including scope.explicitExcludes; then reject the complete unsafe fixture from that leaf across every active role while retaining safe exclusion prose. Severity high because Story-authored scope text can publish unsafe applicability authority inside the trusted envelope without reaching the pre-digest guard. This omission may predate the narrow diff, so applicability should be assessed separately, but it directly makes the current full-context safety evidence incomplete.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T17:10:49.221Z",
@@ -476,7 +476,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-unscanned-scope-exclude-leaf",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Enumerated reviewer-rendered scope prose leaves and added safe and unsafe scope-surface matrices across every active role.",
+      "resolvedAt": "2026-09-06T17:43:51.653Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-011",
