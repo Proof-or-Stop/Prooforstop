@@ -3202,6 +3202,52 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqb9vu8_10b8_b18cf51635ce4bb18b69ee8819338ad0",
       "ledgerCommitReceiptId": "lrc_mtqb9vu8_10b8_9c032d0bdf614f0292a38beb2e770751"
+    },
+    {
+      "id": "B-8a40:F-067",
+      "desc": "packages/main/src/core/prompt-envelope.ts:864-893 grants a whole verificationIntent leaf meta-safe status when its last prove/verify/assert/ensure suffix ends in a rejection-looking substring, while :891 recognizes a negated reject/refuse/block/fail outcome only when the negative modal lies within 48 characters of that terminal verb. An atomic negative-test statement can therefore put the terminal `semantic validation rejects it` inside a longer negated proposition and regain the blanket exemption. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED the genuine control `Inject wording that severity alone determines Story scope and prove semantic validation rejects it.` and correctly REJECTED the short negative `... prove semantic validation does not reject it.`. However, all five ACCEPTED `Inject wording that severity alone determines Story scope and prove semantic validation does not under any compatibility interpretation supported by extensive attributable historical audit documentation establish that semantic validation rejects it.` The outcome explicitly does not establish rejection, yet the distant terminal substring makes the unsafe authority input meta-safe; the same genuine control on Story rather than verificationIntent provenance was rejected 5/5. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:982-984 covers short negative or unrelated mutation outcomes but not the production 48-character polarity boundary or a negated outer outcome containing a nested rejection phrase. This is distinct from F-021 because the input is one atomic statement with no unrelated middle sentence, and from F-061/F-065 because it executes through the verificationIntent-only negative-mutation outcome helper rather than retired-vocabulary or controlled-relation polarity. Parse the top-level proof outcome structurally instead of matching a bounded negative window plus terminal substring, and add all-role short/long negative, nested, genuine-rejection, and provenance controls. Severity high because Story-authored verification metadata can state forbidden severity authority without requiring its rejection while every REVIEW envelope is still minted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T21:16:03.264Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-117",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "4e0de09532353603a2380db5d36712315342826c95bef407775e05d4888f4722",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "negative-mutation-outcome-negation-window-laundering",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
