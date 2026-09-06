@@ -192,7 +192,7 @@
       "reviewRound": "2026-09-06T16:34:48.065Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T16:59:54.200Z",
-      "updatedAt": "2026-09-06T17:07:05.357Z",
+      "updatedAt": "2026-09-06T17:18:36.575Z",
       "cutoff": {
         "headHash": "88dd8d6aced7707e76883121520e70da26f2d854",
         "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
@@ -260,6 +260,61 @@
           "criticDigest": "b7747bfe1f0c03881782032c62e35c8b76693dd75d9ba513f26ed6c66b4959ea",
           "saturated": false,
           "nextRunSequenceBoundary": 16
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T17:07:05.357Z",
+          "completedAt": "2026-09-06T17:18:36.575Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-020",
+              "terminal": "pass",
+              "hostIdentity": "20d66d746c9773f7ba18ed5348b5a0953392a41f51864d81a1c62fc9f0431595",
+              "promptIdentity": "2bdd420b8d28981a292568a46857efd0b9879d1594aca9885fe208f6a793d279",
+              "evidenceIds": [
+                "B-8a40:RP-011"
+              ],
+              "coverageDigest": "e6261d24495ebaca83b2b361afc49930625ee0240aab4c37fea9f67dbe323841"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-019",
+              "terminal": "pass",
+              "hostIdentity": "2c80c5e6d621ac3097cce8f1bbe52d246a0266e3ceeab9b95e0eeb051381c85d",
+              "promptIdentity": "07f352bec201c888c1a81975b867c56cde1615811963433f02df8fd0100893ff",
+              "evidenceIds": [
+                "B-8a40:RP-010"
+              ],
+              "coverageDigest": "6ad6dc7174977965f119ff48825d938a97e3fc6be0c7183486a8323f090302ba"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-018",
+              "terminal": "finding",
+              "hostIdentity": "2c80c5e6d621ac3097cce8f1bbe52d246a0266e3ceeab9b95e0eeb051381c85d",
+              "promptIdentity": "9bff3238efe187eb22657e20d98996c8fe0fabc448257e21c004d5fa7cb27705",
+              "evidenceIds": [
+                "B-8a40:F-010"
+              ],
+              "coverageDigest": "01974b3f569d6aacc1a0171046b9fc1d4576bdbce96b50a2e23aa4100e7ee1a0"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "negative-dismissal-linkage-fail-open",
+            "negative-dismissal-observation-modifier-actor-bound-fail-closed",
+            "negative-dismissal-observation-word-order-fail-closed",
+            "negative-dismissal-polarity-fail-closed",
+            "prompt-envelope-cross-source-leaf-authority-split",
+            "prompt-envelope-mutant-cleanup-isolation",
+            "prompt-envelope-mutant-fidelity-overclaim",
+            "prompt-envelope-unscanned-rendered-scope-leaf"
+          ],
+          "verifiedFindingSetDigest": "3dc825979ba5ea386d6215a1b545edae622c14b241649390d7924f744c8c8be0",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "eba976e6e307643cd9b0714a005d7707857163415e0d8d3ce54ea18d20d37910",
+          "saturated": false,
+          "nextRunSequenceBoundary": 21
         }
       ],
       "baselineFindingIds": [
@@ -272,7 +327,7 @@
         "B-8a40:F-007",
         "B-8a40:F-008"
       ],
-      "_hash": "c00d33f1c6c7a3a9aa2dad9657dbc150d4ae27529b615556008460c2475b0d38"
+      "_hash": "ab947961778c83e5cdbf1633bf974a4f90049bdd129b5a1c6ff542a867ebb161"
     }
   ],
   "receipts": [],
@@ -482,6 +537,44 @@
       ],
       "createdAt": "2026-09-06T17:06:43.312Z",
       "_hash": "25a5a46864dbd32d4aa0af3c3d3ba74169720847c21b19867f5b0c029e3d42d0"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-002:CRIT-02",
+      "epochId": "B-8a40:RI-002",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "88dd8d6aced7707e76883121520e70da26f2d854",
+        "materialHash": "0af9ab5c238177ec886d85b63d35e4089b18cf7bc053c018a906f1dba722fa50",
+        "storyFilesHash": "2a703c79691320aaa87dec260dc4c3f75442241aa0bce923c4b8b40054c7b2dd"
+      },
+      "aggregateFindingSetDigest": "3dc825979ba5ea386d6215a1b545edae622c14b241649390d7924f744c8c8be0",
+      "requiredLaneCoverageDigest": "85475c6c36d33f433635a9907b90ca6b2c39f4ace293b8904b4cfdfdc926097f",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-021",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-012"
+      ],
+      "readEvidenceDigest": "129bc00785f8218605f50b830c7bc8307354e3a99df1d56aaeb7196ceff2fe83",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-010",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-unscanned-rendered-scope-leaf",
+          "reason": "Verified distinct missing-source-inventory family: a complete unsafe assertion in scope.explicitExcludes reaches the rendered trusted Task Context but is absent from the manually enumerated authoritySources, bypassing the pre-digest guard without cross-leaf composition."
+        },
+        {
+          "findingId": "B-8a40:F-011",
+          "disposition": "duplicate",
+          "familyKey": "prompt-envelope-unscanned-rendered-scope-leaf",
+          "canonicalFindingId": "B-8a40:F-010",
+          "reason": "F-011 preserves a different dismissal-receipt authority witness plus the observation that protectedAnchors and fileRules are also rendered, but its demonstrated trigger is the same omitted scope.explicitExcludes leaf and the same manual source-inventory defect canonically captured by F-010."
+        }
+      ],
+      "createdAt": "2026-09-06T17:18:17.165Z",
+      "_hash": "eeceb5be18c3b07bbd759fd57aa33cead80cc65bd158c743266b9314705e745a"
     }
   ]
 }
