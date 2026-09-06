@@ -1209,6 +1209,65 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtq6zeav_f3_e8dfdeaaece244b48bd4405147851177",
       "ledgerCommitReceiptId": "lrc_mtq6zeav_f3_35f2491daec641aeaaaae1aee87194ad"
+    },
+    {
+      "id": "B-e256:F-030",
+      "desc": "quality-win32-command-path-percent-expansion: packages/main/src/core/runtime-environment-checks.ts:703-707 states that wrapping a Windows path in double quotes is sufficient for cmd.exe metacharacters, and the F-028 resolution relies on this helper for cd /d, npm --prefix, and dir remediation. That is false for the legal Windows filename character `%`: cmd.exe expands `%NAME%` even inside double quotes, so a canonical checkout such as C:\\\\work\\\\%TEMP%\\\\Prooforstop is rewritten to the environment variable value and every emitted remediation targets the wrong path. packages/main/tests/global-core-realpath.test.mjs:172-184 mirrors the same incomplete quoting and its Windows case uses only a space-containing POSIX temp path, so it cannot catch percent expansion. F-028 is therefore not fully resolved for valid Windows paths; render an actually literal cmd.exe path representation or constrain/report unsupported paths, with a regression containing paired percent signs. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T19:16:19.099Z",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "reviewRunId": "B-e256:RR-094",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/handlers/doctor.ts",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "75a464ad54fbfb0c81f16c88418b24524f501f53bce0ef9691efeba14760f73f",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs"
+      ],
+      "signatureTag": "quality-win32-cmd-percent-path-expansion",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtq702l8_r26_3077f2562de9499bab5734f1ba7d718d",
+      "ledgerCommitReceiptId": "lrc_mtq702l8_r26_c13673edbb8649b4871e658806db4d62"
     }
   ]
 }

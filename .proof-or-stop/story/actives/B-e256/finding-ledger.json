@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "2d283b466c9846defa31e73e2fe64752be2cb6aba059266b1cba6f5241b72f3e",
+  "committedLedgerDigest": "d043186caecb5a398dd232b28fda90693f20ec7be5661ff22fbc730265f46aae",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -272,6 +272,73 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T19:15:47.622Z"
+    },
+    {
+      "recordId": "lr_mtq702l8_r26_3077f2562de9499bab5734f1ba7d718d",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:b31c1d8a-2b25-4a01-8d15-108133d365cb",
+      "payload": {
+        "id": "B-e256:F-030",
+        "desc": "quality-win32-command-path-percent-expansion: packages/main/src/core/runtime-environment-checks.ts:703-707 states that wrapping a Windows path in double quotes is sufficient for cmd.exe metacharacters, and the F-028 resolution relies on this helper for cd /d, npm --prefix, and dir remediation. That is false for the legal Windows filename character `%`: cmd.exe expands `%NAME%` even inside double quotes, so a canonical checkout such as C:\\\\work\\\\%TEMP%\\\\Prooforstop is rewritten to the environment variable value and every emitted remediation targets the wrong path. packages/main/tests/global-core-realpath.test.mjs:172-184 mirrors the same incomplete quoting and its Windows case uses only a space-containing POSIX temp path, so it cannot catch percent expansion. F-028 is therefore not fully resolved for valid Windows paths; render an actually literal cmd.exe path representation or constrain/report unsupported paths, with a regression containing paired percent signs. severity: medium",
+        "severity": "medium",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-06T19:16:19.099Z",
+        "reviewRound": "2026-09-06T19:11:32.288Z",
+        "reviewRunId": "B-e256:RR-094",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-e256/background.md",
+            ".proof-or-stop/story/actives/B-e256/checklist.json",
+            ".proof-or-stop/story/actives/B-e256/plan.md",
+            ".proof-or-stop/story/actives/B-e256/proofstory.json",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+            "packages/main/src/core/runtime-environment-checks.ts",
+            "packages/main/src/core/version-bump.ts",
+            "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+            "packages/main/tests/global-core-realpath.test.mjs",
+            "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+            "proof-or-stop.config.json",
+            "scripts/promote-dist.mjs"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-e256/findings.json",
+            ".proof-or-stop/story/actives/B-e256/summary.json",
+            ".proof-or-stop/story/actives/B-e256/understanding.json",
+            "packages/main/src/handlers/doctor.ts",
+            "scripts/build-main-with-binding.mjs",
+            "scripts/build-utils-with-binding.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+        },
+        "readDiagnostics": [],
+        "_hash": "75a464ad54fbfb0c81f16c88418b24524f501f53bce0ef9691efeba14760f73f",
+        "files": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "signatureTag": "quality-win32-cmd-percent-path-expansion",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "42c8d964e2440ab6984d9194f02cdb221461e4c6e5a3720aa2a629097446b1ba",
+      "priorDigest": "2d283b466c9846defa31e73e2fe64752be2cb6aba059266b1cba6f5241b72f3e",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T19:16:19.100Z"
     }
   ],
   "receipts": [
@@ -791,6 +858,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "d1ead003615f0ac603c27057ab6c1d3badc5d1e748d7986335af660cd4efce5f",
         "signature": "aVu+2rERAwT5IhuFx/+AOoz7/Qw4FsNJQYAAawqb/2YP4cM2i7Q/OOY5TvhXy9X/ZsWpo/2wtEO69EgJK6CEAw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtq702l8_r26_c13673edbb8649b4871e658806db4d62",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:b31c1d8a-2b25-4a01-8d15-108133d365cb",
+      "requestDigest": "39d6e6bd8d26a5eba0a31de31d8fd8fb3e68a91805a5e3c2f2077fc982610151",
+      "recordIds": [
+        "lr_mtq702l8_r26_3077f2562de9499bab5734f1ba7d718d"
+      ],
+      "priorLedgerDigest": "2d283b466c9846defa31e73e2fe64752be2cb6aba059266b1cba6f5241b72f3e",
+      "committedLedgerDigest": "d043186caecb5a398dd232b28fda90693f20ec7be5661ff22fbc730265f46aae",
+      "writerSessionId": "sess-79fa6c9f2bcd285437701996e2d42f4b",
+      "writerFenceToken": "6c2d9633-43b1-459b-a560-67c662f93887",
+      "committedAt": "2026-09-06T19:16:19.100Z",
+      "replayed": false,
+      "exactRequestDigest": "3b1ae80817ca473587a7b2641c5c50ac1535cd589336bb79ad9de8f6d9f306c2",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtq702l8_r26_c13673edbb8649b4871e658806db4d62",
+        "storyId": "B-e256",
+        "idempotencyKey": "finding_add:b31c1d8a-2b25-4a01-8d15-108133d365cb",
+        "exactRequestDigest": "3b1ae80817ca473587a7b2641c5c50ac1535cd589336bb79ad9de8f6d9f306c2",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtq702l8_r26_3077f2562de9499bab5734f1ba7d718d"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "2d283b466c9846defa31e73e2fe64752be2cb6aba059266b1cba6f5241b72f3e",
+        "committedLedgerDigest": "d043186caecb5a398dd232b28fda90693f20ec7be5661ff22fbc730265f46aae",
+        "replayed": false,
+        "committedAt": "2026-09-06T19:16:19.100Z",
+        "writerSessionId": "sess-79fa6c9f2bcd285437701996e2d42f4b",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "6c2d9633-43b1-459b-a560-67c662f93887",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "df08a1bbc5f069a75270a0cb6c34d176c298f37715da716d7b018e2e4f8225c6",
+        "signature": "gRDy4gZsdVQ17pLL1OPEMlx5JdbxOfNHFq+eQ7J6TT0XtO8bNfcBPrGtoLj/PUkKbLrResuY+rv81cafSlIRDA=="
       }
     }
   ]
