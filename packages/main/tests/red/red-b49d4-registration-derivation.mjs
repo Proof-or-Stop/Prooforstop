@@ -181,10 +181,11 @@
  *   node packages/main/tests/red/red-b49d4-registration-derivation.mjs
  */
 import {
-  copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync,
+  copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync, statSync,
   symlinkSync, writeFileSync,
 } from 'node:fs';
 import { createHash } from 'node:crypto';
+import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { basename, dirname, join } from 'node:path';
@@ -348,6 +349,72 @@ const row = (id, block, green, observed, required) => {
   rows.push({ id, block, green: green === true, observed, required });
 };
 const sha256 = (buf) => createHash('sha256').update(buf).digest('hex');
+
+// Local Git discovery must follow each fixture's own .git, never an inherited
+// repository/index override that also leaks into fixtures created by children.
+const localGitEnvironment = () => {
+  const env = { ...process.env, GIT_OPTIONAL_LOCKS: '0' };
+  for (const key of ['GIT_DIR', 'GIT_COMMON_DIR', 'GIT_WORK_TREE', 'GIT_INDEX_FILE',
+    'GIT_OBJECT_DIRECTORY', 'GIT_ALTERNATE_OBJECT_DIRECTORIES']) delete env[key];
+  return env;
+};
+const gitRead = (root, args) => execFileSync('git', ['--no-optional-locks', ...args], {
+  cwd: root, env: localGitEnvironment(), maxBuffer: 64 * 1024 * 1024,
+});
+const gitText = (root, args) => gitRead(root, args).toString('utf8').trim();
+function gitIdentity(root) {
+  return {
+    admin: realpathSync(gitText(root, ['rev-parse', '--absolute-git-dir'])),
+    common: realpathSync(gitText(root, ['rev-parse', '--path-format=absolute', '--git-common-dir'])),
+    index: realpathSync(gitText(root, ['rev-parse', '--path-format=absolute', '--git-path', 'index'])),
+  };
+}
+function gitSnapshot(root) {
+  const identity = gitIdentity(root);
+  return { ...identity, head: gitText(root, ['rev-parse', 'HEAD']),
+    indexDigest: sha256(readFileSync(identity.index)),
+    stagesDigest: sha256(gitRead(root, ['ls-files', '--stage', '-z'])),
+  };
+}
+function requirePrivateGit(mirror, source) {
+  const actual = gitIdentity(mirror);
+  assert.notEqual(actual.admin, source.admin, 'mirror must have private Git admin, not the real repository .git');
+  assert.notEqual(actual.common, source.common, 'mirror must have private Git refs/config, not a shared common directory');
+  assert.notEqual(actual.index, source.index, 'mirror must have a private Git index');
+  for (const path of Object.values(actual)) assert.ok(path.startsWith(`${realpathSync(mirror)}/`), 'Git administration must stay inside the private mirror');
+  return actual;
+}
+
+const REAL_GIT_BEFORE = gitSnapshot(repoRoot);
+let isolationMirror = null;
+let sharedAdminControl = null;
+try {
+  // Deterministic RED on the old symlink mirror, before ANY index-write probe.
+  isolationMirror = makeMirror('red-b49d4-index-isolation-', { copyDirs: [RED_DIR_REL] });
+  const identity = requirePrivateGit(isolationMirror, REAL_GIT_BEFORE);
+  const before = gitSnapshot(isolationMirror);
+  assert.equal(before.head, REAL_GIT_BEFORE.head, 'private mirror preserves the real committed HEAD');
+  assert.equal(before.stagesDigest, REAL_GIT_BEFORE.stagesDigest, 'private mirror preserves the complete staged index');
+
+  sharedAdminControl = mkdtempSync(join(tmpdir(), 'red-b49d4-shared-admin-control-'));
+  symlinkSync(join(repoRoot, '.git'), join(sharedAdminControl, '.git'));
+  assert.throws(() => requirePrivateGit(sharedAdminControl, REAL_GIT_BEFORE), /private Git admin/,
+    'the same isolation check must reject the original shared-admin layout without writing to it');
+
+  // Only after proving private identity, alter the disposable index and observe
+  // real Git behavior. This never corrupts or refreshes the real index.
+  const savedIndex = readFileSync(identity.index);
+  gitRead(isolationMirror, ['update-index', '--force-remove', '--', CONFIG_REL]);
+  assert.equal(gitText(isolationMirror, ['ls-files', '--', CONFIG_REL]), '', 'private index mutation actually bites');
+  assert.notEqual(gitSnapshot(isolationMirror).stagesDigest, before.stagesDigest);
+  assert.deepEqual(gitSnapshot(repoRoot), REAL_GIT_BEFORE, 'private index mutation cannot affect real Git state');
+  writeFileSync(identity.index, savedIndex);
+  assert.deepEqual(gitSnapshot(isolationMirror), before, 'private index restoration is exact');
+  console.log('GREEN private Git index isolation');
+} finally {
+  if (isolationMirror !== null) rmSync(isolationMirror, { recursive: true, force: true });
+  if (sharedAdminControl !== null) rmSync(sharedAdminControl, { recursive: true, force: true });
+}
 const clip = (s, n = 300) => {
   const t = String(s ?? '').replace(/\s+/g, ' ').trim();
   return t.length > n ? `${t.slice(0, n)}…` : t;
@@ -367,7 +434,7 @@ const largestCount = (text) => {
 let spawnMs = 0;
 function runNode(args, cwd = repoRoot) {
   const started = Date.now();
-  const r = spawnSync(process.execPath, args, { cwd, encoding: 'utf8' });
+  const r = spawnSync(process.execPath, args, { cwd, encoding: 'utf8', env: localGitEnvironment() });
   const ms = Date.now() - started;
   spawnMs += ms;
   return {
@@ -408,7 +475,7 @@ const runInMirror = (mirrorRoot, rel) => runNode(['--preserve-symlinks-main', jo
 
 const gitStatusFor = (paths) => {
   try {
-    return execFileSync('git', ['status', '--porcelain', '--', ...paths], { cwd: repoRoot, encoding: 'utf8' }).trim();
+    return gitText(repoRoot, ['status', '--porcelain', '--', ...paths]);
   } catch {
     return null;
   }
@@ -1057,7 +1124,7 @@ try {
   const digestAfter = sha256(readFileSync(CONFIG_PATH));
   let gitStatus = null;
   try {
-    gitStatus = execFileSync('git', ['status', '--porcelain', '--', CONFIG_REL], { cwd: repoRoot, encoding: 'utf8' }).trim();
+    gitStatus = gitText(repoRoot, ['status', '--porcelain', '--', CONFIG_REL]);
   } catch {
     gitStatus = null;
   }
@@ -1093,6 +1160,9 @@ try {
 }
 
 // ── report ──────────────────────────────────────────────────────────────────
+const realGitAfter = gitSnapshot(repoRoot);
+assert.deepEqual(realGitAfter, REAL_GIT_BEFORE, 'the complete registration harness must preserve real raw index, stages and HEAD');
+console.log(`GREEN unchanged real repository index: ${JSON.stringify(realGitAfter)}`);
 const red = rows.filter((r) => !r.green);
 for (const r of rows) {
   console.log(`  [${r.green ? 'GREEN' : 'RED  '}] ${r.id} (BLOCK ${r.block})`);
