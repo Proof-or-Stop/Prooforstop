@@ -405,6 +405,39 @@
         "scanEscalationReason": null
       },
       "_hash": "a67a6c4cd00713443b89edbbb4c4cb9ebfaa2d67e7c2134f111027e95b37be6a"
+    },
+    {
+      "id": "B-e256:RP-016",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed: all 12 verification intents were inspected; all 10 must-priority intents have valid current pass evidence, both should-priority intents have attributable transcripts, and there are 0 waivers and 0 required gaps. Independently reran red-global-cli-exec-bit.mjs and global-core-realpath.test.mjs successfully and confirmed the doctor row. Direct Wave 4 reads executed: rollout report/check returned a current signed full-3x2 PASS with no diagnostics; legacy topology/pre-review routes failed closed non-blockingly in configured observe mode.",
+      "createdAt": "2026-09-06T13:30:38.727Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-026",
+      "envelopeId": "26d6605935564f373d1e453599acdac04a53accc188481317ee608de79c319df",
+      "writerSessionId": "sess-5b85dc497e193fcb1cb36a25e25f357b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-e256/test-evidence.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "7211df892f3b74be3d81929cc9070a53b11fa231421aa4e52f89dc635f4e64cb"
     }
   ]
 }
