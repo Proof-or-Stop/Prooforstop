@@ -1,45 +1,45 @@
 {
   "storyId": "B-e256",
-  "changes": "scripts/promote-dist.mjs now validates and restores package.json bin targets on the staging tree before evicting the current dist, rejects final symlinks and intermediate-symlink escapes, and preserves the old dist on failure. packages/main/src/core/runtime-environment-checks.ts reports only the compiled runtime version and renders version=unknown when that probe fails. The red and realpath regression suites cover the new safety and diagnostic cases.",
+  "changes": "scripts/promote-dist.mjs validates and restores package.json bin targets on staging before evicting the current dist, rejects final symlinks and intermediate-symlink escapes, and preserves the old dist on failure. packages/main/src/core/runtime-environment-checks.ts reports only the compiled runtime version and renders version=unknown on probe failure. The regression suite now uses a portable Windows contract while retaining POSIX execute-bit coverage.",
   "usage": "Run npm --prefix packages/main run build, then proof-or-stop --version and proof-or-stop doctor. For regression checks run node packages/main/tests/red/red-global-cli-exec-bit.mjs and node packages/main/tests/global-core-realpath.test.mjs.",
-  "expectedOutcome": "A dist rebuild leaves packages/main/dist/cli.js executable, proof-or-stop remains runnable, unsafe bin symlink paths cannot chmod files outside staging, and doctor reports the compiled version or version=unknown.",
-  "actualTranscript": "Focused verification passed: red-global-cli-exec-bit printed GREEN including hermetic c6 for an intermediate-directory symlink escape; global-core-realpath printed ok; packages/main/dist/cli.js was mode 0755.",
-  "outcomeDiff": "No user-visible difference from the expected outcome.",
+  "expectedOutcome": "A dist rebuild leaves packages/main/dist/cli.js executable on POSIX, proof-or-stop remains runnable, unsafe bin symlink paths cannot chmod files outside staging, and doctor reports the compiled version or version=unknown.",
+  "actualTranscript": "Focused verification passed: red-global-cli-exec-bit reported staging restoration before old-dist eviction plus GREEN c5/c6 symlink protection; global-core-realpath printed ok; packages/main/dist/cli.js was mode 0755 on this POSIX host.",
+  "outcomeDiff": "No difference on the tested POSIX host; Windows follows the equivalent npm-shim and shebang contract because POSIX mode bits do not apply there.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Doctor is read-only and reports remediation without changing the host install. On Windows hosts that cannot create symlinks, only the unsupported symlink fixture is explicitly skipped; all other failures remain blocking.",
-  "pitfalls": "Executable-bit restoration must stay before old-dist eviction. Using post-promotion chmod can replace a working dist before a staging permission failure is discovered; using lexical containment alone can follow intermediate symlinks outside staging.",
+  "limitations": "Doctor is read-only and reports remediation without changing the host install. POSIX execute-bit assertions do not apply on Windows; Windows validates the shebang and npm command-shim target, content, cleanup, and pre-eviction safety. POSIX chmod-denial injections are explicitly skipped there while c4/c6 retain failure-order coverage.",
+  "pitfalls": "Executable-bit restoration must stay before old-dist eviction. Post-promotion chmod can replace a working dist before a staging permission failure is discovered; lexical containment alone can follow intermediate symlinks outside staging.",
   "phaseStats": {
     "INIT": {
-      "count": 1,
-      "durationMs": 6963104
+      "count": 2,
+      "durationMs": 7311981
     },
     "INIT_CHECK": {
-      "count": 1,
-      "durationMs": 159349
+      "count": 2,
+      "durationMs": 168056
     },
     "PLAN": {
-      "count": 2,
-      "durationMs": 1219143
+      "count": 4,
+      "durationMs": 1402849
     },
     "DEV": {
-      "count": 20,
-      "durationMs": 75929221
+      "count": 22,
+      "durationMs": 76618245
     },
     "REVIEW": {
-      "count": 18,
-      "durationMs": 254798763
+      "count": 19,
+      "durationMs": 255819870
     },
     "TEST": {
       "count": 9,
       "durationMs": 17052748
     }
   },
-  "totalDurationMs": 356122899,
+  "totalDurationMs": 358374320,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-03T01:57:56.411Z",
-  "updatedAt": "2026-09-06T16:10:33.146Z"
+  "updatedAt": "2026-09-06T16:48:04.568Z"
 }
