@@ -1466,7 +1466,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/core/runtime-environment-checks.ts:737-769 and :951-1128 verify the canonical package root but only stat/access the lexical package.json bin target. statSync follows a symlink, and the target realpath is never resolved or checked against the canonical package. A current built-candidate temporary probe made canonical-core/dist/cli.js a symlink to an executable under .worktrees/stale/dist/cli.js; globalCoreRealpath still returned status=pass, executable=true, remediation=null, and rendered contract: global-core-realpath-pass. Thus CHK-003 and the Story background promise to diagnose the global executable realpath can false-pass when the package root is canonical but the actual POSIX bin target escapes to an ephemeral worktree. F-029 is Windows npm-shim validation; this is a distinct POSIX bin-target-realpath chain. Resolve and validate the bin target realpath/containment and add a regression. severity: critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T19:32:51.854Z",
@@ -1520,7 +1520,12 @@
         ".proof-or-stop/story/actives/B-e256/background.md"
       ],
       "signatureTag": "doctor-bin-target-realpath-escape",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqbcp2p_19r8_6a6996d4ae9743d8a30b0630f2fd0866",
+      "resolvedAt": "2026-09-06T21:18:06.588Z",
+      "resolvedReason": "Commit d65767d4b16e resolves the final bin target realpath, rejects final and intermediate symlink escapes outside the canonical package, and preserves realpath errno diagnostics; CHK-003 adversarial:1 passes.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-035",
