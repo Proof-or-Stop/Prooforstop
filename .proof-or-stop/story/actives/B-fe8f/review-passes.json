@@ -2470,6 +2470,48 @@
       },
       "readDiagnostics": [],
       "_hash": "84691410d08882b6cff4cbd668710b982f064c2a84cf8099a96ae2b01fae9fe8"
+    },
+    {
+      "id": "B-fe8f:RP-066",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-004 post-boundary coverage re-attestation under the canonical SAFE_INCREMENTAL basis from RR-110/RP-064, same Round 27. No scoped source/test/scripts/config change after 46a37452ef07f7d87caa18e41462bf74e81f2d71. Compared the current checklist with RP-064 commit 20cb0e4: all item titles, contexts, verificationIntent and verificationEvidence are unchanged. Reused the actual prior CHK-001 through CHK-006 source/intent/assertion reads without a whole-suite rerun. Independently recomputed strict production coverage and freshness: 71/71 covered, zero required gaps, zero waivers; current material 7f63da116907c4906ab5213e2fa1d91e6d186697c73f8d07c3a0e48ab40e09e3. Reverified all 71 exact causal receipt identities/signatures: zero invalid, comprising 13 RED-verifier and 58 Finding ledger/runtime smoke receipts bound to source46a. Read the incremental F055/F056 observations and current structured states. F056 remains verified medium and OPEN: bounded source review of machine.ts1249, init-check-gate.ts253-273, verdict-shapes M1/M2, and registration-derivation attribution explains the existing failure. An independent read-only diagnostic over the compiled machine and actual signature-domain renderer confirms rendersDomain=false and stillCarriesTheOldHandWrittenList=true, with seven domain labels and the current message missing storyId, reviewRound and reviewer verdict. This is an implementation/mandatory-validation defect already caught by an existing test, not a newly missing CHK intent receipt. Do not weaken that leaf test, shrink registration targets or treat this lane PASS as repair or permission to bypass F056. No duplicate Finding was created for the registered root. F048/F049/F055 retain their original open/suspected observations and existing compatibility routes; none is repaired, dismissed or converted to signed deferral. The Owner reports the latest 129-command validation aborted on causal preflight before completion and a heartbeat full-run failure later passed only an isolated same-environment rerun; I did not rerun those suites and explicitly claim no aggregate validation PASS, no actual host quorum, no TEST/DONE completion. This PASS concerns only unchanged Story intent/evidence coverage and the inventory lane terminal. Prior full reads are reused truthfully, decision-document passages were bounded rather than whole-corpus reads, and actual filename/title triage is represented in readEvents/readManifest. No source, scope, finding status or owner mutations; all further repair and validation remain with the Owner.",
+      "createdAt": "2026-09-06T01:03:09.409Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "reviewRunId": "B-fe8f:RR-112",
+      "envelopeId": "a2adbe4663211af35c3487ba8a7307e2c3aa07018d54b2028a8760eccd350b6f",
+      "writerSessionId": "sess-6d2c0609b0d0cdcf53060e334118e702",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          ".proof-or-stop/story/actives/B-fe8f/understanding.json",
+          "docs/story/drafts/keyed-ledgers-survive-reclone/background.md",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/dev/test-coverage.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/testing-completeness.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "2c551a03e168ddf3a288e032575e926e0005714011f101e07fb6d88e29df425a"
+      },
+      "readDiagnostics": [],
+      "_hash": "d289ba0a3dcf61f4d4f3b5bb0397d69003dccaba9f7135694f14fa8351fd38f1"
     }
   ]
 }
