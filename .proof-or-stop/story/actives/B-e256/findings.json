@@ -242,7 +242,7 @@
       "desc": "quality-bin-target-containment-prefix: scripts/promote-dist.mjs:98-100 treats every relative path beginning with `..` as outside `dist`. A valid package.json bin target such as `dist/..cli.js` yields `relative(...) === \"..cli.js\"`, so restoreBinExecutableBits skips it; a targeted probe against the frozen candidate returned restored=[] and left mode 0644. This violates the CHK-001 contract to restore every listed in-dist bin target and can leave the linked CLI non-executable. Use an exact parent traversal check and add a hermetic in-dist dot-prefix case. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T14:04:22.505Z",
@@ -281,7 +281,11 @@
         "packages/main/tests/red/red-global-cli-exec-bit.mjs"
       ],
       "signatureTag": "quality-bin-target-containment-prefix",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 721bb624b0 uses an exact parent-traversal predicate, so dist/..cli.js is restored; the dot-prefixed target regression passes.",
+      "resolvedAt": "2026-09-06T15:32:36.988Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-011",
