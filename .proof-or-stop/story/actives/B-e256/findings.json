@@ -891,6 +891,61 @@
       ],
       "signatureTag": "missing|json|promise-undelivered-proof",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e256:F-025",
+      "desc": "quality-win32-pinned-selector-portability: .proof-or-stop/story/actives/B-e256/checklist.json:30 pins CHK-001:happy:0 to the POSIX-only GREEN label, while packages/main/tests/red/red-global-cli-exec-bit.mjs:179-182 deliberately emits a different Windows label after the F-023 repair. A read-only simulated win32 branch run exited 0 but selectorMatched=false, so a Windows verification-evidence refresh would reject a correct passing run even though the registered full validation now succeeds. Use a platform-invariant selector/output line or a platform-aware supported evidence contract. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T17:18:07.543Z",
+      "reviewRound": "2026-09-06T16:52:33.065Z",
+      "reviewRunId": "B-e256:RR-083",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "76e8a8cc31823c2c0c3304129cd736d281d912500abd5e980b1056c13457bfa1",
+      "files": [
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ],
+      "signatureTag": "edge|json|quality-win32-pinned",
+      "signatureTagSource": "auto"
     }
   ]
 }
