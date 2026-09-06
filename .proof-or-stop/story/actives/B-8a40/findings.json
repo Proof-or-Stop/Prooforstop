@@ -1360,6 +1360,52 @@
       ],
       "signatureTag": "prompt-envelope-evidence-continuation-assignment-laundering",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-030",
+      "desc": "packages/main/src/core/prompt-envelope.ts:1003-1013 exempts a schema/gate segment whenever it starts with any of three broad invariant-looking patterns, but each pattern accepts an unconstrained remainder and the classifier never inspects that residue. Against the committed built assembleFullPromptEnvelope API, all five active modular reviewer roles ADMIT each of `Do not change the Finding schema and this Story adds an applicability field.`, `No Finding schema change is in scope and this Story adds an applicability field.`, and `Assert the change introduces no Finding schema change and this Story adds an applicability field.` The safe control `Do not change the Finding schema.` is admitted and the direct unsafe control `This Story adds an applicability field to the Finding schema.` is rejected for all roles, isolating the bypass to the schemaInvariant shortcut. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1024-1026 covers only the exact safe prefixes, while :898-899 covers only direct unsafe statements; no test appends an affirmative schema amendment to a safe prefix. This is distinct from F-025's per-segment approved-content filters and F-021 through F-024/F-028 whole-source meta wrappers: this separate fallback schema/gate detector suppresses its own violation because of an open-ended negative prefix. Require a complete closed invariant grammar or classify residual clauses independently and add all-role suffix-injection controls. Severity high because Story-authored Task Context can declare an applicability-schema amendment before envelope digests while the focused smoke remains green.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T18:44:03.622Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-056",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "d3c19cf6572873d6c8519b2fa5b47de9e50fc2fe07c488104292574d4865879d",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-schema-invariant-open-tail-laundering",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
