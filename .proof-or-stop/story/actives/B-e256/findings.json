@@ -1728,7 +1728,7 @@
       "desc": "doc-promise-undelivered: packages/main/src/core/runtime-environment-checks.ts:1049-1096 rejects an absent PATH command, but inspectGlobalCoreExecutable at :861-867 validates the PATH-selected shim only on Windows; the POSIX branch checks X_OK on the canonical package bin target without verifying that a present PATH executable resolves to that target. renderRuntimeEnvironmentReport at :318-328 can therefore emit contract: global-core-realpath-pass while cli-entrypoint is fail. Reproduction against the current built runtime with platform=linux, commandResolver returning an executable bogus temp proof-or-stop path, the real npm root -g, and executableAccessProbe=true produced cli-entrypoint=fail, global-core-realpath=pass, marker=true. This directly falsifies ProofStory AC-001 and summary.json:3-7, which promise that the healthy marker requires PATH/package/bin-target agreement. Add POSIX PATH-command realpath agreement to the global-core fact and a wrong-but-present PATH regression. severity: critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T21:22:18.417Z",
@@ -1781,7 +1781,11 @@
       "signatureTag": "doctor-posix-path-command-target-mismatch-false-pass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbi3ea_3of_fde4e570261b45be806d652de88d2294",
-      "ledgerCommitReceiptId": "lrc_mtqbi3ea_3of_b6cadec2665f4c7a9de6f9a9d90341a9"
+      "ledgerCommitReceiptId": "lrc_mtqbi3ea_3of_b6cadec2665f4c7a9de6f9a9d90341a9",
+      "resolvedAt": "2026-09-06T23:38:34.046Z",
+      "resolvedReason": "Commit 3144360a65 requires the POSIX PATH-selected proof-or-stop command realpath to equal the declared canonical package bin target before emitting global-core-realpath-pass. The wrong-PATH healthy-package regression and current full validation pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-039",
