@@ -2302,6 +2302,52 @@
       ],
       "signatureTag": "severity-state-local-antecedent-false-positive",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-048",
+      "desc": "packages/main/src/core/prompt-envelope.ts:823-839 unconditionally joins every relevant segment for the unknown-applicability family, so any later unrelated use of the generic word `routing` becomes a synthetic authority relation. Against the current committed built assembleFullPromptEnvelope API, all five active REVIEW roles REJECT `Applicability remains unknown. Cache routing is a separate process.` and even `Applicability remains unknown. Separately, cache routing is a distinct implementation process.` The local-only control `Evidence remains current. Cache routing is a separate process.` is admitted by all roles, while the genuinely unsafe `Applicability remains unknown. It permits routing away from this Story.` remains rejected, isolating the high false-block to the unconditional unknown-family join. The comment claims unrelated prose is not flattened, but that exclusion applies only to severity and signed-disposition; no causal/coreferent relation or topic continuity is required for unknown applicability. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts has no unknown-applicability plus unrelated operational-routing safe witness. This is distinct from F-046/F-047 persistent deferral/severity pronoun state and F-012/F-016 dismissal joins: it executes through the dedicated whole-source unknown-applicability concatenation and needs no anaphora. Require a bounded causal/coreferent unknown-to-route transition, or preserve segment identity and explicit topic breaks, with all-role unrelated and unsafe controls. Severity high because ordinary Story planning prose about unknown applicability and implementation/cache routing prevents every REVIEW role from starting.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T20:18:52.927Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-089",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "434e94f4f7c85e2a159bd2c69013155496125687fc248bc7d067eb31c899f119",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-unknown-applicability-unrelated-routing-false-block",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
