@@ -13308,6 +13308,287 @@
       "incrementalContextBytes": 27561,
       "escalatedToFull": true,
       "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-test-coverage",
+      "storyId": "B-e256",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-e256:RR-088",
+      "reviewRound": "2026-09-06T16:52:33.065Z",
+      "lane": "proof-or-stop-review-test-coverage",
+      "dispatchPromptDigest": "f55a5e1bd97b608477dbfffd13ff087e3ea2ccef0a568858d1e7e95405b93090",
+      "hostRenderIdentityDigest": "76d6acb1bbd2917e4cce9102da03819b6f0261cab6d68beab5bfc235d0fdfb15",
+      "createdAt": "2026-09-06T17:32:14.970Z",
+      "headHash": "47e7816e9070e27cd303e6c41c5d7d51edc175af",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "241b9c8157a370ca82591367e84f7606178f1f8183dd46a4f5a80dcf1352d2f8",
+      "roleRenderDigest": "d286c761ff9ead9ed285dfee667c9684e7aa1b4c33702d6d492d13946affb413",
+      "contextMode": "full",
+      "contextDigest": "77b0dd6478541c21ddb06f97739ace7116a942015df5be58a720247bc34af086",
+      "materialHash": "450191bd9f7c19872fbc84e018034b5583be2c6f6b69fe84761d8a900b7ee533",
+      "storyFilesHash": "6e95a097c38048c3b957a290eca2c383f5510de17e232105cb647d7a38d96e93",
+      "policyHash": "ce1b05922bc7cb4211a8ad58a477656a90662d42694a24ff4c4809c3f1fbac59",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "96fad397cbded90591f514d0ca8dc8d4a34c3389ffa85732657d3318e5b895ec",
+      "knownExecutionEnvironmentDigest": "392606c7acc37720a5b704d079ac9931617d2c8188b3416269ab05433b0aff64",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "841e90fae94f1583d2f44eb1efcc99671e2280fdc9de11c789b00b3fa7479549",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "87273e545347176500e0983a72f836e34d260650b0530b6e348da002f4b2cc5e",
+      "bytes": 25682,
+      "lines": 153,
+      "estimatedTokens": 6421,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "c487cadb6f090dda1a50b882da82b0ef155d19dc064a19d6b4404f35bbe90e95",
+      "priorPassRef": "B-e256:RP-056",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FIXTURE_BINDING_INCOMPLETE",
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT"
+      ],
+      "changedFilesDigest": "ee063099f09b8db5a3bd2fa884ba50f695369d8658a4713c8442666784db26d2",
+      "impactedFilesDigest": "ae70a57d766c23c0fd54b275f9efd153998ef3171171063fcd7ef58c71ab610e",
+      "taskSemanticDigest": "67668072c0c7fa9f9fc3020b1bee9276405809dd4dde8b9eda6fbf4b2fdd204a",
+      "findingProjection": [
+        {
+          "id": "B-e256:F-001",
+          "createdAt": "2026-09-02T16:24:56.382Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:549-550 hardcodes the literal string proof-or-stop for the bin key lookup instead of reusing the existing CANONICAL_ROOT_PACKAGE_NAME constant (defined at line 117 and already used at lines 1153/1291 for the same command name). Low risk of drift if the bin/command name is ever renamed in one place but not the other."
+        },
+        {
+          "id": "B-e256:F-002",
+          "createdAt": "2026-09-02T16:28:45.651Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/runtime-environment-checks.ts:558-561,613-616 (inspectGlobalCoreExecutable + checkGlobalCoreRealpath) added in this story a distinct warning branch for a global bin target that is missing/not-a-file (executableFacts.binTargetExists=false), which renders a different remediation string (\"...does not exist; rebuild: npm --prefix <realpath> run build\") than the non-executable-mode branch. CHK-003:adversarial:0 verificationEvidence (packages/main/tests/global-core-realpath.test.mjs cases 4 and 5) only exercises: case 4 = bin target present but mode 0644 (non-executable, file exists), case 5 = .worktrees/ realpath drift with an executable bin. Neither case, nor any other verificationEvidence for CHK-003, constructs a package whose declared bin target file is absent or is a directory, so the ENOENT/non-file sub-branch and its rebuild remediation string are never executed by any test -- grep for rebuild|does not exist across the test file returns zero hits. This is exactly the kind of drift the story is meant to catch (a broken/missing build artifact behind global proof-or-stop), so the untested branch is in-scope, not incidental."
+        },
+        {
+          "id": "B-e256:F-003",
+          "createdAt": "2026-09-03T01:12:59.277Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "commit b13839b411 (git cherry-pick -x from story/B-83aa 8ebfff3550) modifies packages/main/src/tasks/validation-tier-planner-smoke.ts and packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, neither of which is in .proof-or-stop/story/actives/B-e256/scope-contract.json allowedModify/allowedCreate, and no checklist item carries a reason for the scope change. Content verified correct (byte-identical body to 8ebfff3550, cwd-neutrality assertion is non-vacuous, DYNAMIC_BINDING_BUILD_CEILING 808->809 is harmless since B-e256 adds no new .ts source and the guard still reports builds=808), but the story now carries an unreviewed-under-this-story, cross-story commit authored for B-83aa CHK-004 embedded via cherry-pick before B-83aa has landed on main. This is a scope-contract/provenance gap (mode=shadow, so not mechanically blocked), not a functional defect: recommend amending scope-contract/checklist to record the reason, or landing the shared F-023/ceiling fixture fix on main directly instead of duplicating it across in-flight stories via cherry-pick."
+        },
+        {
+          "id": "B-e256:F-004",
+          "createdAt": "2026-09-03T21:12:59.786Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/runtime-environment-checks.ts:1576-1587 defaultCompiledCoreVersionProbe (the production probe actually wired by default at line 248) has two branches -- the readFileSync catch (unbuilt/missing dist/core/proof-or-stop-brand.js, ENOENT) and the COMPILED_CORE_VERSION_RE non-match (partially built or unparsable content) -- that are never exercised by any test using the DEFAULT probe. packages/main/tests/global-core-realpath.test.mjs case 29 (around lines 950-970) only injects a compiledCoreVersionProbe STUB via extraOptions to simulate a probe failure; writeCorePackage/makeRepoWithWorktree never pass compiledVersion:null (which would skip writing the brand file) or malformed brand-file content, so the real function's own ENOENT and unparsable-content error messages are dead-in-tests. Separately, unlike its sibling BRAND_EXPORT_RE in core/version-bump.ts (which the doc comment at lines 1562-1573 claims this is the same regex shape as), this probe applies COMPILED_CORE_VERSION_RE with no comment-stripping and no duplicate/ambiguous-match guard -- version-bump.ts throws on more than one match (version-bump.ts:213-218) precisely because a second export-shaped occurrence (e.g. in a comment) would let exec() silently pick the wrong one; defaultCompiledCoreVersionProbe has no equivalent check, so a future brand-file comment change that happens to contain export-shaped text would silently report the wrong compiled version rather than failing loudly. Low risk today (no such occurrence exists in the real file) but it is exactly the untested/unguarded shape this round was asked to scrutinize."
+        },
+        {
+          "id": "B-e256:F-005",
+          "createdAt": "2026-09-04T07:52:11.281Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/version-bump.ts:210 (commit 47382c6681) is modified (export added to findBrandExport) outside the story scope-contract allowedModify list (scope_contract_check reports OUT_OF_SCOPE warn, mode=shadow) and there is no scope_question_resolve / acknowledgement recorded anywhere in the story artifacts (scope-contract.json, checklist.json, scope-check.json) naming this file. The change itself is small and sound (adds an `export` keyword plus a doc comment, no behavior change to version-bump.ts, verified byte-identical logic via mutation test), but it is an unacknowledged scope expansion that the CLAUDE.md scope-contract process requires to be declared/acknowledged rather than silently landed."
+        },
+        {
+          "id": "B-e256:F-006",
+          "createdAt": "2026-09-06T13:27:56.662Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:1932 renders version from actual.version (package.json) even though the new compiled-runtime probe stores the executable’s authoritative version in actual.compiledVersion. When package.json is 2.0.0 but dist still serves 1.9.0, the global-core-realpath summary row therefore says version=2.0.0 while its warning says the compiled runtime reports 1.9.0; this contradicts the promised reported-version diagnostic and can mislead operators. Render compiledVersion (or clearly label both manifest and compiled values) and add a stale-compiled-version row assertion. severity: medium"
+        },
+        {
+          "id": "B-e256:F-007",
+          "createdAt": "2026-09-06T13:30:21.678Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "concept-cleanup: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:52 fixed-clock waitForFile deletion is incomplete: DESCENDANT_PID_READY_TIMEOUT_MS remains as an unused declaration after every consumer was replaced by lifecycle-bounded waitForChildFile; this dead residue contradicts the new child-lifecycle waiting concept and can mislead future maintenance. severity=critical"
+        },
+        {
+          "id": "B-e256:F-008",
+          "createdAt": "2026-09-06T13:38:10.277Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-runtime-probe-parse: packages/main/src/core/runtime-environment-checks.ts:1566-1568 accepts every non-empty `npm root -g` stdout value as a valid filesystem root, although the new structured-probe contract says unparsable output must be a failure. Verified against the built candidate with PATH resolving `npm` to `/bin/echo`: stdout `root -g` produced globalCoreRealpath.status=pass, installed=false, and npmRoot=`root -g`. A noisy, wrapped, or corrupt npm response is therefore misreported as known absence and defeats the fail-closed doctor diagnostic. severity: medium"
+        },
+        {
+          "id": "B-e256:F-009",
+          "createdAt": "2026-09-06T13:52:46.502Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-bin-target-stat-probe: packages/main/src/core/runtime-environment-checks.ts:703-708 catches every statSync failure and reports binTargetExists=false with verification=ok. Verified against the built frozen candidate using an existing executable bin below a mode-000 parent: stat failed with EACCES, but globalCoreRealpath said the target does not exist and prescribed only npm rebuild. This conflates an unreadable or I/O-failed installed target with ENOENT, discards the errno, and can send operators through a rebuild that cannot repair permissions or filesystem access. Preserve non-ENOENT probe failures as unverifiable drift with the errno and add a hermetic denied-stat case. severity: medium"
+        },
+        {
+          "id": "B-e256:F-010",
+          "createdAt": "2026-09-06T14:04:22.505Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-bin-target-containment-prefix: scripts/promote-dist.mjs:98-100 treats every relative path beginning with `..` as outside `dist`. A valid package.json bin target such as `dist/..cli.js` yields `relative(...) === \"..cli.js\"`, so restoreBinExecutableBits skips it; a targeted probe against the frozen candidate returned restored=[] and left mode 0644. This violates the CHK-001 contract to restore every listed in-dist bin target and can leave the linked CLI non-executable. Use an exact parent traversal check and add a hermetic in-dist dot-prefix case. severity: medium"
+        },
+        {
+          "id": "B-e256:F-011",
+          "createdAt": "2026-09-06T14:32:51.687Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/tests/red/red-global-cli-exec-bit.mjs:139,160,203,230,258 only exercise a one-entry object-form package.json bin, while scripts/promote-dist.mjs:93-96 contains a distinct string-shorthand branch and iterates arbitrary object values. Repository search found no test using bin:\"dist/cli.js\" or two declared bin targets. A regression could leave a shorthand target or one of multiple targets at 0644 while every current selector remains GREEN, contradicting CHK-001 and the plan promise to restore every listed package.json bin target. Add hermetic string-shorthand and multi-target cases that assert every target becomes executable, remains byte-identical, and appears in the restored list. This is distinct from F-010, which covers the in-dist containment prefix boundary. severity: medium"
+        },
+        {
+          "id": "B-e256:F-012",
+          "createdAt": "2026-09-06T14:33:09.855Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "concept-cleanup: packages/main/src/tasks/validation-tier-planner-smoke.ts:469,483 deletes the PIN MAINTENANCE guidance block but leaves two live references to the now-nonexistent maintenance note (\"the maintenance note above\" and \"see PIN MAINTENANCE above\"). Repository-wide rg confirms no PIN MAINTENANCE block remains, so future validate.commands digest drift points maintainers to instructions that this Story removed; the deletion is incomplete and the residual assertion/comment are misleading. severity=critical"
+        },
+        {
+          "id": "B-e256:F-013",
+          "createdAt": "2026-09-06T14:38:01.044Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-bin-target-type-validation: scripts/promote-dist.mjs:101-103 chmods and records every lexically in-dist target without verifying that statSync(target).isFile(). A targeted frozen-candidate probe declared dist/cli.js as a directory: restoreBinExecutableBits returned [\"dist/cli.js\"], changed its mode to 0755, and the target remained a directory. promoteDist therefore accepts and promotes a malformed staging tree while reporting the bin target restored even though the global CLI target is not an executable file. packages/main/tests/red/red-global-cli-exec-bit.mjs covers absent targets and stat/chmod failures but has no non-regular-target case. Reject non-regular bin targets before promotion and add a hermetic directory case. severity: medium"
+        },
+        {
+          "id": "B-e256:F-014",
+          "createdAt": "2026-09-06T14:38:50.699Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-smoke-descendant-cleanup: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:312-338 and 405-425 kill only the direct CLI child on the harness ceiling or wait bound, then fail without cleaning the command descendants; the alive-descendant assertion also has no cleanup when it detects the regression. A bounded process-tree probe matching this parent-only SIGKILL behavior verified that the parent closed while its sleep descendant remained alive. Because descendantTreeCommand launches sleep 600 for the command, idle, and max rows, the exact failure paths this smoke is meant to diagnose can leave orphan processes running for up to ten minutes and contaminate later validation. Retain a process-group or descendant cleanup handle and terminate/reap it in a finally path before failing. severity: medium"
+        },
+        {
+          "id": "B-e256:F-015",
+          "createdAt": "2026-09-06T14:40:33.759Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-smoke-platform-regression: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:352-357 hard-codes /bin/sh and the external sleep utility for every new descendantTreeCommand row, replacing the prior process.execPath-based child fixture. proof-or-stop.config.json registers this smoke as an unconditional validation command, while the validation implementation and validation-tier planner explicitly model native win32 execution. On native Windows, spawning /bin/sh fails with ENOENT before the descendant PID can be published, so the command, idle, and max deadline assertions cannot exercise their subject and escalated/full validation fails for host reasons. Use process.execPath with a platform-neutral inline descendant fixture, or provide an explicit win32 branch with equivalent process-tree semantics. severity: medium"
+        },
+        {
+          "id": "B-e256:F-016",
+          "createdAt": "2026-09-06T14:56:29.823Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "quality-bin-target-symlink-escape: scripts/promote-dist.mjs:101-103 validates only the lexical bin path, then statSync/chmodSync follow an in-tree symlink. A targeted probe against the frozen candidate created dist/cli.js as a symlink to an outside 0644 file; restoreBinExecutableBits returned [\"dist/cli.js\"] and changed the outside file to 0755. This lets a malformed or compromised staging tree mutate permissions outside the promoted tree while falsely reporting the bin restored. It is distinct from F-010 (the lexical `..` prefix boundary) and F-013 (a directory/non-regular target): statSync(target).isFile() would still accept this symlink because its referent is a file. Reject symlink targets or verify the resolved target remains inside the promoted tree, and add a hermetic symlink-escape case. severity: medium"
+        },
+        {
+          "id": "B-e256:F-017",
+          "createdAt": "2026-09-06T15:35:41.809Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "adversarial",
+          "desc": "quality-bin-target-intermediate-symlink-escape: scripts/promote-dist.mjs:98-110 checks lexical containment and lstatSyncs only the final path component, so an in-tree intermediate directory symlink is followed. A current-HEAD bounded probe declared bin dist/linked/cli.js where dist/linked symlinked to an outside directory; restoreBinExecutableBits returned [\"dist/linked/cli.js\"] and changed the outside referent from 0644 to 0755. F-016 is therefore only partially resolved: rejecting a final-component symlink does not prevent nested symlink traversal. Resolve/realpath the target and verify it remains under the real promoted tree, or reject any symlink component, and add the hermetic intermediate-symlink escape case. severity: medium"
+        },
+        {
+          "id": "B-e256:F-018",
+          "createdAt": "2026-09-06T15:37:38.674Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-global-row-version-fallback: packages/main/src/core/runtime-environment-checks.ts:1958-1962 fixes F-006 only when compiledVersion is known; when the compiled-runtime probe fails, the nullish fallback silently renders the package.json manifest as the generic version= value. Existing missing/unreadable/malformed compiled-artifact cases set compiledVersion=null but do not assert the row, so a manifest at 2.0.0 with an absent or unparsable dist artifact still renders version=2.0.0 while warnings say the compiled runtime is unverifiable. That generic row value is not the executable’s authoritative version and remains misleading. Render version=unknown for a failed compiled probe, or label manifestVersion and compiledVersion separately, and cover the existing probe-failure/default-probe cases. severity: medium"
+        },
+        {
+          "id": "B-e256:F-019",
+          "createdAt": "2026-09-06T15:38:08.005Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-symlink-regression-portability: packages/main/tests/red/red-global-cli-exec-bit.mjs:248-259 unconditionally calls symlinkSync in a validation command registered for every host. Native Windows can reject file-symlink creation with EPERM when the account lacks Create Symbolic Links privilege or Developer Mode, so this F-016 regression case can fail before exercising restoreBinExecutableBits even though the implementation may be correct. This reintroduces a host-dependent failure alongside the F-015 portability repair. Use a privilege-independent directory junction/intermediate-link fixture where equivalent, or explicitly feature-probe and report/skip only the unsupported symlink construction while retaining safety coverage on capable hosts. severity: medium"
+        },
+        {
+          "id": "B-e256:F-020",
+          "createdAt": "2026-09-06T15:38:16.473Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/tests/red/red-global-cli-exec-bit.mjs:248-260 covers F-016 only when the final bin path component is a symlink. It has no case where an intermediate directory component is a symlink. At current HEAD, a bounded temp-dir probe declared bin dist/linked/cli.js with dist/linked symlinked to an outside directory; scripts/promote-dist.mjs:98-110 returned [\"dist/linked/cli.js\"] and changed the outside file from 0644 to 0755. Thus the committed F-016 regression is under-broad and does not detect the live intermediate-symlink escape independently recorded as B-e256:F-017. Add a hermetic intermediate-component symlink case that proves the outside referent stays 0644 and restoration fails before promotion. severity: medium"
+        },
+        {
+          "id": "B-e256:F-021",
+          "createdAt": "2026-09-06T15:46:03.263Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "concept-cleanup: commit 3b2f136af6 replaced post-promotion chmod with restoreBinExecutableBits(staging, dist) before the old dist is evicted (scripts/promote-dist.mjs:16-22), so a chmod failure preserves the working dist. The authoritative Story inputs still carry the deleted model: plan.md:13 requires restoreBinExecutableBits(dist) after rmSync(trash), checklist.json:6 says chmod after renaming staging into dist, understanding.json:7 describes the GREEN candidate as after promotion, and summary.json:3 says the helper runs after every dist promotion. This is not F-017/F-020 symlink containment or coverage: it is a separate incomplete concept replacement that makes the final delivery summary and review context contradict the implemented crash-safety invariant. severity: critical"
+        },
+        {
+          "id": "B-e256:F-022",
+          "createdAt": "2026-09-06T16:27:20.120Z",
+          "status": "resolved",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "concept-cleanup: packages/main/tests/red/red-global-cli-exec-bit.mjs:27-29 and :96 retain the live DESIRED-property/assertion wording that the pipeline restores bin executable bits after promotion. The current implementation and corrected Story contract call restoreBinExecutableBits(staging, dist) before evicting the old dist; these are active expectation/selector statements, not the historical pre-fix narrative, so they preserve the deleted post-promotion model and can mislead future maintenance. Severity: critical."
+        },
+        {
+          "id": "B-e256:F-023",
+          "createdAt": "2026-09-06T16:29:43.572Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-win32-executable-mode-contract: packages/main/tests/red/red-global-cli-exec-bit.mjs:77-86 and 150-166 unconditionally require POSIX 0o111 mode bits before and after chmod, while the only Windows adaptation at lines 134-147 skips unsupported symlink construction. On Windows, Node chmod does not provide a meaningful POSIX execute-bit contract and npm executes package bins through generated .cmd shims, so this newly registered validation command can fail even when the global CLI works. Platform-gate the POSIX mode assertions or define and test the Windows shim contract; the current symlink-capability skip does not cover this core portability failure. severity: medium"
+        },
+        {
+          "id": "B-e256:F-024",
+          "createdAt": "2026-09-06T17:17:48.772Z",
+          "status": "open",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: .proof-or-stop/story/actives/B-e256/checklist.json:25-30 still defines CHK-001:happy:0 as a universal must intent that a 0644 target gains POSIX 0o111 bits and pins the POSIX-only GREEN label, while packages/main/tests/red/red-global-cli-exec-bit.mjs:83-85 and :178-182 explicitly replace that assertion and label on win32 with an npm-shim-target content contract. .proof-or-stop/story/actives/B-e256/proofstory.json:43-49 also binds that stale intent and universally claims 0644 becomes 0755 after promotion. F-022 staging-before-eviction wording is corrected, but the F-023 portability repair did not reach the machine-owned Story acceptance contract: on win32 the must selector cannot appear even when the test passes. Repair the verification intent and ProofStory acceptance binding so POSIX mode restoration and Windows shim-target behavior are expressed without a contradictory universal 0o111/0755 promise. severity: critical"
+        },
+        {
+          "id": "B-e256:F-025",
+          "createdAt": "2026-09-06T17:18:07.543Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-win32-pinned-selector-portability: .proof-or-stop/story/actives/B-e256/checklist.json:30 pins CHK-001:happy:0 to the POSIX-only GREEN label, while packages/main/tests/red/red-global-cli-exec-bit.mjs:179-182 deliberately emits a different Windows label after the F-023 repair. A read-only simulated win32 branch run exited 0 but selectorMatched=false, so a Windows verification-evidence refresh would reject a correct passing run even though the registered full validation now succeeds. Use a platform-invariant selector/output line or a platform-aware supported evidence contract. severity: medium"
+        },
+        {
+          "id": "B-e256:F-026",
+          "createdAt": "2026-09-06T17:24:34.623Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "test-coverage-win32-global-core-contract: .proof-or-stop/story/actives/B-e256/checklist.json:365-381 pins three CHK-003 must intents to `node packages/main/tests/global-core-realpath.test.mjs`, but packages/main/tests/global-core-realpath.test.mjs:107-110 unconditionally creates a directory symlink with no Windows capability probe and :201-217 universally requires a 0644 target to be non-executable with a `chmod +x` remediation. Production packages/main/src/core/runtime-environment-checks.ts:667-672 explicitly short-circuits the executable access probe to true on win32 because Windows has no POSIX execute-bit contract. Read-only probes verified both failure paths: with simulated win32 and symlink support the test exits 1 at line 211 because status is pass, and with simulated EPERM symlink denial it terminates at line 110. Therefore `ok global-core-realpath` is unreachable on affected Windows hosts and no evidence covers the Windows npm .cmd/shim doctor contract. This is distinct from F-024/F-025, which cover CHK-001 and red-global-cli-exec-bit. severity: medium"
+        },
+        {
+          "id": "B-e256:F-027",
+          "createdAt": "2026-09-06T17:24:53.650Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "test-coverage-host-bound-doctor-selector: .proof-or-stop/story/actives/B-e256/checklist.json:343-351 defines CHK-003:happy:0 as a must intent but pins its doctor selector to the submitter-specific macOS absolute path `global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=`. The stored receipt at checklist.json:470-485 proves only that checkout and cannot be refreshed in a Windows checkout (or any clone at another root) even when doctor emits a correct global-core-realpath row. Use a path-invariant selector plus fixture assertions for the resolved root, or a supported platform-aware selector contract. This is distinct from F-025, which concerns CHK-001's POSIX-only hermetic label. severity: medium"
+        },
+        {
+          "id": "B-e256:F-028",
+          "createdAt": "2026-09-06T17:30:37.807Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-win32-remediation-command: packages/main/src/core/runtime-environment-checks.ts:558-560 implements only POSIX single-quote escaping, and :681-682 uses it to emit `cd -- <root> && npm link`; the new global-core drift branches also emit `ls -ld` at :847, :879, and :933. On native Windows every drive path contains backslashes, so shellQuote wraps it in literal single quotes, while cmd.exe neither treats single quotes as quoting nor accepts `cd --`; `ls -ld` is also unavailable by default. Thus the Story's promised exact one-line doctor remediation is not executable on Windows even after the F-026 test-coverage gap is fixed. This is a production-output quality defect distinct from F-024/F-025 selectors and F-026/F-027 evidence portability. Render a platform-valid remediation (for example an argv-equivalent npm --prefix form with platform quoting) and cover it. severity: medium"
+        }
+      ],
+      "findingProjectionDigest": "c645f3435ef1469850e9f935be6fe0f650cd13c8fcefdd1e8c6751de21d4a27a",
+      "reviewBasisDigest": "559962c1bffa664d6dbb03aa3afc08280846a001c3daa94921ce6c267bcb0e67",
+      "incrementalContextDigest": "2b08a90a1605f0689b9fc8eece8fb6aa7c00c9db29159120ad5789bba3274cbb",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 25682,
+      "incrementalContextBytes": 25892,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
     }
   ]
 }
