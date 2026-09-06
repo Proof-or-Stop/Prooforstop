@@ -576,9 +576,9 @@
       "epochId": "B-e256:RI-003",
       "storyId": "B-e256",
       "reviewRound": "2026-09-06T15:32:14.385Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-06T15:41:03.314Z",
-      "updatedAt": "2026-09-06T15:53:37.073Z",
+      "updatedAt": "2026-09-06T16:03:10.179Z",
       "cutoff": {
         "headHash": "51d4212bc701aea4f3a3277b2a953c181f5c3efe",
         "materialHash": "11b6badc5481a14170fdd330d275c9a165b63fee00f3c8ef0ed8848fb6815de2",
@@ -640,10 +640,61 @@
           "criticDigest": "ad9083b7227048466c6a49af42089e552a33fef774be342d5d5f3ed9eb31ad5c",
           "saturated": false,
           "nextRunSequenceBoundary": 66
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T15:53:37.073Z",
+          "completedAt": "2026-09-06T16:02:39.032Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-068",
+              "terminal": "pass",
+              "hostIdentity": "f6b1d07a2d684a3475aebd54fcea6df98fd258101b3fdd74ad35fcbd1e2c8cf7",
+              "promptIdentity": "f14a6d2b1e4b2d2e4c67e313f11e3d7a50419af3b381862a1ade6a87313c05f6",
+              "evidenceIds": [
+                "B-e256:RP-047"
+              ],
+              "coverageDigest": "873ca9ab6966f13bf03b536da68bbe3dd069ab6a2cebe4ff0c6e117b48931d0e"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-069",
+              "terminal": "pass",
+              "hostIdentity": "f6b1d07a2d684a3475aebd54fcea6df98fd258101b3fdd74ad35fcbd1e2c8cf7",
+              "promptIdentity": "00799c78b0fe00a645f1430c0935d9c5e649601918959b45b7ebcc1107f61287",
+              "evidenceIds": [
+                "B-e256:RP-048"
+              ],
+              "coverageDigest": "dcdaee40e08cebd959a62c4d7e677df096f3dda337e5d5fb1870c566c725f7aa"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-067",
+              "terminal": "pass",
+              "hostIdentity": "f6b1d07a2d684a3475aebd54fcea6df98fd258101b3fdd74ad35fcbd1e2c8cf7",
+              "promptIdentity": "8cf0a68cfcdabdaea0b6a9864ae56e4574bb924bd77a20f65c4ca17e7a5e9dde",
+              "evidenceIds": [
+                "B-e256:RP-046"
+              ],
+              "coverageDigest": "52936222eccf3cb937ed33af628b925307db94089673fa4048818dcb329a9027"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "stale-story-post-promotion-chmod-model"
+          ],
+          "verifiedFindingSetDigest": "87466f61bfef83f253b0d3874cf8b3003dc6a9880a40cfc5b367d0dfcc3a867e",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "730dd089c23ea724ae74426ecbd1c77dfbff9008bb5bb3ee8bda03641ac1bf22",
+          "saturated": true,
+          "nextRunSequenceBoundary": 70
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "805a332332ac0a437d72b1ce1ab05e495d4b669548246f331431029967c2fcff"
+      "receiptId": "B-e256:RI-003:RCP-001",
+      "consumedAt": "2026-09-06T16:03:10.179Z",
+      "consumedByReviewRound": "2026-09-06T15:32:14.385Z",
+      "_hash": "aed2aa0953eef1fb7e3c441c8190773d6543418a12992d1a7747f7b1ecf474a0"
     }
   ],
   "receipts": [
@@ -816,6 +867,33 @@
       "issuedAt": "2026-09-06T15:19:53.815Z",
       "consumedAt": "2026-09-06T15:21:00.923Z",
       "_hash": "50ea04952b1e7a85fc2a55025f31bc0aefcfc6263dd1dc26ed33ac258dfcd302"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-e256:RI-003:RCP-001",
+      "epochId": "B-e256:RI-003",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T15:32:14.385Z",
+      "cutoff": {
+        "headHash": "51d4212bc701aea4f3a3277b2a953c181f5c3efe",
+        "materialHash": "11b6badc5481a14170fdd330d275c9a165b63fee00f3c8ef0ed8848fb6815de2",
+        "storyFilesHash": "3dd76d3507ce4cf628053a2e4469ad2b73b51c9ea29c74657eeeb8f909f96f33"
+      },
+      "scopeDigest": "24afac40b20d683b08666728ded32a2f7a41720182c0fbac6b31d5784a928f08",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "87466f61bfef83f253b0d3874cf8b3003dc6a9880a40cfc5b367d0dfcc3a867e",
+      "coverageDigest": "551fa925ba44247135814b4beb323f115cf217db1ecd3af9c834ba44105c4233",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-06T16:02:39.032Z",
+      "consumedAt": "2026-09-06T16:03:10.179Z",
+      "_hash": "5f7571c2af577eee22042d067fd4ea0ec5c24a3000e7a28ef93396341eebc56f"
     }
   ],
   "criticReceipts": [
@@ -1095,6 +1173,30 @@
       ],
       "createdAt": "2026-09-06T15:53:22.855Z",
       "_hash": "060b13697985421e1353791a70719b655083918b2c15d51a2883fb010d46887a"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-003:CRIT-02",
+      "epochId": "B-e256:RI-003",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T15:32:14.385Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "51d4212bc701aea4f3a3277b2a953c181f5c3efe",
+        "materialHash": "11b6badc5481a14170fdd330d275c9a165b63fee00f3c8ef0ed8848fb6815de2",
+        "storyFilesHash": "3dd76d3507ce4cf628053a2e4469ad2b73b51c9ea29c74657eeeb8f909f96f33"
+      },
+      "aggregateFindingSetDigest": "87466f61bfef83f253b0d3874cf8b3003dc6a9880a40cfc5b367d0dfcc3a867e",
+      "requiredLaneCoverageDigest": "219ee7837a1e81be208637adf20cd0fd35c9e6078f6aab6ebcaa308441c9bbde",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-070",
+      "terminalEvidenceIds": [
+        "B-e256:RP-049"
+      ],
+      "readEvidenceDigest": "df0daaea78d7dd28eda84a09570bb44525c27feb90fba8a00b2372646d6fdc5b",
+      "findingDispositions": [],
+      "createdAt": "2026-09-06T16:02:26.956Z",
+      "_hash": "92ca5fdc1cbd8d28e4e8eefc26b409514feac58b7ac67774e040009b5e54acb3"
     }
   ]
 }
