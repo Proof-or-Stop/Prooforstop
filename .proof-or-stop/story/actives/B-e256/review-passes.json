@@ -683,6 +683,44 @@
       },
       "readDiagnostics": [],
       "_hash": "a1e3479f41891c33d16fa2ac10e9fb2e589114afba6f651bfc27e5c8064efb7a"
+    },
+    {
+      "id": "B-e256:RP-023",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-001 wave 2 completeness critic pass: concept RR-032 and test-coverage RR-033 have signed pass terminals, quality RR-034 has the sole new eligible verified finding F-009, and no required lane or raw wave finding is omitted. F-009 is a distinct family because statSync EACCES and other non-ENOENT failures are collapsed into binTargetExists=false with verification=ok. The affected runtime check and hermetic test are explicitly in CHK-003 and the scope contract, and the false absence plus rebuild-only remediation violates the user-visible fail-closed doctor diagnostic, so the finding is applicable and requires repair in this Story.",
+      "createdAt": "2026-09-06T13:57:29.584Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-035",
+      "envelopeId": "270d7b6bcfdacb4412081b8867158c42572ecf6c416ed71edcd360499cbe599d",
+      "writerSessionId": "sess-55cc3e6a0cc9d4f7ab8c8739d6cdf728",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-e256/review-passes.json",
+          ".proof-or-stop/story/actives/B-e256/scope-contract.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/review-runs.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e6d691554e9a08dc9a887172dc5a66c0919f58fb35b7b31d74d4a67593a5d6dd"
     }
   ]
 }
