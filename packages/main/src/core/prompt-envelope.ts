@@ -157,7 +157,7 @@ const DYNAMIC_FINDING_AUTHORITY = /(?:\bdynamic\s+finding(?:\s+system)?(?:\s+exe
 
 type ReviewerTaskContextAuthoritySource = {
   location: string;
-  kind: 'story' | 'checklist' | 'verificationIntent';
+  kind: 'story' | 'checklist' | 'verificationIntent' | 'scope';
   text: string;
 };
 
@@ -372,6 +372,9 @@ const TRIAGE_DISMISSAL_SUBJECT = /\b(?:finding\s+dismiss|dismissal|dismissed\s+f
 const TRIAGE_DEFERRAL_SUBJECT = /\b(?:defer\s+with\s+proof|finding\s+deferral\s+disposition|deferral(?!\s+lineage))\b/u;
 const TRIAGE_SEVERITY_RESPONSIBILITY_OUTCOME = /\b(?:story\s+(?:scope|ownership|responsibility)|(?:this|the|current)\s+story|scope|ownership|owns?|owned|belongs?|responsibility|routing|repair)\b/u;
 const TRIAGE_STORY_RESPONSIBILITY_OUTCOME = /\b(?:out\s+of\s+scope|non\s+applicable|nonapplicable|not\s+owned\s+by\s+(?:(?:this|the|current)\s+)?story|no\s+responsibility|nonownership|(?:another|separate|other)\s+(?:story|party)|belongs?\s+elsewhere|belongs?\s+to\s+(?:another|a\s+separate|an?\s+other)\s+story|outside\s+(?:(?:this|the|current)\s+)?story|beyond\s+(?:(?:this|the|current)\s+)?story|later\s+work|exclusion\s+from\s+(?:(?:this|the|current)\s+)?story|story\s+(?:scope|ownership|responsibility)|(?:this|the|current)\s+story|scope|ownership|owns?|owned|belongs?|responsibility|routing|repair|resolution|resolved|resolv(?:e|es|ed|ing)\s+(?:the\s+)?finding|applicability(?:\s+verdict)?)\b/u;
+const TRIAGE_UNSAFE_DISMISSAL_OUTCOME = /\b(?:out\s+of\s+scope|non\s+applicable|nonapplicable|not\s+owned\s+by\s+(?:(?:this|the|current)\s+)?story|no\s+responsibility|nonownership|(?:another|separate|other)\s+(?:story|party)|belongs?\s+elsewhere|belongs?\s+to\s+(?:another|a\s+separate|an?\s+other)\s+story|outside\s+(?:(?:this|the|current)\s+)?story|beyond\s+(?:(?:this|the|current)\s+)?story|later\s+work|exclusion\s+from\s+(?:(?:this|the|current)\s+)?story)\b/u;
+const TRIAGE_DISMISSAL_CONCLUSION_TARGET = /\b(?:it|this|that|issue|finding|work|defect)\b/u;
+const TRIAGE_CAUSAL_LINK = /\b(?:accordingly|consequently|therefore|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\b/u;
 const TRIAGE_ROUTING_OR_GATE_OUTCOME = /\b(?:routing|route|routes|routed|handoff|hand\s+off|handing\s+(?:the\s+)?(?:finding|issue|defect)\s+off|eligible\s+for\s+handoff|park(?:s|ed|ing)?|postpon(?:e|es|ed|ing)|transfer(?:s|red|ring)?|send(?:s|ing)?|sending|leave(?:s|d|ing)?|defer|deferral|non\s+blocking|advisory|away\s+from\s+(?:(?:this|the|current)\s+)?story|(?:finding|issue|defect|work)\s+(?:to|into|beyond)\s+(?:(?:another|separate|this|current|the)\s+)?story|(?:another|separate)\s+story|later\s+work|(?:finding|issue|defect|work)\s+elsewhere|outside\s+(?:(?:this|the|current)\s+)?story|clear(?:s|ed)?\s+(?:the\s+)?(?:review\s+)?blocker|remove(?:s|d)?\s+(?:the\s+)?(?:review\s+)?blocker|(?:removal|clearance)\s+of\s+(?:the\s+)?(?:review\s+)?blocker|(?:review\s+)?gate\s+relief|unblock(?:s|ed)?)\b/u;
 
 // Bare `priority` is this repository's story risk-signal vocabulary (see the
@@ -477,6 +480,10 @@ function classifyControlledRelationSegment(
   segment: string,
   spec: ControlledTriageRelationSpec,
 ): ControlledTriageRelationClassification {
+  if (spec.family === 'dismissal-story-responsibility'
+    && isStandaloneNegativeDismissalObservation(segment)) {
+    return { family: spec.family, state: 'explicitly-safe' };
+  }
   if (!hasControlledConceptPair(segment, spec)) {
     return { family: spec.family, state: 'unclassified' };
   }
@@ -503,45 +510,52 @@ function classifyControlledRelationSegment(
 }
 
 /**
- * Recognize one complete negative observation about a dismissal. It may be
- * excluded from the later whole-source co-occurrence pass only after the
- * bounded linkage scan below proves that no nearby conclusion refers back to
- * it. Conjunctions and causal tails remain outside this grammar.
+ * Recognize one complete negative observation about a dismissal by relation,
+ * not by a fixed number of modifiers or actor words. The negative determiner
+ * must bind the sole dismissal subject, and any tail may only identify the
+ * observing actor. Responsibility conclusions remain outside this grammar.
  */
 function isStandaloneNegativeDismissalObservation(segment: string): boolean {
   const subjectRanges = matchRanges(segment, TRIAGE_DISMISSAL_SUBJECT);
-  if (subjectRanges.length !== 1 || TRIAGE_STORY_RESPONSIBILITY_OUTCOME.test(segment)) return false;
+  if (subjectRanges.length !== 1 || TRIAGE_UNSAFE_DISMISSAL_OUTCOME.test(segment)) return false;
   const [subjectRange] = subjectRanges;
   const prefix = segment.slice(0, subjectRange.start).trim();
   const suffix = segment.slice(subjectRange.end).trim();
-  return /^no(?:\s+[\p{L}\p{N}_-]+){0,4}$/u.test(prefix)
-    && /^(?:by\s+(?:this|the|current|that|an?)(?:\s+[\p{L}\p{N}_-]+){1,3})?$/u.test(suffix);
+  const negativeDeterminers = matchRanges(prefix, /\bno\b/u);
+  const negativeDeterminer = negativeDeterminers.at(-1);
+  if (!negativeDeterminer || /\b(?:not|never)\s+no\b/u.test(prefix)) return false;
+  const boundSubjectPrefix = prefix.slice(negativeDeterminer.end).trim();
+  if (boundSubjectPrefix.length === 0
+    || /\b(?:and|but|however|yet|although|while|except|unless|therefore|accordingly|consequently|so)\b/u.test(boundSubjectPrefix)) {
+    return false;
+  }
+  return suffix.length === 0
+    || (/^by\b/u.test(suffix)
+      && !/\b(?:and|but|however|yet|although|while|therefore|accordingly|consequently|so)\b/u.test(suffix));
 }
 
 function isLinkedResponsibilityConclusion(segment: string): boolean {
-  if (!TRIAGE_STORY_RESPONSIBILITY_OUTCOME.test(segment)) return false;
-  return /^(?:it|this|that)\b/u.test(segment)
-    || /^(?:accordingly|consequently|therefore|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\b/u.test(segment)
-    || /^(?:the\s+)?(?:issue|finding|work|defect)\b/u.test(segment);
+  if (!TRIAGE_UNSAFE_DISMISSAL_OUTCOME.test(segment)
+    || !TRIAGE_DISMISSAL_CONCLUSION_TARGET.test(segment)) return false;
+  return !controlledConceptPairIsExplicitlyNegative(
+    segment,
+    TRIAGE_DISMISSAL_CONCLUSION_TARGET,
+    TRIAGE_UNSAFE_DISMISSAL_OUTCOME,
+    Number.MAX_SAFE_INTEGER,
+  );
 }
 
 /**
- * Look through at most two benign intervening statements and a bounded amount
- * of text. This catches direct, causal, and coreferent conclusions without
- * flattening an entire Story description into one synthetic relationship.
+ * Historical name retained as the dynamic mutation seam. The relation itself
+ * is structurally bounded by a complete source leaf and a target-bearing
+ * responsibility conclusion, not by an evadable segment or character count.
  */
 function hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal(
   segments: readonly string[],
 ): boolean {
   return segments.some((segment, index) => {
     if (!isStandaloneNegativeDismissalObservation(segment)) return false;
-    let traversedCharacters = 0;
-    for (const candidate of segments.slice(index + 1, index + 4)) {
-      traversedCharacters += candidate.length + 1;
-      if (traversedCharacters > 360) break;
-      if (isLinkedResponsibilityConclusion(candidate)) return true;
-    }
-    return false;
+    return segments.slice(index + 1).some(isLinkedResponsibilityConclusion);
   });
 }
 
@@ -924,11 +938,16 @@ function hasDynamicFindingAuthorityAmendmentAssertion(
   return false;
 }
 
-function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySource): ReviewTriageAuthorityViolation | null {
+function reviewerTaskContextAuthoritySourceIsMetaSafe(source: ReviewerTaskContextAuthoritySource): boolean {
   if (isPureInterrogative(source.text)
     || isExplicitFailClosedQuotedFixture(source.text)
     || isExplicitRejectedAuthorityStatement(source.text)
-    || isNegativeMutationVerificationIntent(source)) return null;
+    || isNegativeMutationVerificationIntent(source)) return true;
+  return false;
+}
+
+function reviewTriageAuthorityViolation(source: ReviewerTaskContextAuthoritySource): ReviewTriageAuthorityViolation | null {
+  if (reviewerTaskContextAuthoritySourceIsMetaSafe(source)) return null;
   const wholeSourceIsInvariantAssertion = isWholeSourceDynamicFindingInvariantAssertion(source.text);
   const segments = triageAuthoritySegments(source.text);
   const controlledViolation = controlledTriageViolation(
@@ -1013,7 +1032,48 @@ function reviewerTaskContextAuthorityText(taskContext: FullTaskContext): Reviewe
       }
     }
   }
+  if (taskContext.scope !== undefined) {
+    taskContext.scope.explicitExcludes.forEach((text, index) => {
+      values.push({ location: `scope.explicitExcludes.${index}`, kind: 'scope', text });
+    });
+    taskContext.scope.protectedAnchors.forEach((text, index) => {
+      values.push({ location: `scope.protectedAnchors.${index}`, kind: 'scope', text });
+    });
+    taskContext.scope.fileRules.forEach((rule, ruleIndex) => {
+      rule.allowedAnchors.forEach((text, index) => {
+        values.push({ location: `scope.fileRules.${ruleIndex}.allowedAnchors.${index}`, kind: 'scope', text });
+      });
+      rule.deniedAnchors.forEach((text, index) => {
+        values.push({ location: `scope.fileRules.${ruleIndex}.deniedAnchors.${index}`, kind: 'scope', text });
+      });
+      rule.protectedAnchors.forEach((text, index) => {
+        values.push({ location: `scope.fileRules.${ruleIndex}.protectedAnchors.${index}`, kind: 'scope', text });
+      });
+    });
+  }
   return values;
+}
+
+function crossSourceNegativeDismissalAuthority(
+  sources: readonly ReviewerTaskContextAuthoritySource[],
+): { observation: ReviewerTaskContextAuthoritySource; conclusion: ReviewerTaskContextAuthoritySource } | null {
+  const eligibleSources = sources.map(source => ({
+    source,
+    segments: reviewerTaskContextAuthoritySourceIsMetaSafe(source)
+      ? []
+      : triageAuthoritySegments(source.text),
+  }));
+  for (let observationIndex = 0; observationIndex < eligibleSources.length; observationIndex += 1) {
+    const observation = eligibleSources[observationIndex];
+    if (!observation.segments.some(isStandaloneNegativeDismissalObservation)) continue;
+    for (const conclusion of eligibleSources.slice(observationIndex + 1)) {
+      if (conclusion.segments.some(segment => TRIAGE_CAUSAL_LINK.test(segment)
+        && isLinkedResponsibilityConclusion(segment))) {
+        return { observation: observation.source, conclusion: conclusion.source };
+      }
+    }
+  }
+  return null;
 }
 
 /**
@@ -1031,13 +1091,20 @@ function assertReviewerTaskContextAuthoritySafety(
   taskContext: FullTaskContext,
 ): void {
   if (!isModularReviewerRoleId(roleId)) return;
-  for (const source of reviewerTaskContextAuthorityText(taskContext)) {
+  const sources = reviewerTaskContextAuthorityText(taskContext);
+  for (const source of sources) {
     const violation = reviewTriageAuthorityViolation(source);
     if (violation) {
       throw new Error(
         `REVIEW Task Context contains unsafe Finding-triage authority at ${source.location}: ${violation}`,
       );
     }
+  }
+  const crossSourceViolation = crossSourceNegativeDismissalAuthority(sources);
+  if (crossSourceViolation !== null) {
+    throw new Error(
+      `REVIEW Task Context contains unsafe Finding-triage authority across ${crossSourceViolation.observation.location} -> ${crossSourceViolation.conclusion.location}: dismissal used as applicability proof`,
+    );
   }
 }
 

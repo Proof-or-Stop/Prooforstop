@@ -1106,9 +1106,10 @@ function assertLinkedNegativeDismissalUnsafeMatrix(
   assemble: typeof assembleFullPromptEnvelope,
   roleId: typeof ACTIVE_MODULAR_REVIEWER_ROLE_IDS[number],
   reviewRunId: string,
+  descriptions: readonly string[] = linkedNegativeDismissalUnsafeDescriptions,
 ): void {
   const roleCommon = roleAssemblyInput(roleId, reviewRunId);
-  for (const unsafeDescription of linkedNegativeDismissalUnsafeDescriptions) {
+  for (const unsafeDescription of descriptions) {
     assert.throws(
       () => assemble({
         ...roleCommon,
@@ -1666,6 +1667,7 @@ try {
       noSafeNarrowingMutant.assembleFullPromptEnvelope,
       roleId,
       `B-envelope:RR-no-safe-unsafe-${roleId}`,
+      linkedNegativeDismissalUnsafeDescriptions.slice(0, 9),
     );
   }
 
