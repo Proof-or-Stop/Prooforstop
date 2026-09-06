@@ -210,8 +210,8 @@
           "packages/main/tests/red/red-global-cli-exec-bit.mjs"
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-06T16:19:56.459Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -513,6 +513,15 @@
       "to": "done",
       "reason": "Implementation commit 528a0ebcb validates and restores staging bin targets before eviction; focused regression passed.",
       "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-06T16:19:56.459Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reattest the committed registered red regression after lifecycle reopening."
     }
   ]
 }
