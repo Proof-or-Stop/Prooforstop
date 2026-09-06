@@ -1543,6 +1543,52 @@
       ],
       "signatureTag": "prompt-envelope-dynamic-authority-prohibition-open-tail-laundering",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-034",
+      "desc": "packages/main/src/core/prompt-envelope.ts:916-919 treats `Add tests covering .+ and the subordinate ... projections of the Dynamic Finding authority` as a safe subordination relation, but the open `.+` body is never checked for an authority amendment. Against the committed built assembleFullPromptEnvelope API, all five active modular REVIEW roles ADMIT `Add tests covering this Story adds a new applicability verdict and the subordinate Agent-side projection of the Dynamic Finding authority.` The genuinely safe wrapper `Add tests covering all roles and the subordinate Agent-side projection of the Dynamic Finding authority.` is admitted, while the direct unsafe control `This Story adds a new applicability verdict to the Dynamic Finding authority.` is rejected for all roles, isolating the escape to subordinateBefore. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1018 covers only the short safe subordination sentence, and the live long context at :387 uses the separate `Add adversarial tests covering` branch; neither inserts an amendment into this non-adversarial open body. This is distinct from F-025's canonical approved-segment filter, F-030's schemaInvariant shortcut, and F-033's explicit-prohibition tail: this is the Dynamic Finding amendment detector's separate subordinate grammar. Replace the open body with a closed inventory or independently scan its residue before accepting subordination, and add all-role safe/unsafe controls. Severity high because Story-authored Task Context can publish a new applicability verdict before envelope digests while the focused smoke remains green.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T18:51:27.527Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-060",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "b1236ccc3ee8765a06bc079366c6ceb2531d2b889f12d1b3b57c3b446a3938b0",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-dynamic-subordinate-open-body-laundering",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
