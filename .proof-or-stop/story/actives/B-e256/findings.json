@@ -1792,7 +1792,7 @@
       "desc": "quality-windows-path-command-selection: packages/main/src/core/runtime-environment-checks.ts:1718-1747 prepends the extensionless proof-or-stop file before every PATHEXT candidate and treats any regular file as runnable on win32. Windows resolves an unqualified command through executable extensions, so in an npm-style bin directory containing the extensionless shell shim beside proof-or-stop.cmd, doctor can inspect the wrong file rather than the command the host actually launches. A current built-runtime probe set process.platform=win32 and PATHEXT=.COM;.EXE;.BAT;.CMD, placed a valid extensionless shim beside a broken proof-or-stop.cmd, and used the production resolver: cliEntrypoint selected the extensionless file, global-core-realpath returned pass/verification=ok, and the contract marker was emitted. This is distinct from F-037: even a perfect content parser still validates the wrong PATH artifact. Model Windows command lookup using PATHEXT order and add a production-resolver regression with competing bare and .cmd shims. severity: critical",
       "severity": "critical",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T21:26:49.448Z",
@@ -1838,7 +1838,11 @@
       "signatureTag": "windows-path-pathext-shim-selection",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbnwix_1k83_7b227b4909a64ef595a49277664bd9f3",
-      "ledgerCommitReceiptId": "lrc_mtqbnwix_1k83_d8e90c93fe1842b8ada4d15aa4d8da64"
+      "ledgerCommitReceiptId": "lrc_mtqbnwix_1k83_d8e90c93fe1842b8ada4d15aa4d8da64",
+      "resolvedAt": "2026-09-06T23:38:35.800Z",
+      "resolvedReason": "Commit 3144360a65 resolves Windows commands in actual PATHEXT order without preferring an extensionless file. The hermetic ordering regression and current full validation pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-040",
