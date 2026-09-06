@@ -1018,6 +1018,7 @@
       "signatureTag": "edge|json|test-coverage-win32",
       "signatureTagSource": "auto",
       "recordId": "lr_mtq6uppk_1f7d_ecb4b2b6ec5d49dbba0966555501e890",
+      "ledgerCommitReceiptId": "lrc_mtq6uppl_1f7d_07b075a2b52f4e4c9868668d2e0627f2",
       "resolvedAt": "2026-09-06T19:12:09.147Z",
       "resolvedReason": "Commit 1e1e346043 adds symlink-capability probes and a Windows X_OK/npm-shim branch to global-core-realpath.test.mjs, while retaining POSIX chmod semantics only on POSIX. CHK-003 was updated to the platform-correct contract and the focused suite plus full 132-command validation passed.",
       "resolutionType": "fixed",
@@ -1028,7 +1029,7 @@
       "desc": "test-coverage-host-bound-doctor-selector: .proof-or-stop/story/actives/B-e256/checklist.json:343-351 defines CHK-003:happy:0 as a must intent but pins its doctor selector to the submitter-specific macOS absolute path `global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=`. The stored receipt at checklist.json:470-485 proves only that checkout and cannot be refreshed in a Windows checkout (or any clone at another root) even when doctor emits a correct global-core-realpath row. Use a path-invariant selector plus fixture assertions for the resolved root, or a supported platform-aware selector contract. This is distinct from F-025, which concerns CHK-001's POSIX-only hermetic label. severity: medium",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T17:24:53.650Z",
@@ -1077,7 +1078,12 @@
         ".proof-or-stop/story/actives/B-e256/checklist.json"
       ],
       "signatureTag": "missing|json|test-coverage-host",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtq6uquu_1fhw_7f642fd4f29d4183a19eb30e0192fb9b",
+      "resolvedAt": "2026-09-06T19:12:10.625Z",
+      "resolvedReason": "CLI-owned checklist commit 6868d4f changes CHK-003 happy evidence from the submitter-specific absolute path to contract: global-core-realpath-pass. The current doctor receipt matched this host-independent marker and the full 132-command validation passed.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-028",
