@@ -1,10 +1,10 @@
 {
   "storyId": "B-fe8f",
-  "changes": "Implemented Section 9.3 Finding Ledger and Runtime Evidence Integrity: durable fenced append batches, idempotent replay, exact-record CAS, signed source/artifact/runtime binding, protected query and fail-closed readers. User-authorized closeout repairs preserve RED/GREEN: F056 uses the shared seven-field INIT_CHECK signature-domain renderer (e8b35c09b96bfa363940a795f24d7c012be5fb67); F055 explains the retired-prefix negative control (826ea187224bf510c801834cac9e8928ad29041c); F057 safely distinguishes causal preflight refusal branches (RED c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6, GREEN e23615ad1605e7126094de46d959341d9c407415). Main synchronization retains shared DONE predicates, full-output pinned evidence and receipt-keyed import isolation alongside B-fe8f raw-result reuse with independent selector verdicts. BUG-CERT-001 additionally repairs the current PRE_CERT admission blocker in two scoped files: disjoint sibling build-input rules and exact historical migration-tombstone classification without dropping hash inputs or re-enabling retired runtime paths (RED0fafd2dac95b9d2fb6a694173756679515f4790b, GREEN9754c4b3174ca1e36b3748539f417ebaab93dac5).",
+  "changes": "Implemented Section 9.3 Finding Ledger and Runtime Evidence Integrity: durable fenced append batches, idempotent replay, exact-record CAS, signed source/artifact/runtime binding, protected query and fail-closed readers. User-authorized closeout repairs preserve RED/GREEN: F056 uses the shared seven-field INIT_CHECK signature-domain renderer (e8b35c09b96bfa363940a795f24d7c012be5fb67); F055 explains the retired-prefix negative control (826ea187224bf510c801834cac9e8928ad29041c); F057 safely distinguishes causal preflight refusal branches (RED c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6, GREEN e23615ad1605e7126094de46d959341d9c407415). Main synchronization retains shared DONE predicates, full-output pinned evidence and receipt-keyed import isolation alongside B-fe8f raw-result reuse with independent selector verdicts. BUG-CERT-001 additionally repairs the current PRE_CERT admission blocker in two scoped files: disjoint sibling build-input rules and exact historical migration-tombstone classification without dropping hash inputs or re-enabling retired runtime paths (RED0fafd2dac95b9d2fb6a694173756679515f4790b, GREEN9754c4b3174ca1e36b3748539f417ebaab93dac5). BUG-CERT-002 corrects that follow-up repair without bypassing the brand guard: build inputs are bounded to current supported roots and only exact migration tombstones receive the historical exception (RED55c9f4e9ee60768a06c52f968dd716873b222b79, GREEN2bee7e31e2561365f507f1780fa72f07cbd51fd1).",
   "usage": "From the Story worktree use node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f for the signed ledger/runtime scorecard. Use official Finding and runtime evidence CLI commands rather than editing protected records. After installation the public executable is proof-or-stop.",
   "expectedOutcome": "Deliver the Section9.3 Finding ledger/runtime integrity foundation with genuine RED/GREEN evidence, fresh lifecycle verification, independent review and a local main merge.",
-  "actualTranscript": "Current implementation source9754c4b3174ca1e36b3748539f417ebaab93dac5 includes the previously reviewed foundation and BUG-CERT-001's bounded current-DONE blocker repair. The same full certification-window-smoke exited1 on RED then0 on GREEN; real Git fixtures preserve8historical deleted/renamed-oldside inputs, sibling build-input blob/deletion drift, and9live/unknown/near-miss refusals. Production B-fe8f now derives6domain hashes over56changed-file entries with all8historical tombstone paths retained. Logs: /tmp/bfe8f-cert-path.dPFrjS/. Required retired-authority guard exited0. Official evidence refresh completed392.6seconds; full CLI checklist read verified71/71 mechanical PASS, receipt.exitCode0, selectorMatched=true and causalReceiptHash present, all bound to material ff65fca1954e98032e8dc4b2483469feaa8aee866ff5bd1c4d221821646d740d and storyFiles15f6210683a9d18fc5ef368b7a184aede3c0b73b533fccfbe001f8b64dd9f607. Six checklist items are done. The prior source2086edd completed132/132 routine validation and Round28 realClaude/Codex review/quorum, but those results are historical after the new source change, not current PASS. Its original stdout/stderr remain /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/. New current-source review, certification admission, routine/DONE-required validation, delivery and local-main merge remain pending. B-fe8f has re-entered REVIEW at121c4d1; BUG-CERT-001 is formally fixed through bug_update with the preserved RED/GREEN chain. No bugs remain open. F055-F060 prior official resolutions and RED/GREEN remain preserved; F057 never claims the exact old refusal cause is known.",
-  "outcomeDiff": "Scoped implementation and71current mechanical evidence rows pass; current-source review, certification admission, routine and DONE-required validation, independent delivery and local main merge remain pending.",
+  "actualTranscript": "Current source2bee7e31e2561365f507f1780fa72f07cbd51fd1 includes the foundation and the bounded two-file BUG-CERT-002 repair. The prior DONE-required run on source9754 passed build but failed root npmtest on the introduced deprecated-literal decision; preserved original output /tmp/bfe8f-cert002-red.AhG4Fx/done-required-tool-output.log. Independent focused residue RED exits1. RED55c9f4e9 adds assertions that catch six unknown build-like namespace admissions; same full certification smoke exits0 after GREEN2bee7e31 without assertion changes. Build, residue, residue-inject, retired-authority guard and diff-check all exit0; exact8historical tombstones, legitimate build roots, source/blob/deletion/domain drift and live/unknown/rename-into rejection controls remain tested. Actual committed Story derives6domains over56changed entries. Raw logs /tmp/bfe8f-cert002.ONPs6H/. Official verification_evidence_refresh_stale re-executed pinned verifiers in431.6seconds; full CLI read confirms71/71 mechanical PASS with exit0, selectorMatched=true, causalReceiptHash present and current material29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6/storyFilesc0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8. Six checklist items and four milestones are complete. RI005 completed two frozen-source inventory waves and preserved F061/F062 as one real defect family; its signed receipt authorized the bounded DEV remediation, not TEST. Original F055-F060 resolutions and RED/GREEN are preserved. Source2086edd's132/132 validation and old realClaude/Codex quorum are historical after the new code change. Current-source final review, certification re-admission, routine/DONE-required validation, independent delivery and local main merge remain pending. F057's exact historical refusal branch remains unknown. Current source has entered REVIEW. BUG-CERT-002 and both structured observations F061/F062 are formally fixed/resolved against the same actual RED/GREEN chain; current final reviewer passes are not yet claimed. Acceptance rollout check is current and passes enforcement with no diagnostics; topology remains nonblocking observe/inconclusive.",
+  "outcomeDiff": "Bounded implementation, focused regression tests and71current mechanical evidence rows pass. Final current-source review, routine/DONE-required validation, independent delivery and local main merge remain pending.",
   "acceptanceVerdict": "partial",
   "outcomeKind": "blocked",
   "realMachineCoverage": {
@@ -27,19 +27,19 @@
       "durationMs": 26996827
     },
     "DEV": {
-      "count": 39,
-      "durationMs": 175645820
+      "count": 40,
+      "durationMs": 176827170
     },
     "REVIEW": {
-      "count": 29,
-      "durationMs": 194880676
+      "count": 30,
+      "durationMs": 197603770
     },
     "TEST": {
       "count": 3,
       "durationMs": 60922833
     }
   },
-  "totalDurationMs": 460180394,
+  "totalDurationMs": 464084838,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -47,10 +47,10 @@
     "cumulativePassedCases": 0
   },
   "bugStats": {
-    "found": 1,
-    "fixed": 1,
+    "found": 2,
+    "fixed": 2,
     "open": 0
   },
   "createdAt": "2026-09-04T15:43:03.331Z",
-  "updatedAt": "2026-09-06T16:02:35.941Z"
+  "updatedAt": "2026-09-06T17:07:40.385Z"
 }
