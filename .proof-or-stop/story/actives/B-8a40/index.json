@@ -4,7 +4,7 @@
   "title": "Repair the B-bcae reviewer context classifier",
   "description": "The exact B-bcae text causes the current prompt-envelope classifier to stop reviewer startup before a run identifier is issued. Two discarded supporting attempts produced immutable RED and GREEN commits and exposed both an unsafe broad-filter shortcut and a recursive metadata naming hazard. Port the test-first candidate from commits 30f1f5e1da and 12363ef512 into a neutrally named Story, extend it for the newly observed causal-prefix variants and per-witness mutant checks, retain the existing rejection corpus, and merge it locally before B-bcae resumes. Only the classifier and focused smoke are in scope.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "PLAN",
   "priority": "high",
   "keywords": [
     "prompt-envelope",
@@ -33,6 +33,15 @@
       "branch": "main",
       "user": "Harmonynet",
       "sessionId": "sess-0f347f45023d90c0cf383608a5bcd467",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-06T16:18:46.803Z",
+      "branch": "story/B-8a40",
+      "user": "Harmonynet",
+      "sessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
       "agent": "main"
     }
   ],
