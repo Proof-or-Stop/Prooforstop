@@ -3915,6 +3915,414 @@
       "fullContextBytes": 25374,
       "incrementalContextBytes": 21293,
       "escalatedToFull": false
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-quality",
+      "storyId": "B-e256",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-e256:RR-045",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "lane": "proof-or-stop-review-quality",
+      "dispatchPromptDigest": "e0353c5fb1070c854294889407edaa655a5edca297080d76a6868d8cc2ab091c",
+      "hostRenderIdentityDigest": "571816810e58bc250da489855f5d9ca4fc6cc64035048ad1ef97c7c238f39e00",
+      "createdAt": "2026-09-06T14:29:18.048Z",
+      "headHash": "d019b0471a9988f61f477c7890533cad6fcde5e7",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "db1ded0feb790b52d503493df206bfa48daef517bbc0db97fdd27e369b1dd9c4",
+      "roleRenderDigest": "7549f3d81837aa403fe7fdb6f6bf19668d07e50ebcecb893592758a276cfcb21",
+      "contextMode": "incremental",
+      "contextDigest": "9111c895a20471934f7aad5985bb6edebbad341622691b1bd229910a1bd67892",
+      "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+      "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d",
+      "policyHash": "ce1b05922bc7cb4211a8ad58a477656a90662d42694a24ff4c4809c3f1fbac59",
+      "eligibilityDecision": "incremental",
+      "eligibilityDigest": "90866b88fc22f88c0c3c4d7585d48d3b741ac6d89bef0d4ed83d36d11f1f5652",
+      "knownExecutionEnvironmentDigest": "392606c7acc37720a5b704d079ac9931617d2c8188b3416269ab05433b0aff64",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "9c6a85bd089b7155f3017261393fbdf4da57b016824d70c0db8c98ff4e15d911",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "009f4410a24015236298b112f9350647c7b7c2d15a64d0c0d864a29f0f5abb80",
+      "bytes": 24772,
+      "lines": 193,
+      "estimatedTokens": 6193,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "6bc42f3f1e2a36eeb3d55257c8e3091194a5e12bd3c9e436c4d2124e97449d53",
+      "priorPassRef": "B-e256:RP-029",
+      "freshnessClassification": "CURRENT_MATERIAL",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "ELIGIBLE_NO_MATERIAL_CHANGE",
+        "ELIGIBLE_TRUSTED_PRIOR_BINDINGS"
+      ],
+      "changedFilesDigest": "ce39c82f18aea7568f558050388905f8e7e6ebc9a14d39e222b3ac3c57419ff2",
+      "impactedFilesDigest": "dd8f5205a92536795510a242fad3802357c41d2c486aa747162ba37bd521b049",
+      "taskSemanticDigest": "74dc96acb5ba09211f1e34d22080b5267c7513ed9004607c05cd75340dfb9c9e",
+      "findingProjection": [
+        {
+          "id": "B-e256:F-001",
+          "createdAt": "2026-09-02T16:24:56.382Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:549-550 hardcodes the literal string proof-or-stop for the bin key lookup instead of reusing the existing CANONICAL_ROOT_PACKAGE_NAME constant (defined at line 117 and already used at lines 1153/1291 for the same command name). Low risk of drift if the bin/command name is ever renamed in one place but not the other."
+        },
+        {
+          "id": "B-e256:F-002",
+          "createdAt": "2026-09-02T16:28:45.651Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/runtime-environment-checks.ts:558-561,613-616 (inspectGlobalCoreExecutable + checkGlobalCoreRealpath) added in this story a distinct warning branch for a global bin target that is missing/not-a-file (executableFacts.binTargetExists=false), which renders a different remediation string (\"...does not exist; rebuild: npm --prefix <realpath> run build\") than the non-executable-mode branch. CHK-003:adversarial:0 verificationEvidence (packages/main/tests/global-core-realpath.test.mjs cases 4 and 5) only exercises: case 4 = bin target present but mode 0644 (non-executable, file exists), case 5 = .worktrees/ realpath drift with an executable bin. Neither case, nor any other verificationEvidence for CHK-003, constructs a package whose declared bin target file is absent or is a directory, so the ENOENT/non-file sub-branch and its rebuild remediation string are never executed by any test -- grep for rebuild|does not exist across the test file returns zero hits. This is exactly the kind of drift the story is meant to catch (a broken/missing build artifact behind global proof-or-stop), so the untested branch is in-scope, not incidental."
+        },
+        {
+          "id": "B-e256:F-003",
+          "createdAt": "2026-09-03T01:12:59.277Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "commit b13839b411 (git cherry-pick -x from story/B-83aa 8ebfff3550) modifies packages/main/src/tasks/validation-tier-planner-smoke.ts and packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, neither of which is in .proof-or-stop/story/actives/B-e256/scope-contract.json allowedModify/allowedCreate, and no checklist item carries a reason for the scope change. Content verified correct (byte-identical body to 8ebfff3550, cwd-neutrality assertion is non-vacuous, DYNAMIC_BINDING_BUILD_CEILING 808->809 is harmless since B-e256 adds no new .ts source and the guard still reports builds=808), but the story now carries an unreviewed-under-this-story, cross-story commit authored for B-83aa CHK-004 embedded via cherry-pick before B-83aa has landed on main. This is a scope-contract/provenance gap (mode=shadow, so not mechanically blocked), not a functional defect: recommend amending scope-contract/checklist to record the reason, or landing the shared F-023/ceiling fixture fix on main directly instead of duplicating it across in-flight stories via cherry-pick."
+        },
+        {
+          "id": "B-e256:F-004",
+          "createdAt": "2026-09-03T21:12:59.786Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/runtime-environment-checks.ts:1576-1587 defaultCompiledCoreVersionProbe (the production probe actually wired by default at line 248) has two branches -- the readFileSync catch (unbuilt/missing dist/core/proof-or-stop-brand.js, ENOENT) and the COMPILED_CORE_VERSION_RE non-match (partially built or unparsable content) -- that are never exercised by any test using the DEFAULT probe. packages/main/tests/global-core-realpath.test.mjs case 29 (around lines 950-970) only injects a compiledCoreVersionProbe STUB via extraOptions to simulate a probe failure; writeCorePackage/makeRepoWithWorktree never pass compiledVersion:null (which would skip writing the brand file) or malformed brand-file content, so the real function's own ENOENT and unparsable-content error messages are dead-in-tests. Separately, unlike its sibling BRAND_EXPORT_RE in core/version-bump.ts (which the doc comment at lines 1562-1573 claims this is the same regex shape as), this probe applies COMPILED_CORE_VERSION_RE with no comment-stripping and no duplicate/ambiguous-match guard -- version-bump.ts throws on more than one match (version-bump.ts:213-218) precisely because a second export-shaped occurrence (e.g. in a comment) would let exec() silently pick the wrong one; defaultCompiledCoreVersionProbe has no equivalent check, so a future brand-file comment change that happens to contain export-shaped text would silently report the wrong compiled version rather than failing loudly. Low risk today (no such occurrence exists in the real file) but it is exactly the untested/unguarded shape this round was asked to scrutinize."
+        },
+        {
+          "id": "B-e256:F-005",
+          "createdAt": "2026-09-04T07:52:11.281Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/version-bump.ts:210 (commit 47382c6681) is modified (export added to findBrandExport) outside the story scope-contract allowedModify list (scope_contract_check reports OUT_OF_SCOPE warn, mode=shadow) and there is no scope_question_resolve / acknowledgement recorded anywhere in the story artifacts (scope-contract.json, checklist.json, scope-check.json) naming this file. The change itself is small and sound (adds an `export` keyword plus a doc comment, no behavior change to version-bump.ts, verified byte-identical logic via mutation test), but it is an unacknowledged scope expansion that the CLAUDE.md scope-contract process requires to be declared/acknowledged rather than silently landed."
+        },
+        {
+          "id": "B-e256:F-006",
+          "createdAt": "2026-09-06T13:27:56.662Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:1932 renders version from actual.version (package.json) even though the new compiled-runtime probe stores the executable’s authoritative version in actual.compiledVersion. When package.json is 2.0.0 but dist still serves 1.9.0, the global-core-realpath summary row therefore says version=2.0.0 while its warning says the compiled runtime reports 1.9.0; this contradicts the promised reported-version diagnostic and can mislead operators. Render compiledVersion (or clearly label both manifest and compiled values) and add a stale-compiled-version row assertion. severity: medium"
+        },
+        {
+          "id": "B-e256:F-007",
+          "createdAt": "2026-09-06T13:30:21.678Z",
+          "status": "open",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "concept-cleanup: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:52 fixed-clock waitForFile deletion is incomplete: DESCENDANT_PID_READY_TIMEOUT_MS remains as an unused declaration after every consumer was replaced by lifecycle-bounded waitForChildFile; this dead residue contradicts the new child-lifecycle waiting concept and can mislead future maintenance. severity=critical"
+        },
+        {
+          "id": "B-e256:F-008",
+          "createdAt": "2026-09-06T13:38:10.277Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-runtime-probe-parse: packages/main/src/core/runtime-environment-checks.ts:1566-1568 accepts every non-empty `npm root -g` stdout value as a valid filesystem root, although the new structured-probe contract says unparsable output must be a failure. Verified against the built candidate with PATH resolving `npm` to `/bin/echo`: stdout `root -g` produced globalCoreRealpath.status=pass, installed=false, and npmRoot=`root -g`. A noisy, wrapped, or corrupt npm response is therefore misreported as known absence and defeats the fail-closed doctor diagnostic. severity: medium"
+        },
+        {
+          "id": "B-e256:F-009",
+          "createdAt": "2026-09-06T13:52:46.502Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-bin-target-stat-probe: packages/main/src/core/runtime-environment-checks.ts:703-708 catches every statSync failure and reports binTargetExists=false with verification=ok. Verified against the built frozen candidate using an existing executable bin below a mode-000 parent: stat failed with EACCES, but globalCoreRealpath said the target does not exist and prescribed only npm rebuild. This conflates an unreadable or I/O-failed installed target with ENOENT, discards the errno, and can send operators through a rebuild that cannot repair permissions or filesystem access. Preserve non-ENOENT probe failures as unverifiable drift with the errno and add a hermetic denied-stat case. severity: medium"
+        },
+        {
+          "id": "B-e256:F-010",
+          "createdAt": "2026-09-06T14:04:22.505Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-bin-target-containment-prefix: scripts/promote-dist.mjs:98-100 treats every relative path beginning with `..` as outside `dist`. A valid package.json bin target such as `dist/..cli.js` yields `relative(...) === \"..cli.js\"`, so restoreBinExecutableBits skips it; a targeted probe against the frozen candidate returned restored=[] and left mode 0644. This violates the CHK-001 contract to restore every listed in-dist bin target and can leave the linked CLI non-executable. Use an exact parent traversal check and add a hermetic in-dist dot-prefix case. severity: medium"
+        }
+      ],
+      "findingProjectionDigest": "627b67f041ccd854f4b035a999d30bc57ddfa3bc08a270ef88f60e69c951d861",
+      "reviewBasisDigest": "9111c895a20471934f7aad5985bb6edebbad341622691b1bd229910a1bd67892",
+      "incrementalContextDigest": "3cafc60c68b2f22a7f5761a318e9d07a1871701c3c0ef09f500c0322bd4189eb",
+      "selectionReason": "SAFE_INCREMENTAL",
+      "fullContextBytes": 28861,
+      "incrementalContextBytes": 24772,
+      "escalatedToFull": false
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-concept",
+      "storyId": "B-e256",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-e256:RR-046",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "lane": "proof-or-stop-review-concept",
+      "dispatchPromptDigest": "47b66ffad7c034103166bb0a1d4177d53a4eefc7c300d9151bee5f3cd766b85b",
+      "hostRenderIdentityDigest": "4cbd61599ada2df6c7abb0ed4106b3b59ee1b5f4e5236f99cef61c19bee2c1e5",
+      "createdAt": "2026-09-06T14:29:36.402Z",
+      "headHash": "d019b0471a9988f61f477c7890533cad6fcde5e7",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "5b18366315614a3a1a31852df7ac0a6b75e5fe24d01af090d4cdcfe5fe18d1bf",
+      "roleRenderDigest": "2d7b65a7a090f2a7a96f692dfebbbed4151d64dc593c344a9fe1c02b0211e536",
+      "contextMode": "incremental",
+      "contextDigest": "3df01083298d5782ead5254d1b0cd826be4563e4c8270d1d04030d74e39e86e8",
+      "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+      "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d",
+      "policyHash": "ce1b05922bc7cb4211a8ad58a477656a90662d42694a24ff4c4809c3f1fbac59",
+      "eligibilityDecision": "incremental",
+      "eligibilityDigest": "a6be4673a1e1fca8eb10f72e31466428ce11d9e9c9eb4fb722003c3c5bdaeac9",
+      "knownExecutionEnvironmentDigest": "392606c7acc37720a5b704d079ac9931617d2c8188b3416269ab05433b0aff64",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "a9454a44f2c5e7c0e545764b22c59f51f95ac654df50d8978aab1a1492f5ed1c",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "53f69d14abd4f1877c92d24f12f399aa900676ac15299977c382dbac36db9288",
+      "bytes": 24310,
+      "lines": 169,
+      "estimatedTokens": 6078,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "1bb3639004431c1b7ab0a7a8574ad2dd4e0690c667658b8d24bc11c39cb66abe",
+      "priorPassRef": "B-e256:RP-027",
+      "freshnessClassification": "CURRENT_MATERIAL",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "ELIGIBLE_NO_MATERIAL_CHANGE",
+        "ELIGIBLE_TRUSTED_PRIOR_BINDINGS"
+      ],
+      "changedFilesDigest": "ce39c82f18aea7568f558050388905f8e7e6ebc9a14d39e222b3ac3c57419ff2",
+      "impactedFilesDigest": "dd8f5205a92536795510a242fad3802357c41d2c486aa747162ba37bd521b049",
+      "taskSemanticDigest": "74dc96acb5ba09211f1e34d22080b5267c7513ed9004607c05cd75340dfb9c9e",
+      "findingProjection": [
+        {
+          "id": "B-e256:F-001",
+          "createdAt": "2026-09-02T16:24:56.382Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:549-550 hardcodes the literal string proof-or-stop for the bin key lookup instead of reusing the existing CANONICAL_ROOT_PACKAGE_NAME constant (defined at line 117 and already used at lines 1153/1291 for the same command name). Low risk of drift if the bin/command name is ever renamed in one place but not the other."
+        },
+        {
+          "id": "B-e256:F-002",
+          "createdAt": "2026-09-02T16:28:45.651Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/runtime-environment-checks.ts:558-561,613-616 (inspectGlobalCoreExecutable + checkGlobalCoreRealpath) added in this story a distinct warning branch for a global bin target that is missing/not-a-file (executableFacts.binTargetExists=false), which renders a different remediation string (\"...does not exist; rebuild: npm --prefix <realpath> run build\") than the non-executable-mode branch. CHK-003:adversarial:0 verificationEvidence (packages/main/tests/global-core-realpath.test.mjs cases 4 and 5) only exercises: case 4 = bin target present but mode 0644 (non-executable, file exists), case 5 = .worktrees/ realpath drift with an executable bin. Neither case, nor any other verificationEvidence for CHK-003, constructs a package whose declared bin target file is absent or is a directory, so the ENOENT/non-file sub-branch and its rebuild remediation string are never executed by any test -- grep for rebuild|does not exist across the test file returns zero hits. This is exactly the kind of drift the story is meant to catch (a broken/missing build artifact behind global proof-or-stop), so the untested branch is in-scope, not incidental."
+        },
+        {
+          "id": "B-e256:F-003",
+          "createdAt": "2026-09-03T01:12:59.277Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "commit b13839b411 (git cherry-pick -x from story/B-83aa 8ebfff3550) modifies packages/main/src/tasks/validation-tier-planner-smoke.ts and packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, neither of which is in .proof-or-stop/story/actives/B-e256/scope-contract.json allowedModify/allowedCreate, and no checklist item carries a reason for the scope change. Content verified correct (byte-identical body to 8ebfff3550, cwd-neutrality assertion is non-vacuous, DYNAMIC_BINDING_BUILD_CEILING 808->809 is harmless since B-e256 adds no new .ts source and the guard still reports builds=808), but the story now carries an unreviewed-under-this-story, cross-story commit authored for B-83aa CHK-004 embedded via cherry-pick before B-83aa has landed on main. This is a scope-contract/provenance gap (mode=shadow, so not mechanically blocked), not a functional defect: recommend amending scope-contract/checklist to record the reason, or landing the shared F-023/ceiling fixture fix on main directly instead of duplicating it across in-flight stories via cherry-pick."
+        },
+        {
+          "id": "B-e256:F-004",
+          "createdAt": "2026-09-03T21:12:59.786Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/runtime-environment-checks.ts:1576-1587 defaultCompiledCoreVersionProbe (the production probe actually wired by default at line 248) has two branches -- the readFileSync catch (unbuilt/missing dist/core/proof-or-stop-brand.js, ENOENT) and the COMPILED_CORE_VERSION_RE non-match (partially built or unparsable content) -- that are never exercised by any test using the DEFAULT probe. packages/main/tests/global-core-realpath.test.mjs case 29 (around lines 950-970) only injects a compiledCoreVersionProbe STUB via extraOptions to simulate a probe failure; writeCorePackage/makeRepoWithWorktree never pass compiledVersion:null (which would skip writing the brand file) or malformed brand-file content, so the real function's own ENOENT and unparsable-content error messages are dead-in-tests. Separately, unlike its sibling BRAND_EXPORT_RE in core/version-bump.ts (which the doc comment at lines 1562-1573 claims this is the same regex shape as), this probe applies COMPILED_CORE_VERSION_RE with no comment-stripping and no duplicate/ambiguous-match guard -- version-bump.ts throws on more than one match (version-bump.ts:213-218) precisely because a second export-shaped occurrence (e.g. in a comment) would let exec() silently pick the wrong one; defaultCompiledCoreVersionProbe has no equivalent check, so a future brand-file comment change that happens to contain export-shaped text would silently report the wrong compiled version rather than failing loudly. Low risk today (no such occurrence exists in the real file) but it is exactly the untested/unguarded shape this round was asked to scrutinize."
+        },
+        {
+          "id": "B-e256:F-005",
+          "createdAt": "2026-09-04T07:52:11.281Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/version-bump.ts:210 (commit 47382c6681) is modified (export added to findBrandExport) outside the story scope-contract allowedModify list (scope_contract_check reports OUT_OF_SCOPE warn, mode=shadow) and there is no scope_question_resolve / acknowledgement recorded anywhere in the story artifacts (scope-contract.json, checklist.json, scope-check.json) naming this file. The change itself is small and sound (adds an `export` keyword plus a doc comment, no behavior change to version-bump.ts, verified byte-identical logic via mutation test), but it is an unacknowledged scope expansion that the CLAUDE.md scope-contract process requires to be declared/acknowledged rather than silently landed."
+        },
+        {
+          "id": "B-e256:F-006",
+          "createdAt": "2026-09-06T13:27:56.662Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:1932 renders version from actual.version (package.json) even though the new compiled-runtime probe stores the executable’s authoritative version in actual.compiledVersion. When package.json is 2.0.0 but dist still serves 1.9.0, the global-core-realpath summary row therefore says version=2.0.0 while its warning says the compiled runtime reports 1.9.0; this contradicts the promised reported-version diagnostic and can mislead operators. Render compiledVersion (or clearly label both manifest and compiled values) and add a stale-compiled-version row assertion. severity: medium"
+        },
+        {
+          "id": "B-e256:F-007",
+          "createdAt": "2026-09-06T13:30:21.678Z",
+          "status": "open",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "concept-cleanup: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:52 fixed-clock waitForFile deletion is incomplete: DESCENDANT_PID_READY_TIMEOUT_MS remains as an unused declaration after every consumer was replaced by lifecycle-bounded waitForChildFile; this dead residue contradicts the new child-lifecycle waiting concept and can mislead future maintenance. severity=critical"
+        },
+        {
+          "id": "B-e256:F-008",
+          "createdAt": "2026-09-06T13:38:10.277Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-runtime-probe-parse: packages/main/src/core/runtime-environment-checks.ts:1566-1568 accepts every non-empty `npm root -g` stdout value as a valid filesystem root, although the new structured-probe contract says unparsable output must be a failure. Verified against the built candidate with PATH resolving `npm` to `/bin/echo`: stdout `root -g` produced globalCoreRealpath.status=pass, installed=false, and npmRoot=`root -g`. A noisy, wrapped, or corrupt npm response is therefore misreported as known absence and defeats the fail-closed doctor diagnostic. severity: medium"
+        },
+        {
+          "id": "B-e256:F-009",
+          "createdAt": "2026-09-06T13:52:46.502Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-bin-target-stat-probe: packages/main/src/core/runtime-environment-checks.ts:703-708 catches every statSync failure and reports binTargetExists=false with verification=ok. Verified against the built frozen candidate using an existing executable bin below a mode-000 parent: stat failed with EACCES, but globalCoreRealpath said the target does not exist and prescribed only npm rebuild. This conflates an unreadable or I/O-failed installed target with ENOENT, discards the errno, and can send operators through a rebuild that cannot repair permissions or filesystem access. Preserve non-ENOENT probe failures as unverifiable drift with the errno and add a hermetic denied-stat case. severity: medium"
+        },
+        {
+          "id": "B-e256:F-010",
+          "createdAt": "2026-09-06T14:04:22.505Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-bin-target-containment-prefix: scripts/promote-dist.mjs:98-100 treats every relative path beginning with `..` as outside `dist`. A valid package.json bin target such as `dist/..cli.js` yields `relative(...) === \"..cli.js\"`, so restoreBinExecutableBits skips it; a targeted probe against the frozen candidate returned restored=[] and left mode 0644. This violates the CHK-001 contract to restore every listed in-dist bin target and can leave the linked CLI non-executable. Use an exact parent traversal check and add a hermetic in-dist dot-prefix case. severity: medium"
+        }
+      ],
+      "findingProjectionDigest": "627b67f041ccd854f4b035a999d30bc57ddfa3bc08a270ef88f60e69c951d861",
+      "reviewBasisDigest": "3df01083298d5782ead5254d1b0cd826be4563e4c8270d1d04030d74e39e86e8",
+      "incrementalContextDigest": "819815bc15d27201679748484cc1179ec710f2c7ffe4676ca7e04a0b49fed546",
+      "selectionReason": "SAFE_INCREMENTAL",
+      "fullContextBytes": 28399,
+      "incrementalContextBytes": 24310,
+      "escalatedToFull": false
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-test-coverage",
+      "storyId": "B-e256",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-e256:RR-047",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "lane": "proof-or-stop-review-test-coverage",
+      "dispatchPromptDigest": "f55a5e1bd97b608477dbfffd13ff087e3ea2ccef0a568858d1e7e95405b93090",
+      "hostRenderIdentityDigest": "76d6acb1bbd2917e4cce9102da03819b6f0261cab6d68beab5bfc235d0fdfb15",
+      "createdAt": "2026-09-06T14:29:40.569Z",
+      "headHash": "d019b0471a9988f61f477c7890533cad6fcde5e7",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "241b9c8157a370ca82591367e84f7606178f1f8183dd46a4f5a80dcf1352d2f8",
+      "roleRenderDigest": "d286c761ff9ead9ed285dfee667c9684e7aa1b4c33702d6d492d13946affb413",
+      "contextMode": "incremental",
+      "contextDigest": "ee4fc16dc541577137884f1f93a9b64a33dbaebb31e3a7749ae92f085a24ffe7",
+      "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+      "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d",
+      "policyHash": "ce1b05922bc7cb4211a8ad58a477656a90662d42694a24ff4c4809c3f1fbac59",
+      "eligibilityDecision": "incremental",
+      "eligibilityDigest": "41000da4864057b0fe34f266c8533573c6df6b35a4ff474b78681418b7e4f57d",
+      "knownExecutionEnvironmentDigest": "392606c7acc37720a5b704d079ac9931617d2c8188b3416269ab05433b0aff64",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "a98d94a419ef82ef28b409c83d2ea076e21d7cbcaeea5e8c4f329094d3283012",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "aa46a804d286c31a1b3d9b959c347a3e30edebd4471386a9c64259e65c354aba",
+      "bytes": 22065,
+      "lines": 153,
+      "estimatedTokens": 5517,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "41b971490a75f4150f39467d3008dc5366ce480882e03d43772e6106c7f22cb1",
+      "priorPassRef": "B-e256:RP-028",
+      "freshnessClassification": "CURRENT_MATERIAL",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "ELIGIBLE_NO_MATERIAL_CHANGE",
+        "ELIGIBLE_TRUSTED_PRIOR_BINDINGS"
+      ],
+      "changedFilesDigest": "ce39c82f18aea7568f558050388905f8e7e6ebc9a14d39e222b3ac3c57419ff2",
+      "impactedFilesDigest": "dd8f5205a92536795510a242fad3802357c41d2c486aa747162ba37bd521b049",
+      "taskSemanticDigest": "74dc96acb5ba09211f1e34d22080b5267c7513ed9004607c05cd75340dfb9c9e",
+      "findingProjection": [
+        {
+          "id": "B-e256:F-001",
+          "createdAt": "2026-09-02T16:24:56.382Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:549-550 hardcodes the literal string proof-or-stop for the bin key lookup instead of reusing the existing CANONICAL_ROOT_PACKAGE_NAME constant (defined at line 117 and already used at lines 1153/1291 for the same command name). Low risk of drift if the bin/command name is ever renamed in one place but not the other."
+        },
+        {
+          "id": "B-e256:F-002",
+          "createdAt": "2026-09-02T16:28:45.651Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/runtime-environment-checks.ts:558-561,613-616 (inspectGlobalCoreExecutable + checkGlobalCoreRealpath) added in this story a distinct warning branch for a global bin target that is missing/not-a-file (executableFacts.binTargetExists=false), which renders a different remediation string (\"...does not exist; rebuild: npm --prefix <realpath> run build\") than the non-executable-mode branch. CHK-003:adversarial:0 verificationEvidence (packages/main/tests/global-core-realpath.test.mjs cases 4 and 5) only exercises: case 4 = bin target present but mode 0644 (non-executable, file exists), case 5 = .worktrees/ realpath drift with an executable bin. Neither case, nor any other verificationEvidence for CHK-003, constructs a package whose declared bin target file is absent or is a directory, so the ENOENT/non-file sub-branch and its rebuild remediation string are never executed by any test -- grep for rebuild|does not exist across the test file returns zero hits. This is exactly the kind of drift the story is meant to catch (a broken/missing build artifact behind global proof-or-stop), so the untested branch is in-scope, not incidental."
+        },
+        {
+          "id": "B-e256:F-003",
+          "createdAt": "2026-09-03T01:12:59.277Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "commit b13839b411 (git cherry-pick -x from story/B-83aa 8ebfff3550) modifies packages/main/src/tasks/validation-tier-planner-smoke.ts and packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts, neither of which is in .proof-or-stop/story/actives/B-e256/scope-contract.json allowedModify/allowedCreate, and no checklist item carries a reason for the scope change. Content verified correct (byte-identical body to 8ebfff3550, cwd-neutrality assertion is non-vacuous, DYNAMIC_BINDING_BUILD_CEILING 808->809 is harmless since B-e256 adds no new .ts source and the guard still reports builds=808), but the story now carries an unreviewed-under-this-story, cross-story commit authored for B-83aa CHK-004 embedded via cherry-pick before B-83aa has landed on main. This is a scope-contract/provenance gap (mode=shadow, so not mechanically blocked), not a functional defect: recommend amending scope-contract/checklist to record the reason, or landing the shared F-023/ceiling fixture fix on main directly instead of duplicating it across in-flight stories via cherry-pick."
+        },
+        {
+          "id": "B-e256:F-004",
+          "createdAt": "2026-09-03T21:12:59.786Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/runtime-environment-checks.ts:1576-1587 defaultCompiledCoreVersionProbe (the production probe actually wired by default at line 248) has two branches -- the readFileSync catch (unbuilt/missing dist/core/proof-or-stop-brand.js, ENOENT) and the COMPILED_CORE_VERSION_RE non-match (partially built or unparsable content) -- that are never exercised by any test using the DEFAULT probe. packages/main/tests/global-core-realpath.test.mjs case 29 (around lines 950-970) only injects a compiledCoreVersionProbe STUB via extraOptions to simulate a probe failure; writeCorePackage/makeRepoWithWorktree never pass compiledVersion:null (which would skip writing the brand file) or malformed brand-file content, so the real function's own ENOENT and unparsable-content error messages are dead-in-tests. Separately, unlike its sibling BRAND_EXPORT_RE in core/version-bump.ts (which the doc comment at lines 1562-1573 claims this is the same regex shape as), this probe applies COMPILED_CORE_VERSION_RE with no comment-stripping and no duplicate/ambiguous-match guard -- version-bump.ts throws on more than one match (version-bump.ts:213-218) precisely because a second export-shaped occurrence (e.g. in a comment) would let exec() silently pick the wrong one; defaultCompiledCoreVersionProbe has no equivalent check, so a future brand-file comment change that happens to contain export-shaped text would silently report the wrong compiled version rather than failing loudly. Low risk today (no such occurrence exists in the real file) but it is exactly the untested/unguarded shape this round was asked to scrutinize."
+        },
+        {
+          "id": "B-e256:F-005",
+          "createdAt": "2026-09-04T07:52:11.281Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "packages/main/src/core/version-bump.ts:210 (commit 47382c6681) is modified (export added to findBrandExport) outside the story scope-contract allowedModify list (scope_contract_check reports OUT_OF_SCOPE warn, mode=shadow) and there is no scope_question_resolve / acknowledgement recorded anywhere in the story artifacts (scope-contract.json, checklist.json, scope-check.json) naming this file. The change itself is small and sound (adds an `export` keyword plus a doc comment, no behavior change to version-bump.ts, verified byte-identical logic via mutation test), but it is an unacknowledged scope expansion that the CLAUDE.md scope-contract process requires to be declared/acknowledged rather than silently landed."
+        },
+        {
+          "id": "B-e256:F-006",
+          "createdAt": "2026-09-06T13:27:56.662Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-cleanup: packages/main/src/core/runtime-environment-checks.ts:1932 renders version from actual.version (package.json) even though the new compiled-runtime probe stores the executable’s authoritative version in actual.compiledVersion. When package.json is 2.0.0 but dist still serves 1.9.0, the global-core-realpath summary row therefore says version=2.0.0 while its warning says the compiled runtime reports 1.9.0; this contradicts the promised reported-version diagnostic and can mislead operators. Render compiledVersion (or clearly label both manifest and compiled values) and add a stale-compiled-version row assertion. severity: medium"
+        },
+        {
+          "id": "B-e256:F-007",
+          "createdAt": "2026-09-06T13:30:21.678Z",
+          "status": "open",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "concept-cleanup: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:52 fixed-clock waitForFile deletion is incomplete: DESCENDANT_PID_READY_TIMEOUT_MS remains as an unused declaration after every consumer was replaced by lifecycle-bounded waitForChildFile; this dead residue contradicts the new child-lifecycle waiting concept and can mislead future maintenance. severity=critical"
+        },
+        {
+          "id": "B-e256:F-008",
+          "createdAt": "2026-09-06T13:38:10.277Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-runtime-probe-parse: packages/main/src/core/runtime-environment-checks.ts:1566-1568 accepts every non-empty `npm root -g` stdout value as a valid filesystem root, although the new structured-probe contract says unparsable output must be a failure. Verified against the built candidate with PATH resolving `npm` to `/bin/echo`: stdout `root -g` produced globalCoreRealpath.status=pass, installed=false, and npmRoot=`root -g`. A noisy, wrapped, or corrupt npm response is therefore misreported as known absence and defeats the fail-closed doctor diagnostic. severity: medium"
+        },
+        {
+          "id": "B-e256:F-009",
+          "createdAt": "2026-09-06T13:52:46.502Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-bin-target-stat-probe: packages/main/src/core/runtime-environment-checks.ts:703-708 catches every statSync failure and reports binTargetExists=false with verification=ok. Verified against the built frozen candidate using an existing executable bin below a mode-000 parent: stat failed with EACCES, but globalCoreRealpath said the target does not exist and prescribed only npm rebuild. This conflates an unreadable or I/O-failed installed target with ENOENT, discards the errno, and can send operators through a rebuild that cannot repair permissions or filesystem access. Preserve non-ENOENT probe failures as unverifiable drift with the errno and add a hermetic denied-stat case. severity: medium"
+        },
+        {
+          "id": "B-e256:F-010",
+          "createdAt": "2026-09-06T14:04:22.505Z",
+          "status": "open",
+          "severity": "medium",
+          "category": "edge",
+          "desc": "quality-bin-target-containment-prefix: scripts/promote-dist.mjs:98-100 treats every relative path beginning with `..` as outside `dist`. A valid package.json bin target such as `dist/..cli.js` yields `relative(...) === \"..cli.js\"`, so restoreBinExecutableBits skips it; a targeted probe against the frozen candidate returned restored=[] and left mode 0644. This violates the CHK-001 contract to restore every listed in-dist bin target and can leave the linked CLI non-executable. Use an exact parent traversal check and add a hermetic in-dist dot-prefix case. severity: medium"
+        }
+      ],
+      "findingProjectionDigest": "627b67f041ccd854f4b035a999d30bc57ddfa3bc08a270ef88f60e69c951d861",
+      "reviewBasisDigest": "ee4fc16dc541577137884f1f93a9b64a33dbaebb31e3a7749ae92f085a24ffe7",
+      "incrementalContextDigest": "eea038957e7b36af709fb8b9f2da76bcc405cb307a9a159841a59dd5ddc49c75",
+      "selectionReason": "SAFE_INCREMENTAL",
+      "fullContextBytes": 26148,
+      "incrementalContextBytes": 22065,
+      "escalatedToFull": false
     }
   ]
 }

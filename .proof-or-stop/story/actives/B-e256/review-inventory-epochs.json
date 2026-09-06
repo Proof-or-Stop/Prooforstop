@@ -326,7 +326,7 @@
       "reviewRound": "2026-09-06T13:22:17.538Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T14:10:13.720Z",
-      "updatedAt": "2026-09-06T14:10:13.720Z",
+      "updatedAt": "2026-09-06T14:27:29.069Z",
       "cutoff": {
         "headHash": "19c78aac6064ea653872f90477081b0cdaaf3d7a",
         "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
@@ -340,13 +340,64 @@
       ],
       "initialRunSequenceBoundary": 40,
       "maxWaves": 5,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T14:10:13.720Z",
+          "completedAt": "2026-09-06T14:27:29.069Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-041",
+              "terminal": "pass",
+              "hostIdentity": "b1b8fba48cbfd52dea0211d3e11d53b0698c6f0ed21881068c765d43bca17d0e",
+              "promptIdentity": "00fd1825c52acd0f17fe42cf80363d033e7ea0a6b0266d387cad8cbb81f7b671",
+              "evidenceIds": [
+                "B-e256:RP-027"
+              ],
+              "coverageDigest": "998ddc9b6f5ebea5e574dda03f8ef2b94275ebab2431efb82cda4060dbb3ef42"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-042",
+              "terminal": "pass",
+              "hostIdentity": "b1b8fba48cbfd52dea0211d3e11d53b0698c6f0ed21881068c765d43bca17d0e",
+              "promptIdentity": "d03e8d55eca3146dd5a215ef255a33f989016a2f8ca4ef3927a76361b0f3c5aa",
+              "evidenceIds": [
+                "B-e256:RP-029"
+              ],
+              "coverageDigest": "0e0faf1f2e9ccb6b468235da5c650c3fe5e4a94e8216b6bf7968f0efa4af5bb2"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-043",
+              "terminal": "pass",
+              "hostIdentity": "b1b8fba48cbfd52dea0211d3e11d53b0698c6f0ed21881068c765d43bca17d0e",
+              "promptIdentity": "69e66b825fa8c36347bedacc0c2bfd400699d5a17a549c3e412d94f2d396ed2e",
+              "evidenceIds": [
+                "B-e256:RP-028"
+              ],
+              "coverageDigest": "d9ba97dabf1f0d42c7067714f18272d48fba58f37869f38181a099b418449f84"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "global-bin-target-stat-error-collapse",
+            "npm-global-root-output-parse",
+            "promote-dist-containment-prefix"
+          ],
+          "verifiedFindingSetDigest": "983e16819699900163004e7a2e0ae9bf01ea706e713b084ae35e54fc5402d70b",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "769cbe705bfd619e773f9e27a228d9909b7ed9a44f8fe39c528e9d7bdfc8fca7",
+          "saturated": false,
+          "nextRunSequenceBoundary": 44
+        }
+      ],
       "baselineFindingIds": [
         "B-e256:F-008",
         "B-e256:F-009",
         "B-e256:F-010"
       ],
-      "_hash": "fa1014af0c51ab3ad45b1929914b9401af0cc97556eb7c1c7ecd58d314481b9c"
+      "_hash": "e163950ae7a9dfe37861f9a9961b788e4c2d1c2c139a79ff75947ef93d007637"
     }
   ],
   "receipts": [
@@ -587,6 +638,49 @@
       ],
       "createdAt": "2026-09-06T14:09:36.906Z",
       "_hash": "7d4d614f0ca14ceac6cd47286dfb3e185b6781d8e6f136d4efad367b1308c20f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-002:CRIT-01",
+      "epochId": "B-e256:RI-002",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "19c78aac6064ea653872f90477081b0cdaaf3d7a",
+        "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+        "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d"
+      },
+      "aggregateFindingSetDigest": "983e16819699900163004e7a2e0ae9bf01ea706e713b084ae35e54fc5402d70b",
+      "requiredLaneCoverageDigest": "50082fc679e805bf5f10b87d640aca65a91f8d7be9780266a71bb90c4bdabe3d",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-044",
+      "terminalEvidenceIds": [
+        "B-e256:RP-030"
+      ],
+      "readEvidenceDigest": "c7f7413631d4b91ad6eaccc5c6877464f5f801925cec457651a9efdfc5dca76c",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-008",
+          "disposition": "verified_family",
+          "familyKey": "npm-global-root-output-parse",
+          "reason": "Independent frozen-candidate probe placed /bin/echo at PATH npm: successful stdout root -g was accepted without filesystem-path validation, and globalCoreRealpath returned status=pass, installed=false, npmRoot=root -g. This directly confirms the structured npm-root probe can turn corrupt or wrapped output into a false known-absence result."
+        },
+        {
+          "findingId": "B-e256:F-009",
+          "disposition": "verified_family",
+          "familyKey": "global-bin-target-stat-error-collapse",
+          "reason": "Independent hermetic probe created an existing executable bin beneath a mode-000 dist directory. The target stat failed with EACCES, yet the report recorded binMode=null, executable=false, verification=ok and warned that the target does not exist with rebuild remediation; source inspection confirms the catch has no errno discrimination. This is a distinct probe-error classification family."
+        },
+        {
+          "findingId": "B-e256:F-010",
+          "disposition": "verified_family",
+          "familyKey": "promote-dist-containment-prefix",
+          "reason": "Independent hermetic promoteDist helper probe used the valid package-relative target dist/..cli.js. path.relative returned the in-tree filename ..cli.js, but the startsWith(..) guard skipped it: restored=[] and mode remained 0644. This independently confirms a distinct lexical-prefix containment error in the promotion path."
+        }
+      ],
+      "createdAt": "2026-09-06T14:26:26.502Z",
+      "_hash": "18999e6ee326987dc055d00c0909c06465cd92ecc3c3dacce66642659f19beb2"
     }
   ]
 }
