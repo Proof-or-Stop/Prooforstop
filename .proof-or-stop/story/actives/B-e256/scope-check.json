@@ -1,62 +1,90 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-06T18:10:41.561Z",
+  "checkedAt": "2026-09-06T20:44:17.033Z",
   "features": [
     {
-      "feature": "Before old-dist eviction, promoteDist validates and restores every declared staging bin target: POSIX gains executable mode bits and Windows preserves the byte-identical Node entrypoint used by npm command shims, with a platform-invariant contract selector.",
+      "feature": "A rebuild preserves the platform executable contract before old-dist eviction: POSIX bin targets gain executable access while Windows keeps a byte-identical Node entrypoint usable through npm command shims.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-001"
     },
     {
-      "feature": "Promotion failure keeps the working dist intact; missing targets are benign while non-files, final symlinks, and intermediate-directory symlink escapes are rejected before chmod or eviction.",
+      "feature": "Missing or syntactically invalid package manifests, missing bin fields, and ENOENT targets are benign; other manifest read, stat, realpath, or chmod failures propagate before the working dist is replaced.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/understanding.json"
+    },
+    {
+      "feature": "Promotion rejects non-files plus final and intermediate symlink escapes and preserves the existing dist whenever staging validation fails.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/background.md"
     },
     {
-      "feature": "The registered executable regression remains discriminating against the unfixed baseline and exposes a stable global-cli-bin-target-restored marker across POSIX and Windows branches.",
+      "feature": "The registered red regression emits stable GREEN and contract selectors on the repaired candidate, remains discriminating against the unfixed baseline, and is present in validation configuration.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-002"
     },
     {
-      "feature": "Doctor reports resolved realpath, compiled version, observed mode and executable state through a host-independent passing marker rather than a checkout-specific absolute selector.",
-      "covered_by": "CHK-003",
-      "status": "covered",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-003"
-    },
-    {
-      "feature": "Doctor remains read-only and emits exact host-shell remediation: POSIX uses executable-mode commands, while Windows uses cmd.exe-valid quoting, cd /d, dir inspection, npm rebuild and npm-link commands without prescribing chmod.",
+      "feature": "Doctor emits the healthy marker only when the installed global package, PATH-selected command, declared bin-target realpath, compiled version, and host executable contract agree; package presence alone cannot substitute for PATH presence.",
       "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-e256/proofstory.json#AC-001"
     },
     {
-      "feature": "The RI-005 repair commit 1e1e346043 changes only runtime-environment-checks.ts, global-core-realpath.test.mjs, and red-global-cli-exec-bit.mjs; all three are already declared CHK-001 or CHK-003 implementation/test surfaces and address F-024, F-026, F-027 and F-028 without adding a new product surface.",
+      "feature": "Doctor resolves the declared bin target and rejects final or intermediate escapes outside the canonical package dist tree, preserving errno evidence for failed probes.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-003"
+    },
+    {
+      "feature": "On POSIX doctor validates executable access and renders safely quoted shell remediation; mode is an observed fact rather than a universal cross-platform promise.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/plan.md#CHK-003"
+    },
+    {
+      "feature": "On Windows doctor validates the actual PATH-selected npm command shim and renders encoded PowerShell LiteralPath remediation preserving spaces, apostrophes, and percent tokens without relying on POSIX mode bits.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/proofstory.json#AC-001"
+    },
+    {
+      "feature": "Capability skips and zero-assertion paths cannot emit the must PASS selector, while non-link Windows assertions still execute.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-003"
+    },
+    {
+      "feature": "Mode restoration does not alter byte-content binding semantics, so a later build may still take the content-bound fast path.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-001"
+    },
+    {
+      "feature": "Commit d65767d4b16e repairs F-029 through F-036 only through the four declared touchpoints: promote-dist.mjs, runtime-environment-checks.ts, red-global-cli-exec-bit.mjs, and global-core-realpath.test.mjs; no unrelated medium or low issue expands scope.",
       "covered_by": "CHK-001, CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "git commit 1e1e346043f82130608b063768511af4353e38ce"
+      "source": "git commit d65767d4b16e7f0b19d803899f4f4b49c9d1a3a0"
     },
     {
-      "feature": "Do not change Codex adapter entrypoint authority, npm link or global-install mechanics, or protected build-lock/crash-safety behavior; diagnostic remediation text may describe npm link but does not automate or alter installation.",
+      "feature": "Do not alter Codex adapter entrypoint authority, npm link or global-install mechanics, or protected build-lock/crash-safety design; doctor remains read-only and only reports remediation.",
       "covered_by": null,
       "status": "excluded",
       "excluded_by": ".proof-or-stop/story/actives/B-e256/scope-boundary.json",
       "source": ".proof-or-stop/story/actives/B-e256/scope-boundary.json"
-    },
-    {
-      "feature": "All PLAN truth sources use the same cross-platform contract. Current understanding.json still states an unqualified 0755 outcome, and plan.md still presents ls -la and chmod-based verification/remediation without the POSIX-only qualification now present in CHK-001, CHK-003 and ProofStory AC-001.",
-      "covered_by": null,
-      "status": "drift",
-      "excluded_by": null,
-      "source": ".proof-or-stop/story/actives/B-e256/understanding.json; .proof-or-stop/story/actives/B-e256/plan.md"
     }
   ],
   "readManifest": {
@@ -64,49 +92,30 @@
       ".proof-or-stop/story/actives/B-e256/background.md",
       ".proof-or-stop/story/actives/B-e256/checklist.json",
       ".proof-or-stop/story/actives/B-e256/decision.json",
-      ".proof-or-stop/story/actives/B-e256/findings.json",
       ".proof-or-stop/story/actives/B-e256/plan.md",
       ".proof-or-stop/story/actives/B-e256/proofstory.json",
       ".proof-or-stop/story/actives/B-e256/scope-boundary.json",
       ".proof-or-stop/story/actives/B-e256/scope-contract.json",
-      ".proof-or-stop/story/actives/B-e256/understanding.json",
-      "packages/main/src/core/runtime-environment-checks.ts",
-      "packages/main/tests/global-core-realpath.test.mjs",
-      "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ".proof-or-stop/story/actives/B-e256/understanding.json"
     ],
     "filesTriagedByName": [
-      "packages/main/src/handlers/doctor.ts",
-      "proof-or-stop.config.json",
-      "scripts/build-main-with-binding.mjs",
-      "scripts/build-utils-with-binding.mjs",
+      ".proof-or-stop/story/actives/B-e256/findings.json",
+      "packages/main/src/core/runtime-environment-checks.ts",
+      "packages/main/tests/global-core-realpath.test.mjs",
+      "packages/main/tests/red/red-global-cli-exec-bit.mjs",
       "scripts/promote-dist.mjs"
     ],
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 8,
-    "covered": 6,
+    "total": 12,
+    "covered": 11,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
-    "drift": 1
+    "drift": 0
   },
-  "reviewRound": "2026-09-06T16:52:33.065Z",
-  "_hash": "925073c01db63f24f2fbba35f4ec0c006071d4a9a64c76169e037fd315256c2d",
-  "openQuestions": [
-    {
-      "id": "OQ-1",
-      "q": "Should the corrected CHK-001 and CHK-003 verification intents plus ProofStory AC-001 explicitly supersede the remaining unqualified POSIX examples in understanding.json and plan.md, or must those planning artifacts be reworded before DEV?",
-      "evidence": "understanding.json.outcome says dist/cli.js has mode 0755 without a POSIX qualifier, and plan.md verification/remediation uses ls -la and chmod +x generically; current checklist.json and proofstory.json instead define POSIX executable bits versus Windows npm command-shim semantics and cmd.exe-valid remediation.",
-      "sourcePointers": [
-        ".proof-or-stop/story/actives/B-e256/plan.md",
-        ".proof-or-stop/story/actives/B-e256/understanding.json",
-        "CHK-001",
-        "CHK-003",
-        ".proof-or-stop/story/actives/B-e256/proofstory.json"
-      ],
-      "resolution": "The planning artifacts must be reworded rather than treating the corrected checklist as an implicit supersession. Commit e5a5e83c87 now states the POSIX executable-bit contract and the Windows npm-shim/cmd.exe contract explicitly in both understanding.json and plan.md, matching CHK-001, CHK-003, and ProofStory AC-001.",
-      "resolvedAt": "2026-09-06T18:12:23.372Z"
-    }
-  ]
+  "reviewRound": "2026-09-06T19:11:32.288Z",
+  "_hash": "31416fee4d10b35e091611154fcd0fc8f74c3ffda081fd8394ffd3551474efad",
+  "openQuestions": []
 }
