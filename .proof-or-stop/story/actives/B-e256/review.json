@@ -321,6 +321,37 @@
         }
       ],
       "_hash": "33980a16cdb0b8fb18a45ef4a46630f06b582d9fb84f104b44fb2a502c626a04"
+    },
+    {
+      "timestamp": "2026-09-06T18:12:29.432Z",
+      "issueCount": 4,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-002",
+          "message": "CHK-002 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-003",
+          "message": "CHK-003 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "cross_scenario",
+          "severity": "advisory",
+          "message": "3 checklist items; please check for missing combined scenarios (e.g., what happens when Restore the executable bit on package.json bin targets when dist is promoted + Commit red-global-cli-exec-bit.mjs as a registered red test that is GREEN after the fix are performed simultaneously?)"
+        }
+      ],
+      "_hash": "1258f5dccbbee2ef3d8da7c1e371ad49abcd75fbfcd0b5b50ba387544ebd67a4"
     }
   ]
 }
