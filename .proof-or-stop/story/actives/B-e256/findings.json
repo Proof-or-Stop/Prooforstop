@@ -953,6 +953,7 @@
       "signatureTag": "edge|json|quality-win32-pinned",
       "signatureTagSource": "auto",
       "recordId": "lr_mtq6uois_1ewu_919689351d3b499fbb4073359ab809c0",
+      "ledgerCommitReceiptId": "lrc_mtq6uois_1ewu_c1a4053cd3d44e21a02baa2caa7f25b0",
       "resolvedAt": "2026-09-06T19:12:07.597Z",
       "resolvedReason": "Duplicate of F-024's narrower selector facet. CHK-001 now pins the platform-invariant contract: global-cli-bin-target-restored marker emitted by both supported platform branches; the refreshed mechanical receipt matched it and the full 132-command validation passed.",
       "resolutionType": "duplicate",
@@ -963,7 +964,7 @@
       "desc": "test-coverage-win32-global-core-contract: .proof-or-stop/story/actives/B-e256/checklist.json:365-381 pins three CHK-003 must intents to `node packages/main/tests/global-core-realpath.test.mjs`, but packages/main/tests/global-core-realpath.test.mjs:107-110 unconditionally creates a directory symlink with no Windows capability probe and :201-217 universally requires a 0644 target to be non-executable with a `chmod +x` remediation. Production packages/main/src/core/runtime-environment-checks.ts:667-672 explicitly short-circuits the executable access probe to true on win32 because Windows has no POSIX execute-bit contract. Read-only probes verified both failure paths: with simulated win32 and symlink support the test exits 1 at line 211 because status is pass, and with simulated EPERM symlink denial it terminates at line 110. Therefore `ok global-core-realpath` is unreachable on affected Windows hosts and no evidence covers the Windows npm .cmd/shim doctor contract. This is distinct from F-024/F-025, which cover CHK-001 and red-global-cli-exec-bit. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T17:24:34.623Z",
@@ -1015,7 +1016,12 @@
         "packages/main/tests/global-core-realpath.test.mjs"
       ],
       "signatureTag": "edge|json|test-coverage-win32",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtq6uppk_1f7d_ecb4b2b6ec5d49dbba0966555501e890",
+      "resolvedAt": "2026-09-06T19:12:09.147Z",
+      "resolvedReason": "Commit 1e1e346043 adds symlink-capability probes and a Windows X_OK/npm-shim branch to global-core-realpath.test.mjs, while retaining POSIX chmod semantics only on POSIX. CHK-003 was updated to the platform-correct contract and the focused suite plus full 132-command validation passed.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-027",
