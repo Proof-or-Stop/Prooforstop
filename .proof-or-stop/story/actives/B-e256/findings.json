@@ -1080,6 +1080,7 @@
       "signatureTag": "missing|json|test-coverage-host",
       "signatureTagSource": "auto",
       "recordId": "lr_mtq6uquu_1fhw_7f642fd4f29d4183a19eb30e0192fb9b",
+      "ledgerCommitReceiptId": "lrc_mtq6uquu_1fhw_ae115f04d51049079f9b9ba0dcf84ade",
       "resolvedAt": "2026-09-06T19:12:10.625Z",
       "resolvedReason": "CLI-owned checklist commit 6868d4f changes CHK-003 happy evidence from the submitter-specific absolute path to contract: global-core-realpath-pass. The current doctor receipt matched this host-independent marker and the full 132-command validation passed.",
       "resolutionType": "fixed",
@@ -1090,7 +1091,7 @@
       "desc": "quality-win32-remediation-command: packages/main/src/core/runtime-environment-checks.ts:558-560 implements only POSIX single-quote escaping, and :681-682 uses it to emit `cd -- <root> && npm link`; the new global-core drift branches also emit `ls -ld` at :847, :879, and :933. On native Windows every drive path contains backslashes, so shellQuote wraps it in literal single quotes, while cmd.exe neither treats single quotes as quoting nor accepts `cd --`; `ls -ld` is also unavailable by default. Thus the Story's promised exact one-line doctor remediation is not executable on Windows even after the F-026 test-coverage gap is fixed. This is a production-output quality defect distinct from F-024/F-025 selectors and F-026/F-027 evidence portability. Render a platform-valid remediation (for example an argv-equivalent npm --prefix form with platform quoting) and cover it. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T17:30:37.807Z",
@@ -1140,7 +1141,12 @@
         "packages/main/tests/global-core-realpath.test.mjs"
       ],
       "signatureTag": "edge|ts|quality-win32-remediation",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtq6us10_1fsg_8675e6ccaa1940ec9bc638a1fc7f6df3",
+      "resolvedAt": "2026-09-06T19:12:12.146Z",
+      "resolvedReason": "Commit 1e1e346043 renders Windows remediation with cmd.exe-valid cd /d and double-quoted paths, replaces POSIX-only ls syntax with a Windows dir form, and covers the exact output in global-core-realpath.test.mjs. Focused and full 132-command validation passed.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
