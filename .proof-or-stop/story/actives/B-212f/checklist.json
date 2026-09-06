@@ -786,7 +786,7 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -794,23 +794,23 @@
             "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
             "selectorMatched": true,
             "selector": "verification-run-and-guard-smoke: PASS",
-            "executedAt": "2026-09-05T17:30:57.433Z",
+            "executedAt": "2026-09-06T01:24:22.159Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:ebdaaf92475e0a528549d18cd77abc86c639c41637b9588982f435c3cfc036f6",
-            "causalReceiptHash": "c5fe8a0e093db75d97306300190cb2f6d327612c35d62e20c6ec8462741288c7",
+            "executionKey": "ce:v1:e293b7340d0958a1af75dc584a42568ab222d8884d2b16138be7128aa48c3604",
+            "causalReceiptHash": "4095bf32eb30702e312d2f4df2614012eb0daf1b845f170c49a681bd2d3d7991",
             "commandReruns": 0
           },
-          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:31:08.260Z"
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
         },
         {
           "intentRef": "CHK-005:edge:1",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -818,16 +818,16 @@
             "outputTail": "cli surface smoke passed\n",
             "selectorMatched": true,
             "selector": "cli surface smoke passed",
-            "executedAt": "2026-09-05T17:31:04.148Z",
+            "executedAt": "2026-09-06T01:24:30.171Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:8a25c3b6c2b13dc285c897365506d85c44c529462260580221ccedceb7f9a43a",
-            "causalReceiptHash": "ef26d49478933b04c807b715da77833bd922c720fa110bb6fe6b18d18ac1521f",
+            "executionKey": "ce:v1:bc4042c3da06027a14e32a6604361afc537a3888153f5cbf9bda1611bc2978fb",
+            "causalReceiptHash": "b4455ef8e8a5c3365b915d28f1af52c0a5adeb3aed475151946d97dee2913dfe",
             "commandReruns": 0
           },
-          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:31:08.260Z"
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
         },
         {
           "intentRef": "CHK-005:happy:1",
@@ -1043,7 +1043,7 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -1051,23 +1051,23 @@
             "outputTail": "cli surface smoke passed\n",
             "selectorMatched": true,
             "selector": "cli surface smoke passed",
-            "executedAt": "2026-09-05T17:31:04.148Z",
+            "executedAt": "2026-09-06T01:24:30.171Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:8a25c3b6c2b13dc285c897365506d85c44c529462260580221ccedceb7f9a43a",
-            "causalReceiptHash": "ef26d49478933b04c807b715da77833bd922c720fa110bb6fe6b18d18ac1521f",
+            "executionKey": "ce:v1:bc4042c3da06027a14e32a6604361afc537a3888153f5cbf9bda1611bc2978fb",
+            "causalReceiptHash": "b4455ef8e8a5c3365b915d28f1af52c0a5adeb3aed475151946d97dee2913dfe",
             "commandReruns": 0
           },
-          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:31:08.260Z"
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
         },
         {
           "intentRef": "CHK-006:adversarial:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -1075,16 +1075,16 @@
             "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
             "selectorMatched": true,
             "selector": "verification-run-and-guard-smoke: PASS",
-            "executedAt": "2026-09-05T17:30:57.433Z",
+            "executedAt": "2026-09-06T01:24:22.159Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:ebdaaf92475e0a528549d18cd77abc86c639c41637b9588982f435c3cfc036f6",
-            "causalReceiptHash": "c5fe8a0e093db75d97306300190cb2f6d327612c35d62e20c6ec8462741288c7",
+            "executionKey": "ce:v1:e293b7340d0958a1af75dc584a42568ab222d8884d2b16138be7128aa48c3604",
+            "causalReceiptHash": "4095bf32eb30702e312d2f4df2614012eb0daf1b845f170c49a681bd2d3d7991",
             "commandReruns": 0
           },
-          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:31:08.260Z"
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
         }
       ],
       "userSeesSnapshot": {
@@ -1157,7 +1157,7 @@
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -1165,23 +1165,23 @@
             "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
             "selectorMatched": true,
             "selector": "verification-run-and-guard-smoke: PASS",
-            "executedAt": "2026-09-05T17:30:57.433Z",
+            "executedAt": "2026-09-06T01:24:22.159Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:ebdaaf92475e0a528549d18cd77abc86c639c41637b9588982f435c3cfc036f6",
-            "causalReceiptHash": "c5fe8a0e093db75d97306300190cb2f6d327612c35d62e20c6ec8462741288c7",
+            "executionKey": "ce:v1:e293b7340d0958a1af75dc584a42568ab222d8884d2b16138be7128aa48c3604",
+            "causalReceiptHash": "4095bf32eb30702e312d2f4df2614012eb0daf1b845f170c49a681bd2d3d7991",
             "commandReruns": 0
           },
-          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:31:08.260Z"
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
         },
         {
           "intentRef": "CHK-007:adversarial:0",
           "kind": "integration_test",
           "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
           "result": "pass",
-          "note": "Owner executes the frozen verifier on final scoped implementation31351f6c67; current command exit and selector must produce a genuine tool-owned receipt.",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -1189,16 +1189,16 @@
             "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
             "selectorMatched": true,
             "selector": "verification-run-and-guard-smoke: PASS",
-            "executedAt": "2026-09-05T17:30:57.433Z",
+            "executedAt": "2026-09-06T01:24:22.159Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:ebdaaf92475e0a528549d18cd77abc86c639c41637b9588982f435c3cfc036f6",
-            "causalReceiptHash": "c5fe8a0e093db75d97306300190cb2f6d327612c35d62e20c6ec8462741288c7",
+            "executionKey": "ce:v1:e293b7340d0958a1af75dc584a42568ab222d8884d2b16138be7128aa48c3604",
+            "causalReceiptHash": "4095bf32eb30702e312d2f4df2614012eb0daf1b845f170c49a681bd2d3d7991",
             "commandReruns": 0
           },
-          "headHash": "31351f6c675ccc16a21606c3fcfa449e9d7638c7",
-          "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2",
-          "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
-          "timestamp": "2026-09-05T17:31:08.260Z"
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
         }
       ],
       "userSeesSnapshot": {
