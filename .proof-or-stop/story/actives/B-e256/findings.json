@@ -192,7 +192,7 @@
       "desc": "quality-bin-target-stat-probe: packages/main/src/core/runtime-environment-checks.ts:703-708 catches every statSync failure and reports binTargetExists=false with verification=ok. Verified against the built frozen candidate using an existing executable bin below a mode-000 parent: stat failed with EACCES, but globalCoreRealpath said the target does not exist and prescribed only npm rebuild. This conflates an unreadable or I/O-failed installed target with ENOENT, discards the errno, and can send operators through a rebuild that cannot repair permissions or filesystem access. Preserve non-ENOENT probe failures as unverifiable drift with the errno and add a hermetic denied-stat case. severity: medium",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T13:52:46.502Z",
@@ -231,7 +231,11 @@
         "packages/main/tests/global-core-realpath.test.mjs"
       ],
       "signatureTag": "quality-bin-target-stat-error-collapse",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 721bb624b0 preserves non-ENOENT stat failures as bin-target-stat-failed with errno and unknown existence/executable facts; the hermetic EACCES regression passes.",
+      "resolvedAt": "2026-09-06T15:32:35.792Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-010",
