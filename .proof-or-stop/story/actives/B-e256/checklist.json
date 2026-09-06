@@ -336,8 +336,8 @@
           "packages/main/tests/global-core-realpath.test.mjs"
         ]
       },
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-06T16:19:58.326Z",
       "endTime": null,
       "verificationIntent": {
         "happy": [
@@ -532,6 +532,15 @@
       "to": "done",
       "reason": "Registered red test at commit 528a0ebcb covers final and intermediate symlink paths and passes.",
       "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-06T16:19:58.326Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reattest the completed doctor diagnostics after lifecycle reopening."
     }
   ]
 }
