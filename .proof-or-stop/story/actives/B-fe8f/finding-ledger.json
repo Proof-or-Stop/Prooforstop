@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "81268250840b13fb3b5891d29e0c5f2563b445989d2552e1f7585e7424d30bf7",
+  "committedLedgerDigest": "810188ced369927eca49db6522810e114c183dcf63ed2864a55d347644acc6af",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2704,6 +2704,62 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T16:32:23.954Z"
+    },
+    {
+      "recordId": "lr_mtq1c6sq_mem_973d502e68664f249cdb77a857867315",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:872f631d-ff60-4ed5-90cf-97b8b75aed52",
+      "payload": {
+        "id": "B-fe8f:F-062",
+        "desc": "RI-005 wave 2/3 saturation re-observation of the SAME canonical defect as B-fe8f:F-061 (critic-certified family certification-historical-tombstone-brand-decision). This is NOT a new defect family and must be grouped with F-061, which remains open and verified; I neither repaired it nor claim any all-green state. Same root, unchanged: packages/main/src/handlers/certification-window.ts:189 still reads entry.path.startsWith('.lattice/'), a deprecated brand literal used as a path DECISION inside verify-proof-or-stop-residue.mjs CHECK 4 scan scope (handlers/ is not among the skipped **/tasks/**). Bounded saturation evidence for this wave: git diff over packages, scripts, bin and config from F-061's run head 5feac0c to this run head f08b9c8 is EMPTY, the only intervening commits are review metadata, and review_incremental_context reports scopeChanged false, freshnessClassification CURRENT_MATERIAL and ELIGIBLE_NO_MATERIAL_CHANGE. Because no source changed, there is no new material in which a new defect could arise, and I found NO new defect in this wave. F-048 and F-049 remain untouched. No source edits and no heavy reruns were performed. Severity: medium.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-06T16:37:46.727Z",
+        "reviewRound": "2026-09-06T16:01:27.770Z",
+        "reviewRunId": "B-fe8f:RR-130",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-fe8f/background.md",
+            ".proof-or-stop/story/actives/B-fe8f/plan.md",
+            "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+            ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+            "packages/main/src/core/brand-paths.ts",
+            "packages/main/src/handlers/certification-window.ts",
+            "scripts/verify-proof-or-stop-residue.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+        },
+        "readDiagnostics": [],
+        "_hash": "7a64e05cb13f23184bd6341c21c227d97aeea3e5e9ea287a8e0b48c94feb9ee7",
+        "files": [
+          "packages/main/src/handlers/certification-window.ts",
+          "scripts/verify-proof-or-stop-residue.mjs"
+        ],
+        "signatureTag": "certification-historical-tombstone-brand-decision",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "9c094dfed74ae11b4164a6a97d02a8232ba9c42d76068b391c97fb5bb0396987",
+      "priorDigest": "81268250840b13fb3b5891d29e0c5f2563b445989d2552e1f7585e7424d30bf7",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T16:37:46.730Z"
     }
   ],
   "receipts": [
@@ -7486,6 +7542,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "4ca5e47bb546fc3f3f17175d27ef9398779cad5c6af82b5be163f23670e30530",
         "signature": "oELJHw/WkqbRdso3dH/eqASdASmKvzDypLm/gmZGmQ6e75rwKvCFeVgBQHh6NTeJW5UElsxnT830ay4Xq3BzBg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtq1c6sq_mem_0dda0d98531341af8f03bf2c75e91d5f",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:872f631d-ff60-4ed5-90cf-97b8b75aed52",
+      "requestDigest": "3a2547aa8cd71b472d8238fab2358e7a4c2cdd408157f284da9dda7b2217b58e",
+      "recordIds": [
+        "lr_mtq1c6sq_mem_973d502e68664f249cdb77a857867315"
+      ],
+      "priorLedgerDigest": "81268250840b13fb3b5891d29e0c5f2563b445989d2552e1f7585e7424d30bf7",
+      "committedLedgerDigest": "810188ced369927eca49db6522810e114c183dcf63ed2864a55d347644acc6af",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "writerFenceToken": "723e8565-1fd7-43fa-ba7d-0eaa64087c5d",
+      "committedAt": "2026-09-06T16:37:46.730Z",
+      "replayed": false,
+      "exactRequestDigest": "f21323dba9d2e2b199b9b96626ce369ca4786a22123aa28e0378c4af6143aec6",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtq1c6sq_mem_0dda0d98531341af8f03bf2c75e91d5f",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding_add:872f631d-ff60-4ed5-90cf-97b8b75aed52",
+        "exactRequestDigest": "f21323dba9d2e2b199b9b96626ce369ca4786a22123aa28e0378c4af6143aec6",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtq1c6sq_mem_973d502e68664f249cdb77a857867315"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "81268250840b13fb3b5891d29e0c5f2563b445989d2552e1f7585e7424d30bf7",
+        "committedLedgerDigest": "810188ced369927eca49db6522810e114c183dcf63ed2864a55d347644acc6af",
+        "replayed": false,
+        "committedAt": "2026-09-06T16:37:46.730Z",
+        "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "723e8565-1fd7-43fa-ba7d-0eaa64087c5d",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "0e7539e460eef5b7c1b43cdb5b492725601de2ba636a1b9a512e32a590ce2bb0",
+        "signature": "UvxMYzOPmgLsVid6fKgQDabP8G3ki+i2Q3F9s4wwQATCcDt8t8sKTqM3GS1j18KzcKgLnwo/LBpo3IA3cWIpDQ=="
       }
     }
   ]
