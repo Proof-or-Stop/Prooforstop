@@ -1050,6 +1050,51 @@
       },
       "readDiagnostics": [],
       "_hash": "829243f58a65b5bbd67e31233bd05c17440416c17bfb46c3666d2041b97a6f72"
+    },
+    {
+      "id": "B-e256:RP-031",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "All three required lanes have terminal signed evidence on the frozen wave-2 subject. Independent aggregate inspection supports F-011 through F-015 as five distinct verified families and found no additional family beyond those raw findings; acceptance-topology defects remain separately recorded by the request_changes topology receipt.",
+      "createdAt": "2026-09-06T14:47:42.802Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-048",
+      "envelopeId": "0cbb579814b793452fe5e5d3f34bdc0335e63c356f4d8fffd4262fb76818c5f7",
+      "writerSessionId": "sess-7a3a5f7fb88e234ea6ebf73af4dcbdea",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-e256/review-passes.json",
+          ".proof-or-stop/story/actives/B-e256/review-runs.json",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "d26576da90743cce64d54029596ce901911931d44df5521ed3923e4b7cee4449"
     }
   ]
 }
