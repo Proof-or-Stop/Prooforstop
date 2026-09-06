@@ -677,7 +677,7 @@
       "desc": "packages/main/tests/red/red-global-cli-exec-bit.mjs:248-260 covers F-016 only when the final bin path component is a symlink. It has no case where an intermediate directory component is a symlink. At current HEAD, a bounded temp-dir probe declared bin dist/linked/cli.js with dist/linked symlinked to an outside directory; scripts/promote-dist.mjs:98-110 returned [\"dist/linked/cli.js\"] and changed the outside file from 0644 to 0755. Thus the committed F-016 regression is under-broad and does not detect the live intermediate-symlink escape independently recorded as B-e256:F-017. Add a hermetic intermediate-component symlink case that proves the outside referent stays 0644 and restoration fails before promotion. severity: medium",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T15:38:16.473Z",
@@ -710,7 +710,11 @@
         "packages/main/tests/red/red-global-cli-exec-bit.mjs"
       ],
       "signatureTag": "test-coverage-intermediate-symlink-escape",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Commit 528a0ebcb adds hermetic c6, which promotes a staging tree containing an intermediate directory symlink and asserts EINVAL, unchanged outside mode 0644, untouched old dist, retained staging, and no trash.",
+      "resolvedAt": "2026-09-06T16:24:16.632Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-021",
