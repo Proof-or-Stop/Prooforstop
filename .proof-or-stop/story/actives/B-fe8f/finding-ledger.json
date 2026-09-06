@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "36abb431b2162e1ad932e414a6523a3f1f4f1dddbfa2ae8ea5e2beb62efefe3a",
+  "committedLedgerDigest": "7e6efb3f513d8cecaef936999f3d1744a5011997c752c52793fd9344685e7e07",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2625,6 +2625,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T14:53:36.645Z"
+    },
+    {
+      "recordId": "lr_mtpxma0x_14mf_0d26c911fe6847498047f40906c42372",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-05427996-9814-4f16-917b-97a0f0af56a7",
+        "findingId": "B-fe8f:F-060",
+        "findingRecordId": "lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-06T14:53:39.008Z",
+        "reason": "The registration parent now supplies a private .git directory, but the B-fe8f RED leaf still recognized only the earlier symlink layout and incorrectly attempted Story-store access in the isolated mirror. RED parent /tmp/bfe8f-sameenv-registration.p7sGmj/registration-derivation.log showed 1 RED / 25 GREEN while the real-worktree leaf passed. Fix 2086edd40124c0fa2df88b3e0b39001f2414f52e recognizes only the supported preserve-symlinks-main private-Git layout with regular HEAD/index/alternates, config symlink and absent commondir; includes positive and rejection controls. Layout selection is explicitly not authority or isolation proof. Original baseline binding, live-worktree official RED/relation checks, and parent raw-index/stages/HEAD invariants are preserved. GREEN parent 26/26 in /tmp/bfe8f-f058-f060-green.gcmW8Z/. Final genuine CLI validation completed on 2026-09-06: 132/132 commands have code=0, aggregate allPass=true; full original output /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "b9091c36d66cc6fd76a80c2936ca2027736c73e0dc97eca1bc19e820cb282a36",
+      "priorDigest": "36abb431b2162e1ad932e414a6523a3f1f4f1dddbfa2ae8ea5e2beb62efefe3a",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T14:53:39.009Z"
     }
   ],
   "receipts": [
@@ -7312,6 +7335,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "c9ad149139d25632210eaa7990c68bcfc190c0ad23835135e6a52ee97b19969f",
         "signature": "5PF2+QF7P4ZofTeAc6TniKqQcYmmoDzDHyNtE8PQQyQD4mHTq7cwig8/5WoffBrS7QqrmSJzbod6W2XDpguvAQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtpxma0y_14mf_6d48f8d5d83c4487acfba3e78b709030",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3:resolved",
+      "requestDigest": "8e0ffa5ad488717287adeb129d83211bb14d1b617e10195d56df204a8dd725e2",
+      "recordIds": [
+        "lr_mtpxma0x_14mf_0d26c911fe6847498047f40906c42372"
+      ],
+      "priorLedgerDigest": "36abb431b2162e1ad932e414a6523a3f1f4f1dddbfa2ae8ea5e2beb62efefe3a",
+      "committedLedgerDigest": "7e6efb3f513d8cecaef936999f3d1744a5011997c752c52793fd9344685e7e07",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "d755c889-ef78-4dbd-9c1e-59fdef2989cf",
+      "committedAt": "2026-09-06T14:53:39.009Z",
+      "replayed": false,
+      "exactRequestDigest": "8472e642ec93d395cb3c992f1a18423c5680c3dd5178d20100d12d6f80d26b30",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtpxma0y_14mf_6d48f8d5d83c4487acfba3e78b709030",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding-lifecycle:lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3:resolved",
+        "exactRequestDigest": "8472e642ec93d395cb3c992f1a18423c5680c3dd5178d20100d12d6f80d26b30",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtpxma0x_14mf_0d26c911fe6847498047f40906c42372"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3",
+            "expectedRecordHash": "91f6e5e0926608ad94de9cc562408f1b79cdac1f67c91f4670b971b14e0373ce",
+            "observedChainHeadId": "lr_mtpxm879_12w1_3ba43367355e466e81dfb5227ab56b96",
+            "observedChainHeadHash": "07056b67bc3130c0acd3ccaf72ca02aa6ffddec83eafc081c7dd378bc027e033",
+            "predicateDigest": "79f90f6fa233b41c412ce3ac1249daba707f64b5c4c2debb71384c2188ee8bde"
+          }
+        ],
+        "priorLedgerDigest": "36abb431b2162e1ad932e414a6523a3f1f4f1dddbfa2ae8ea5e2beb62efefe3a",
+        "committedLedgerDigest": "7e6efb3f513d8cecaef936999f3d1744a5011997c752c52793fd9344685e7e07",
+        "replayed": false,
+        "committedAt": "2026-09-06T14:53:39.009Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "d755c889-ef78-4dbd-9c1e-59fdef2989cf",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "4cf17b02212a91e4d1edd1637c2e4a45d1188cc8f5d789d8795377f3cf078ce9",
+        "signature": "fcqB21bqZKxpnXjs+a2L24Qcph9HBs63Q7sM2Pv7laIv2e4AYT7JbehjZgDrQ+E9mAn0Gx2NyS117bAx8ZDUCg=="
       }
     }
   ]

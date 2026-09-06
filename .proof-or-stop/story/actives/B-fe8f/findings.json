@@ -1565,7 +1565,7 @@
       "desc": "The B-fe8f RED guard no longer recognizes the registration parent test's supported private Git mirror. Main now creates an isolated .git directory with private HEAD/index (red-b49d4-registration-derivation.mjs347-365); the B-fe8f guard95-103 still requires .git to be a symlink. In the parent mirror it falls into red_evidence_get against a context without the independent Story evidence store and fails EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE. Real validate command79 and isolated parent rerun exit1 (1 RED/25 GREEN); the identical direct real-worktree leaf under the same environment passes all13 markers. F056 leaf passes inside the parent too. Logs /tmp/bfe8f-sameenv-registration.p7sGmj/{registration-derivation,ledger-runtime-integrity-direct}.log; baseline55d5e34c6f360ef23e790a6c445bfb8b9a86e997. Adapt only bounded mirror recognition and add negative controls; retain private Git isolation, immutable binding digest and real-worktree official CLI evidence reads. This is an acceptance-blocking fixture integration mismatch, not evidence of invalid real RED credentials.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-06T14:07:06.789Z",
@@ -1577,7 +1577,11 @@
       "signatureTag": "edge|mjs|fe8f-guard-longer",
       "signatureTagSource": "auto",
       "recordId": "lr_mtpvyfjb_18d9_741e0830a56e4774a5f190e56e824bb3",
-      "ledgerCommitReceiptId": "lrc_mtpvyfjb_18d9_fc71917e20cf492b8c020e8e844d1c71"
+      "ledgerCommitReceiptId": "lrc_mtpvyfjb_18d9_fc71917e20cf492b8c020e8e844d1c71",
+      "resolvedAt": "2026-09-06T14:53:39.008Z",
+      "resolvedReason": "The registration parent now supplies a private .git directory, but the B-fe8f RED leaf still recognized only the earlier symlink layout and incorrectly attempted Story-store access in the isolated mirror. RED parent /tmp/bfe8f-sameenv-registration.p7sGmj/registration-derivation.log showed 1 RED / 25 GREEN while the real-worktree leaf passed. Fix 2086edd40124c0fa2df88b3e0b39001f2414f52e recognizes only the supported preserve-symlinks-main private-Git layout with regular HEAD/index/alternates, config symlink and absent commondir; includes positive and rejection controls. Layout selection is explicitly not authority or isolation proof. Original baseline binding, live-worktree official RED/relation checks, and parent raw-index/stages/HEAD invariants are preserved. GREEN parent 26/26 in /tmp/bfe8f-f058-f060-green.gcmW8Z/. Final genuine CLI validation completed on 2026-09-06: 132/132 commands have code=0, aggregate allPass=true; full original output /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
