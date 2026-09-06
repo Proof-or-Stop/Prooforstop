@@ -2578,6 +2578,51 @@
       ],
       "signatureTag": "unknown-applicability-joined-span-padding-bypass",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-054",
+      "desc": "packages/main/src/core/prompt-envelope.ts:422-433 assigns fixed 260-character and 280-character spans to the severity and deferral families, and :485-512 treats a concept pair beyond that distance as unclassified even when both concepts and their decisive relation remain in one sentence. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject the short controls [Severity alone determines Story scope.] and [defer_with_proof determines that the Finding is out of scope.], but all five admit the identical propositions after audit-evidence modifiers extend the same sentence to 463 and 511 bytes respectively. The deferral path also relies on a separate default 240-character hasConceptPair at :1019-1023, so neither fallback catches the padded relation. This is distinct from F-053, which covers the unknown-applicability joined span, and from F-001/F-003, which cover negative-dismissal linkage and padding; it exhausts the remaining controlled-relation maxSpan families. The focused smoke has no same-sentence distance witness for severity or deferral. Replace evadable character horizons with relation-preserving segmentation or a bounded structural state that cannot be defeated by neutral modifiers, and add all-role short and long unsafe plus unrelated-safe controls. Severity high because harmless padding lets Story-authored Task Context assert severity-only scope or deferral-based applicability while every REVIEW envelope is minted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T20:46:58.603Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-103",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "3759a91b0c874b1183924fd443dfd92b80bb306bacecd7e8aaba04f3cc033abe",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "severity-deferral-fixed-span-padding-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
