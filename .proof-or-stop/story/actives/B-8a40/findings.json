@@ -1438,7 +1438,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:1003-1013 exempts a schema/gate segment whenever it starts with any of three broad invariant-looking patterns, but each pattern accepts an unconstrained remainder and the classifier never inspects that residue. Against the committed built assembleFullPromptEnvelope API, all five active modular reviewer roles ADMIT each of `Do not change the Finding schema and this Story adds an applicability field.`, `No Finding schema change is in scope and this Story adds an applicability field.`, and `Assert the change introduces no Finding schema change and this Story adds an applicability field.` The safe control `Do not change the Finding schema.` is admitted and the direct unsafe control `This Story adds an applicability field to the Finding schema.` is rejected for all roles, isolating the bypass to the schemaInvariant shortcut. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1024-1026 covers only the exact safe prefixes, while :898-899 covers only direct unsafe statements; no test appends an affirmative schema amendment to a safe prefix. This is distinct from F-025's per-segment approved-content filters and F-021 through F-024/F-028 whole-source meta wrappers: this separate fallback schema/gate detector suppresses its own violation because of an open-ended negative prefix. Require a complete closed invariant grammar or classify residual clauses independently and add all-role suffix-injection controls. Severity high because Story-authored Task Context can declare an applicability-schema amendment before envelope digests while the focused smoke remains green.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T18:44:03.622Z",
@@ -1477,7 +1477,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-schema-invariant-open-tail-laundering",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Schema invariant forms now consume the complete atom and reject appended trailing content.",
+      "resolvedAt": "2026-09-06T19:51:20.098Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-031",
