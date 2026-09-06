@@ -4367,7 +4367,7 @@ testCase('the REAL package.json chain and the REAL RESOURCE_POLICY both register
 //      rather than inspecting JSON text. It also proves B-e256's global-CLI RED
 //      command is visible by stable id/label in actual planner output.
 // ---------------------------------------------------------------------------
-testCase('the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves', () => {
+testCase('the real validation_plan output exposes red-global-cli-exec-bit by stable id and label', () => {
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
   assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
 
