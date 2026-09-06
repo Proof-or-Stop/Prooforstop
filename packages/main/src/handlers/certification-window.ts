@@ -135,11 +135,13 @@ const CERTIFICATION_DOMAIN_DEPENDENCIES: Readonly<Record<CausalDependencyDomain,
   'review-subject': [],
 };
 
-// A single build-input definition also excludes those exact files from the
-// broad integration surfaces. This is disjoint classification, not first-match
-// precedence: all other overlaps and unknown paths still fail closed.
-const CERTIFICATION_BUILD_INPUT_PATH_PATTERN = /(?:^|\/)(?:package(?:-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb|tsconfig(?:\.[^/]+)?\.json|lattice\.config\.json|proof-or-stop\.config\.json)$/;
-const CERTIFICATION_NON_BUILD_INPUT_PREFIX = `^(?!.*${CERTIFICATION_BUILD_INPUT_PATH_PATTERN.source})`;
+// A build-like basename alone does not establish a current build surface. Admit
+// repo-root inputs and the existing package/entrypoint/integration roots only;
+// unknown namespaces stay unclassified, including live historical metadata.
+// This shared definition also excludes those exact files from the broad
+// integration surfaces. All other overlaps still fail closed, not first-match.
+const CERTIFICATION_BUILD_INPUT_PATH_PATTERN = /^(?:(?:bin|scripts|\.githooks|packages\/[^/]+)\/(?:[^/]+\/)*)?(?:package(?:-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb|tsconfig(?:\.[^/]+)?\.json|lattice\.config\.json|proof-or-stop\.config\.json)$/;
+const CERTIFICATION_NON_BUILD_INPUT_PREFIX = `^(?!${CERTIFICATION_BUILD_INPUT_PATH_PATTERN.source})`;
 
 // Exported for the B-5a15:F-393 regression test only. certificationDomainForPath
 // requires `matches.length === 1`, so the rules must stay mutually exclusive by
@@ -186,9 +188,8 @@ function certificationDomainForPath(path: string): CausalDependencyDomain | unde
 const HISTORICAL_STORY_MIGRATION_PATH = /^\.lattice\/story\/actives\/B-[A-Za-z0-9][A-Za-z0-9-]*\/(?:background\.md|checklist\.json|execution-boundary\.json|index\.json|init-check\.json|process-events\.jsonl|scope-boundary\.json|scope-freeze-check\.json)$/;
 
 function certificationDomainForEntry(entry: StoryChangedFile): CausalDependencyDomain | undefined {
-  if (entry.path.startsWith('.lattice/')) {
-    return HISTORICAL_STORY_MIGRATION_PATH.test(entry.path)
-      && entry.blobId === '<deleted>'
+  if (HISTORICAL_STORY_MIGRATION_PATH.test(entry.path)) {
+    return entry.blobId === '<deleted>'
       && (entry.status === 'deleted' || (entry.status === 'renamed' && entry.oldPath === entry.path))
       ? 'review-subject'
       : undefined;
