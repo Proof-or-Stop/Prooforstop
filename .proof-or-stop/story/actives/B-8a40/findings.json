@@ -3826,6 +3826,55 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqftlmb_bw4_156213ce731b45a5aa9ef8417caab5ad",
       "ledgerCommitReceiptId": "lrc_mtqftlmb_bw4_eddb3797d984493abce19bfaf8f19243"
+    },
+    {
+      "id": "B-8a40:F-077",
+      "desc": "Wave-2 duplicate re-attestation of canonical B-8a40:F-069; no repair or no-blocker claim. packages/main/src/core/prompt-envelope.ts:667-671, :684, and :811 still reset live unknown-applicability or signed-disposition authority when a causal prefix precedes coreferent it followed by is. Fresh git diff 14081c71ac HEAD over the two scoped files is empty and direct reread confirms the same logic. The existing verified public-API witness [Applicability remains unknown. Therefore it is what authorizes routing away from this Story.] and [Reviewers inspect a signed defer_with_proof disposition. Therefore it is assigned to the Finding.] remains applicable to unchanged material; canonical F-069 holds the five-role/eight-prefix reproduction and no-prefix controls. This terminal preserves the existing high blocker for inventory wave 2; propose critic disposition duplicate of B-8a40:F-069, not a new verified family. Bounded re-attestation found no additional unregistered state-reset family.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T23:23:19.737Z",
+      "reviewRound": "2026-09-06T23:05:45.070Z",
+      "reviewRunId": "B-8a40:RR-133",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3128f15add32c8ddc82ea12184a077aea799c6a56251bd45d76d34f538e34302"
+      },
+      "readDiagnostics": [],
+      "_hash": "483ff514cdd1323748d18fb84382bf86084750f74c043e73cf3921b55c843255",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "triage-causal-coreference-mistaken-for-local-reset",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqftq9m_fg1_c1b0047f0e204580819405854fa70bc4",
+      "ledgerCommitReceiptId": "lrc_mtqftq9m_fg1_459c1f030e95450eb8cf630848e44ad9"
     }
   ]
 }
