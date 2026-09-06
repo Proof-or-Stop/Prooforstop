@@ -1610,7 +1610,7 @@
       "desc": "english-early-check-smoke.ts:38-40 computes packageRoot as packages/main/dist from the compiled task, then repositoryRoot ascends only to packages. Line355 reads repositoryRoot/AGENTS.md and throws ENOENT after seven behavioral checks pass. Independent commands node packages/main/dist/tasks/english-early-check-smoke.js on main69403365ae and B-212f each exit1 with their respective /packages/AGENTS.md missing path. Test source is byte-unchanged from main; this is pre-existing test infrastructure, not DONE extraction regression. It now blocks configured formal validation (config command at762) and therefore this Story acceptance. Bounded repair: correct repository-root resolution only, preserve the working dist cliPath and all English behavior/doc assertions; verify from both root and Story worktree locations. Do not create misleading packages/AGENTS.md to satisfy the wrong path. RI-003 wave1 signed coverage terminal on unchanged material5f21d60f/story8c9a7add. Prior complete story-level reads and 14-intent evidence audit reused; new implicated files inspected in bounded sections only. No source or lifecycle changes.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-05T16:36:06.608Z",
@@ -1651,7 +1651,11 @@
         "packages/main/src/tasks/english-early-check-smoke.ts"
       ],
       "signatureTag": "english-smoke-repository-root-depth",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "61ea99033b corrects English smoke repository-root depth without creating packages/AGENTS.md or changing English gates. CHK-005:happy:2. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:43:45.966Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-036",
