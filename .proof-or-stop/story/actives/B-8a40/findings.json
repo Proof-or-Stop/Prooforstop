@@ -2080,6 +2080,7 @@
       "signatureTag": "prompt-envelope-inventory-finite-blacklist-incomplete-closure",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf93cv_14x3_dd3eec06895141ebab400dbe70b970b2",
+      "ledgerCommitReceiptId": "lrc_mtqf93cv_14x3_0834a3db8d75435aacb1a4c61ca4a3e3",
       "resolvedAt": "2026-09-06T23:07:16.941Z",
       "resolvedReason": "Classify the captured test-inventory and subordination body with the production authority classifier instead of a finite verb blacklist; publishes, enacts, deem, makes and entrusts regressions are committed. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2090,7 +2091,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:394 and :555-558 make every sentence beginning with a topic-break marker non-linking before checking whether the sentence explicitly names the Finding. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject the direct control [No parent Finding is closed by this intake. The Finding is out of scope.] but admit [No parent Finding is closed by this intake. Separately, the Finding is out of scope.]. The second conclusion has an explicit Finding subject and the same affirmative out-of-scope predicate, so Separately cannot sever its coreference; this lets Story-authored Task Context convert a dismissal observation into applicability authority before envelope digests. The same unconditional exemption also affects cross-source leading conclusions through :1138-1145. The round-3 safe matrix at packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1227-1230 proves only the valid unrelated-object case [Separately, generated cache work is outside this Story] and has no explicit-target unsafe counterpart. This is distinct from the earlier false-join family: the target is not an unrelated leaf but the literal Finding, and the newly added topic-break exemption launders an otherwise rejected relation. Preserve topic breaks only when the later conclusion lacks explicit coreference, and add all-role same-leaf and cross-leaf controls for unrelated objects versus explicit Finding, issue, work, and defect targets.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T19:56:24.035Z",
@@ -2128,7 +2129,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "topic-break-explicit-coreference-authority-laundering",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf94ht_15ik_920da24b40b9479e91a8346413204179",
+      "resolvedAt": "2026-09-06T23:07:18.413Z",
+      "resolvedReason": "Require explicit target-aware topic breaks; separately does not erase Finding, issue, work or defect coreference, with same-leaf and cross-leaf controls. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-044",
