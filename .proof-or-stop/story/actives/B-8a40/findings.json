@@ -2257,6 +2257,51 @@
       ],
       "signatureTag": "deferral-state-local-antecedent-false-positive",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-047",
+      "desc": "packages/main/src/core/prompt-envelope.ts:738-762 implements a separate persistent severity-authority state machine that scans every later segment for an it, this, or that continuation but never resets after intervening prose introduces a nearer substantive antecedent. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject [Severity is the only factor. Cache routing is a separate criterion. It determines Story scope.] as severity-only authority, even though It refers to the immediately preceding Cache routing criterion. The local-only control [Audit evidence is recorded. Cache routing is a separate criterion. It determines Story scope.] is accepted by all five roles, while the genuinely unsafe [Severity is the only factor. It determines Story scope.] remains rejected, isolating the false join to stale severity state. This is distinct from F-046 because it executes through hasCrossSegmentSeverityAuthority and its flattened or persistent authority-noun grammar rather than the deferral controlled-relation branch; it is also distinct from F-012 cross-source dismissal composition. The focused smoke has no severity-plus-local-subject safe witness. Preserve severity state across bounded evidence-only continuations but reset or rebind it on a new substantive factor or criterion antecedent, with all-role direct unsafe, evidence-aside, and local-antecedent safe controls. Severity high because ordinary Story scope prose can prevent every REVIEW role from assembling.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T20:11:51.732Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-084",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "dbd00ce2f596ee161a524318480a01049e986365a27e94af268152619d7dc866",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "severity-state-local-antecedent-false-positive",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
