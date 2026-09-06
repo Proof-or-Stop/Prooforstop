@@ -2182,9 +2182,9 @@
       "relatedDocs": [
         "docs/requirements/decisions/dynamic-finding-system-execution-plan.md#93-story-3--finding-ledger-and-runtime-evidence-integrity"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-01T11:47:58.939Z",
-      "endTime": "2026-09-06T13:36:16.366Z",
+      "endTime": "2026-09-06T13:46:04.998Z",
       "userSees": "The final verification prints \"Finding ledger integrity: PASS\", \"Runtime evidence integrity: PASS\", and \"green.story3_matrix: PASS\".",
       "excludes": [
         "No Story 2 identity/lineage behavior.",
@@ -3259,6 +3259,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Post-refresh full CLI read found only 13 RED receipts remain mechanical; 58 shared ledger/runtime rows were demoted. The 71/71 refresh completion is not 71 passes. Reopen final verification until the shared pinned command re-earns genuine receipts; no lifecycle completion is claimed."
+    },
+    {
+      "timestamp": "2026-09-06T13:46:04.998Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Confirmed full checklist reload: 71/71 passing mechanical receipts, zero demoted rows. CLI dryRun reports no stale evidence. After exact linked-main CLI execute permission recovery, official batch d93f883 earned 58 intents with one real execution, zero reruns and falseFresh=0. Full validation and REVIEW/TEST/DONE remain separate obligations."
     }
   ]
 }
