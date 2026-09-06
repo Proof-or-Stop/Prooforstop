@@ -326,7 +326,7 @@
       "reviewRound": "2026-09-06T13:22:17.538Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T14:10:13.720Z",
-      "updatedAt": "2026-09-06T14:49:21.294Z",
+      "updatedAt": "2026-09-06T15:03:27.751Z",
       "cutoff": {
         "headHash": "19c78aac6064ea653872f90477081b0cdaaf3d7a",
         "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
@@ -447,6 +447,62 @@
           "criticDigest": "75a3862a61a9295704aa669a68de738c8143b6c274f37ab1a1b7155d440c7fe2",
           "saturated": false,
           "nextRunSequenceBoundary": 48
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T14:49:21.294Z",
+          "completedAt": "2026-09-06T15:03:27.751Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-050",
+              "terminal": "pass",
+              "hostIdentity": "5eb85f38d0805768cbb0e6f77c4725e8c4de83889d797ce3611e96e62112ae0b",
+              "promptIdentity": "914cddddd6c4e823b6f2cda1a85870b14875782e13cbab14fb8ac42dbbeca049",
+              "evidenceIds": [
+                "B-e256:RP-033"
+              ],
+              "coverageDigest": "7028112f0e21efe78dd70deb8cf13ed818655d37e1e9842f64cd49a6b62500e0"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-051",
+              "terminal": "finding",
+              "hostIdentity": "5eb85f38d0805768cbb0e6f77c4725e8c4de83889d797ce3611e96e62112ae0b",
+              "promptIdentity": "f6f5d28da71243336bf4f1922ef4c059f51bd319b53e27dfb824bf4038fa716b",
+              "evidenceIds": [
+                "B-e256:F-016"
+              ],
+              "coverageDigest": "7d5762cd78a1800a837c986eabac8d82e46dfdd96edd46b59febc5895b409e7b"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-049",
+              "terminal": "pass",
+              "hostIdentity": "5eb85f38d0805768cbb0e6f77c4725e8c4de83889d797ce3611e96e62112ae0b",
+              "promptIdentity": "4089688253b4197127bc4addbce429a92f4848f17b13f942fc3ec1560c5bcb91",
+              "evidenceIds": [
+                "B-e256:RP-032"
+              ],
+              "coverageDigest": "b3d9ddec485d2957a7baae3523dff1e95c4d079097fef9d439c6b77841e07870"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "concept-pin-maintenance-residual-reference",
+            "global-bin-target-stat-error-collapse",
+            "npm-global-root-output-parse",
+            "promote-dist-containment-prefix",
+            "promote-dist-non-regular-bin-target",
+            "quality-bin-target-symlink-escape",
+            "test-coverage-bin-shape-cardinality",
+            "validate-smoke-descendant-cleanup",
+            "validate-smoke-platform-portability"
+          ],
+          "verifiedFindingSetDigest": "e14e65a54ead11db26d9f1cdd36c0ba8c9077bf53f763d0864b4f5b789c332e1",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "39b7ade59ec966eec58dae9d77c14fa90c4a8ed404eb77179142602fc816d3ed",
+          "saturated": false,
+          "nextRunSequenceBoundary": 53
         }
       ],
       "baselineFindingIds": [
@@ -454,7 +510,7 @@
         "B-e256:F-009",
         "B-e256:F-010"
       ],
-      "_hash": "517b7c859e236fc3b10810b695587e3df679b8b046ec0f481d82ee5761a9c585"
+      "_hash": "7f0a535ee7ed56f137b22ba317d115f677f2b1d8944d860fa004d93b3033ce46"
     }
   ],
   "receipts": [
@@ -793,6 +849,37 @@
       ],
       "createdAt": "2026-09-06T14:48:04.900Z",
       "_hash": "9918789ef39029f4b159765a5c8ab5dfad64bdc86d3937f6f121b717a69d8ab7"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-002:CRIT-03",
+      "epochId": "B-e256:RI-002",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "19c78aac6064ea653872f90477081b0cdaaf3d7a",
+        "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+        "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d"
+      },
+      "aggregateFindingSetDigest": "e14e65a54ead11db26d9f1cdd36c0ba8c9077bf53f763d0864b4f5b789c332e1",
+      "requiredLaneCoverageDigest": "d59f00d5500427a235afbbf7c75605b828804022c90986ef5321e99e4aa5c3b1",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-053",
+      "terminalEvidenceIds": [
+        "B-e256:RP-035"
+      ],
+      "readEvidenceDigest": "fd6a33b67268c1edb7e15e9bee23cb132a46477611e947437d3e3256e545eeb7",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-016",
+          "disposition": "verified_family",
+          "familyKey": "quality-bin-target-symlink-escape",
+          "reason": "Confirmed independently on the current committed helper: package.json declared dist/cli.js, the path was an in-tree symlink to an outside 0644 file, restoreBinExecutableBits(dist) returned [dist/cli.js] and chmod followed the symlink, changing the outside referent to 0755. Source inspection shows lexical relative-path containment followed by statSync/chmodSync, with no lstat or resolved-target containment check. This is one verified symlink-escape family and is distinct from F-010 lexical traversal-prefix handling and F-013 non-regular target handling."
+        }
+      ],
+      "createdAt": "2026-09-06T15:02:14.659Z",
+      "_hash": "2eb7744d765ef69bd1919c07ce3833eae796bab9b583cef110b99aa21a6d5e73"
     }
   ]
 }
