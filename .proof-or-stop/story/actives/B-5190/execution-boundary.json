@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-5190",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git status *",
+    "node bin/proof-or-stop.js *",
+    "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+    "npm --prefix packages/main run build"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "local shell",
+    "Proof-or-Stop CLI"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives",
+    "packages/main/dist",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push",
+    "git reset --hard"
+  ],
+  "excludedTools": [
+    "remote publishing"
+  ],
+  "excludedPaths": [
+    ".proof-or-stop/story/actives/B-bcae"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Supporting repair is local-only and bounded to the classifier plus focused fixtures.",
+  "createdAt": "2026-09-06T15:13:09.528Z",
+  "updatedAt": "2026-09-06T15:13:09.528Z",
+  "_hash": "d88023d4f71670b7c2387c0a8716e70b1e61742b7a08f2f3d2308e1e19467513"
+}

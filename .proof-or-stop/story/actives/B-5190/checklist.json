@@ -1,0 +1,69 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Admit the reproduced explicit-negative context while preserving unsafe triage rejection",
+      "context": "Add a focused prompt-envelope regression for the exact B-bcae-shaped safe input across every active modular reviewer role, retain representative positive and ambiguous rejection controls, then implement the smallest classifier change that makes only the safe case pass.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "userSees": "A Story containing the reproduced explicit-negative context can start every required REVIEW lane, while unsafe lifecycle triage context is still rejected.",
+      "excludes": [
+        "Changing Story phase transitions",
+        "Adding a general natural-language parser",
+        "Weakening affirmative or ambiguous triage-authority rejection",
+        "Editing B-bcae metadata directly",
+        "Unrelated prompt policy changes"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The focused prompt-envelope smoke assembles full REVIEW envelopes for every active modular reviewer role when given the reproduced B-bcae-shaped explicit-negative context.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The same smoke retains representative affirmative and ambiguous joined-clause directives and verifies that each remains rejected before an envelope digest is minted.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A mutation that removes the bounded explicit-negative allowance makes the reproduced safe fixture fail while unsafe controls stay rejected, proving the GREEN result depends on the intended narrowing.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
