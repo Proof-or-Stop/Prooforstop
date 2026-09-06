@@ -2853,6 +2853,45 @@
       },
       "readDiagnostics": [],
       "_hash": "b7cd995c06f095adaa300a0e9f9597fbff249ab30b1fbef3e59aa3a3aeb0ffd1"
+    },
+    {
+      "id": "B-fe8f:RP-075",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent Claude CLI host quality lane, RR-121 (round 2026-09-06T16:01:27.770Z, head d24de02, story 15f6210, scope 8b1e47f/6fbf032). LANE CONCLUSION ONLY: not standard validation, not DONE, no quorum or delivery signature; RP-072/RR-118 and the old 132-command run and quorum are historical and not reused. Read the complete assembledPrompt untruncated before signing. Scope: the two changed files are absent from allowedModify/allowedTest, so I checked the signed contract; acknowledgement 16/16 binds exactly handlers/certification-window.ts and tasks/certification-window-smoke.ts under mode enforce. Delta: exactly those two files since head ead6135 (+179/-13); RED 0fafd2dac9 and GREEN 9754c4b317 both present. (1) Exact-one build classification verified: the fix adds a negative-lookahead build-input exclusion to the two integration rules instead of switching to first-match, so matches.length===1 still governs; the smoke asserts 48 lab/utils paths resolve to exactly ['build-input'] and package-lock.json.backup, scripts/check.mjs and src/logic.ts to exactly ['integration']. (2) Tombstone restriction verified: .lattice entries are admitted only under path-regex AND blobId==='<deleted>' AND (deleted OR renamed with oldPath===path); story-aware-validation.ts:185 emits the rename old side as path===oldPath with that literal and :191 emits deleted the same, so the strict check matches the producer and the rename new side cannot qualify. (3) Fail-closed verified: nine negative scenarios (added/modified/renamed-into live retired-namespace files, plus findings.json, a nested segment, archives, .lattice-other, a non-story dir, and one unknown path) each assert the real resolver produced the intended status before asserting undefined, so the refusals are not vacuous; the suite drives the real resolver and production derivation and proves domain isolation both ways. No dead code, no as-any, no swallowing catch; no docs changed, so no doc-promise exposure. Receipts read via CLI, not rerun: 6 items, 71 intents, 71 evidence, 71 mechanical, 71 receipted, 71 pass, 0 fail, all bound to 9754c4b317; zero source drift from that commit to HEAD and since d24de02; clean tree. I ran neither the 71 nor the 132 and claim no aggregate validation. No new finding. Limitations preserved: F-057 historical root remains UNKNOWN (11/11 not re-verified); F-048 high suspected and F-049 low suspected remain open with their drafts. No source/test/checklist/Owner-artifact edit, no ownership, no phase change, no merge, no quorum. Session: sess-6caebb34c1ed02b54e92ef4f13d647ac, host-adapter provider claude-code, non-owner.",
+      "createdAt": "2026-09-06T16:18:14.371Z",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "reviewRunId": "B-fe8f:RR-121",
+      "envelopeId": "27863ca5ab2ae3fd3c654516b65b7c924bcf3e21c999793af7a59d622c6d22d4",
+      "writerSessionId": "sess-6caebb34c1ed02b54e92ef4f13d647ac",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/scope-contract.json",
+          "packages/main/src/core/story-aware-validation.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/tasks/certification-window-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "12459466ade14b3ae1376b937f91d826cd701701bc1f87349caa61c12ee3dd67"
+      },
+      "readDiagnostics": [],
+      "_hash": "28db1d2c65fa62e328d4b4b3b26778795e8261aa34db11edf728efb3532e2610"
     }
   ]
 }
