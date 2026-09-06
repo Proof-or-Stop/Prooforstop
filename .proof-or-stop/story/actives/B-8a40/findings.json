@@ -2821,6 +2821,53 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqai08z_1cue_25cdcb593c1f4952bd3b443c47169698",
       "ledgerCommitReceiptId": "lrc_mtqai08z_1cue_ef45d4575e6e4e23a8285d7292c2ac2a"
+    },
+    {
+      "id": "B-8a40:F-059",
+      "desc": "Complete signed-read reproduction record for B-8a40:F-056, whose original readEvents path contained a typographical mismatch: packages/main/src/core/prompt-envelope.ts:1033-1051 uses the default 240-character hasConceptPair horizon as the sole relation prerequisite for compatibility-CLI deferral authority and for Story-authored schema or gate changes, while the residual schema regex at :1041 requires the Story noun to sit immediately next to a finite change verb. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject [The compatibility CLI authorizes defer_with_proof.] and [This Story changes the applicability field.], but all five admit the identical subjects, authority actions, and outcomes when one grammatical audit-evidence modifier extends each same sentence to 536 and 529 bytes. The long schema form evades residualSchemaAmendment because the modifier separates Story from changes, then evades the fallback pair horizon; the compatibility form directly exceeds the same default pair horizon. This is distinct from F-055, which covers reviewer-actor to disposition distance, and F-054, which covers the explicit severity and deferral ControlledTriageRelationSpec spans. It exhausts the remaining safety-relevant default hasConceptPair consumers. Replace the evadable distance test with structural relation classification or an unbounded same-sentence state that preserves polarity, and add all-role short and long unsafe plus explicit-negative controls for both branches. Severity high because neutral same-sentence detail lets Task Context grant compatibility deferral authority or amend the Finding schema while every REVIEW envelope is minted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T20:55:08.962Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-110",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "fffeabcc8057d6f637ed9b97f614f849d1edde2f7094c87f011c892613dd9ac0",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "compatibility-schema-default-span-padding-bypass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqaj63n_b0b_b557f9c87e3a4719a2906a157dca9eb7",
+      "ledgerCommitReceiptId": "lrc_mtqaj63n_b0b_87a74a7fdbeb41fc9628899d048ddd49"
     }
   ]
 }

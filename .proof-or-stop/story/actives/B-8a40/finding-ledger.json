@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "9438a84777939a4520d0c6322d3be046eada670bbc1ea3a783441c8e8b9b5886",
+  "committedLedgerDigest": "6bc5c5dd2066e8b66c62643c3cc1a6bac988d3941b9a7e06760b26ab741681eb",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -171,6 +171,61 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T20:54:14.723Z"
+    },
+    {
+      "recordId": "lr_mtqaj63n_b0b_b557f9c87e3a4719a2906a157dca9eb7",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:505dab59-191d-4e2d-b6bb-2d21efe2ba6d",
+      "payload": {
+        "id": "B-8a40:F-059",
+        "desc": "Complete signed-read reproduction record for B-8a40:F-056, whose original readEvents path contained a typographical mismatch: packages/main/src/core/prompt-envelope.ts:1033-1051 uses the default 240-character hasConceptPair horizon as the sole relation prerequisite for compatibility-CLI deferral authority and for Story-authored schema or gate changes, while the residual schema regex at :1041 requires the Story noun to sit immediately next to a finite change verb. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject [The compatibility CLI authorizes defer_with_proof.] and [This Story changes the applicability field.], but all five admit the identical subjects, authority actions, and outcomes when one grammatical audit-evidence modifier extends each same sentence to 536 and 529 bytes. The long schema form evades residualSchemaAmendment because the modifier separates Story from changes, then evades the fallback pair horizon; the compatibility form directly exceeds the same default pair horizon. This is distinct from F-055, which covers reviewer-actor to disposition distance, and F-054, which covers the explicit severity and deferral ControlledTriageRelationSpec spans. It exhausts the remaining safety-relevant default hasConceptPair consumers. Replace the evadable distance test with structural relation classification or an unbounded same-sentence state that preserves polarity, and add all-role short and long unsafe plus explicit-negative controls for both branches. Severity high because neutral same-sentence detail lets Task Context grant compatibility deferral authority or amend the Finding schema while every REVIEW envelope is minted.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-06T20:55:08.962Z",
+        "reviewRound": "2026-09-06T19:49:59.446Z",
+        "reviewRunId": "B-8a40:RR-110",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "fffeabcc8057d6f637ed9b97f614f849d1edde2f7094c87f011c892613dd9ac0",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "compatibility-schema-default-span-padding-bypass",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "52f26d0dfb3ace056e43aa9b073e793dedf44129befd5a796464d14882ff3ea6",
+      "priorDigest": "9438a84777939a4520d0c6322d3be046eada670bbc1ea3a783441c8e8b9b5886",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T20:55:08.963Z"
     }
   ],
   "receipts": [
@@ -301,6 +356,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "f0cce2010a0d580a9fb93d87915bb49e2eda19557530dd837b1b4635090ceef1",
         "signature": "mjzqHaQ1+vVQttN+tIb5iyVpqfp9lAN1We0xPwVDt+HYtAbIRz3kFRADiofj4Fc9evutu6J0+w5j9N/Y2Cy0BQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqaj63n_b0b_87a74a7fdbeb41fc9628899d048ddd49",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:505dab59-191d-4e2d-b6bb-2d21efe2ba6d",
+      "requestDigest": "d0b52a2627bd7797726605cd923df592b5be30c05ce7fdd9bdd95f1f75d0a597",
+      "recordIds": [
+        "lr_mtqaj63n_b0b_b557f9c87e3a4719a2906a157dca9eb7"
+      ],
+      "priorLedgerDigest": "9438a84777939a4520d0c6322d3be046eada670bbc1ea3a783441c8e8b9b5886",
+      "committedLedgerDigest": "6bc5c5dd2066e8b66c62643c3cc1a6bac988d3941b9a7e06760b26ab741681eb",
+      "writerSessionId": "sess-603208b3ae7f13b889e99830d80831a0",
+      "writerFenceToken": "31bd1d91-c3b9-4e58-a680-06e08a50d37f",
+      "committedAt": "2026-09-06T20:55:08.963Z",
+      "replayed": false,
+      "exactRequestDigest": "272afa8542a37e0ad8d504689c43ccbd8490825ab9a8e90c7a622c39d5d49c21",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqaj63n_b0b_87a74a7fdbeb41fc9628899d048ddd49",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:505dab59-191d-4e2d-b6bb-2d21efe2ba6d",
+        "exactRequestDigest": "272afa8542a37e0ad8d504689c43ccbd8490825ab9a8e90c7a622c39d5d49c21",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqaj63n_b0b_b557f9c87e3a4719a2906a157dca9eb7"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "9438a84777939a4520d0c6322d3be046eada670bbc1ea3a783441c8e8b9b5886",
+        "committedLedgerDigest": "6bc5c5dd2066e8b66c62643c3cc1a6bac988d3941b9a7e06760b26ab741681eb",
+        "replayed": false,
+        "committedAt": "2026-09-06T20:55:08.963Z",
+        "writerSessionId": "sess-603208b3ae7f13b889e99830d80831a0",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "31bd1d91-c3b9-4e58-a680-06e08a50d37f",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "d4afe27947c5cac3b29c43995bc54c87e72cb01a54ad4e3859fd12bcc2ddeb31",
+        "signature": "k5Hlz7wuLGLb388iKNBqffvbWxF026hUroUqhF42qLwJ6oJQ7zfVp9TrbMeU84OdvdBmsdkDltLOB53h+FudBA=="
       }
     }
   ]
