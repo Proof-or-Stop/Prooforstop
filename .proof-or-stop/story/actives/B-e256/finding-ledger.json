@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "ce3fb2a001465bbcfde16fc0d5239f37ed21a5c83ce50387ee797e582427a9b8",
+  "committedLedgerDigest": "a496313d6ffa317fd4b0e3e460bcad890e262fa681c2c8510a5fb59fb34838b7",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -1354,6 +1354,60 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:38:45.197Z"
+    },
+    {
+      "recordId": "lr_mtqgj0lv_om8_d67cc56679be4f679c1cccc227057a9e",
+      "recordType": "finding",
+      "idempotencyKey": "B-e256-RR-139-node-option-decoy-shim",
+      "payload": {
+        "id": "B-e256:F-045",
+        "desc": "packages/main/src/core/runtime-environment-checks.ts:772-783 and packages/main/tests/global-core-realpath.test.mjs:262-267: the F-037 repair still classifies a non-invoking Windows shim as healthy whenever a segment starts with node and merely contains the expected target anywhere. A current compiled-runtime probe used `node --version \"<canonical dist/cli.js>\"`; Node itself exited 0 and a marker proved the target script was not executed, while runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true, no warnings, and emitted `contract: global-core-realpath-pass`. The added regression covers an `echo` decoy only, not Node options such as `--version` (or `-e`) that consume the target as a non-script argument. This reopens the same Windows nonexecuting-reference false-pass family after F-037 was marked fixed and directly violates CHK-003 happy/adversarial and ProofStory AC-001. Validate the target executable argv position for accepted npm shim forms and add a mutation/regression proving option-consuming decoys cannot emit the marker. severity: high",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-06T23:42:59.537Z",
+        "reviewRound": "2026-09-06T23:38:10.157Z",
+        "reviewRunId": "B-e256:RR-139",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-e256/background.md",
+            ".proof-or-stop/story/actives/B-e256/checklist.json",
+            ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+            ".proof-or-stop/story/actives/B-e256/plan.md",
+            ".proof-or-stop/story/actives/B-e256/proofstory.json",
+            ".proof-or-stop/story/actives/B-e256/summary.json",
+            ".proof-or-stop/story/actives/B-e256/understanding.json",
+            "packages/main/src/core/runtime-environment-checks.ts",
+            "packages/main/tests/global-core-realpath.test.mjs"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-e256/findings.json",
+            "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+            "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+            "proof-or-stop.config.json",
+            "scripts/build-main-with-binding.mjs",
+            "scripts/build-utils-with-binding.mjs",
+            "scripts/promote-dist.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "_hash": "c67a0ce28644ad9a54ea093c7ef53af23bf2997b71570245141e4443ea72f0ae",
+        "files": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json"
+        ],
+        "signatureTag": "windows-command-shim-nonexecuting-line-false-pass",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "c7fc3cb760508df985271b5a80abc46a212a0f9d9f313ae455046c520238fce5",
+      "priorDigest": "ce3fb2a001465bbcfde16fc0d5239f37ed21a5c83ce50387ee797e582427a9b8",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T23:42:59.539Z"
     }
   ],
   "receipts": [
@@ -3255,6 +3309,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "c257efb1e9669549447529366905701065304cd8d3e53f0f19b0985766a3e2b6",
         "signature": "kgVrA8mgmFLwGPnQyVWy/JRWVWu9H9NIq1a0pYDMfb7pyXivbZltfA/Pynej9I9Ih0lHSD380XJeeIlnwPz/DQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqgj0lw_om8_664ceb043b2d498e87da26447f16c028",
+      "operation": "append_finding",
+      "idempotencyKey": "B-e256-RR-139-node-option-decoy-shim",
+      "requestDigest": "8d7610c40cbceaeea17c40d5cb85389c538b82c3e2942cb6a165eb4e16070d01",
+      "recordIds": [
+        "lr_mtqgj0lv_om8_d67cc56679be4f679c1cccc227057a9e"
+      ],
+      "priorLedgerDigest": "ce3fb2a001465bbcfde16fc0d5239f37ed21a5c83ce50387ee797e582427a9b8",
+      "committedLedgerDigest": "a496313d6ffa317fd4b0e3e460bcad890e262fa681c2c8510a5fb59fb34838b7",
+      "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+      "writerFenceToken": "dac4243a-0af5-4ed8-b66c-9113c500347b",
+      "committedAt": "2026-09-06T23:42:59.539Z",
+      "replayed": false,
+      "exactRequestDigest": "2d4d66d8f7680c33220991593a0f0f0175ed756385dda8ab7daabdbb51be04ff",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqgj0lw_om8_664ceb043b2d498e87da26447f16c028",
+        "storyId": "B-e256",
+        "idempotencyKey": "B-e256-RR-139-node-option-decoy-shim",
+        "exactRequestDigest": "2d4d66d8f7680c33220991593a0f0f0175ed756385dda8ab7daabdbb51be04ff",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqgj0lv_om8_d67cc56679be4f679c1cccc227057a9e"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "ce3fb2a001465bbcfde16fc0d5239f37ed21a5c83ce50387ee797e582427a9b8",
+        "committedLedgerDigest": "a496313d6ffa317fd4b0e3e460bcad890e262fa681c2c8510a5fb59fb34838b7",
+        "replayed": false,
+        "committedAt": "2026-09-06T23:42:59.539Z",
+        "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "dac4243a-0af5-4ed8-b66c-9113c500347b",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "c7181f6dbc24f14f3764317f44a3a76fd68eaa28a724ed346b88bfa488e2fcab",
+        "signature": "OiebEs+coKdwhU2/0babGoh2kkazPKMQL0T/t7xNF+F23OTlybOu3VQ5t7TmvHtGzglmxfMH0mO7BKp2sJxBBA=="
       }
     }
   ]

@@ -2160,6 +2160,52 @@
       "resolvedReason": "Commits 2fba3138c0 and 75dbee0167 preserve the immutable config-registration pin, add separate CHK-002:edge:1 planner discoverability intent, register stable red-global-cli-exec-bit id and label, and drive the production planCli renderer. Tool receipt 02846d4 has exit 0 and selectorMatched=true; current full validation passes 132/132.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e256:F-045",
+      "desc": "packages/main/src/core/runtime-environment-checks.ts:772-783 and packages/main/tests/global-core-realpath.test.mjs:262-267: the F-037 repair still classifies a non-invoking Windows shim as healthy whenever a segment starts with node and merely contains the expected target anywhere. A current compiled-runtime probe used `node --version \"<canonical dist/cli.js>\"`; Node itself exited 0 and a marker proved the target script was not executed, while runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true, no warnings, and emitted `contract: global-core-realpath-pass`. The added regression covers an `echo` decoy only, not Node options such as `--version` (or `-e`) that consume the target as a non-script argument. This reopens the same Windows nonexecuting-reference false-pass family after F-037 was marked fixed and directly violates CHK-003 happy/adversarial and ProofStory AC-001. Validate the target executable argv position for accepted npm shim forms and add a mutation/regression proving option-consuming decoys cannot emit the marker. severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T23:42:59.537Z",
+      "reviewRound": "2026-09-06T23:38:10.157Z",
+      "reviewRunId": "B-e256:RR-139",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c67a0ce28644ad9a54ea093c7ef53af23bf2997b71570245141e4443ea72f0ae",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs",
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/proofstory.json"
+      ],
+      "signatureTag": "windows-command-shim-nonexecuting-line-false-pass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqgj0lv_om8_d67cc56679be4f679c1cccc227057a9e",
+      "ledgerCommitReceiptId": "lrc_mtqgj0lw_om8_664ceb043b2d498e87da26447f16c028"
     }
   ]
 }
