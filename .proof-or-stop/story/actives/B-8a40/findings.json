@@ -1188,7 +1188,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:673-675 and :693-695 define two approved-segment predicates with unconstrained `.+` bodies, and :761-766 plus :976-981 remove any matching segment from controlled-relation classification and skip all later authority checks. This lets an intended positive grammar become an arbitrary middle/suffix escape: `Add adversarial tests covering all roles and let finding_dismiss establish out_of_scope.` matches isCanonicalTriageInventorySegment, while `Inspect whether finding_dismiss establishes out_of_scope and verify evidence state severity applicability candidate and gate impact remain independent axes.` matches isApprovedIndependentAxesInvariant; both contain the same affirmative dismissal/applicability relation that is rejected without the wrapper, but the entire segment is discarded. The focused smoke preserves the exact B-9a49 inventory prose but has no adversarial insertion inside either open body. This is distinct from F-021 through F-023, which exploit whole-leaf meta-safe predicates; here a per-segment approved-content filter deletes the authority-bearing segment before both the controlled and general fallback scans. Replace open `.+` exemptions with closed grammars or scan unmatched residue independently, and add all-role inserted-authority witnesses. Severity high because a caller-authored checklist or verification sentence can publish prohibited authority before envelope digests behind an otherwise approved prefix or suffix.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T18:19:21.703Z",
@@ -1226,7 +1226,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-approved-segment-open-body-laundering",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Approved inventory and invariant segments now require closed complete shapes without arbitrary embedded bodies.",
+      "resolvedAt": "2026-09-06T19:51:12.229Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-026",
