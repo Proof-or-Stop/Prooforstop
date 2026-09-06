@@ -2698,6 +2698,7 @@
       "signatureTag": "severity-deferral-fixed-span-padding-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf9h4b_1d56_9938fb0727374785a088ce895eeb3bb8",
+      "ledgerCommitReceiptId": "lrc_mtqf9h4b_1d56_c383e351960642cfabcdce3b660a391e",
       "resolvedAt": "2026-09-06T23:07:34.775Z",
       "resolvedReason": "Remove raw character cutoffs from controlled concept relationships; long same-sentence severity and deferral claims retain classification. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2708,7 +2709,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:252-259 bounds generic concept pairs to 240 characters, and :1026-1031 uses that default-bounded pair as the sole actor-to-deferral prerequisite for unauthorized disposition minting. A grammatically continuous reviewer-authority statement can therefore separate its actor from the final adjacent mint/sign action and disposition with a long modifier until the actor/disposition pair disappears. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles correctly REJECTED `Reviewers mint defer_with_proof.` and the 140-character `Reviewers, after recording attributable audit evidence ... mint defer_with_proof.` control, but all five ACCEPTED the same statement with the grammatical audit modifier repeated to 568 characters. All five likewise accepted a 583-character `Review lanes, ... sign a FindingDeferralDisposition.` variant, while accepting the genuinely safe `Reviewers must not mint defer_with_proof.` control. No other detector recovers the long statement because it has no story-responsibility outcome or signed-inspection antecedent. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:689, :831-834, and :1286-1291 cover direct actor/action spellings but no actor-to-disposition padding boundary. This is distinct from F-037 actor synonyms and F-042/F-044 finite authority-action vocabularies because the exact recognized actor, action, and disposition remain unchanged; only the fixed pair span suppresses the relation. It is also distinct from F-053, which concerns unknown-applicability cross-segment state and its 320-character fallback. Bind the complete actor/action/disposition relation structurally rather than through an evadable character horizon, and add all-role short/long/negative controls. Severity high because Story-authored Task Context can explicitly authorize reviewers to mint a future official disposition while every REVIEW envelope is still minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T20:47:29.036Z",
@@ -2747,7 +2748,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "reviewer-disposition-actor-span-padding-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf9i9p_1dwk_b08356033b024bca9eb43eb636a17422",
+      "resolvedAt": "2026-09-06T23:07:36.266Z",
+      "resolvedReason": "Remove the default actor/disposition pair distance cutoff; long reviewer minting and review-lane signing assertions are rejected. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-056",
