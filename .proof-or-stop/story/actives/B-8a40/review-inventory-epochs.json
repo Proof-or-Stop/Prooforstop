@@ -1432,7 +1432,7 @@
       "reviewRound": "2026-09-06T19:49:59.446Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T20:16:24.819Z",
-      "updatedAt": "2026-09-06T20:21:53.404Z",
+      "updatedAt": "2026-09-06T20:29:04.779Z",
       "cutoff": {
         "headHash": "fb94c7ffe53eea1645a0afb7731237a88d888d06",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1500,6 +1500,61 @@
           "criticDigest": "db2855734ad0e2fd53031e25b7f51532509f4d1b539ca644e1cad552a2e12ff3",
           "saturated": false,
           "nextRunSequenceBoundary": 90
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T20:21:53.404Z",
+          "completedAt": "2026-09-06T20:29:04.779Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-092",
+              "terminal": "finding",
+              "hostIdentity": "eae9c86a53fc33f590367f671bb81c6e062d61022f98ab5401f192aaf9fa5f3b",
+              "promptIdentity": "6635edf86bd8bb6cad41ffce3426d8ea7d70363d24e41c1268e557c3b3326a5a",
+              "evidenceIds": [
+                "B-8a40:F-049"
+              ],
+              "coverageDigest": "a0bac9278c016f73e8bc8ff807e05ab4f8deecd46ef04402dab80fae3450a92a"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-091",
+              "terminal": "pass",
+              "hostIdentity": "eae9c86a53fc33f590367f671bb81c6e062d61022f98ab5401f192aaf9fa5f3b",
+              "promptIdentity": "f9a773fa0b6ae55bbfcc23ec835fc63a772b8d00a3f12272cbf6a26caed8be9b",
+              "evidenceIds": [
+                "B-8a40:RP-053"
+              ],
+              "coverageDigest": "b0838f1d32a378a101b75f5020516aeed6118d3b21a445921f143b5643ffaf99"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-093",
+              "terminal": "pass",
+              "hostIdentity": "eae9c86a53fc33f590367f671bb81c6e062d61022f98ab5401f192aaf9fa5f3b",
+              "promptIdentity": "09c31689f7fd38ceae8aff8da06444f04d0dcff163d0a2b82512fa2f41540441",
+              "evidenceIds": [
+                "B-8a40:RP-052"
+              ],
+              "coverageDigest": "3df4810eac7b792ba2949ac69d339f96574e1f7327f5399575e6c99cb5b9527b"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-deferral-state-local-antecedent-false-positive",
+            "prompt-envelope-positive-dismissal-evidence-unrelated-scope-whole-source-false-positive",
+            "prompt-envelope-severity-state-local-antecedent-false-positive",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering",
+            "prompt-envelope-unknown-applicability-whole-source-unrelated-routing-false-positive"
+          ],
+          "verifiedFindingSetDigest": "54637ea0a37282b5aa4aae5865a6e3482c113db256fe3e2e202c09601fa2acae",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "0cfc4cd8f6c2101bd8188e82a60d2c74b2311c99fc34cab0b78a3de6966431be",
+          "saturated": false,
+          "nextRunSequenceBoundary": 94
         }
       ],
       "baselineFindingIds": [
@@ -1511,7 +1566,7 @@
         "B-8a40:F-046",
         "B-8a40:F-047"
       ],
-      "_hash": "a9363cc66ec69e7b09a27ec1a9e91e142b37faaa12d40a3337e3678bb08c044b"
+      "_hash": "cb27ffbe1f56bf521093e901a20d7012d8c88b48342c391028b5085726822f66"
     }
   ],
   "receipts": [
@@ -2817,6 +2872,37 @@
       ],
       "createdAt": "2026-09-06T20:21:32.652Z",
       "_hash": "c30a11d093acd505afec2dc83d50cffec79691da5dd628a1491e0be0eab6dd33"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-008:CRIT-02",
+      "epochId": "B-8a40:RI-008",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "fb94c7ffe53eea1645a0afb7731237a88d888d06",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "54637ea0a37282b5aa4aae5865a6e3482c113db256fe3e2e202c09601fa2acae",
+      "requiredLaneCoverageDigest": "cbed8b10d59b9fef7583b9c86ce1f2288abc5d9b22e1f1f1221e7cd1987466f9",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-094",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-054"
+      ],
+      "readEvidenceDigest": "99925a965304abae91f8bd6bcf252cfeb616caa8a48de64a8f5d0fd76bbb1ea4",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-049",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-positive-dismissal-evidence-unrelated-scope-whole-source-false-positive",
+          "reason": "Independent bounded classifier/gate family: the dismissal-family whole-source join concatenates an affirmative finding_dismiss audit-evidence record with an unrelated later scope statement without causal linkage or coreference. F-016/F-017 depend on standalone negative-dismissal filtering and same-leaf ordering, while F-048 executes through the separate unknown-applicability family. Preserve the positive audit record, unrelated scope, local-only, and direct unsafe controls."
+        }
+      ],
+      "createdAt": "2026-09-06T20:28:53.320Z",
+      "_hash": "ebeafd92cab0fd7f92d6744a3d880b15527308d3b0f7c3bcf85e4b87e0295b70"
     }
   ]
 }

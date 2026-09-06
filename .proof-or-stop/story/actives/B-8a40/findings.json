@@ -2393,6 +2393,51 @@
       ],
       "signatureTag": "dismissal-evidence-unrelated-scope-whole-source-false-block",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-050",
+      "desc": "packages/main/src/core/prompt-envelope.ts:765-784 detects cross-segment deferral authority only when the continuation starts with it, this, or that, while :823-838 excludes the deferral family from the later whole-source join. An explicit target therefore weakens enforcement: against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles admit [defer_with_proof is recorded. The Finding transfers responsibility to another Story.]. The equivalent same-segment control [defer_with_proof is recorded and the Finding transfers responsibility to another Story.] is rejected by all five roles, while the safe terminal [defer_with_proof is recorded. The Finding remains open.] is admitted, isolating the fail-open to the cross-segment explicit-target omission. This is distinct from F-036 evidence-aside persistence and F-046 local-antecedent false joins: no intervening prose or ambiguous pronoun exists, and the continuation explicitly names the Finding. It is also not F-045 cross-leaf composition because both sentences occupy one scanned source leaf. The focused smoke covers pronoun continuations only. Extend the deferral continuation grammar to explicit Finding, issue, defect, and work subjects with polarity-aware safe controls, and retain safe open or unbound terminal states. Severity high because Story-authored Task Context can state that a deferral transfers responsibility while every REVIEW envelope is still minted.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T20:31:25.738Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-095",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "74fe180b3449e3af5c8f7c009b0ef3291ae548f6f2627d768676583f29f01fc7",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "deferral-explicit-target-cross-segment-bypass",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
