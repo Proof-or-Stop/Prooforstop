@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, unlinkSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -1072,6 +1072,38 @@ const linkedNegativeDismissalUnsafeDescriptions = [
   'No parent Finding is closed by this intake. So another Story owns it.',
 ] as const;
 
+function roleAssemblyInput(roleId: typeof ACTIVE_MODULAR_REVIEWER_ROLE_IDS[number], reviewRunId: string) {
+  return {
+    ...common,
+    roleContract: promptRoleContract(roleId),
+    rolePrompt: resolvePromptRoleBody(roleId, {
+      version: PROMPT_ENVELOPE_ROLLOUT_VERSION,
+      roles: { [roleId]: 'full-envelope' },
+    }).body,
+    lane: roleId,
+    reviewRunId,
+  };
+}
+
+function assertLinkedNegativeDismissalUnsafeMatrix(
+  assemble: typeof assembleFullPromptEnvelope,
+  roleId: typeof ACTIVE_MODULAR_REVIEWER_ROLE_IDS[number],
+  reviewRunId: string,
+): void {
+  const roleCommon = roleAssemblyInput(roleId, reviewRunId);
+  for (const unsafeDescription of linkedNegativeDismissalUnsafeDescriptions) {
+    assert.throws(
+      () => assemble({
+        ...roleCommon,
+        taskContext: { ...taskContext, description: unsafeDescription },
+        createdAt: '2026-09-06T16:00:01.000Z',
+      }),
+      /REVIEW Task Context contains unsafe Finding-triage authority/,
+      `${roleId} rejects a linked conclusion after a negative dismissal observation: ${unsafeDescription}`,
+    );
+  }
+}
+
 const liveB9a49SafeMetaIntent = 'Inject wording that lets severity alone decide Story scope, lets an applicability assessment rewrite severity, equates the future official signed defer_with_proof disposition with a non-applicability verdict, finding_dismiss, or resolution, or permits it for a mandatory current-repair case, and prove semantic validation rejects it.';
 const safeFailClosedVerificationIntent = 'Verify that applicability remains unknown; routing is not permitted and the REVIEW blocker cannot be removed.';
 const currentStoryLikeAuthorityAmendment = 'Amend the Dynamic Finding execution plan with the approved triage contract, retain the former stale_or_not_reproduced verdict as a legacy input alias, and publish the target verdict names as authoritative.';
@@ -1316,17 +1348,11 @@ for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     assert.equal(verifyPromptEnvelopeIntegrity(safeLaunch.envelope), true,
       `${roleId} emits an integrity-valid envelope for explicit-negative Story context`);
   }
-  for (const unsafeDescription of linkedNegativeDismissalUnsafeDescriptions) {
-    assert.throws(
-      () => assembleFullPromptEnvelope({
-        ...roleCommon,
-        taskContext: { ...taskContext, description: unsafeDescription },
-        createdAt: '2026-09-06T16:00:01.000Z',
-      }),
-      /REVIEW Task Context contains unsafe Finding-triage authority/,
-      `${roleId} rejects a linked conclusion after a negative dismissal observation: ${unsafeDescription}`,
-    );
-  }
+  assertLinkedNegativeDismissalUnsafeMatrix(
+    assembleFullPromptEnvelope,
+    roleId,
+    `B-envelope:RR-linked-${roleId}`,
+  );
   for (const surface of ['story', 'checklist', 'verificationIntent'] as const) {
     for (const unsafeAuthorityText of everyReviewerUnsafeAuthorityRepresentatives) {
       assert.throws(
@@ -1476,6 +1502,89 @@ assert.throws(
   /not supported by review_run_start/,
 );
 
+const builtEnvelopeUrl = new URL('../core/prompt-envelope.js', import.meta.url);
+const mutantEnvelopeUrls: URL[] = [];
+async function importEnvelopeMutant(label: string, anchor: string, injectedStatement: string) {
+  const builtEnvelopeSource = readFileSync(builtEnvelopeUrl, 'utf8');
+  assert.equal(occurrenceCount(builtEnvelopeSource, anchor), 1,
+    `${label} has one mutation anchor in the built implementation`);
+  const mutantUrl = new URL(`../core/prompt-envelope.b8a40-${label}-${process.pid}.js`, import.meta.url);
+  mutantEnvelopeUrls.push(mutantUrl);
+  writeFileSync(mutantUrl, builtEnvelopeSource.replace(anchor, `${anchor}    ${injectedStatement}\n`));
+  return import(`${mutantUrl.href}?run=${Date.now()}`);
+}
+
+try {
+  const noSafeNarrowingMutant = await importEnvelopeMutant(
+    'no-safe-narrowing',
+    'function isStandaloneNegativeDismissalObservation(segment) {\n',
+    'return false;',
+  );
+  for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
+    const roleCommon = roleAssemblyInput(roleId, `B-envelope:RR-no-safe-${roleId}`);
+    for (const safeDescription of [currentBbcaeDescription, structurallyEquivalentNegativeDescription]) {
+      assert.throws(
+        () => noSafeNarrowingMutant.assembleFullPromptEnvelope({
+          ...roleCommon,
+          taskContext: { ...taskContext, description: safeDescription },
+          createdAt: '2026-09-06T16:00:02.000Z',
+        }),
+        /REVIEW Task Context contains unsafe Finding-triage authority/,
+        `removing the safe narrowing restores the reproduced ${roleId} false-red`,
+      );
+    }
+    assertLinkedNegativeDismissalUnsafeMatrix(
+      noSafeNarrowingMutant.assembleFullPromptEnvelope,
+      roleId,
+      `B-envelope:RR-no-safe-unsafe-${roleId}`,
+    );
+  }
+
+  const broadDeletionMutant = await importEnvelopeMutant(
+    'broad-deletion',
+    'function classifyControlledTriageRelations(text, segments) {\n',
+    'segments = segments.filter(segment => !(/^no\\b/u.test(segment) && TRIAGE_DISMISSAL_SUBJECT.test(segment)));',
+  );
+  const unexpectedBroadMutantRejections: string[] = [];
+  let broadMutantEscapeCount = 0;
+  for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
+    const roleCommon = roleAssemblyInput(roleId, `B-envelope:RR-broad-${roleId}`);
+    for (const safeDescription of [currentBbcaeDescription, structurallyEquivalentNegativeDescription]) {
+      assert.doesNotThrow(
+        () => broadDeletionMutant.assembleFullPromptEnvelope({
+          ...roleCommon,
+          taskContext: { ...taskContext, description: safeDescription },
+          createdAt: '2026-09-06T16:00:03.000Z',
+        }),
+        `the broad-deletion mutant retains the tempting safe-only behavior for ${roleId}`,
+      );
+    }
+    for (const unsafeDescription of linkedNegativeDismissalUnsafeDescriptions) {
+      try {
+        broadDeletionMutant.assembleFullPromptEnvelope({
+          ...roleCommon,
+          taskContext: { ...taskContext, description: unsafeDescription },
+          createdAt: '2026-09-06T16:00:04.000Z',
+        });
+        broadMutantEscapeCount += 1;
+      } catch (error) {
+        unexpectedBroadMutantRejections.push(`${roleId}: ${unsafeDescription}: ${String(error)}`);
+      }
+    }
+  }
+  assert.deepEqual(unexpectedBroadMutantRejections, [],
+    'every role and unsafe witness independently exposes the broad-deletion mutation');
+  assert.equal(
+    broadMutantEscapeCount,
+    ACTIVE_MODULAR_REVIEWER_ROLE_IDS.length * linkedNegativeDismissalUnsafeDescriptions.length,
+    'broad deletion exposes every role/witness cell that the production oracle rejects',
+  );
+} finally {
+  for (const mutantUrl of mutantEnvelopeUrls) {
+    try { unlinkSync(mutantUrl); } catch { /* absent after an early write failure */ }
+  }
+}
+
 const tempRoot = mkdtempSync(join(tmpdir(), 'proofbound-agent-prompt-envelope-'));
 try {
   writeFileSync(join(tempRoot, 'proof-or-stop.config.json'), JSON.stringify({
@@ -1566,4 +1675,4 @@ try {
   rmSync(tempRoot, { recursive: true, force: true });
 }
 
-console.log('prompt full-context envelope smoke: PASS');
+console.log('prompt full-context envelope smoke PASS');

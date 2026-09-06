@@ -502,6 +502,49 @@ function classifyControlledRelationSegment(
   };
 }
 
+/**
+ * Recognize one complete negative observation about a dismissal. It may be
+ * excluded from the later whole-source co-occurrence pass only after the
+ * bounded linkage scan below proves that no nearby conclusion refers back to
+ * it. Conjunctions and causal tails remain outside this grammar.
+ */
+function isStandaloneNegativeDismissalObservation(segment: string): boolean {
+  const subjectRanges = matchRanges(segment, TRIAGE_DISMISSAL_SUBJECT);
+  if (subjectRanges.length !== 1 || TRIAGE_STORY_RESPONSIBILITY_OUTCOME.test(segment)) return false;
+  const [subjectRange] = subjectRanges;
+  const prefix = segment.slice(0, subjectRange.start).trim();
+  const suffix = segment.slice(subjectRange.end).trim();
+  return /^no(?:\s+[\p{L}\p{N}_-]+){0,4}$/u.test(prefix)
+    && /^(?:by\s+(?:this|the|current|that|an?)(?:\s+[\p{L}\p{N}_-]+){1,3})?$/u.test(suffix);
+}
+
+function isLinkedResponsibilityConclusion(segment: string): boolean {
+  if (!TRIAGE_STORY_RESPONSIBILITY_OUTCOME.test(segment)) return false;
+  return /^(?:it|this|that)\b/u.test(segment)
+    || /^(?:accordingly|consequently|therefore|thus|hence|so|as\s+a\s+result|for\s+that\s+reason)\b/u.test(segment)
+    || /^(?:the\s+)?(?:issue|finding|work|defect)\b/u.test(segment);
+}
+
+/**
+ * Look through at most two benign intervening statements and a bounded amount
+ * of text. This catches direct, causal, and coreferent conclusions without
+ * flattening an entire Story description into one synthetic relationship.
+ */
+function hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal(
+  segments: readonly string[],
+): boolean {
+  return segments.some((segment, index) => {
+    if (!isStandaloneNegativeDismissalObservation(segment)) return false;
+    let traversedCharacters = 0;
+    for (const candidate of segments.slice(index + 1, index + 4)) {
+      traversedCharacters += candidate.length + 1;
+      if (traversedCharacters > 360) break;
+      if (isLinkedResponsibilityConclusion(candidate)) return true;
+    }
+    return false;
+  });
+}
+
 function isPureInterrogative(text: string): boolean {
   const trimmed = text.trim();
   if (!/\?\s*$/u.test(trimmed) || trimmed.slice(0, -1).includes('?')) return false;
@@ -729,16 +772,23 @@ function classifyControlledTriageRelations(
     }
   }
 
+  if (hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal(relevantSegments)) {
+    return { family: 'dismissal-story-responsibility', state: 'unsafe' };
+  }
+
   // Dismissal and unknown-applicability authority are commonly laundered over
   // adjacent punctuation-separated clauses. Re-evaluate the bounded source as
   // one relationship after every individually safe segment has been checked.
   // Severity and signed-disposition anaphora use their dedicated structural
   // state machines above, so unrelated long-form prose is not flattened into
   // a synthetic relation.
-  const joined = relevantSegments.join(' ');
   for (const spec of CONTROLLED_TRIAGE_RELATION_SPECS) {
     if (spec.family !== 'dismissal-story-responsibility'
       && spec.family !== 'unknown-applicability-routing') continue;
+    const joined = relevantSegments
+      .filter(segment => spec.family !== 'dismissal-story-responsibility'
+        || !isStandaloneNegativeDismissalObservation(segment))
+      .join(' ');
     const classification = classifyControlledRelationSegment(joined, spec);
     if (classification.state === 'unsafe') return classification;
     if (classification.state === 'explicitly-safe') safeFamily = classification.family;
