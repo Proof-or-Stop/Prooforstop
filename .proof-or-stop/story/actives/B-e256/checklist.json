@@ -261,7 +261,16 @@
         ],
         "edge": [
           {
-            "desc": "The red test is registered in proof-or-stop.config.json with a stable id and label and the real proof-or-stop validation_plan output exposes that stable identity",
+            "desc": "The red test is registered in proof-or-stop.config.json with the same executable and argv as the committed regression",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const c=JSON.parse(require(fs).readFileSync(proof-or-stop.config.json,utf8));const e=c.validate.commands.find(x=>(x.args||[]).includes(packages/main/tests/red/red-global-cli-exec-bit.mjs));console.log(registered=+JSON.stringify(e))\"",
+              "selector": "registered={\"command\":\"node\",\"args\":[\"packages/main/tests/red/red-global-cli-exec-bit.mjs\"],\"timeoutMs\":180000"
+            }
+          },
+          {
+            "desc": "The real proof-or-stop validation_plan output exposes the regression by its stable registered id and label",
             "type": "cli",
             "priority": "must",
             "verification": {
