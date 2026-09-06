@@ -2440,6 +2440,7 @@
       "signatureTag": "dismissal-evidence-unrelated-scope-whole-source-false-block",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf9bje_19i1_2f1793ea98f24f0ca60dfcaee3efb3b4",
+      "ledgerCommitReceiptId": "lrc_mtqf9bjf_19i1_3fd0bc612fe14a9b878e8e723fc12f87",
       "resolvedAt": "2026-09-06T23:07:27.554Z",
       "resolvedReason": "Remove unconditional dismissal whole-source concatenation and retain explicit causal/coreferent linkage; audit receipt plus unrelated cache scope is covered. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2450,7 +2451,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:765-784 detects cross-segment deferral authority only when the continuation starts with it, this, or that, while :823-838 excludes the deferral family from the later whole-source join. An explicit target therefore weakens enforcement: against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles admit [defer_with_proof is recorded. The Finding transfers responsibility to another Story.]. The equivalent same-segment control [defer_with_proof is recorded and the Finding transfers responsibility to another Story.] is rejected by all five roles, while the safe terminal [defer_with_proof is recorded. The Finding remains open.] is admitted, isolating the fail-open to the cross-segment explicit-target omission. This is distinct from F-036 evidence-aside persistence and F-046 local-antecedent false joins: no intervening prose or ambiguous pronoun exists, and the continuation explicitly names the Finding. It is also not F-045 cross-leaf composition because both sentences occupy one scanned source leaf. The focused smoke covers pronoun continuations only. Extend the deferral continuation grammar to explicit Finding, issue, defect, and work subjects with polarity-aware safe controls, and retain safe open or unbound terminal states. Severity high because Story-authored Task Context can state that a deferral transfers responsibility while every REVIEW envelope is still minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T20:31:25.738Z",
@@ -2488,7 +2489,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "deferral-explicit-target-cross-segment-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf9coe_1a2r_64247f12abe0472c9686c890dfd374cc",
+      "resolvedAt": "2026-09-06T23:07:29.023Z",
+      "resolvedReason": "Recognize explicit Finding, issue, defect and work continuation subjects for deferral responsibility, while retaining the open terminal control. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-051",
