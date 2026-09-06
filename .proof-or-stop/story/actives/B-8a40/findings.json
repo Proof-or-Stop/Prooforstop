@@ -309,6 +309,51 @@
       ],
       "signatureTag": "prompt-envelope-broad-mutant-fidelity-overclaim",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-008",
+      "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1511-1514 writes dynamic mutant modules directly into the real packages/main/dist/core build output, and lines 1582-1585 catch and suppress every unlinkSync failure rather than only tolerating ENOENT. A permission, filesystem, or other cleanup error therefore still lets the smoke reach its PASS marker while leaving prompt-envelope.b8a40-*.js in the build/package tree, contradicting plan.md commitment that the implementer leave no mutant files and weakening test isolation. This is distinct from F-001 through F-006, which concern classifier false-safe/false-block semantics. Use an isolated temporary module tree or fail closed on non-ENOENT cleanup errors and verify residue absence before PASS; severity medium.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T16:55:39.441Z",
+      "reviewRound": "2026-09-06T16:34:48.065Z",
+      "reviewRunId": "B-8a40:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "1847d283ed37f1a8e3997e102f19d4dc766017b56fe1eb3232ee994cc5b183fa",
+      "files": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-mutant-cleanup-error-swallow",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
