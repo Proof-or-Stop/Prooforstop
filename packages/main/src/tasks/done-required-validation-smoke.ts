@@ -380,6 +380,10 @@ function assertDoneRequiredBlocked(
 
     // The digest-pinned list retains historical spellings; current transport
     // matching uses their canonical names without accepting retired aliases.
+    // Test-only historical prefix: assemble it without introducing a literal
+    // active-name declaration (see scripts/verify-proof-or-stop-residue.mjs detector tokens).
+    // The frozen-key branch is a negative control: retired inputs must remain
+    // semantic and must not become transport aliases.
     const retiredPrefix = ['LAT', 'TICE_'].join('');
     for (const frozenKey of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
       const key = frozenKey.startsWith(retiredPrefix)
