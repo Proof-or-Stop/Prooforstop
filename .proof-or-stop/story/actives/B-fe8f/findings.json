@@ -1588,7 +1588,7 @@
       "desc": "packages/main/src/handlers/certification-window.ts:189 uses a deprecated brand literal as a path DECISION: entry.path.startsWith('.lattice/'). This is the BUG-CERT-002 root reported by the DONE-required root suite. Verified from source: scripts/verify-proof-or-stop-residue.mjs CHECK 4 scans product runtime source with isBrandDecisionResidue and skips only **/tasks/**, so handlers/ is in scope, and its FAIL text at :627-633 is 'a DEPRECATED brand literal is used as a path DECISION'. The regex constant HISTORICAL_STORY_MIGRATION_PATH at :186 is a declaration, which that check's own comment says the detector does not flag, so the violation is specifically the :189 comparison. IMPORTANT FOR THE REPAIR: the guard's remediation text points at the brand-paths read-both helpers, but they do not fit here. brand-paths.ts:1-10 declares canonical-only identities (STATE_DIR_NAMES = ['.proof-or-stop']) and normalizeForCompare at :12-18 only normalizes separators and leading/trailing slashes with no legacy folding, so isStateDirPath('.lattice/...') is false. Swapping :189 to isStateDirPath would make the tombstone branch never fire; every legacy tombstone would then fall through to certificationDomainForPath, match no rule, return undefined, and the whole derivation would refuse, re-blocking certification. A blind application of the prescribed remedy therefore converts BUG-CERT-002 into a regression of BUG-CERT-001. Bounded candidate directions for the Owner (I am not repairing and no source repair is authorized until DEV): express the deprecated-spelling recognition as a constant or declaration the detector already does not flag, or obtain a narrow approved exemption for this single decision site. Either must preserve the previously verified restriction that only exact legacy deleted or rename-old-side tombstones are hashed (path regex AND blobId '<deleted>' AND deleted-or-renamed-with-oldPath equal to path) and that live and unknown retired-namespace paths still refuse. Disclosure: my prior pass RP-075 on RR-121 reviewed this file for dead code, type safety, catch handling and doc promises but did not run the brand-residue policy against the newly added literal; RP-075 stands as recorded and this finding is the correction. Severity: medium.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-06T16:32:23.952Z",
@@ -1629,7 +1629,11 @@
       "signatureTag": "missing|ts|packages-main-handlers",
       "signatureTagSource": "auto",
       "recordId": "lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d",
-      "ledgerCommitReceiptId": "lrc_mtq159qq_uw5_666a3620058345e7aaa35c5fffbd5a79"
+      "ledgerCommitReceiptId": "lrc_mtq159qq_uw5_666a3620058345e7aaa35c5fffbd5a79",
+      "resolvedAt": "2026-09-06T17:01:48.286Z",
+      "resolvedReason": "This observation and its same-family saturation re-observation are repaired by the same actual change, not dismissed or deferred. GREEN2bee7e31e2561365f507f1780fa72f07cbd51fd1 explicitly admits current root/package/entrypoint/integration build paths, composes disjoint integration exclusions from that anchored definition, and admits only the exact eight historical migration tombstone shapes before ordinary exact-one classification. No scanner, exemption, alias authority or original assertion was weakened. Same complete certification smoke exit0; build, residue, residue-inject, retired-authority guard and diff-check exit0. Real committed B-fe8f derives all six domain hashes over56changed entries. Raw logs /tmp/bfe8f-cert002.ONPs6H/. These focused results do not claim a fresh full-suite or DONE PASS. Original residue RED and target RED remain preserved; current full CLI checklist read also confirms71/71 tool-owned mechanical PASS after source2bee7e31. Final routine/DONE suites remain pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-062",

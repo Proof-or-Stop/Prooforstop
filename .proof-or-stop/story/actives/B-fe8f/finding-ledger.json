@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "810188ced369927eca49db6522810e114c183dcf63ed2864a55d347644acc6af",
+  "committedLedgerDigest": "bd95007c9bfa994f31be94219fbf7aa533bc48a1342df3aa42fee4cb321bbd79",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2760,6 +2760,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T16:37:46.730Z"
+    },
+    {
+      "recordId": "lr_mtq27340_9e_bd3c7f4fcb874b619d65f189c9f2a5fe",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-9869c20c-b141-4638-ae3c-0b3cd29e5114",
+        "findingId": "B-fe8f:F-061",
+        "findingRecordId": "lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-06T17:01:48.286Z",
+        "reason": "This observation and its same-family saturation re-observation are repaired by the same actual change, not dismissed or deferred. GREEN2bee7e31e2561365f507f1780fa72f07cbd51fd1 explicitly admits current root/package/entrypoint/integration build paths, composes disjoint integration exclusions from that anchored definition, and admits only the exact eight historical migration tombstone shapes before ordinary exact-one classification. No scanner, exemption, alias authority or original assertion was weakened. Same complete certification smoke exit0; build, residue, residue-inject, retired-authority guard and diff-check exit0. Real committed B-fe8f derives all six domain hashes over56changed entries. Raw logs /tmp/bfe8f-cert002.ONPs6H/. These focused results do not claim a fresh full-suite or DONE PASS. Original residue RED and target RED remain preserved; current full CLI checklist read also confirms71/71 tool-owned mechanical PASS after source2bee7e31. Final routine/DONE suites remain pending.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "284b892baa911492a232c9fff9663a5da06a08044db26af91b9e1a5d44d8a6be",
+      "priorDigest": "810188ced369927eca49db6522810e114c183dcf63ed2864a55d347644acc6af",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T17:01:48.288Z"
     }
   ],
   "receipts": [
@@ -7585,6 +7608,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "0e7539e460eef5b7c1b43cdb5b492725601de2ba636a1b9a512e32a590ce2bb0",
         "signature": "UvxMYzOPmgLsVid6fKgQDabP8G3ki+i2Q3F9s4wwQATCcDt8t8sKTqM3GS1j18KzcKgLnwo/LBpo3IA3cWIpDQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtq27341_9e_393bc16ccf51454dabfb86412e371db9",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d:resolved",
+      "requestDigest": "3ef9ada3ba05b82d1de8473209ac4548170eb296aaeb0aadc1e42f21b36d9c50",
+      "recordIds": [
+        "lr_mtq27340_9e_bd3c7f4fcb874b619d65f189c9f2a5fe"
+      ],
+      "priorLedgerDigest": "810188ced369927eca49db6522810e114c183dcf63ed2864a55d347644acc6af",
+      "committedLedgerDigest": "bd95007c9bfa994f31be94219fbf7aa533bc48a1342df3aa42fee4cb321bbd79",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "2dda7f15-6a8f-41be-bc7c-bbe8fa93ff04",
+      "committedAt": "2026-09-06T17:01:48.288Z",
+      "replayed": false,
+      "exactRequestDigest": "57965c4299d37d8b5e8ae311bbdc5099ded57c5148ccdda96064309d34e042f6",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtq27341_9e_393bc16ccf51454dabfb86412e371db9",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding-lifecycle:lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d:resolved",
+        "exactRequestDigest": "57965c4299d37d8b5e8ae311bbdc5099ded57c5148ccdda96064309d34e042f6",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtq27340_9e_bd3c7f4fcb874b619d65f189c9f2a5fe"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtq159qq_uw5_451dbfdab96c4697837a24b53f8b822d",
+            "expectedRecordHash": "a5054bbd2a117eeeea2a14fcd4f23770aaa341bcc2de0a6bc1274afd6dec1976",
+            "observedChainHeadId": "lr_mtq1c6sq_mem_973d502e68664f249cdb77a857867315",
+            "observedChainHeadHash": "58d8b7860de368e3a73b0cc2b8a015102ba02c772789e8cf0b7a42670945c0da",
+            "predicateDigest": "deed9b3236fa0fb512f6ba23be722e1eb14ee7bcedc3425d2aad188e1168b0c3"
+          }
+        ],
+        "priorLedgerDigest": "810188ced369927eca49db6522810e114c183dcf63ed2864a55d347644acc6af",
+        "committedLedgerDigest": "bd95007c9bfa994f31be94219fbf7aa533bc48a1342df3aa42fee4cb321bbd79",
+        "replayed": false,
+        "committedAt": "2026-09-06T17:01:48.288Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "2dda7f15-6a8f-41be-bc7c-bbe8fa93ff04",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "451a9cbfaf347bc6975ec6c8759e277f96e941e8536311271f5be2c3f68089c9",
+        "signature": "/nxeHe60wb0/Q2H2F0iYOMaG0sKKjqTRs4wDGsV9VKnLkI51zJMCumILBqAOCBqZzg1X9RnV1vB30TDr1kFgCw=="
       }
     }
   ]
