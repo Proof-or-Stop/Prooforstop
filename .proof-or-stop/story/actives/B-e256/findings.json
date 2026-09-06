@@ -771,6 +771,21 @@
       "resolvedAt": "2026-09-06T16:24:17.858Z",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e256:F-022",
+      "desc": "concept-cleanup: packages/main/tests/red/red-global-cli-exec-bit.mjs:27-29 and :96 retain the live DESIRED-property/assertion wording that the pipeline restores bin executable bits after promotion. The current implementation and corrected Story contract call restoreBinExecutableBits(staging, dist) before evicting the old dist; these are active expectation/selector statements, not the historical pre-fix narrative, so they preserve the deleted post-promotion model and can mislead future maintenance. Severity: critical.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T16:27:20.120Z",
+      "reviewRound": "2026-09-06T16:23:39.403Z",
+      "reviewRunId": "B-e256:RR-071",
+      "_hash": "dd79659df411b4dda1d7ee31aa0b86a2d036f31ec9a0a90c9003d22d7374d13b",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
