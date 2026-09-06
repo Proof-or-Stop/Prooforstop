@@ -3240,7 +3240,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:289-353 decides whether an otherwise in-span controlled relation is explicitly negative using a 160-character prefix slice at :311 and a 48-character suffix slice at :340. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles ACCEPTED the short safe controls `Do not let severity determine Story scope.` and `Severity determining Story scope is forbidden.`, but all five REJECTED the same explicit prohibitions when neutral attributable-audit modifiers expanded the prefix and suffix forms to 398 and 402 bytes. In both long forms the severity/scope concept pair remains adjacent and in span; only the polarity token falls outside the fixed slice. The focused smoke covers short negative relations and concept-span padding but no polarity-window boundaries. This is distinct from F-054, where the concepts themselves exceed their maxSpan, and F-061, which uses the retired-verdict branch's separate 48-character fallback. Replace raw surrounding-text windows with clause-scoped polarity state that remains bounded structurally, retaining affirmative and double-negative rejection, and add all-role boundary controls. Severity high because ordinary detailed prohibitions can prevent every REVIEW role from assembling.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T21:07:50.129Z",
@@ -3281,7 +3281,11 @@
       "signatureTag": "controlled-relation-polarity-window-false-positive",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqazhf6_14gf_ea6634623a0541448a8dfa2785015a48",
-      "ledgerCommitReceiptId": "lrc_mtqazhf6_14gf_f79dff6841ab4e3bac5647034bf9954f"
+      "ledgerCommitReceiptId": "lrc_mtqazhf6_14gf_f79dff6841ab4e3bac5647034bf9954f",
+      "resolvedAt": "2026-09-06T23:07:50.665Z",
+      "resolvedReason": "Use complete relationship prefix/suffix polarity instead of 160/48-character windows; long leading and trailing prohibition controls are covered. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-066",
