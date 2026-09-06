@@ -2512,6 +2512,49 @@
       },
       "readDiagnostics": [],
       "_hash": "d289ba0a3dcf61f4d4f3b5bb0397d69003dccaba9f7135694f14fa8351fd38f1"
+    },
+    {
+      "id": "B-fe8f:RP-067",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-004 bounded incremental concept terminal at unchanged material 7f63da116907 and source 46a37452ef07. Prior RP-063 remains the trusted source review; RR-113 changedFiles and impactedFiles are empty, with only F055/F056 added to inventory context. I independently confirmed F056's exact static root: packages/main/src/core/machine.ts still hardcodes background/title/description/checklist in the INIT_CHECK tamper message, while init-check-gate.ts declares seven signed components and exposes describeInitCheckSignatureDomain; the existing verdict-shapes M2 rejects this drift. main is identical for the three inspected paths. F056 is already registered verified/open and is not repaired; I did not duplicate it or claim acceptance. F048/F049/F055 remain suspected/open with their existing compatibility routes and no fabricated deferral. No new concept deletion, residue, promised-but-undelivered family, or additional applicable finding was found. No tests or full-suite validation were run.",
+      "createdAt": "2026-09-06T01:03:24.737Z",
+      "reviewRound": "2026-09-05T14:53:05.943Z",
+      "reviewRunId": "B-fe8f:RR-113",
+      "envelopeId": "7947841bf49b82d63fc520875976ea8948ba15486b2b69fbd5356d20601e8242",
+      "writerSessionId": "sess-364c4a3ba0734cddb1cc1966c22c7ef6",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/background.md",
+          ".proof-or-stop/story/actives/B-fe8f/plan.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-fe8f/checklist.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-inventory-epochs.json",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md",
+          "packages/main/src/core/init-check-gate.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "scanEscalationReason": "RR-113 was canonically SAFE_INCREMENTAL with no changed or impacted source files; review was intentionally bounded to RI-004 and the two new finding deltas while reusing trusted RP-063 at the identical material/story-files binding."
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/story-lifecycle.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "eda2194a6bc143bfc625bf2009570715f7ffaddd8e091381bc9351ced2a56e69"
+      },
+      "readDiagnostics": [],
+      "_hash": "7d1ebef6857acf2679520424013170d1605feece5bb43340b13defdff14e243d"
     }
   ]
 }
