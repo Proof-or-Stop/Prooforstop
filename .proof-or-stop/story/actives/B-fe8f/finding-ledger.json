@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "14f63b5f6fde5001bb3525426e56086aa9e4b8130a23e7968df4c60df2b7e2a2",
+  "committedLedgerDigest": "b28c6cca42c9ef0528f994eb0863c95981e9c374cb87de3883ad34a01d990ef4",
   "records": [
     {
       "recordId": "lr_mtip46ga_164g_d9116361f2244338a8b9b04f8a4b057e",
@@ -2533,6 +2533,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T14:52:59.746Z"
+    },
+    {
+      "recordId": "lr_mtpxm2k2_wv8_9c1adcaae61b42ee845a6eb475fe398e",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-eba2fcc2-12f9-4850-b57b-a248432e0a47",
+        "findingId": "B-fe8f:F-056",
+        "findingRecordId": "lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-06T14:53:29.328Z",
+        "reason": "Real pre-fix RED at 04d79110c184e58ad00949c4ccf63e174b8dc1c4: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs exited 1 with M2 rendersDomain=false and stillCarriesTheOldHandWrittenList=true (1 FAILED / 0 BROKEN / 17 rows). Source e8b35c09b96bfa363940a795f24d7c012be5fb67 replaces the duplicated diagnostic field list with the existing describeInitCheckSignatureDomain renderer, without changing signature computation. Authorized exact machine.ts scope exception was recorded through the CLI. GREEN: unchanged 17-row test passed, parent registration suite passed 26/26. Logs /tmp/bfe8f-f056-validation.QX6Gvc/ and /tmp/bfe8f-f058-f060-green.gcmW8Z/. Final genuine CLI validation completed on 2026-09-06: 132/132 commands have code=0, aggregate allPass=true; full original output /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "4475f3ce5c2d4be0a51f5ed996cffec13dde2e244589e013204af3f1abc12539",
+      "priorDigest": "14f63b5f6fde5001bb3525426e56086aa9e4b8130a23e7968df4c60df2b7e2a2",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T14:53:29.330Z"
     }
   ],
   "receipts": [
@@ -7012,6 +7035,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "5f1c42086b5f9d1f7cf84ac77c49347d8f083e8d3830e2442274bd4d494a86e3",
         "signature": "UKX+nxrHd7e+7eP0Y19NUOFZ2E3SBAarwGKtu7lzsLfgA6lz2AQB+XlAzYxia3DzAO/CK+zYB5si0bq244+zCw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtpxm2k2_wv8_92bfacdc87bc4826b756f1bedc5a5379",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a:resolved",
+      "requestDigest": "88da2c1916d2c83492ce147f6b99c3cc1e3779e99bca620ff52fac06fb5d6631",
+      "recordIds": [
+        "lr_mtpxm2k2_wv8_9c1adcaae61b42ee845a6eb475fe398e"
+      ],
+      "priorLedgerDigest": "14f63b5f6fde5001bb3525426e56086aa9e4b8130a23e7968df4c60df2b7e2a2",
+      "committedLedgerDigest": "b28c6cca42c9ef0528f994eb0863c95981e9c374cb87de3883ad34a01d990ef4",
+      "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+      "writerFenceToken": "8b2d9303-6f2d-445e-98c4-3ff3c4f8f461",
+      "committedAt": "2026-09-06T14:53:29.330Z",
+      "replayed": false,
+      "exactRequestDigest": "c2f9c9d8dd860911a57779a0a553d7f5df6dcb6bf0574fa798aba5fd8c6f7917",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtpxm2k2_wv8_92bfacdc87bc4826b756f1bedc5a5379",
+        "storyId": "B-fe8f",
+        "idempotencyKey": "finding-lifecycle:lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a:resolved",
+        "exactRequestDigest": "c2f9c9d8dd860911a57779a0a553d7f5df6dcb6bf0574fa798aba5fd8c6f7917",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtpxm2k2_wv8_9c1adcaae61b42ee845a6eb475fe398e"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a",
+            "expectedRecordHash": "11b5ecf3e5e3260aa965931351ff80c86a15afcae6e67e291baea305bb193310",
+            "observedChainHeadId": "lr_mtpxlfqa_ea8_f0a03346c6e74a22a2ae1904f2781b2e",
+            "observedChainHeadHash": "0d014498b6463104df35e4738e8555a7420204974c99b44fbb4d284428384f95",
+            "predicateDigest": "afe03740f97c46b9b4485cf0f794d745875d4872be5bca30616d18ba3e8f1fb3"
+          }
+        ],
+        "priorLedgerDigest": "14f63b5f6fde5001bb3525426e56086aa9e4b8130a23e7968df4c60df2b7e2a2",
+        "committedLedgerDigest": "b28c6cca42c9ef0528f994eb0863c95981e9c374cb87de3883ad34a01d990ef4",
+        "replayed": false,
+        "committedAt": "2026-09-06T14:53:29.330Z",
+        "writerSessionId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerLeaseId": "sess-ccd32bd6a75ccef9170e9eb3c6ca70ab",
+        "writerFenceToken": "8b2d9303-6f2d-445e-98c4-3ff3c4f8f461",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "5b857b5d7ab3814e3b22cfe86c3da7d5933d63d93cde5e01fe1cbaf030d0f063",
+        "signature": "9ygnjub9lDSwqqYRrDtB5468iI6UlrmqFP/hQP3dAJEPD4qEHHMk0uCbCIys2hnxsBv/nKIOuR4sMFvhQPspDw=="
       }
     }
   ]

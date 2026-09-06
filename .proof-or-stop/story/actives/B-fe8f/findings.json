@@ -1471,7 +1471,7 @@
       "desc": "Mandatory validation registration-derivation fails EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE because its verdict-shapes target fails M2. Direct reproduction: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs exits 1 with rendersDomain=false stillCarriesTheOldHandWrittenList=true. The actual INIT_CHECK hash-mismatch guard in machine.ts hardcodes four fields, omitting storyId, reviewRound and reviewer verdict from the seven-component signed domain. main has the same defect; not introduced by B-fe8f, but the configured mandatory validate command prevents acceptance. Repair only the existing import and error-message renderer; preserve signature logic, rejection conditions and tests. The separate heartbeat full-run failure passes on isolated rerun and causal preflight refusal remains under diagnosis.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-06T00:58:24.737Z",
@@ -1484,7 +1484,11 @@
       "signatureTag": "doc-code-drift|ts|mandatory-validation-registration",
       "signatureTagSource": "auto",
       "recordId": "lr_mtp3s5lv_1ft3_b38e7b0e662a463285e55da05223d96a",
-      "ledgerCommitReceiptId": "lrc_mtp3s5lv_1ft3_7787b5ad2a60490eb44af7c8555ffa29"
+      "ledgerCommitReceiptId": "lrc_mtp3s5lv_1ft3_7787b5ad2a60490eb44af7c8555ffa29",
+      "resolvedAt": "2026-09-06T14:53:29.328Z",
+      "resolvedReason": "Real pre-fix RED at 04d79110c184e58ad00949c4ccf63e174b8dc1c4: node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs exited 1 with M2 rendersDomain=false and stillCarriesTheOldHandWrittenList=true (1 FAILED / 0 BROKEN / 17 rows). Source e8b35c09b96bfa363940a795f24d7c012be5fb67 replaces the duplicated diagnostic field list with the existing describeInitCheckSignatureDomain renderer, without changing signature computation. Authorized exact machine.ts scope exception was recorded through the CLI. GREEN: unchanged 17-row test passed, parent registration suite passed 26/26. Logs /tmp/bfe8f-f056-validation.QX6Gvc/ and /tmp/bfe8f-f058-f060-green.gcmW8Z/. Final genuine CLI validation completed on 2026-09-06: 132/132 commands have code=0, aggregate allPass=true; full original output /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/stdout.log.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-fe8f:F-057",
