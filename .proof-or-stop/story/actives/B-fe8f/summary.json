@@ -3,7 +3,7 @@
   "changes": "Implemented Section 9.3 Finding Ledger and Runtime Evidence Integrity: durable fenced append batches, idempotent replay, exact-record CAS, signed source/artifact/runtime binding, protected query and fail-closed readers. User-authorized closeout repairs preserve RED/GREEN: F056 uses the shared seven-field INIT_CHECK signature-domain renderer (e8b35c09b96bfa363940a795f24d7c012be5fb67); F055 explains the retired-prefix negative control (826ea187224bf510c801834cac9e8928ad29041c); F057 safely distinguishes causal preflight refusal branches (RED c0fc6df9fdb154c067c2e98dbefa01d419ecc6d6, GREEN e23615ad1605e7126094de46d959341d9c407415). Main synchronization retains shared DONE predicates, full-output pinned evidence and receipt-keyed import isolation alongside B-fe8f raw-result reuse with independent selector verdicts.",
   "usage": "From the Story worktree use node bin/proof-or-stop.js finding_ledger_query --storyId=B-fe8f for the signed ledger/runtime scorecard. Use official Finding and runtime evidence CLI commands rather than editing protected records. After installation the public executable is proof-or-stop.",
   "expectedOutcome": "Deliver the Section9.3 Finding ledger/runtime integrity foundation with genuine RED/GREEN evidence, fresh lifecycle verification, independent review and a local main merge.",
-  "actualTranscript": "Current source: 2086edd40124c0fa2df88b3e0b39001f2414f52e, after main synchronization 1597cc699b8ac3d89837dab83b4b3cf8d5bff867. F055/F056/F057 bounded fixes have focused GREEN, including the unchanged 17-row F056 leaf and 11 causal-preflight tests. A real observed 132-command validation at 55d5e34c6f360ef23e790a6c445bfb8b9a86e997 completed without causal preflight refusal: CLI exit0, aggregate allPass=false, 4 nonzero commands (9,79,124,125). This is a completed failed validation, NOT a PASS. Logs: /private/tmp/bfe8f-validation-observer.YPZEBu/run-JXSg8O/{stdout,stderr}.log and summary.json. Exact failures were recorded as F058 temporary-index environment interference, F059 Lab test-oracle/public-contract mismatch, F060 private-Git registration-mirror recognition mismatch, plus missing declared graph d3 dependency. F058/F059/F060 are fixed only in three test files at2086edd401; same-environment verification-run-and-guard, cli-surface and registration parent all exit0; parent26/26 GREEN, original true-repository Git invariance retained, original RED binding digest/IDs unchanged. Logs /tmp/bfe8f-f058-f060-green.gcmW8Z. Graph dependency install changed no package/lock/source file; full graph check now exits0 (/tmp/bfe8f-final-refresh.0OaAco/graph-check-after-install.log), with its openly reported pure-function-only old-Node floor simulation. Earlier official refresh b4c40de had actually demoted58 rows despite reporting71 refreshed; the shared command failed on the linked public CLI EACCES (mode0644). Restoring only that ignored main dist entry's owner execute bit made public --version return0.3.277. Official batch d93f883 then earned58 intents in231.1seconds with commandExecutions=1, commandReruns=0, falseFresh=0, and full checklist read confirmed71/71 mechanical PASS with zero stale evidence. Those receipts now require refresh for the new2086edd source. Final current-source full validation, formal Finding closure, independent REVIEW, TEST, DONE and local main merge are pending.",
+  "actualTranscript": "Current source is 2086edd40124c0fa2df88b3e0b39001f2414f52e, after main synchronization 1597cc699b8ac3d89837dab83b4b3cf8d5bff867. B-fe8f is now in REVIEW round 28. Official evidence refresh25b7b82 completed in326.4seconds; full CLI checklist read verified71/71 mechanical PASS with execution receipts, and the dry-run freshness reader found no stale evidence. Six checklist items are done. Genuine final validate completed132/132 with allPass=true and zero nonzero/unknown command codes on2026-09-06, total observer duration1148.2seconds; original stdout/stderr and observations: /private/tmp/bfe8f-validation-observer.YPZEBu/run-jcgL8F/. It did not reproduce causal_preflight_refused. The preceding run-JXSg8O completed with4 failures and was not a PASS. Those integration failures now have focused GREEN and final validation GREEN: F058 fixture-only Git optional-write opt-in, F059 corrected documented Lab test oracle, F060 private-Git mirror layout recognition; graph recovered by installing its already-declared d3 dependency without source/package/lock changes. F055-F060 were formally resolved through the CLI in REVIEW with original RED, exact fix and GREEN references (9d8b57d,29381cd,4dbebcd,99e87b6,dd08737,47f361e). F057 closure proves discriminating safe diagnostics and current operational recovery, not retrospective attribution of the old unknown root cause. Earlier EACCES recovery and58 demoted receipts are preserved in command history; current71 PASS is verified, not inferred from refresh counts. Independent current-source reviews, actual Story host quorum, TEST, DONE-required validation, delivery and local main merge remain pending.",
   "outcomeDiff": "Core implementation and focused checks are complete, but lifecycle delivery and local main merge are not yet complete.",
   "acceptanceVerdict": "partial",
   "outcomeKind": "blocked",
@@ -11,7 +11,7 @@
     "ran": [],
     "skipped": []
   },
-  "limitations": "Ledger/runtime foundation only; Identity/Lineage and Dynamic Applicability are later dependency-ordered Stories. Supported authority is the canonical shared local repository and linked worktrees; a clone without its trusted key fails closed. F048/F049 remain preserved with accountable follow-up drafts keyed-ledgers-survive-reclone and finding-ledger-nonblocking-review-followups; compatibility accounting is not signed deferral. F055-F060 code/test repairs are not yet formal REVIEW resolutions. The observed132-command run did not reproduce the old causal refusal, but its old historical short-circuit branch remains unknown; do not invent root-cause attribution or call diagnostic GREEN a validation PASS. Topology observe/inconclusive is not passed proof. The optional identity-cutover ENOBUFS diagnostic is outside validate.commands and test:serial-reference and was not used to expand source scope.",
+  "limitations": "Ledger/runtime foundation only; Identity/Lineage and Dynamic Applicability are later dependency-ordered Stories. Supported authority is the canonical shared local repository and linked worktrees; a clone without its trusted key fails closed. F048/F049 remain preserved with accountable follow-up drafts keyed-ledgers-survive-reclone and finding-ledger-nonblocking-review-followups; compatibility accounting is not signed deferral. Historical causal refusal branch remains unknown despite current diagnostics and successful full validation; do not invent retrospective root-cause attribution. Topology observe/inconclusive is not passed proof, and rollout-cohort full3x2 is not B-fe8f actual host quorum. The optional identity-cutover ENOBUFS diagnostic is outside validate.commands and test:serial-reference and did not expand source scope.",
   "pitfalls": "Use repository-local CLI for unmerged ledger support. Read full evidence rows after refresh: refreshed count is not pass count; require mechanical=true, actual receipt and current CLI freshness. Serialize implementation/build/metadata and formal validation; use the passive observer to preserve raw output and safe key fingerprints, never issue observer-authored receipts. GIT_OPTIONAL_LOCKS=0 prevents optional writes to the real index, while the deliberate E1/E2 temporary-index mutation must explicitly opt in only inside its disposable fixture. Preserve raw-result reuse separately from independent selector verdicts, timeout/provenance isolation and receipt-keyed import checks. Main's registration harness now has private .git administration; do not restore a shared .git or let real worktrees skip official RED/relation reads. Lab canonical commands remain documented and loaded: do not remove them to satisfy a mistaken negative oracle. A public CLI EACCES was environment recovery, not a signature failure; durable build executable-mode prevention belongs to existing docs/story/drafts/build-emits-non-executable-cli. No original finding was deleted, no signed deferral fabricated, and no validation command was dropped.",
   "phaseStats": {
     "INIT": {
@@ -28,18 +28,18 @@
     },
     "DEV": {
       "count": 38,
-      "durationMs": 171867494
+      "durationMs": 173974322
     },
     "REVIEW": {
-      "count": 27,
-      "durationMs": 193267011
+      "count": 28,
+      "durationMs": 193416458
     },
     "TEST": {
       "count": 2,
       "durationMs": 59956921
     }
   },
-  "totalDurationMs": 453822491,
+  "totalDurationMs": 456078766,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-04T15:43:03.331Z",
-  "updatedAt": "2026-09-06T14:16:38.038Z"
+  "updatedAt": "2026-09-06T14:54:14.314Z"
 }
