@@ -2750,6 +2750,7 @@
       "signatureTag": "reviewer-disposition-actor-span-padding-bypass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf9i9p_1dwk_b08356033b024bca9eb43eb636a17422",
+      "ledgerCommitReceiptId": "lrc_mtqf9i9p_1dwk_afecdace45254f4b965348fbb28903fa",
       "resolvedAt": "2026-09-06T23:07:36.266Z",
       "resolvedReason": "Remove the default actor/disposition pair distance cutoff; long reviewer minting and review-lane signing assertions are rejected. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -2760,7 +2761,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:1033-1051 uses the default 240-character hasConceptPair horizon as the sole relation prerequisite for compatibility-CLI deferral authority and for Story-authored schema or gate changes, while the residual schema regex at :1041 requires the Story noun to sit immediately next to a finite change verb. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles reject [The compatibility CLI authorizes defer_with_proof.] and [This Story changes the applicability field.], but all five admit the identical subjects, authority actions, and outcomes when one grammatical audit-evidence modifier extends each same sentence to 536 and 529 bytes. The long schema form evades residualSchemaAmendment because the modifier separates Story from changes, then evades the fallback pair horizon; the compatibility form directly exceeds the same default pair horizon. This is distinct from F-055, which covers reviewer-actor to disposition distance, and F-054, which covers the explicit severity and deferral ControlledTriageRelationSpec spans. It exhausts the remaining safety-relevant default hasConceptPair consumers. Replace the evadable distance test with structural relation classification or an unbounded same-sentence state that preserves polarity, and add all-role short and long unsafe plus explicit-negative controls for both branches. Severity high because neutral same-sentence detail lets Task Context grant compatibility deferral authority or amend the Finding schema while every REVIEW envelope is minted.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T20:53:31.670Z",
@@ -2811,7 +2812,12 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "compatibility-schema-default-span-padding-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqf9jcy_1em1_c5f1be6c8f114ecca00304b7d77cafa8",
+      "resolvedAt": "2026-09-06T23:07:37.681Z",
+      "resolvedReason": "Duplicate of B-8a40:F-059, the complete corrected signed-read reproduction of the same compatibility/schema distance defect; both long witnesses are repaired and tested. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "duplicate",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-057",
