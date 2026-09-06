@@ -113,6 +113,21 @@
       "_hash": "3e33b85ec912760eef34a779eca92459ccad05ed0f1c5c3cb144d5f917694038",
       "signatureTag": "edge|unknown|quality-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e256:F-007",
+      "desc": "concept-cleanup: packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:52 fixed-clock waitForFile deletion is incomplete: DESCENDANT_PID_READY_TIMEOUT_MS remains as an unused declaration after every consumer was replaced by lifecycle-bounded waitForChildFile; this dead residue contradicts the new child-lifecycle waiting concept and can mislead future maintenance. severity=critical",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T13:30:21.678Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-025",
+      "_hash": "9012268e760e316c787a1c0b8b1756eb7cba338f7b7d2791725ce0b425ca0c8a",
+      "signatureTag": "missing|unknown|concept-cleanup-packages",
+      "signatureTagSource": "auto"
     }
   ]
 }
