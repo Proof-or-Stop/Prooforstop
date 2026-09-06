@@ -1536,6 +1536,40 @@
       "cancelReason": "RI-008 exhausted its three discovery waves while the final wave still added verified high evidence-integrity family F-044. Preserve F-037 through F-044 as current-Story repair obligations, retain F-031 pending delivery repair, and replan the bounded repair rather than minting a false completeness receipt.",
       "terminalRunSequenceBoundary": 129,
       "_hash": "e25e4e29e501c0e68cbd20954a32b7d5b9a2e7bf91c9f46975007a82a812fbae"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e256:RI-009",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-06T21:16:44.118Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T22:15:49.940Z",
+      "updatedAt": "2026-09-06T22:15:49.940Z",
+      "cutoff": {
+        "headHash": "fd6045380b77c5b536cabe070789fbe46c293066",
+        "materialHash": "29d9399c84d7ece3e397f64ed277e55bb86dfeef4b659fb0c6a94818df827819",
+        "storyFilesHash": "2a9b7cbe8ae16c202aa6e99a129c9aecf0f115993d6f8cc66e6f853ef8be61c9"
+      },
+      "scopeDigest": "2d483c78eaef1a39b6479fc1a256b503cc6c5a3e0fd6c6584c646b022989a023",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 129,
+      "maxWaves": 2,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-e256:F-037",
+        "B-e256:F-038",
+        "B-e256:F-039",
+        "B-e256:F-040",
+        "B-e256:F-041",
+        "B-e256:F-042",
+        "B-e256:F-043",
+        "B-e256:F-044"
+      ],
+      "_hash": "263bed4be2f0f82c53aab2804133c8b528b369b454c04a813b574b2f7c8c5b1f"
     }
   ],
   "receipts": [
