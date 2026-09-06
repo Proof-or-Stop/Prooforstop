@@ -33,7 +33,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { chmodSync, lstatSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const distRoot = fileURLToPath(new URL('../dist/', import.meta.url));
@@ -57,10 +57,10 @@ function git(cwd, ...args) {
 const isWindowsHost = process.platform === 'win32';
 const canEnforcePosixPermissions = !isWindowsHost && (typeof process.getuid !== 'function' || process.getuid() !== 0);
 
-// Every fixture below models npm link with a directory link. Windows may lack
-// the privilege/capability even for this test setup; only the documented host
-// capability errnos are an explicit suite skip. Any other construction error
-// remains a hard failure.
+// Most historical fixtures below model npm link with a directory link. Windows
+// may lack that capability; platform-only cases run first without links, and
+// only the link-dependent remainder gets an explicit non-PASS skip marker for
+// the documented capability errnos. Any other construction error is fatal.
 function probeDirectoryLinkCapability() {
   const base = mkdtempSync(join(tmpdir(), 'gcr-link-capability-'));
   const target = join(base, 'target');
@@ -81,11 +81,6 @@ function probeDirectoryLinkCapability() {
 }
 
 const directoryLinkCapability = probeDirectoryLinkCapability();
-if (!directoryLinkCapability.supported) {
-  console.log(`SKIP global-core-realpath: Windows directory-link capability unavailable (${directoryLinkCapability.reason})`);
-  console.log('ok global-core-realpath');
-  process.exit(0);
-}
 
 // Writes a realistic core package (package.json `bin` -> dist/cli.js) so the
 // executable-bit facts are exercised; `binMode` controls the target's mode and
@@ -101,15 +96,15 @@ if (!directoryLinkCapability.supported) {
 // exercise the MANIFEST-missing-version case does not also manufacture an
 // unrelated stale-compiled-runtime finding. Pass an explicit `compiledVersion`
 // distinct from `version` to construct that drift on purpose (case 22 below).
-function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file', version = '0.0.0', compiledVersion = version ?? PROOF_OR_STOP_CLI_VERSION } = {}) {
+function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file', binRel = 'dist/cli.js', version = '0.0.0', compiledVersion = version ?? PROOF_OR_STOP_CLI_VERSION } = {}) {
   mkdirSync(join(coreRoot, 'dist', 'core'), { recursive: true });
-  const manifest = { name: '@proof-or-stop/core', bin: { 'proof-or-stop': 'dist/cli.js' } };
+  const manifest = { name: '@proof-or-stop/core', bin: { 'proof-or-stop': binRel } };
   if (version !== null) manifest.version = version;
   writeFileSync(join(coreRoot, 'package.json'), JSON.stringify(manifest) + '\n');
   if (compiledVersion !== null) {
     writeFileSync(join(coreRoot, 'dist', 'core', 'proof-or-stop-brand.js'), `export const PROOF_OR_STOP_CLI_VERSION = '${compiledVersion}';\n`);
   }
-  const bin = join(coreRoot, 'dist', 'cli.js');
+  const bin = join(coreRoot, binRel);
   if (binTarget === 'absent') {
     // keep dist/ non-empty so git tracks the directory without the bin target
     writeFileSync(join(coreRoot, 'dist', 'index.js'), 'export {};\n');
@@ -121,14 +116,15 @@ function writeCorePackage(coreRoot, { binMode = 0o755, binTarget = 'file', versi
     chmodSync(bin, binMode);
     return bin;
   }
+  mkdirSync(dirname(bin), { recursive: true });
   writeFileSync(bin, '#!/usr/bin/env node\n');
   chmodSync(bin, binMode);
   return bin;
 }
 
-function makeRepoWithWorktree(base, { binMode = 0o755, binTarget = 'file', worktreeDir, version = '0.0.0', compiledVersion = version ?? PROOF_OR_STOP_CLI_VERSION } = {}) {
+function makeRepoWithWorktree(base, { binMode = 0o755, binTarget = 'file', binRel = 'dist/cli.js', worktreeDir, version = '0.0.0', compiledVersion = version ?? PROOF_OR_STOP_CLI_VERSION } = {}) {
   const repo = join(base, 'repo');
-  writeCorePackage(join(repo, 'packages', 'main'), { binMode, binTarget, version, compiledVersion });
+  writeCorePackage(join(repo, 'packages', 'main'), { binMode, binTarget, binRel, version, compiledVersion });
   git(repo, 'init', '-b', 'main');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'add', '.');
   git(repo, '-c', 'user.email=t@t', '-c', 'user.name=t', 'commit', '-m', 'init');
@@ -159,8 +155,13 @@ function breakPackageJson(coreRoot, variant) {
 function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
   const projectRoot = join(base, 'fixture-project');
   mkdirSync(projectRoot, { recursive: true });
-  const bin = join(base, 'fake-proofOrStop');
-  writeFileSync(bin, '#!/usr/bin/env node\n');
+  const platform = extraOptions.platform ?? process.platform;
+  const bin = join(base, platform === 'win32' ? 'proof-or-stop.cmd' : 'fake-proofOrStop');
+  if (platform === 'win32' && globalRoot) {
+    writeRepresentativeWindowsShim(bin, globalRoot);
+  } else {
+    writeFileSync(bin, '#!/usr/bin/env node\n');
+  }
   return runRuntimeEnvironmentChecks(projectRoot, {
     commandResolver: () => bin,
     globalNpmRootResolver: () => globalRoot,
@@ -169,19 +170,146 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
   });
 }
 
-function expectedCommandPath(path, platform = process.platform) {
-  if (platform === 'win32') return `"${path}"`;
-  return /^[A-Za-z0-9_./:@%+=,-]+$/.test(path) ? path : `'${path.replace(/'/g, `'\\''`)}'`;
+function writeRepresentativeWindowsShim(shimPath, globalRoot, packageName = '@proof-or-stop/core', binRel = 'dist/cli.js') {
+  const lexicalTarget = join(globalRoot, ...packageName.split('/'), binRel);
+  const relativeTarget = relative(dirname(shimPath), lexicalTarget).replaceAll('/', '\\');
+  writeFileSync(shimPath, `@ECHO off\r\nSETLOCAL\r\nnode "%~dp0\\${relativeTarget}" %*\r\n`);
+  return shimPath;
+}
+
+function expectedCommandPath(path) {
+  return /^[A-Za-z0-9_./:@%+=,-]+$/.test(path) ? path : `'${path.replace(/'/g, `'"'"'`)}'`;
 }
 
 function expectedRelink(root, platform = process.platform) {
   return platform === 'win32'
-    ? `cd /d ${expectedCommandPath(root, platform)} && npm link`
-    : `cd -- ${expectedCommandPath(root, platform)} && npm link`;
+    ? expectedWindowsPowerShellCommand(`Set-Location -LiteralPath ${expectedPowerShellLiteral(root)}; & npm.cmd link`)
+    : `cd -- ${expectedCommandPath(root)} && npm link`;
 }
 
 function expectedRebuild(root, platform = process.platform) {
-  return `npm --prefix ${expectedCommandPath(root, platform)} run build`;
+  return platform === 'win32'
+    ? expectedWindowsPowerShellCommand(`& npm.cmd --prefix ${expectedPowerShellLiteral(root)} run build`)
+    : `npm --prefix ${expectedCommandPath(root)} run build`;
+}
+
+function expectedInspect(path, platform = process.platform) {
+  return platform === 'win32'
+    ? expectedWindowsPowerShellCommand(`Get-Item -Force -LiteralPath ${expectedPowerShellLiteral(path)} | Format-List -Property FullName,Attributes,LinkType,Target`)
+    : `ls -ld -- ${expectedCommandPath(path)}`;
+}
+
+function expectedPowerShellLiteral(value) {
+  return `'${value.replace(/'/g, "''")}'`;
+}
+
+function expectedWindowsPowerShellCommand(script) {
+  return `powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand ${Buffer.from(script, 'utf16le').toString('base64')}`;
+}
+
+function decodeWindowsPowerShellCommand(command) {
+  const prefix = 'powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand ';
+  assert.ok(command.startsWith(prefix), `expected encoded PowerShell remediation, got: ${command}`);
+  return Buffer.from(command.slice(prefix.length), 'base64').toString('utf16le');
+}
+
+function globalCoreCompletionMarker(linkSupported, executedAssertionGroups) {
+  if (executedAssertionGroups <= 0) throw new Error('global-core-realpath cannot report PASS without executed assertion groups');
+  return linkSupported
+    ? 'ok global-core-realpath'
+    : `SKIP-NOT-PASS global-core-realpath: link-dependent cases unavailable after ${executedAssertionGroups} non-link assertion groups`;
+}
+
+assert.throws(() => globalCoreCompletionMarker(true, 0), /cannot report PASS/, 'zero executed assertions must never produce the must selector');
+
+let executedAssertionGroups = 0;
+
+// F-029/F-030/F-033/F-035: these Windows-contract cases use a real package
+// directory rather than a directory link, so they still run when this host
+// cannot create a symlink/junction.
+{
+  const base = mkdtempSync(join(tmpdir(), "gcr-win-no-link %TEMP%' Fixture-"));
+  try {
+    const globalRoot = join(base, 'global', 'node_modules');
+    const coreRoot = join(globalRoot, '@proof-or-stop', 'core');
+    writeCorePackage(coreRoot, { binMode: 0o644 });
+    const canonicalCoreRoot = realpathSync(coreRoot);
+    const shim = join(dirname(globalRoot), 'proof-or-stop.cmd');
+    writeRepresentativeWindowsShim(shim, globalRoot);
+
+    const healthy = runChecks(join(base, 'healthy'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
+    assert.equal(healthy.globalCoreRealpath.status, 'pass', (healthy.globalCoreRealpath.warnings ?? []).join(' | '));
+    assert.equal(healthy.globalCoreRealpath.actual.commandShim, shim);
+    assert.equal(healthy.globalCoreRealpath.actual.executable, true);
+    assert.equal(healthy.globalCoreRealpath.actual.verification, 'ok');
+    executedAssertionGroups += 1;
+
+    writeFileSync(shim, `@REM node "${join(globalRoot, '@proof-or-stop', 'core', 'dist', 'cli.js')}"\r\nnode other-package\\dist\\cli.js %*\r\n`);
+    const malformed = runChecks(join(base, 'malformed'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
+    assert.notEqual(malformed.globalCoreRealpath.status, 'pass');
+    assert.equal(malformed.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
+    assert.equal(malformed.globalCoreRealpath.actual.executable, false);
+    assert.doesNotMatch(renderRuntimeEnvironmentReport(malformed), /contract: global-core-realpath-pass/);
+    const expectedMalformedRemediation = `${expectedRebuild(canonicalCoreRoot, 'win32')} && ${expectedRelink(canonicalCoreRoot, 'win32')}`;
+    assert.equal(malformed.globalCoreRealpath.actual.remediation, expectedMalformedRemediation);
+    const [rebuildCommand, relinkCommand] = expectedMalformedRemediation.split(' && ');
+    assert.equal(decodeWindowsPowerShellCommand(rebuildCommand), `& npm.cmd --prefix ${expectedPowerShellLiteral(canonicalCoreRoot)} run build`);
+    assert.equal(decodeWindowsPowerShellCommand(relinkCommand), `Set-Location -LiteralPath ${expectedPowerShellLiteral(canonicalCoreRoot)}; & npm.cmd link`);
+    executedAssertionGroups += 1;
+
+    writeRepresentativeWindowsShim(shim, globalRoot);
+    const deniedStat = runChecks(join(base, 'denied-stat'), coreRoot, globalRoot, {
+      platform: 'win32',
+      commandResolver: () => shim,
+      binTargetStatProbe: () => {
+        const error = new Error('I/O failure');
+        error.code = 'EIO';
+        throw error;
+      },
+    });
+    const expectedTarget = join(canonicalCoreRoot, 'dist', 'cli.js');
+    assert.equal(deniedStat.globalCoreRealpath.actual.remediation, expectedInspect(expectedTarget, 'win32'));
+    assert.equal(
+      decodeWindowsPowerShellCommand(deniedStat.globalCoreRealpath.actual.remediation),
+      `Get-Item -Force -LiteralPath ${expectedPowerShellLiteral(expectedTarget)} | Format-List -Property FullName,Attributes,LinkType,Target`,
+    );
+    executedAssertionGroups += 1;
+
+    rmSync(shim, { force: true });
+    const missing = runChecks(join(base, 'missing'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
+    assert.notEqual(missing.globalCoreRealpath.status, 'pass');
+    assert.equal(missing.globalCoreRealpath.actual.verification, 'windows-command-shim-missing');
+    assert.equal(missing.globalCoreRealpath.actual.verificationErrorCode, 'ENOENT');
+    assert.doesNotMatch(renderRuntimeEnvironmentReport(missing), /contract: global-core-realpath-pass/);
+    executedAssertionGroups += 1;
+
+    const noPath = runChecks(join(base, 'no-path'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => null });
+    assert.notEqual(noPath.globalCoreRealpath.status, 'pass', 'a healthy npm package cannot substitute for a missing PATH command');
+    assert.equal(noPath.globalCoreRealpath.actual.installed, true);
+    assert.equal(noPath.globalCoreRealpath.actual.availableOnPath, false);
+    assert.equal(noPath.globalCoreRealpath.actual.verification, 'command-entrypoint-missing');
+    assert.match((noPath.globalCoreRealpath.warnings ?? []).join('\n'), /no proof-or-stop command was found on PATH/);
+    assert.doesNotMatch(renderRuntimeEnvironmentReport(noPath), /contract: global-core-realpath-pass/);
+    const noPathScript = decodeWindowsPowerShellCommand(noPath.globalCoreRealpath.actual.remediation);
+    assert.equal(noPathScript, `Set-Location -LiteralPath ${expectedPowerShellLiteral(canonicalCoreRoot)}; & npm.cmd link`);
+    assert.ok(noPathScript.includes("%TEMP%'' Fixture"), 'decoded remediation preserves percent tokens and apostrophes literally');
+    executedAssertionGroups += 1;
+
+    const noPathPosix = runChecks(join(base, 'no-path-posix'), coreRoot, globalRoot, { platform: 'linux', commandResolver: () => null });
+    assert.notEqual(noPathPosix.globalCoreRealpath.status, 'pass', 'PATH absence is not Windows-specific');
+    assert.equal(noPathPosix.globalCoreRealpath.actual.verification, 'command-entrypoint-missing');
+    assert.equal(noPathPosix.globalCoreRealpath.actual.remediation, expectedRelink(canonicalCoreRoot, 'linux'));
+    executedAssertionGroups += 1;
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+if (!directoryLinkCapability.supported) {
+  const marker = globalCoreCompletionMarker(false, executedAssertionGroups);
+  assert.doesNotMatch(marker, /^ok global-core-realpath$/, 'a partial capability skip must not match the must selector');
+  console.log(`${marker} (${directoryLinkCapability.reason})`);
+  process.exit(0);
 }
 
 // 1. Worktree-built CLI + global resolving to the canonical main checkout → pass.
@@ -199,6 +327,7 @@ function expectedRebuild(root, platform = process.platform) {
     assert.equal(actual.realpath, realpathSync(join(repo, 'packages', 'main')));
     assert.equal(actual.version, '0.0.0');
     assert.equal(actual.binTarget, realpathSync(join(repo, 'packages', 'main', 'dist', 'cli.js')));
+    assert.equal(actual.binTargetRealpath, realpathSync(join(repo, 'packages', 'main', 'dist', 'cli.js')), 'normal in-dist targets bind their resolved path');
     if (!isWindowsHost) assert.equal(actual.binMode, '0755');
     else assert.match(actual.binMode, /^0[0-7]{3}$/, 'Windows mode remains display-only but must be a formatted observed fact');
     assert.equal(actual.executable, true);
@@ -1266,7 +1395,7 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
         throw error;
       },
     });
-    const inspectTarget = `dir /a "${expectedBin}"`;
+    const inspectTarget = expectedInspect(expectedBin, 'win32');
     assert.equal(statDenied.globalCoreRealpath.actual.remediation, inspectTarget);
     assert.ok((statDenied.globalCoreRealpath.warnings ?? []).join('\n').includes(`inspect filesystem access: ${inspectTarget}`));
 
@@ -1275,7 +1404,7 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
       platform: 'win32',
       globalCoreRealpathProbe: () => ({ realpath: null, errorCode: 'EIO' }),
     });
-    const inspectPackage = `dir /a "${packagePath}"`;
+    const inspectPackage = expectedInspect(packagePath, 'win32');
     assert.ok((realpathDenied.globalCoreRealpath.warnings ?? []).join('\n').includes(`inspect then repoint: ${inspectPackage} && ${relink}`));
     assert.equal(realpathDenied.globalCoreRealpath.actual.remediation, relink);
   } finally {
@@ -1283,4 +1412,61 @@ for (const [label, version] of [['missing', null], ['whitespace-only', '   ']]) 
   }
 }
 
-console.log('ok global-core-realpath');
+// 35. F-034: the declared bin target's resolved path must remain inside the
+// canonical package dist tree. Cover a final-link escape, an intermediate-link
+// escape, and errno preservation for an unresolvable target.
+{
+  const base = mkdtempSync(join(tmpdir(), 'gcr-bin-realpath-escape-'));
+  try {
+    const finalFixture = makeRepoWithWorktree(join(base, 'final'));
+    const finalCore = join(finalFixture.repo, 'packages', 'main');
+    const finalGlobalRoot = makeGlobalRootLinkedTo(join(base, 'final'), finalCore);
+    const finalTarget = join(finalCore, 'dist', 'cli.js');
+    const outsideFinal = join(base, 'outside-final.js');
+    writeFileSync(outsideFinal, '#!/usr/bin/env node\n');
+    chmodSync(outsideFinal, 0o755);
+    let finalOptions = {};
+    if (isWindowsHost) {
+      // The production path is realpathSync; this seam avoids requiring the
+      // separate Windows file-symlink privilege after the junction probe passed.
+      finalOptions = { binTargetRealpathProbe: () => ({ realpath: outsideFinal, errorCode: null }) };
+    } else {
+      rmSync(finalTarget, { force: true });
+      symlinkSync(outsideFinal, finalTarget, 'file');
+    }
+    const finalReport = runChecks(join(base, 'final'), join(finalFixture.worktree, 'packages', 'main'), finalGlobalRoot, finalOptions);
+    assert.notEqual(finalReport.globalCoreRealpath.status, 'pass');
+    assert.equal(finalReport.globalCoreRealpath.actual.verification, 'bin-target-realpath-escape');
+    assert.equal(finalReport.globalCoreRealpath.actual.binTargetRealpath, realpathSync(outsideFinal));
+    assert.match((finalReport.globalCoreRealpath.warnings ?? []).join('\n'), /resolves outside the package dist tree/);
+
+    const intermediateFixture = makeRepoWithWorktree(join(base, 'intermediate'), { binTarget: 'absent', binRel: 'dist/linked/cli.js' });
+    const intermediateCore = join(intermediateFixture.repo, 'packages', 'main');
+    const outsideDir = join(base, 'outside-dir');
+    mkdirSync(outsideDir, { recursive: true });
+    writeFileSync(join(outsideDir, 'cli.js'), '#!/usr/bin/env node\n');
+    chmodSync(join(outsideDir, 'cli.js'), 0o755);
+    symlinkSync(outsideDir, join(intermediateCore, 'dist', 'linked'), isWindowsHost ? 'junction' : 'dir');
+    const intermediateGlobalRoot = makeGlobalRootLinkedTo(join(base, 'intermediate'), intermediateCore);
+    const intermediateReport = runChecks(join(base, 'intermediate'), join(intermediateFixture.worktree, 'packages', 'main'), intermediateGlobalRoot);
+    assert.notEqual(intermediateReport.globalCoreRealpath.status, 'pass');
+    assert.equal(intermediateReport.globalCoreRealpath.actual.verification, 'bin-target-realpath-escape');
+    assert.equal(intermediateReport.globalCoreRealpath.actual.binTargetRealpath, realpathSync(join(outsideDir, 'cli.js')));
+
+    const errnoFixture = makeRepoWithWorktree(join(base, 'errno'));
+    const errnoCore = join(errnoFixture.repo, 'packages', 'main');
+    const errnoGlobalRoot = makeGlobalRootLinkedTo(join(base, 'errno'), errnoCore);
+    const errnoReport = runChecks(join(base, 'errno'), join(errnoFixture.worktree, 'packages', 'main'), errnoGlobalRoot, {
+      binTargetRealpathProbe: () => ({ realpath: null, errorCode: 'EIO' }),
+    });
+    assert.notEqual(errnoReport.globalCoreRealpath.status, 'pass');
+    assert.equal(errnoReport.globalCoreRealpath.actual.verification, 'bin-target-realpath-failed');
+    assert.equal(errnoReport.globalCoreRealpath.actual.verificationErrorCode, 'EIO');
+    assert.match((errnoReport.globalCoreRealpath.warnings ?? []).join('\n'), /bin-target-realpath-failed.*\[EIO\]/);
+    executedAssertionGroups += 3;
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+}
+
+console.log(globalCoreCompletionMarker(true, executedAssertionGroups));

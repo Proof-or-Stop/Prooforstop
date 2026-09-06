@@ -13,13 +13,13 @@
 import { chmodSync, lstatSync, readFileSync, realpathSync, renameSync, rmSync } from 'node:fs';
 import { dirname, isAbsolute, join, relative, sep } from 'node:path';
 
-export function promoteDist(dist, staging, trash) {
+export function promoteDist(dist, staging, trash, options = {}) {
   // B-e256: the freshly built staging tree came straight out of tsc, which emits every file 0644;
   // restore the executable bit on package.json `bin` targets ON STAGING, BEFORE the old dist is
   // evicted. A non-ENOENT stat/chmod failure (EACCES, EROFS, I/O error) throws here and aborts the
   // promotion while the previous, working dist is still in place — it is never evicted for a tree
   // whose bin target cannot be made executable. (An absent target / package without `bin` is a no-op.)
-  restoreBinExecutableBits(staging, dist);
+  restoreBinExecutableBits(staging, dist, options);
   // Evict the old dist. ENOENT is the SOLE benign case (a first build has no prior
   // dist to evict); every other error (EACCES, EXDEV, …) surfaces. `evicted` records
   // whether trash now holds the old dist, so the restore path only runs when there is
@@ -82,12 +82,27 @@ export function promoteDist(dist, staging, trash) {
 // success with a non-executable global bin, and because mode bits are not part of the
 // content-bound build binding, later builds took the fast path and never repaired it.
 // Only node: built-ins (fresh-checkout footprint rule).
-export function restoreBinExecutableBits(tree, dist = tree) {
+export function restoreBinExecutableBits(tree, dist = tree, options = {}) {
   const packageRoot = dirname(dist);
+  const readPackageManifest = options.readPackageManifest ?? ((path) => readFileSync(path, 'utf8'));
+  let manifestText;
+  try {
+    manifestText = readPackageManifest(join(packageRoot, 'package.json'));
+  } catch (error) {
+    // A genuinely missing manifest preserves the historical no-op contract.
+    // Every other read failure observed an unknown manifest state and must stop
+    // promotion before the working dist is evicted.
+    if (error && error.code === 'ENOENT') return [];
+    error.message = `restoreBinExecutableBits: cannot read ${join(packageRoot, 'package.json')}: ${error.message}`;
+    throw error;
+  }
   let bin;
   try {
-    bin = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8')).bin ?? {};
-  } catch {
+    bin = JSON.parse(manifestText).bin ?? {};
+  } catch (error) {
+    // Syntactically malformed JSON is an explicitly retained compatibility
+    // no-op. Read failures are handled separately above and never reach here.
+    if (!(error instanceof SyntaxError)) throw error;
     return [];
   }
   // npm accepts both `bin: { name: "path" }` and the `bin: "path"` shorthand; only the paths matter.

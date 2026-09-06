@@ -110,7 +110,7 @@ const pipeline = ['scripts/build-main-with-binding.mjs', 'scripts/promote-dist.m
 const pipelineText = pipeline.map((rel) => readFileSync(join(repoRoot, rel), 'utf8')).join('\n');
 const promoteDistText = readFileSync(join(repoRoot, 'scripts/promote-dist.mjs'), 'utf8');
 const restoresBit = /chmod(Sync)?\s*\(/.test(pipelineText) && /\bbin\b/.test(pipelineText);
-const stagingRestoreOffset = promoteDistText.indexOf('restoreBinExecutableBits(staging, dist);');
+const stagingRestoreOffset = promoteDistText.search(/restoreBinExecutableBits\(staging, dist(?:, options)?\);/);
 const oldDistEvictionOffset = promoteDistText.indexOf('renameSync(dist, trash);');
 const restoresStagingBeforeEviction = stagingRestoreOffset >= 0 && oldDistEvictionOffset >= 0 && stagingRestoreOffset < oldDistEvictionOffset;
 console.log(`pipeline staging restore hook present: ${restoresBit}; staging restoration precedes old-dist eviction: ${restoresStagingBeforeEviction} (${pipeline.join(' + ')})`);
@@ -242,6 +242,41 @@ expect('hermetic (c): package.json with no bin field, unparseable package.json a
       console.log(`hermetic (c): ${label} -> ${JSON.stringify(restored)}`);
     });
   }
+});
+
+expect('hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction', () => {
+  assert.notEqual(restoreBinExecutableBits, null, 'restoreBinExecutableBits is not available');
+  assert.notEqual(promoteDist, null, 'promoteDist is not available');
+  for (const code of ['EACCES', 'EPERM', 'EIO']) {
+    withTempPackage((pkgRoot, dist) => {
+      mkdirSync(dist, { recursive: true });
+      const failure = Object.assign(new Error(`injected ${code}`), { code });
+      assert.throws(
+        () => restoreBinExecutableBits(dist, dist, { readPackageManifest: () => { throw failure; } }),
+        (error) => error?.code === code && /cannot read .*package\.json/.test(error.message),
+        `${code} manifest read failure must propagate`,
+      );
+    });
+  }
+
+  withTempPackage((pkgRoot, dist) => {
+    const staging = join(pkgRoot, 'dist.staging');
+    const trash = join(pkgRoot, 'dist.trash');
+    mkdirSync(dist, { recursive: true });
+    writeFileSync(join(dist, 'cli.js'), CLI_BODY);
+    chmodSync(join(dist, 'cli.js'), 0o755);
+    mkdirSync(staging, { recursive: true });
+    writeFileSync(join(staging, 'cli.js'), '#!/usr/bin/env node\nconsole.log("untrusted staging body");\n');
+    chmodSync(join(staging, 'cli.js'), 0o644);
+    const failure = Object.assign(new Error('injected manifest I/O failure'), { code: 'EIO' });
+    assert.throws(
+      () => promoteDist(dist, staging, trash, { readPackageManifest: () => { throw failure; } }),
+      (error) => error?.code === 'EIO' && /cannot read .*package\.json/.test(error.message),
+    );
+    assert.equal(readFileSync(join(dist, 'cli.js'), 'utf8'), CLI_BODY, 'old dist content must survive manifest read failure');
+    assert.ok(existsSync(staging), 'staging remains when validation aborts before eviction');
+    assert.ok(!existsSync(trash), 'old dist must not be evicted for an unknown manifest state');
+  });
 });
 
 expect('hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target', () => {

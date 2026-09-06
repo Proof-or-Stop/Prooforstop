@@ -85,6 +85,11 @@ export interface RuntimeEnvironmentOptions {
   // Production uses statSync; tests can inject EACCES/EPERM without depending
   // on the uid or host filesystem permissions.
   binTargetStatProbe?: (path: string) => { mode: number; isFile(): boolean };
+  // Test seam for resolving the declared bin target after stat. Production
+  // uses realpathSync and preserves the errno when resolution fails.
+  binTargetRealpathProbe?: (path: string) => GlobalCoreRealpathProbeResult;
+  // Test seam for reading the Windows npm command shim selected from PATH.
+  commandShimReadProbe?: (path: string) => string;
   // B-e256 cross-host review B-e256-xhr-r12 MAJOR: test seam for the realpath(3)
   // resolution of the global core package. A candidate that lstat/exists as
   // `resolved` can still fail realpath (EACCES/EPERM/EIO on the target, or the
@@ -141,6 +146,8 @@ interface RuntimeCheckContext {
   executableAccessProbe: (path: string) => boolean;
   platform: NodeJS.Platform;
   binTargetStatProbe: (path: string) => { mode: number; isFile(): boolean };
+  binTargetRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
+  commandShimReadProbe: (path: string) => string;
   globalCoreRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
   compiledCoreVersionProbe: (globalRealpath: string) => CompiledCoreVersionProbeResult;
 }
@@ -262,9 +269,11 @@ export function runRuntimeEnvironmentChecks(
     activeCliEntrypoint: resolveActiveCliEntrypoint(resolvedRoot, corePackageRoot, cliEntrypoint),
     globalNpmRoot,
     globalNpmRootProbe,
-    executableAccessProbe: options.executableAccessProbe ?? ((path) => defaultExecutableAccessProbe(path, platform)),
+    executableAccessProbe: options.executableAccessProbe ?? defaultExecutableAccessProbe,
     platform,
     binTargetStatProbe: options.binTargetStatProbe ?? statSync,
+    binTargetRealpathProbe: options.binTargetRealpathProbe ?? defaultGlobalCoreRealpathProbe,
+    commandShimReadProbe: options.commandShimReadProbe ?? ((path) => readFileSync(path, 'utf8')),
     globalCoreRealpathProbe: options.globalCoreRealpathProbe ?? defaultGlobalCoreRealpathProbe,
     compiledCoreVersionProbe: options.compiledCoreVersionProbe ?? defaultCompiledCoreVersionProbe,
   };
@@ -314,6 +323,7 @@ export function renderRuntimeEnvironmentReport(report: RuntimeEnvironmentReport)
       && typeof actual.version === 'string'
       && typeof actual.binMode === 'string'
       && actual.executable === true
+      && actual.verification === 'ok'
     ) {
       lines.push('    contract: global-core-realpath-pass');
     }
@@ -639,8 +649,8 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
 // repoint a drifted `proof-or-stop` executable without guessing, and it must
 // only REPORT — doctor never mutates the host's global install.
 //   (1) realpath inside a `.worktrees/` checkout (or any non-canonical path)
-//       -> drift + an exact host-shell repoint (`cd --` on POSIX, `cd /d` on
-//       Windows), with every path safely quoted for that shell
+//       -> drift + an exact host-shell repoint (`cd --` on POSIX, encoded
+//       PowerShell `Set-Location -LiteralPath` on Windows)
 //   (2) package.json bin target not executable -> `chmod +x <abs path>` ONLY when
 //       the execute bits are actually clear; a target that IS marked executable
 //       yet fails X_OK is an ownership/ACL/noexec denial that chmod cannot
@@ -662,13 +672,26 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
 //   (6) a missing or non-canonical version on a readable package.json -> drift
 //       with rebuild-and-relink; the version is a verified fact, not a
 //       display-only decoration (B-e256-xhr-r12 MAJOR)
-type GlobalCoreExecutableVerification = 'ok' | 'package-json-unreadable' | 'bin-field-missing' | 'bin-entry-missing' | 'bin-target-stat-failed';
+type GlobalCoreExecutableVerification =
+  | 'ok'
+  | 'package-json-unreadable'
+  | 'bin-field-missing'
+  | 'bin-entry-missing'
+  | 'bin-target-stat-failed'
+  | 'bin-target-realpath-failed'
+  | 'bin-target-realpath-escape'
+  | 'command-entrypoint-missing'
+  | 'windows-command-shim-missing'
+  | 'windows-command-shim-unreadable'
+  | 'windows-command-shim-target-mismatch';
 
 interface GlobalCoreExecutableFacts {
   binTarget: string | null;
+  binTargetRealpath: string | null;
   binMode: string | null;
   binTargetExists: boolean | null;
   verificationErrorCode: string | null;
+  commandShim: string | null;
   // B-e256-xhr-r11 MAJOR: whether ANY 0o111 bit is set on the target. This is
   // NOT the executable verdict (that is the X_OK probe); it is what decides
   // whether `chmod +x` is a plausible repair at all.
@@ -683,15 +706,21 @@ function describeGlobalCoreVerification(verification: Exclude<GlobalCoreExecutab
   if (verification === 'package-json-unreadable') return 'package.json is missing or malformed';
   if (verification === 'bin-field-missing') return 'package.json declares no `bin` field';
   if (verification === 'bin-target-stat-failed') return 'the declared bin target could not be inspected';
+  if (verification === 'bin-target-realpath-failed') return 'the declared bin target realpath could not be resolved';
+  if (verification === 'bin-target-realpath-escape') return 'the declared bin target resolves outside the package dist tree';
+  if (verification === 'command-entrypoint-missing') return 'no proof-or-stop command was found on PATH';
+  if (verification === 'windows-command-shim-missing') return 'the proof-or-stop command selected from PATH is missing';
+  if (verification === 'windows-command-shim-unreadable') return 'the proof-or-stop command shim selected from PATH could not be read';
+  if (verification === 'windows-command-shim-target-mismatch') return 'the proof-or-stop command shim does not invoke this package bin target';
   return `package.json \`bin\` has no ${CANONICAL_ROOT_PACKAGE_NAME} entry`;
 }
 
 // B-e256-xhr-r6 MAJOR: the executable fact is whether the CURRENT process may
 // execute the target (access(2) X_OK), not whether any 0o111 bit is set. A
 // root-owned 0100 file is "executable" by mode yet fails with EACCES for an
-// unprivileged operator. win32 has no execute bit, so the probe short-circuits.
-function defaultExecutableAccessProbe(path: string, platform: NodeJS.Platform = process.platform): boolean {
-  if (platform === 'win32') return true;
+// unprivileged operator. Windows does not call this probe; it verifies the npm
+// command shim that is actually selected from PATH.
+function defaultExecutableAccessProbe(path: string): boolean {
   try {
     accessSync(path, constants.X_OK);
     return true;
@@ -700,25 +729,77 @@ function defaultExecutableAccessProbe(path: string, platform: NodeJS.Platform = 
   }
 }
 
-function commandPathQuote(value: string, platform: NodeJS.Platform): string {
-  // Double quote is not a legal Windows filename character, so wrapping the
-  // whole path is sufficient for cmd.exe path arguments (including spaces and
-  // metacharacters such as &). Keep the established POSIX quoting byte-for-byte.
-  return platform === 'win32' ? `"${value}"` : shellQuote(value);
+function normalizedShimText(value: string): string {
+  return value.replace(/\\/g, '/').toLowerCase();
+}
+
+function validateWindowsCommandShim(
+  cliEntrypoint: string | null,
+  installedPackageRoot: string,
+  binRel: string,
+  commandShimReadProbe: (path: string) => string,
+): { commandShim: string | null; executable: boolean; verification: GlobalCoreExecutableVerification; errorCode: string | null } {
+  if (!cliEntrypoint) {
+    return { commandShim: null, executable: false, verification: 'windows-command-shim-missing', errorCode: 'ENOENT' };
+  }
+  let content: string;
+  try {
+    content = commandShimReadProbe(cliEntrypoint);
+  } catch (error) {
+    const errorCode = errnoCode(error);
+    return {
+      commandShim: cliEntrypoint,
+      executable: false,
+      verification: errorCode === 'ENOENT' || errorCode === 'ENOTDIR' ? 'windows-command-shim-missing' : 'windows-command-shim-unreadable',
+      errorCode,
+    };
+  }
+  const lexicalTarget = resolve(installedPackageRoot, binRel);
+  const relativeTarget = relative(dirname(cliEntrypoint), lexicalTarget);
+  const normalizedRelativeTarget = normalizedShimText(relativeTarget).replace(/^\.\//, '');
+  const normalizedAbsoluteTarget = normalizedShimText(lexicalTarget);
+  const targetMatches = normalizedRelativeTarget.length > 0 && content.split(/\r?\n/).some((line) => {
+    const trimmed = line.trim();
+    if (trimmed.length === 0 || /^(?:@?rem(?:\s|$)|::|#(?!\!))/i.test(trimmed)) return false;
+    const normalizedLine = normalizedShimText(line);
+    const namesTarget = normalizedLine.includes(normalizedRelativeTarget) || normalizedLine.includes(normalizedAbsoluteTarget);
+    const invokesRuntime = /(?:\bexec\b|_prog|(?:^|\s)&\s|\bnode(?:\.exe)?\b)/i.test(line);
+    return namesTarget && invokesRuntime;
+  });
+  return targetMatches
+    ? { commandShim: cliEntrypoint, executable: true, verification: 'ok', errorCode: null }
+    : { commandShim: cliEntrypoint, executable: false, verification: 'windows-command-shim-target-mismatch', errorCode: null };
+}
+
+function powershellLiteral(value: string): string {
+  return `'${value.replace(/'/g, "''")}'`;
+}
+
+function windowsPowerShellCommand(script: string): string {
+  // cmd.exe expands %NAME% even inside double quotes. An encoded UTF-16LE
+  // PowerShell payload contains only base64 characters, while the decoded
+  // script uses -LiteralPath/single-quoted arguments. This keeps spaces,
+  // apostrophes and literal percent-delimited path components byte-exact.
+  const encoded = Buffer.from(script, 'utf16le').toString('base64');
+  return `powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand ${encoded}`;
 }
 
 function globalCoreRelinkCommand(canonicalCoreRoot: string, platform: NodeJS.Platform): string {
   return platform === 'win32'
-    ? `cd /d ${commandPathQuote(canonicalCoreRoot, platform)} && npm link`
+    ? windowsPowerShellCommand(`Set-Location -LiteralPath ${powershellLiteral(canonicalCoreRoot)}; & npm.cmd link`)
     : `cd -- ${shellQuote(canonicalCoreRoot)} && npm link`;
 }
 
 function globalCoreRebuildCommand(packageRoot: string, platform: NodeJS.Platform): string {
-  return `npm --prefix ${commandPathQuote(packageRoot, platform)} run build`;
+  return platform === 'win32'
+    ? windowsPowerShellCommand(`& npm.cmd --prefix ${powershellLiteral(packageRoot)} run build`)
+    : `npm --prefix ${shellQuote(packageRoot)} run build`;
 }
 
 function globalCoreInspectCommand(path: string, platform: NodeJS.Platform, endOfOptions: boolean): string {
-  if (platform === 'win32') return `dir /a ${commandPathQuote(path, platform)}`;
+  if (platform === 'win32') {
+    return windowsPowerShellCommand(`Get-Item -Force -LiteralPath ${powershellLiteral(path)} | Format-List -Property FullName,Attributes,LinkType,Target`);
+  }
   return `ls -ld${endOfOptions ? ' --' : ''} ${shellQuote(path)}`;
 }
 
@@ -736,11 +817,16 @@ function formatFileMode(mode: number): string {
 
 function inspectGlobalCoreExecutable(
   packageRoot: string,
+  installedPackageRoot: string,
+  cliEntrypoint: string | null,
+  platform: NodeJS.Platform,
   executableAccessProbe: (path: string) => boolean,
   binTargetStatProbe: (path: string) => { mode: number; isFile(): boolean },
+  binTargetRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult,
+  commandShimReadProbe: (path: string) => string,
 ): GlobalCoreExecutableFacts {
   const unverifiable = (verification: Exclude<GlobalCoreExecutableVerification, 'ok'>): GlobalCoreExecutableFacts =>
-    ({ binTarget: null, binMode: null, binTargetExists: false, verificationErrorCode: null, executeBitsSet: false, executable: null, verification });
+    ({ binTarget: null, binTargetRealpath: null, binMode: null, binTargetExists: false, verificationErrorCode: null, commandShim: null, executeBitsSet: false, executable: null, verification });
   const pkg = readPackageJson(packageRoot);
   if (!pkg || typeof pkg !== 'object') return unverifiable('package-json-unreadable');
   const bin = pkg.bin;
@@ -758,15 +844,27 @@ function inspectGlobalCoreExecutable(
   } catch (error) {
     const errorCode = errnoCode(error);
     if (errorCode === 'ENOENT' || errorCode === 'ENOTDIR') {
-      return { binTarget, binMode: null, binTargetExists: false, verificationErrorCode: null, executeBitsSet: false, executable: false, verification: 'ok' };
+      return { binTarget, binTargetRealpath: null, binMode: null, binTargetExists: false, verificationErrorCode: null, commandShim: null, executeBitsSet: false, executable: false, verification: 'ok' };
     }
-    return { binTarget, binMode: null, binTargetExists: null, verificationErrorCode: errorCode, executeBitsSet: false, executable: null, verification: 'bin-target-stat-failed' };
+    return { binTarget, binTargetRealpath: null, binMode: null, binTargetExists: null, verificationErrorCode: errorCode, commandShim: null, executeBitsSet: false, executable: null, verification: 'bin-target-stat-failed' };
   }
   const executeBitsSet = (stat.mode & 0o111) !== 0;
-  if (!stat.isFile()) return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: false, verificationErrorCode: null, executeBitsSet, executable: false, verification: 'ok' };
-  // `binMode` is display-only; the executable verdict is the access(2) probe.
+  if (!stat.isFile()) return { binTarget, binTargetRealpath: null, binMode: formatFileMode(stat.mode), binTargetExists: false, verificationErrorCode: null, commandShim: null, executeBitsSet, executable: false, verification: 'ok' };
+  const targetRealpathProbe = binTargetRealpathProbe(binTarget);
+  if (!targetRealpathProbe.realpath) {
+    return { binTarget, binTargetRealpath: null, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: targetRealpathProbe.errorCode ?? 'UNKNOWN', commandShim: null, executeBitsSet, executable: null, verification: 'bin-target-realpath-failed' };
+  }
+  const binTargetRealpath = targetRealpathProbe.realpath;
+  if (!pathContains(join(packageRoot, 'dist'), binTargetRealpath)) {
+    return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, commandShim: null, executeBitsSet, executable: false, verification: 'bin-target-realpath-escape' };
+  }
+  if (platform === 'win32') {
+    const shim = validateWindowsCommandShim(cliEntrypoint, installedPackageRoot, binRel, commandShimReadProbe);
+    return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: shim.errorCode, commandShim: shim.commandShim, executeBitsSet, executable: shim.executable, verification: shim.verification };
+  }
+  // `binMode` is display-only; the POSIX executable verdict is access(2) X_OK.
   const executable = executableAccessProbe(binTarget);
-  return { binTarget, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, executeBitsSet, executable, verification: 'ok' };
+  return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, commandShim: null, executeBitsSet, executable, verification: 'ok' };
 }
 
 function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'details' | 'warnings'> {
@@ -948,10 +1046,54 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       ],
     };
   }
+  if (!context.cliEntrypoint) {
+    // The package being present under `npm root -g` does not prove that an
+    // invokable proof-or-stop command exists. Keep this distinct from package
+    // absence and do not emit the resolved-install PASS contract marker.
+    return {
+      status: statusForDrift(severity),
+      actual: {
+        installed: true,
+        presence: 'resolved',
+        availableOnPath: false,
+        npmRoot: globalRoot,
+        packageName: globalPackage.packageName,
+        packagePath: globalPackagePath,
+        linkTarget: null,
+        realpath: globalRealpath,
+        version: null,
+        expectedVersion,
+        errorCode: null,
+        binTarget: null,
+        binTargetRealpath: null,
+        binMode: null,
+        executable: null,
+        verification: 'command-entrypoint-missing',
+        verificationErrorCode: null,
+        commandShim: null,
+        worktreeCheckout: isWorktreeCheckoutPath(globalRealpath),
+        remediation: relink,
+      },
+      expected,
+      warnings: [
+        `global ${describeCorePackageCandidate(globalPackage)} is installed at ${globalRealpath}, but no proof-or-stop command was found on PATH`,
+        `link the installed package command: ${relink}`,
+      ],
+    };
+  }
   const globalPackageJson = readPackageJson(globalRealpath);
   const declaredVersion = globalPackageJson?.version;
   const version = typeof declaredVersion === 'string' && declaredVersion.trim().length > 0 ? declaredVersion.trim() : null;
-  const executableFacts = inspectGlobalCoreExecutable(globalRealpath, context.executableAccessProbe, context.binTargetStatProbe);
+  const executableFacts = inspectGlobalCoreExecutable(
+    globalRealpath,
+    globalPackagePath,
+    context.cliEntrypoint,
+    context.platform,
+    context.executableAccessProbe,
+    context.binTargetStatProbe,
+    context.binTargetRealpathProbe,
+    context.commandShimReadProbe,
+  );
   const worktreeCheckout = isWorktreeCheckoutPath(globalRealpath);
   const pathMatches = samePath(globalRealpath, expected);
   const warnings: string[] = [];
@@ -983,7 +1125,11 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     // exact reason and the package path. A canonical checkout gets a rebuild
     // in front of the relink; a drifted realpath already carries the relink.
     const reason = describeGlobalCoreVerification(executableFacts.verification);
-    warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} cannot be verified [${executableFacts.verification}]: ${reason} (${join(globalRealpath, 'package.json')})`);
+    const targetDetail = executableFacts.binTarget
+      ? `; declared target ${executableFacts.binTarget}${executableFacts.binTargetRealpath ? ` resolves to ${executableFacts.binTargetRealpath}` : ''}${executableFacts.commandShim ? `; command shim ${executableFacts.commandShim}` : ''}`
+      : '';
+    const errorDetail = executableFacts.verificationErrorCode ? ` [${executableFacts.verificationErrorCode}]` : '';
+    warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} cannot be verified [${executableFacts.verification}]: ${reason}${errorDetail} (${join(globalRealpath, 'package.json')})${targetDetail}`);
     if (pathMatches) {
       const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
       warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
@@ -1017,9 +1163,9 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       addRemediation(rebuild);
       addRemediation(relink);
     } else if (pathMatches && context.platform === 'win32') {
-      // Defensive only: the production Windows probe returns true because npm
-      // launches package bins through generated .cmd/.ps1 shims. If an injected
-      // access probe nevertheless denies, chmod is never a valid Windows repair.
+      // Defensive only: failed Windows shim validation is handled by the
+      // verification branch above. If a future/injected probe reaches this
+      // branch, chmod is still never a valid Windows repair.
       const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
       warnings.push(`global npm command-shim target ${executableFacts.binTarget} could not be launched; Windows has no POSIX execute-bit repair`);
       warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
@@ -1115,11 +1261,13 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
       expectedVersion,
       compiledVersion,
       binTarget: executableFacts.binTarget,
+      binTargetRealpath: executableFacts.binTargetRealpath,
       binMode: executableFacts.binMode,
       binTargetExists: executableFacts.binTargetExists,
       executable: executableFacts.executable,
       verification: executableFacts.verification,
       verificationErrorCode: executableFacts.verificationErrorCode,
+      commandShim: executableFacts.commandShim,
       worktreeCheckout,
       remediation: remediations.length > 0 ? remediations.join(' && ') : null,
     },
