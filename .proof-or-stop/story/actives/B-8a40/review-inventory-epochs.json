@@ -1245,7 +1245,7 @@
       "reviewRound": "2026-09-06T19:49:59.446Z",
       "state": "OPEN",
       "begunAt": "2026-09-06T19:51:43.369Z",
-      "updatedAt": "2026-09-06T20:01:51.864Z",
+      "updatedAt": "2026-09-06T20:09:12.795Z",
       "cutoff": {
         "headHash": "ef6baaa221bc41a6765341387ac49865063ddfc7",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1312,10 +1312,62 @@
           "criticDigest": "360ebf6bc540fbebd85811d5720da6a9178c25a8943dbc7bb364fd8a0373d7de",
           "saturated": false,
           "nextRunSequenceBoundary": 77
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-06T20:01:51.864Z",
+          "completedAt": "2026-09-06T20:09:12.795Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-078",
+              "terminal": "finding",
+              "hostIdentity": "3b77b798c645f631a7de16e83a49d95203e6d3eb4a9a112ac7aa4558cf4a8ccc",
+              "promptIdentity": "a28a1dcd183f563c868f2cf2da1c042e897fad32c46cd02e1abe7887a7090b42",
+              "evidenceIds": [
+                "B-8a40:F-046"
+              ],
+              "coverageDigest": "0caf25cdf3211b06b59d007695061ff4c805fec82391156b362889119c054a20"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-080",
+              "terminal": "pass",
+              "hostIdentity": "3b77b798c645f631a7de16e83a49d95203e6d3eb4a9a112ac7aa4558cf4a8ccc",
+              "promptIdentity": "8b659a8618117a1b1597eac514f27d045f23424d71fd673a9ca831fcc9be02cc",
+              "evidenceIds": [
+                "B-8a40:RP-043"
+              ],
+              "coverageDigest": "7d8d13af6a95b92816c61935589ff3469ac89df1fbc8c51011cfec15923aab98"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-079",
+              "terminal": "pass",
+              "hostIdentity": "3b77b798c645f631a7de16e83a49d95203e6d3eb4a9a112ac7aa4558cf4a8ccc",
+              "promptIdentity": "0352ffbdb657a769eeb0cbe05590859ad14b75bb387fd9a89fbf72782a97463b",
+              "evidenceIds": [
+                "B-8a40:RP-044"
+              ],
+              "coverageDigest": "c422ad84c1b5f501034c62d7346c9c4e0a809e3176724fba20557e981ded169d"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-deferral-state-local-antecedent-false-positive",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering"
+          ],
+          "verifiedFindingSetDigest": "0e25999c9d4e9a14b7affb25134d8538a32925d5c5e0a6b9f79e4b3464109310",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "81bb2091a8ec1e5caf73421f71afcddfadfc4b578adcac1cfcdf53907eda3a26",
+          "saturated": false,
+          "nextRunSequenceBoundary": 81
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "3d9d6f26e1ec9f56cedb3e4507bbd6287ae564795d856b48dd15ecc3282cfd68"
+      "_hash": "b8ca262697c8a6e8fe3435bafd773e5ffbd1a84af9d2e7a492839a4319b93280"
     }
   ],
   "receipts": [
@@ -2485,6 +2537,37 @@
       ],
       "createdAt": "2026-09-06T20:01:19.317Z",
       "_hash": "dbc25c688a5bb0fab8c3df527f125cc82136a8722c9ce743c87625230f220d66"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-007:CRIT-02",
+      "epochId": "B-8a40:RI-007",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "ef6baaa221bc41a6765341387ac49865063ddfc7",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "0e25999c9d4e9a14b7affb25134d8538a32925d5c5e0a6b9f79e4b3464109310",
+      "requiredLaneCoverageDigest": "8dcbc7844f75baeccbaec097f44efe6727488913f82ec56fd9e9e253b4a75086",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-081",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-045"
+      ],
+      "readEvidenceDigest": "f267e83c7cf11fd4c0121d8845c75a757314138aa752b43d488afbb7ce7ea32f",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-046",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-deferral-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family. Unlike F-012, the stale join occurs in the deferral continuation state rather than cross-source negative-dismissal composition. Unlike F-036, which loses deferral state too early across evidence-only prose, F-046 retains it too long across a substantive nearer antecedent and falsely binds the later pronoun. Preserve direct unsafe, evidence-aside, and local-antecedent controls."
+        }
+      ],
+      "createdAt": "2026-09-06T20:08:53.822Z",
+      "_hash": "00a090d1fe72e512c8a85b9075c405e07aa6e06d394842273a174d48f76a3013"
     }
   ]
 }
