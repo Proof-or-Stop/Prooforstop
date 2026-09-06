@@ -839,7 +839,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:283-334 classifies a controlled pair as explicitly negative when any supported negation token appears between the target and responsibility outcome, but it does not evaluate negation parity or reject a second negation. Therefore `No parent Finding is closed by this intake. It is not not out of scope.` (and the equivalent `It cannot not be out of scope.`) causes isLinkedResponsibilityConclusion at :537-545 to return false even though the double-negative continuation affirmatively places the Finding out of scope; with the standalone observation filtered from the joined fallback, the complete authority statement is admitted. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1067 covers only the genuinely safe single-negative `It is not out of scope`, while :1075-1090 has no double-negative polarity witness. This is distinct from F-002: F-002 was the false-positive caused by ignoring explicit safe polarity, whereas this is the inverse fail-open caused by treating the presence of any negation as semantically safe after polarity handling was added. Make polarity composition reject affirmative double-negation continuations and add all-role adversarial witnesses without regressing the single-negative safe control. Severity high because a trivial polarity transformation can mint the same dismissal-based applicability authority the guard is intended to refuse.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T17:58:43.863Z",
@@ -877,7 +877,11 @@
         "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
       ],
       "signatureTag": "prompt-envelope-dismissal-double-negation-bypass",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "Negation parity now handles double negation and resets at every recognized causal boundary.",
+      "resolvedAt": "2026-09-06T19:51:03.134Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-019",
