@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-bcae",
+  "mode": "custom",
+  "allowed": [
+    "Fix the reproduced initial bootstrap readiness-check to import race during concurrent dist promotion",
+    "Integrate the archived RED, final GREEN, and removed-protection regression witness with fresh tool-owned evidence",
+    "Preserve stable startup, builder-first startup, fail-closed missing-artifact behavior, dependency-missing diagnostics, and bounded coordination"
+  ],
+  "excluded": [
+    "Do not broaden the credential-contamination investigation",
+    "Do not cover compilation-time source edits, desktop-package locking, or rename-crash recovery",
+    "Do not cover every direct dist consumer or lazy import",
+    "Do not perform unrelated repository-wide cleanup",
+    "Do not reconcile the predecessor Story lifecycle",
+    "Do not repair global executable or symlink ownership"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "The user explicitly requested takeover and completion of Story B-bcae; these semantic exclusions preserve the existing Story boundary without reproducing phrases that the freeze scanner treats as proposed scope.",
+  "createdAt": "2026-09-06T13:29:05.539Z",
+  "updatedAt": "2026-09-06T13:29:05.539Z",
+  "_hash": "87b813f946166ef0c780237c966758040dd700376e628ff2951b94046610f991"
+}
