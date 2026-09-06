@@ -1243,9 +1243,9 @@
       "epochId": "B-8a40:RI-007",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T19:49:59.446Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-06T19:51:43.369Z",
-      "updatedAt": "2026-09-06T20:09:12.795Z",
+      "updatedAt": "2026-09-06T20:16:23.580Z",
       "cutoff": {
         "headHash": "ef6baaa221bc41a6765341387ac49865063ddfc7",
         "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
@@ -1364,10 +1364,99 @@
           "criticDigest": "81bb2091a8ec1e5caf73421f71afcddfadfc4b578adcac1cfcdf53907eda3a26",
           "saturated": false,
           "nextRunSequenceBoundary": 81
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-06T20:09:12.795Z",
+          "completedAt": "2026-09-06T20:16:23.032Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-084",
+              "terminal": "finding",
+              "hostIdentity": "e3969644373be9bfd937c9eaa8c1202f3e30237ac665868c971610ba07cd11be",
+              "promptIdentity": "3e495356861317b314cfc6c79ab50f25f3b764a332c027ed06f1c0b88a8a59b6",
+              "evidenceIds": [
+                "B-8a40:F-047"
+              ],
+              "coverageDigest": "2d07029d179c91ca6a14c611164f86faff23fd069071fd2623989b9bd5a57caa"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-083",
+              "terminal": "pass",
+              "hostIdentity": "e3969644373be9bfd937c9eaa8c1202f3e30237ac665868c971610ba07cd11be",
+              "promptIdentity": "553886a11d7132007c5e1ef9950bddf9f69a7efd12eb26d7b1d3b7bd638a633f",
+              "evidenceIds": [
+                "B-8a40:RP-046"
+              ],
+              "coverageDigest": "fd07fe6cecc9b56b0e1a8805e285b0848ffce1b98f513fa023dbfd8bb5502cc9"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-085",
+              "terminal": "pass",
+              "hostIdentity": "e3969644373be9bfd937c9eaa8c1202f3e30237ac665868c971610ba07cd11be",
+              "promptIdentity": "4b316311ad7e16d3c9e77ef728c988e0803c63e791e01d8ec3df21efff410ee9",
+              "evidenceIds": [
+                "B-8a40:RP-047"
+              ],
+              "coverageDigest": "b099891ed7f82f345c3fca53443f1a97960c88f72b2eb8a0bf9d3066a89a2dcf"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "prompt-envelope-approved-wrapper-finite-authority-action-blacklist-bypass",
+            "prompt-envelope-cross-leaf-non-dismissal-authority-split-bypass",
+            "prompt-envelope-deferral-state-local-antecedent-false-positive",
+            "prompt-envelope-severity-state-local-antecedent-false-positive",
+            "prompt-envelope-structural-leaf-encoded-separator-authority-bypass",
+            "prompt-envelope-topic-break-explicit-coreference-laundering"
+          ],
+          "verifiedFindingSetDigest": "e311fd42f3b474a49fb5ff24c98e587560694befb79d5b071d48dfd4f830aea7",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "98a490693c77c3ece09839d3f3ccf756020d487025fcb6b2e7d8edc0351e1e66",
+          "saturated": false,
+          "nextRunSequenceBoundary": 86
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "b8ca262697c8a6e8fe3435bafd773e5ffbd1a84af9d2e7a492839a4319b93280"
+      "cancelledAt": "2026-09-06T20:16:23.580Z",
+      "cancelReason": "Replan the bounded classifier around the remaining direct state reset blockers after review inventory budget exhaustion.",
+      "terminalRunSequenceBoundary": 86,
+      "_hash": "7c8c0cdb252e94e484098a749cc957ff6da50281ccf0eafaf2fc594a27ec7db9"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-8a40:RI-008",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-06T20:16:24.819Z",
+      "updatedAt": "2026-09-06T20:16:24.819Z",
+      "cutoff": {
+        "headHash": "fb94c7ffe53eea1645a0afb7731237a88d888d06",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "scopeDigest": "b25c58aa8c04c3813be843f50fc2f8e57553d979afb606f988fa1eba4136cb24",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 86,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-8a40:F-041",
+        "B-8a40:F-042",
+        "B-8a40:F-043",
+        "B-8a40:F-044",
+        "B-8a40:F-045",
+        "B-8a40:F-046",
+        "B-8a40:F-047"
+      ],
+      "_hash": "9898bc5664b891649ad1227f0ff0f8e91ca8786dfbb8ba9bca8d8694d092841a"
     }
   ],
   "receipts": [
@@ -2568,6 +2657,37 @@
       ],
       "createdAt": "2026-09-06T20:08:53.822Z",
       "_hash": "00a090d1fe72e512c8a85b9075c405e07aa6e06d394842273a174d48f76a3013"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-007:CRIT-03",
+      "epochId": "B-8a40:RI-007",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "ef6baaa221bc41a6765341387ac49865063ddfc7",
+        "materialHash": "0d628f666bd608d6d094b2034ae84b5f5339f45a84b63a00778c4d289228e51a",
+        "storyFilesHash": "a98bfaab716af0e0cb01da52ac9da23c33ef75d5d3470488a96bc069dcb8bb28"
+      },
+      "aggregateFindingSetDigest": "e311fd42f3b474a49fb5ff24c98e587560694befb79d5b071d48dfd4f830aea7",
+      "requiredLaneCoverageDigest": "c7504cabed033e4258f193ee012f52f0e0fb93811f30ada49d50bb3964225af5",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-086",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-048"
+      ],
+      "readEvidenceDigest": "d3cb32b98d0179d5641b9a8a65def75acdd20ab66ed06bd0e9e090926e8d944b",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-047",
+          "disposition": "verified_family",
+          "familyKey": "prompt-envelope-severity-state-local-antecedent-false-positive",
+          "reason": "Independent bounded classifier/gate family. It shares the local-antecedent rebinding symptom with F-046 but executes through hasCrossSegmentSeverityAuthority and its separate persistent severity/flattened-authority-noun grammar; F-046 executes through the deferral controlled-relation state. Preserve both direct unsafe, evidence-aside, and local-antecedent witnesses."
+        }
+      ],
+      "createdAt": "2026-09-06T20:14:53.860Z",
+      "_hash": "dacb822c3ff06921a1b7c529559a3580a137a9b4f8ea995f5db202c8d723941f"
     }
   ]
 }
