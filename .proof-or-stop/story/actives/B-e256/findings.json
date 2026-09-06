@@ -375,6 +375,56 @@
       ],
       "signatureTag": "missing|ts|concept-cleanup-packages",
       "signatureTagSource": "auto"
+    },
+    {
+      "id": "B-e256:F-013",
+      "desc": "quality-bin-target-type-validation: scripts/promote-dist.mjs:101-103 chmods and records every lexically in-dist target without verifying that statSync(target).isFile(). A targeted frozen-candidate probe declared dist/cli.js as a directory: restoreBinExecutableBits returned [\"dist/cli.js\"], changed its mode to 0755, and the target remained a directory. promoteDist therefore accepts and promotes a malformed staging tree while reporting the bin target restored even though the global CLI target is not an executable file. packages/main/tests/red/red-global-cli-exec-bit.mjs covers absent targets and stat/chmod failures but has no non-regular-target case. Reject non-regular bin targets before promotion and add a hermetic directory case. severity: medium",
+      "severity": "medium",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-06T14:38:01.044Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-045",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b9da6e344236c8476522973539823b026cce3df7a2aaf7ac8db0e13fb63ae960",
+      "files": [
+        "scripts/promote-dist.mjs",
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ],
+      "signatureTag": "quality-bin-target-non-regular-file",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
