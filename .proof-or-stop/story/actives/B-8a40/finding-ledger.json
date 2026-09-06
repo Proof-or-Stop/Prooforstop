@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "49bfb12da7be73ba1c391f11fa6c5dc3327734e5ed1fe32832e253a87514f8ad",
+  "committedLedgerDigest": "7e24da8856eb07071086332a235362dc03d8124544f176c4de54bd76844335c9",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -562,6 +562,62 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T21:15:55.376Z"
+    },
+    {
+      "recordId": "lr_mtqbdci9_1b7x_0937e7cd789543529fffe69cee7d4bea",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:c3a1ac60-c8c5-4dc8-8e8b-121be4062ffa",
+      "payload": {
+        "id": "B-8a40:F-068",
+        "desc": "packages/main/src/core/prompt-envelope.ts:341-345 recognizes `neither ... nor` as explicit negative polarity inside a controlled relation only when the text between those tokens is at most 120 characters. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles REJECTED the unsafe control `Severity is the sole criterion determining Story scope.` and ACCEPTED the short safe control `Severity is neither the sole criterion nor the exclusive determinant of Story scope.`, but all five REJECTED the semantically identical safe form `Severity is neither the sole criterion documented through extensive independently reviewed attributable historical audit evidence retained exclusively for traceability under current verification nor the exclusive determinant of Story scope.` The latter has 175 characters between `neither` and `nor`, while the severity-to-Story-scope concept pair remains within its 260-character family span; only the internal `{0,120}` polarity horizon changes the verdict. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts contains only a short `Neither reviewers nor agents...` disposition prohibition and has no controlled-relation 119/120/121-character polarity boundary. This is distinct from F-065, which covers the separate 160-character prefix and 48-character suffix slices around a controlled pair, and from F-018, which covers double-negation parity rather than a genuine single negative coordination. Replace the raw internal character horizon with clause-scoped structural polarity and add all-role short, 119/120/121-boundary, long-safe, and affirmative controls. Severity high because legitimate detailed prohibition language prevents every REVIEW role from assembling.",
+        "severity": "high",
+        "category": "edge",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-06T21:18:36.944Z",
+        "reviewRound": "2026-09-06T19:49:59.446Z",
+        "reviewRunId": "B-8a40:RR-118",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "01e1a53ce9544b83ff312ff00bcaff5c7b339867bc8da901061c0c40f6db0aee",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "controlled-relation-neither-span-false-positive",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "2c6084835b5495664546ffb8ef6e8d2244c9e0b1982978197afb386d9ba0d69f",
+      "priorDigest": "49bfb12da7be73ba1c391f11fa6c5dc3327734e5ed1fe32832e253a87514f8ad",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T21:18:36.945Z"
     }
   ],
   "receipts": [
@@ -993,6 +1049,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "df1a7307fed2b5248702b5bb3c1bfb6a47868ef74ecb6677d973d1e96669a90c",
         "signature": "wiWvj0GEEySqY7cnoUNj6BAYNBEpay5u0oYj3WgmAvWnK8Y+Ns+gI5xcWN52VW5UI7A4EwBmG0jPMAsvcUUrAw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqbdci9_1b7x_3ca66755007d4812aacc7559fed6eff4",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:c3a1ac60-c8c5-4dc8-8e8b-121be4062ffa",
+      "requestDigest": "25180c20744769189f71388517c317540efd42ec01a4a56951e362de353c3660",
+      "recordIds": [
+        "lr_mtqbdci9_1b7x_0937e7cd789543529fffe69cee7d4bea"
+      ],
+      "priorLedgerDigest": "49bfb12da7be73ba1c391f11fa6c5dc3327734e5ed1fe32832e253a87514f8ad",
+      "committedLedgerDigest": "7e24da8856eb07071086332a235362dc03d8124544f176c4de54bd76844335c9",
+      "writerSessionId": "sess-81915237b33ce2b455d4d23b6f14e349",
+      "writerFenceToken": "7bdc420e-aa66-4cd8-a633-53242ce8f175",
+      "committedAt": "2026-09-06T21:18:36.945Z",
+      "replayed": false,
+      "exactRequestDigest": "7598d9db6404433dfdd63417611880bd2c278207e9ced4a1fff4a73b6046ccc2",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqbdci9_1b7x_3ca66755007d4812aacc7559fed6eff4",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:c3a1ac60-c8c5-4dc8-8e8b-121be4062ffa",
+        "exactRequestDigest": "7598d9db6404433dfdd63417611880bd2c278207e9ced4a1fff4a73b6046ccc2",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqbdci9_1b7x_0937e7cd789543529fffe69cee7d4bea"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "49bfb12da7be73ba1c391f11fa6c5dc3327734e5ed1fe32832e253a87514f8ad",
+        "committedLedgerDigest": "7e24da8856eb07071086332a235362dc03d8124544f176c4de54bd76844335c9",
+        "replayed": false,
+        "committedAt": "2026-09-06T21:18:36.945Z",
+        "writerSessionId": "sess-81915237b33ce2b455d4d23b6f14e349",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "7bdc420e-aa66-4cd8-a633-53242ce8f175",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "a7b72a314f0231c5491113503e3b70599b6d268b3f26bec35b5856ad54799089",
+        "signature": "MGlQhk85nAO0BoCbZ7Dl5f1cq8WD/LIKAxJ8K4AQwPdY6zIEHUuOJM/ZOrtcov6MC+L3a28qyMA/iTEqWoufAw=="
       }
     }
   ]

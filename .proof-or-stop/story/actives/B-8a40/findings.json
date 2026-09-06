@@ -3248,6 +3248,54 @@
       ],
       "signatureTag": "negative-mutation-outcome-negation-window-laundering",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-8a40:F-068",
+      "desc": "packages/main/src/core/prompt-envelope.ts:341-345 recognizes `neither ... nor` as explicit negative polarity inside a controlled relation only when the text between those tokens is at most 120 characters. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles REJECTED the unsafe control `Severity is the sole criterion determining Story scope.` and ACCEPTED the short safe control `Severity is neither the sole criterion nor the exclusive determinant of Story scope.`, but all five REJECTED the semantically identical safe form `Severity is neither the sole criterion documented through extensive independently reviewed attributable historical audit evidence retained exclusively for traceability under current verification nor the exclusive determinant of Story scope.` The latter has 175 characters between `neither` and `nor`, while the severity-to-Story-scope concept pair remains within its 260-character family span; only the internal `{0,120}` polarity horizon changes the verdict. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts contains only a short `Neither reviewers nor agents...` disposition prohibition and has no controlled-relation 119/120/121-character polarity boundary. This is distinct from F-065, which covers the separate 160-character prefix and 48-character suffix slices around a controlled pair, and from F-018, which covers double-negation parity rather than a genuine single negative coordination. Replace the raw internal character horizon with clause-scoped structural polarity and add all-role short, 119/120/121-boundary, long-safe, and affirmative controls. Severity high because legitimate detailed prohibition language prevents every REVIEW role from assembling.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-06T21:18:36.944Z",
+      "reviewRound": "2026-09-06T19:49:59.446Z",
+      "reviewRunId": "B-8a40:RR-118",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "01e1a53ce9544b83ff312ff00bcaff5c7b339867bc8da901061c0c40f6db0aee",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "controlled-relation-neither-span-false-positive",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqbdci9_1b7x_0937e7cd789543529fffe69cee7d4bea",
+      "ledgerCommitReceiptId": "lrc_mtqbdci9_1b7x_3ca66755007d4812aacc7559fed6eff4"
     }
   ]
 }
