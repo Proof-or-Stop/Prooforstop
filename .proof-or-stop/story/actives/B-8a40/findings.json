@@ -3385,6 +3385,7 @@
       "signatureTag": "negative-mutation-outcome-negation-window-laundering",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqf9vqj_1ncg_1dd121dcf3214f9ba26cceced4c60b0e",
+      "ledgerCommitReceiptId": "lrc_mtqf9vqj_1ncg_4419bed584ce4d05978ebd97deda66bc",
       "resolvedAt": "2026-09-06T23:07:53.718Z",
       "resolvedReason": "Check negation across the proof outcome, including a negated outer establishment, without a 48-character cutoff; long nested negative rejection is rejected. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
       "resolutionType": "fixed",
@@ -3395,7 +3396,7 @@
       "desc": "packages/main/src/core/prompt-envelope.ts:341-345 recognizes `neither ... nor` as explicit negative polarity inside a controlled relation only when the text between those tokens is at most 120 characters. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles REJECTED the unsafe control `Severity is the sole criterion determining Story scope.` and ACCEPTED the short safe control `Severity is neither the sole criterion nor the exclusive determinant of Story scope.`, but all five REJECTED the semantically identical safe form `Severity is neither the sole criterion documented through extensive independently reviewed attributable historical audit evidence retained exclusively for traceability under current verification nor the exclusive determinant of Story scope.` The latter has 175 characters between `neither` and `nor`, while the severity-to-Story-scope concept pair remains within its 260-character family span; only the internal `{0,120}` polarity horizon changes the verdict. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts contains only a short `Neither reviewers nor agents...` disposition prohibition and has no controlled-relation 119/120/121-character polarity boundary. This is distinct from F-065, which covers the separate 160-character prefix and 48-character suffix slices around a controlled pair, and from F-018, which covers double-negation parity rather than a genuine single negative coordination. Replace the raw internal character horizon with clause-scoped structural polarity and add all-role short, 119/120/121-boundary, long-safe, and affirmative controls. Severity high because legitimate detailed prohibition language prevents every REVIEW role from assembling.",
       "severity": "high",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T21:18:36.944Z",
@@ -3436,7 +3437,11 @@
       "signatureTag": "controlled-relation-neither-span-false-positive",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqbdci9_1b7x_0937e7cd789543529fffe69cee7d4bea",
-      "ledgerCommitReceiptId": "lrc_mtqbdci9_1b7x_3ca66755007d4812aacc7559fed6eff4"
+      "ledgerCommitReceiptId": "lrc_mtqbdci9_1b7x_3ca66755007d4812aacc7559fed6eff4",
+      "resolvedAt": "2026-09-06T23:07:55.157Z",
+      "resolvedReason": "Recognize neither/nor polarity across the whole local relationship instead of an internal 120-character horizon; short and long safe coordination plus affirmative controls are covered. RED regression commit c6436b412a; production repair 14081c71ac. After merging local main and rebuilding, node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with exact stdout: prompt full-context envelope smoke PASS. The tool-owned verification_evidence_refresh_stale run refreshed 13 mechanical PASS receipts; its post-merge reader reported no stale evidence. Independent current-round review is pending.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
