@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "b2f3eea57cd2f30be466920500318b215f6e65bd8f99a2f2f425355746757203",
+  "committedLedgerDigest": "a55917a4a4ab6d160d607edc219a034db0c0a4e547dd9d2e4b61d635e17bed42",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -1944,6 +1944,61 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:23:09.353Z"
+    },
+    {
+      "recordId": "lr_mtqftlmb_bw4_156213ce731b45a5aa9ef8417caab5ad",
+      "recordType": "finding",
+      "idempotencyKey": "b8a40-ri011-wave2-rr135-repeat-B-8a40:F-073",
+      "payload": {
+        "id": "B-8a40:F-076",
+        "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2052-2057 passes linkedNegativeDismissalUnsafeDescriptions.slice(0, 9) to the no-safe-narrowing mutant oracle, although the committed matrix at :1075-1090 now contains fourteen witnesses. CHK-001:adversarial:0 requires retaining the complete unsafe fixture matrix while removing the safe narrowing, and userSees promises the full unsafe matrix with both mutants. The five omitted witnesses cover A/B/C intervening sentences, We therefore consider, inverted Out of scope is where, direct Another Story owns it, and the long evidence-aside form. The ordinary production path and broad-deletion mutant run all fourteen, but those executions do not cover the missing no-safe variant cells. I imported an isolated in-memory copy of the current built production module, inserted exactly the committed no-safe return-false mutation at its unique anchor, and executed these omitted five through public assembleFullPromptEnvelope for every active modular REVIEW role: all twenty-five cells rejected through the expected unsafe Finding-triage authority oracle. Thus these are valid missing expectations, not intentional incompatible cases. The existing focused smoke still reports PASS and its pinned success receipt cannot by itself substantiate the complete no-safe-matrix part of this must intent. Remove the truncation and retain explicit role/witness assertions or cell accounting for the complete matrix. Severity medium because production and the tested mutation behave correctly in the independent probe, but this is a direct current acceptance/coverage claim mismatch requiring bounded repair before accepting that intent; it does not justify unrelated scope expansion.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-06T23:23:13.714Z",
+        "reviewRound": "2026-09-06T23:05:45.070Z",
+        "reviewRunId": "B-8a40:RR-135",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "33563e86912c468b73a1b7ee1f5563bf022dc3bdcc2d622c32d86b23ed9097d2",
+        "files": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "no-safe-mutant-truncated-unsafe-matrix",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "0b441759f2c2e0c36271af871f51e328c5b932b5ca0a44de05e25e4f8a6f4abb",
+      "priorDigest": "b2f3eea57cd2f30be466920500318b215f6e65bd8f99a2f2f425355746757203",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T23:23:13.715Z"
     }
   ],
   "receipts": [
@@ -4906,6 +4961,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "4396c9432c6a88a7b47a57de5ba60134c2fe7bceddeb03e859a8ef20a3c6595f",
         "signature": "SPWxt/nxEHM8+DHX04A29Y6jTOwuFh+qrTUWhnbUzLURBVSZQNTvtr9e6fwt5TzIf9Yl8BFn818HmeupjcVbBA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqftlmb_bw4_eddb3797d984493abce19bfaf8f19243",
+      "operation": "append_finding",
+      "idempotencyKey": "b8a40-ri011-wave2-rr135-repeat-B-8a40:F-073",
+      "requestDigest": "c091ffa14efb9935d2f7dbc5b83acc8c29a4ca17a48ade12a9bb9d5f24dd295a",
+      "recordIds": [
+        "lr_mtqftlmb_bw4_156213ce731b45a5aa9ef8417caab5ad"
+      ],
+      "priorLedgerDigest": "b2f3eea57cd2f30be466920500318b215f6e65bd8f99a2f2f425355746757203",
+      "committedLedgerDigest": "a55917a4a4ab6d160d607edc219a034db0c0a4e547dd9d2e4b61d635e17bed42",
+      "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+      "writerFenceToken": "248c56f7-dde0-44f7-b469-d99fed62d706",
+      "committedAt": "2026-09-06T23:23:13.715Z",
+      "replayed": false,
+      "exactRequestDigest": "c5079af2c5c37f797a8bd11333c7a6e241afbcbf4ceebd23d46929ac69e139b0",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqftlmb_bw4_eddb3797d984493abce19bfaf8f19243",
+        "storyId": "B-8a40",
+        "idempotencyKey": "b8a40-ri011-wave2-rr135-repeat-B-8a40:F-073",
+        "exactRequestDigest": "c5079af2c5c37f797a8bd11333c7a6e241afbcbf4ceebd23d46929ac69e139b0",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqftlmb_bw4_156213ce731b45a5aa9ef8417caab5ad"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "b2f3eea57cd2f30be466920500318b215f6e65bd8f99a2f2f425355746757203",
+        "committedLedgerDigest": "a55917a4a4ab6d160d607edc219a034db0c0a4e547dd9d2e4b61d635e17bed42",
+        "replayed": false,
+        "committedAt": "2026-09-06T23:23:13.715Z",
+        "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "248c56f7-dde0-44f7-b469-d99fed62d706",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "1972e53a8b5a18447ece0fe7d225a33cd14a6ec5d5516a3b1b718f494f257dfa",
+        "signature": "QVruwpS698DDBHJOf1HLbmGEtXWXFC1SBBSanYIIhCxHVoeqrOIZMnW4/ukmEPEYO4m3mL4Al0ydPEEns7QwBg=="
       }
     }
   ]
