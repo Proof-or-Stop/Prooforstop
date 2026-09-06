@@ -532,6 +532,53 @@
       "resolvedAt": "2026-09-06T17:43:53.047Z",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8a40:F-012",
+      "desc": "packages/main/src/core/prompt-envelope.ts:1057-1074 makes crossSourceNegativeDismissalAuthority pair any earlier standalone negative-dismissal source with any later source segment containing a causal token plus a target/out-of-scope outcome, but it never checks whether the later source has its own local antecedent. Consequently a legitimate context such as story.description = `No parent Finding is closed by this intake.` and checklist.context = `Cache generation is deterministic. Accordingly, cleanup work is outside this Story.` is classified as dismissal-based applicability authority even though `Accordingly` refers to the cache sentence inside the checklist leaf, not to the Finding observation in another leaf. packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1217-1224 and :1452-1459 only prove an unrelated cross-leaf case with no causal marker, so they do not exercise this false join. This is distinct from F-002 polarity (the conclusion here is affirmatively about unrelated work), F-009 missing genuine cross-leaf joins, and F-001 distance/vocabulary bypasses. Preserve the F-009 repair while requiring a source-leading causal continuation or explicit dismissal coreference before joining leaves, and add all-role safe cases whose later leaf carries its own local causal antecedent. Severity high because this reintroduces a pre-digest false-red that blocks every modular reviewer from starting on valid multi-surface Story context.",
+      "severity": "high",
+      "category": "edge",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T17:46:18.412Z",
+      "reviewRound": "2026-09-06T17:43:17.573Z",
+      "reviewRunId": "B-8a40:RR-026",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "41e6184d24b38eda13bb285f3aa2bbcb536807f1e78fac9183ecc1de88d11c62",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts",
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "prompt-envelope-cross-source-local-antecedent-false-positive",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
