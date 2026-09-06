@@ -1927,7 +1927,7 @@
       "desc": "scripts/verify-process-fact-contract.mjs:695: read() reads process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION, but packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts:1631 supplies PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION. WHY: canonical drop-acceptance-basis-prompt and handler source mutations are never applied; the verifier succeeds rather than proving the mutation is killed. The smoke initializes contractMutationOutput empty, only captures child output on exception, and therefore fails its line1638 diagnostic assertion with an empty string after successful child exit, not after a timeout or absent F027 proof module. Actual bounded witness on dd65407421: spawnSync(process.execPath,[scripts/verify-process-fact-contract.mjs,--quiet],{env:{...process.env,PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION:drop-acceptance-basis-prompt},encoding:utf8,maxBuffer:4194304}) returned status0, signal:null, no spawn error, stdout3387 bytes, stderr0; the identical child with LATTICE_PROCESS_FACT_CONTRACT_MUTATION returned status1, signal:null, stdout3313 bytes, stderr265 bytes containing Process fact contract failed: acceptance basis contract must keep a sole verifier writer, caller-forgery schema rejection, registered adapter omission/disagreement checks, structured seal binding, signed receipt verification, and canonical freshness consumption. Baseline 69403365 and current HEAD acceptance smoke share blob 73df2d21e633b0aa380ab2159ab5cd419a85c452; complete verifier read() function is byte-identical, SHA256 7a5a4e058cfec1634501ddd4dc8751de1dfa0f76f4d4dbb9f2610bdad534825d. Pre-existing, not introduced or worsened by B-212f/F027. Medium test-contract defect, independently blocks required current validation and prevents the intended adversarial proof; no unsupported production corruption claim. Owner confirmed bounded current-Story repair responsibility, not deferral or waiver. Minimal repair candidate: consume the canonical mutation variable consistently in read(), adding legacy fallback only if separately required, and preserve meaningful child exit/status diagnostics. RR-050 SAFE_INCREMENTAL reuses trusted RR-046/RP-011 prior actual full/triage reads on unchanged source, confirmed by fresh empty diff plus exact bounded child/source witnesses. RI-003 wave1 distinct second root, independent of pinned-docs refresh and F027.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-05T16:37:30.152Z",
@@ -1988,7 +1988,11 @@
         "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
       ],
       "signatureTag": "canonical-process-fact-mutation-env-propagation",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "61ea99033b restores canonical environment propagation for process-fact mutation probes, preserving negative controls. CHK-005:happy:1. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:43:52.873Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-041",
