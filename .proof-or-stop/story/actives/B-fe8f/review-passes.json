@@ -2970,6 +2970,48 @@
       },
       "readDiagnostics": [],
       "_hash": "c0e0cba1ed478d0cbbc7396b873a68f78d48544aad2e545496b236e56bd47d07"
+    },
+    {
+      "id": "B-fe8f:RP-078",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-005 wave-1 independent inventory-completeness review only. This is not a claim of no Story blocker: F-061 and BUG-CERT-002 are real, open, current DONE-required failures. RR-128 started after the actual required terminals concept RR-125/RP-076, quality RR-126/F-061, coverage RR-127/RP-077. I read those exact signed notes, manifests and read-log summaries, current epoch cutoff, original F-061 observation and original DONE-required failing output. Read-only production inventory evaluation verifies the signed epoch and returns exactly rawFindingIds [B-fe8f:F-061], all required lanes terminal, no identity duplicate or baseline mismatch. The single verified family is certification-historical-tombstone-brand-decision, not duplicate, disproven, or not_verified. Source inspection independently confirms certification-window.ts189 uses the direct deprecated-literal startsWith comparison, while scripts/verify-proof-or-stop-residue.mjs CHECK4 scans handlers and refuses it. The official root-suite receipt is FAIL exit1 with this exact line, while build passed; interrupted remaining suites are not PASS evidence. The current canonical-only brand-paths implementation confirms the suggested read-both helper text cannot be applied blindly: replacing this branch with isStateDirPath would fail the intended historical-tombstone support and recreate BUG-CERT-001. A repair must satisfy existing policy without weakening the guard, preserve exact deleted/rename-old-side path and blob bindings, and retain live/unknown refusal; this receipt grants no exemption or scope override. All inspected source files are unchanged since 9754c4b; guide and inventory implementation are unchanged from my prior complete reads, and canonical runtime/role/dispatch body matches the previously read prompt. F-048/F-049 remain suspected open and are not invented into this verified raw set or silently closed. No additional independent completeness defect found beyond the one correctly registered family. No new duplicate Finding, source change, full test run, global validation, acceptance-topology PASS, quorum or DONE claim.",
+      "createdAt": "2026-09-06T16:34:08.871Z",
+      "reviewRound": "2026-09-06T16:01:27.770Z",
+      "reviewRunId": "B-fe8f:RR-128",
+      "envelopeId": "e64addc1326a6d07e149e28290bd5c5bcbd8e5c3ab48b5ebd5b587dd67982729",
+      "writerSessionId": "sess-49530f5882795aa8589913110ebfa3c0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-fe8f/bug.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-fe8f/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-fe8f/findings.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-passes.json",
+          ".proof-or-stop/story/actives/B-fe8f/review-runs.json",
+          "AGENTS.md",
+          "packages/main/src/core/brand-paths.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "scripts/verify-proof-or-stop-residue.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "926264effaff5540e15dcea003bf2fe7c1361cdea8075d07f10688e7fcb6f390"
     }
   ]
 }
