@@ -2579,7 +2579,7 @@
       "desc": "Follow-on real CLI failure exposed after F-037 fixture repair61ea99033b: node bin/proof-or-stop.js config doctor --help exits1 with Unknown command: lattice_config_doctor. Owner independently reproduced this actual CLI invocation. cli/alias-normalizer.ts75-76 maps config doctor/config repair to lattice_config_doctor/lattice_config_repair, while command-policy.ts348-349 registers proof_or_stop_config_doctor/proof_or_stop_config_repair. Alias normalizer source is identical to main69403365, so this is a pre-existing medium public alias-routing defect, not justification to restore retired commands or remove CLI smoke. Repair the two canonical mappings and preserve end-to-end nested alias assertions; config repair testing must remain help/preview and never modify real user configuration. Direct current pinned verification and mandatory acceptance blocker.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "main",
       "createdAt": "2026-09-05T17:09:07.385Z",
@@ -2590,7 +2590,11 @@
         "packages/main/src/tasks/cli-surface-smoke.ts"
       ],
       "signatureTag": "canonical-config-alias-command-routing",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "08680744ba maps config doctor/repair to their registered proof_or_stop_config_* handlers; CLI help-path checks do not apply real configuration repair. CHK-006:happy:0. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:44:07.532Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-052",
