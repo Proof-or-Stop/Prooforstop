@@ -4,7 +4,7 @@
   "title": "Admit explicit negative REVIEW context without losing linked unsafe triage detection",
   "description": "A reproducible prompt-envelope false positive blocks every reviewer lane of B-bcae before a reviewRunId can be issued. The first supporting attempt B-5190 was discarded after independent REVIEW proved that deleting the negative segment from joined analysis admitted adjacent and non-adjacent out-of-scope laundering. Implement a linkage-aware narrowing: the exact B-bcae description and structurally equivalent negative observations must pass, while same-segment, adjacent, causal, ownership, and intervening-segment responsibility conclusions remain rejected. This user-authorized supporting repair must merge locally before B-bcae resumes.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "prompt-envelope",
@@ -25,6 +25,20 @@
       "user": "Harmonynet",
       "sessionId": "sess-0f347f45023d90c0cf383608a5bcd467",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-06T15:53:39.796Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-0f347f45023d90c0cf383608a5bcd467",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-6846",
+    "branch": "story/B-6846",
+    "createdAt": "2026-09-06T15:53:27.482Z"
+  }
 }
