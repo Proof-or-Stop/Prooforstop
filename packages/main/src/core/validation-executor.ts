@@ -150,6 +150,12 @@ export interface RunValidationCommandOptions {
   deadlineError?: () => Error;
 }
 
+interface CapturedValidationCommandResult {
+  result: ValidationCommandResult;
+  /** Complete ANSI-stripped output, retained only for the pinned-evidence consumer. */
+  completeOutput: string;
+}
+
 export interface ExecuteValidationPlanOptions {
   progress?: ValidationProgressReporter;
   heartbeatMs?: number;
@@ -1317,6 +1323,21 @@ export function runValidationCommand(
   defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   options: RunValidationCommandOptions = {},
 ): Promise<ValidationCommandResult> {
+  return runValidationCommandWithCompleteOutput(command, projectRoot, defaultTimeoutMs, options)
+    .then(({ result }) => result);
+}
+
+/**
+ * Internal capture variant. Public validation callers receive only the bounded `result`;
+ * runSingleAllowlistedCommand also consumes the complete bytes already held in memory so
+ * receipt matching and digesting are not accidentally governed by the persistence window.
+ */
+function runValidationCommandWithCompleteOutput(
+  command: ValidationCommand,
+  projectRoot: string,
+  defaultTimeoutMs: number = DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
+  options: RunValidationCommandOptions = {},
+): Promise<CapturedValidationCommandResult> {
   const cwd = commandCwd(projectRoot, command.cwd);
   const started = Date.now();
   const configuredTimeoutMs = resolveCommandTimeoutMs(command, defaultTimeoutMs);
@@ -1382,6 +1403,7 @@ export function runValidationCommand(
       const failureKind = commandFailureKind({ code, timedOut, runnerFailure });
       const statusAfter = readGitStatus(statusGitCwd);
       const pollutionStatusLines = detectNewDirtyStatus(statusBefore, statusAfter);
+      const completeOutput = stripAnsi(output);
       const traceFragments: ReturnType<typeof readRuntimeTraceFragments> = traceFile
         ? readRuntimeTraceFragments(traceFile)
         : { files: [], malformed: false };
@@ -1392,7 +1414,7 @@ export function runValidationCommand(
         ...(command.shell || isWindows ? { shell: true } : {}),
         ...(command.cwd ? { cwd } : {}),
         code,
-        output: trimOutput(stripAnsi(output)),
+        output: trimOutput(completeOutput),
         ...(command.optional ? { optional: true } : {}),
         ...(timedOut ? { timedOut: true } : {}),
         timeoutMs,
@@ -1434,7 +1456,7 @@ export function runValidationCommand(
         code,
         timedOut,
       }));
-      resolveResult(result);
+      resolveResult({ result, completeOutput });
       for (const file of traceFragments.files) rmSync(file, { force: true });
     };
 
@@ -1659,12 +1681,12 @@ export async function runSingleAllowlistedCommand(
     ...(options.cwd ? { cwd: options.cwd } : {}),
     timeoutMs: options.timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
   };
-  const result = await runValidationCommand(validationCommand, projectRoot);
+  const { result, completeOutput } = await runValidationCommandWithCompleteOutput(validationCommand, projectRoot);
   return {
     executable,
     args,
     code: result.code,
-    output: result.output,
+    output: completeOutput,
     timedOut: Boolean(result.timedOut),
     durationMs: result.durationMs,
     // runValidationCommand always stamps the effective (clamped, deadline-capped) ceiling,

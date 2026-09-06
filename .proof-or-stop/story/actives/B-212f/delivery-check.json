@@ -1,0 +1,136 @@
+{
+  "storyId": "B-212f",
+  "checkedAt": "2026-09-06T10:41:14.500Z",
+  "headHash": "a3d09b16fdde0e81621929085ad5b74744e360bb",
+  "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+  "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+  "reviewRound": "2026-09-06T09:42:51.753Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md:151",
+      "promise": "The shared readiness projection is read-only; the full done_prepare command may execute enabled merge, refresh, build and validation steps, and supported dryRun skips those effects.",
+      "status": "verified",
+      "verifiedBy": "Independent committed diff and production-handler read; exact live transcript inspection",
+      "evidence": "done-oracle.ts:268,330,1112 only reads/projects shared outcomes; original parity witness compares reviewer evidence bytes and git porcelain before/after. live-smoke-transcript.json captures exit0 and the no-rewrite selector. Pre-existing done-prepare.ts dryRun branches at1892,1971,1982,2170 skip their corresponding effects; no claim that the whole command is read-only."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md:156",
+      "promise": "Missing or malformed finish decision blocks active readiness with missing_dev_memory_finish_decision, matching real DONE.",
+      "status": "verified",
+      "verifiedBy": "Independent production source and executable assertions; captured live output",
+      "evidence": "machine.ts:974 evaluateDonePredicates reads the finish decision and emits the missing code; done-oracle.ts:330 consumes the same context and value. red-done-prepare-done-parity.mjs real filesystem controls and live-smoke-transcript.json show both DONE and oracle reject the missing record; shared proof tests null reader result."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md:160",
+      "promise": "The same phase-agnostic reviewer verdict is consumed; only review_evidence_invalid is mapped to stale_closeout_review and other verdict codes remain intact, without rewriting evidence.",
+      "status": "verified",
+      "verifiedBy": "Independent source and real filesystem regression assertions",
+      "evidence": "machine.ts:1022-1028 and done-oracle.ts:893-915 use the shared verdict and exact conditional mapping. Original parity fixture deliberately changes live diffPackHash with fixed committed HEAD/material and requires diff_pack_changed plus stale_closeout_review; byte/git-state controls and captured exit0 show read-only projection. Shared fixture covers review_lane_missing preservation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md:166",
+      "promise": "One ordered lazy evaluator drives the guard, first-failure diagnostic and generic active oracle projection; every failed result and same-row failure reason survives while stricter preflight failures remain blocking.",
+      "status": "verified",
+      "verifiedBy": "Independent complete evaluator diff, thin consumer and assertion inspection",
+      "evidence": "machine.ts:974,1037,1052,1462 share one generator; done-oracle.ts:268 copies rows, preserves prior detail, forces failed results blocking and returns final projection at1112. Shared predicate proof asserts all-pass, each failure, lazy first-read stop, diagnostic precedence, same-row multiple reasons, stricter preflight preservation and future predicate propagation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md:172",
+      "promise": "Only an actual DONE story with explicit completedSnapshot selects the historical artifact/assurance presentation; TEST and default guard remain live-strict, and historical reviewer information is not a fresh PASS or full audit.",
+      "status": "verified",
+      "verifiedBy": "Independent historical boundary source, regression diff and assertion inspection",
+      "evidence": "done-oracle.ts:329 restricts completedSnapshot to phase DONE; historical reviewer row at919 explicitly disclaims fresh PASS/current re-attestation/full audit. Shared proof exercises TEST/DONE with supplied snapshot and future predicate; post-done-closure-snapshot-smoke exercises retired worktree, legacy/full/incremental shapes, missing reviewer storage, tampered delivery, existing historical assurance and live TEST rejection."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md:185",
+      "promise": "Rejected delivery contents are not traversed, and lazy first-failure diagnostic order is retained.",
+      "status": "verified",
+      "verifiedBy": "Independent source and malformed-artifact assertions",
+      "evidence": "evaluateDonePredicates gates docsPromises.filter on deliveryCheckFreshness.ok and deliveryCheck; done-oracle renders tampered/stale delivery before traversing promises. Shared and historical smoke fixtures cover undefined/null/object/[null]/[3] rejected promise shapes and precedence of missing delivery, failed live transcript and integrity rejection."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md:188",
+      "promise": "Literal shared blocker codes require exact source-owned row/L4 registry mappings; finite thin-adapter and executable mutation controls guard propagation without claiming arbitrary TypeScript semantic equivalence.",
+      "status": "verified",
+      "verifiedBy": "Independent registry/verifier diff and complete shared proof read",
+      "evidence": "DONE_PREFLIGHT_PREDICATE_INVENTORY maps seven current literal codes to L4 gate-evidence facts. collectSharedDoneBlockerBindings scans direct yields; checkDonePreflightPredicateInventory rejects missing/wrong mappings; verifier injects future code and checks no manual oracle whitelist. Shared proof rejects wrong inputs, opposite outer branch, cleared/skipped results, discarded projection, inverted outcome and historical phase escape; limitations match the documentation."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-212f/plan.md#CHK-004",
+      "promise": "Pinned evidence matching and digesting use complete output, while public validation output and persisted receipt outputTail stay bounded and genuinely absent selectors remain refused.",
+      "status": "verified",
+      "verifiedBy": "Independent validation-executor diff and receipt-smoke assertion inspection",
+      "evidence": "Private runValidationCommandWithCompleteOutput captures complete ANSI-stripped bytes; public runValidationCommand returns the bounded result and pinned runSingleAllowlistedCommand uses completeOutput. Receipt smoke adds selector after12001 characters, exact full digest,4000-character tail, bounded public head and existing receipt_selector_absent refusal through single/batch writers."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-212f/checklist.json#CHK-005-CHK-007",
+      "promise": "Scoped mandatory-validation repairs preserve canonical command/fixture contracts, pinned docs/manual refresh, strict refresh execution grouping and signed execution timestamps.",
+      "status": "verified",
+      "verifiedBy": "Independent material diff and unchanged negative/edge assertion inspection",
+      "evidence": "Canonical config doctor/repair aliases target registered proof_or_stop commands; retired Lab aliases remain negative. Fixture config/root/transport keys are corrected; inventory digest retains131 registered commands. checklist.ts admits explicit docs/manual pins, binds authoritative refreshExecutionKey into execution/CAS/import identity and projects receipt.executedAt. Guard smoke E1/E2/E3 tests one exact-key execution, five distinct semantic/provenance keys, and no fabricated receipts on failure. This source/assertion review does not substitute for the separately enforced formal validation result."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-212f/checklist.json#CHK-008",
+      "promise": "Registration-proof mirrors use private Git administration/index and preserve the real repository index.",
+      "status": "verified",
+      "verifiedBy": "Independent mirror implementation and deterministic regression diff",
+      "evidence": "red-b49d4-registration-derivation.mjs skips .git symlinking, initializes private refs/HEAD/index and split-index companion, uses read-only object alternates, and strips inherited Git path overrides. Regression rejects original shared-admin layout before writing, mutates/restores only proven-private index, checks packed/split/nested fixtures, and compares real raw-index/stages/HEAD after the complete harness."
+    },
+    {
+      "docPath": "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+      "promise": "Broader complete historical reviewer audit is explicitly future work with a traceable draft, not a delivered fresh historical reviewer PASS.",
+      "status": "verified",
+      "verifiedBy": "Independent draft existence and active historical presentation boundary inspection",
+      "evidence": "Committed draft index/checklist/background exist with pending follow-up scope and immutable-input concern. Current oracle historical row explicitly says not a fresh PASS or full audit; active admission stays strict. This verifies tracking and delivery boundary only, not implementation of the future feature."
+    },
+    {
+      "docPath": "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+      "promise": "The gap archival provenance refusal is retained as separate traceable diagnostic work without claiming a root cause or repair in this Story.",
+      "status": "verified",
+      "verifiedBy": "Independent draft and committed scope diff inspection",
+      "evidence": "Committed draft background records invalid_binding_shape, observed attempted command context, unconfirmed root cause, owner/route and escalation condition. Its checklist remains pending. No gap provenance implementation changes appear in this Story material diff; this verifies explicit follow-up tracking, not the underlying diagnosis or a repair."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independently read292-line actual-filesystem regression with real DONE diagnostic and buildDoneClosureRunbook. Captured live-smoke-transcript.json runs node packages/main/tests/red/red-done-prepare-done-parity.mjs, exit0 at2026-09-06T09:40:00.301Z, material196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8; stdout includes exact final GREEN parity selector."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Same captured execution separately prints missing-finish control/parity and stale-diffPackHash control/parity; actual fixture asserts diff_pack_changed plus stale_closeout_review and byte-identical reviewer evidence/git status before/after oracle evaluation. This is controlled filesystem CLI/backend evidence, not a claim that B-212f itself is already DONE."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Independently read shared513-line source-executed production-consumer proof: passing/failing predicates, wrong context/branch/inverted/discarded/skipped mutations, future blocker projection, same-row reasons, lazy order, historical exception and genuine envelope signature/absence controls. Read original filesystem integration witness, flow and post-DONE snapshot assertions; no static-only substitute."
+    },
+    {
+      "featureId": "CHK-004",
+      "transcript": "Receipt smoke has actual command emitting12001 X characters then MARKER_OK; assertions cover accepted selector/full digest, bounded public head/exact4000-character persisted tail, absent-selector single/batch refusal and no row persistence for refusal."
+    },
+    {
+      "featureId": "CHK-005",
+      "transcript": "Independent diff verifies real canonical timeout fixture schedules true-hang, canonical ambient env identity controls retain retired-semantic negatives, English guide root is correct, fixed inventory and process-fact mutation controls are retained, and pinned docs/manual recovery has actual exit/selector/material assertions. Formal131-command completion is a separate gate, not inferred from this delivery review."
+    },
+    {
+      "featureId": "CHK-006",
+      "transcript": "CLI surface smoke calls nested config doctor and repair help and checks current registered aliases plus explicit confirmation boundary; retired Lab aliases stay negative. Guard smoke uses canonical bin/proof-or-stop.js and preserves mismatch-deny/matching-allow/hook assertions."
+    },
+    {
+      "featureId": "CHK-007",
+      "transcript": "Read unchanged guard smoke E1/E2/E3: external counters prove one execution for identical exact pins, five for distinct selector/timeout/provenance keys, cloned receipt equality and signed timestamp format, and failed shared refresh yields no mechanical receipt."
+    },
+    {
+      "featureId": "CHK-008",
+      "transcript": "Read deterministic mirror regression: assert private admin/common/index before any write; reject the old shared layout; mutate and restore disposable index; preserve actual source HEAD/stages/index; copy packed/split-index controls and verify nested discovery. Original registration controls remain, with final whole-harness real-index equality assertion."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Independent reverse audit maps12 delivery promises and8 checklist feature items to production code, substantive assertions and the captured real parity transcript. No TODO/FIXME/HACK was found in the modified production logic inspected. Historical audit/provenance work remains explicitly future scoped; topology/pre-review observe results are inconclusive rather than PASS, and cohort rollout evidence is not this Story host assurance. This delivery assessment does not claim DONE-required full validation, final DONE transition, merge or cleanup completed. Before signing, CLI review_escalation_status independently confirmed review_assurance_floor_satisfied/full-3x2 over the same material and Story-files hashes; each B-212f-final-current-r1/r2/r3 reports two fresh passing hosts, claude-cli and agy-cli, with no stale verdicts. Provider choice follows the explicit human Claude CLI plus Agy CLI instruction."
+  },
+  "_hash": "004556758101dab5d9908ee01942ebd6cd93ceec7f5f835396660833927da5b6"
+}

@@ -1,0 +1,52 @@
+{
+  "storyId": "B-212f",
+  "changes": "done_prepare now consumes the shared real-DONE predicate evaluator for active closure checks, including missing finish decisions and stale reviewer diff-pack verdicts. The unchanged original parity RED, executable shared-predicate mutants and process-fact guard protect against future omissions. Bounded mandatory acceptance repairs preserve signed receipt truth, strict refresh grouping and isolated Git test mirrors.",
+  "usage": "Use proof-or-stop done_prepare --storyId=<TEST-story> to inspect closure blockers before actual DONE. Reproduce the two target cases with node packages/main/tests/red/red-done-prepare-done-parity.mjs.",
+  "expectedOutcome": "Both real DONE and done_prepare reject a missing finish decision with missing_dev_memory_finish_decision and stale reviewer scopeBinding.diffPackHash with stale_closeout_review, while maintaining read-only evaluation and fail-closed gates.",
+  "actualTranscript": "The fresh captured command exited 0 and printed: GREEN control: real DONE rejects the missing finish decision; GREEN parity: done_prepare oracle rejects the missing finish decision with the same code; GREEN control: real DONE rejects the stale lane diffPackHash; GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review; GREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged. Formal routine validation recorded 131-command PASS; the current checklist contains 28 covered required intent receipts.",
+  "outcomeDiff": "No difference for the two specified active-closure rejection cases. This summary reports observed behavior and does not itself certify final REVIEW, host assurance, DONE-required validation, merge or lifecycle completion.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Actual-DONE completedSnapshot remains a bounded historical display, not a full historical reviewer audit; the traceable historical-reviewer-audit-snapshot-context draft preserves that separate concern. The parity witness exercises a live diff-pack change, not proof that artifact-only writes caused every historical B-aa5f event. Pre-review coverage is observe/inconclusive, not a PASS; rollout cohort evidence is separate from actual host assurance. Local-only delivery; no remote push or Authority/production certification is claimed.",
+  "pitfalls": "Required validation exposed separately recorded blocker families and led to bounded repairs; F034..054 preserve individual reproduction and resolution evidence, including corroborations rather than a count of distinct bugs. During closeout two official attempts hit next-launch state_changed_before_launch around the registration harness; the isolated optional-lock retry did not fix the defect. The committed private-Git mirror RED/GREEN fixes structural isolation without claiming the historical inner index writer is known. Earlier long validation attempts also crossed OS sleep intervals. Query persisted test-evidence before retrying a missing host process; a lost process handle does not prove validation failed. Reuse current signed validation and avoid unchanged full-suite retries after TEST entry.",
+  "phaseStats": {
+    "INIT": {
+      "count": 7,
+      "durationMs": 8218913
+    },
+    "INIT_CHECK": {
+      "count": 7,
+      "durationMs": 13456266
+    },
+    "PLAN": {
+      "count": 11,
+      "durationMs": 3334938
+    },
+    "DEV": {
+      "count": 14,
+      "durationMs": 114845624
+    },
+    "REVIEW": {
+      "count": 10,
+      "durationMs": 15290461
+    }
+  },
+  "totalDurationMs": 155148060,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-06T09:55:22.040Z",
+  "updatedAt": "2026-09-06T09:55:22.040Z"
+}

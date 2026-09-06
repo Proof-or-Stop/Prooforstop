@@ -1,0 +1,1016 @@
+{
+  "passes": [
+    {
+      "id": "B-212f:RP-001",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test-coverage review passed: 13/13 must intents have mechanical selector-matched PASS receipts; unchanged RED/GREEN blob, two real-DONE controls, read-only parity, future-predicate mutation bite, long-output selector/digest/tail, genuine absent-selector refusal, and flow stability were directly inspected and rerun. RR-005 has the same materialHash 22eb00c and storyFilesHash dcf6399 as the reviewed evidence; validate was owner-gated and was not seized; no blocker found.",
+      "createdAt": "2026-09-05T09:25:22.627Z",
+      "reviewRound": "2026-09-05T09:16:31.756Z",
+      "reviewRunId": "B-212f:RR-005",
+      "envelopeId": "44b525d45836be54c94a01243f9c086c84a41c51c69c0839d1406f0bfc162b75",
+      "writerSessionId": "sess-c774defa91dd8d477117dc21d6999bda",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          ".proof-or-stop/story/actives/B-212f/red-evidence.json",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-212f/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-212f/checklist.json",
+          ".proof-or-stop/story/actives/B-212f/pre-review-check.json",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "_hash": "4aa2856cc4ec0d626af6f4f4cdb12dd0455165ee20dbe7123fe1878c6da50b5a"
+    },
+    {
+      "id": "B-212f:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Fresh test-coverage review passed for F-001/F-002 repair: 13/13 must intents have current mechanical selector-matched PASS receipts (material 6e3b2d8, storyFiles 5de1edd), with zero gaps and zero waivers. Direct reruns passed unchanged parity RED/GREEN, the process verifier executable unmapped/wrong-row/wrong-predicate mutations, genuine selector-absence single/batch negative controls with bounded full-output receipt semantics, and complete flow stability smoke. validate remained owner-gated and the active lease was not seized; no blocker found.",
+      "createdAt": "2026-09-05T09:46:58.244Z",
+      "reviewRound": "2026-09-05T09:42:05.609Z",
+      "reviewRunId": "B-212f:RR-007",
+      "envelopeId": "05192695fded67cfdacaf2472a5e06aad57b9aaa2427097a3cd7ebe019692c46",
+      "writerSessionId": "sess-c774defa91dd8d477117dc21d6999bda",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/findings.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          ".proof-or-stop/story/actives/B-212f/red-evidence.json",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-212f/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-212f/checklist.json",
+          ".proof-or-stop/story/actives/B-212f/pre-review-check.json",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "_hash": "e8047572844d29fabddc1d059d4f8b7000a54968ad62135fc7bfec72363ef5be"
+    },
+    {
+      "id": "B-212f:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent ordinary coverage review of all four checklist items on material61fc5331/Story files163103f7. All14 tool-owned intent receipts are pass/mechanical/selectorMatched with exit0 and current bindings; original parity blob0375c372 is unchanged. Fresh shared predicate proof, original filesystem parity, post-done-closure-snapshot smoke and process-fact verifier --quiet all exit0. Current shared test and snapshot smoke blobs exactly match frozen15497d063b. Independent source-executed replay against immutable5d0abf0 fails on malformed delivery; repaired machine with immutable old oracle fails the historical compatibility assertions. Reviewed F009/F018 and coverage corroborations F011/F017/F024/F025 closure against the human-approved narrower contract: active TEST and default DONE guard remain strict, TEST cannot opt into history with a supplied snapshot, actual DONE plus completedSnapshot preserves established historical artifact/assurance checks and reviewer information explicitly makes no fresh PASS/full audit claim. Tests cover retired workspace, unsupported legacy/full/incremental reviewer shapes as informational only, malformed rejected promises, missing historical assurance, future-predicate propagation and historical-phase escape mutation. The snapshot smoke is registered at config.validate.commands[76]. CHK004 long-output receipt implementation is unchanged and its refreshed receipt covers full digest, bounded tail and genuinely absent-selector refusal. No coverage blocker found; this lane PASS does not assert full historical reviewer audit, global validation, TEST/DONE acceptance or Authority completion.",
+      "createdAt": "2026-09-05T14:46:04.976Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-034",
+      "envelopeId": "85c92397047b417926628071aea58ebf6cb69e8665ffeb1f37e316b122ec06d7",
+      "writerSessionId": "sess-6ff749093aec60d12c24f8501f82f122",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "8d5ba6d3f9c02c5b4eab8fa09a3cde11aeb5197b970c5e01283fb9fac819073f"
+    },
+    {
+      "id": "B-212f:RP-004",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review across CHK-001 through CHK-004 and committed material diff: no blocking concept residue or promised-but-undelivered behavior remains. The former general semantic parser is replaced by the shared lazy evaluator; its only collectLiteralDoneBlockerCodes reference is the explicit historical RED extractor, not a live verifier consumer. The F-008/F-010/F-012/F-014/F-015/F-020/F-021 whole-command read-only claim is repaired and agrees with done-prepare.ts merge/dryRun behavior. F-009 and its coverage/critic corroborations now preserve actual-DONE plus explicit-snapshot historical artifact/assurance presentation and explicitly informational reviewer status; TEST and default DONE admission remain strict, and no full historical reviewer audit is claimed. Rejected delivery contents are opaque before promise traversal, matching F-018/F-019/F-023/F-025 repairs. Read the corresponding resolution claims, source changes, registered fixtures, and current checklist intent/receipt summaries. Original parity blob remains 0375c372d26f49c5276042b1087226069b385e52; no review-run.ts material diff. Long-output evidence changes preserve bounded public output while the private receipt path consumes full output. This lane performed source/document/grep review, not fresh test execution or topology acceptance certification. Zero new findings.",
+      "createdAt": "2026-09-05T14:46:32.939Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-032",
+      "envelopeId": "99f51d06de2b2bba8337bc327261dc2af46bb82953012a244f0856bcbaa588cb",
+      "writerSessionId": "sess-30ca165d3df921e631ee7421e9be9256",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "7816a3b8a61015475835a52c13686cfe2fb8048129bd95dd91d8979a38c87d80"
+    },
+    {
+      "id": "B-212f:RP-005",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent ordinary quality review of integrated CHK-001 through CHK-004 and committed main...HEAD diff at final source 8168160d51. Full oracle and both new tests read; machine, validation executor, registry/verifier, config and smoke changes reviewed as committed diff with bounded functional context, not asserted as full-file reads. Inspected checklist intent/evidence and structured F-008 through F-026 closure families. Shared generator preserves diagnostic order, projects all active failures without rewriting reviewer facts, and avoids promise traversal after delivery rejection. Actual DONE plus explicit completedSnapshot alone preserves prior historical artifact/assurance presentation; reviewer row is informational, never fresh PASS or full historical audit. TEST snapshot input and default DONE remain strict. Complete private output matching preserves public truncation and bounded persisted tails; inspected current receipt evidence for CHK-004. Independently ran original parity, shared-predicate mutations, post-DONE snapshot smoke, and process-fact verifier --quiet: all exited 0. Original parity blob verified 0375c372d26f49c5276042b1087226069b385e52. Current finding_list reports no open findings. No newly introduced quality blocker or undelivered changed documentation promise found. No topology acceptance, Authority proof, historical reviewer replay, lifecycle completion, or external-host quorum certification is claimed by this lane.",
+      "createdAt": "2026-09-05T14:47:27.916Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-033",
+      "envelopeId": "1945dc5b59ec99609f0ceeb947dd11445b8053bd27f624421589e1042a01cf1d",
+      "writerSessionId": "sess-c5284a1be646cffb98198a1416e0b8e8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "7ca162b832d1a53632fee8c80443d38b855f323693d3831f985296365afba820"
+      },
+      "readDiagnostics": [],
+      "_hash": "42c20ed9037d15fef776fcdf5be15ca520d8a27bebcc5328852b54ed7187a89b"
+    },
+    {
+      "id": "B-212f:RP-006",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Independent docs review: extracted 102 raw declaration tokens and narrowed to 9 changed exported APIs/types/constants. Compared 3 directly symbol-referenced documentation sections (DONE parity, dev-memory Non-Goals, playbook M8), plus bounded command/closure paragraphs and draft backgrounds. Remaining changed exports have no direct doc reference; no package README exists for fallback. Decisions entries marked triaged were title-triaged; relevant excerpts were additionally read, not whole files, per canonical narrow-input rule. Audited all four checklist titles/userSees, committed source/test/config diff, and reverse promises: active admission consumes all shared outcomes; actual DONE plus explicit snapshot retains existing artifact/assurance checks and informational reviewer row without fresh PASS or complete historical audit; whole done_prepare may mutate while projection is read-only; finite adapter/mutation claims match executable proof. Selector receipt repair retains bounded public output and full private matching/digest input. Both separate drafts preserve unresolved provenance/audit scope without claiming repair. node packages/main/tests/red/red-done-shared-predicates.mjs completed exit 0 with Shared DONE predicate parity passed. No documentation-code blocker found.",
+      "createdAt": "2026-09-05T14:52:11.078Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-035",
+      "envelopeId": "010cb92d28e99909bd3c2ee8b1e78adfe814f69221ad3c263e6bbcbfc137347e",
+      "writerSessionId": "sess-ff739d19d9399dbcb7183da81942185f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c36656a37fc4757f77b0c3d5e500797deb5bc4982460f21cc6eb910850278a07"
+      },
+      "readDiagnostics": [],
+      "_hash": "1ec7a60ddafefed5fa7b0f0670a88c50aa53de8b8d3840171934ac0af5c66e38"
+    },
+    {
+      "id": "B-212f:RP-007",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-002 wave 1 bounded concept inventory terminal. No new concept-lane blocker or concept replacement residue. Reused RR-032 complete reads only after fresh git diff 9001442..HEAD proved no changes across guides, docs, source, scripts, config, background, plan, checklist and decision; canonical incremental basis independently selected RP-004 with unchanged Story binding and no changed files. Inspected canonical F-027 in the fresh review context and bounded review-run.ts:157-173, prompt-contracts.ts:318-327 and review-incremental-context.ts:585-617. The optional-key snapshot shape changes can invalidate a previously valid legacy envelope and remove its prior-pass eligibility; this is the existing verified F-027 gate-truth family, not a new concept family. F-027 remains unresolved and requires the Owner's bounded repair; this concept terminal does not assert overall REVIEW acceptance, repair, product completion, topology certification, or full historical reviewer replay. Existing documentation already limits the snapshot presentation exception to actual DONE, and that boundary does not authorize weakening current REVIEW envelope integrity. No source or lifecycle edits and no unrelated tests executed.",
+      "createdAt": "2026-09-05T15:06:48.712Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-036",
+      "envelopeId": "858d6e18ef2b4e1a844534249ea8b19bfad47624f9257fbe21019ef6af98da24",
+      "writerSessionId": "sess-30ca165d3df921e631ee7421e9be9256",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "6fbccd23b3e03cda4056c54bef97dd1281838d4ab1fa0cbdd08224da586ef64a"
+    },
+    {
+      "id": "B-212f:RP-008",
+      "agent": "proof-or-stop-review-docs",
+      "note": "RI-002 wave 1 docs terminal: trusted incremental basis reports no changed or impacted files since RR-035/RP-006; git diff 78b2992 HEAD confirms no source, tests, scripts, docs, config, background, plan or checklist changes. Reuse prior truthful complete reads and the prior 9 changed exported symbols / 3 directly referenced documentation-section comparisons plus bounded closure/selector paragraphs. Decision files below were title-triaged and relevant excerpts additionally read, never claimed full reads. Current bounded review-run.ts:153-174, prompt-contracts.ts:312-332 and review-incremental-context.ts:590-614 inspections support F-027/F-028 as one optional-field snapshot family. Fresh exact read-only RR-034 reproduction returned raw ok:true and snapshot ok:false for eligibilityDigest, eligibilityReasonCodes, priorPassRef. The canonical registered defect remains an applicable gate-truth repair; this docs PASS neither resolves it nor claims Story acceptance. No additional docs-specific inconsistency or new promised behavior found; existing active-parity and limited historical-presentation wording remains accurate for unchanged implementation. No full suite rerun warranted for this unchanged-material inventory terminal.",
+      "createdAt": "2026-09-05T15:10:03.076Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-039",
+      "envelopeId": "b0f31861bc0adb5c606ad25a18e09d275c5de2955a4540ee9f449ca8ff97013b",
+      "writerSessionId": "sess-ff739d19d9399dbcb7183da81942185f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c36656a37fc4757f77b0c3d5e500797deb5bc4982460f21cc6eb910850278a07"
+      },
+      "readDiagnostics": [],
+      "_hash": "e535fe052bf318d741a963c42df6ddbc656e6f063b2e59ff2456d3758f1e3f8e"
+    },
+    {
+      "id": "B-212f:RP-009",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-002 wave 2 final discovery-wave concept terminal: no additional concept-lane defect or promised-but-undelivered change. Fresh git diff 891c81b..HEAD is empty across guides, docs, source, scripts, config and Story background/plan/checklist/decision, preserving RR-032/RR-036 full-read basis; canonical incremental selection binds prior RP-007 with no changed files. Inspected fresh canonical finding deltas F-028/F-029/F-030: each corroborates F-027 optional-envelope-field-preservation and none claims a separate root. Fresh source at review-run.ts:151-175 still materializes absent optional fields as own undefined; previously read canonical serializer and prior-pass selector explain the existing integrity/eligibility disagreement. F-027 and its corroborations remain unresolved current gate-truth repair work for the Owner; no superseding pass, current-gate acceptance, implementation repair, historical reviewer replay, or product completion is asserted. Concept residue and changed-document claims retain the prior assessment. No broad rescan or unrelated tests rerun. This signed terminal covers inventory discovery only.",
+      "createdAt": "2026-09-05T15:20:59.424Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-042",
+      "envelopeId": "37a4293b1aa8c85fc51659cff8477699ca455a7368e60d695bf0d3216a714375",
+      "writerSessionId": "sess-30ca165d3df921e631ee7421e9be9256",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "9a0c8a24e0827df349ea9bc5b85401da904453d303b5a562a1fddec0428fcdbc"
+    },
+    {
+      "id": "B-212f:RP-010",
+      "agent": "proof-or-stop-review-docs",
+      "note": "RI-002 wave 2 docs discovery terminal. Fresh canonical SAFE_INCREMENTAL basis trusts RP-008/RR-039 and reports changedFiles:[], impactedFiles:[]; git diff d1e6065 HEAD across packages/main, scripts, docs, config and Story background/plan/checklist is empty. Prior truthful complete reads and the 9 exported-symbol / 3 directly referenced documentation-section comparisons remain applicable, including bounded closure/selector paragraphs and reverse promise checks. Decisions listed as triaged were title-triaged with relevant excerpts additionally read, not full files. Inspected canonical F-028/F-029/F-030 and newly delivered F-031 descriptions: all corroborate the established F-027 optional-envelope-field-preservation defect. Prior independent bounded source inspection and exact raw/snapshot reproduction remain current; no full suite rerun or broad scan was required for unchanged code. These observations add no docs-specific inconsistency, new root, or historical-reviewer replay requirement. Existing documentation accurately distinguishes strict active shared predicates, limited historical presentation and read-only projection versus mutating done_prepare. F-027 remains a bounded current-Story gate-truth repair obligation; this docs PASS does not resolve findings, certify inventory acceptance, or claim Story acceptance.",
+      "createdAt": "2026-09-05T15:23:17.838Z",
+      "reviewRound": "2026-09-05T14:39:40.791Z",
+      "reviewRunId": "B-212f:RR-044",
+      "envelopeId": "6b539ab47586a2d70940e3e072dcecad5c956847e87f5c6e9a194f3c4e3b847e",
+      "writerSessionId": "sess-ff739d19d9399dbcb7183da81942185f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c36656a37fc4757f77b0c3d5e500797deb5bc4982460f21cc6eb910850278a07"
+      },
+      "readDiagnostics": [],
+      "_hash": "797b3440bbb869b105ddf6ce0c5a24eb458a52c51a6a28d5685f9968f7e3268e"
+    },
+    {
+      "id": "B-212f:RP-011",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent final ordinary quality review round 9 at final source dd65407421, material5f21d60f/storyFiles8c9a7add. Reused unchanged complete prior reads for integrated CHK-001 through CHK-004 and reviewed every new diff in review-run.ts, process-fact registry, verifier, and shared predicate proof. Bounded review-run/context/serializer reads are not asserted as full-file reads. F-027 through F-033 closure is substantiated: snapshot cloning preserves absent optional keys and explicit malformed values, clones/freezes valid arrays and records, and does not normalize or re-sign evidence. Independently executed runPromptEnvelopeSnapshotProof using actual source serializer/signatures/prior selector: all cases pass, including own-key/digest equality, trusted prior selection, malformed rejection and mutation isolation. Same frozen test is unchanged since9b077c1370; injecting that commit's old helper reproduces F027 RED with snapshotIntegrity:false and prior:null. Current real RR046 verification passes both raw and snapshot paths. Old RR034 is rejected identically by both paths for current eligibilityDigest,changedFilesDigest,impactedFilesDigest drift; no restored freshness is claimed. Initial current-round collector had no invalid evidence and no passes yet, not an admission claim. All14 refreshed tool-owned checklist receipts inspected as passing on final material. Original parity blob0375c372d26f49c5276042b1087226069b385e52 unchanged. No new quality blocker or undelivered changed documentation promise found. Active admission and narrowly informational historical DONE reviewer contract unchanged. No topology acceptance, external-host quorum, Authority proof, or lifecycle completion certification by this lane.",
+      "createdAt": "2026-09-05T15:57:18.026Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-046",
+      "envelopeId": "19d77e93435ccbc24f28a6cd9ffcd3d7976c3805802ba65a54833d987e4bb3bd",
+      "writerSessionId": "sess-c5284a1be646cffb98198a1416e0b8e8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "cf8d5d8bcce93e7fe192ea04621f99727497f8c10cb4241e053dad489b73f86b"
+    },
+    {
+      "id": "B-212f:RP-012",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Ordinary round-9 concept REVIEW across CHK-001 through CHK-004 and integrated committed diff: no blocking concept residue or newly promised-but-undelivered behavior found. Retained prior complete reads after fresh diff 8716c69..HEAD verified guides, documentation, background/plan/decision, original parity test and active/historical oracle design unchanged. Read all new shared-proof test diff, snapshotPromptEnvelopes repair, registry rationale and verifier binding. Snapshot copying now leaves absent optional properties absent, copies/freezes valid arrays and finding rows, and retains explicit malformed values for existing integrity rejection. The frozen 9b077c1370 test has no subsequent diff and invokes real canonical serialization, envelope integrity, run/pass signatures and trusted-prior selection, with absent/empty/populated fields, malformed values, tamper rejection and mutation isolation. The registry promise is paired with executable verification. Audited F-027 through F-033 resolution reasons: they explicitly distinguish repaired raw/snapshot agreement from legitimate taskSemanticDigest drift and do not claim RR-034 regained freshness or a new historical reviewer audit. Current checklist changes outside receipt refresh are limited to CHK-003 completion time; intent and acceptance claims remain unchanged. Current 14 receipt summaries all report pass, exit 0 and selectorMatched true; this lane did not rerun full tests or independently certify receipt freshness/topology. No new concept replacement in the repair; earlier parser-remnant and read-only-claim assessment remains applicable. Zero new findings; no implementation or lifecycle writes.",
+      "createdAt": "2026-09-05T15:57:25.768Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-048",
+      "envelopeId": "4fa66598a7a088bb477e4c673b3933a2cfdc533de061a33f2320e8c3f0148fac",
+      "writerSessionId": "sess-30ca165d3df921e631ee7421e9be9256",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "5609e76344a772051ef401556e620a802800bc0fd64738bbc741b5de7b9b6291"
+    },
+    {
+      "id": "B-212f:RP-013",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Ordinary round-9 coverage review passed for CHK-001 through CHK-004 and their integrated change: 14 must intents, 14 current mechanical passing receipts with matching selectors/material5f21d60f/storyFiles8c9a7add, zero must gaps and zero waivers. Independently reviewed the complete focused delta since prior completed full reads: optional-array snapshot repair, source-executed real serializer/signature/trusted-prior proof and registry/verifier integration. Six valid shapes preserve own keys, integrity, digest and prior selection; 14 malformed field cases remain invalid and untrusted; array/row isolation and tamper rejection are asserted. Current shared proof and process-fact verifier pass; the exact unchanged test blob9c88c4dbf4 replayed against pre-repair helper9b077c1370 fails at legacy snapshot integrity with snapshotPrior null, validating closure of canonical F027 and corroborating coverage F029/F032. Fresh RR047 actual raw and snapshot envelope verification both succeed. RR034 raw/snapshot now agree on rejection for current eligibilityDigest/changedFilesDigest/impactedFilesDigest drift; old-run freshness is not asserted. Original parity blob0375c372 unchanged from414e02135b; fresh filesystem parity and historical snapshot smoke both pass, including read-only evidence/git-state checks. Approved boundary remains strict active TEST/default DONE admission, with actual DONE plus explicit completedSnapshot retaining historical informational reviewer presentation, not fresh PASS/full historical audit. No acceptance-topology certification or overall Story completion is claimed. Prior unchanged complete reads reused with newly added proof read in full through its delta; newly implicated core modules reviewed in bounded sections, not claimed full-file reads. No new coverage finding.",
+      "createdAt": "2026-09-05T15:57:49.159Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-047",
+      "envelopeId": "125316143ed61d41a55d83ad6a4377fcc8ffc301d2672a89e7e86a3d43c481f6",
+      "writerSessionId": "sess-6ff749093aec60d12c24f8501f82f122",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/tasks/post-done-closure-snapshot-smoke.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "818842479da359b0d1507aaf38bf3b54ffd1198d403e282985889101f45dfbfc"
+      },
+      "readDiagnostics": [],
+      "_hash": "70664fca08d161140c792716b689846bc73c5ff9419b608f10b4ad737174334a"
+    },
+    {
+      "id": "B-212f:RP-014",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Ordinary round-9 integrated docs review on material5f21d60f/story8c9a7add. Reviewed complete changed implementation/test/registry/verifier diff since prior docs terminal; unchanged prior complete reads reused truthfully, shared-predicate test current contents covered by previous complete read plus complete new diff. Prior 9 exported-symbol / 3 directly referenced documentation-section comparisons remain applicable; additionally audited changed snapshotPromptEnvelopes, new runPromptEnvelopeSnapshotProof and the updated registry promise paragraph. Snapshot symbol has no direct Markdown reference and package README fallback has no file. Decision files below were title-triaged and relevant bounded excerpts read, not claimed fully read. The registry promise matches actual conditional array cloning: absent optional keys stay absent, canonical integrity and trusted-prior selection remain equal, valid arrays/projection records are cloned/frozen, explicit malformed values are not normalized or re-signed. Focused source-executed runPromptEnvelopeSnapshotProof passed exit0 using actual serializer/envelope/run/pass-signature/prior-selector functions, including malformed/tamper rejection and mutation isolation. git diff --quiet 9b077 HEAD confirms frozen RED file unchanged. Fresh actual runtime RR-046/RR-047 raw and snapshot verification both return ok:true; historical RR-034 raw and snapshot both reject eligibilityDigest, changedFilesDigest and impactedFilesDigest, so no obsolete fresh-PASS claim. finding_list shows F-027 through F-033 resolved; this independent proof supports the bounded clone repair, not a historical audit redesign. Original active-DONE parity, historical informational limitation and whole-command read-only correction docs are unchanged and remain consistent. No additional documentation-code inconsistency or undelivered new promise found. This lane PASS does not claim Story DONE or global acceptance.",
+      "createdAt": "2026-09-05T16:00:57.673Z",
+      "reviewRound": "2026-09-05T15:52:07.337Z",
+      "reviewRunId": "B-212f:RR-049",
+      "envelopeId": "821f804e62054bd3cf27990c00c89c1c691862ae3de2bc3ea00199f4549f4260",
+      "writerSessionId": "sess-ff739d19d9399dbcb7183da81942185f",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "c36656a37fc4757f77b0c3d5e500797deb5bc4982460f21cc6eb910850278a07"
+      },
+      "readDiagnostics": [],
+      "_hash": "d5f15174480eecd2ececc518923ca7570d3dfa0d78ab4578b90c84ef14d94fc3"
+    },
+    {
+      "id": "B-212f:RP-015",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent ordinary round-10 story-level quality review of CHK-001 through CHK-008 and integrated main...HEAD diff: no applicable blocking defect found. Reviewed every repair delta in 61ea99033b,08680744ba,31351f6c67,e6673f1a0f and current owner F034-F054 fixed closures, without treating owner resolution as acceptance. Read background/plan, current checklist requirements and all 28 receipt bindings; independently verified each signed causal receipt, matching hash/executedAt and current material196d70929/storyFilesfc0ad798. Persisted formal validation 2026-09-06T01:46:36.766Z is PASS131/131 on same material. Independently ran complete current verification-run-and-guard-smoke: PASS, including unchanged E1/E2/E3 and failure/pinless/manual/docs controls. Strict refresh key reaches physical cache, signed CAS identity and receipt-keyed import validation; ordinary generic causal semantics remain unchanged. Private Git mirror repair retains meaningful HEAD/staged-state/mutation/packed-ref/split-index controls, does not copy source hooks/config, and preserves production raw-index preflight. Original parity blob0375c372d26f49c5276042b1087226069b385e52 unchanged. Full-read manifest reuses only my prior RR046/RP011 genuinely completed reads whose bytes were explicitly verified unchanged against dd65407421, plus the three newly completed decision-document reads; changed implementation files were reviewed through complete diffs and bounded source context, not falsely claimed fully read. Shared lazy gate, active TEST/default DONE strictness, malformed-delivery non-traversal, and explicitly informational actual-DONE snapshot boundary remain intact. No full validator rerun, source/owner changes, global-cleanup expansion, or native-host quorum/final-DONE claim. Codex hook evidence remains explicitly candidate-token-only.",
+      "createdAt": "2026-09-06T09:50:30.188Z",
+      "reviewRound": "2026-09-06T09:42:51.753Z",
+      "reviewRunId": "B-212f:RR-060",
+      "envelopeId": "eed6cbc5f4471b05dec4aa286f06dd7f28f1a1944675082af3f6d774a9fa32c8",
+      "writerSessionId": "sess-c5284a1be646cffb98198a1416e0b8e8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 5,
+          "tokenCount": null
+        },
+        "digest": "a32d4246d62f58b8690db7470c1af667a732e48a32efe46a4850cce8c7f90654"
+      },
+      "readDiagnostics": [],
+      "_hash": "7b540f2544664a78a73f6107f50d347c1de80ad791469b5a50cdf478f1583366"
+    },
+    {
+      "id": "B-212f:RP-016",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent round10 integrated coverage review: 28 must intents, 28 covered, zero must gaps, zero waivers; production coverage and material freshness recomputed read-only from current checklist and test evidence. Formal 131-command validation PASS2026-09-06T01:46:36.766Z remains fresh; no full validation rerun. Fully read frozen original parity test (blob0375c372 unchanged from414e02135b) and shared source-executed mutation proof, both controlling DONE documents and identity migration. Audited material diffs for machine/oracle, process-fact registry/verifier, review snapshot serializer, receipt executor, stale-refresh handler, alias fixes and all changed test hunks; read E1/E2/E3 runtime counter assertions and F034..054 owner resolution texts against repair diffs and corresponding current executable receipts. These targeted/partial source reads are not claimed as full-file reads in the manifest. Missing finish decision and stale diff_pack_changed controls, read-only evidence check, future-predicate projection, finite adapter mutations, optional-field integrity, full-output selector/digest bounds, canonical negatives, strict refresh identity/time, private Git index controls and historical-only exception retain meaningful assertions. CHK006..008 edge arrays are empty but happy/adversarial contracts cover their narrow follow-on boundaries; no missing promised must outcome. Actual cross-host assurance and DONE-required full suite remain separate pending lifecycle gates, not inferred from this pass. No new finding, source change or unrelated scope expansion.",
+      "createdAt": "2026-09-06T09:50:48.985Z",
+      "reviewRound": "2026-09-06T09:42:51.753Z",
+      "reviewRunId": "B-212f:RR-062",
+      "envelopeId": "80699f1663dbcd9a904707e749498322855904b63681ad1a84307222161e19e9",
+      "writerSessionId": "sess-8e5fc2fd58b170030a8a6d1cf19e603b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "efd57a67bc79a5fdfe14948b129eaae025057ad84468a5be2d2a9e6d41e10494"
+      },
+      "readDiagnostics": [],
+      "_hash": "bc087a84aab310c1a874f4d168c1b1efa99b8d592285fdc1fd1939f9d7f87be9"
+    },
+    {
+      "id": "B-212f:RP-017",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent round-10 concept review of committed candidate 9214d1fc0d. Reused only full-read inputs verified unchanged since RR-058; fully read the identity and two refresh decision records, and inspected all 12 material-file repair diffs plus bounded handler/registry/fixture sections, current checklist intent fields, F034-F054 closure evidence, and recorded validation/evidence summaries. Partial source/checklist/test-evidence reads are not claimed as full-file reads. The bounded repairs restore canonical fixture and alias consumers, pinned docs/manual refresh, strict refresh execution/provenance identity and signed receipt timestamps, and private Git administrative state for the registration proof without weakening production causal index guards. No current changed-consumer concept residue or unimplemented new promise found. Shared active TEST/default DONE predicates and oracle parity are unchanged; actual DONE plus completedSnapshot retains only the approved historical presentation, not a fresh reviewer PASS or full historical audit. Current CLI reports no open findings; recorded mandatory validation is complete PASS for 131 commands with zero failures and all 28 checklist receipts are mechanical PASS on current material. No full suite rerun, host-assurance claim, owner disposition, lifecycle acceptance, or source edit is implied by this lane PASS.",
+      "createdAt": "2026-09-06T09:51:27.786Z",
+      "reviewRound": "2026-09-06T09:42:51.753Z",
+      "reviewRunId": "B-212f:RR-061",
+      "envelopeId": "62853e65fae82da9bde4d5e1b416c65a61f44b522bda2d3ce3ca67191d080e47",
+      "writerSessionId": "sess-30ca165d3df921e631ee7421e9be9256",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/decision.json",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 5,
+          "tokenCount": null
+        },
+        "digest": "a32d4246d62f58b8690db7470c1af667a732e48a32efe46a4850cce8c7f90654"
+      },
+      "readDiagnostics": [],
+      "_hash": "ae0cd4bb1fd25a295f039c08c0977dc6cb0f9f0da920322923fb05dd85d192e3"
+    },
+    {
+      "id": "B-212f:RP-018",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Independent docs round 10 review: extracted 9 changed production exported declarations, compared 3 direct symbol-referenced documentation sections plus bounded related-contract windows and README fallback. Seven exports have no direct doc reference after fallback: projectDonePredicateRows, DonePredicateResult, firstDonePredicateFailure, donePredicateValue, PROCESS_FACT_DONE_PREFLIGHT_CONSUMERS, DonePreflightPredicateInventoryEntry, DONE_PREFLIGHT_PREDICATE_INVENTORY. Their behavior is described at module level in the DONE Predicate Parity Contract. Checked all eight checklist titles/userSees, committed production diffs, registry/verifier changes, selector and strict-refresh repair contracts, and private Git isolation diff. No doc-promise-undelivered or applicable doc-code drift found: shared active predicates preserve missing_dev_memory_finish_decision and stale_closeout_review mapping, finite executable mutation proof is not arbitrary TypeScript equivalence, completed DONE snapshot is explicitly informational rather than fresh reviewer PASS/full historical audit, and readiness projection is read-only while done_prepare execution may mutate. Window/diff-only reads are conservatively listed as triage, not full reads. No host quorum, current pre-review PASS, or actual DONE is asserted. No source edits, no full suite rerun, no findings added.",
+      "createdAt": "2026-09-06T09:57:04.700Z",
+      "reviewRound": "2026-09-06T09:42:51.753Z",
+      "reviewRunId": "B-212f:RR-063",
+      "envelopeId": "4322bafe8f5084a769ed1b7ce7341ca01aead3b20eaaef5146193410036bc247",
+      "writerSessionId": "sess-b9278b5e59ad6dbc1cc202941731ba33",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-212f/background.md",
+          ".proof-or-stop/story/actives/B-212f/plan.md",
+          "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md",
+          "docs/story/drafts/evidence-executor-selector-truncation/background.md",
+          "docs/story/drafts/evidence-selector-head-truncation/background.md",
+          "docs/story/drafts/gap-log-existing-provenance-chain-invalid/background.md",
+          "docs/story/drafts/historical-reviewer-audit-snapshot-context/background.md",
+          "README.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-212f/checklist.json",
+          ".proof-or-stop/story/actives/B-212f/findings.json",
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/done-oracle.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null,
+        "candidateSpecSetDigest": "8f997640699cdf17706f2894b13fa8e9cd880c8fba4eaf0425abde9f75c320d3",
+        "corpusDigest": "fe3a989ff71bc64731aae14f50d9f4439762488d59f981bec3130220d0f20945"
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+          "docs/requirements/decisions/dev-memory.md",
+          "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "docs/requirements/decisions/dynamic-finding-system-execution-plan.md",
+          "docs/requirements/decisions/lattice-authority-live-integration.md",
+          "docs/requirements/decisions/playbook-runtime-memory-consumption-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-agent-prompt-consolidation-execution-plan.md",
+          "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+          "docs/requirements/decisions/proof-or-stop-thin-entrypoint-contract-migration-execution-plan.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/proofstory-intent-collision-execution-plan.md",
+          "docs/requirements/decisions/red-evidence-subsystem-spec.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "96536c71364c6ac3a18eae7dc860f7543f49df610a4cb95859287bbc5ed08a4e"
+      },
+      "readDiagnostics": [],
+      "_hash": "28590e2728d217689841c8f701508b7917025ddd38b76cb42a1a08cc3d553ac3"
+    }
+  ]
+}

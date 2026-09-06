@@ -1,0 +1,20 @@
+{
+  "storyId": "B-212f",
+  "expected": "The terminal prints \"GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\".",
+  "actual": {
+    "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+    "exitCode": 0,
+    "stdout": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-06T09:40:00.301Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "5446d7a044b617329d2032c21a0bd23470f7f592",
+  "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8"
+}

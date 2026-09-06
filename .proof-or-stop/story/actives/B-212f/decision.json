@@ -1,0 +1,75 @@
+{
+  "principles": [
+    "Each DONE predicate has one executable definition consumed by all readiness surfaces.",
+    "Keep stable blocker codes, first-failure diagnostics, and read-only evidence inspection.",
+    "Use executable consumer tests for behavior and bounded structural checks for the thin shared entry points.",
+    "Keep the change limited to DONE/preflight parity and its directly blocking evidence repair."
+  ],
+  "drivers": [
+    "Review mutations proved source-semantic inference could falsely accept different inputs, outer guards, and discarded results.",
+    "The human approved a shared predicate design after the convergence freeze.",
+    "Existing predicates and public behavior already have executable RED/GREEN coverage."
+  ],
+  "options": [
+    {
+      "name": "Shared lazy evaluator in machine.ts",
+      "pros": [
+        "One ordered definition for gate, diagnostics, and oracle",
+        "Avoids new module cycles",
+        "Generic projection carries future failures automatically"
+      ],
+      "cons": [
+        "Requires a bounded change to the formerly protected DONE branch and careful compatibility tests"
+      ]
+    },
+    {
+      "name": "Extend the source-semantic parser",
+      "pros": [
+        "Keeps machine implementation untouched"
+      ],
+      "cons": [
+        "Requires interpreting arbitrary control flow and value provenance",
+        "Verified bypasses make this assurance unreliable and repeated expansion unbounded"
+      ]
+    },
+    {
+      "name": "Extract a new aggregate module",
+      "pros": [
+        "Separates evaluator from state-machine wiring"
+      ],
+      "cons": [
+        "Requires moving reviewer dependencies or introducing a module cycle",
+        "Adds a file and migration surface without improving this bounded proof"
+      ]
+    }
+  ],
+  "chosen": "Shared lazy evaluator in machine.ts",
+  "rationale": "The human-authorized replan replaces the failed parser with a shared ordered evaluator exported by machine.ts. Thin machine consumers preserve early failure behavior; the oracle generically consumes every result. The verifier inventories the shared source reachable from DONE and checks explicit thin adapters, while executable tests establish behavior and mutation rejection.",
+  "preMortem": [
+    {
+      "scenario": "Aggregation eagerly reads downstream artifacts after an early failure.",
+      "trigger": "Missing test evidence with incomplete legacy artifacts.",
+      "consequence": "Existing safe failures throw or change precedence.",
+      "mitigation": "Use lazy ordered evaluation and test first-failure diagnostics and read calls."
+    },
+    {
+      "scenario": "Oracle silently drops a newly added shared predicate.",
+      "trigger": "A new evaluator result has no presentation row.",
+      "consequence": "Preflight misses a real DONE blocker.",
+      "mitigation": "Generic final projection appends missing failures; execute future-predicate mutation against actual consumers."
+    },
+    {
+      "scenario": "Adapters change input target or discard failures.",
+      "trigger": "Wrong root/story argument, outer skip, or discarded emitted row.",
+      "consequence": "Consumers see different states or report false readiness.",
+      "mitigation": "Check exact thin adapter shapes and execute mutations with captured reader inputs and final rows."
+    },
+    {
+      "scenario": "Refactor changes completion-snapshot or stricter preflight semantics.",
+      "trigger": "Wrapper root, completed snapshot, delivery or review assurance evaluation.",
+      "consequence": "Compatibility regression or readiness weakening.",
+      "mitigation": "Preserve existing extra preflight rows and test wrapper-root, snapshot and live gate behavior."
+    }
+  ],
+  "timestamp": "2026-09-05T11:15:07.136Z"
+}
