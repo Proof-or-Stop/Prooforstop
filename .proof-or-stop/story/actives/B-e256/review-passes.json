@@ -1195,6 +1195,26 @@
       },
       "readDiagnostics": [],
       "_hash": "e4437fad1e62a526610abde051b4324408b8cacc68cf1bdf5774a53d3fd40ede"
+    },
+    {
+      "id": "B-e256:RP-034",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-002 wave 3 completeness check: independently reproduced F-016 against the current helper; an in-tree symlink changed an outside file from 0644 to 0755 and was reported restored. This is the existing symlink-escape family, distinct from lexical path containment and non-regular target validation. No additional finding family was discovered in the bounded F-016 source and test review.",
+      "createdAt": "2026-09-06T15:01:04.146Z",
+      "reviewRound": "2026-09-06T13:22:17.538Z",
+      "reviewRunId": "B-e256:RR-052",
+      "envelopeId": "13cd3d5941ed8c83118f7d756d68d25782ec146dd623e2f95675ee641ea0d1b0",
+      "writerSessionId": "sess-038c2a560bc892b71dff00a688459432",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "541b41a964713e96d67372641209df11bb57a4fbf41c67904a5714ed8a38ad76"
     }
   ]
 }
