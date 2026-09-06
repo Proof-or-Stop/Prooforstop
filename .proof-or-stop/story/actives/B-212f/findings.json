@@ -1787,7 +1787,7 @@
       "desc": "RI-003 wave 1 verified family canonical-timeout-fixture-filename, distinct from the ambient-env assertion family. packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:159-181 setupTimeoutFixture writes retired lattice.config.json, while current core/brand-paths.ts:9 CONFIG_FILENAMES recognizes only proof-or-stop.config.json. Therefore assertTrueHangFailsClosedWithNamedDiagnostics at source line 765 never runs its intended true-hang command and fails its timeout stderr assertion. Exact bounded source-extracted write/git/commitAll/setupTimeoutFixture/runCli/runValidate functions were executed against both actual main 69403365 and current B-212f CLIs, with caller PROOF_OR_STOP_MAX_TIMEOUT_MS unset and set to 31090000. All four original-filename controls returned exit 0, allPass:true, commands:[], stderr only running validate / validate done, and details explicitly saying no configured validation commands were found. Renaming only the temporary fixture config to proof-or-stop.config.json in the same matrix produced allPass:false, one true-hang result with timedOut:true and timeoutMs:1000, named stderr matching validate timeout: command 1/1 true-hang: command=... args=... timeoutMs=1000 elapsedMs=..., and the expected details diagnostic. Actual command durations were approximately 1041-1049 ms. This demonstrates loaded-command absence, not failed watchdog scheduling, generic environment contamination or a B-212f executor regression. runCli:234-247 strips the inherited max and pins 120000 before spawning, so the outer 31090000 override cannot cause this failure. Tests and relevant brand/config helpers are byte-unchanged versus main; git diff e611a05 HEAD confirms prior integrated material reads remain current. This verified medium pre-existing fixture defect directly blocks configured current-Story validation and requires only the canonical filename test repair, preserving command-presence and timeout assertions. Do not restore retired runtime config aliases or expand into unrelated compatibility redesign. Older migration read-both prose does not override the current canonical runtime specified by the repository operating guide. Prior full reads reused; newly implicated modules/test sections were read boundedly and not declared full. Both main/head diagnostic matrices ran before this fresh canonical inventory terminal on unchanged material; all temporary fixtures were cleaned. No production, Story-phase or owner writes were made, and no acceptance claim is issued.",
       "severity": "medium",
       "category": "edge",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-docs",
       "createdAt": "2026-09-05T16:36:47.495Z",
@@ -1861,7 +1861,11 @@
         "docs/requirements/decisions/proof-or-stop-identity-migration.md"
       ],
       "signatureTag": "canonical-timeout-fixture-filename",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "61ea99033b changes timeout fixture to proof-or-stop.config.json, retaining true-hang named timeout and command-presence controls. CHK-005:adversarial:0. Fresh final-material tool-owned verification receipts and formal 131-command PASS at 2026-09-06T01:46:36.766Z (commit9b7b708629) corroborate repair. Independent final REVIEW remains required; this owner resolution is not reviewer acceptance.",
+      "resolvedAt": "2026-09-06T09:43:50.139Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-212f:F-039",
