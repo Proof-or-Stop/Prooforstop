@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "9d44b3fa85db88f7cf33f9ce7d64b35f0f9125d440479caa71081e8398c657a6",
+  "committedLedgerDigest": "368ab459892884b8e5f94fc69bd73568626bee2e0a2dc5c1fe557871d618863b",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -282,6 +282,62 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T21:02:34.602Z"
+    },
+    {
+      "recordId": "lr_mtqaz7o0_y15_af84c4654a164d8ba9a6ea5506671db7",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:aa21f91f-7bc8-4f50-9db6-b5e0e6b98bca",
+      "payload": {
+        "id": "B-8a40:F-062",
+        "desc": "packages/main/src/core/prompt-envelope.ts:231-249 limits hasAffirmativeConceptRelation to a 180-character concept bridge, while :997-1010 treats any segment beginning with `do not` as explicitly rejected even when that negation belongs to a separate leading proposition. Against the current built public assembleFullPromptEnvelope API, all five active REVIEW roles REJECTED `Do not alter unrelated audit metadata, stale_or_not_reproduced is the current applicability verdict.`, but all five ACCEPTED the same unsafe affirmative verdict after a neutral historical-audit modifier expanded the retired-alias-to-verdict span to 488 bytes. The segment still states the retired alias as the current verdict; only the fixed relation horizon suppresses assertsCurrentVerdict, and the unrelated opening prohibition then makes explicitlyRejected true. The focused smoke covers direct retired-vocabulary rejection and short explicit-negative forms but has no long affirmative relation preceded by an unrelated negative clause. This is distinct from F-061, which is a false block when a genuine `not ... current verdict` relation exceeds a separate 48-character window, and from F-054 through F-059, which concern other concept families. Bind the complete retired-alias/verdict proposition structurally and scope negation to its own clause, with all-role short/long affirmative, genuine-negative, and unrelated-negative controls. Severity high because caller-authored Task Context can publish retired applicability vocabulary as current authority while every REVIEW envelope is minted.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-06T21:07:37.488Z",
+        "reviewRound": "2026-09-06T19:49:59.446Z",
+        "reviewRunId": "B-8a40:RR-114",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "367f3ef18db12e6c306867b279f51bf7335a0ccc145c3602578d14e987ab7276",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "retired-verdict-affirmative-relation-span-bypass",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "4a3ec2a0817793b7dd0dd3e31fb09641cc89f0ded277dffa98a11545895934e2",
+      "priorDigest": "9d44b3fa85db88f7cf33f9ce7d64b35f0f9125d440479caa71081e8398c657a6",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-06T21:07:37.488Z"
     }
   ],
   "receipts": [
@@ -498,6 +554,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "c6152fad9e33abe622ada5f03314828c763699cc9296bd7de76fcf6fc5c3d23d",
         "signature": "PrtYtH96Ju4UnIpluTwOfqcAU5YOD+SmRwK9jQbHRbpxTf0swqsrSW/XgNIkTL4zvKs1y4T6Cio72Efb0l8CDQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqaz7o1_y15_f0cf5e9726f14f76927f1c7088a5b92e",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:aa21f91f-7bc8-4f50-9db6-b5e0e6b98bca",
+      "requestDigest": "72ebaa62a96f8bff0c811f31b2118d88af631cf7ef631a4594ba0fa879fada8f",
+      "recordIds": [
+        "lr_mtqaz7o0_y15_af84c4654a164d8ba9a6ea5506671db7"
+      ],
+      "priorLedgerDigest": "9d44b3fa85db88f7cf33f9ce7d64b35f0f9125d440479caa71081e8398c657a6",
+      "committedLedgerDigest": "368ab459892884b8e5f94fc69bd73568626bee2e0a2dc5c1fe557871d618863b",
+      "writerSessionId": "sess-603208b3ae7f13b889e99830d80831a0",
+      "writerFenceToken": "c2cbb63b-2c5c-48bf-a7df-9d8a98a383ed",
+      "committedAt": "2026-09-06T21:07:37.488Z",
+      "replayed": false,
+      "exactRequestDigest": "db9f3f526140e2136fb492e1773a2c12fe76f881aba8ef44f47eed41010adecb",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqaz7o1_y15_f0cf5e9726f14f76927f1c7088a5b92e",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:aa21f91f-7bc8-4f50-9db6-b5e0e6b98bca",
+        "exactRequestDigest": "db9f3f526140e2136fb492e1773a2c12fe76f881aba8ef44f47eed41010adecb",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqaz7o0_y15_af84c4654a164d8ba9a6ea5506671db7"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "9d44b3fa85db88f7cf33f9ce7d64b35f0f9125d440479caa71081e8398c657a6",
+        "committedLedgerDigest": "368ab459892884b8e5f94fc69bd73568626bee2e0a2dc5c1fe557871d618863b",
+        "replayed": false,
+        "committedAt": "2026-09-06T21:07:37.488Z",
+        "writerSessionId": "sess-603208b3ae7f13b889e99830d80831a0",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "c2cbb63b-2c5c-48bf-a7df-9d8a98a383ed",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "c34f872d2c118f35ed1685478f0da82ad04b100d466196f95d364c5c84d04752",
+        "signature": "KXJJ1OjOcJiOs+0j1lK5jdoJ0rFGZjmV5RaB0q3A5s/u0sULt9dX2uNxEj3qZeoA7wW9pwTrQkJ9Xe+M04spAg=="
       }
     }
   ]
