@@ -1563,6 +1563,64 @@
       ],
       "signatureTag": "doctor-path-vs-global-package-presence-contract",
       "signatureTagSource": "confirmed"
+    },
+    {
+      "id": "B-e256:F-036",
+      "desc": "promotion-manifest-read-error-false-success: scripts/promote-dist.mjs:87-91 catches every package.json read/parse error and returns [], so promoteDist at :16-35 continues to evict the working dist even when the manifest probe observed EACCES/EPERM/EIO rather than a benign missing or malformed manifest. A current built-candidate temporary probe chmodded package.json to 000, kept old dist/cli.js at 0755 and staging at 0644, then called promoteDist; it returned without throwing, replaced the old CLI with the new body, and left the promoted target mode 0644 (observed {threw:null,body:\"new\\n\",mode:\"644\"}). This defeats the primary background/checklist promise to validate/restore declared staging bin targets before eviction and conflicts with understanding.json's only-ENOENT-benign constraint; the pinned adversarial evidence tests only missing and syntactically unparseable manifests, not a non-absence read failure. Preserve non-absence manifest read errors and abort before eviction, or explicitly reconcile the conflicting acceptance contract and prove the chosen failure behavior. severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-06T19:43:35.193Z",
+      "reviewRound": "2026-09-06T19:11:32.288Z",
+      "reviewRunId": "B-e256:RR-102",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/decision.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "53ae2114ee810a470568062300df7629ef5485ca148767a6fbf1d449c15d1bf1",
+      "files": [
+        "scripts/promote-dist.mjs",
+        ".proof-or-stop/story/actives/B-e256/background.md",
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/understanding.json",
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ],
+      "signatureTag": "promote-package-manifest-read-error-false-success",
+      "signatureTagSource": "confirmed"
     }
   ]
 }
