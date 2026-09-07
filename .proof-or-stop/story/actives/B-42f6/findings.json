@@ -594,7 +594,7 @@
       "desc": "Imported original Claude final round 2, observation 3. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:501 severity=low. Original text verbatim: The digest-mutation rejection is genuine and correctly targeted: verifyArtifactDigest (artifact-store.ts:415-425) recomputes the digest over kind/schema/producer/scope/subjectBinding/payload and requires both recomputed===expected AND artifact.artifactDigest===expected, so a one-bit flip of the expected digest cannot pass. The assert.throws is pinned to /relation digest mismatch/, matching repro-intake.ts:292 exactly, so it cannot be satisfied by an unrelated throw (e.g. a missing ref, which throws 'artifact ref not found'). This is stronger than the prior candidate's version, which inferred rejection from a nonzero CLI status plus a loose /digest|integrity|mismatch/i match on combined stdout+stderr and, in mirror mode, from a hard-coded fake result object. Actionable residual: currentCorruptedRelationRejected is set to true on the line after the assert.throws (line 504) inside the try block, so the flag is redundant with the assertion; if the assert throws, the finally block runs and the later assert at 549 is never reached. The flag therefore cannot ever be observed false, making assertion 549 dead. Harmless but misleading as a 'negative control' input.\nIndependent current assessment at df2133a1c8: The final source derives currentCorruptedRelationRejected from actual CLI nonzero status and exact relation digest mismatch output, while preserving the core assert.throws. The original bare true assignment is removed. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "suspected",
       "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
       "agent": "proof-or-stop-review-quality",
@@ -623,7 +623,10 @@
       "signatureTag": "missing|mjs|imported-original-claude",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr4n7sv_o0a_9645adb2642e4bef9dfb5d2b90219873",
-      "ledgerCommitReceiptId": "lrc_mtr4n7sw_o0a_2fbd40278a3a4c878f5804f93d0e5d4c"
+      "ledgerCommitReceiptId": "lrc_mtr4n7sw_o0a_2fbd40278a3a4c878f5804f93d0e5d4c",
+      "resolvedAt": "2026-09-07T10:59:23.505Z",
+      "resolvedReason": "a1d58dd487 derives corrupted-relation rejection from the actual CLI nonzero exit and precise digest mismatch output, alongside the production core assertion. Focused guard passed.",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-42f6:F-017",
