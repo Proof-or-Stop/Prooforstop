@@ -4062,6 +4062,62 @@
       },
       "readDiagnostics": [],
       "_hash": "e491ef574e566b3ea1d272735210e2ca5c94d0984349bc1ea8ec947a11cd40d9"
+    },
+    {
+      "id": "B-8a40:RP-093",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Bounded correction record for RI-016 wave 2, quality lane, run RR-169. PROMPT CONSUMPTION CORRECTED: I ran review_run_start unfiltered, with no head, sed, grep or wc, and consumed the ENTIRE returned canonical assembled prompt through END EXACT ASSEMBLED REVIEW PROMPT, including Runtime Contract, Role Contract, Task Context, Known Execution Environment, Dispatch Prompt, the full Role Prompt body and the complete REVIEW Finding Triage and Routing Contract. My previous wave-2 record disclosed that I had truncated the output; that was the wrong call and this run replaces it. FRESHNESS COMPARED AGAINST THE PRIOR RUN: materialHash fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd and storyFilesHash 6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b are UNCHANGED, scopeContractDigest 9c092ea and roleBody digest bb102ce are unchanged, and the Task Context is identical to RR-168 except headHash, which moved 8e2f343 to 31f9873 through my own reviewer metadata auto-commits. Candidate source freshness re-verified mechanically this run: git diff a28a4017dd HEAD limited to packages/main/src, scripts, bin, package.json and .gitignore is EMPTY, so the five-file candidate remains byte-identical to my original full RR-151 source audit. READ HONESTY: because material and Story hashes are unchanged, I reuse actual knowledge from full reads performed earlier in this same reviewer session rather than re-reading; I do NOT claim any file was newly reread this run except the complete RR-169 assembled prompt and the root diagnostic script named below, both of which I read in full just now. NO NEW FINDING this run: the candidate is unchanged and I observed no new issue, so I register nothing rather than manufacture a discovery. BASELINE PRESERVED UNMODIFIED: B-8a40:F-089, F-090, F-091, F-092, F-093 and F-096 all remain exactly as recorded, and F-096 retains evidenceState=suspected. I did not resolve, supersede, dismiss, refile or re-severity any of them, and I did not refile anything to hide latest-run binding. I acknowledge that F-094 and F-095 are signed coverage re-observations of F-092 and F-093 and not new families. ON THE ROOT DIAGNOSTIC: I read /tmp/b8a40-candidate-portability.X2dG19/classifier-cost.mjs in full. I treat it as owner context, NOT as independent measured evidence for my lane, and it does not change F-096 to resolved or false-positive. Characterizing what it does and does not cover, from the script itself: its four variants scale by repeating a unit into description only, actor uses by plus repeated a then finding closed, negative repeats parent finding, relations repeats does not prove applicability, and sources repeats a full sentence with a period; the reported roughly 13 to 22 ms at 32, 128 and 512 repeats with a largest description of 14868 characters is genuine evidence that simple repetition-shaped input does not blow up, and the actor variant in particular is a reasonable near-probe of the passiveNegative pattern I was concerned about, which weakens that sub-hypothesis. What it does NOT cover: the script sets checklist to an empty array, so with only title and description present the crossSourceControlledAuthority path that concatenates ALL eligible Task Context sources and reclassifies the join, which is the specific cost path F-096 names, is essentially unexercised; and the sources variant separates on periods so triageAuthoritySegments splits it into many short segments rather than producing one long segment. Worst-case cost therefore remains unestablished in both directions, which is exactly why F-096 stays suspected and non-blocking rather than verified or refuted. NO REPAIR OCCURRED and I claim none: both routine 132-command failures remain unrepaired, the missing original rp-mtifubae-dfbh4w CAS metadata reached through red-bfe8f-ledger-runtime-integrity.mjs and the heartbeat max-descendant PID never created under the 700 ms startup premise; the genuine 65 of 65 DONE-required PASS is a separate command universe and does not override them. This lane record is NOT TEST readiness, NOT DONE readiness, NOT global readiness, NOT a topology result and NOT a quorum verdict. Limitations retained: no interruption witness for F-089; the dev-memory producer registry gap remains durably unfixed; F-096 worst case unmeasured; topology unsupported or inconclusive; pre-review observe or inconclusive; rollout fixture output is not host quorum. I ran no build, no tests, no rebuild, no source, test, scope or checklist change, took no owner lease, dispatched no further reviewers and submitted no host quorum.",
+      "createdAt": "2026-09-07T09:53:04.760Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-169",
+      "envelopeId": "df7d5a071d1ae9df343e3843a24874a9574df52632495c10ec79a6c7c5f3b0b5",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/certification-window.json",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/summary.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/review-inventory-epochs.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "309f8d11a745db2a52752c4adf67560a439d612c8262fe3491d52002edbdbb4e"
     }
   ]
 }
