@@ -56,7 +56,7 @@
       "desc": "Current verified inventory-critic Findings are omitted from the aggregate and cannot receive a completeness disposition. WHY: packages/main/src/core/review-inventory-epoch.ts:397-406 collects current-wave rawFindings only while iterating epoch.requiredLanes. The independent critic is deliberately not one of those four lanes, so its new signature-valid Finding is excluded. Concrete production witness: finding_add persisted B-29bc:F-001 on current purpose-bound RR-005 with signed manifest and mechanical readLog; finding_list returns it open/verified. The immediately following review_inventory_critic_set for RI-001/RR-005 with exactly one verified_family disposition for F-001 exited 1 with REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: B-29bc:F-001. The rejecting predicate is core/review-inventory-epoch.ts:435 and handler/review-inventory.ts:521. Thus a critic following the canonical duty to find missed issues cannot include its own discovery in the exact-set receipt; submitting an empty set would erase it from inventory accounting. This is a distinct aggregate completeness defect, not a second copy of the missing-readLog issue. Applicability candidate: directly blocks the explicitly promised independent critic workflow and per-Finding completeness in CHK-001/002. The required-lane aggregation predicate may predate B-29bc; do not label it an introduced regression without base proof. Preserve the real recorded Finding, include eligible critic discoveries in the immutable current aggregate through authorized scoped remediation, and retain a production negative/positive regression. No receipt was issued, no empty-disposition fallback was attempted, and no topology or quorum claim is made.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-09-07T10:21:10.917Z",
@@ -94,7 +94,11 @@
       "signatureTag": "missing|ts|current-verified-inventory",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3bqf9_z2r_134dda58f32d4484a52e6e2d7d08ac90",
-      "ledgerCommitReceiptId": "lrc_mtr3bqf9_z2r_3300db2b32f34ba5b64d0afca89f0a73"
+      "ledgerCommitReceiptId": "lrc_mtr3bqf9_z2r_3300db2b32f34ba5b64d0afca89f0a73",
+      "resolvedAt": "2026-09-07T11:09:53.614Z",
+      "resolvedReason": "Fixed in 0ffe4cc619 after test-only RED d2461f5794. Current-wave aggregation now includes every signed exact-purpose/epoch critic Finding without granting required-lane coverage or topology authority. The epoch regression proves prior same-wave Findings survive newer PASS runs, invalid bindings/read evidence are excluded, and incomplete dispositions fail closed. The separate production CLI fixture records critic discovery before the first receipt: an empty list is refused and the exact own-Finding disposition succeeds. Issued receipts remain immutable. Formal current eight-intent evidence batch 74997ad completed successfully: three unique commands, zero reruns and zero false freshness.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-29bc:F-003",
