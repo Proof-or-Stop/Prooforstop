@@ -2227,7 +2227,7 @@
       "reviewRound": "2026-09-07T00:35:44.550Z",
       "state": "OPEN",
       "begunAt": "2026-09-07T01:34:14.159Z",
-      "updatedAt": "2026-09-07T07:12:42.764Z",
+      "updatedAt": "2026-09-07T07:26:27.049Z",
       "cutoff": {
         "headHash": "17896baaa73241932b55258be50ab19c25ea1920",
         "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
@@ -2300,6 +2300,66 @@
           "criticDigest": "e7152f347af23dd1b722c304ddcdea8c1620a2b3443c57f25f93fb211e170583",
           "saturated": false,
           "nextRunSequenceBoundary": 176
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-07T07:12:42.764Z",
+          "completedAt": "2026-09-07T07:26:27.049Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-179",
+              "terminal": "finding",
+              "hostIdentity": "368727cfea014a2ccb3e21605c96a24c77cef91c4ac5feb8f98f1a9ad39205bc",
+              "promptIdentity": "0c062e164eb6433319e3208893476b5301911fdb6f0828c0280d7099ac851f80",
+              "evidenceIds": [
+                "B-e256:F-061"
+              ],
+              "coverageDigest": "3254020ef1dee992a3526165023b1d07c97bcedeeb2c015cb24462431eab5616"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-177",
+              "terminal": "pass",
+              "hostIdentity": "44633bf1cce17fa0056a101439a9fe7108593644fecc0c17596d2ebe8b3e7b72",
+              "promptIdentity": "1908fa0d9965cae89a4d99489537b3819e22f452e9e67c6f3321ff683f953f28",
+              "evidenceIds": [
+                "B-e256:RP-121"
+              ],
+              "coverageDigest": "475c662a0140b6ff7218bbaf646e1963b3c375b5c0874c31a788b8eb99a8b3c0"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-178",
+              "terminal": "pass",
+              "hostIdentity": "44633bf1cce17fa0056a101439a9fe7108593644fecc0c17596d2ebe8b3e7b72",
+              "promptIdentity": "85b07a30b7e09a382acf061575333f4ccc6b84f63cbb9730e206c2d775d628da",
+              "evidenceIds": [
+                "B-e256:RP-122"
+              ],
+              "coverageDigest": "e00f14befab46d947ac3e995c01d4432f2a9731c619107487a3a1e3eb6fe08a8"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "canonical-proof-or-stop-command-absence-masked-by-lattice-fallback",
+            "proofstory-acceptance-topology-and-pre-review-proof-missing",
+            "windows-command-shim-argument-forwarding-false-pass",
+            "windows-command-shim-argument-injection-false-pass",
+            "windows-command-shim-caret-escaped-separator-false-pass",
+            "windows-command-shim-exit-status-not-preserved",
+            "windows-command-shim-node-runtime-unavailable-false-pass",
+            "windows-command-shim-output-redirection-false-pass",
+            "windows-command-shim-posix-single-quote-false-pass",
+            "windows-command-shim-unreachable-invocation-false-pass",
+            "windows-command-shim-unverified-target-base-binding",
+            "windows-non-batch-pathext-entrypoint-textual-false-pass",
+            "windows-powershell-npm-shim-selection-unverified"
+          ],
+          "verifiedFindingSetDigest": "9f0a99806c36415940e5a8f6366b8a312871f44e4ad3dd8d9adcdcab9642a682",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "a7e49eb0ced358fd13d44d012176a7d554166b61129eabaf071b9c07985caa5a",
+          "saturated": false,
+          "nextRunSequenceBoundary": 180
         }
       ],
       "baselineFindingIds": [
@@ -2314,7 +2374,7 @@
         "B-e256:F-057",
         "B-e256:F-058"
       ],
-      "_hash": "b25ba13dc23f687c0d1d037de7adcb0f0bd1b6fe8939fa9b777fd88adae4e316"
+      "_hash": "29944ec2406fae78d9a99857abafe9185cc8a0b3acb7f59c59e65deb3ea7b304"
     }
   ],
   "receipts": [
@@ -4011,6 +4071,37 @@
       ],
       "createdAt": "2026-09-07T01:43:34.057Z",
       "_hash": "78ac5a7ff50e57cf559cd916dda451b7199bae9edd2f17bfa9c61cfa58d28f31"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-015:CRIT-02",
+      "epochId": "B-e256:RI-015",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "17896baaa73241932b55258be50ab19c25ea1920",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "aggregateFindingSetDigest": "9f0a99806c36415940e5a8f6366b8a312871f44e4ad3dd8d9adcdcab9642a682",
+      "requiredLaneCoverageDigest": "e95b9132972dca859d246c20a2dab31d0192f7b17c99ca38d5673ca44075bb54",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-180",
+      "terminalEvidenceIds": [
+        "B-e256:RP-123"
+      ],
+      "readEvidenceDigest": "108f3e3cbbfa6d7e055a129f13d843edc033644963d0a5e587dfdc695f08b3b0",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-061",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-node-runtime-unavailable-false-pass",
+          "reason": "Verified as a distinct current-Story family. The official npm .cmd control-flow shape binds the intended node runtime variable and targets the canonical package/bin, yet no adjacent node.exe or PATH-resolvable Node runtime exists; the doctor check still reports executable=true and emits the healthy marker without proving that the selected runtime can launch. This differs from the wrong-runtime-variable binding in F-047 and from the checkpointed F-049 through F-060 families. It is a high, directly applicable CHK-001/CHK-003 and operator-truth blocker, so it requires repair_current."
+        }
+      ],
+      "createdAt": "2026-09-07T07:25:47.401Z",
+      "_hash": "389bd6eca15715179aac1f75dfcfb669e3c9e9fdba1bc717b2001cf24cea9744"
     }
   ]
 }
