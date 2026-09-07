@@ -1817,9 +1817,9 @@
       "epochId": "B-e256:RI-011",
       "storyId": "B-e256",
       "reviewRound": "2026-09-07T00:35:44.550Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-07T00:39:52.445Z",
-      "updatedAt": "2026-09-07T00:52:21.836Z",
+      "updatedAt": "2026-09-07T01:00:26.404Z",
       "cutoff": {
         "headHash": "1aa4d495cfbe4501cd8202886044d9e23bda76d7",
         "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
@@ -1884,10 +1884,94 @@
           "criticDigest": "f486f5029b5d1d488cca3e0fd5ef54d49abdecb5f7df59b105faba542de7513d",
           "saturated": false,
           "nextRunSequenceBoundary": 156
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-07T00:52:21.836Z",
+          "completedAt": "2026-09-07T01:00:21.794Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-158",
+              "terminal": "finding",
+              "hostIdentity": "7bb22299aa415302be903c8eac0ac751bd211a499d24151925f1d8c740504c45",
+              "promptIdentity": "c07a2fc96f65c52092767d742a240aa0fe893ca3a552d2f8250845cb474da005",
+              "evidenceIds": [
+                "B-e256:F-052"
+              ],
+              "coverageDigest": "93904d16b4963d32083214058e8e2af0e1642e32e1b7e9a2f2f1b0f954ea9ebd"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-157",
+              "terminal": "pass",
+              "hostIdentity": "7bb22299aa415302be903c8eac0ac751bd211a499d24151925f1d8c740504c45",
+              "promptIdentity": "cc75f345d431bbe70fca707bc2f1edc724f65034806d31172a86f1610e9e989d",
+              "evidenceIds": [
+                "B-e256:RP-110"
+              ],
+              "coverageDigest": "1a771958ff8055cef74d2edb4ecc7a56d327a1ab29ed4ae5eb6a01943aea924c"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-159",
+              "terminal": "pass",
+              "hostIdentity": "7bb22299aa415302be903c8eac0ac751bd211a499d24151925f1d8c740504c45",
+              "promptIdentity": "0d89e59b6e9eb5f27feac1d45b56d16ef5d6f191872b34afb4c50d6b1e34c89e",
+              "evidenceIds": [
+                "B-e256:RP-111"
+              ],
+              "coverageDigest": "9b5dc6a66fdbc82f3cc8e773e02b47cbb52619acff3e0f87da60b41cb08424ca"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "proofstory-acceptance-topology-pre-review-proof-missing",
+            "windows-command-shim-posix-single-quote-false-pass",
+            "windows-command-shim-target-base-variable-binding",
+            "windows-command-shim-unreachable-invocation"
+          ],
+          "verifiedFindingSetDigest": "6a3980e15d5d87b46a29bd2fab7a2268fdd41689c736112a3b851b27f3575270",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "b3404357581ae594c9b0bd7a72e5a0ac22c173af102f0791d2ac71c8c446a117",
+          "saturated": false,
+          "nextRunSequenceBoundary": 160
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "89a6d87fb3f77eba545749f0376dc34ed9b0a9e4276a6d8c437f66c3b7c78cf6"
+      "cancelledAt": "2026-09-07T01:00:26.404Z",
+      "cancelReason": "Replan the Windows shim verification boundary and acceptance proof after wave budget exhaustion; replace incremental string-parser patching with a bounded, demonstrably valid npm-shim contract and repair current Story topology evidence.",
+      "terminalRunSequenceBoundary": 160,
+      "_hash": "a48c005fd41f6f0d91d2fc2543a0699d94ee39ec692d60266fb9edbe0164ead5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e256:RI-012",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-07T01:00:38.721Z",
+      "updatedAt": "2026-09-07T01:00:38.721Z",
+      "cutoff": {
+        "headHash": "543da956a07e7e3e6761c4dc6b625cbded3e1e54",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "scopeDigest": "da0b1ff512984dbc2f30520078cdfe889b1ffc7b369e1ab57df3e805dede7ffc",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 160,
+      "maxWaves": 1,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-e256:F-049",
+        "B-e256:F-050",
+        "B-e256:F-051",
+        "B-e256:F-052"
+      ],
+      "_hash": "7bfacc14667da07dfcc81af101f0b47e9a9eca772d926705a500e652afd64825"
     }
   ],
   "receipts": [
@@ -3225,6 +3309,37 @@
       ],
       "createdAt": "2026-09-07T00:51:39.570Z",
       "_hash": "53fb77c6ec03b4f0ae63d0f2d90be7ed8becac7084980f033ace4ce291e28c1d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-011:CRIT-02",
+      "epochId": "B-e256:RI-011",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "1aa4d495cfbe4501cd8202886044d9e23bda76d7",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "aggregateFindingSetDigest": "6a3980e15d5d87b46a29bd2fab7a2268fdd41689c736112a3b851b27f3575270",
+      "requiredLaneCoverageDigest": "9f66a1fc932eaeef67140cd052938ebb9711bbc3d82072795005971627bce482",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-160",
+      "terminalEvidenceIds": [
+        "B-e256:RP-112"
+      ],
+      "readEvidenceDigest": "6759372afef08c093dbd2997819f52e2b967555288b8ee925d19e67912f0507d",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-052",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-posix-single-quote-false-pass",
+          "reason": "Independent inspection of runtime-environment-checks.ts:765-798 confirms commandTokens accepts POSIX single-quoted tokens, but a Windows .cmd file executed by cmd.exe treats apostrophes literally. Thus a shim spelling either apostrophe-wrapped node or an apostrophe-wrapped canonical script target can satisfy shimSegmentInvokesTarget and emit the healthy contract although the actual command cannot invoke the promised Node target. The focused global-core-realpath suite passes but contains no single-quote mutation. This is distinct from F-047 runtime-variable binding, F-049 unreachable invocation/control flow, and F-050 target-base variable binding; it directly violates CHK-003 adversarial:2/happy:0 and AC-001. Verified high applicable acceptance blocker; current Story repair is required."
+        }
+      ],
+      "createdAt": "2026-09-07T00:59:35.855Z",
+      "_hash": "bed875662cecea2268f21ae8c2540a7c2d7eeae10f412a236f5c3c9db30a89a9"
     }
   ]
 }
