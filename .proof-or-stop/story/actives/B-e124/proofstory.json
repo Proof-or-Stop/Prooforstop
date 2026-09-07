@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-e124",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "red_evidence_required",
+      "message": "Bug, regression, security/auth/session, benchmark, or explicit behavior-change work should have red evidence.",
+      "requires": "red-evidence"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:7a26c67977f9f0db23875f62a426b569cf7df83f703d13f3f2d2817eb7941c4f",
+  "acceptanceBindings": [
+    {
+      "id": "AC-001",
+      "checklistRefs": [
+        "CHK-001",
+        "CHK-002"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0",
+        "CHK-002:happy:0",
+        "CHK-002:edge:0",
+        "CHK-002:adversarial:0"
+      ],
+      "milestoneIds": []
+    }
+  ],
+  "diagnosticGaps": [
+    {
+      "code": "missing_intent_collision",
+      "severity": "warn",
+      "artifact": "intent-collision.json",
+      "message": "Intent collision is triggered but no pass decision with acceptedInterpretation is present.",
+      "triggeredBy": [
+        "collision_required_standard"
+      ]
+    },
+    {
+      "code": "missing_red_evidence",
+      "severity": "warn",
+      "artifact": "red-evidence.json",
+      "message": "Red evidence is triggered but no current red evidence record binds baseline head/material to the correct acceptance target and green relation.",
+      "triggeredBy": [
+        "red_evidence_required"
+      ]
+    }
+  ],
+  "note": "Bounded first repair of two diagnosed baseline failures; no claim of full-suite success.",
+  "createdAt": "2026-09-07T03:06:42.676Z",
+  "updatedAt": "2026-09-07T03:06:42.676Z"
+}

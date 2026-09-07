@@ -1,0 +1,28 @@
+{
+  "task": "Repair the six reproduced baseline smoke failures on main before resuming branding closeout.",
+  "outcome": "The six previously failing smoke commands print their success markers; lab create --help and config doctor --json work; invalid pinned commands, failing verifiers, semantic environment drift, acceptance-basis mutations and command hangs still fail closed.",
+  "facts": [
+    "CLI and environment smokes now pass in worktree.",
+    "English smoke now passes after correcting compiled directory depth.",
+    "Timeout fixture used retired config filename; mutation hook still read retired env selector.",
+    "Pinned docs are rejected by staleReexecCandidate despite the outer refresh allowing them.",
+    "Guard fixture invokes deleted proofOrStop.js instead of the active proof-or-stop.js entrypoint."
+  ],
+  "constraints": [
+    "No validation policy changes or baseline-test exemption.",
+    "Preserve negative assertions and existing production admission.",
+    "Keep unrelated runtime files untouched."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-09-07T03:13:21.588Z"
+}

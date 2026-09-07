@@ -1,0 +1,38 @@
+{
+  "storyId": "B-5a52",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/graph/src/shells/web/playback.js"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "User explicitly approved one-time focused-validation closeout on 2026-09-07 after full-suite failures were reproduced on main. Temporarily replace only validate.commands and doneRequiredCommands for B-5a52 local closeout; restore original config bytes immediately after local merge, preserving failure and limited-verification records.",
+      "timestamp": "2026-09-07T02:51:21.924Z",
+      "paths": [
+        "proof-or-stop.config.json"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "proof-or-stop.config.json"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "7d8166acf08a85e13a2dc4c903243791cd1771f6",
+      "materialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345"
+    }
+  ],
+  "createdAt": "2026-09-07T02:18:12.158Z",
+  "updatedAt": "2026-09-07T02:51:21.924Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/graph/src/shells/web/playback.js": "packages/graph/src/shells/web/playback.js",
+    "proof-or-stop.config.json": "proof-or-stop.config.json"
+  }
+}

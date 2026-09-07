@@ -4552,6 +4552,14 @@ function assertReviewInventoryRemediationContract() {
     `${epochPath}: every eligible same-lane ReviewRun must contribute verified findings even when one newer terminal is selected`,
   );
   const scopeContractHandlerText = read('packages/main/src/handlers/scope-contract.ts');
+  // B-adc3: a saved scope must fit the same bounded authority shape reviewers consume.
+  assert(scopeContractHandlerText.includes('validateFullTaskScopeContext(projectScopeInventory(contract))'),
+    'scope writers must validate the final projected scope before persistence');
+  for (const command of ['scope_contract_set', 'scope_contract_init_from_plan']) {
+    const fact = processFactRegistryMap().get(command);
+    assert(fact?.semantics.includes('schema-contract') && fact?.semantics.includes('atomic-persistence'),
+      `${command} must register bounded scope schema and fail-before-write semantics`);
+  }
   assert(
     /scope_contract_acknowledge[\s\S]*withReviewInventoryMutationLock/.test(scopeContractHandlerText)
       || /withReviewInventoryMutationLock[\s\S]*scope_contract_acknowledge/.test(scopeContractHandlerText),
@@ -5599,6 +5607,12 @@ function assertCertificationWindowCommandContract(cliToolNameSet, registry, leve
         `${commandPolicyPath}: ${commandName} must stay storyScopedMutating`,
       );
     }
+  }
+  const certificationArtifact = registry.get('artifact:certification-window.json');
+  for (const term of ['artifact-releases.jsonl', 'capability-releases.jsonl', 'review-subject',
+    'Git blobs/tombstones', 'integration/test', 'never gate evidence', 'unknown paths fail closed']) {
+    assert(certificationArtifact?.rationale.includes(term),
+      `${processFactRegistryPath}: certification release provenance contract missing ${term}`);
   }
   const statusSource = read('packages/main/src/core/certification-window.ts');
   assert(

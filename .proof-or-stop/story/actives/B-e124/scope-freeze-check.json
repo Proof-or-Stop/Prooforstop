@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-e124",
+  "checkedAt": "2026-09-07T03:03:22.236Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "4ae57def19372ca0d59f10cc2e60b7ef046d93f298321febaa220d5ed1d4fcf7",
+  "executionBoundaryHash": "60fd65011db45d3b95c6aebb4697fa2b77bf41f02aab7ee3e1e1f9ac6d896497",
+  "freshnessHash": "b4f0db76f9525e6898b75672909a1cf37e4eca1934861eb32601d800267f97f3",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "Change lifecycle admission policy",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "Unrelated baseline failures without separate diagnosis",
+    "Weaken validation identity"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Change lifecycle admission policy",
+      "source": "scopeBoundary.excluded",
+      "text": "Change lifecycle admission policy",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated baseline failures without separate diagnosis",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated baseline failures without separate diagnosis",
+      "excluded": true
+    },
+    {
+      "keyword": "Weaken validation identity",
+      "source": "scopeBoundary.excluded",
+      "text": "Weaken validation identity",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "04b8b5977683710779b88f6aa3609cb733dcea9fdb7655b4b44c0f19bc753c58"
+}

@@ -1,0 +1,25 @@
+{
+  "task": "Make exact scope writer and review context capacity agree without discarding authority.",
+  "outcome": "799 paths survive writer to signed review context; count/byte overflow is rejected before writing.",
+  "facts": [
+    "B-42f6 has 799 allowedCreate entries and 99788 serialized scope bytes.",
+    "Scope writer currently admits path lists rejected by generic 512-entry full context validation.",
+    "Local main and remote integration have identical affected scope/prompt implementation."
+  ],
+  "constraints": [
+    "Shared scope-only 4096 path count and 1 MiB serialized inventory cap.",
+    "Generic prompt/checklist lists remain limited to512.",
+    "Preserve paths and digest sensitivity, no gate bypass."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/core/scope-inventory-budget.ts",
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "timestamp": "2026-09-07T08:32:47.505Z"
+}

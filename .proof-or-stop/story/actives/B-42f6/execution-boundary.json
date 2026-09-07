@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-42f6",
+  "allowedCommands": [
+    "git add",
+    "git commit",
+    "git diff",
+    "git fetch",
+    "git log",
+    "git merge",
+    "git push origin main",
+    "git status",
+    "git worktree",
+    "node",
+    "npm"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "independent review agents"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop",
+    "AGENTS.md",
+    "CLAUDE.md",
+    "docs",
+    "package-lock.json",
+    "package.json",
+    "packages",
+    "proof-or-stop.config.json",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push --force",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Inherited remote changes across the repository are authorized integration input. Manual edits are bounded to actual merge conflicts and required compatibility corrections. Remote push requires the canonical release approval. Preserve unrelated main dirt.",
+  "createdAt": "2026-09-07T07:51:18.653Z",
+  "updatedAt": "2026-09-07T07:51:18.653Z",
+  "_hash": "e4b1a87bfdbcc7ab6fe94b5ec019e297f8d00147efd5fc0fe90342a74bd30da5"
+}

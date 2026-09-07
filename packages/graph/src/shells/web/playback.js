@@ -39,6 +39,7 @@ const DEFAULT_NODE_STROKE="#607389";
 const DEFAULT_EDGE_STROKE="#8b929d";
 const DIAGRAM_SANS='"IBM Plex Sans","Source Sans 3",ui-sans-serif,system-ui,sans-serif';
 const DIAGRAM_MONO='"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace';
+const PLAYBACK_BRAND="Proof-or-stop";
 
 function cssVar(name){
   const v=getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -1840,10 +1841,12 @@ function drawChrome(context,elapsed,duration,stepNumber,label,palette,title){
   context.textBaseline="alphabetic";
   context.fillStyle=palette.chrome.ink;
   context.font="600 34px Newsreader, Georgia, serif";
-  context.fillText("Story Graph",54,60);
+  const heading=`${PLAYBACK_BRAND} · Story Graph`;
+  context.fillText(heading,54,60);
+  const titleX=54+context.measureText(heading).width+28;
   context.fillStyle=palette.chrome.ink3;
   context.font=`20px ${DIAGRAM_SANS}`;
-  context.fillText(title,258,59);
+  context.fillText(title,titleX,59);
 
   context.fillStyle=palette.chrome.panel;
   context.fillRect(54,930,1812,120);
@@ -2375,7 +2378,7 @@ async function openPlaybackModal(story,timelineJson){
 
   // ---- top bar ----
   const bar=el("div","pbkbar");
-  const heading=el("b",null,`${story.id} · timeline playback`);
+  const heading=el("b",null,`${PLAYBACK_BRAND} · ${story.id} · timeline playback`);
   const sub=el("span","pbksub");
   const spacer=el("span","pbkspacer");
   const settingsButton=el("button","pbkbtn");
@@ -2815,7 +2818,7 @@ async function openPlaybackModal(story,timelineJson){
     setStatus(`This story's timeline cannot be animated: ${error&&error.message||error}`,"err");
     return;
   }
-  heading.textContent=`${timeline.storyId} · timeline playback`;
+  heading.textContent=`${PLAYBACK_BRAND} · ${timeline.storyId} · timeline playback`;
   sub.textContent=`${timeline.events.length} transitions · preparing…`;
 
   const gsap=await ensurePlaybackGsap().catch(()=>null);

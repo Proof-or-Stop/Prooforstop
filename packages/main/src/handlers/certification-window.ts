@@ -174,6 +174,10 @@ export const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDepe
   ['integration', new RegExp(`${CERTIFICATION_NON_BUILD_INPUT_PREFIX}packages/(?!utils/|lab/)[^/]+/scripts/`)],
   ['source', /^packages\/main\/src\/(?!tasks\/)/],
   ['review-subject', /^(?:docs\/|(?:AGENTS|CLAUDE|README)(?:\.[^/]+)?$)/],
+  // Tracked release provenance is review material, not runtime/build input or
+  // authoritative gate evidence. Bind exact blobs/tombstones and invalidate the
+  // existing review-subject -> integration -> test closure; unknown siblings refuse.
+  ['review-subject', /^\.proof-or-stop\/(?:artifact-releases|capability-releases)\.jsonl$/],
 ];
 
 function certificationDomainForPath(path: string): CausalDependencyDomain | undefined {

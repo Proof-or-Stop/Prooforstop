@@ -215,6 +215,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_close: ['blocker-state', 'schema-contract', 'gate-evidence'],
   scope_boundary_set: ['schema-contract', 'gate-evidence'],
+  scope_contract_set: ['schema-contract', 'atomic-persistence', 'gate-evidence'],
+  scope_contract_init_from_plan: ['schema-contract', 'atomic-persistence', 'gate-evidence'],
   execution_boundary_set: ['schema-contract', 'workspace-binding', 'gate-evidence'],
   scope_freeze_check: ['validation-result', 'schema-contract', 'gate-evidence'],
   scope_extension_proposal: ['blocker-state', 'schema-contract', 'gate-evidence'],
@@ -1559,7 +1561,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/certification-window',
     consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.certification_window_begin,
-    rationale: 'Signed CertificationWindow and PRE_CERT receipt bind frozen head/main/storyFiles identity. Inventory completeness receipts never authorize certification.',
+    rationale: 'Signed CertificationWindow and PRE_CERT receipt bind frozen head/main/storyFiles identity. Exact canonical artifact-releases.jsonl and capability-releases.jsonl paths are review-subject causal inputs bound to actual Git blobs/tombstones, with integration/test dependency invalidation; release provenance is never gate evidence and unknown paths fail closed. Inventory completeness receipts never authorize certification.',
   },
   {
     name: 'artifact:draft-check.json',

@@ -1,3 +1,4 @@
+import { projectScopeInventory } from './scope-inventory-budget.js';
 import {
   canonicalJsonStringify,
   domainSeparatedDigest,
@@ -1296,38 +1297,7 @@ export function buildFullTaskContext(args: {
     ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
     ...(args.scopeContract ? {
       scopeContractDigest: digestScopeContract(args.scopeContract),
-      scope: {
-        mode: args.scopeContract.mode,
-        allowedModify: canonicalStrings(args.scopeContract.allowedModify),
-        allowedCreate: canonicalStrings(args.scopeContract.allowedCreate),
-        allowedTest: canonicalStrings(args.scopeContract.allowedTest),
-        protectedFiles: canonicalStrings(args.scopeContract.protectedFiles),
-        explicitExcludes: canonicalStrings(args.scopeContract.explicitExcludes),
-        protectedAnchors: canonicalStrings(args.scopeContract.protectedAnchors),
-        fileRules: [...(args.scopeContract.fileRules ?? [])]
-          .map(rule => ({
-            path: rule.path,
-            allowedAnchors: canonicalStrings(rule.allowedAnchors),
-            deniedAnchors: canonicalStrings(rule.deniedAnchors),
-            protectedAnchors: canonicalStrings(rule.protectedAnchors),
-            allowedChangeKinds: canonicalStrings(rule.allowedChangeKinds),
-            intentRefs: canonicalStrings(rule.intentRefs),
-          }))
-          .sort((left, right) => left.path.localeCompare(right.path)),
-        ...(args.scopeContract.pathCanonicalizerVersion ? {
-          pathCanonicalizerVersion: args.scopeContract.pathCanonicalizerVersion,
-        } : {}),
-        ...(args.scopeContract.pathCanonicalizationMode ? {
-          pathCanonicalizationMode: args.scopeContract.pathCanonicalizationMode,
-        } : {}),
-        ...(args.scopeContract.anchorParserVersion ? {
-          anchorParserVersion: args.scopeContract.anchorParserVersion,
-        } : {}),
-        ...(args.scopeContract.anchorArtifactVersion ? {
-          anchorArtifactVersion: args.scopeContract.anchorArtifactVersion,
-        } : {}),
-        ...(args.scopeContract.astAnchorMode ? { astAnchorMode: args.scopeContract.astAnchorMode } : {}),
-      },
+      scope: projectScopeInventory(args.scopeContract),
     } : {}),
   };
   validateFullTaskContext(context);

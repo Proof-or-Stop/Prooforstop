@@ -1,0 +1,55 @@
+{
+  "principles": [
+    "Restore advertised behavior.",
+    "Preserve environment identity semantics.",
+    "Keep repair scope bounded."
+  ],
+  "drivers": [
+    "Two deterministic baseline failures block validation.",
+    "Existing contract already specifies canonical transport names."
+  ],
+  "options": [
+    {
+      "name": "Restore aliases and align smoke expectations",
+      "pros": [
+        "Repairs real CLI failure.",
+        "Preserves historical digest and semantic boundary."
+      ],
+      "cons": [
+        "Does not resolve unrelated baseline failures."
+      ]
+    },
+    {
+      "name": "Remove failing assertions or accept retired keys",
+      "pros": [
+        "Could make early smoke assertions pass quickly."
+      ],
+      "cons": [
+        "Would weaken coverage or contradict canonical-only active matching."
+      ]
+    }
+  ],
+  "chosen": "Restore aliases and align smoke expectations",
+  "rationale": "Use the existing contract as authority: restore the six previously supported Lab aliases and test the canonical transport names while retaining negative semantic cases.",
+  "preMortem": [
+    {
+      "scenario": "Aliases bypass admission",
+      "trigger": "Normalization routes outside registered handlers",
+      "consequence": "CLI ownership checks skipped",
+      "mitigation": "Only restore mapping to existing flat handlers and verify real CLI help."
+    },
+    {
+      "scenario": "Test hides semantic drift",
+      "trigger": "All environment values become ignored",
+      "consequence": "Invalid receipts could appear reusable",
+      "mitigation": "Keep negative assertions for semantic inputs and explicit command overlays."
+    },
+    {
+      "scenario": "Frozen digest changes",
+      "trigger": "Historical list edited",
+      "consequence": "Existing receipt compatibility changes",
+      "mitigation": "Do not change production environment file or frozen digest."
+    }
+  ],
+  "timestamp": "2026-09-07T03:06:08.800Z"
+}

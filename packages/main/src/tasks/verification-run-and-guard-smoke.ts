@@ -698,6 +698,36 @@ async function partE(): Promise<void> {
       } finally { cleanup(env); }
     }
 
+    // Independent selector verdicts must not turn shared execution into a false PASS.
+    {
+      const env = makeEnv('B-refresh-mixed-selectors', [
+        intent('INT-MIX-A', 'cli'),
+        intent('INT-MIX-B', 'cli'),
+      ]);
+      try {
+        const counter = join(externalRoot, 'mixed-counter.txt');
+        const output = join(externalRoot, 'mixed-output.txt');
+        writeFileSync(counter, '');
+        writeFileSync(output, 'MIX_A MIX_B\n');
+        const command = externalVerifierCommand(counter, output);
+        await seedPinnedReceipt(env, { intentRef: 'INT-MIX-A', command, selector: 'MIX_A' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-MIX-B', command, selector: 'MIX_B' });
+        writeFileSync(counter, '');
+        writeFileSync(output, 'MIX_A\n');
+        commitRefreshDrift(env, 'mixed-selectors');
+
+        await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        assert.equal(executionCount(counter), 1, 'E2 mixed: selectors share one child execution');
+        const a = findEvidence(env, 'INT-MIX-A');
+        const b = findEvidence(env, 'INT-MIX-B');
+        assert.equal(a?.mechanical, true, 'E2 mixed: matching selector retains mechanical evidence');
+        assert.equal(a?.receipt?.selector, 'MIX_A', 'E2 mixed: passing receipt binds the matching selector');
+        assert.equal(a?.receipt?.selectorMatched, true, 'E2 mixed: matching selector has a true verdict');
+        assert.equal(b?.mechanical, false, 'E2 mixed: absent selector is demoted independently');
+        assert.equal(b?.receipt, undefined, 'E2 mixed: shared execution never fabricates the absent selector PASS');
+      } finally { cleanup(env); }
+    }
+
     // E3: a shared command that no longer emits the selector runs once, but its
     // failure produces zero pass stamps. Every row sharing that key is demoted.
     {

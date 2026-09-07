@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "proofbound.review_inventory_epochs.v1",
+  "epochs": [
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a52:RI-001",
+      "storyId": "B-5a52",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-09-07T02:47:13.514Z",
+      "updatedAt": "2026-09-07T02:51:20.837Z",
+      "cutoff": {
+        "headHash": "7d8166acf08a85e13a2dc4c903243791cd1771f6",
+        "materialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345",
+        "storyFilesHash": "da2ef4ccdb9a07a7daa004a24ebfb120b1001059fee6d6f0442add6152484c94"
+      },
+      "scopeDigest": "279a9b7afb1da5035c2f530d8003736e2a0ac501b3fb41ae3c08e6e77a2467a8",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 3,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-09-07T02:51:20.837Z",
+      "cancelReason": "Cancel unnecessary remediation inventory: no code repair is needed. User approved an administrative one-time focused-validation policy for this closeout; existing implementation reviews remain recorded. No completeness or remediation authority is claimed by cancellation.",
+      "terminalRunSequenceBoundary": 6,
+      "_hash": "c45c1254905e431a65610094b60ad02c187e9da9877e3185d6d1e26fd6e72820"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a52:RIE-002",
+      "storyId": "B-5a52",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-07T06:22:42.964Z",
+      "updatedAt": "2026-09-07T06:23:01.486Z",
+      "cutoff": {
+        "headHash": "6fb53854ed638fef6c0602b52db428b833c309da",
+        "materialHash": "cb166efa035ca321a6ec8f4c6a35d3dd8f3631239b5180fb60e2f516c64134f4",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scopeDigest": "b91ccf712ebdc7810900d5104f6e119e27ca8e9ab3f34ae656dfb1374b20196a",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a52:RIE-002:RCP-001",
+      "consumedAt": "2026-09-07T06:23:01.486Z",
+      "consumedByReviewRound": "2026-09-07T02:28:57.003Z",
+      "_hash": "5d18454916482dafa2ad1e7ac998ec4125dfc05282289f1b6f84573c68e8206d"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a52:RIE-002:RCP-001",
+      "epochId": "B-5a52:RIE-002",
+      "storyId": "B-5a52",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "cutoff": {
+        "headHash": "6fb53854ed638fef6c0602b52db428b833c309da",
+        "materialHash": "cb166efa035ca321a6ec8f4c6a35d3dd8f3631239b5180fb60e2f516c64134f4",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scopeDigest": "b91ccf712ebdc7810900d5104f6e119e27ca8e9ab3f34ae656dfb1374b20196a",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T06:22:42.964Z",
+      "consumedAt": "2026-09-07T06:23:01.486Z",
+      "_hash": "fcfeebe1cb2c0e0dc9a1ad0fb025fedc2321d3ac698322946fb8dd46afce6151"
+    }
+  ],
+  "criticReceipts": []
+}

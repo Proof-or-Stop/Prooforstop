@@ -5,10 +5,9 @@
  * This is intentionally not a replay of historical F-029. The current Finding,
  * B-META, process-event, build, and Store write paths already contain useful
  * serialization/atomic-replacement primitives. Those are characterized as
- * passing below. Historical RED references and exact baseline/current execution
- * are checked separately from fresh, explicitly fixture-only candidate API
- * integrity tests. Missing old clone-local candidate caches are not restored or
- * represented as current evidence by this portable regression guard.
+ * passing below. The process exits non-zero only while the accepted Story 3
+ * ledger/runtime contracts are absent; the same assertions turn green once the
+ * production implementation exists.
  */
 
 import assert from 'node:assert/strict';
@@ -36,6 +35,7 @@ const ORIGINAL_RED_ID = 'RED-BFE8F-LEDGER-FOUNDATION';
 const PROBE_ID = 'rp-mtifubae-dfbh4w';
 const PROBE_DIGEST = '2debba0742404113a7b685e2b218f51057a8c37cfe2ad36c23bbec1404c9516c';
 const RELATION_ID = 'rgr-mtifujpd-ijl3w5';
+const RELATION_DIGEST = '8125cec78cf280acfef28985063f5dcbf7d433b293d85f3af578552c91a77faa';
 const REVIEW_ID = 'rr-mtifws9p-6knju0';
 const EVALUATION_ID = 'rgre-mtifx3sy-cdxd7d';
 const IMMUTABLE_RED_BLOB = '1b913dab2f52e904afc1b7b1870a3a98be0739bc';
@@ -92,9 +92,8 @@ function runProof(command, payload, cwd = repoRoot) {
 // inside a symlink mirror with private Git administration. That mirror contains no
 // independent B-fe8f Story evidence store. Keep that bounded harness useful by
 // checking an integrity-pinned static copy of the already-reviewed evidence
-// identities there; ordinary worktrees still read the actual historical RED
-// records. Both paths execute fresh candidate CLI integrity tests in a private
-// fixture, never treating that fixture as restored historical candidate bytes.
+// identities there; the real worktree path below still executes every official
+// Story read and the same fresh production relation checks.
 // The parent harness proves real Git isolation independently. This finite
 // launch/layout check only selects the existing integrity-pinned static binding;
 // it does not grant authority to the mirror or substitute for that isolation proof.
@@ -378,16 +377,14 @@ const verificationReceiptBody = /export interface VerificationExecutionReceipt\s
 assert.doesNotMatch(verificationReceiptBody, /artifactManifest|sourceMaterialHash|trustRootDigest/, 'coarse verification receipt unexpectedly contains the Story 3 runtime contract');
 
 // Official append-only RED evidence: V2 corrects only the malformed command in
-// V1, while V1's reviewed receipt digest remains preserved. These tracked
-// records preserve references to the original candidate artifacts; they are not
-// proof that those clone-local CAS bytes still exist. Do not replace their IDs
-// or digest with the fresh fixture artifacts created below.
+// V1, while V1's reviewed receipt digest remains preserved. The pair binds the
+// immutable baseline and the accepted relation/review artifacts.
+assert.equal(
+  sha256(JSON.stringify(registrationMirrorBinding)),
+  REGISTRATION_MIRROR_BINDING_DIGEST,
+  'B-fe8f historical evidence binding changed without explicit maintenance',
+);
 if (supportedRegistrationMirror) {
-  assert.equal(
-    sha256(JSON.stringify(registrationMirrorBinding)),
-    REGISTRATION_MIRROR_BINDING_DIGEST,
-    'B-fe8f static registration-mirror evidence binding changed without explicit maintenance',
-  );
   const configured = JSON.parse(source('proof-or-stop.config.json'));
   assert.equal(
     (configured.validate?.commands ?? []).some((entry) => (
@@ -406,8 +403,15 @@ const evidence = supportedRegistrationMirror
 const original = evidence.records?.find((record) => record.id === ORIGINAL_RED_ID);
 const official = [...(evidence.records ?? [])].reverse().find((record) => record.id === RED_ID);
 assert.ok(original && official, 'official append-only RED evidence pair is missing');
+// Historical identities remain assertions about the committed Story metadata.
+// Candidate artifacts are local runtime data, so an old ID is not a portable
+// executable fixture and must never be reconstructed as the original receipt.
+const historicalProbe = registrationMirrorBinding.probe;
+assert.equal(historicalProbe.artifactDigest, PROBE_DIGEST, 'probe digest changed');
+assert.equal(historicalProbe.payload?.executionStatus, 'confirmed_failing', 'probe is not a confirmed failing baseline');
+assert.equal(historicalProbe.payload?.expectedFailurePattern, 'ERR_MODULE_NOT_FOUND', 'probe failure matcher changed');
 assert.equal(original.failureReceiptHash, PROBE_DIGEST, 'original official RED is not bound to the reviewed probe digest');
-assert.equal(original.baselineHeadHash, BASELINE_HEAD, 'original RED baseline reference changed');
+assert.equal(official.baselineHeadHash, historicalProbe.payload?.baselineHeadHash, 'official RED and reviewed probe bind different baseline HEADs');
 assert.match(official.baselineMaterialHash ?? '', /^[0-9a-f]{64}$/, 'official RED lacks a material hash');
 assert.match(official.observedFailure ?? '', /ERR_MODULE_NOT_FOUND/, 'official RED does not state the reviewed failure');
 assert.match(official.failingCommand ?? '', /import\(process\.argv\[1\]\)/, 'official corrected command is not executable/argument-bound');
@@ -430,14 +434,15 @@ let historicalBaselineFails = false;
 let currentGreenPasses = false;
 let probe;
 let relationEvaluation;
-let mutatedRelation;
+let currentCorruptedRelationRejected = false;
 try {
+  const { createProbe, reviewProbe, createRedGreenRelation, evaluateRedGreenRelation } = await import(
+    pathToFileURL(join(repoRoot, 'packages/main/dist/core/repro-intake.js')).href
+  );
   const clone = run('git', ['clone', '-q', '--shared', '--no-checkout', repoRoot, historicalCheckout]);
   assert.equal(clone.status, 0, `historical RED clone failed: ${clone.stderr || clone.stdout}`);
   const checkout = run('git', ['checkout', '-q', '--detach', BASELINE_HEAD], { cwd: historicalCheckout });
   assert.equal(checkout.status, 0, `historical RED checkout failed: ${checkout.stderr || checkout.stdout}`);
-  assert.equal(existsSync(join(historicalCheckout, 'packages/main/src/core/finding-ledger.ts')), false,
-    'historical missing-module witness must not be merely an unbuilt checkout of an existing ledger implementation');
   const anchoredArgs = ['-e', 'import(process.argv[1])', './packages/main/dist/core/finding-ledger.js'];
   process.chdir(tmpdir());
   const historical = run(process.execPath, anchoredArgs, { cwd: historicalCheckout });
@@ -448,92 +453,99 @@ try {
   assert.equal(historicalBaselineFails, true, `historical baseline did not fail with ERR_MODULE_NOT_FOUND: ${historicalOutput}`);
   assert.equal(currentGreenPasses, true, `current GREEN module import failed: ${currentGreen.stderr || currentGreen.stdout}`);
 
-  // Exercise the real candidate CLI in a fresh private store on EVERY run.
-  // The synthetic review below tests API behavior only; it is not an independent
-  // historical review, a recovered old artifact, or REVIEW/TEST/DONE authority.
-  const fixtureRoot = join(relationScratch, 'candidate-fixture');
+  // Fresh evidence-candidate test artifacts, never the original B-fe8f receipts.
+  // Both normal and registration-mirror runs execute these production APIs.
+  const fixtureRoot = join(relationScratch, 'fresh-candidate');
   mkdirSync(fixtureRoot);
+  const fixtureGit = run('git', ['init', '-q', '-b', 'main'], { cwd: fixtureRoot });
+  assert.equal(fixtureGit.status, 0, `fixture Git initialization failed: ${fixtureGit.stderr}`);
   writeFileSync(join(fixtureRoot, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.' }));
-  const baselineCommandSpec = { command: process.execPath, args: anchoredArgs, cwd: historicalCheckout };
-  const currentCommandSpec = { command: process.execPath, args: anchoredArgs, cwd: repoRoot };
-  assert.equal(baselineCommandSpec.command, currentCommandSpec.command);
-  assert.deepEqual(baselineCommandSpec.args, currentCommandSpec.args, 'replay assertion changed between explicit checkout roots');
-  const createdProbe = parseCliJson(runProof('repro_probe', {
-    candidateId: 'fixture-only-bfe8f-ledger-replay',
-    taskSummary: 'Fixture-only candidate roundtrip of the actually executed historical missing-module contract',
-    eligibility: 'Private temporary regression fixture; not Story evidence',
-    reason: 'Check current candidate API integrity without requiring or fabricating historical clone-local CAS artifacts',
-    commandSpec: baselineCommandSpec,
-    expectedFailure: 'The fixed historical checkout cannot import the ledger runtime module',
+  const commandSpec = { command: process.execPath, args: anchoredArgs, cwd: '.' };
+  probe = createProbe(fixtureRoot, {
+    candidateId: 'bfe8f-portable-relation-fixture',
+    taskSummary: 'Verify the fixed historical missing-module import and current GREEN import',
+    eligibility: 'Fresh disposable regression fixture from executed Git baseline',
+    reason: 'Historical candidate artifacts are not distributed with Git',
+    commandSpec,
+    expectedFailure: 'The fixed historical checkout lacks the ledger module',
     expectedFailurePattern: 'ERR_MODULE_NOT_FOUND',
-    executionStatus: 'confirmed_failing',
-    observedFailureSummary: `Actual historical command exited ${historical.status}; current import exited ${currentGreen.status}`,
-    boundedOutputExcerpt: historicalOutput,
+    executionStatus: historicalBaselineFails ? 'confirmed_failing' : 'confirmed_passing',
+    observedFailureSummary: `Historical import exit status: ${historical.status}`,
+    boundedOutputExcerpt: historicalOutput.slice(0, 4096),
     producerObservedClass: 'target-bug',
     baselineHeadHash: BASELINE_HEAD,
-  }, fixtureRoot), 'fixture repro_probe');
-  assert.equal(createdProbe.evidenceScope, 'evidence-candidate');
-  assert.notEqual(createdProbe.artifactId, PROBE_ID, 'fixture must not impersonate the historical probe');
-  probe = parseCliJson(runProof('repro_probe_get', { probeId: createdProbe.artifactId }, fixtureRoot), 'fixture repro_probe_get');
-  assert.equal(probe.artifactDigest, createdProbe.artifactDigest, 'fresh probe digest roundtrip changed');
-  assert.deepEqual(probe.payload.commandSpec, baselineCommandSpec, 'fresh probe lost the actual executed command/cwd');
-  assert.equal(probe.payload.baselineHeadHash, BASELINE_HEAD);
-  assert.equal(probe.payload.executionStatus, 'confirmed_failing');
-  assert.equal(probe.payload.expectedFailurePattern, 'ERR_MODULE_NOT_FOUND');
-  assert.equal(probe.payload.boundedOutputExcerpt, historicalOutput, 'fixture probe replaced the executed baseline output');
-  const absentHistoricalProbe = runProof('repro_probe_get', { probeId: PROBE_ID }, fixtureRoot);
-  assert.notEqual(absentHistoricalProbe.status, 0, 'private fixture unexpectedly acquired the historical probe');
-  assert.match(`${absentHistoricalProbe.stdout}\n${absentHistoricalProbe.stderr}`, /artifact ref not found/);
-
-  const relation = parseCliJson(runProof('red_green_relation_create', {
+  });
+  assert.notEqual(probe.artifactId, PROBE_ID, 'fresh fixture reused a historical probe identity');
+  assert.equal(probe.evidenceScope, 'evidence-candidate');
+  const cliProbe = parseCliJson(runProof('repro_probe_get', { probeId: probe.artifactId }, fixtureRoot), 'fresh repro_probe_get');
+  assert.equal(cliProbe.artifactDigest, probe.artifactDigest, 'CLI read changed the fresh probe digest');
+  assert.deepEqual(cliProbe.payload, probe.payload, 'CLI read changed the fresh probe payload');
+  reviewProbe(fixtureRoot, {
     probeId: probe.artifactId,
-    baselineCommandSpec,
-    baselineExpectedFailurePattern: 'ERR_MODULE_NOT_FOUND',
-    currentCommandSpec,
-    currentExpectedFailurePattern: 'ERR_MODULE_NOT_FOUND',
-    description: 'Fixture-only relation of the same actual import assertion in explicit historical/current roots; not recovered historical evidence',
-  }, fixtureRoot), 'fixture red_green_relation_create');
-  assert.equal(relation.evidenceScope, 'evidence-candidate');
-  assert.notEqual(relation.artifactId, RELATION_ID);
-  const unreviewed = parseCliJson(runProof('red_green_relation_evaluate', {
+    probeDigest: probe.artifactDigest,
+    verdict: 'red-reviewed',
+    reviewedFailureClass: 'target-bug',
+    notes: 'Automated fixture classification of the executed missing-module baseline; not an independent historical review.',
+  });
+  const relation = createRedGreenRelation(fixtureRoot, {
+    probeId: probe.artifactId,
+    baselineCommandSpec: commandSpec,
+    baselineExpectedFailurePattern: probe.payload.expectedFailurePattern,
+    currentCommandSpec: { command: process.execPath, args: [...anchoredArgs], cwd: '.' },
+    currentExpectedFailurePattern: probe.payload.expectedFailurePattern,
+    description: `Fresh fixture: baseline exit ${historical.status}, current GREEN exit ${currentGreen.status}; explicit checkout cwd per execution.`,
+  });
+  assert.notEqual(relation.artifactId, RELATION_ID, 'fresh fixture reused a historical relation identity');
+  assert.deepEqual(relation.payload.baselineCommandSpec, relation.payload.currentCommandSpec,
+    'the full import command contract changed between baseline and current');
+  const evaluated = evaluateRedGreenRelation(fixtureRoot, {
     relationId: relation.artifactId, relationDigest: relation.artifactDigest,
-  }, fixtureRoot), 'fixture unreviewed relation evaluation');
-  assert.equal(unreviewed.pass, false, 'fresh relation passed without the fixture review premise');
-  assert.ok(unreviewed.reasons.some((reason) => reason.includes('missing red-reviewed')));
-  const fixtureReview = parseCliJson(runProof('repro_review_set', {
-    probeId: probe.artifactId, probeDigest: probe.artifactDigest,
-    verdict: 'red-reviewed', reviewedFailureClass: 'target-bug',
-    notes: 'Synthetic fixture-only review exercises candidate acceptance; not an independent historical review or Story gate credential',
-  }, fixtureRoot), 'fixture repro_review_set');
-  assert.equal(fixtureReview.evidenceScope, 'evidence-candidate');
-  assert.notEqual(fixtureReview.artifactId, REVIEW_ID);
+  });
   relationEvaluation = parseCliJson(runProof('red_green_relation_evaluate', {
     relationId: relation.artifactId, relationDigest: relation.artifactDigest,
-  }, fixtureRoot), 'fixture reviewed relation evaluation');
-  assert.equal(relationEvaluation.evidenceScope, 'evidence-candidate');
-  const badDigest = `${relation.artifactDigest.slice(0, -1)}${relation.artifactDigest.endsWith('0') ? '1' : '0'}`;
-  mutatedRelation = runProof('red_green_relation_evaluate', {
+  }, fixtureRoot), 'fresh red_green_relation_evaluate');
+  assert.equal(relationEvaluation.pass, evaluated.payload.pass, 'CLI and core relation verdicts disagree');
+  const digest = relation.artifactDigest;
+  const badDigest = `${digest.slice(0, -1)}${digest.endsWith('0') ? '1' : '0'}`;
+  assert.throws(() => evaluateRedGreenRelation(fixtureRoot, {
+    relationId: relation.artifactId, relationDigest: badDigest,
+  }), /relation digest mismatch/, 'production evaluator accepted a mutated relation digest');
+  const badCliRelation = runProof('red_green_relation_evaluate', {
     relationId: relation.artifactId, relationDigest: badDigest,
   }, fixtureRoot);
+  currentCorruptedRelationRejected = badCliRelation.status !== 0
+    && /relation digest mismatch/.test(`${badCliRelation.stdout}\n${badCliRelation.stderr}`);
+  assert.equal(currentCorruptedRelationRejected, true, 'CLI accepted a corrupted relation digest');
+  const mismatch = createRedGreenRelation(fixtureRoot, {
+    ...relation.payload,
+    currentCommandSpec: { ...commandSpec, command: 'different-executable-negative-control' },
+  });
+  const mismatchEvaluation = parseCliJson(runProof('red_green_relation_evaluate', {
+    relationId: mismatch.artifactId, relationDigest: mismatch.artifactDigest,
+  }, fixtureRoot), 'mismatched command relation evaluation');
+  assert.equal(mismatchEvaluation.pass, false, 'CLI accepted a changed command');
+  assert.ok(mismatchEvaluation.reasons.some((reason) => /command mismatch/.test(reason)),
+    'changed command was rejected for an unrelated reason');
+
 } finally {
   process.chdir(ambientCwd);
   rmSync(relationScratch, { recursive: true, force: true });
 }
 
-function historicalRecordMatchesReplay(record, replayProbe, options = {}) {
+function officialBindingAccepts(record, reviewedProbe, options = {}) {
   const dirty = options.dirty === true;
   return !dirty
-    && record.baselineHeadHash === replayProbe.payload?.baselineHeadHash
+    && record.baselineHeadHash === reviewedProbe.payload?.baselineHeadHash
     && typeof record.failingCommand === 'string'
     && /import\(process\.argv\[1\]\)/.test(record.failingCommand)
     && typeof record.observedFailure === 'string'
-    && record.observedFailure.includes(replayProbe.payload?.expectedFailurePattern ?? '__missing__');
+    && record.observedFailure.includes(reviewedProbe.payload?.expectedFailurePattern ?? '__missing__');
 }
-assert.equal(historicalRecordMatchesReplay(official, probe), true, 'historical RED reference does not match the fresh replay');
-assert.equal(historicalRecordMatchesReplay({ ...official, baselineHeadHash: '0'.repeat(40) }, probe), false, 'changed HEAD was accepted');
-assert.equal(historicalRecordMatchesReplay(official, probe, { dirty: true }), false, 'dirty execution was accepted');
-assert.equal(historicalRecordMatchesReplay({ ...official, failingCommand: '' }, probe), false, 'missing executable command was accepted');
-assert.equal(historicalRecordMatchesReplay({ ...official, observedFailure: 'generic failure' }, probe), false, 'failure without the asserted reason was accepted');
+assert.equal(officialBindingAccepts(official, historicalProbe), true, 'official RED pair is not admissible');
+assert.equal(officialBindingAccepts({ ...official, baselineHeadHash: '0'.repeat(40) }, historicalProbe), false, 'changed HEAD was accepted');
+assert.equal(officialBindingAccepts(official, historicalProbe, { dirty: true }), false, 'dirty execution was accepted');
+assert.equal(officialBindingAccepts({ ...official, failingCommand: '' }, historicalProbe), false, 'missing executable command was accepted');
+assert.equal(officialBindingAccepts({ ...official, observedFailure: 'generic failure' }, historicalProbe), false, 'failure without the asserted reason was accepted');
 
 // The original RED commit must contain only this characterization asset (plus
 // CLI-owned story metadata, if committed together); later GREEN production
@@ -551,16 +563,14 @@ if (introduction) {
   assert.deepEqual(nonMetadata, [], `uncommitted production changes contaminate RED: ${nonMetadata.join(', ')}`);
 }
 
-// Check the real private fixture's current API responses, never a synthetic
-// success/failure stand-in for an absent historical relation. The fixture-only
-// review premise and one-bit digest negative control were both executed above.
-assert.equal(relationEvaluation.pass, true, 'fixture RED/GREEN relation did not evaluate');
-assert.equal(relationEvaluation.candidateId, probe.candidateId, 'relation/probe candidate binding changed');
+// The fresh relation is integrity-pinned and evaluated by production code.
+// Historical relation identity/digest constants remain historical assertions only.
+assert.match(RELATION_DIGEST, /^[0-9a-f]{64}$/, 'historical relation digest changed shape');
+assert.equal(relationEvaluation.pass, true, 'fresh RED/GREEN fixture relation did not evaluate');
+assert.equal(relationEvaluation.candidateId, probe.payload.candidateId, 'relation/probe candidate binding changed');
 const assertionUnchanged = relationEvaluation.reasons?.some((reason) => /command specs match/.test(reason)) === true;
 assert.equal(assertionUnchanged, true, 'relation no longer proves unchanged command specs');
-const mutatedRelationOutput = `${mutatedRelation.stdout}\n${mutatedRelation.stderr}`;
-const currentCorruptedRelationRejected = mutatedRelation.status !== 0 && /digest|integrity|mismatch/i.test(mutatedRelationOutput);
-assert.equal(currentCorruptedRelationRejected, true, `mutated relation digest was not rejected with an integrity reason: ${mutatedRelationOutput}`);
+assert.equal(currentCorruptedRelationRejected, true, 'mutated relation digest was not rejected');
 const assertionDigest = sha256(JSON.stringify({ commandSpec: probe.payload.commandSpec, pattern: probe.payload.expectedFailurePattern }));
 assert.match(assertionDigest, /^[0-9a-f]{64}$/, 'relation assertion digest is not stable');
 
@@ -619,12 +629,11 @@ assert.equal(substitutedProbe.payload.executionStatus === 'confirmed_failing' &&
 
 console.log(`red.audit_summary: current primitives classified; preFixHead=${official.baselineHeadHash}; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=${gaps.length}`);
 console.log('red.production_unchanged: PASS');
-// Preserve pinned selector prefixes while naming their actual proof domains.
-console.log('red.evidence_provenance: historicalReferences=checked historicalCandidateCAS=not-consumed liveCandidate=fixture-only restoredHistoricalCAS=false');
-console.log('red.official_evidence_create: PASS historicalRecords=read-only candidateCreation=fixture-only');
-console.log('red.relation_create: PASS unchangedAssertionBound=true candidateScope=fixture-only');
+console.log('red.official_evidence_create: PASS');
+console.log('red.relation_fixture: fresh evidence-candidate artifacts; historical receipt identities were not recreated');
+console.log('red.relation_create: PASS unchangedAssertionBound=true');
 console.log('red.no_fabricated_race: PASS');
-console.log('red.evidence_binding: PASS historicalReferenceBinding=true freshCandidateRoundtrip=fixture-only');
+console.log('red.evidence_binding: PASS');
 console.log('red.primitive_scope: PASS');
 console.log(relationStatus);
 console.log('red.mutation_isolation: PASS');

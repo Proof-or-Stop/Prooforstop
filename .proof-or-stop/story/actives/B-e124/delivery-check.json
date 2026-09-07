@@ -1,0 +1,60 @@
+{
+  "storyId": "B-e124",
+  "checkedAt": "2026-09-07T04:34:40.279Z",
+  "headHash": "717ff5b749bdded1630acba6eb83d9e3a46be51e",
+  "materialHash": "c1b20b79cda018bb3742f0aed730770a99d5a5ac69d8722db003f106e2607959",
+  "storyFilesHash": "60c6fd1b33375c5124878bd22b43aa3b77f6e8bcef9a63b4b834d65ef1748dfd",
+  "reviewRound": "2026-09-07T04:28:31.987Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "packages/lab/src/handlers/lab.ts",
+      "promise": "All six advertised nested Lab commands route to the corresponding flat handlers.",
+      "status": "verified",
+      "verifiedBy": "Committed alias table, real CLI help, cli-surface regression assertions",
+      "evidence": "Direct lab create --help exited 0; config doctor --json exited 0 with ok:true; lab unknown exited 1. Six-way nested/flat help comparison exists in cli-surface-smoke."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-e124/summary.json",
+      "promise": "Canonical ambient transport names are neutral while semantic environment changes and explicit overlays remain meaningful.",
+      "status": "verified",
+      "verifiedBy": "Production filter and done-required-validation-smoke assertions",
+      "evidence": "Frozen key list unchanged; canonical/retired, POSIX/Windows and semantic CI/NODE_OPTIONS/LANG/LC_ALL assertions remain. Final project validate passes that smoke."
+    },
+    {
+      "docPath": "packages/main/src/core/process-fact-registry.ts",
+      "promise": "Pinned docs/manual verification refresh uses real executed receipts and shared execution timestamps.",
+      "status": "verified",
+      "verifiedBy": "Handler diff and verification-run-and-guard-smoke negative assertions",
+      "evidence": "staleReexecCandidate accepts pins independent of default intent type; stamp uses receipt.executedAt. Pinned docs recovery, absent selector demotion, pinless and nonzero refusal assertions pass in final validation."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-e124/summary.json",
+      "promise": "Six baseline smokes and later diagnostic regression are repaired without changing signature rejection or relaxing validation.",
+      "status": "verified",
+      "verifiedBy": "Committed diff, domain renderer and actual final validation JSON",
+      "evidence": "machine.ts changes only diagnostic rendering; M1/M2 assert domain-derived message. Final actual log status pass/allPass true with 128 commands including both prior failed red harnesses. Summary correctly leaves final DONE-required run pending."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent current CLI: lab create --help exit 0 with registered options; config doctor --json exit 0 ok:true; lab unknown exit 1 Unknown command: lab. Six nested/flat aliases and forwarded arguments covered by real CLI smoke and final validation."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Inspected actual final validation PASS and refreshed pinned done-required-validation smoke receipt. Assertions test canonical transport neutrality, retired names and semantic inputs sensitivity, Windows case behavior, explicit overlay precedence; frozen production list untouched."
+    },
+    {
+      "featureId": "CHK-003",
+      "transcript": "Inspected real final 128-command validation PASS and refreshed four-smoke execution receipts. Negative assertions cover docs pinned recovery, no pin/no selector/no success receipt refusal, independent mixed selectors, true timeout, acceptance-basis mutations. Diagnostic regression M1/M2 plus registration derivation now pass; no final DONE-required root-suite result claimed."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Promised bounded repairs map to implementation and real passing regression evidence; no new unresolved TODO/FIXME/HACK in production diff. Final full project validation passes 128 commands. Official DONE-required validation, cross-provider quorum, and local merge remain independent pending gates. Unsupported observe-only topology/pre-review diagnostics are not claimed as executable proof."
+  },
+  "_hash": "a1cebc5e64639ca083bb1fff3c38c99670f54e86ad96386b3777fea1db554b31"
+}

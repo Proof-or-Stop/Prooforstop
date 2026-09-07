@@ -1,0 +1,78 @@
+{
+  "storyId": "B-adc3",
+  "name": "bounded-large-scope-review-context",
+  "title": "Keep large exact scope contracts reviewable within shared bounds",
+  "description": "Repair B-42f6 REVIEW deadlock: scope_contract_set accepts 799 exact created paths while FullTaskContext rejects more than 512. Preserve every scope path and digest under shared count and aggregate byte bounds enforced before persistence and during review context validation.",
+  "type": "bug",
+  "phase": "DONE",
+  "priority": "high",
+  "createdAt": "2026-09-07T08:30:02.552Z",
+  "startedAt": "2026-09-07T08:30:02.552Z",
+  "endedAt": "2026-09-07T09:58:48.551Z",
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-07T08:30:03.489Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:31:28.712Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:32:45.883Z",
+      "branch": "story/B-adc3",
+      "user": "Pan Qi",
+      "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:37:57.836Z",
+      "branch": "story/B-adc3",
+      "user": "Pan Qi",
+      "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:52:14.078Z",
+      "branch": "story/B-adc3",
+      "user": "Pan Qi",
+      "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-07T09:41:02.435Z",
+      "branch": "story/B-adc3",
+      "user": "Pan Qi",
+      "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-09-07T09:58:48.551Z",
+      "branch": "story/B-adc3",
+      "user": "Pan Qi",
+      "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
+      "agent": "main"
+    }
+  ],
+  "currentReviewRound": "2026-09-07T08:52:14.078Z"
+}

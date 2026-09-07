@@ -1,0 +1,444 @@
+{
+  "findings": [
+    {
+      "id": "B-adc3:F-001",
+      "desc": "Imported external informational observation 1, not a verified current defect. Original Claude source /private/tmp/B-adc3-cross-host/claude-round-1.verdict.json; packages/main/src/core/scope-inventory-budget.ts:62; original severity=low. Original reason verbatim: The 1 MiB aggregate byte budget is measured on JSON.stringify(scope), whose byte count depends on JSON string escaping (quotes, backslashes, control chars each expand to 2+ bytes). Path validation in core/scope-contract.ts validatePaths only rejects null bytes and unsafe relative prefixes, so a quote- or backslash-bearing path is accepted and inflates the measured size non-obviously. This is a benign conservative direction (measured size >= raw content size, so the reviewer-representability guarantee still holds and nothing is silently truncated), but the limit is not the intuitive 'sum of path bytes' and no comment records that. Advisory only: it cannot admit an oversized projection. Independent assessment: The reported serialization cost matches the explicitly approved JSON byte budget; no current erroneous acceptance or rejection has been reproduced.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The reported serialization cost matches the explicitly approved JSON byte budget; no current erroneous acceptance or rejection has been reproduced.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T08:56:11.825Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "bede654bc71b8ec07db20c0e9ad95fb63fa6e77f017cb55c1dc2ef4102c73634",
+      "files": [
+        "packages/main/src/core/scope-inventory-budget.ts"
+      ],
+      "signatureTag": "missing|ts|imported-external-informational",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: preserve the original Claude observation and independent quality assessment. Serialized JSON UTF-8 bytes, including escaping, are the explicitly approved budget and the implementation enforces that exact contract. This is a comment suggestion with no demonstrated current error; no repair or deferral is claimed.",
+      "dismissedAt": "2026-09-07T08:57:41.579Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-002",
+      "desc": "Imported external informational observation 2, not a verified current defect. Original Claude source /private/tmp/B-adc3-cross-host/claude-round-1.verdict.json; packages/main/src/core/prompt-contracts.ts:893; original severity=low. Original reason verbatim: protectedAnchors is deliberately left on the generic 512-entry bound while the five path inventories move to 4096, and the byte budget in validateScopeInventoryBudget covers the whole projection including protectedAnchors and fileRules. That split is defensible (anchors are identifiers, not the exact path authority the defect concerns, and validateAnchors already restricts them to identifier syntax) and is pinned by the new negative assertion at prompt-full-context-envelope-smoke.ts:1205. However, the asymmetry is only expressed by the absence of a third argument at this call site; a reader cannot tell from the code whether 512 for anchors is intentional or an overlooked list. A brief inline note naming protectedAnchors as intentionally generic would prevent a future edit from 'fixing' it into 4096 and silently widening authority. Advisory only. Independent assessment: The generic anchor cap is intentional and covered by negative regression; this is a comment recommendation without demonstrated current defect.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The generic anchor cap is intentional and covered by negative regression; this is a comment recommendation without demonstrated current defect.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T08:56:16.986Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f8cf7f0b29473e2425b493884bf87d80521420c6127d99de5f761030e95971d5",
+      "files": [
+        "packages/main/src/core/prompt-contracts.ts"
+      ],
+      "signatureTag": "missing|ts|imported-external-informational",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: preserve the original Claude observation and independent quality assessment. Generic protectedAnchors remain capped at 512 by design and an executable negative test protects that boundary. Additional explanatory prose is an optional recommendation, not an unmet acceptance condition; no repair or deferral is claimed.",
+      "dismissedAt": "2026-09-07T08:57:42.458Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-003",
+      "desc": "Imported external informational observation 3, not a verified current defect. Original Claude source /private/tmp/B-adc3-cross-host/claude-round-1.verdict.json; packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:1210; original severity=low. Original reason verbatim: The exact-byte-boundary construction appends one ASCII byte per iteration in a loop over `remaining` (up to ~1M iterations across both smokes) and asserts an exact equality on the serialized size. It is correct as written because each appended 'x' adds exactly one UTF-8 byte and one JSON byte, but it is brittle: any future change to the projection shape, to the surrounding fixture, or to the 65536-byte per-string bound can flip the assert.ok(remaining > 0) / assert.equal precondition into a confusing failure far from the real cause. Same pattern at scope-contract-smoke.ts:963-975. Test-only; does not affect production behavior. Independent assessment: The test padding currently reaches its exact byte boundary and independently passes; predicted future fixture brittleness is not a reproduced failure.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The test padding currently reaches its exact byte boundary and independently passes; predicted future fixture brittleness is not a reproduced failure.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T08:56:24.625Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-004",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c8c1b2d3d357655b1913a9895be63521c63b47732b8f84d7d6c42af024eb40bb",
+      "files": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|imported-external-informational",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: preserve the original Claude observation and independent quality assessment. Both exact-byte fixture constructions currently execute successfully and reach the requested boundary. A hypothetical future fixture-shape change is not a current defect. The suggestion remains traceable here; no repair or deferral is claimed.",
+      "dismissedAt": "2026-09-07T08:57:43.365Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-004",
+      "desc": "Imported Claude round 2 informational observation 1, not asserted as a verified current defect. Original source /private/tmp/B-adc3-cross-host/claude-round-2.verdict.json; packages/main/src/handlers/scope-contract.ts:446; original severity=low. Original reason verbatim: scope_contract_acknowledge is the third writer of scope-contract.json and is the only one NOT gated by validateFullTaskScopeContext(projectScopeInventory(contract)). It spreads the existing contract and appends an acknowledgement plus originalPathInputs, so it cannot grow the five bounded path inventories and cannot by itself push a previously-valid contract over the 4096-count bound. It can, however, grow the serialized artifact, and the 1 MiB budget is measured on projectScopeInventory(contract), which excludes acknowledgements and originalPathInputs entirely — so this write is outside the byte budget's measured surface in both directions. Net effect on this Story's stated defect is nil (a contract at exactly the byte limit stays representable because the projection is unchanged by an ack), so this is not applicable to the current acceptance conclusion and does not distort a gate. Recording as a non-blocking consistency observation: a future change that adds a projected field fed by acknowledge would silently bypass the new boundary. Deferral, not repair. Independent assessment: The acknowledgement writer changes only fields excluded from the reviewer scope projection. No current projected-budget bypass is shown; future projection expansion is hypothetical.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The acknowledgement writer changes only fields excluded from the reviewer scope projection. No current projected-budget bypass is shown; future projection expansion is hypothetical.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T09:01:16.818Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0c758460f10510d2de9aaaa49e06cf71dd8eb582f2f82d07fafc42c8b10a3b6a",
+      "files": [
+        "packages/main/src/handlers/scope-contract.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: Acknowledgements and originalPathInputs are outside the signed reviewer scope projection and cannot grow its bounded fields. The original observation concerns a hypothetical future projection change. Preserve this recommendation; no current defect, repair, or signed deferral is claimed.",
+      "dismissedAt": "2026-09-07T09:02:20.736Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-005",
+      "desc": "Imported Claude round 2 informational observation 2, not asserted as a verified current defect. Original source /private/tmp/B-adc3-cross-host/claude-round-2.verdict.json; packages/main/src/core/prompt-contracts.ts:819; original severity=medium. Original reason verbatim: checklist[].files.modify/create/test remain bounded at FULL_TASK_CONTEXT_LIMITS.pathsPerList (512) via the default parameter of requireBoundedStringArray. scope_contract_init_from_plan derives allowedModify/allowedCreate/allowedTest by unioning exactly those per-item lists, so a single checklist item declaring more than 512 created files would now be accepted by the scope writer (union <= 4096) yet still throw at this line when buildFullTaskContext validates the enclosing FullTaskContext. That is a distinct residual blocking path from the same class as the reported defect. It is NOT the reported defect: the actual B-42f6 contract reached 799 allowedCreate entries as an aggregate union (verified: allowedCreate spans lines 84-884 of .worktrees/B-42f6/.proof-or-stop/story/actives/B-42f6/scope-contract.json, allowedModify ~79 entries), not from any single 512+ checklist item, and the Story explicitly scopes 'generic 512 limits stay'. Recording with evidence and deferring rather than widening scope. Independent assessment: The generic checklist file limit remains 512 as explicitly required by CHK-001 adversarial:0 and the approved plan. The code-level boundary exists, but no current B-adc3 acceptance defect is demonstrated; this record does not claim a signed non-applicable disposition.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The generic checklist file limit remains 512 as explicitly required by CHK-001 adversarial:0 and the approved plan. The code-level boundary exists, but no current B-adc3 acceptance defect is demonstrated; this record does not claim a signed non-applicable disposition.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T09:01:20.392Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "dca4de65cc65e7c5a8c7474fd1928874f8d5481550a8be36bf26af6e31ebc4f3",
+      "files": [
+        "packages/main/src/core/prompt-contracts.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: The accepted plan and CHK-001 adversarial:0 explicitly require generic checklist arrays to remain at 512. The real B-42f6 inventory replay with 799 scope paths passes unchanged. Widening a single checklist item is excluded from this bounded repair. Preserve the medium original observation and limitation; this audit dismissal is not proof of repair or a signed non-applicable disposition.",
+      "dismissedAt": "2026-09-07T09:02:21.307Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-006",
+      "desc": "Imported Claude round 2 informational observation 3, not asserted as a verified current defect. Original source /private/tmp/B-adc3-cross-host/claude-round-2.verdict.json; packages/main/src/tasks/scope-contract-smoke.ts:948; original severity=low. Original reason verbatim: Several new assert.throws matchers are loose: /4096|scope.*budget/i (948, 953), /bytes|budget/i (959, 974) and /4096/ (980). Because the generated inputs are unique and nonblank, the intended count/byte message is in fact the one that fires today, so these tests currently pass for the right reason. But an unrelated future failure whose message merely contains '4096' or 'bytes' would satisfy the matcher and mask a regression in exactly the boundary this Story adds. Tightening to the full literal message would make the regression durable. Non-blocking test-robustness observation. Independent assessment: The regex matchers are broad, but the supplied cases currently exercise the intended failures. A future unrelated matching error is hypothetical; no current false-pass regression has been reproduced.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The regex matchers are broad, but the supplied cases currently exercise the intended failures. A future unrelated matching error is hypothetical; no current false-pass regression has been reproduced.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T09:01:23.929Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7c37686e7d78f1e30dcda368ff906f20ca71fea7b869ed0660e0f217b0965db4",
+      "files": [
+        "packages/main/src/tasks/scope-contract-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: The current generated inputs reach the intended count and byte rejection paths, as shown by executed boundary tests and byte-identical persisted-scope checks. The suggestion predicts a future unrelated error but demonstrates no present false-pass. Preserve the recommendation without claiming repair or deferral.",
+      "dismissedAt": "2026-09-07T09:02:21.881Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-007",
+      "desc": "Imported Claude round 2 informational observation 4, not asserted as a verified current defect. Original source /private/tmp/B-adc3-cross-host/claude-round-2.verdict.json; packages/main/src/core/scope-inventory-budget.ts:62; original severity=low. Original reason verbatim: The byte budget uses JSON.stringify(scope) while the persisted artifact is written by store.writeJsonFile with JSON.stringify(data, null, 2). The two serializations differ substantially in size, and the budget deliberately measures the projected scope (the reviewer-facing surface) rather than the on-disk file. That is the correct subject for this Story's stated goal, and it is consistent between producer (projectScopeInventory in buildFullTaskContext) and consumer (validateScopeInventoryBudget via validateFullTaskScopeContext), so there is no producer/consumer disagreement. Noting only that '1 MiB' bounds the compact projection, not the indented persisted file, so the on-disk artifact may exceed 1 MiB without violating this budget. Documentation-level observation, no behavioral defect. Independent assessment: The approved budget explicitly measures compact serialized reviewer scope, not the complete pretty-printed on-disk artifact. Current writer and consumer share that projection; no current disagreement is demonstrated.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The approved budget explicitly measures compact serialized reviewer scope, not the complete pretty-printed on-disk artifact. Current writer and consumer share that projection; no current disagreement is demonstrated.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T09:01:27.505Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "16dfa253beb8fbe192fa3e45f3593555638f73d0492df408757c000fe821a805",
+      "files": [
+        "packages/main/src/core/scope-inventory-budget.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: The approved limit measures compact serialized UTF-8 reviewer scope, consistently at both writer and consumer. Pretty-printed storage is a separate representation. The observation accurately describes the intended contract and demonstrates no disagreement; preserve it without claiming repair or deferral.",
+      "dismissedAt": "2026-09-07T09:02:22.435Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-008",
+      "desc": "Imported Claude round 3 informational observation 1, not asserted as a verified current defect. Original source /private/tmp/B-adc3-cross-host/claude-round-3.verdict.json; packages/main/src/core/prompt-envelope.ts:1209; original severity=low. Original reason verbatim: The new 1 MiB scope budget (SCOPE_INVENTORY_LIMITS.serializedBytes) exceeds the conditional review assembler's default fullBudgetBytes of 256_000, so a large-but-legal exact scope inventory now routinely produces envelope budgetViolation: 'full'. Per the documented invariant at line 1197 a required full prompt stays full when over budget, so this degrades observably rather than re-blocking review and is not a correctness defect; it is an unstated consequence of the raised ceiling that should be recorded rather than discovered later as a surprise. Independent assessment: The conditional assembler explicitly preserves a required full payload above its advisory cost budget. The 1 MiB hard scope limit and 256000-byte advisory envelope cost measure different policies; no loss or rejected valid scope is demonstrated.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The conditional assembler explicitly preserves a required full payload above its advisory cost budget. The 1 MiB hard scope limit and 256000-byte advisory envelope cost measure different policies; no loss or rejected valid scope is demonstrated.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T09:01:31.052Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5813dc839d6310091236f6d27f82c0cfa99f3168a53d4d53f072b00ba74af26b",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: The existing full-prompt budget is advisory and explicitly keeps the complete required payload. The new scope ceiling is a separate hard bound. This expected advisory cost flag does not truncate or reject accepted exact scope. Preserve the stated limitation without claiming repair or deferral.",
+      "dismissedAt": "2026-09-07T09:02:23.006Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-009",
+      "desc": "Imported Claude round 3 informational observation 2, not asserted as a verified current defect. Original source /private/tmp/B-adc3-cross-host/claude-round-3.verdict.json; packages/main/src/core/prompt-envelope.ts:1024; original severity=low. Original reason verbatim: Coverage is asymmetric between the scope contract and its PLAN source. checklist files.modify/create/test remain bound by the generic 512-entry limit, so scope_contract_init_from_plan driven by a checklist lane declaring more than 512 files still fails earlier inside validateFullTaskContext, before the raised scope budget can apply. This is outside the stated defect (writer/reviewer scope mismatch) and the generic limits were required to stay unchanged, so it is not a gap in the accepted scope; it does mean the recovery path is only fully unblocked when the oversized inventory is supplied directly to scope_contract_set. Independent assessment: The unchanged single-checklist 512 limit is explicitly protected by the approved generic-limit constraint. Similarity to round-2 observation 2 is noted without inventing a signed duplicate verdict; no current scoped acceptance defect is demonstrated.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The unchanged single-checklist 512 limit is explicitly protected by the approved generic-limit constraint. Similarity to round-2 observation 2 is noted without inventing a signed duplicate verdict; no current scoped acceptance defect is demonstrated.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T09:01:34.604Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-007",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "dcb3cd8dfa46973279c6e047b4bafde1eb007cb266e8e6ec9aaf2ec04ecb2952",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: Generic checklist array limits deliberately stay at 512 under the accepted plan and CHK-001 adversarial:0. This repeats the boundary described by F-005; it does not invalidate the actual 799-path scope replay. Preserve original text and independent assessment; no signed duplicate, repair, or deferral is claimed.",
+      "dismissedAt": "2026-09-07T09:02:23.582Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-010",
+      "desc": "Imported actual Codex round 2 coverage observation. Original source /private/tmp/B-adc3-cross-host/codex-app-round-2.json; original path/line/classification/reason: {\"path\": \"packages/main/src/tasks/scope-contract-smoke.ts\", \"line\": 956, \"reason\": \"The comment describes aggregate accounting across multiple lists, but the added hugePaths input populates allowedCreate only. Whole-object JSON serialization mechanically covers combined fields; this test does not independently isolate a multi-large-list boundary.\", \"classification\": \"nonblocking test coverage observation\"}. Original report assigns no severity; low is the importing reviewer informational severity, not an external rating. Independent assessment: The comment describes production aggregate accounting, whereas hugePaths isolates allowedCreate. Whole-object exact-byte boundary assertions include all other projected fields and the production validator serializes the entire scope. A stronger multi-large-list fixture is a recommendation; no false budget acceptance has been verified.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The comment describes production aggregate accounting, whereas hugePaths isolates allowedCreate. Whole-object exact-byte boundary assertions include all other projected fields and the production validator serializes the entire scope. A stronger multi-large-list fixture is a recommendation; no false budget acceptance has been verified.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T09:09:29.610Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "34608fd00401c68d6349a580ed004ee8434ee302c2f2f53828cc87890b741f4a",
+      "files": [
+        "packages/main/src/tasks/scope-contract-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|imported-actual-codex",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: The whole-projection exact1MiB and one-byte-over tests include every existing projected field; the validator serializes that whole object. A fixture with multiple independently large lists would add useful coverage, but no current erroneous acceptance or missing aggregate enforcement was shown. Preserve the original optional recommendation; no repair or deferral is claimed.",
+      "dismissedAt": "2026-09-07T09:10:20.920Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    },
+    {
+      "id": "B-adc3:F-011",
+      "desc": "Imported actual Codex round 3 coverage observation. Original source /private/tmp/B-adc3-cross-host/codex-app-round-3.json; original path/line/classification/reason: {\"path\": \"packages/main/src/tasks/prompt-full-context-envelope-smoke.ts\", \"line\": 1199, \"reason\": \"New late-path assertions establish digest and envelope-ID sensitivity, but do not explicitly pair a mutated large prompt with the old envelope and call full assembly integrity verification. Source inspection establishes that rejection path; such a negative regression would be useful additional coverage.\", \"classification\": \"nonblocking coverage recommendation\"}. Original report assigns no severity; low is the importing reviewer informational severity, not an external rating. Independent assessment: The large-path tests prove complete path retention plus semantic digest and envelope-ID sensitivity, but do not add the suggested old-envelope tamper pairing. Existing assembly verification is separate from authenticated host evidence. This is optional additional negative coverage, not a verified current stale-binding acceptance.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "The large-path tests prove complete path retention plus semantic digest and envelope-ID sensitivity, but do not add the suggested old-envelope tamper pairing. Existing assembly verification is separate from authenticated host evidence. This is optional additional negative coverage, not a verified current stale-binding acceptance.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T09:09:33.208Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-008",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4ee1a2fafc8c782118b12ffc71c2debdd5c794e243f8e939a1c89f5eb14e7049",
+      "files": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|imported-actual-codex",
+      "signatureTagSource": "auto",
+      "dismissReason": "Owner audit: The large-path regression proves final-path retention and changes both semantic digest and envelope identity; existing assembly integrity checks reject stale hashes. An explicit old-envelope pairing for this large fixture is additional coverage, not a demonstrated stale binding acceptance. Preserve the recommendation without claiming repair or deferral.",
+      "dismissedAt": "2026-09-07T09:10:21.523Z",
+      "dismissReasonType": "wontfix",
+      "dismissEvidenceStrength": "medium"
+    }
+  ]
+}

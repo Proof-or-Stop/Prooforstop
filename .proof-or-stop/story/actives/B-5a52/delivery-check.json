@@ -1,0 +1,37 @@
+{
+  "storyId": "B-5a52",
+  "checkedAt": "2026-09-07T07:22:20.282Z",
+  "headHash": "2666a24750fd8aeec23d9c911e5973f4511b75e8",
+  "materialHash": "cb166efa035ca321a6ec8f4c6a35d3dd8f3631239b5180fb60e2f516c64134f4",
+  "reviewRound": "2026-09-07T02:28:57.003Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".proof-or-stop/story/actives/B-5a52/background.md",
+      "promise": "The playback/export interface visibly identifies Proof-or-stop while retaining the story identity.",
+      "status": "verified",
+      "verifiedBy": "Current source inspection and historical real-browser observation recorded on checklist",
+      "evidence": "Both initial and post-parse heading assignments include PLAYBACK_BRAND plus story ID and timeline playback. Playback source is byte-unchanged from c8263eb450. No newly executed browser replay claimed."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-5a52/background.md",
+      "promise": "Exported frames visibly identify Proof-or-stop without losing story context.",
+      "status": "verified",
+      "verifiedBy": "Independent manual inspection of actual decoded export frames and current shared frame renderer",
+      "evidence": "Reopened /private/tmp/proof-or-stop-brand-frame.png (light 1920x1080) and /private/tmp/proof-or-stop-brand-dark.png (dark 1440x810); both show Proof-or-stop, Story Graph and B-fe8f timeline clearly separated. drawChrome always renders the brand and derives metadata X from measured heading width."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Manual visual verification: actual decoded light MP4 and dark GIF images visibly show readable branding and story metadata without overlap; later-frame event caption remains visible. Current source retains branding in both DOM title assignments and shared frame renderer, identical to original exported-artifact source. Historical browser observation covers initialization/progress/reopen. Three explicit automation waivers remain historical; no automated pixel assertion, new export, or fresh browser replay invented. Actual /private/tmp/B-5a52-validation-clean.json reports pass/allPass true with 128 executions; this broad suite is not represented as visual coverage."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The requested product identification is delivered in playback titles and actual light/dark export artifacts. Manual visual evidence is appropriate for this small cosmetic change and is explicitly separated from automated checks; historical waivers were not rebound or reexecuted. Current formal project validation passed 128 commands. DONE-required root suite and formal closeout remain pending separate gates; no new unresolved implementation TODO introduced."
+  },
+  "_hash": "0941952b1cdaa3966289dbfbe16116c6ecc42eba29b0b826cf2fc462a7884e2d"
+}

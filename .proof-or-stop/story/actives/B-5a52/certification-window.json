@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-5a52:CW-001",
+      "storyId": "B-5a52",
+      "state": "RUNNING",
+      "createdAt": "2026-09-07T06:23:01.500Z",
+      "updatedAt": "2026-09-07T07:23:14.898Z",
+      "frozen": {
+        "headHash": "6fb53854ed638fef6c0602b52db428b833c309da",
+        "materialHash": "cb166efa035ca321a6ec8f4c6a35d3dd8f3631239b5180fb60e2f516c64134f4",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "causalInputHashes": {
+          "certification:source": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:test": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "fd3ea3d8c59715d3319f67e1d69c72d1ca975601",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-5a52:RIE-002",
+        "receiptId": "B-5a52:RIE-002:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-5a52:PRECERT-001",
+      "_hash": "bb92abb1127f89fa8a7ec1d7d5603602018cae7d460389bc188c325ff361bb28"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-5a52:PRECERT-001",
+      "windowId": "B-5a52:CW-001",
+      "storyId": "B-5a52",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "6fb53854ed638fef6c0602b52db428b833c309da",
+        "materialHash": "cb166efa035ca321a6ec8f4c6a35d3dd8f3631239b5180fb60e2f516c64134f4",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "causalInputHashes": {
+          "certification:source": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:test": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "fd3ea3d8c59715d3319f67e1d69c72d1ca975601",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-5a52:RIE-002",
+      "inventoryReceiptId": "B-5a52:RIE-002:RCP-001",
+      "createdAt": "2026-09-07T06:23:01.500Z",
+      "_hash": "28e995f726b65cf81529d6ebb4749eac31ed7a88a1029da81be21d4e5bcdf06e"
+    }
+  ]
+}

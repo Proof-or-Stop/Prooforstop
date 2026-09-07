@@ -1,0 +1,37 @@
+{
+  "storyId": "B-d05d",
+  "name": "integrate-remote-main-preserve-local-branding-baseline-repairs",
+  "title": "Integrate remote main while preserving completed local branding and validation repairs",
+  "description": "Integrate origin/main c853ab5e63 with local main d5b00d0ff3 after the user explicitly requested remote publication and chose integration instead of a separate branch. Preserve both histories and resolve the eleven observed conflicts without weakening evidence or validation behavior. Verify the integrated result and publish a normal fast-forward remote main update after local completion.",
+  "type": "chore",
+  "phase": "DISCARDED",
+  "priority": "high",
+  "keywords": [
+    "remote-integration",
+    "brand-preservation"
+  ],
+  "createdAt": "2026-09-07T07:48:42.629Z",
+  "startedAt": null,
+  "endedAt": "2026-09-07T07:50:34.136Z",
+  "events": [
+    {
+      "phase": "IDEA",
+      "action": "create",
+      "timestamp": "2026-09-07T07:48:43.710Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DISCARDED",
+      "action": "discard",
+      "timestamp": "2026-09-07T07:50:34.136Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main",
+      "reason": "Intake omitted the initial checklist and created an IDEA without a checklist artifact; checklist_add cannot initialize it. Replace this empty intake through story_create with the complete checklist so normal INIT review applies."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-e124",
+  "records": [
+    {
+      "id": "RED-20260907030717",
+      "trigger": "Reproduced main baseline failure",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "f710f82b1415b406e47ea14e0f05cd6fa1bc6cda",
+      "baselineMaterialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345",
+      "observedFailure": "lab create --help remains unmatched and the real CLI reports Unknown command: lab.",
+      "failingCommand": "node packages/main/dist/tasks/cli-surface-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/cli-surface-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/cli-surface-smoke.js"
+      },
+      "createdAt": "2026-09-07T03:07:17.390Z"
+    },
+    {
+      "id": "RED-20260907030718",
+      "trigger": "Reproduced main baseline failure",
+      "acceptanceTargetRef": "CHK-002:happy:0",
+      "baselineHeadHash": "f710f82b1415b406e47ea14e0f05cd6fa1bc6cda",
+      "baselineMaterialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345",
+      "observedFailure": "POSIX ambient transport key is session-neutral assertion fails for retired LATTICE_ACTIVITY_RECORD_READONLY.",
+      "failingCommand": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-002:happy:0",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/done-required-validation-smoke.js"
+      },
+      "createdAt": "2026-09-07T03:07:18.118Z"
+    }
+  ],
+  "createdAt": "2026-09-07T03:07:17.390Z",
+  "updatedAt": "2026-09-07T03:07:18.118Z"
+}

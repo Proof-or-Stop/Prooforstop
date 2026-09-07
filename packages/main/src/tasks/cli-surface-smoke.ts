@@ -140,6 +140,17 @@ for (const prefix of [[], ['proof-or-stop'], ['lattice']]) {
     `unknown Lab action is not normalized: ${prefix.join(' ')}`);
 }
 
+for (const subcommand of ['create', 'run', 'eval', 'compare', 'promote', 'help']) {
+  assert.deepEqual(normalizeNestedSpaceAlias(['lab', subcommand, '--help']).argv,
+    [`lab_${subcommand}`, '--help']);
+  assert.equal(runCli(['lab', subcommand, '--help']).replaceAll(`lab ${subcommand}`, `lab_${subcommand}`),
+    runCli([`lab_${subcommand}`, '--help']),
+    `nested Lab ${subcommand} uses the registered flat handler help`);
+}
+const unknownLab = spawnSync(process.execPath, [cliBin(), 'lab', 'unknown'], { encoding: 'utf8' });
+assert.notEqual(unknownLab.status, 0);
+assert.match(unknownLab.stderr, /Unknown command: lab/);
+
 // B-cdf6 CHK-005: the product name asserted below is now 'Proof-or-Stop'
 // (PROOF_OR_STOP_PRODUCT_NAME, approved RENAMED row in brand-rename-mapping.md; `Proof-or-Stop` is a legacy
 // spelling on the normalize list). Same repin CHK-002 applied to command-catalog-smoke; the
