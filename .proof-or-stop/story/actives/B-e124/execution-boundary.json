@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-e124",
+  "allowedCommands": [
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedTools": [
+    "collaboration",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-e124",
+    "packages/main/src/cli/alias-normalizer.ts",
+    "packages/main/src/tasks/cli-surface-smoke.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "qipan",
+  "confirmationNote": "Local main repair requested by user; preserve unrelated runtime changes and existing validation policy.",
+  "createdAt": "2026-09-07T03:03:21.705Z",
+  "updatedAt": "2026-09-07T03:03:21.705Z",
+  "_hash": "60fd65011db45d3b95c6aebb4697fa2b77bf41f02aab7ee3e1e1f9ac6d896497"
+}
