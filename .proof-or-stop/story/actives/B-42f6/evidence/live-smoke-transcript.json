@@ -1,0 +1,20 @@
+{
+  "storyId": "B-42f6",
+  "expected": "Both parent histories remain reachable and Proof-or-stop playback/export branding remains visible after normal publication.",
+  "actual": {
+    "command": "node -e 'const cp=require(\"node:child_process\"),fs=require(\"node:fs\"),a=require(\"node:assert/strict\");const p=\"packages/graph/src/shells/web/playback.js\";a.deepEqual(fs.readFileSync(p),cp.execFileSync(\"git\",[\"show\",\"c8263eb450:\"+p]));for(const r of [\"d5b00d0ff3\",\"c853ab5e63\",\"e8fc28d56a\"])cp.execFileSync(\"git\",[\"merge-base\",\"--is-ancestor\",r,\"HEAD\"]);console.log(\"Proof-or-stop playback and exported-frame branding preserved; local and remote main ancestry preserved.\");process.stdout.write(cp.execFileSync(process.execPath,[\"bin/proof-or-stop.js\",\"--version\"],{encoding:\"utf8\"}));process.stdout.write(cp.execFileSync(process.execPath,[\"packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs\"],{encoding:\"utf8\"}));'",
+    "exitCode": 0,
+    "stdout": "Proof-or-stop playback and exported-frame branding preserved; local and remote main ancestry preserved.\nProof-or-Stop 0.3.278\nred.audit_summary: current primitives classified; preFixHead=0cb578583b5139977338d1cf8f7aeed0cc7685ba; passing=finding-lock,b-meta-main-lock,process-event-lock,build-lock,store-atomic-rename,verification-receipt-baseline; gaps=0\nred.production_unchanged: PASS\nred.official_evidence_create: PASS\nred.relation_fixture: fresh evidence-candidate artifacts; historical receipt identities were not recreated\nred.relation_create: PASS unchangedAssertionBound=true\nred.no_fabricated_race: PASS\nred.evidence_binding: PASS\nred.primitive_scope: PASS\nred.relation_evaluate: PASS historicalBaselineFails=true currentGreenPasses=true currentCorruptedRelationRejected=true assertionUnchanged=true legacyPinnedNegativeControl=\"red.relation_evaluate: PASS baselineFails=true currentFails=true assertionUnchanged=true\"\nred.mutation_isolation: PASS\nred.reproducibility_guard: PASS\nred.green_substitution_refused: PASS\nred.relation_mutation_refused: PASS\nred.genuine_contract_failure:none (GREEN: all accepted Story 3 contract groups are present)\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-07T11:25:54.919Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "a712da89c8821df760f230be26a591bfc8969196",
+  "materialHash": "770d3acdffcf523934037aa8ed31fa836f5feb9b5ee672a75484e36c6183535f"
+}
