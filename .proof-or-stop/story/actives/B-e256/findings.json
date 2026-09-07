@@ -2768,6 +2768,54 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqjvox7_1bic_8d2deb986e3f411f84abda9ba63af416",
       "ledgerCommitReceiptId": "lrc_mtqjvox8_1bic_b9a1fd719e2241dca78afb6d97a2ffb4"
+    },
+    {
+      "id": "B-e256:F-057",
+      "desc": "windows-non-batch-PATHEXT-entrypoint parsed as cmd shim false pass: packages/main/src/core/runtime-environment-checks.ts:801-833 sends every Windows PATH-selected entrypoint to validateWindowsCommandShim as UTF-8 batch text, while lines 1811-1831 deliberately select all PATHEXT candidates including the default .COM and .EXE before .BAT/.CMD. A current compiled-runtime probe supplied an otherwise canonical package, target, and compiled version plus a PATH-selected plain-text proof-or-stop.exe containing `node \"<canonical-target>\" %*`; Windows cannot execute that file as a PE/COM program or batch shim, yet runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true, warnings=[], and emitted contract: global-core-realpath-pass. packages/main/tests/global-core-realpath.test.mjs:229-355 covers .cmd and PATHEXT ordering but has no selected .COM/.EXE format/launchability mutation. This is distinct from F-054, which leaves an official .ps1 peer uninspected, and F-047/F-049/F-050/F-052/F-053/F-055, which concern semantics inside a selected batch shim: here the selected artifact is not a batch language artifact at all. Fail closed for non-.bat/.cmd PATHEXT entries unless their native executable contract is independently verified, and add a mutation proving an invalid/textual .exe or .com cannot emit the healthy marker. Direct CHK-003 happy:0/adversarial:2 and AC-001 acceptance violation; severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T01:20:43.122Z",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "reviewRunId": "B-e256:RR-167",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "041b03bef16512b121e7978658033be488c8747a02fc10572170254f7fd6011b",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs",
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/proofstory.json"
+      ],
+      "signatureTag": "windows-non-batch-pathext-entrypoint-textual-false-pass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqk0oz7_12fn_35cb18c171e840b8bb426d75995da8dc",
+      "ledgerCommitReceiptId": "lrc_mtqk0oz8_12fn_abbfba621b0848e9bc71cc08b60ff1d5"
     }
   ]
 }
