@@ -1,0 +1,42 @@
+{
+  "findings": [
+    {
+      "id": "B-42f6:F-001",
+      "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/graph/src/shells/web/playback.js\", \"line\": 42, \"reason\": \"PLAYBACK_BRAND is \\\"Proof-or-stop\\\" (lowercase s), which does not match the canonical product name PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' declared in packages/main/src/core/proof-or-stop-brand.ts:20 and mandated by docs/requirements/decisions/brand-rename-mapping.md:93 ('Prose / product name | Proof-or-Stop'). This casing is unique in packages/** (grep for 'Proof-or-stop' returns only this line) and is user-visible in three places: the exported MP4/GIF chrome heading (line 1844), the playback modal heading (line 2381) and the post-load heading (line 2821). It does not trip a gate: verify-proof-or-stop-residue.mjs detects retired brand names (lattice/Proofbound spellings), not casing variants of the canonical name, so the residue scan of packages/graph/src passes. Cosmetic branding inconsistency in a rendered export surface, not a correctness or gate defect.\", \"severity\": \"low\"} Independent assessment: Exact user-requested Proof-or-stop casing and preservation from c8263eb450 control over generic casing guidance. No current requirement defect verified. No repair, deferral or signed applicability verdict asserted.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Exact user-requested Proof-or-stop casing and preservation from c8263eb450 control over generic casing guidance. No current requirement defect verified.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:08:59.758Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e8b667585b6765755c6abe824be93a97cda7f4e0604da38746fb1481cf3b742c",
+      "files": [
+        "packages/graph/src/shells/web/playback.js"
+      ],
+      "signatureTag": "missing|js|imported-claude-round",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768",
+      "ledgerCommitReceiptId": "lrc_mtr2w29b_f4z_2ac516b309ed46259b1e23e0f2cda2c8"
+    }
+  ]
+}

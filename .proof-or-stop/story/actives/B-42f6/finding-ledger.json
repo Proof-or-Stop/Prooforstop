@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "finding-ledger.v1",
+  "ledgerSchemaEpoch": 1,
+  "minimumWriterCapability": "finding-ledger-writer-v1",
+  "committedLedgerDigest": "c885dd468094c103a94e092c8fe8f0b6bc0027d9d452e21cfda52d6cde0ea0f3",
+  "records": [
+    {
+      "recordId": "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:669a5673-6923-46c1-a5b6-843a94e6d076",
+      "payload": {
+        "id": "B-42f6:F-001",
+        "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/graph/src/shells/web/playback.js\", \"line\": 42, \"reason\": \"PLAYBACK_BRAND is \\\"Proof-or-stop\\\" (lowercase s), which does not match the canonical product name PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' declared in packages/main/src/core/proof-or-stop-brand.ts:20 and mandated by docs/requirements/decisions/brand-rename-mapping.md:93 ('Prose / product name | Proof-or-Stop'). This casing is unique in packages/** (grep for 'Proof-or-stop' returns only this line) and is user-visible in three places: the exported MP4/GIF chrome heading (line 1844), the playback modal heading (line 2381) and the post-load heading (line 2821). It does not trip a gate: verify-proof-or-stop-residue.mjs detects retired brand names (lattice/Proofbound spellings), not casing variants of the canonical name, so the residue scan of packages/graph/src passes. Cosmetic branding inconsistency in a rendered export surface, not a correctness or gate defect.\", \"severity\": \"low\"} Independent assessment: Exact user-requested Proof-or-stop casing and preservation from c8263eb450 control over generic casing guidance. No current requirement defect verified. No repair, deferral or signed applicability verdict asserted.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "suspected",
+        "uncertaintyReason": "Exact user-requested Proof-or-stop casing and preservation from c8263eb450 control over generic casing guidance. No current requirement defect verified.",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T10:08:59.758Z",
+        "reviewRound": "2026-09-07T10:06:11.989Z",
+        "reviewRunId": "B-42f6:RR-011",
+        "readManifest": {
+          "filesReadFully": [
+            "packages/main/src/core/scope-inventory-budget.ts"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "e8b667585b6765755c6abe824be93a97cda7f4e0604da38746fb1481cf3b742c",
+        "files": [
+          "packages/graph/src/shells/web/playback.js"
+        ],
+        "signatureTag": "missing|js|imported-claude-round",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "ccba0f8c5512a505403fbcae540230bf78e38b2df5c5f984f6b493aa6136548b",
+      "priorDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T10:08:59.759Z"
+    }
+  ],
+  "receipts": [
+    {
+      "receiptId": "lrc_mtr2w29b_f4z_2ac516b309ed46259b1e23e0f2cda2c8",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:669a5673-6923-46c1-a5b6-843a94e6d076",
+      "requestDigest": "535a8bbc426e0d7351ff2bcfe75696aa3bbc784ebf20c18afbbc797515262e28",
+      "recordIds": [
+        "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768"
+      ],
+      "priorLedgerDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "committedLedgerDigest": "c885dd468094c103a94e092c8fe8f0b6bc0027d9d452e21cfda52d6cde0ea0f3",
+      "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+      "writerFenceToken": "42dc2661-30dc-432c-8b65-834573a88933",
+      "committedAt": "2026-09-07T10:08:59.759Z",
+      "replayed": false,
+      "exactRequestDigest": "26977967211773cd7151fb89281e956501f446eee9f9f045e98fa7dac3d0a6bd",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr2w29b_f4z_2ac516b309ed46259b1e23e0f2cda2c8",
+        "storyId": "B-42f6",
+        "idempotencyKey": "finding_add:669a5673-6923-46c1-a5b6-843a94e6d076",
+        "exactRequestDigest": "26977967211773cd7151fb89281e956501f446eee9f9f045e98fa7dac3d0a6bd",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "committedLedgerDigest": "c885dd468094c103a94e092c8fe8f0b6bc0027d9d452e21cfda52d6cde0ea0f3",
+        "replayed": false,
+        "committedAt": "2026-09-07T10:08:59.759Z",
+        "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+        "writerLeaseId": "sess-111f787341add2cdbadb7c69b7d6e96a",
+        "writerFenceToken": "42dc2661-30dc-432c-8b65-834573a88933",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "7e0e56e30d1b7e446320958e593db3986b05fe1aaa256f27241d2b6f8bfd699c",
+        "signature": "vMz1g2EDtM2rFUPn2PwP+lyRxDAsr0rME33Oz1S72PEFvAPme7yTD+sd6r63Hxzo4+/47xu9ZqP880Fx3CSpAA=="
+      }
+    }
+  ]
+}
