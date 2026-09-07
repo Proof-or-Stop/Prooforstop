@@ -212,3 +212,37 @@ Finish current required lanes before the explicit inventory critic assignment,
 retain all recorded Findings, and complete the inventory before remediation.
 The B-7abb classifier repair and B-03b7 lifecycle remain separate work; B-e6d9
 must not cross its dependency before B-03b7 is complete.
+
+## Mandatory heartbeat witness recovery (2026-09-07)
+
+`BUG-VALIDATE-START-READINESS` records a mandatory validation-fixture failure,
+not a demonstrated production timeout defect. The foreign-append row waited
+only five seconds for CLI startup, ignored an early child result, and could
+remove its fixture before the child actually closed. An isolated run passed;
+that did not refute the startup/cleanup counterexample under load.
+
+Test-only RED `9e3ac2e5ef` put a real child, ready after six seconds, through the
+same readiness path as the foreign-append row. A successful build followed by
+`node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js --readiness-only`
+exited 1 at the original five-second wait. The child itself completed normally.
+GREEN `5662e8274e` makes that path bounded and terminal-aware, retains stdout and
+stderr on early exit, and refuses an already-finished command. A fixture release
+handshake places the foreign write before normal command completion. Cleanup
+distinguishes a watchdog result from the actual close event; unconfirmed closure
+or a null exit status preserves the fixture instead of assuming descendants died.
+
+After the final GREEN build completed, the complete command
+`node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js` exited 0 with
+`validate-progress-heartbeat smoke passed`. That run executed the delayed-readiness
+and terminal controls, the foreign-append row, and delayed, missing and abnormal
+close controls. Synthetic close controls are fixture tests,
+not independent proof of descendant termination. Production deadlines and every
+original foreign-byte, dirty-audit, no-transition, uncommitted-history and REVIEW
+phase assertion remain unchanged. The scope addition is this existing smoke task,
+not a production watchdog or lifecycle-policy change.
+
+These results repair this witness; they do not establish a current repository-wide
+validation PASS, independent-host quorum, TEST or DONE. Those remain separate
+CLI-owned closeout evidence. RI-004 excluded the incomplete old coverage PASS
+RP-021 and used independent replacement RP-022 with its actual read log; no old
+reading events or historical candidate objects were reconstructed as fresh proof.
