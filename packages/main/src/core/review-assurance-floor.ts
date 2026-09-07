@@ -203,6 +203,12 @@ interface BuildReviewAssuranceGuidanceInput {
   fallback: ReviewAssuranceGuidance['fallback'];
   requireFullQuorumPath: boolean;
   requireSingleHostPath: boolean;
+  singleHostRounds: {
+    requiredRounds: number;
+    validRounds: HostVerdictRound[];
+    invalidRounds: HostVerdictRound[];
+    ignoredVerdicts: IgnoredHostVerdict[];
+  };
 }
 
 const REVIEW_ASSURANCE_CANNOT_AUTO_SIGN_WARNING =
@@ -243,6 +249,24 @@ function donePrepareCommand(storyId?: string): string {
 function autopilotReviewSubmitCommand(storyId: string | undefined, materialHash: string | null, storyFilesHash: string | null, round = 1): string {
   const id = storyRef(storyId);
   return `node bin/proof-or-stop.js autopilot_review_submit --storyId=${id} --runId=${id}-degraded-r${round} --hostId="$(hostname)" --provider=local --sessionId="${'${PROOF_OR_STOP_SESSION_ID:-local-reviewer}'}" --decision=pass --deriveBindings --materialDigest=${materialRef(materialHash)} --storyFilesHash=${storyFilesRef(storyFilesHash)}`;
+}
+
+function missingSingleHostRoundNumbers(input: BuildReviewAssuranceGuidanceInput): number[] {
+  if (!input.requireSingleHostPath || input.ok) return [];
+  const requiredRounds = Math.max(0, Math.floor(input.singleHostRounds.requiredRounds) || 0);
+  const missingRounds = Math.max(0, requiredRounds - input.singleHostRounds.validRounds.length);
+  const id = storyRef(input.storyId);
+  const occupiedRunIds = new Set([
+    ...input.singleHostRounds.validRounds.map(round => round.runId),
+    ...input.singleHostRounds.invalidRounds.map(round => round.runId),
+    ...input.singleHostRounds.ignoredVerdicts.map(verdict => verdict.runId).filter((runId): runId is string => Boolean(runId)),
+  ]);
+  const available: number[] = [];
+  const candidateLimit = missingRounds + occupiedRunIds.size;
+  for (let round = 1; round <= candidateLimit && available.length < missingRounds; round += 1) {
+    if (!occupiedRunIds.has(`${id}-degraded-r${round}`)) available.push(round);
+  }
+  return available;
 }
 
 function quorumSubmitCommand(storyId?: string): string {
@@ -294,17 +318,15 @@ export function buildReviewAssuranceGuidance(input: BuildReviewAssuranceGuidance
   ];
 
   const reviewerHost: ReviewAssuranceCommandRecipe[] = [];
-  if (input.requireSingleHostPath || input.requireFullQuorumPath) {
-    const rounds = input.requireFullQuorumPath ? 3 : 1;
-    for (let round = 1; round <= rounds; round += 1) {
-      reviewerHost.push({
-        owner: 'reviewer-host',
-        command: autopilotReviewSubmitCommand(input.storyId, input.materialHash, input.storyFilesHash, round),
-        purpose: `Reviewer/host path: submit degraded single-host PASS round ${round}/${rounds} with canonical bindings derived from current PASS evidence.`,
-        writesEvidence: true,
-        safeForStoryOwner: false,
-      });
-    }
+  const singleHostRoundNumbers = missingSingleHostRoundNumbers(input);
+  for (const round of singleHostRoundNumbers) {
+    reviewerHost.push({
+      owner: 'reviewer-host',
+      command: autopilotReviewSubmitCommand(input.storyId, input.materialHash, input.storyFilesHash, round),
+      purpose: `Reviewer/host path: submit degraded single-host PASS run ${round}; ${singleHostRoundNumbers.length} fresh round(s) remain for the current assurance requirement.`,
+      writesEvidence: true,
+      safeForStoryOwner: false,
+    });
   }
   if (input.requireFullQuorumPath) {
     reviewerHost.push({
@@ -412,6 +434,7 @@ export function buildReviewEscalationGuidance(report: ReviewEscalationReport, st
     fallback: reviewEscalationFallbackStatus(report),
     requireFullQuorumPath: report.required,
     requireSingleHostPath: report.required,
+    singleHostRounds: report.degradedFallback,
   });
 }
 
@@ -1093,6 +1116,7 @@ export function buildReviewAssuranceFloorGuidance(report: ReviewAssuranceFloorRe
     fallback: reviewAssuranceFloorFallbackStatus(report),
     requireFullQuorumPath: highRiskPath,
     requireSingleHostPath: report.required,
+    singleHostRounds: highRiskPath ? report.degradedFallback : report.localRounds,
   });
 }
 
