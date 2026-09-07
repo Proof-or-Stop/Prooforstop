@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "ecb49b1b23ea0ba52453de19267c1b87a9f86779df0c2c28fbf33c670bf22f4c",
+  "committedLedgerDigest": "0576eea58749b00782e78aa66d2c8a2a5f79fb0314ca26941e9b0c4048053e23",
   "records": [
     {
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
@@ -472,6 +472,54 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T17:25:29.270Z"
+    },
+    {
+      "recordId": "lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4",
+      "recordType": "finding",
+      "idempotencyKey": "b29bc-ri007-wave2-coverage-f005-repeat",
+      "payload": {
+        "id": "B-29bc:F-008",
+        "desc": "RI-007 wave-2 coverage re-observation of canonical B-29bc:F-005, also recorded as coverage manifestation F-006. This is the same root cause and same two test sites, proposed duplicate of F-005 for inventory disposition, not a new defect family or implementation scope. Fresh finding_list plus verifyFinding confirms F-005 and F-006 remain open, verified and signature-valid. Current review_run_start binds unchanged material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and storyFilesHash 6ba1ae8bec78df00939425d6b2bc024c4b19a1a393a285fed1a2e808970704a0. Bounded git diff from RR-044 head a36b3b36af across source, docs, background, plan and checklist is empty; earlier integrated review context therefore remains applicable. Fresh source read at packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 confirms spread copies retaining old _hash are still passed into signReviewInventoryCriticReceipt. The already inspected production signer hashes that key but verifier removes it, so the intended signed receipt-substitution and omitted-disposition negative controls fail signature-first. Reuse the independently recorded F-006 true/false/true signer witness; no new execution is claimed in this wave. Eight must intents retain their recorded evidence, but the known semantic receipt-coverage defect remains, including CHK-001:adversarial:0 and the specified receipt-consumer witness of adversarial:1. No new coverage family identified on this unchanged subject; this is not a no-gap PASS, repair, deferral, topology or lifecycle credential. F-005 remains the canonical owner-tracked current-Story repair, with original F-006 preserved. Fresh full reading of the inventory decision supplied the actual read event; source and Story context are reused only after the bounded unchanged-diff check. No tests, build, full rescan, source or owner writes performed.",
+        "severity": "medium",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-07T17:25:33.852Z",
+        "reviewRound": "2026-09-07T17:10:43.986Z",
+        "reviewRunId": "B-29bc:RR-049",
+        "readManifest": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+        },
+        "readDiagnostics": [],
+        "_hash": "55b9756d63175726c85434fa697f9511ad2886e743b18e20258449cf9086c8e6",
+        "files": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "signatureTag": "adversarial|ts|wave-coverage-observation",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "1f80591a9a929ef9de9398f49d53c46139a8f39c631e459b84bee9f9abcdbc1e",
+      "priorDigest": "ecb49b1b23ea0ba52453de19267c1b87a9f86779df0c2c28fbf33c670bf22f4c",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T17:25:33.852Z"
     }
   ],
   "receipts": [
@@ -982,6 +1030,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "9f0c0afd3b84eb65cf6b3fe9d23bfeac4541c45af3dcd6f3cc00b4e37e28d01d",
         "signature": "7aQUWuDQUQEkK1uL8sbJKHQM6f7ePgA8g0r5ZVDEyenxOqiVJf+rifY5MN/10o3QfkpDjdQL5m2f7HeArqD5Bw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtrihhr1_100r_91b42962e4ac40d195ab559a8f048be4",
+      "operation": "append_finding",
+      "idempotencyKey": "b29bc-ri007-wave2-coverage-f005-repeat",
+      "requestDigest": "2c3fa0ab18b4e6f31dc1710983fcb024c04e9b0f033b6072033f4affb9e72c51",
+      "recordIds": [
+        "lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4"
+      ],
+      "priorLedgerDigest": "ecb49b1b23ea0ba52453de19267c1b87a9f86779df0c2c28fbf33c670bf22f4c",
+      "committedLedgerDigest": "0576eea58749b00782e78aa66d2c8a2a5f79fb0314ca26941e9b0c4048053e23",
+      "writerSessionId": "codex-b29-ri007-coverage",
+      "writerFenceToken": "f2eb4381-a49b-41f6-bcba-1d78198e3735",
+      "committedAt": "2026-09-07T17:25:33.852Z",
+      "replayed": false,
+      "exactRequestDigest": "c26b1df626ddfbb99b2e38410221250eba16934d0baaaace03af943d84599858",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtrihhr1_100r_91b42962e4ac40d195ab559a8f048be4",
+        "storyId": "B-29bc",
+        "idempotencyKey": "b29bc-ri007-wave2-coverage-f005-repeat",
+        "exactRequestDigest": "c26b1df626ddfbb99b2e38410221250eba16934d0baaaace03af943d84599858",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "ecb49b1b23ea0ba52453de19267c1b87a9f86779df0c2c28fbf33c670bf22f4c",
+        "committedLedgerDigest": "0576eea58749b00782e78aa66d2c8a2a5f79fb0314ca26941e9b0c4048053e23",
+        "replayed": false,
+        "committedAt": "2026-09-07T17:25:33.852Z",
+        "writerSessionId": "codex-b29-ri007-coverage",
+        "writerLeaseId": "codex-01a05441-inventory-recovery-owner",
+        "writerFenceToken": "f2eb4381-a49b-41f6-bcba-1d78198e3735",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "dd87e327dcb92a4d7c1f30c54ac05cd16801c112e7db7e048921d231da3fb289",
+        "signature": "+OGXtRYixk/E238BrcungWwUdGUTku0hbRsxfWnOnfrCzZ9qNlZ9O/tJb1FMaUqouqg9gyHcTOQqG0JQFDG5Bg=="
       }
     }
   ]

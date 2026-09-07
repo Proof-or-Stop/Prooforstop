@@ -336,6 +336,46 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtrihe7q_zay_a1e45a4a40814627a59300e7bc11602c",
       "ledgerCommitReceiptId": "lrc_mtrihe7q_zay_a4e305c1303f4c4b80ca6086d4eeba08"
+    },
+    {
+      "id": "B-29bc:F-008",
+      "desc": "RI-007 wave-2 coverage re-observation of canonical B-29bc:F-005, also recorded as coverage manifestation F-006. This is the same root cause and same two test sites, proposed duplicate of F-005 for inventory disposition, not a new defect family or implementation scope. Fresh finding_list plus verifyFinding confirms F-005 and F-006 remain open, verified and signature-valid. Current review_run_start binds unchanged material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and storyFilesHash 6ba1ae8bec78df00939425d6b2bc024c4b19a1a393a285fed1a2e808970704a0. Bounded git diff from RR-044 head a36b3b36af across source, docs, background, plan and checklist is empty; earlier integrated review context therefore remains applicable. Fresh source read at packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 confirms spread copies retaining old _hash are still passed into signReviewInventoryCriticReceipt. The already inspected production signer hashes that key but verifier removes it, so the intended signed receipt-substitution and omitted-disposition negative controls fail signature-first. Reuse the independently recorded F-006 true/false/true signer witness; no new execution is claimed in this wave. Eight must intents retain their recorded evidence, but the known semantic receipt-coverage defect remains, including CHK-001:adversarial:0 and the specified receipt-consumer witness of adversarial:1. No new coverage family identified on this unchanged subject; this is not a no-gap PASS, repair, deferral, topology or lifecycle credential. F-005 remains the canonical owner-tracked current-Story repair, with original F-006 preserved. Fresh full reading of the inventory decision supplied the actual read event; source and Story context are reused only after the bounded unchanged-diff check. No tests, build, full rescan, source or owner writes performed.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-07T17:25:33.852Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-049",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "55b9756d63175726c85434fa697f9511ad2886e743b18e20258449cf9086c8e6",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "adversarial|ts|wave-coverage-observation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4",
+      "ledgerCommitReceiptId": "lrc_mtrihhr1_100r_91b42962e4ac40d195ab559a8f048be4"
     }
   ]
 }
