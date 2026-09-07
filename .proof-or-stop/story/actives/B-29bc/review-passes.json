@@ -927,6 +927,37 @@
       },
       "readDiagnostics": [],
       "_hash": "ff0bc8c93ad0e8dfc812ba428a55daf9532870bace8d6feddc91b2eee7bafb93"
+    },
+    {
+      "id": "B-29bc:RP-021",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker.",
+      "createdAt": "2026-09-07T12:37:30.747Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-023",
+      "envelopeId": "e2de8c68d4783706119eed135da27ef038a03bf2e6f7de616540dbeb5a385c84",
+      "writerSessionId": "codex-01a05441-inventory-recovery-owner",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cc7d9a35b47a800674b8293267b2c99e6e88a6ab60be9fc9e11699e285615c53"
     }
   ]
 }
