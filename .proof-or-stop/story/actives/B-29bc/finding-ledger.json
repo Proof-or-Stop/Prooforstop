@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "9456b8ffbdc13836b743fc31208e4ab77602d348a9d65f8510ea7df7eafc124c",
+  "committedLedgerDigest": "8c235237adb9b605d1c21eca20f683f17ea1dde031ed4b081f1742acd5923c1a",
   "records": [
     {
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
@@ -311,6 +311,65 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T11:09:58.243Z"
+    },
+    {
+      "recordId": "lr_mtri3u1g_24x2_397018a1ad4c4e2e9e2d7c3621ce7da6",
+      "recordType": "finding",
+      "idempotencyKey": "b29-ri007-quality-semantic-resign-001",
+      "payload": {
+        "id": "B-29bc:F-005",
+        "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529: the new semantic receipt mutation witnesses sign the complete mutated receipt including its existing _hash. signReviewInventoryCriticReceipt spreads every supplied property into its digest, but verifyReviewInventoryCriticReceipt strips _hash before recomputing; these witnesses therefore always fail with critic receipt signature invalid, before the intended purpose/subject or missing-disposition semantic guard. WHY: the comment claims correctly re-signed mutations and CHK-001 adversarial/CHK-002 compatibility evidence reports this matrix as semantic rejection coverage, yet removal of those receipt semantic guards could leave these assertions green. Verified by a read-only node import of the current dist signer/verifier: an unsigned control signs/verifies true; the exact changed._hash=signReviewInventoryCriticReceipt(changed) pattern verifies false; destructuring _hash before signing verifies true. Source line 529 repeats the defect for incompleteDispositions. Bounded current-Story repair: sign only the unsigned mutation, assert verifyReviewInventoryCriticReceipt(changed) is true before the negative consumer assertion, and assert the intended semantic rejection reason. This is a regression-test evidence defect introduced here, not proof of a production authority bypass; retain existing runtime controls and original findings.",
+        "severity": "medium",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T17:14:56.595Z",
+        "reviewRound": "2026-09-07T17:10:43.986Z",
+        "reviewRunId": "B-29bc:RR-043",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/Proof-or-Stop.md",
+            ".proof-or-stop/story/actives/B-29bc/background.md",
+            ".proof-or-stop/story/actives/B-29bc/plan.md",
+            "docs/audits/inventory-critic-purpose-isolation.md",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+            "packages/main/src/core/review-inventory-epoch.ts",
+            "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+          ],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+        },
+        "readDiagnostics": [],
+        "_hash": "30ec4befa2cccdadd36ba1d2c24d4518d2f11d69811b450caf6431b8677b22ee",
+        "files": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "docs/audits/inventory-critic-purpose-isolation.md"
+        ],
+        "signatureTag": "adversarial|ts|packages-main-tasks",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "52ef14398b2ae50abbbd2905d1ed41ab39ddfb4d3505b6a703e03ed6d4c2af49",
+      "priorDigest": "9456b8ffbdc13836b743fc31208e4ab77602d348a9d65f8510ea7df7eafc124c",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T17:14:56.596Z"
     }
   ],
   "receipts": [
@@ -692,6 +751,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "336673eb69cce1c57fb886bdc3c72b7a4de91e8968a183e5059151d69a99153c",
         "signature": "gslkNAMo5mAbrdUA+ZtMTP/D8Sep6lTfU+DdZYcpzNXbFz68oE++GqymeRxONVH3j04CZwfz28pM//Qu3QuuDw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtri3u1g_24x2_879d0550794841b382815d50946782d7",
+      "operation": "append_finding",
+      "idempotencyKey": "b29-ri007-quality-semantic-resign-001",
+      "requestDigest": "86045fccae85cccd9f7bab2bcd35180c9e8f40a300dcd069443d2cbe7867b9e9",
+      "recordIds": [
+        "lr_mtri3u1g_24x2_397018a1ad4c4e2e9e2d7c3621ce7da6"
+      ],
+      "priorLedgerDigest": "9456b8ffbdc13836b743fc31208e4ab77602d348a9d65f8510ea7df7eafc124c",
+      "committedLedgerDigest": "8c235237adb9b605d1c21eca20f683f17ea1dde031ed4b081f1742acd5923c1a",
+      "writerSessionId": "codex-b29-ri007-quality",
+      "writerFenceToken": "1cec8f93-c816-4959-891c-20f1072f81df",
+      "committedAt": "2026-09-07T17:14:56.596Z",
+      "replayed": false,
+      "exactRequestDigest": "e6efc34379c1393988c07adb130ba5372098e6576266b7e6c2d373aeecc6bd79",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtri3u1g_24x2_879d0550794841b382815d50946782d7",
+        "storyId": "B-29bc",
+        "idempotencyKey": "b29-ri007-quality-semantic-resign-001",
+        "exactRequestDigest": "e6efc34379c1393988c07adb130ba5372098e6576266b7e6c2d373aeecc6bd79",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtri3u1g_24x2_397018a1ad4c4e2e9e2d7c3621ce7da6"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "9456b8ffbdc13836b743fc31208e4ab77602d348a9d65f8510ea7df7eafc124c",
+        "committedLedgerDigest": "8c235237adb9b605d1c21eca20f683f17ea1dde031ed4b081f1742acd5923c1a",
+        "replayed": false,
+        "committedAt": "2026-09-07T17:14:56.596Z",
+        "writerSessionId": "codex-b29-ri007-quality",
+        "writerLeaseId": "codex-01a05441-inventory-recovery-owner",
+        "writerFenceToken": "1cec8f93-c816-4959-891c-20f1072f81df",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "15ca9c1431928a4125a7767d940c58fe90948826c494c5bf384157f0eda75568",
+        "signature": "GzKxdOlleAz526XIRkRhtdkheVB68AFIgfRyIDOkZUiuGB4G2FIC4FzHmgDEXhrHscNpuOiqqIqesTXJUUroDQ=="
       }
     }
   ]

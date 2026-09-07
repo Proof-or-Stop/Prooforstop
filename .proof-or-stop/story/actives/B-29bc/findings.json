@@ -199,6 +199,57 @@
       "resolvedReason": "Fixed by runtime guard 0ffe4cc619 plus audit correction b2e7b6f495. The audit now distinguishes the original intended read-evidence contract from the missed producer/consumer enforcement, records F-001/F-002 and the documentary observations honestly, and cites actual test-only RED and passing GREEN. Both missing read fields now prevent inventory PASS coverage; the OPEN producer also refuses them. This is repair of the documentary contradiction and its underlying behavior, not dismissal or a claimed duplicate resolution. Original observation and severity remain in history; final independent review is still required. Formal current eight-intent evidence batch 74997ad completed successfully: three unique commands, zero reruns and zero false freshness.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-29bc:F-005",
+      "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529: the new semantic receipt mutation witnesses sign the complete mutated receipt including its existing _hash. signReviewInventoryCriticReceipt spreads every supplied property into its digest, but verifyReviewInventoryCriticReceipt strips _hash before recomputing; these witnesses therefore always fail with critic receipt signature invalid, before the intended purpose/subject or missing-disposition semantic guard. WHY: the comment claims correctly re-signed mutations and CHK-001 adversarial/CHK-002 compatibility evidence reports this matrix as semantic rejection coverage, yet removal of those receipt semantic guards could leave these assertions green. Verified by a read-only node import of the current dist signer/verifier: an unsigned control signs/verifies true; the exact changed._hash=signReviewInventoryCriticReceipt(changed) pattern verifies false; destructuring _hash before signing verifies true. Source line 529 repeats the defect for incompleteDispositions. Bounded current-Story repair: sign only the unsigned mutation, assert verifyReviewInventoryCriticReceipt(changed) is true before the negative consumer assertion, and assert the intended semantic rejection reason. This is a regression-test evidence defect introduced here, not proof of a production authority bypass; retain existing runtime controls and original findings.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T17:14:56.595Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-043",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "30ec4befa2cccdadd36ba1d2c24d4518d2f11d69811b450caf6431b8677b22ee",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "docs/audits/inventory-critic-purpose-isolation.md"
+      ],
+      "signatureTag": "adversarial|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtri3u1g_24x2_397018a1ad4c4e2e9e2d7c3621ce7da6",
+      "ledgerCommitReceiptId": "lrc_mtri3u1g_24x2_879d0550794841b382815d50946782d7"
     }
   ]
 }
