@@ -1,0 +1,52 @@
+{
+  "storyId": "B-e124",
+  "changes": "Restored all six nested Lab aliases and canonical config aliases. Corrected canonical transport-key smoke expectations without changing the frozen historical list. Repaired pinned docs refresh and shared causal execution timestamps. Updated compiled documentation paths, timeout fixture config naming, mutation environment wiring, and guard fixtures with independent-selector rejection coverage. Bounded finding repair b7ffdcb6d8 derives the INIT_CHECK tamper diagnostic from the registered signature domain.",
+  "usage": "Run node bin/proof-or-stop.js lab create --help or config doctor --json. Run the six repaired smoke commands and npm test to verify the regression contracts.",
+  "expectedOutcome": "Advertised CLI commands resolve; six baseline smokes pass while unknown commands, semantic environment drift, invalid selectors, failing verifiers, mutation defects and true hangs remain rejected.",
+  "actualTranscript": "All eight originally or subsequently failing smoke/regression checks pass. Final complete project validate: 128/128 commands passed. Nine verification intents were refreshed through real pinned command execution. Three final independent review lanes passed and F-001 is resolved. Root npm test previously passed 65/65 before the final diagnostic-only repair; final DONE-required run remains pending.",
+  "outcomeDiff": "No difference in requested main validation behavior; all diagnosed failures now pass. Formal lifecycle and local merge are in progress.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Bounded repairs include the original six failing smokes and one later verified diagnostic defect affecting two configured checks. No validation-policy relaxation or remote push. Acceptance topology basis remains unsupported/observe-only and is not claimed as executable topology proof.",
+  "pitfalls": "The first root suite stopped on sandbox Git index write restrictions; the next stopped because the new worktree lacked graph build artifacts. After granting local test permissions and building graph, the complete root suite passed. Frozen historical transport names are not the active matching list. Shared execution reuse still requires separate selector verdicts. A later complete validation exposed two failures from one pre-existing hardcoded INIT_CHECK diagnostic; repaired without changing signature calculation or rejection. Inventory completeness-only receipt cannot authorize REVIEW-to-DEV: proper saturated inventory with independent lanes and critic was completed before repair.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 67744
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 48647
+    },
+    "PLAN": {
+      "count": 3,
+      "durationMs": 241265
+    },
+    "DEV": {
+      "count": 4,
+      "durationMs": 2585591
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 2356427
+    }
+  },
+  "totalDurationMs": 5300527,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-07T04:31:11.151Z",
+  "updatedAt": "2026-09-07T04:31:11.151Z"
+}
