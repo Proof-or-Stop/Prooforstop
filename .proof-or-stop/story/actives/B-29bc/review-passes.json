@@ -1337,6 +1337,66 @@
       },
       "readDiagnostics": [],
       "_hash": "a297f8719fa0e6568cbf05953b2902095a1e6701e9dff8c6b412964b764b83ae"
+    },
+    {
+      "id": "B-29bc:RP-032",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Independent documentation-code consistency review for story B-29bc under review run RR-040. Step 1: extracted exported symbols and types from git diff main...HEAD across packages/main/src, including ReviewInventoryPurposeBinding, validateCriticReviewPurpose, requireInventoryCriticSubjectLocked, inventoryPurposeMatchesEpoch, and withReviewInventoryMutationLock, along with CLI fields reviewPurpose and inventoryEpochId. Step 2/3: inspected referenced sections in docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md, docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, docs/audits/inventory-critic-purpose-isolation.md, and agent templates. Closed self-check: verified all new CLI arguments, command examples, and runtime behavior descriptions match handler registrations and schemas exactly with no promised-but-undelivered features or dangling deleted symbols. No blocking documentation issues found.",
+      "createdAt": "2026-09-07T15:56:15.539Z",
+      "reviewRound": "2026-09-07T15:50:32.710Z",
+      "reviewRunId": "B-29bc:RR-040",
+      "envelopeId": "1b72d2a1cc5391be88e7ae746a49be0ba32f3c828fde1200776713058eab634a",
+      "writerSessionId": "agy-b29bc-ri006-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "5683e03d8ba04d28b5299a05fb68145fd1266ed4f6776bcd84a17af33a6bd1b8"
     }
   ]
 }
