@@ -1,0 +1,78 @@
+{
+  "storyId": "B-adc3",
+  "checkedAt": "2026-09-07T08:34:07.091Z",
+  "features": [
+    {
+      "feature": "Accept full 799 exact path scope in canonical review without truncation or authority widening",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-adc3/checklist.json"
+    },
+    {
+      "feature": "Shared 4096 per-list and 1 MiB aggregate normalized UTF8 scope budget at writers and context consumer",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-adc3/plan.md"
+    },
+    {
+      "feature": "Reject count and byte overflow before persistence, including init_from_plan; preserve generic 512 limits",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-adc3/plan.md"
+    },
+    {
+      "feature": "Preserve first/last paths, full-envelope roundtrip and last-path digest sensitivity with actual B-42f6 input replay",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-adc3/plan.md"
+    },
+    {
+      "feature": "Update mechanical process fact registry and verifier plus scoped regression smokes",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-adc3/checklist.json"
+    },
+    {
+      "feature": "Fabricated evidence, gate bypass, truncation, glob widening, or rewriting B-42f6 scope",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Explicitly forbidden by approved scope preservation constraints",
+      "source": ".proof-or-stop/story/actives/B-adc3/background.md"
+    },
+    {
+      "feature": "Apply repaired runtime to B-42f6 and publish integrated main",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Root owns integration/publication after this repair closes locally",
+      "source": ".proof-or-stop/story/actives/B-adc3/plan.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".proof-or-stop/story/actives/B-adc3/background.md",
+      ".proof-or-stop/story/actives/B-adc3/checklist.json",
+      ".proof-or-stop/story/actives/B-adc3/decision.json",
+      ".proof-or-stop/story/actives/B-adc3/plan.md",
+      ".proof-or-stop/story/actives/B-adc3/understanding.json",
+      "AGENTS.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 7,
+    "covered": 5,
+    "excluded": 2,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "70e6c06fd21899b5d29fbe866b52694a3d53f276e065503532469f10e7822995",
+  "openQuestions": []
+}

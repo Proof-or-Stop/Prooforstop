@@ -1,3 +1,5 @@
+import { projectScopeInventory } from '../core/scope-inventory-budget.js';
+import { validateFullTaskScopeContext } from '../core/prompt-contracts.js';
 /**
  * Scope Contract handlers — proof-or-stop scope_contract_set / show / check / acknowledge
  *
@@ -192,6 +194,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
         contract.anchorArtifactVersion = SCOPE_ANCHOR_ARTIFACT_VERSION;
         contract.astAnchorMode = astMode;
       }
+      validateFullTaskScopeContext(projectScopeInventory(contract));
       store.writeScopeContract(args.storyId, contract);
       return [
         `Scope contract: configured`,
@@ -348,6 +351,7 @@ export function createScopeContractHandlers(ctx: HandlerContext): Record<string,
             .map((entry) => entry.originals),
         );
       }
+      validateFullTaskScopeContext(projectScopeInventory(contract));
       store.writeScopeContract(args.storyId, contract);
       return [
         'Scope contract initialized from PLAN files',

@@ -1,0 +1,56 @@
+{
+  "storyId": "B-adc3",
+  "changes": "Scope writers and canonical reviewer contexts share a lossless projection with 4096 exact paths per scope inventory list and a 1 MiB serialized UTF-8 projected-scope budget. Both writers validate the final merged contract before persistence; generic lists retain 512. Regression coverage and process-fact enforcement protect these boundaries.",
+  "usage": "Use node bin/proof-or-stop.js scope_contract_set with the complete exact path inventory, then canonical review_run_start in the Story worktree. Oversized projected scope fails before replacing the saved contract.",
+  "expectedOutcome": "The real B-42f6 inventory with 799 created paths remains intact and can enter canonical reviewer assembly and normal remediation.",
+  "actualTranscript": "ACTUAL_INTEGRATION_SCOPE_PASS: all 799 create paths and every other captured exact scope list preserved. Actual B-42f6 canonical reviewers completed, B-42f6:RI-001:RCP-001 finalized, and normal DEV remediation was authorized; evidence commit de4a70962a. Complete validation passed 128/128; DONE-required root suite passed 65/65 with zero retries. Six actual Claude/Codex host verdicts satisfy canonical full-3x2 assurance.",
+  "outcomeDiff": "No difference for the scoped exact-inventory recovery outcome.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Generic checklist arrays and protectedAnchors retain 512. Required full prompts may exceed the existing advisory 256000-byte envelope cost budget while preserving all content. The 1 MiB hard limit applies to compact projected scope, not the complete stored artifact. B-42f6 final integration and publication remain owned by the parent task. Eleven external recommendations are preserved with independent assessments and audited dispositions; none was verified as a current scoped defect.",
+  "pitfalls": "The first full run passed 127 commands but concurrent reviewer metadata writes caused the graph no-project-writes check and canonical persistence to fail. A premature TEST attempt auto-started validation and was stopped. A later transition overlapped a host receipt and refused dirty metadata. Final execution completed reviews first, committed every record, froze all Story writes, and passed 128/128 plus 65/65. Keep the timeout environment consistent and consume current evidence instead of repeating unchanged suites.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 85223
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 77171
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 311953
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 856242
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 2928357
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 810450
+    }
+  },
+  "totalDurationMs": 5070333,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-07T09:14:56.337Z",
+  "updatedAt": "2026-09-07T09:54:32.885Z"
+}

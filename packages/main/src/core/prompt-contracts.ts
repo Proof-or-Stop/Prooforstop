@@ -1,3 +1,4 @@
+import { SCOPE_INVENTORY_LIMITS, validateScopeInventoryBudget } from './scope-inventory-budget.js';
 import { createHash } from 'node:crypto';
 import { types as utilTypes } from 'node:util';
 
@@ -496,10 +497,10 @@ function requireBoundedText(value: unknown, label: string): asserts value is str
   }
 }
 
-function requireBoundedStringArray(value: unknown, label: string): asserts value is string[] {
+function requireBoundedStringArray(value: unknown, label: string, maxEntries: number = FULL_TASK_CONTEXT_LIMITS.pathsPerList): asserts value is string[] {
   requireStringArray(value, label);
-  if (value.length > FULL_TASK_CONTEXT_LIMITS.pathsPerList) {
-    throw new PromptContractValidationError(`${label} exceeds ${FULL_TASK_CONTEXT_LIMITS.pathsPerList} entries`);
+  if (value.length > maxEntries) {
+    throw new PromptContractValidationError(`${label} exceeds ${maxEntries} entries`);
   }
   value.forEach((item, index) => requireBoundedText(item, `${label}[${index}]`));
 }
@@ -862,56 +863,65 @@ export function validateFullTaskContext(value: unknown): asserts value is FullTa
     if (seen.has(item.id as string)) throw new PromptContractValidationError(`FullTaskContext.checklist contains duplicate id ${item.id}`);
     seen.add(item.id as string);
   }
-  if (record.scope !== undefined) {
-    const scope = asRecord(record.scope, 'FullTaskContext.scope');
+  if (record.scope !== undefined) validateFullTaskScopeContext(record.scope);
+}
+
+/** Shared validation of the writer's final scope projection and reviewer scope input. */
+export function validateFullTaskScopeContext(value: unknown): asserts value is FullTaskScopeContext {
+  const scope = asRecord(value, 'FullTaskContext.scope');
+  requireExactKeys(
+    scope,
+    [
+      'mode', 'allowedModify', 'allowedCreate', 'allowedTest', 'protectedFiles',
+      'explicitExcludes', 'protectedAnchors', 'fileRules',
+    ],
+    [
+      'pathCanonicalizerVersion', 'pathCanonicalizationMode', 'anchorParserVersion',
+      'anchorArtifactVersion', 'astAnchorMode',
+    ],
+    'FullTaskContext.scope',
+  );
+  if (!['local', 'shadow', 'enforce'].includes(scope.mode as string)) {
+    throw new PromptContractValidationError('FullTaskContext.scope.mode is invalid');
+  }
+  for (const key of [
+    'allowedModify', 'allowedCreate', 'allowedTest', 'protectedFiles',
+    'explicitExcludes',
+  ]) {
+    requireBoundedStringArray(scope[key], `FullTaskContext.scope.${key}`, SCOPE_INVENTORY_LIMITS.pathsPerList);
+  }
+  requireBoundedStringArray(scope.protectedAnchors, 'FullTaskContext.scope.protectedAnchors');
+  if (!Array.isArray(scope.fileRules)) throw new PromptContractValidationError('FullTaskContext.scope.fileRules must be an array');
+  if (scope.fileRules.length > FULL_TASK_CONTEXT_LIMITS.fileRules) {
+    throw new PromptContractValidationError(`FullTaskContext.scope.fileRules exceeds ${FULL_TASK_CONTEXT_LIMITS.fileRules} entries`);
+  }
+  for (const [index, rawRule] of scope.fileRules.entries()) {
+    const label = `FullTaskContext.scope.fileRules[${index}]`;
+    const rule = asRecord(rawRule, label);
     requireExactKeys(
-      scope,
-      [
-        'mode', 'allowedModify', 'allowedCreate', 'allowedTest', 'protectedFiles',
-        'explicitExcludes', 'protectedAnchors', 'fileRules',
-      ],
-      [
-        'pathCanonicalizerVersion', 'pathCanonicalizationMode', 'anchorParserVersion',
-        'anchorArtifactVersion', 'astAnchorMode',
-      ],
-      'FullTaskContext.scope',
+      rule,
+      ['path', 'allowedAnchors', 'deniedAnchors', 'protectedAnchors', 'allowedChangeKinds', 'intentRefs'],
+      [],
+      label,
     );
-    if (!['local', 'shadow', 'enforce'].includes(scope.mode as string)) {
-      throw new PromptContractValidationError('FullTaskContext.scope.mode is invalid');
+    requireBoundedText(rule.path, `${label}.path`);
+    for (const key of ['allowedAnchors', 'deniedAnchors', 'protectedAnchors', 'allowedChangeKinds', 'intentRefs']) {
+      requireBoundedStringArray(rule[key], `${label}.${key}`);
     }
-    for (const key of [
-      'allowedModify', 'allowedCreate', 'allowedTest', 'protectedFiles',
-      'explicitExcludes', 'protectedAnchors',
-    ]) {
-      requireBoundedStringArray(scope[key], `FullTaskContext.scope.${key}`);
-    }
-    if (!Array.isArray(scope.fileRules)) throw new PromptContractValidationError('FullTaskContext.scope.fileRules must be an array');
-    if (scope.fileRules.length > FULL_TASK_CONTEXT_LIMITS.fileRules) {
-      throw new PromptContractValidationError(`FullTaskContext.scope.fileRules exceeds ${FULL_TASK_CONTEXT_LIMITS.fileRules} entries`);
-    }
-    for (const [index, rawRule] of scope.fileRules.entries()) {
-      const label = `FullTaskContext.scope.fileRules[${index}]`;
-      const rule = asRecord(rawRule, label);
-      requireExactKeys(
-        rule,
-        ['path', 'allowedAnchors', 'deniedAnchors', 'protectedAnchors', 'allowedChangeKinds', 'intentRefs'],
-        [],
-        label,
-      );
-      requireBoundedText(rule.path, `${label}.path`);
-      for (const key of ['allowedAnchors', 'deniedAnchors', 'protectedAnchors', 'allowedChangeKinds', 'intentRefs']) {
-        requireBoundedStringArray(rule[key], `${label}.${key}`);
-      }
-    }
-    for (const key of ['pathCanonicalizerVersion', 'anchorParserVersion', 'anchorArtifactVersion']) {
-      if (scope[key] !== undefined) requireBoundedText(scope[key], `FullTaskContext.scope.${key}`);
-    }
-    if (scope.pathCanonicalizationMode !== undefined && !['off', 'warn', 'enforce'].includes(scope.pathCanonicalizationMode as string)) {
-      throw new PromptContractValidationError('FullTaskContext.scope.pathCanonicalizationMode is invalid');
-    }
-    if (scope.astAnchorMode !== undefined && !['off', 'warn', 'enforce'].includes(scope.astAnchorMode as string)) {
-      throw new PromptContractValidationError('FullTaskContext.scope.astAnchorMode is invalid');
-    }
+  }
+  for (const key of ['pathCanonicalizerVersion', 'anchorParserVersion', 'anchorArtifactVersion']) {
+    if (scope[key] !== undefined) requireBoundedText(scope[key], `FullTaskContext.scope.${key}`);
+  }
+  if (scope.pathCanonicalizationMode !== undefined && !['off', 'warn', 'enforce'].includes(scope.pathCanonicalizationMode as string)) {
+    throw new PromptContractValidationError('FullTaskContext.scope.pathCanonicalizationMode is invalid');
+  }
+  if (scope.astAnchorMode !== undefined && !['off', 'warn', 'enforce'].includes(scope.astAnchorMode as string)) {
+    throw new PromptContractValidationError('FullTaskContext.scope.astAnchorMode is invalid');
+  }
+  try {
+    validateScopeInventoryBudget(value as FullTaskScopeContext);
+  } catch (error) {
+    throw new PromptContractValidationError(error instanceof Error ? error.message : String(error));
   }
 }
 

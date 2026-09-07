@@ -215,6 +215,8 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   review_loop_iteration_add: ['blocker-state', 'schema-contract', 'gate-evidence'],
   review_loop_close: ['blocker-state', 'schema-contract', 'gate-evidence'],
   scope_boundary_set: ['schema-contract', 'gate-evidence'],
+  scope_contract_set: ['schema-contract', 'atomic-persistence', 'gate-evidence'],
+  scope_contract_init_from_plan: ['schema-contract', 'atomic-persistence', 'gate-evidence'],
   execution_boundary_set: ['schema-contract', 'workspace-binding', 'gate-evidence'],
   scope_freeze_check: ['validation-result', 'schema-contract', 'gate-evidence'],
   scope_extension_proposal: ['blocker-state', 'schema-contract', 'gate-evidence'],

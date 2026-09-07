@@ -1,0 +1,129 @@
+{
+  "passes": [
+    {
+      "id": "B-adc3:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed all eight committed material diffs at a902788f83, their changed-function context, full new module and current Story inputs. Shared projection preserves prior serialization and path authority; both scope writers validate final merged projection before persistence. Generic limits remain unchanged; typed imports introduce no runtime cycle, dead code, unsafe casts, silent catches or IO-layer mixing. Independent prompt full-context envelope smoke and actual B-42f6 captured-scope replay passed; all 799 paths survived. Full suite and 3x2 host quorum are not claimed by this lane. Files listed fully below were read fully; seven existing implementation files were inspected by complete committed diff plus focused context, not claimed as full-file reads. External original observation source: /private/tmp/B-adc3-cross-host/claude-round-1.verdict.json. Original low observations preserved verbatim: [{\"path\": \"packages/main/src/core/scope-inventory-budget.ts\", \"line\": 62, \"reason\": \"The 1 MiB aggregate byte budget is measured on JSON.stringify(scope), whose byte count depends on JSON string escaping (quotes, backslashes, control chars each expand to 2+ bytes). Path validation in core/scope-contract.ts validatePaths only rejects null bytes and unsafe relative prefixes, so a quote- or backslash-bearing path is accepted and inflates the measured size non-obviously. This is a benign conservative direction (measured size >= raw content size, so the reviewer-representability guarantee still holds and nothing is silently truncated), but the limit is not the intuitive 'sum of path bytes' and no comment records that. Advisory only: it cannot admit an oversized projection.\", \"severity\": \"low\"}, {\"path\": \"packages/main/src/core/prompt-contracts.ts\", \"line\": 893, \"reason\": \"protectedAnchors is deliberately left on the generic 512-entry bound while the five path inventories move to 4096, and the byte budget in validateScopeInventoryBudget covers the whole projection including protectedAnchors and fileRules. That split is defensible (anchors are identifiers, not the exact path authority the defect concerns, and validateAnchors already restricts them to identifier syntax) and is pinned by the new negative assertion at prompt-full-context-envelope-smoke.ts:1205. However, the asymmetry is only expressed by the absence of a third argument at this call site; a reader cannot tell from the code whether 512 for anchors is intentional or an overlooked list. A brief inline note naming protectedAnchors as intentionally generic would prevent a future edit from 'fixing' it into 4096 and silently widening authority. Advisory only.\", \"severity\": \"low\"}, {\"path\": \"packages/main/src/tasks/prompt-full-context-envelope-smoke.ts\", \"line\": 1210, \"reason\": \"The exact-byte-boundary construction appends one ASCII byte per iteration in a loop over `remaining` (up to ~1M iterations across both smokes) and asserts an exact equality on the serialized size. It is correct as written because each appended 'x' adds exactly one UTF-8 byte and one JSON byte, but it is brittle: any future change to the projection shape, to the surrounding fixture, or to the 65536-byte per-string bound can flip the assert.ok(remaining > 0) / assert.equal precondition into a confusing failure far from the real cause. Same pattern at scope-contract-smoke.ts:963-975. Test-only; does not affect production behavior.\", \"severity\": \"low\"}]. Independent assessment: observation 1 describes the explicitly approved serialized JSON budget; JSON escaping cost is intended and shared, not a reproduced defect. Observation 2 requests comment clarification for a deliberate and negatively tested generic anchor limit; no current defect. Observation 3 predicts future fixture brittleness but the current exact-boundary arithmetic is deterministic, bounded and independently passes; no current failure was reproduced. These remain external recommendations, not fabricated verified Findings. No newly added README/CLAUDE command or behavior promises exist in this diff. No blocking quality findings.",
+      "createdAt": "2026-09-07T08:54:49.555Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-003",
+      "envelopeId": "6f99466230403a6a5b2acef57df9364f00b9f766dd4ac0549003dad3de2b0099",
+      "writerSessionId": "sess-a3d32d0a00d60e4cd5324f844bcd8465",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-adc3/background.md",
+          ".proof-or-stop/story/actives/B-adc3/checklist.json",
+          ".proof-or-stop/story/actives/B-adc3/plan.md",
+          "AGENTS.md",
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "20a516d9e0041ef1854b9b50ad014ecc56a201dca581fda3482d3f2ba9d11008"
+    },
+    {
+      "id": "B-adc3:RP-002",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed CHK-001 and committed implementation a902788f83, including shared projection, both writer call sites, reader validation, process registry and boundary-test diffs. This extracts existing scope projection without deleting a domain concept. Repository scan confirms remaining 512 limits apply to generic or incremental lists, while exact scope path inventories use shared 4096 entries and 1 MiB aggregate bounds. No wildcard, truncation, lost field, concept residue or newly promised but undelivered behavior found. Zero findings; this lane does not assert external-host quorum or full-suite completion.",
+      "createdAt": "2026-09-07T08:54:53.244Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-002",
+      "envelopeId": "50e0f0a7216bb0d718c64795b9a88968009f38bc181c64d32fd6f62d27fec967",
+      "writerSessionId": "sess-b9ecdbcf89f2e65a133d691e4fcac3f5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-adc3/background.md",
+          ".proof-or-stop/story/actives/B-adc3/checklist.json",
+          ".proof-or-stop/story/actives/B-adc3/plan.md",
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [
+          "AGENTS.md",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-incremental-context.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "e72d0442765aed064fc01fd0608bf6f5270791fcdf328eb56544ecbbe708111f"
+    },
+    {
+      "id": "B-adc3:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Reviewed all six CHK-001 intent receipts against committed a902788f83 diff. Both scope writer entry points reject count overflow before persisted scope changes; writer and consumer cover 513, 799, 4096, 4097 and exact UTF-8 byte boundary, inherited fields, generic 512 limits and late-path semantic/envelope identity sensitivity. Read the SHA256-pinned actual 799-path capture replay source and its successful tool-owned receipt. Six covered intents, zero must gaps, zero waivers, no blocking finding. Full configured validation remains owner-run and is not claimed complete by this lane; no external host execution is claimed.",
+      "createdAt": "2026-09-07T08:57:11.408Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-005",
+      "envelopeId": "60b6804cc0352ac88f0c00f54831fe1e934ee1226c59c52262efbe9ab2ee6c6d",
+      "writerSessionId": "sess-f8a166791fc8b669dfcd6362364da6ef",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-adc3/background.md",
+          ".proof-or-stop/story/actives/B-adc3/checklist.json",
+          ".proof-or-stop/story/actives/B-adc3/plan.md",
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "89d884df4374cfb9b6d4fb34d411b7266832817b506cac4fea3bdfc35e616e14"
+    },
+    {
+      "id": "B-adc3:RP-004",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent RI-001 completeness review only: inspected all eleven registered raw observations, original Claude three rounds and Codex two coverage reports, required lane terminal read manifests, approved plan and committed source. Every raw finding is accounted for; no additional verified defect family found. Generic checklist and anchor limits are explicitly retained; JSON projected budget differs intentionally from persisted artifact and advisory prompt cost. Coverage suggestions do not demonstrate current incorrect acceptance. This pass does not assert complete acceptance topology: acceptance_basis has unsupported coverage with a valid receipt and remains inconclusive, not coverage PASS. No external-host signature or full-suite completion asserted. Existing original observations and severity remain preserved.",
+      "createdAt": "2026-09-07T09:11:37.868Z",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "reviewRunId": "B-adc3:RR-009",
+      "envelopeId": "6f0856762d16848d7c1448b96788b601480c2532b4eae1bdddfa9d3a187f2bc5",
+      "writerSessionId": "sess-b9ecdbcf89f2e65a133d691e4fcac3f5",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-adc3/background.md",
+          ".proof-or-stop/story/actives/B-adc3/checklist.json",
+          ".proof-or-stop/story/actives/B-adc3/plan.md",
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/handlers/scope-contract.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/scope-contract-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "86a3753e2e6a8d59dd509a53c9e925a2cf77430c944c18393f9bfff330d92624"
+    }
+  ]
+}
