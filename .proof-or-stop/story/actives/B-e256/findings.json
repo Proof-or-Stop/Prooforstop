@@ -2409,7 +2409,7 @@
       "desc": "windows-shim-target-base-variable-binding false pass: packages/main/src/core/runtime-environment-checks.ts:772-778 strips both `%dp0%` and `$basedir` from the supposed script token without proving their cmd.exe meaning or binding. A current compiled-runtime probe against a canonical package/bin/version used literal `node` (so it is independent of F-047's `%_prog%` runtime issue) and three PATH-selected .cmd shims: an unbound `%dp0%`, `SET \"dp0=C:\\\\definitely-wrong\"` followed by `%dp0%`, and literal `$basedir`. All three returned global-core-realpath status=pass, verification=ok, executable=true, and emitted `contract: global-core-realpath-pass`, although cmd.exe would expand the first two to an absent/wrong target and treats `$basedir` as literal text. packages/main/tests/global-core-realpath.test.mjs:175-179 covers only a `%~dp0` positive helper and has no mutation for invalid/unbound target-base forms. Bind `%dp0%` acceptance to the npm shim's verified `CALL :find_dp0`/`SET dp0=%~dp0` control flow, reject shell-inapplicable `$basedir` in a .cmd shim, and add mutations proving these target-base decoys cannot emit the healthy marker. This is a direct CHK-003/AC-001 Windows acceptance violation; severity: high.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-07T00:44:56.354Z",
@@ -2454,7 +2454,11 @@
       "signatureTag": "windows-command-shim-unverified-target-base-binding",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqiqois_15dl_44b614cdb83740beba9875cf065b75aa",
-      "ledgerCommitReceiptId": "lrc_mtqiqois_15dl_18caf51c8bb14e1bb031215a99c6635f"
+      "ledgerCommitReceiptId": "lrc_mtqiqois_15dl_18caf51c8bb14e1bb031215a99c6635f",
+      "resolvedReason": "Commit 9473a6f32c validates the target base binding instead of stripping arbitrary %dp0% or $basedir text; target-base mutation coverage passes in the final focused and full validation.",
+      "resolvedAt": "2026-09-07T11:06:07.551Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-051",
