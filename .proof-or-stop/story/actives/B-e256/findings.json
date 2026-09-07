@@ -2923,6 +2923,60 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqkmunx_1kxt_189005a8214042c08074b443cb2d978e",
       "ledgerCommitReceiptId": "lrc_mtqkmuny_1kxt_660bbf92c7bf4820a410656b97706354"
+    },
+    {
+      "id": "B-e256:F-060",
+      "desc": "canonical-command-name absence masked by legacy lattice fallback: packages/main/src/core/runtime-environment-checks.ts:1792-1808 defines resolveCliCommandPath as `resolveCommandOnPath(\"proof-or-stop\") ?? resolveCommandOnPath(\"lattice\")`, so the doctor may certify a legacy lattice executable when the user-facing proof-or-stop command is entirely absent. A current compiled-runtime production-resolver probe created an otherwise canonical global package/bin/version, no proof-or-stop PATH artifact, and only a valid lattice.cmd pointing at the canonical target; with win32/PATHEXT=.CMD the check selected lattice.CMD, returned global-core-realpath status=pass, verification=ok, executable=true, and emitted `contract: global-core-realpath-pass`. This directly contradicts plan.md CHK-003 (`A global package without a proof-or-stop command on PATH is non-pass`), checklist CHK-001 userSees (`proof-or-stop --version` works), and CHK-003 edge:1. packages/main/tests/global-core-realpath.test.mjs:377-402 covers null PATH resolution but has no legacy-only lattice sibling mutation. It is distinct from F-047–F-058: the selected legacy shim can be an exact, reachable, argument-preserving, status-preserving official npm shape; the defect is that the canonical command name being promised is absent. Remove the lattice fallback from this canonical health fact or report it as non-pass compatibility-only evidence, and add POSIX/Windows legacy-only PATH mutations. Direct operator-visible acceptance violation; severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T01:38:10.084Z",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "reviewRunId": "B-e256:RR-175",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "04c78c86c1ebdc01177a71076ffd9bc129a7a9de3df176f4a948bdd32ce3675a"
+      },
+      "readDiagnostics": [],
+      "_hash": "d01d2a9b3bc49f2bd4e7806c1536585582fe17d98fc9d055c718c986652db1a5",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs",
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/plan.md",
+        ".proof-or-stop/story/actives/B-e256/proofstory.json"
+      ],
+      "signatureTag": "canonical-proof-or-stop-command-absence-masked-by-lattice-fallback",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqkn4th_n5j_86a7622a2bef4a76a61d2db3a719b5d4",
+      "ledgerCommitReceiptId": "lrc_mtqkn4ti_n5j_3d0c969a1198437cbae20fbd193bd3ff"
     }
   ]
 }
