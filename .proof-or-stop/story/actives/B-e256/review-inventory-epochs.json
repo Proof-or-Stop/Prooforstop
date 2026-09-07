@@ -1819,7 +1819,7 @@
       "reviewRound": "2026-09-07T00:35:44.550Z",
       "state": "OPEN",
       "begunAt": "2026-09-07T00:39:52.445Z",
-      "updatedAt": "2026-09-07T00:39:52.445Z",
+      "updatedAt": "2026-09-07T00:52:21.836Z",
       "cutoff": {
         "headHash": "1aa4d495cfbe4501cd8202886044d9e23bda76d7",
         "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
@@ -1833,9 +1833,61 @@
       ],
       "initialRunSequenceBoundary": 152,
       "maxWaves": 2,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T00:39:52.445Z",
+          "completedAt": "2026-09-07T00:52:21.836Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-153",
+              "terminal": "finding",
+              "hostIdentity": "549e468dfd372ec8991c5e5f4afc87671ff15b292b17692e957e4b03911afd72",
+              "promptIdentity": "200187b9c541c18e7c45e41df5485085ac264b082f1d1033f9ccf3b9c90d9107",
+              "evidenceIds": [
+                "B-e256:F-049"
+              ],
+              "coverageDigest": "6a30b64e6ccc92a107d5469ab6c387617c70f79678857d7d9e58ae8f29b0ded5"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-154",
+              "terminal": "pass",
+              "hostIdentity": "549e468dfd372ec8991c5e5f4afc87671ff15b292b17692e957e4b03911afd72",
+              "promptIdentity": "a840ce953f30aedd463a65e44bc0a430f1a3a4c7503b21ecf9f86487f581a0bb",
+              "evidenceIds": [
+                "B-e256:RP-108"
+              ],
+              "coverageDigest": "192ab3d03631494f81178d9dac05127cff19b44b2e3ed430bcdd48aa75768d3b"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-155",
+              "terminal": "finding",
+              "hostIdentity": "549e468dfd372ec8991c5e5f4afc87671ff15b292b17692e957e4b03911afd72",
+              "promptIdentity": "6c6aba0e6b23e457e6e10ae840e496b92d072c3a377725584cd2d5f9e3a263d5",
+              "evidenceIds": [
+                "B-e256:F-050",
+                "B-e256:F-051"
+              ],
+              "coverageDigest": "dab3cf88a28f0e527279c56fca8d7a8fb28be6337528f2b709d2eae75aab5fb2"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "proofstory-acceptance-topology-pre-review-proof-missing",
+            "windows-command-shim-target-base-variable-binding",
+            "windows-command-shim-unreachable-invocation"
+          ],
+          "verifiedFindingSetDigest": "7351ac057169dddbd4fd3ae9d9f2969e3db0f8dd1614ac414e2d64e9b8a9dc51",
+          "newVerifiedFindingCount": 3,
+          "criticDigest": "f486f5029b5d1d488cca3e0fd5ef54d49abdecb5f7df59b105faba542de7513d",
+          "saturated": false,
+          "nextRunSequenceBoundary": 156
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "b061dfc7c04382d6e1d507639d0cd36b5d4634d3187249f8ca73ae3e9353b7a5"
+      "_hash": "89a6d87fb3f77eba545749f0376dc34ed9b0a9e4276a6d8c437f66c3b7c78cf6"
     }
   ],
   "receipts": [
@@ -3130,6 +3182,49 @@
       "findingDispositions": [],
       "createdAt": "2026-09-06T23:58:18.435Z",
       "_hash": "7e86fd4c30e22b50caac481232fc8f2be17c0e19d0ecbbf4e2a366fe24841a90"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-011:CRIT-01",
+      "epochId": "B-e256:RI-011",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "1aa4d495cfbe4501cd8202886044d9e23bda76d7",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "aggregateFindingSetDigest": "7351ac057169dddbd4fd3ae9d9f2969e3db0f8dd1614ac414e2d64e9b8a9dc51",
+      "requiredLaneCoverageDigest": "bed331212976459d539b3ff557dd1c71b0b36e92b3d66750299c45486425b1a4",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-156",
+      "terminalEvidenceIds": [
+        "B-e256:RP-109"
+      ],
+      "readEvidenceDigest": "ec81d1758b803baab3888727080daaadb7d8ae18fd8e0a61ac2c768612fb6204",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-049",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-unreachable-invocation",
+          "reason": "Independent current-dist probe reproduces healthy PASS for a .cmd with unconditional `goto :eof` before literal `node <canonical-target>`. Runtime and argv are otherwise correct; the defect is static scanning of unreachable control flow, distinct from F-047 and F-050. It directly violates CHK-003 and AC-001 and requires current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-050",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-target-base-variable-binding",
+          "reason": "Independent current-dist probes reproduce healthy PASS for unbound `%dp0%` and shell-inapplicable literal `$basedir` target prefixes. Runtime is literal Node, so this is target-base expansion/binding rather than F-047 runtime identity or F-049 reachability. It directly violates CHK-003 and AC-001 and requires current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-051",
+          "disposition": "verified_family",
+          "familyKey": "proofstory-acceptance-topology-pre-review-proof-missing",
+          "reason": "Canonical acceptance_topology_check independently reports legacy_missing/AT_MISSING_TOPOLOGY and unsupported basis; pre_review_check_read reports PR_COVERAGE_INCONCLUSIVE plus missing production, mutation, control-restoration, transcript, and authority proof. A bounded AC-001 verificationTopology addition is necessary but not sufficient: current proof-or-stop.config.json is 71294 bytes while discovery uses a 65536-byte safe-read ceiling, so the profile remains unsupported even though packages/main/tsconfig.json exists; main config is already 71193 bytes. No signed non-applicable assessment, exact accepted route, or live owner proves this direct high-assurance AC-001 evidence gap can leave the Story. Under fail-closed policy it remains a distinct verified current-Story repair obligation."
+        }
+      ],
+      "createdAt": "2026-09-07T00:51:39.570Z",
+      "_hash": "53fb77c6ec03b4f0ae63d0f2d90be7ed8becac7084980f033ace4ce291e28c1d"
     }
   ]
 }
