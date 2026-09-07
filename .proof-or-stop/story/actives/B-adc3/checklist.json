@@ -11,6 +11,7 @@
       "files": {
         "modify": [
           "packages/main/src/core/prompt-contracts.ts",
+          "packages/main/src/core/prompt-envelope.ts",
           "packages/main/src/handlers/scope-contract.ts",
           "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
           "packages/main/src/tasks/scope-contract-smoke.ts",
@@ -22,9 +23,218 @@
         ],
         "test": []
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-09-07T08:38:22.552Z",
+      "endTime": "2026-09-07T08:47:32.732Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Scope writer accepts 513-path and 799-path exact inventories and canonical review-context assembly preserves every path, including the final entry, without truncation, wildcard substitution or authority widening.",
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+              "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS"
+            }
+          },
+          {
+            "desc": "Replay the actual B-42f6 scope through repaired canonical context assembly with all 799 created paths intact, using read-only source inputs and without altering B-42f6 Story state.",
+            "type": "cli",
+            "verification": {
+              "command": "node /private/tmp/B-adc3-actual-scope-replay.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-adc3",
+              "selector": "ACTUAL_INTEGRATION_SCOPE_PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Writer and context consumer agree at the scope-specific 4096-path count boundary; 4096 is accepted within the byte budget and 4097 is rejected before persisted scope state changes.",
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+              "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS"
+            }
+          },
+          {
+            "desc": "Writer and context consumer enforce the same 1 MiB aggregate serialized UTF-8 inventory budget, covering multibyte paths and combined inventory fields; an at-limit valid inventory passes and byte overflow is rejected without partial persistence.",
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+              "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Generic non-scope prompt and checklist arrays retain their existing 512-entry limit and reject 513 entries; increasing scope capacity must not weaken these independent limits.",
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+              "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS"
+            }
+          },
+          {
+            "desc": "Changing or removing an exact path beyond entry 512, including the final path of a 799-path inventory, changes the canonical scope/context digest and invalidates stale signed bindings rather than silently preserving prior authority.",
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+              "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+          "result": "pass",
+          "note": "Execute writer-to-context and signed envelope boundary regressions including unchanged persistence, generic bounds and late-path authority sensitivity.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5d75c183860669299b2925189e4d8e4cb1edd420842075a65755be4dcbd93fcc",
+            "outputTail": "scope contract smoke passed\n⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\nBOUNDED_SCOPE_REGRESSIONS_PASS\n",
+            "selectorMatched": true,
+            "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS",
+            "executedAt": "2026-09-07T08:46:52.943Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:cc54b55947df6239e31904bb7ee8ca73ddfbb8fb4cbfb7a89ce3625322b74e6f",
+            "causalReceiptHash": "89ed65fb0d637fadf70a58e60f52c2135d165b3d0d8b2db7943788225d9cbd92",
+            "commandReruns": 0
+          },
+          "headHash": "a902788f83ac8725a224447ab6f90361ff7fad78",
+          "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8",
+          "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f",
+          "timestamp": "2026-09-07T08:47:00.588Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+          "result": "pass",
+          "note": "Execute writer-to-context and signed envelope boundary regressions including unchanged persistence, generic bounds and late-path authority sensitivity.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5d75c183860669299b2925189e4d8e4cb1edd420842075a65755be4dcbd93fcc",
+            "outputTail": "scope contract smoke passed\n⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\nBOUNDED_SCOPE_REGRESSIONS_PASS\n",
+            "selectorMatched": true,
+            "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS",
+            "executedAt": "2026-09-07T08:46:52.943Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:cc54b55947df6239e31904bb7ee8ca73ddfbb8fb4cbfb7a89ce3625322b74e6f",
+            "causalReceiptHash": "89ed65fb0d637fadf70a58e60f52c2135d165b3d0d8b2db7943788225d9cbd92",
+            "commandReruns": 0
+          },
+          "headHash": "a902788f83ac8725a224447ab6f90361ff7fad78",
+          "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8",
+          "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f",
+          "timestamp": "2026-09-07T08:47:00.588Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "integration_test",
+          "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+          "result": "pass",
+          "note": "Execute writer-to-context and signed envelope boundary regressions including unchanged persistence, generic bounds and late-path authority sensitivity.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5d75c183860669299b2925189e4d8e4cb1edd420842075a65755be4dcbd93fcc",
+            "outputTail": "scope contract smoke passed\n⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\nBOUNDED_SCOPE_REGRESSIONS_PASS\n",
+            "selectorMatched": true,
+            "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS",
+            "executedAt": "2026-09-07T08:46:52.943Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:cc54b55947df6239e31904bb7ee8ca73ddfbb8fb4cbfb7a89ce3625322b74e6f",
+            "causalReceiptHash": "89ed65fb0d637fadf70a58e60f52c2135d165b3d0d8b2db7943788225d9cbd92",
+            "commandReruns": 0
+          },
+          "headHash": "a902788f83ac8725a224447ab6f90361ff7fad78",
+          "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8",
+          "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f",
+          "timestamp": "2026-09-07T08:47:00.588Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+          "result": "pass",
+          "note": "Execute writer-to-context and signed envelope boundary regressions including unchanged persistence, generic bounds and late-path authority sensitivity.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5d75c183860669299b2925189e4d8e4cb1edd420842075a65755be4dcbd93fcc",
+            "outputTail": "scope contract smoke passed\n⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\nBOUNDED_SCOPE_REGRESSIONS_PASS\n",
+            "selectorMatched": true,
+            "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS",
+            "executedAt": "2026-09-07T08:46:52.943Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:cc54b55947df6239e31904bb7ee8ca73ddfbb8fb4cbfb7a89ce3625322b74e6f",
+            "causalReceiptHash": "89ed65fb0d637fadf70a58e60f52c2135d165b3d0d8b2db7943788225d9cbd92",
+            "commandReruns": 0
+          },
+          "headHash": "a902788f83ac8725a224447ab6f90361ff7fad78",
+          "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8",
+          "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f",
+          "timestamp": "2026-09-07T08:47:00.588Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "integration_test",
+          "command": "node -e \"const {spawnSync}=require('node:child_process');for(const p of ['scope-contract-smoke','prompt-full-context-envelope-smoke']){const r=spawnSync(process.execPath,['packages/main/dist/tasks/'+p+'.js'],{stdio:'inherit'});if(r.status!==0)process.exit(r.status||1)}console.log('BOUNDED_SCOPE_REGRESSIONS_PASS')\"",
+          "result": "pass",
+          "note": "Execute writer-to-context and signed envelope boundary regressions including unchanged persistence, generic bounds and late-path authority sensitivity.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5d75c183860669299b2925189e4d8e4cb1edd420842075a65755be4dcbd93fcc",
+            "outputTail": "scope contract smoke passed\n⚠ session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\nprompt full-context envelope smoke: PASS\nBOUNDED_SCOPE_REGRESSIONS_PASS\n",
+            "selectorMatched": true,
+            "selector": "BOUNDED_SCOPE_REGRESSIONS_PASS",
+            "executedAt": "2026-09-07T08:46:52.943Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:cc54b55947df6239e31904bb7ee8ca73ddfbb8fb4cbfb7a89ce3625322b74e6f",
+            "causalReceiptHash": "89ed65fb0d637fadf70a58e60f52c2135d165b3d0d8b2db7943788225d9cbd92",
+            "commandReruns": 0
+          },
+          "headHash": "a902788f83ac8725a224447ab6f90361ff7fad78",
+          "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8",
+          "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f",
+          "timestamp": "2026-09-07T08:47:00.588Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "integration_test",
+          "command": "node /private/tmp/B-adc3-actual-scope-replay.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-adc3",
+          "result": "pass",
+          "note": "Read-only production builder replay of SHA256-pinned actual CLI scope capture; all799createdpaths and otherlists preserved, no B42 writes.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "edce997c10e1bff05fa31c0322e132c58c360e53faece287a0293470fdec480e",
+            "outputTail": "ACTUAL_INTEGRATION_SCOPE_PASS: all 799 create paths and every other captured exact scope list preserved\n",
+            "selectorMatched": true,
+            "selector": "ACTUAL_INTEGRATION_SCOPE_PASS",
+            "executedAt": "2026-09-07T08:47:00.139Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:2efb74c38f0f1afd19e6d60af2174afc7d38299a2d50468efdeecaa5197c7b85",
+            "causalReceiptHash": "6a8b12a54480f4eba0e13874df57a2b5ed66daa9b230c416b7d6c7daf3aa795c",
+            "commandReruns": 0
+          },
+          "headHash": "a902788f83ac8725a224447ab6f90361ff7fad78",
+          "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8",
+          "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f",
+          "timestamp": "2026-09-07T08:47:00.588Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "1bfca03219bf690c953d3271aeac1605e3f2bba3747a1ce3ad426cac4c0c8469",
+        "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f",
+        "headHash": "a902788f83ac8725a224447ab6f90361ff7fad78",
+        "attestedAt": "2026-09-07T08:47:33.190Z",
+        "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8"
+      }
     }
   ]
 }

@@ -4,7 +4,7 @@
   "title": "Keep large exact scope contracts reviewable within shared bounds",
   "description": "Repair B-42f6 REVIEW deadlock: scope_contract_set accepts 799 exact created paths while FullTaskContext rejects more than 512. Preserve every scope path and digest under shared count and aggregate byte bounds enforced before persistence and during review context validation.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DEV",
   "priority": "high",
   "createdAt": "2026-09-07T08:30:02.552Z",
   "startedAt": "2026-09-07T08:30:02.552Z",
@@ -24,6 +24,24 @@
       "action": "advance",
       "timestamp": "2026-09-07T08:31:28.712Z",
       "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:32:45.883Z",
+      "branch": "story/B-adc3",
+      "user": "Pan Qi",
+      "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:37:57.836Z",
+      "branch": "story/B-adc3",
       "user": "Pan Qi",
       "sessionId": "sess-f9437e6b1dc3b6af0e8c4af9a0b5c947",
       "agent": "main"

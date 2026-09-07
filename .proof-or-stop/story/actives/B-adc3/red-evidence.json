@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-adc3",
+  "records": [
+    {
+      "id": "RED-20260907083754",
+      "trigger": "Accepted scope exceeds canonical reviewer capacity",
+      "acceptanceTargetRef": "ACC-001",
+      "baselineHeadHash": "a1c7611b095363a5c98db87edd698f40f72b55f3",
+      "baselineMaterialHash": "cb166efa035ca321a6ec8f4c6a35d3dd8f3631239b5180fb60e2f516c64134f4",
+      "observedFailure": "Actually executed production buildFullTaskContext with513 allowedCreate paths; exit1: LARGE_SCOPE_FAIL FullTaskContext.scope.allowedCreate exceeds512 entries.",
+      "failingCommand": "node --input-type=module -e \"import {buildFullTaskContext} from './packages/main/dist/core/prompt-envelope.js';buildFullTaskContext({story:{storyId:'B-adc3',title:'Scope repro',description:'Scope capacity mismatch',phase:'REVIEW',priority:'high'},checklist:{items:[]},headHash:'a'.repeat(40),scopeContract:{mode:'enforce',allowedModify:[],allowedCreate:Array.from({length:513},(_,i)=>'src/f'+i+'.ts'),allowedTest:[],protectedFiles:[],explicitExcludes:[]}})\"",
+      "expectedGreenCommand": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+      "greenRelation": {
+        "targetRef": "ACC-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js"
+      },
+      "note": "Real production builder reproduction before implementation; actual799 capture also independently fails.",
+      "createdAt": "2026-09-07T08:37:54.451Z"
+    }
+  ],
+  "createdAt": "2026-09-07T08:37:54.451Z",
+  "updatedAt": "2026-09-07T08:37:54.451Z"
+}
