@@ -24,7 +24,11 @@
     ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
     "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
     "packages/main/src/handlers/finding.ts",
-    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json"
   ],
   "allowedCreate": [
     "docs/audits/inventory-critic-purpose-isolation.md"
@@ -40,10 +44,10 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Bounded mandatory validation repair for BUG-VALIDATE-START-READINESS after RI-004 completeness receipt: the foreign-append witness currently imposes an unsupported 5-second CLI startup window, ignores early child diagnostics, and can remove an active fixture. Permit only this existing smoke task to add a delayed-readiness RED, bounded terminal-aware readiness, explicit completion/cleanup controls and their negative regressions. Preserve all production timeout budgets and foreign-append safety assertions; no machine, topology, configuration, host runtime or other Story changes. Retain all existing scope fields.",
+  "scopeChangeReason": "Bounded acceptance-blocking repair for BUG-CRITIC-PROMPT-BASELINE. The actual DONE-required root suite and independent manifest probe reject this Story's purpose-selected critic assembled body because its approval pin and generated snapshots remain pre-change. Add only the existing baseline verifier and its three canonical generated outputs. Independently review the exact critic suffix and purpose-selected role matrix; update only current approved-body identity and dependent snapshots. Preserve all immutable source/legacy reconstruction hashes, role count, semantic rejection probes, topology admission, other role policies, and other Stories. No global-green scope expansion.",
   "acknowledgements": [],
   "createdAt": "2026-09-07T08:19:11.670Z",
-  "updatedAt": "2026-09-07T12:49:15.364Z",
+  "updatedAt": "2026-09-07T15:35:49.168Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -72,6 +76,10 @@
     ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md": ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
     "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
     "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
-    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json"
   }
 }
