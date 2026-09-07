@@ -1,0 +1,55 @@
+{
+  "storyId": "B-5a52",
+  "checkedAt": "2026-09-07T02:18:32.170Z",
+  "features": [
+    {
+      "feature": "Identify Proof-or-stop in playback interface heading while retaining story identity",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-5a52/understanding.json"
+    },
+    {
+      "feature": "Identify Proof-or-stop on every exported video frame without title overlap",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-5a52/understanding.json"
+    },
+    {
+      "feature": "Preserve diagram space, graph layout, playback controls and timing",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-5a52/background.md"
+    },
+    {
+      "feature": "New logos, export settings and unrelated graph redesign",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Background explicitly limits work to modest text branding in existing title areas.",
+      "source": ".proof-or-stop/story/actives/B-5a52/background.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".proof-or-stop/story/actives/B-5a52/background.md",
+      ".proof-or-stop/story/actives/B-5a52/checklist.json",
+      ".proof-or-stop/story/actives/B-5a52/understanding.json",
+      "packages/graph/README.md"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 4,
+    "covered": 3,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "c3123c4b26bad4641a31d127de235d6ea5dd744b3de91f28007d43e287b4da90",
+  "openQuestions": []
+}

@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5a52",
+  "changes": "Added Proof-or-stop to playback/export headings and shared MP4/GIF frame chrome; measured title width preserves Story subtitle spacing.",
+  "usage": "Open Story Graph, select a story, Timeline, Playback, then export MP4 or GIF.",
+  "expectedOutcome": "Proof-or-stop is visible in playback and all exported frames while preserving story context.",
+  "actualTranscript": "Actual light MP4 and dark GIF display Proof-or-stop · Story Graph and B-fe8f timeline; playback shows Proof-or-stop · B-fe8f · timeline playback. Graph build, syntax, typecheck and three independent code reviews passed.",
+  "outcomeDiff": "Branding matches request. User approved local merge under a one-time exception for main baseline failures. Formal DONE remains blocked by express-story inventory/implementer-provenance circularity; no DONE or full-suite PASS is claimed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Manual user-approved local merge, not lifecycle DONE. Full-suite failures reproduced on main remain. Temporary validation config was restored byte-for-byte before merge; original project validation policy remains intact.",
+  "pitfalls": "REVIEW-to-DEV requires finalized inventory; topology critic requires an implementer-authored business commit; implementer dispatch is DEV-only. This express Story was legitimately implemented by Owner. No fabricated provenance, Story JSON writes, or fake PASS was used. Source implementation c8263eb450. User approved exception on 2026-09-07.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 67096
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 70336
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 195635
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 491827
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 1714611
+    }
+  },
+  "totalDurationMs": 2540497,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-07T02:40:54.445Z",
+  "updatedAt": "2026-09-07T02:57:31.614Z"
+}

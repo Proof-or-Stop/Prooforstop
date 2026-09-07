@@ -14,9 +14,72 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-09-07T02:20:46.985Z",
+      "endTime": "2026-09-07T02:24:57.938Z",
+      "userSees": "Proof-or-stop in the playback/export header and every exported frame, alongside the story identity.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Opening timeline playback and completing its initialization both show the exact product name Proof-or-stop alongside the current story identifier and playback context.",
+            "type": "browser"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Representative light and dark export frames at the supported MP4 and GIF dimensions display Proof-or-stop clearly while retaining the story identifier and timeline context without title overlap or clipping.",
+            "type": "browser"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Advancing playback and rendering a later export frame retain the branding; heading refreshes must not replace it with an unbranded title, and existing story metadata remains legible.",
+            "type": "browser"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "result": "pass",
+          "note": "Exempt automated browser replay for this cosmetic text-only change: actual CUA browser inspection confirmed initial/initialized Proof-or-stop · B-fe8f · timeline playback header. npm graph build and node --check passed. Existing manual browser attestation documents observations; no automated coverage is claimed.",
+          "headHash": "c8263eb450262df4a940cf6356c4817beaf394b0",
+          "materialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345",
+          "storyFilesHash": "da2ef4ccdb9a07a7daa004a24ebfb120b1001059fee6d6f0442add6152484c94",
+          "timestamp": "2026-09-07T02:28:43.281Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "result": "pass",
+          "note": "Exempt automated pixel/layout assertion for this cosmetic change after real light MP4 1920x1080 and dark GIF 1440x810 exports were decoded and visually inspected by owner and independent reviewer. Both /private/tmp/proof-or-stop-brand-frame.png and /private/tmp/proof-or-stop-brand-dark.png show separate readable brand and story title. No machine visual coverage claimed.",
+          "headHash": "c8263eb450262df4a940cf6356c4817beaf394b0",
+          "materialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345",
+          "storyFilesHash": "da2ef4ccdb9a07a7daa004a24ebfb120b1001059fee6d6f0442add6152484c94",
+          "timestamp": "2026-09-07T02:28:44.399Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "waiver",
+          "waiverType": "permanent",
+          "result": "pass",
+          "note": "Exempt automated replay for text-only branding after CUA inspection at transition 1 and 2, reopen and export reset, and decoded later frames MP4 12s/GIF 18s retained brand. Independent code inspection confirmed both heading assignments use the shared constant. No mechanical coverage claimed.",
+          "headHash": "c8263eb450262df4a940cf6356c4817beaf394b0",
+          "materialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345",
+          "storyFilesHash": "da2ef4ccdb9a07a7daa004a24ebfb120b1001059fee6d6f0442add6152484c94",
+          "timestamp": "2026-09-07T02:28:45.518Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "b21620753c346121b25e97b2cdf01c90bc457f166e4918e4401e71aaf45db362",
+        "storyFilesHash": "da2ef4ccdb9a07a7daa004a24ebfb120b1001059fee6d6f0442add6152484c94",
+        "headHash": "c8263eb450262df4a940cf6356c4817beaf394b0",
+        "attestedAt": "2026-09-07T02:24:58.357Z",
+        "materialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345"
+      }
     }
   ]
 }

@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "proofbound.review_inventory_epochs.v1",
+  "epochs": [
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a52:RI-001",
+      "storyId": "B-5a52",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-09-07T02:47:13.514Z",
+      "updatedAt": "2026-09-07T02:51:20.837Z",
+      "cutoff": {
+        "headHash": "7d8166acf08a85e13a2dc4c903243791cd1771f6",
+        "materialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345",
+        "storyFilesHash": "da2ef4ccdb9a07a7daa004a24ebfb120b1001059fee6d6f0442add6152484c94"
+      },
+      "scopeDigest": "279a9b7afb1da5035c2f530d8003736e2a0ac501b3fb41ae3c08e6e77a2467a8",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 3,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "cancelledAt": "2026-09-07T02:51:20.837Z",
+      "cancelReason": "Cancel unnecessary remediation inventory: no code repair is needed. User approved an administrative one-time focused-validation policy for this closeout; existing implementation reviews remain recorded. No completeness or remediation authority is claimed by cancellation.",
+      "terminalRunSequenceBoundary": 6,
+      "_hash": "c45c1254905e431a65610094b60ad02c187e9da9877e3185d6d1e26fd6e72820"
+    }
+  ],
+  "receipts": [],
+  "criticReceipts": []
+}
