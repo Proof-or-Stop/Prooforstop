@@ -4,10 +4,12 @@
   "allowedModify": [
     "packages/main/package.json",
     "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/core/review-assurance-floor.ts",
     "packages/main/src/core/runtime-environment-checks.ts",
     "packages/main/src/handlers/doctor.ts",
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts",
     "packages/main/tests/global-core-realpath.test.mjs",
@@ -22,6 +24,7 @@
   "allowedTest": [
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts",
     "packages/main/tests/global-core-realpath.test.mjs",
@@ -32,7 +35,7 @@
     "scripts/build-lock-target.mjs"
   ],
   "explicitExcludes": [],
-  "scopeChangeReason": "The verifier-owned pre-review runner injects PROOF_OR_STOP_ACTIVE_STORY_ID, but its nested proof-scenarios branch reads the obsolete LATTICE_ACTIVE_STORY_ID name. This directly blocks DEV to REVIEW evidence for B-e256, so the runner smoke is added narrowly to repair the lifecycle gate and add focused regression coverage.",
+  "scopeChangeReason": "\"BUG-001 is a current-Story DONE blocker: three-local-rounds requires three distinct reviewer-host runIds, but review-assurance guidance emits only degraded-r1 and duplicate submission invalidates the round. Scope is widened only to the guidance generator and its existing regression smoke.\"",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -52,7 +55,7 @@
     }
   ],
   "createdAt": "2026-09-02T15:27:28.092Z",
-  "updatedAt": "2026-09-07T08:55:35.799Z",
+  "updatedAt": "2026-09-07T11:50:53.724Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -74,6 +77,8 @@
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
-    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/core/review-assurance-floor.ts": "packages/main/src/core/review-assurance-floor.ts",
+    "packages/main/src/tasks/review-assurance-floor-smoke.ts": "packages/main/src/tasks/review-assurance-floor-smoke.ts"
   }
 }
