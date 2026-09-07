@@ -1716,6 +1716,40 @@
       },
       "readDiagnostics": [],
       "_hash": "a88b22a94de3b799f5340ee5ee9fa52dc1e8b7156f4cded3892a6dc3ee7e32ba"
+    },
+    {
+      "id": "B-29bc:RP-040",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Final story-level concept review covers CHK-001 and CHK-002 at material dcea02d0bc26f8e845cd0150d25f26a34c738244da5009ba9783b5a417dd6f69 and Story files 2b2588053b17cd03955352e58e2db3cbbef6495d64e1d63a32f2576364351720. Read the new canonical full task context, current background/plan, complete audit and inventory decision, current checklist evidence projection and all nine official Finding resolutions. Reviewed the entire committed repair against the retained integrated source review: git diff 751592a...HEAD contains only the epoch smoke and audit among material files; the current main...HEAD material inventory confirms the additive purpose-isolation scope. Both faulty receipt sign calls now exclude old _hash, assert signature validity before the specific semantic rejection, and retain the unmodified positive receipt. The audit explicitly retracts old semantic-coverage claims and accurately records RED e13ea60b84, GREEN 6f45dfd032 and audit d66977d67f; these commits resolve in Git. Current checklist_get exposes all eight mechanical PASS receipts with exitCode 0 and matched selectors bound to this candidate. F-005 through F-009, including this lane's F-007, are repaired rather than waived; F-001 through F-004 remain preserved with their earlier scoped runtime/audit repairs. Grep confirms the old faulty sign expressions and unqualified audit claim are absent from the repaired files. No en-masse concept deletion, residual removed concept, or remaining promised-but-undelivered behavior was found. Purpose-bound inventory credentials still supply no topology provenance; the historical critic template, protected topology consumer, machine/config and B-7abb/B-03b7 metadata have empty branch diffs. No new Findings registered. No build/full-suite rerun, new inventory, source/owner mutation, actual-host quorum or DONE assertion is part of this lane result.",
+      "createdAt": "2026-09-07T17:49:27.784Z",
+      "reviewRound": "2026-09-07T17:46:50.623Z",
+      "reviewRunId": "B-29bc:RR-053",
+      "envelopeId": "b54ffde2b57fe30eda76396b1d8a117c3c77736991694ea15f14cb0cba3b6ba0",
+      "writerSessionId": "codex-b29-ri007-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "e07d89b81d1765eacc15bef847392ccadf0ab28f4935b32c32efb37d9fc8b1ec"
     }
   ]
 }
