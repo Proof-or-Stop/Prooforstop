@@ -308,7 +308,7 @@
       "desc": "doc-promise-undelivered: RI-007 wave-2 documentary re-observation of canonical B-29bc:F-005, also represented by coverage B-29bc:F-006; no distinct runtime root or additional defect family is claimed. docs/audits/inventory-critic-purpose-isolation.md:87-89 says the pure epoch suite re-signs semantic substitutions and is not limited to hash corruption. Fresh source inspection at packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 confirms both copied receipts still include the old _hash when passed to signReviewInventoryCriticReceipt. core/review-inventory-epoch.ts:190-197 hashes all supplied keys but removes _hash during verification, so these purported semantic receipt controls fail at signature verification. Official current finding_list preserves verified open F-005 and F-006 and their independent signature-valid control reproductions. This supports the same test-plus-audit repair already owned by the Story; it is not evidence of a production authority bypass. Critical/missing records this lane's mandatory closing rule for a promised-but-undelivered behavior claim, without rewriting F-005/F-006 severity or observations. The trusted SAFE_INCREMENTAL basis and git diff 9337c00...HEAD show only reviewer metadata changed, so prior full integrated CHK-001/002 source review remains reusable; no en-masse concept deletion or new root was discovered. Fresh full audit and inventory-decision reads confirm the overclaim remains unfixed. Repair the exact unsigned mutation constructors with signature-validity and intended-diagnostic assertions, refresh CLI evidence, and reconcile the audit within the existing F-005 repair. This terminal cannot claim no blockers, F-005 repair, saturation, host quorum or lifecycle completion; family disposition remains the independent critic's responsibility.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-07T17:25:29.269Z",
@@ -343,7 +343,11 @@
       "signatureTag": "missing|md|promise-undelivered-wave",
       "signatureTagSource": "auto",
       "recordId": "lr_mtrihe7q_zay_a1e45a4a40814627a59300e7bc11602c",
-      "ledgerCommitReceiptId": "lrc_mtrihe7q_zay_a4e305c1303f4c4b80ca6086d4eeba08"
+      "ledgerCommitReceiptId": "lrc_mtrihe7q_zay_a4e305c1303f4c4b80ca6086d4eeba08",
+      "resolvedAt": "2026-09-07T17:47:18.644Z",
+      "resolvedReason": "Fixed as one current-Story test-evidence root cause. RED e13ea60b84 added explicit signature-validity prerequisites and intended semantic rejection assertions; the rebuilt epoch smoke exited 1 with 'semantic mutation must retain a valid signature' (false !== true). GREEN 6f45dfd032 excludes only the old _hash from each receipt signing input; the rebuilt epoch smoke exits 0 and retains all prior controls plus a restored positive receipt. Audit d66977d67f retracts the historical semantic-coverage overclaim and records precise RED/GREEN limits. Independent coverage inspection confirmed the two-file repair addresses F-005 through F-009. No production algorithm, lifecycle gate or scope policy changed. Original findings, severities and history remain preserved. Official post-repair refresh 8cafbfb confirms all eight pinned records are mechanical PASS, exitCode=0 and selectorMatched=true.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-29bc:F-008",
