@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "ea775eeca85367cc40cf3841553ea66e8625418292878bd2f2eb080996bffa34",
+  "committedLedgerDigest": "13a891756f959d639b7204862279e9f1f4349b06e767bc736160d8b1423ea0f0",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -2028,6 +2028,74 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T01:07:28.465Z"
+    },
+    {
+      "recordId": "lr_mtqjvox7_1bic_8d2deb986e3f411f84abda9ba63af416",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:2840fdec-f1f7-4265-8235-6c06dbadb6a3",
+      "payload": {
+        "id": "B-e256:F-056",
+        "desc": "windows-command-shim-exit-status-not-preserved false pass: packages/main/src/core/runtime-environment-checks.ts:826-833 certifies a Windows shim from the existence of any accepted target invocation and never verifies what the batch file returns after that invocation. A current compiled-runtime probe used the canonical installed package/bin/version and a PATH-selected .cmd shim `node \"<canonical-target>\" %*` followed by `exit /b 0`; runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true and emitted `contract: global-core-realpath-pass`. Under cmd.exe the target is reachable and receives its arguments, but the final `exit /b 0` masks every nonzero Proof-or-Stop exit, so automation can treat rejected/failed commands as success. This violates checklist.json:10,25's working npm-shim compatibility contract. packages/main/tests/global-core-realpath.test.mjs:175-179 checks only a positive representative shim and has no mutation for post-invocation status masking. This is distinct from F-049 (target unreachable) and F-055 (arguments discarded): here the target executes with `%*`, but its result is discarded. Require a recognized npm-generated control-flow/exit-propagation shape or execute a bounded semantic probe, and add a failing-command mutation proving the selected shim preserves the target exit status. severity: high",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T01:16:49.769Z",
+        "reviewRound": "2026-09-07T00:35:44.550Z",
+        "reviewRunId": "B-e256:RR-165",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-e256/background.md",
+            ".proof-or-stop/story/actives/B-e256/checklist.json",
+            ".proof-or-stop/story/actives/B-e256/plan.md",
+            "packages/main/src/core/runtime-environment-checks.ts",
+            "packages/main/tests/global-core-realpath.test.mjs"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+            ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json",
+            ".proof-or-stop/story/actives/B-e256/findings.json",
+            ".proof-or-stop/story/actives/B-e256/pre-review-check.json",
+            ".proof-or-stop/story/actives/B-e256/proofstory.json",
+            ".proof-or-stop/story/actives/B-e256/scope-check.json",
+            ".proof-or-stop/story/actives/B-e256/summary.json",
+            "packages/main/src/core/version-bump.ts",
+            "packages/main/src/handlers/doctor.ts",
+            "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+            "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+            "proof-or-stop.config.json",
+            "scripts/build-main-with-binding.mjs",
+            "scripts/build-utils-with-binding.mjs",
+            "scripts/promote-dist.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "0a1bbab7b4706c801c3dd0ae0a60c5be9d22543c7db4ff1977a6a7b0c770cdcd",
+        "files": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          ".proof-or-stop/story/actives/B-e256/checklist.json"
+        ],
+        "signatureTag": "windows-command-shim-exit-status-not-preserved",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "b357b5992c2ec0d59c5fc25867d376c30fbee3ebad047ce9e5b50e07c6e9af02",
+      "priorDigest": "ea775eeca85367cc40cf3841553ea66e8625418292878bd2f2eb080996bffa34",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T01:16:49.771Z"
     }
   ],
   "receipts": [
@@ -4506,6 +4574,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "7a756f241eb639413ee5bec0e635c6b4dc01437768ac4ce1f79bae4f561d790f",
         "signature": "n2LPhnkUQfXN+SR+eo+KV/w2TenUWe92VQ5vYX9BUEJoiOmFAA/gGUyfjswRVxDYSi03tkI9lMTISzpUf0elCg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqjvox8_1bic_b9a1fd719e2241dca78afb6d97a2ffb4",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:2840fdec-f1f7-4265-8235-6c06dbadb6a3",
+      "requestDigest": "8883de043682a1c3a73a52a594585978f126ff7e8daef5a216f73d2f560051f1",
+      "recordIds": [
+        "lr_mtqjvox7_1bic_8d2deb986e3f411f84abda9ba63af416"
+      ],
+      "priorLedgerDigest": "ea775eeca85367cc40cf3841553ea66e8625418292878bd2f2eb080996bffa34",
+      "committedLedgerDigest": "13a891756f959d639b7204862279e9f1f4349b06e767bc736160d8b1423ea0f0",
+      "writerSessionId": "sess-054da53c4557246c98956ae1d1295326",
+      "writerFenceToken": "caf71cca-7a2c-4ecd-ad56-67b2cd2d053e",
+      "committedAt": "2026-09-07T01:16:49.771Z",
+      "replayed": false,
+      "exactRequestDigest": "7b2f11148bea308799a7651012e526570a5e380de14813dff89d7c93e72a08ce",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqjvox8_1bic_b9a1fd719e2241dca78afb6d97a2ffb4",
+        "storyId": "B-e256",
+        "idempotencyKey": "finding_add:2840fdec-f1f7-4265-8235-6c06dbadb6a3",
+        "exactRequestDigest": "7b2f11148bea308799a7651012e526570a5e380de14813dff89d7c93e72a08ce",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqjvox7_1bic_8d2deb986e3f411f84abda9ba63af416"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "ea775eeca85367cc40cf3841553ea66e8625418292878bd2f2eb080996bffa34",
+        "committedLedgerDigest": "13a891756f959d639b7204862279e9f1f4349b06e767bc736160d8b1423ea0f0",
+        "replayed": false,
+        "committedAt": "2026-09-07T01:16:49.771Z",
+        "writerSessionId": "sess-054da53c4557246c98956ae1d1295326",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "caf71cca-7a2c-4ecd-ad56-67b2cd2d053e",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "40395790c33d8ce25a15b83d9cc1a3dd395511fab282c8c2efdc0c14b44fc0c3",
+        "signature": "gJ0u8Nx/GX6i+qhTCzQ9NIgHOY6sNfBTNN0CxJWW5158yUIgKlQiX7Y1R0QU4Dgu9KMxTxTkOTfbUop02pgUDg=="
       }
     }
   ]
