@@ -46,10 +46,26 @@
       "phase": "DEV",
       "headHash": "c5ceac93e32fc181fcb36d040c86f1bac35c9b5c",
       "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "F088 operational repair: dev_memory_finish generated this exact non-authoritative Story memory candidate output during required closeout. Preserve the CLI-generated audit data under this explicit path-only acknowledgement; it does not change classifier source, acceptance, verification, or authoritative evidence. No general artifact exemption or runtime registry change is included.",
+      "timestamp": "2026-09-07T08:23:14.346Z",
+      "paths": [
+        ".proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        ".proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl"
+      ],
+      "affectedPathCount": 1,
+      "phase": "REVIEW",
+      "headHash": "aa93f257b402f914f896a85a2e58c0ca9f41ad97",
+      "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd"
     }
   ],
   "createdAt": "2026-09-06T16:25:31.563Z",
-  "updatedAt": "2026-09-07T07:22:33.896Z",
+  "updatedAt": "2026-09-07T08:23:14.346Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -57,6 +73,7 @@
     "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
     "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts": "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
     "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
-    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts"
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    ".proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl": ".proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl"
   }
 }

@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "4c416b5a5b6ef6f06ad2612bb3a143c3457f029179fb661a31bb7234215e90db",
+  "committedLedgerDigest": "03a4d773e62e96e310efc46bee51f7ca59588a6cf70dc300a474c464344ea8c9",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -3061,6 +3061,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T08:22:11.934Z"
+    },
+    {
+      "recordId": "lr_mtqz6n0f_1lx1_4af5843f89b34d049074df1cda2c9927",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-6c800faf-ce69-42cf-bc02-05b128fbe3ca",
+        "findingId": "B-8a40:F-088",
+        "findingRecordId": "lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-07T08:25:14.749Z",
+        "reason": "The current occurrence is operationally repaired through scope_contract_acknowledge for exactly .proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl at 2026-09-07T08:23:14.346Z. Before: scope_contract_check failed with the sole unacknowledged path and blocking=true. After: node bin/proof-or-stop.js scope_contract_check --storyId=B-8a40 --json exited 0, status=warn, all four out_of_scope rows acknowledged and no blocking row. This is explicit lower-assurance acknowledged expansion preserving non-authoritative generated data, not a durable registry fix or general exemption. The remaining producer classification gap is owned by future draft docs/story/drafts/dev-memory-candidate-scope-registration on main with repro, impact and escalation rule. Five classifier material files and hashes remain unchanged. F085 conditional mutant residue is a separate observation and remains open; no interruption proof or escalation is inferred from this different producer.",
+        "resolutionType": "partially_mitigated",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "45110489e9702429378c6ba518a0c0d0c83c370868e17f9c927594f887f42072",
+      "priorDigest": "4c416b5a5b6ef6f06ad2612bb3a143c3457f029179fb661a31bb7234215e90db",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T08:25:14.751Z"
     }
   ],
   "receipts": [
@@ -7414,6 +7437,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "0ab1e6a4e7ee14690a3d207616ab0f3ad6fd9395f196ea62fc670acd2f37910f",
         "signature": "2+YLu65c07bbN5eVATdRy2gQp7YpE5yBiAb1glCp3hKFYPqsGphB66RRHhT8K8fDzlp+QJJbQYQADTEnUYRjCQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqz6n0g_1lx1_744c5376840b4f74aa169b29a49cf55c",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc:resolved",
+      "requestDigest": "51d7b4891a262c1d1c4c89dd9522ec8aaea169d3867c8c3423ee4418a3f2d0bc",
+      "recordIds": [
+        "lr_mtqz6n0f_1lx1_4af5843f89b34d049074df1cda2c9927"
+      ],
+      "priorLedgerDigest": "4c416b5a5b6ef6f06ad2612bb3a143c3457f029179fb661a31bb7234215e90db",
+      "committedLedgerDigest": "03a4d773e62e96e310efc46bee51f7ca59588a6cf70dc300a474c464344ea8c9",
+      "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+      "writerFenceToken": "4e1a197a-e899-44b3-b6b0-9157c8ea7496",
+      "committedAt": "2026-09-07T08:25:14.751Z",
+      "replayed": false,
+      "exactRequestDigest": "8f368bb26a99f3b16270bd7207296cc22b48f9211d60c3b103672febd546879e",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqz6n0g_1lx1_744c5376840b4f74aa169b29a49cf55c",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding-lifecycle:lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc:resolved",
+        "exactRequestDigest": "8f368bb26a99f3b16270bd7207296cc22b48f9211d60c3b103672febd546879e",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtqz6n0f_1lx1_4af5843f89b34d049074df1cda2c9927"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc",
+            "expectedRecordHash": "9d4e034ce680f86dd75434e6e7a32b4e74a14a0f32c2f4a4642388d4ff333cbd",
+            "observedChainHeadId": "lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc",
+            "observedChainHeadHash": "9d4e034ce680f86dd75434e6e7a32b4e74a14a0f32c2f4a4642388d4ff333cbd",
+            "predicateDigest": "6d76c86101cc961d76bc93d59afa44952d846005a35bde64ddc3c3611d8f6edb"
+          }
+        ],
+        "priorLedgerDigest": "4c416b5a5b6ef6f06ad2612bb3a143c3457f029179fb661a31bb7234215e90db",
+        "committedLedgerDigest": "03a4d773e62e96e310efc46bee51f7ca59588a6cf70dc300a474c464344ea8c9",
+        "replayed": false,
+        "committedAt": "2026-09-07T08:25:14.751Z",
+        "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "4e1a197a-e899-44b3-b6b0-9157c8ea7496",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "2bf86a26986ab407d8fa8cd6ea2f07ca04d2bb87e0d9219624ee53e60dd08b5b",
+        "signature": "aZvV1VTrPHD2kPkZ7tN2aNvjjavs5rvgoqWbYu/XCWrnJt3Iqc4yhwhlle3fhpOBvCskvtaGR510V0YTa4UYDw=="
       }
     }
   ]
