@@ -205,7 +205,7 @@
       "desc": "packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529: the new semantic receipt mutation witnesses sign the complete mutated receipt including its existing _hash. signReviewInventoryCriticReceipt spreads every supplied property into its digest, but verifyReviewInventoryCriticReceipt strips _hash before recomputing; these witnesses therefore always fail with critic receipt signature invalid, before the intended purpose/subject or missing-disposition semantic guard. WHY: the comment claims correctly re-signed mutations and CHK-001 adversarial/CHK-002 compatibility evidence reports this matrix as semantic rejection coverage, yet removal of those receipt semantic guards could leave these assertions green. Verified by a read-only node import of the current dist signer/verifier: an unsigned control signs/verifies true; the exact changed._hash=signReviewInventoryCriticReceipt(changed) pattern verifies false; destructuring _hash before signing verifies true. Source line 529 repeats the defect for incompleteDispositions. Bounded current-Story repair: sign only the unsigned mutation, assert verifyReviewInventoryCriticReceipt(changed) is true before the negative consumer assertion, and assert the intended semantic rejection reason. This is a regression-test evidence defect introduced here, not proof of a production authority bypass; retain existing runtime controls and original findings.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-07T17:14:56.595Z",
@@ -249,7 +249,11 @@
       "signatureTag": "adversarial|ts|packages-main-tasks",
       "signatureTagSource": "auto",
       "recordId": "lr_mtri3u1g_24x2_397018a1ad4c4e2e9e2d7c3621ce7da6",
-      "ledgerCommitReceiptId": "lrc_mtri3u1g_24x2_879d0550794841b382815d50946782d7"
+      "ledgerCommitReceiptId": "lrc_mtri3u1g_24x2_879d0550794841b382815d50946782d7",
+      "resolvedAt": "2026-09-07T17:47:16.491Z",
+      "resolvedReason": "Fixed as one current-Story test-evidence root cause. RED e13ea60b84 added explicit signature-validity prerequisites and intended semantic rejection assertions; the rebuilt epoch smoke exited 1 with 'semantic mutation must retain a valid signature' (false !== true). GREEN 6f45dfd032 excludes only the old _hash from each receipt signing input; the rebuilt epoch smoke exits 0 and retains all prior controls plus a restored positive receipt. Audit d66977d67f retracts the historical semantic-coverage overclaim and records precise RED/GREEN limits. Independent coverage inspection confirmed the two-file repair addresses F-005 through F-009. No production algorithm, lifecycle gate or scope policy changed. Original findings, severities and history remain preserved. Official post-repair refresh 8cafbfb confirms all eight pinned records are mechanical PASS, exitCode=0 and selectorMatched=true.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-29bc:F-006",
