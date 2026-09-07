@@ -21,7 +21,8 @@
     "packages/main/src/tasks/review-run-smoke.ts",
     "packages/main/src/tasks/prompt-registry-smoke.ts",
     ".claude/agents/proof-or-stop-review-story-init.md",
-    ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md"
+    ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
   ],
   "allowedCreate": [
     "docs/audits/inventory-critic-purpose-isolation.md"
@@ -36,10 +37,10 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Bounded acceptance-blocker repair for CHK-002 happy:0: baseline prompt-registry-smoke requires exact canonical host mirror equality. Read-only render comparison proved that each of the Claude and Codex story-init mirrors differs only at line 219: product-reviewer must be proof-or-stop-product-reviewer (14 bytes per file); all other lines are identical. B-49df owner confirmed no reusable main repair exists and declined ownership of this exact main mirror delta. Permit only those two alias substitutions; retain full mirror equality assertions, all topology author rules, and the original behavioral scope. Do not sync other managed assets.",
+  "scopeChangeReason": "Bounded acceptance-blocker repair for CHK-002 happy:0: baseline prompt-registry-smoke requires exact canonical host mirror equality. Read-only render comparison proved that each of the Claude and Codex story-init mirrors differs only at line 219: product-reviewer must be proof-or-stop-product-reviewer (14 bytes per file); all other lines are identical. B-49df owner confirmed no reusable main repair exists and declined ownership of this exact main mirror delta. Permit only those two alias substitutions; retain full mirror equality assertions, all topology author rules, and the original behavioral scope. Do not sync other managed assets. Also permit a bounded update to the already related inventory decision's active Operator workflow and critic-purpose sentence: its old review_run_start example omits the now-required explicit purpose/epoch, so it would fail the changed public command contract. Preserve historical claims/anchors and all authority limits; do not modify the Dynamic Finding plan.",
   "acknowledgements": [],
   "createdAt": "2026-09-07T08:19:11.670Z",
-  "updatedAt": "2026-09-07T08:50:52.015Z",
+  "updatedAt": "2026-09-07T09:10:02.411Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -65,6 +66,7 @@
     "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
     "docs/audits/inventory-critic-purpose-isolation.md": "docs/audits/inventory-critic-purpose-isolation.md",
     ".claude/agents/proof-or-stop-review-story-init.md": ".claude/agents/proof-or-stop-review-story-init.md",
-    ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md": ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md"
+    ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md": ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+    "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
   }
 }
