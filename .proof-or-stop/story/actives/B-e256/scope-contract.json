@@ -7,6 +7,7 @@
     "packages/main/src/core/runtime-environment-checks.ts",
     "packages/main/src/handlers/doctor.ts",
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts",
     "packages/main/tests/global-core-realpath.test.mjs",
@@ -20,6 +21,7 @@
   ],
   "allowedTest": [
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts",
     "packages/main/tests/global-core-realpath.test.mjs",
@@ -30,7 +32,7 @@
     "scripts/build-lock-target.mjs"
   ],
   "explicitExcludes": [],
-  "scopeChangeReason": "F-051 is a verified high gate-truth blocker. The real 71KB repository config exceeds the acceptance discovery reader 64KB cap and makes the signed coverage basis unsupported. Add only the discovery adapter and its focused smoke to repair that current Story acceptance blocker while preserving all existing launcher and build scope.",
+  "scopeChangeReason": "The verifier-owned pre-review runner injects PROOF_OR_STOP_ACTIVE_STORY_ID, but its nested proof-scenarios branch reads the obsolete LATTICE_ACTIVE_STORY_ID name. This directly blocks DEV to REVIEW evidence for B-e256, so the runner smoke is added narrowly to repair the lifecycle gate and add focused regression coverage.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -50,7 +52,7 @@
     }
   ],
   "createdAt": "2026-09-02T15:27:28.092Z",
-  "updatedAt": "2026-09-07T08:12:06.113Z",
+  "updatedAt": "2026-09-07T08:55:35.799Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -71,6 +73,7 @@
     "packages/main/src/core/version-bump.ts": "packages/main/src/core/version-bump.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
-    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
   }
 }
