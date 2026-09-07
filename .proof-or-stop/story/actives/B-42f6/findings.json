@@ -438,6 +438,333 @@
       "resolvedAt": "2026-09-07T10:55:25.540Z",
       "resolvedReason": "Fixed by commits 780cc42ed6, a1d58dd487 and df2133a1c8 in the existing ledger integrity guard. Historical Story identity assertions remain; actual fixed historical missing-module and current GREEN imports feed fresh production candidate fixtures. Real CLI probe reads and good/bad relation evaluation are exercised; changed commands fail closed. Original historical artifacts are not recreated. Focused final guard, registration 26 GREEN and process-fact contract passed; /private/tmp/B-42f6-integration/ledger-cli-final-guard.log and ledger-cli-registration.log preserve results. Full132 on final code is still required.",
       "resolutionType": "fixed"
+    },
+    {
+      "id": "B-42f6:F-012",
+      "desc": "Imported original Claude final round 1, observation 1. Original source: /private/tmp/B-42f6-cross-host/claude-final-1.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:438 severity=low. Original text verbatim: The fix removes the only spawn-based exercise of the red_green_relation_evaluate and repro_probe_get CLI surfaces from this guard: the former runProof('red_green_relation_evaluate', ...) and runProof('repro_probe_get', ...) calls are replaced by direct library imports from packages/main/dist/core/repro-intake.js. The library-level contract is still genuinely exercised (see reasoning), and the CLI commands remain registered in command-catalog.ts and covered by packages/main/src/tasks/repro-first-candidate-smoke.ts sections 6 and 10 — but I confirmed at repro-first-candidate-smoke.ts:191 that this smoke also calls evaluateRedGreenRelation directly rather than spawning the CLI. Net effect: argument parsing, JSON payload decoding and non-zero-exit behavior of these two CLI commands now have no spawn-level assertion in either file. This is a coverage reduction, not a false pass, and it is an inherent consequence of the portability repair (the CLI path requires the non-distributed Story evidence store). Worth an explicit note or a follow-up so the CLI seam is not silently unguarded.\nIndependent current assessment at df2133a1c8: The final df2133a1c8 source restores actual spawned repro_probe_get and red_green_relation_evaluate calls against a fresh Git/config fixture, plus actual nonzero CLI digest rejection. The originally identified coverage reduction has been addressed in code; this import does not assert a remaining verified defect. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "resolved",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:57:49.147Z",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "reviewRunId": "B-42f6:RR-021",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "026b8b669b5e1945d2bf7224aabb405956143b1347f02b523dcc59c9d0f42462",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|imported-original-claude",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr4mul8_mda_69a02a60becc4bf09ed116d154951d5c",
+      "ledgerCommitReceiptId": "lrc_mtr4mula_mda_7420d220d76f43b4af6eb55ed193c89e",
+      "resolvedAt": "2026-09-07T10:59:20.928Z",
+      "resolvedReason": "Actual CLI coverage restored in a1d58dd487: fresh probe read and good/bad relation CLI calls execute in a real temporary main repository. Guard and registration mirror passed; original observation remains preserved.",
+      "resolutionType": "fixed"
+    },
+    {
+      "id": "B-42f6:F-013",
+      "desc": "Imported original Claude final round 1, observation 2. Original source: /private/tmp/B-42f6-cross-host/claude-final-1.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:469 severity=low. Original text verbatim: executionStatus is derived as historicalBaselineFails ? 'confirmed_failing' : 'confirmed_passing', but line 453 already hard-asserts historicalBaselineFails === true and aborts otherwise, so the false branch is unreachable. This is honest (it cannot manufacture a pass) and arguably defensive, but the ternary reads as if the fixture tolerates a non-failing baseline when it does not. Consider using the executed value directly or dropping the dead branch so the guard's actual precondition is not obscured.\nIndependent current assessment at df2133a1c8: The preceding hard assertion prevents the alternate executionStatus branch. This is defensive syntax redundancy, not a demonstrated invalid acceptance or false evidence result. No current defect reproduced. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:57:55.229Z",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "reviewRunId": "B-42f6:RR-021",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6202d1c3c1e279882fb36be5f9a4ae346347665fd1ef7531c012ae7292be1e77",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|imported-original-claude",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr4mza6_msa_8dd3b20743024e3097f0f971218d4c58",
+      "ledgerCommitReceiptId": "lrc_mtr4mza6_msa_3efbe1da878c4832a672a2a1fca515c8"
+    },
+    {
+      "id": "B-42f6:F-014",
+      "desc": "Imported original Claude final round 2, observation 1. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:477 severity=medium. Original text verbatim: The fixture calls reviewProbe on the probe it just created, then evaluateRedGreenRelation's findAcceptedProbeReview (repro-intake.ts:38-49) searches for any repro-review with matching probeId/probeDigest/verdict='red-reviewed'/reviewedFailureClass='target-bug' — which is exactly the artifact the fixture just wrote. So the 'reviewed repro is accepted' reason in the evaluated relation is self-certified, not independently reviewed. The inline notes string is honest about this ('not an independent historical review'), and the guard's own comment at line 456 scopes the artifacts as disposable fixtures, so the claim is not overstated in the code. Actionable improvement: the assertion at line 547-548 derives assertionUnchanged from a reasons regex /command specs match/ that is only emitted when pass===true (repro-intake.ts:324-326), so assertionUnchanged is a restatement of relationEvaluation.pass rather than an independent property. Two of the four inputs to renderRelationEvaluationStatus are therefore not independent, which weakens the legacy-selector negative control slightly. Non-blocking: the two genuinely executed inputs (historicalBaselineFails, currentGreenPasses) are real, and the simulated-regression assertions at 565-588 still prove the renderer is not hard-coded.\nIndependent current assessment at df2133a1c8: The fixture explicitly declares evidence-candidate scope and disclaims independent historical review. Real baseline/current child executions use the same anchored argv and distinct explicit checkout cwd. The residual reasons/pass dependency is redundant, but new CLI command-mismatch rejection and renderer false-input checks exercise failure paths. No false independent historical review is claimed and no current acceptance defect established. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:57:58.856Z",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "reviewRunId": "B-42f6:RR-021",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f82c8a513c4cfe71abdb23353ea6517578bbff7abfd6c6ad9c195850d6f9d6a6",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|imported-original-claude",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr4n22x_ncl_5ec194b36d7b4767a7ac6e29a959b91a",
+      "ledgerCommitReceiptId": "lrc_mtr4n22x_ncl_b7c84c7518c54ff0a00fc026d6fac72f"
+    },
+    {
+      "id": "B-42f6:F-015",
+      "desc": "Imported original Claude final round 2, observation 2. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:493 severity=medium. Original text verbatim: The relation is constructed with baselineCommandSpec and currentCommandSpec built from the same anchoredArgs array (line 460 vs 488, the latter a spread copy), so the deepEqual at 493-494 and the evaluator's command comparison (repro-intake.ts:311-316, which compares only .command, not args or cwd) are guaranteed to pass by construction. This means the relation proves 'the fixture built two equal specs', not 'the real baseline and current invocations used the same contract'. The genuine red→green evidence is the separately executed pair at lines 448-454, which is real and cwd-anchored. Actionable: the relation artifact adds integrity/digest coverage but contributes no independent transition proof; a negative case where baselineCommandSpec.command differs (asserting pass===false with a command-mismatch reason) would make the evaluator's fail-closed branch actually exercised rather than assumed.\nIndependent current assessment at df2133a1c8: The final source adds a genuine mismatched executable relation evaluated through the CLI and requires false plus command mismatch reason. The executed baseline/current imports share anchored argv with explicit checkout cwd. The earlier missing negative is now addressed; the fixture is not claimed as independent historical transition authority. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:58:02.544Z",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "reviewRunId": "B-42f6:RR-021",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "0ae8d89009ba4e98ef4438c3e8eeda40a7e6a0c2795063aa8c94e3fb92f22446",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|imported-original-claude",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr4n4xd_nof_d482824ad06341c8ae73a4502685339f",
+      "ledgerCommitReceiptId": "lrc_mtr4n4xd_nof_3688514ec33c4336b79756f566e08881"
+    },
+    {
+      "id": "B-42f6:F-016",
+      "desc": "Imported original Claude final round 2, observation 3. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:501 severity=low. Original text verbatim: The digest-mutation rejection is genuine and correctly targeted: verifyArtifactDigest (artifact-store.ts:415-425) recomputes the digest over kind/schema/producer/scope/subjectBinding/payload and requires both recomputed===expected AND artifact.artifactDigest===expected, so a one-bit flip of the expected digest cannot pass. The assert.throws is pinned to /relation digest mismatch/, matching repro-intake.ts:292 exactly, so it cannot be satisfied by an unrelated throw (e.g. a missing ref, which throws 'artifact ref not found'). This is stronger than the prior candidate's version, which inferred rejection from a nonzero CLI status plus a loose /digest|integrity|mismatch/i match on combined stdout+stderr and, in mirror mode, from a hard-coded fake result object. Actionable residual: currentCorruptedRelationRejected is set to true on the line after the assert.throws (line 504) inside the try block, so the flag is redundant with the assertion; if the assert throws, the finally block runs and the later assert at 549 is never reached. The flag therefore cannot ever be observed false, making assertion 549 dead. Harmless but misleading as a 'negative control' input.\nIndependent current assessment at df2133a1c8: The final source derives currentCorruptedRelationRejected from actual CLI nonzero status and exact relation digest mismatch output, while preserving the core assert.throws. The original bare true assignment is removed. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:58:06.270Z",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "reviewRunId": "B-42f6:RR-021",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "e8f4555a22ce22139b35939a9f947ea4f3db463a137e5211e9c2ea181beaa2a9",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|imported-original-claude",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr4n7sv_o0a_9645adb2642e4bef9dfb5d2b90219873",
+      "ledgerCommitReceiptId": "lrc_mtr4n7sw_o0a_2fbd40278a3a4c878f5804f93d0e5d4c"
+    },
+    {
+      "id": "B-42f6:F-017",
+      "desc": "Imported original Claude final round 2, observation 4. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:438 severity=low. Original text verbatim: The dynamic import of packages/main/dist/core/repro-intake.js is at top level of the module body, outside the try/finally that owns relationScratch, and is not existence-guarded. In a checkout where dist is not built, this throws ERR_MODULE_NOT_FOUND before any of the guard's characterization assertions run, converting a 'ledger contracts absent' RED signal into an opaque module-resolution crash — the same failure class this guard exists to characterize. Note the guard already reaches into dist at line 449 for the GREEN import, so a dist dependency is not new; but that one is executed as a child process whose failure is assertable with a clear message. Actionable: the prior candidate's dependency was on a non-Git-distributed probe artifact; this candidate correctly removes that, but substitutes a build-order dependency. Since the guard is registered in proof-or-stop.config.json validate.commands (asserted at 388-398), it runs after build in the normal path, so this is a robustness rather than correctness issue.\nIndependent current assessment at df2133a1c8: The final df2133a1c8 commit moves the dynamic import inside try/finally so import failure cleans relationScratch. Built dist remains the configured normal prerequisite, and no successful result is claimed for an unbuilt checkout. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:58:09.961Z",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "reviewRunId": "B-42f6:RR-021",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "656eaf021449591c699db2c98576a676550c35e1fb80d2fcedcefd2e1bfca4e2",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|imported-original-claude",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr4nane_oc9_bc84e78114fd40d9b457dc2f937bbf0d",
+      "ledgerCommitReceiptId": "lrc_mtr4nanf_oc9_6425764adf204d2692e01c608b15669a"
+    },
+    {
+      "id": "B-42f6:F-018",
+      "desc": "Imported original Claude final round 2, observation 5. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:409 severity=medium. Original text verbatim: historicalProbe is now unconditionally sourced from the in-file registrationMirrorBinding constant on BOTH paths, whereas previously the non-mirror path executed a real repro_probe_get CLI read. The four historical assertions at 410-414 consequently compare the constant against constants declared in the same file (PROBE_DIGEST at line 36, BASELINE_HEAD at 42), so they are tautological except insofar as they cross-check against `original.failureReceiptHash` and `official.baselineHeadHash`, which on the non-mirror path DO come from a real red_evidence_get CLI read (line 402). Those two cross-checks (413, 414) are the real content and they remain intact. The digest-integrity pin on the whole binding object (REGISTRATION_MIRROR_BINDING_DIGEST, line 190, asserted at 383-387) only fires in mirror mode, so on the normal path the constant block is unpinned. Actionable: extending that binding-digest assertion to both paths would restore tamper-evidence for the constants that the surviving cross-checks depend on. This is the honest cost of removing the non-distributed probe dependency, and the comment at 406-408 states the tradeoff plainly rather than concealing it.\nIndependent current assessment at df2133a1c8: The binding SHA256 assertion now executes unconditionally before the mirror branch. Normal red_evidence_get cross-checks remain. The identified normal-path missing binding pin is addressed. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:58:13.762Z",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "reviewRunId": "B-42f6:RR-021",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ca94cfcb0dadb40f82a9041d8b3d295b97fd1b05bef6f27401dfdb046e27ec0d",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|imported-original-claude",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr4ndkz_oo3_675c14aae76f4988a18a95e57dd531ef",
+      "ledgerCommitReceiptId": "lrc_mtr4ndkz_oo3_f08caf5f07864964a167a7f90ee1a30e"
+    },
+    {
+      "id": "B-42f6:F-019",
+      "desc": "Imported original Claude pinned round 2, observation 1. Original source: /private/tmp/B-42f6-cross-host/claude-pinned-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:519 severity=low. Original text verbatim: The mismatch negative control spreads relation.payload into createRedGreenRelation, so it passes candidateId as an extra property. CreateRedGreenRelationInput (repro-intake.ts:241-248) does not declare candidateId, and createRedGreenRelation ignores it — it re-derives candidateId from the probe it reads (repro-intake.ts:257). So the extra key is inert and the call is well-formed: probeId, both commandSpecs, both patterns and description all come through, with currentCommandSpec.command overridden. Because .mjs is untyped, the excess property is not a compile error either. Non-blocking observation, not a defect: worth noting only because a reader may assume the spread sets candidateId when it does not.\nIndependent current assessment at df2133a1c8: Confirmed createRedGreenRelation derives candidateId from the probe and constructs an explicit payload; the excess input key is unused. Required fields and overridden command remain correct. This is a legibility observation explicitly reported as not a defect, with no current behavioral failure established. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:58:17.428Z",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "reviewRunId": "B-42f6:RR-021",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "dd652bb8169a3c727e524b50896bc8a23942403c3be79ebfa68cb5149d96ae13",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|imported-original-claude",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr4nget_ozw_5ab0de4485e44357a353a05a9b2fcff3",
+      "ledgerCommitReceiptId": "lrc_mtr4nget_ozw_517387c5188a4d859c9ca2fbd032eec6"
+    },
+    {
+      "id": "B-42f6:F-020",
+      "desc": "Imported original Claude pinned round 2, observation 2. Original source: /private/tmp/B-42f6-cross-host/claude-pinned-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:571 severity=low. Original text verbatim: assertionUnchanged is still derived from a /command specs match/ regex over relationEvaluation.reasons, and repro-intake.ts:324-326 emits that reason string only when pass===true. So assertionUnchanged remains a restatement of relationEvaluation.pass rather than an independent property, as reported in the prior round. This candidate materially reduces the concern's weight — the new CLI mismatch negative at 519-528 now proves the evaluator's command-mismatch branch actually fires and yields pass===false with a 'command mismatch' reason — so the fail-closed path is no longer assumed. The residual redundancy in the renderer input persists but no longer masks an unexercised branch.\nIndependent current assessment at df2133a1c8: Confirmed the reason regex duplicates a successful evaluator condition. The independent CLI mismatched-command negative and renderer false-input assertions now exercise fail-closed behavior. Residual redundant assertion is not a reproduced acceptance defect and does not constitute independent historical review evidence. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:58:21.148Z",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "reviewRunId": "B-42f6:RR-021",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "1f27e9ef2d142b85df6cfd253dc0af67b11c793a3d2fb04132daff8b51125eb7",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|imported-original-claude",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr4nja5_pbr_09b1b9e7fff84b7fbe47da79a674078d",
+      "ledgerCommitReceiptId": "lrc_mtr4nja5_pbr_7579b7a6babc401fb84f12175a639da4"
     }
   ]
 }
