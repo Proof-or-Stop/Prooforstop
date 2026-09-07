@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "158246c4fbc47040448f2f04a1d1de84f490ffd44ef4be99fa4054cf5b07644d",
+  "committedLedgerDigest": "b3f0ffc6363ceb7f26fba17b10655cc97a5debb50591bb45580067353bd47d2f",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -2337,6 +2337,69 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T01:38:10.085Z"
+    },
+    {
+      "recordId": "lr_mtqww4nw_1p2k_1497ec7a6f724ed29724a2211b242587",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:06f1a11e-e648-4ca7-a5a1-495502ac8c0e",
+      "payload": {
+        "id": "B-e256:F-061",
+        "desc": "windows-command-shim-node-runtime-unavailable false pass: packages/main/src/core/runtime-environment-checks.ts:780-798 accepts literal `node`, `%_prog%`, or `$_prog` from text and lines 801-833 sets executable=true without resolving or launching the runtime selected by the shim. The locally installed npm cmd-shim generator (/opt/homebrew/lib/node_modules/npm/node_modules/cmd-shim/lib/index.js:98-118) uses its official branch to select adjacent `%dp0%\\\\node.exe` when present and otherwise `_prog=node`, so a correct binding is not proof that Node is launchable. A current compiled-runtime probe used that official GOTO/find_dp0/IF EXIST/SETLOCAL invocation shape, a canonical package/bin/compiled version, production Windows PATH/PATHEXT selection, PATH containing only the shim directory, no adjacent node.exe and no node/node.cmd/node.exe artifact anywhere on the modeled PATH. `runRuntimeEnvironmentChecks` nevertheless selected proof-or-stop.CMD, returned global-core-realpath status=pass, verification=ok, executable=true, and emitted `contract: global-core-realpath-pass`; actual cmd.exe execution would fail before the canonical target starts because `_prog=node` cannot resolve. packages/main/tests/global-core-realpath.test.mjs:175-179 covers the positive representative shim but has no missing-selected-runtime mutation. This is distinct from F-047: `_prog` is correctly bound to Node here rather than rebound to echo; and distinct from F-049/F-055/F-056/F-058/F-059 because reachability, target/argv/status/output syntax are otherwise official while the runtime executable itself is absent. Verify the selected official runtime branch is launchable or execute a bounded semantic `proof-or-stop --version` witness, and add adjacent-node-absent plus PATH-node-absent inverse coverage. Direct CHK-001 user-visible and CHK-003 happy:0 host-executable-contract violation; severity: high.",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-07T07:21:05.178Z",
+        "reviewRound": "2026-09-07T00:35:44.550Z",
+        "reviewRunId": "B-e256:RR-179",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-e256/background.md",
+            ".proof-or-stop/story/actives/B-e256/checklist.json",
+            ".proof-or-stop/story/actives/B-e256/plan.md",
+            ".proof-or-stop/story/actives/B-e256/proofstory.json",
+            ".proof-or-stop/story/actives/B-e256/summary.json"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-e256/findings.json",
+            ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+            "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+            "packages/main/src/core/runtime-environment-checks.ts",
+            "packages/main/tests/global-core-realpath.test.mjs",
+            "proof-or-stop.config.json"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "f70e3feda38b65deb4481cef4b9b2267ffe9bf0777202599a4e4165eb2bafaf7"
+        },
+        "readDiagnostics": [],
+        "_hash": "4e6984e1029bef91694d579b0280373f2e08aba9d253e8f27b0021eb07025ed3",
+        "files": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json"
+        ],
+        "signatureTag": "windows-command-shim-node-runtime-unavailable-false-pass",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "744c9474de829115e229f7aab49b745b31cdd73636b0f49172b622979f694dad",
+      "priorDigest": "158246c4fbc47040448f2f04a1d1de84f490ffd44ef4be99fa4054cf5b07644d",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T07:21:05.180Z"
     }
   ],
   "receipts": [
@@ -5030,6 +5093,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "1ee9db8205fbf9366dc9d711ac9c262d139b39f93ae824b6a173ff1a4b03209e",
         "signature": "3iMkNpd6+0lKJ2IYf5KHCNd3yf7oKXq5H06DklK63NASvnhin2dOxNvlU4GUNrGU/Pu+9uWG3jG9Jilj/HiqBA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqww4nw_1p2k_d3692b0c546749a192a8a3b29087d952",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:06f1a11e-e648-4ca7-a5a1-495502ac8c0e",
+      "requestDigest": "789138f238dc31d7f571010864e37df8daa2a15c4c87fc9726b8e2c5f0dc121f",
+      "recordIds": [
+        "lr_mtqww4nw_1p2k_1497ec7a6f724ed29724a2211b242587"
+      ],
+      "priorLedgerDigest": "158246c4fbc47040448f2f04a1d1de84f490ffd44ef4be99fa4054cf5b07644d",
+      "committedLedgerDigest": "b3f0ffc6363ceb7f26fba17b10655cc97a5debb50591bb45580067353bd47d2f",
+      "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+      "writerFenceToken": "3095ef58-1735-4b8a-8c00-eebd9dadad2f",
+      "committedAt": "2026-09-07T07:21:05.180Z",
+      "replayed": false,
+      "exactRequestDigest": "d385ecdf6a98d83466e518ae97bf7392f81260d2496e48b56275a1aa496dca44",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqww4nw_1p2k_d3692b0c546749a192a8a3b29087d952",
+        "storyId": "B-e256",
+        "idempotencyKey": "finding_add:06f1a11e-e648-4ca7-a5a1-495502ac8c0e",
+        "exactRequestDigest": "d385ecdf6a98d83466e518ae97bf7392f81260d2496e48b56275a1aa496dca44",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqww4nw_1p2k_1497ec7a6f724ed29724a2211b242587"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "158246c4fbc47040448f2f04a1d1de84f490ffd44ef4be99fa4054cf5b07644d",
+        "committedLedgerDigest": "b3f0ffc6363ceb7f26fba17b10655cc97a5debb50591bb45580067353bd47d2f",
+        "replayed": false,
+        "committedAt": "2026-09-07T07:21:05.180Z",
+        "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "3095ef58-1735-4b8a-8c00-eebd9dadad2f",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "993471e3230a67487d9663c98b49421f98ebc0d67104b27d0c845b2e2d821fd5",
+        "signature": "De2i/glcaERiI5x7/I4utLRQBY/Lm2ErgF9DwQHDtQT/HqeymqyBdHeCFeoPfiLLuG4GS7wjZZvb1992jet4Cg=="
       }
     }
   ]

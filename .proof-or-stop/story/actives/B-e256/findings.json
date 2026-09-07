@@ -2977,6 +2977,61 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqkn4th_n5j_86a7622a2bef4a76a61d2db3a719b5d4",
       "ledgerCommitReceiptId": "lrc_mtqkn4ti_n5j_3d0c969a1198437cbae20fbd193bd3ff"
+    },
+    {
+      "id": "B-e256:F-061",
+      "desc": "windows-command-shim-node-runtime-unavailable false pass: packages/main/src/core/runtime-environment-checks.ts:780-798 accepts literal `node`, `%_prog%`, or `$_prog` from text and lines 801-833 sets executable=true without resolving or launching the runtime selected by the shim. The locally installed npm cmd-shim generator (/opt/homebrew/lib/node_modules/npm/node_modules/cmd-shim/lib/index.js:98-118) uses its official branch to select adjacent `%dp0%\\\\node.exe` when present and otherwise `_prog=node`, so a correct binding is not proof that Node is launchable. A current compiled-runtime probe used that official GOTO/find_dp0/IF EXIST/SETLOCAL invocation shape, a canonical package/bin/compiled version, production Windows PATH/PATHEXT selection, PATH containing only the shim directory, no adjacent node.exe and no node/node.cmd/node.exe artifact anywhere on the modeled PATH. `runRuntimeEnvironmentChecks` nevertheless selected proof-or-stop.CMD, returned global-core-realpath status=pass, verification=ok, executable=true, and emitted `contract: global-core-realpath-pass`; actual cmd.exe execution would fail before the canonical target starts because `_prog=node` cannot resolve. packages/main/tests/global-core-realpath.test.mjs:175-179 covers the positive representative shim but has no missing-selected-runtime mutation. This is distinct from F-047: `_prog` is correctly bound to Node here rather than rebound to echo; and distinct from F-049/F-055/F-056/F-058/F-059 because reachability, target/argv/status/output syntax are otherwise official while the runtime executable itself is absent. Verify the selected official runtime branch is launchable or execute a bounded semantic `proof-or-stop --version` witness, and add adjacent-node-absent plus PATH-node-absent inverse coverage. Direct CHK-001 user-visible and CHK-003 happy:0 host-executable-contract violation; severity: high.",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T07:21:05.178Z",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "reviewRunId": "B-e256:RR-179",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proof-or-stop-identity-cutover.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "f70e3feda38b65deb4481cef4b9b2267ffe9bf0777202599a4e4165eb2bafaf7"
+      },
+      "readDiagnostics": [],
+      "_hash": "4e6984e1029bef91694d579b0280373f2e08aba9d253e8f27b0021eb07025ed3",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs",
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/proofstory.json"
+      ],
+      "signatureTag": "windows-command-shim-node-runtime-unavailable-false-pass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqww4nw_1p2k_1497ec7a6f724ed29724a2211b242587",
+      "ledgerCommitReceiptId": "lrc_mtqww4nw_1p2k_d3692b0c546749a192a8a3b29087d952"
     }
   ]
 }
