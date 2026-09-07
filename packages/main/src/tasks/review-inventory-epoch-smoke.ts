@@ -267,6 +267,10 @@ for (const [label, check] of [
     assert.deepEqual(complete.invalidDispositionIds, []);
     assert.deepEqual(complete.unresolvedFindingIds, []);
     assert.deepEqual(complete.newFamilies, ['critic-discovered-family']);
+    const retriedCritic = criticEvidence(initial, complete, 10, '2026-08-14T00:10:00.000Z');
+    assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...input.runs, retriedCritic.run],
+      passes: [...input.passes, retriedCritic.pass] }).rawFindingIds, [discovered.id],
+    'a later critic PASS cannot hide the earlier same-wave critic Finding');
     const terminal = criticEvidence(initial, complete, 9, '2026-08-14T00:09:00.000Z', dispositions);
     terminal.receipt.terminalEvidenceIds = [terminal.pass.id, discovered.id].sort();
     terminal.receipt.readEvidenceDigest = reviewInventoryDigest([terminal.pass, discovered].map(row => ({
@@ -298,6 +302,11 @@ for (const [label, check] of [
       'canonical and registered critic alias share the exact purpose contract');
     const tampered = { ...critic.run, _hash: 'tampered' };
     assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, tampered] }).rawFindingIds, []);
+    const missingRead = { ...discovered, readLog: undefined };
+    missingRead._hash = signFinding(storyId, missingRead.id, missingRead.desc, missingRead.severity,
+      missingRead.createdAt!, reviewRound, missingRead.reviewRunId, missingRead.readManifest, undefined);
+    assert.deepEqual(evaluateReviewInventoryWave({ ...input, findings: [missingRead] }).rawFindingIds, [],
+      'critic discoveries retain the same signed mechanical read evidence requirement');
   }],
 ] as const) {
   try { check(); console.log(`B29BC_RECOVERY ${label}: PASS`); }

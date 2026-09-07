@@ -279,20 +279,6 @@ async function inventoryPurposeRecovery(): Promise<void> {
     assert.match(cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId, reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /Completeness critic: complete/);
     assert.equal(git(fixture.root, ['log', '--format=%an <%ae>', '--', 'packages/main/src/subject.ts']), 'Harmonynet <26995688+Harmonynet@users.noreply.github.com>');
     console.log('B29BC_INVENTORY_PURPOSE PASS');
-    const criticFindingOutput = cli(fixture.root, 'finding_add', { storyId, agent: actor, reviewRunId,
-      desc: 'The disposable critic discovered a verified missing read boundary after the required lanes terminated.',
-      severity: 'high', category: 'missing', evidenceState: 'verified', files: ['packages/main/src/subject.ts'],
-      readManifest, readEvents }, criticEnv);
-    const criticFindingId = criticFindingOutput.match(/(B-inventory-handler:F-\d+)/)?.[1];
-    assert.ok(criticFindingId, criticFindingOutput);
-    assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId,
-      reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE/,
-    'F-002 an empty disposition set cannot erase current critic discovery');
-    assert.match(cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId,
-      reviewRunId, agent: actor, findingDispositions: [{ findingId: criticFindingId, disposition: 'verified_family',
-        familyKey: 'critic-discovered-boundary', reason: 'The independent disposable critic verified this signed current observation.' }] }, criticEnv),
-    /Completeness critic: complete/, 'F-002 exact own-finding disposition must be accepted');
-    console.log('B29BC_CRITIC_OWN_FINDING_DISPOSITION PASS');
     const alias = 'lattice-review-topology-critic';
     const aliasEnv = env(alias, 'b29bc-alias-critic');
     assert.match(cli(fixture.root, 'dispatch', { storyId, agentType: alias, ...purpose }, aliasEnv), /inventory-completeness/);
@@ -375,7 +361,52 @@ async function inventoryPurposeRecovery(): Promise<void> {
   }
 }
 
+function criticDiscoveryRecovery(): void {
+  // Separate real-handler fixture: a critic discovers before its first receipt.
+  // A receipt already issued for an empty set remains immutable; this test does
+  // not require replacing it or reopening a previously certified observation.
+  const fixture = setup({ name: 'Harmonynet', email: '26995688+Harmonynet@users.noreply.github.com' });
+  const env = (agent: string): NodeJS.ProcessEnv => ({ PROOF_OR_STOP_AGENT: agent,
+    PROOF_OR_STOP_SESSION_ID: `b29bc-discovery-${agent}` });
+  const readManifest = { filesReadFully: ['packages/main/src/subject.ts'], filesTriagedByName: [], scanEscalationReason: null };
+  const readEvents = [{ path: 'packages/main/src/subject.ts', mode: 'full', action: 'Read', tokenCount: null }];
+  try {
+    cli(fixture.root, 'review_inventory_begin', { storyId }, env('main'));
+    const epoch = fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+    for (const lane of epoch.requiredLanes) {
+      cli(fixture.root, 'dispatch', { storyId, agentType: lane }, env(lane));
+      const started = cli(fixture.root, 'review_run_start', { storyId, agent: lane }, env(lane));
+      const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+      assert.ok(reviewRunId, started);
+      cli(fixture.root, 'review_pass_set', { storyId, agent: lane, reviewRunId,
+        note: 'Disposable required lane inspected the frozen source.', readManifest, readEvents }, env(lane));
+    }
+    const actor = 'proof-or-stop-review-topology-critic';
+    const purpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId };
+    cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, env(actor));
+    const started = cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...purpose }, env(actor));
+    const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+    assert.ok(reviewRunId, started);
+    const output = cli(fixture.root, 'finding_add', { storyId, agent: actor, reviewRunId,
+      desc: 'The disposable critic discovered a verified missing read boundary after required lanes terminated.',
+      severity: 'high', category: 'missing', evidenceState: 'verified', files: ['packages/main/src/subject.ts'],
+      readManifest, readEvents }, env(actor));
+    const findingId = output.match(/(B-inventory-handler:F-\d+)/)?.[1];
+    assert.ok(findingId, output);
+    assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId,
+      reviewRunId, agent: actor, findingDispositions: [] }, env(actor)), /REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE/,
+    'F-002 an empty disposition set cannot erase current critic discovery');
+    assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length, 0);
+    assert.match(cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId,
+      reviewRunId, agent: actor, findingDispositions: [{ findingId, disposition: 'verified_family',
+        familyKey: 'critic-discovered-boundary', reason: 'The independent disposable critic verified this signed current observation.' }] }, env(actor)),
+    /Completeness critic: complete/, 'F-002 exact own-finding disposition must be accepted');
+    console.log('B29BC_CRITIC_OWN_FINDING_DISPOSITION PASS');
+  } finally { rmSync(fixture.root, { recursive: true, force: true }); }
+}
+
 await inventoryPurposeRecovery();
+criticDiscoveryRecovery();
 if (process.argv.includes('--purpose-only')) process.exit(0);
 
 const first = setup();

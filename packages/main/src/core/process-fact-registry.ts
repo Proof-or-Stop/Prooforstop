@@ -365,7 +365,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
   },
   review_inventory_critic_set: {
     name: 'review-inventory-epochs.json', path: 'review-inventory-epochs.json', signed: true,
-    signature: 'signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt with explicit inventory-completeness purpose and exact signed epoch/wave/cutoff binding in dispatch and ReviewRun, terminal read evidence, and complete per-finding dispositions; never topology business-author provenance', producerCommand: 'review_inventory_critic_set',
+    signature: 'signReviewInventoryCriticReceipt/verifyReviewInventoryCriticReceipt with explicit inventory-completeness purpose and exact signed epoch/wave/cutoff binding in dispatch and ReviewRun, terminal read evidence, and complete per-finding dispositions including current purpose-bound critic discoveries; never topology business-author provenance. OPEN inventory pass producers and lane consumers require both signed readManifest and mechanical readLog, including pass-only finding normalization.', producerCommand: 'review_inventory_critic_set',
     consumerGate: 'review_inventory_finalize current-wave independent completeness critic gate',
     reviewerLane: 'proof-or-stop-review-topology-critic',
   },

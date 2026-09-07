@@ -4466,6 +4466,14 @@ function assertReviewInventoryRemediationContract() {
   const epochPath = 'packages/main/src/core/review-inventory-epoch.ts';
   const epochText = read(epochPath);
   assert(
+    /const runPasses = passes\.filter\([\s\S]*?verifyReviewPass\(run\.storyId, pass\)[\s\S]*?Boolean\(pass\.readManifest\)[\s\S]*?Boolean\(pass\.readLog\)/.test(epochText),
+    `${epochPath}: inventory PASS coverage requires both signed read fields`,
+  );
+  assert(
+    /const inventoryCriticRuns = candidates\.filter\([\s\S]*?canonicalAgentRoleId\(run\.lane\)[\s\S]*?run\.reviewPurpose === 'inventory-completeness'[\s\S]*?inventoryPurposeMatchesEpoch\(run\.inventoryBinding, args\.epoch\)[\s\S]*?for \(const run of inventoryCriticRuns\)[\s\S]*?evidenceForRun\(run, args\.passes, args\.findings\)\.findings[\s\S]*?rawFindings\.set\(finding\.id, finding\)/.test(epochText),
+    `${epochPath}: exact inventory aggregate must include signed current purpose-bound critic discoveries without lane promotion`,
+  );
+  assert(
     /\['verified_family',\s*'duplicate',\s*'not_verified'\]\.includes\(row\.disposition\)/.test(epochText),
     `${epochPath}: critic finding dispositions must be runtime-enumerated and reject unknown values`,
   );
@@ -4505,6 +4513,11 @@ function assertReviewInventoryRemediationContract() {
 
   const findingHandlerPath = 'packages/main/src/handlers/finding.ts';
   const findingHandlerText = read(findingHandlerPath);
+  const passProducer = extractNamedFunctionBody(findingHandlerText, 'recordReviewPass') ?? '';
+  assert(
+    /currentOpenReviewInventory\(ctx\.store, storyId\)[\s\S]*?!readEvidence\.readManifest \|\| !readEvidence\.readLog[\s\S]*?OPEN review inventory requires signed readManifest plus mechanical readEvents\/readLog/.test(passProducer),
+    `${findingHandlerPath}: the shared pass producer must reject incomplete OPEN-inventory read evidence before publication`,
+  );
   assert(
     /withReviewInventoryMutationLock[\s\S]*assertReviewInventoryEvidenceWritable/.test(findingHandlerText),
     `${findingHandlerPath}: reviewer finding/pass writes must share the inventory lock and enforce temporal evidence admission`,

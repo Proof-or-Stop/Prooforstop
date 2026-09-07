@@ -306,7 +306,8 @@ function evidenceForRun(run: ReviewRun, passes: ReviewPass[], findings: Finding[
   findings: Finding[];
 } {
   if (!verifyReviewRun(run)) return { terminal: null, findings: [] };
-  const runPasses = passes.filter(pass => pass.reviewRunId === run.reviewRunId && verifyReviewPass(run.storyId, pass));
+  const runPasses = passes.filter(pass => pass.reviewRunId === run.reviewRunId
+    && verifyReviewPass(run.storyId, pass) && Boolean(pass.readManifest) && Boolean(pass.readLog));
   const runFindings = findings.filter(finding => finding.reviewRunId === run.reviewRunId
     && verifyFinding(run.storyId, finding) && Boolean(finding.readManifest) && Boolean(finding.readLog));
   if (runPasses.length === 0 && runFindings.length === 0) return { terminal: null, findings: [] };
@@ -404,6 +405,17 @@ export function evaluateReviewInventoryWave(args: {
     // Coverage has one canonical terminal per lane, but completeness aggregates
     // every verified finding from every eligible same-wave run for that lane.
     runEvidence.forEach(row => row.findings.forEach(finding => rawFindings.set(finding.id, finding)));
+  }
+  // A completeness critic may discover a defect after required lanes finish.
+  // Include every eligible same-wave critic observation, without treating the
+  // critic as another required lane or accepting default topology authority.
+  const inventoryCriticRuns = candidates.filter(run =>
+    canonicalAgentRoleId(run.lane) === 'proof-or-stop-review-topology-critic'
+    && run.reviewPurpose === 'inventory-completeness'
+    && inventoryPurposeMatchesEpoch(run.inventoryBinding, args.epoch));
+  for (const run of inventoryCriticRuns) {
+    evidenceForRun(run, args.passes, args.findings).findings
+      .forEach(finding => rawFindings.set(finding.id, finding));
   }
   const signedBaselineIds = [...(args.epoch.baselineFindingIds ?? [])].sort();
   const liveBaselineIds = captureReviewInventoryBaselineFindingIds({ epoch: args.epoch, runs: args.runs, findings: args.findings });
