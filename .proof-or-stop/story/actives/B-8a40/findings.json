@@ -4554,6 +4554,67 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqzed2m_vol_09cd339a5a654b2585a12317b9c4f7ac",
       "ledgerCommitReceiptId": "lrc_mtqzed2m_vol_10ace7b4a4af445c865d2308682e82f9"
+    },
+    {
+      "id": "B-8a40:F-090",
+      "desc": "quality-cleanup: RR-160 latest-run re-attestation of the existing verified observation B-8a40:F-086, filed only because the REVIEW gate requires open lane findings to bind the latest reviewRunId (current: B-8a40:RR-160) and the original binds B-8a40:RR-151. NOT a new defect family; the canonical original F-086 remains open, verified and unmodified. Observation re-verified at HEAD 7e8512edf8: packages/main/src/core/prompt-envelope.ts:379 still declares const TRIAGE_INVENTORY_AUTHORITY_ACTION, and a repository-wide search over packages/main/src returns exactly 1 occurrence, that declaration itself, so nothing reads it. It is a module-local const with no export, so no other module can reference it. Provenance unchanged: it was the finite verb blacklist rejected by the earlier resolved test-inventory finding, whose repair replaced it with isNominalTriageTestTopics plus the recursive reviewTriageAuthorityViolation call at lines 716-722, leaving this constant behind. packages/main/tsconfig.json sets strict but neither noUnusedLocals nor noUnusedParameters, so tsc --noEmit and therefore the validate --lint REVIEW gate compile it clean and cannot catch it. Suggested fix unchanged: delete line 379. No runtime behaviour depends on it and no gate evidence is affected. Routed to docs/story/drafts/classifier-smoke-nonblocking-cleanup as future owner. Severity low, unchanged.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T08:31:41.371Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-160",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/summary.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "4004ced5d17214775b9b381d315774e87fe0202d16f0e00adbf92a786ef30f9b",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "signatureTag": "b8a40-classifier-dead-code",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqzexbx_yj7_f93785bc2fc5479ba16d9c5b95b29f91",
+      "ledgerCommitReceiptId": "lrc_mtqzexbx_yj7_ec7c977cb6b444539a24dbf230a64a11"
     }
   ]
 }
