@@ -1030,6 +1030,44 @@
       },
       "readDiagnostics": [],
       "_hash": "86629debc9f637b3fd2a02c588d62d32a2be533f854bbd7a413c59b87a19cfcc"
+    },
+    {
+      "id": "B-29bc:RP-024",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Final RI-005 story-level coverage review: CHK-001 and CHK-002 retain 8 must intents, all with current material 2d923753 and story-file 1243892b mechanical PASS receipts, exit 0 and matching pinned selectors; 0 must gaps and 0 waivers. Re-examined the full heartbeat/audit delta and test-only RED 9e3ac2e5ef; the RED shared the original five-second readiness helper, GREEN 5662e8274e adds bounded terminal-aware readiness, release ordering, and actual-close-aware fixture preservation. Independently executed readiness-only smoke: exit 0 with B29BC_DELAYED_FIXTURE_READINESS PASS and B29BC_READINESS_TERMINAL_AND_CLOSE_CONTROLS PASS. Original foreign-byte prefix, dirty-audit, no-terminal/transition, uncommitted-history and REVIEW assertions are retained. Reviewed existing public purpose/compatibility/audit receipts as coverage inputs, not as my executions; no duplicated full validation. Original F-001..F-004 observations and old incomplete RP-021 remain history, not new proof. This PASS is coverage only; canonical repository validation, actual independent-host quorum, TEST and DONE remain separate. Synthetic close/rollout fixtures do not prove descendant termination or real-host assurance; no old CAS restoration claimed. Checklist read through structured intent/receipt projections; topology decision title and relevant section inspected, not a full-file claim.",
+      "createdAt": "2026-09-07T13:26:11.124Z",
+      "reviewRound": "2026-09-07T13:21:43.709Z",
+      "reviewRunId": "B-29bc:RR-029",
+      "envelopeId": "29b4b88da53bb0af9e542fbddab8e23d9f714bf2e49448052b1a15d9c30aa180",
+      "writerSessionId": "sess-7893c1f1d7ec288f2ec612f8f5cb8b03",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "6981db9d42e12587ed0e4430a0da966818882d3dcef77f8bc902d2f7478d6c6f"
     }
   ]
 }
