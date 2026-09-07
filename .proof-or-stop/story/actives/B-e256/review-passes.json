@@ -6111,6 +6111,38 @@
         "scanEscalationReason": null
       },
       "_hash": "8db5d8365c18eb7d9c2be4bf66301fa7460aa1811e1ea3981c4e5729b1e38170"
+    },
+    {
+      "id": "B-e256:RP-137",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed all Story-owned changed implementation, test, and configuration paths and the integrated checklist claims. Verified staging-side executable restoration before old-dist eviction, POSIX X_OK and PATH-target binding, exact npm cmd-shim@8 Windows three-peer contract with a real .cmd version witness, PATHEXT/fallback/argv/exit-code inverse cases, active-Story pre-review selection, and verifier-owned Wave 4 read/check routes. A fresh build produced mode 0755; the focused red launcher suite, global-core realpath suite, and 58-assertion rollout enforce/rollback/history smoke all passed. No blocking correctness or maintainability finding.",
+      "createdAt": "2026-09-07T11:18:37.636Z",
+      "reviewRound": "2026-09-07T11:03:41.655Z",
+      "reviewRunId": "B-e256:RR-198",
+      "envelopeId": "2e048395206257d6033b10897b85a992a880d6da974fe5da640e591032183b02",
+      "writerSessionId": "sess-0f124cd6532aba31fad1a5999d0bac44",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "2bc6152967f3dfc468bb06b8303571fae7d67b04284f9edf27955a5988a9dff8"
     }
   ]
 }
