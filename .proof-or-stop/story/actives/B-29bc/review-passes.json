@@ -457,6 +457,55 @@
       },
       "readDiagnostics": [],
       "_hash": "ca622bc87a7778fab5207406aba81b715383e5216ee723ee86dd9e4e414588e4"
+    },
+    {
+      "id": "B-29bc:RP-011",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across CHK-001 (4 intents: happy, edge, 2 adversarial) and CHK-002 (4 intents: happy, edge, 2 adversarial), all 8 intents verified with valid execution evidence and causal receipts, 0 must-gaps, 0 waivers, no new blocker.",
+      "createdAt": "2026-09-07T10:36:57.883Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-014",
+      "envelopeId": "3888832a6673d88e8657879289ab91ae3451d0470bcf1c5a8a56fbadfc8869f3",
+      "writerSessionId": "b29bc-agy-test-coverage-ri2w2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/56398a2bfef0254e75776560e0dfc24db75cefad37b4b0aa7de3fb673138ea3c.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/928db2e458726048deb365d01824024e512b4d738eca7aff1c42d28c0529f8e6.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe.json",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd88feebe351fbefad79ea3422242e2264a1bdc2596c76581883ac05b0a27507"
     }
   ]
 }
