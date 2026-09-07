@@ -108,6 +108,47 @@ async function waitForFile(path: string, timeoutMs = 5_000): Promise<void> {
   assert.ok(existsSync(path), `timed out waiting for fixture file: ${path}`);
 }
 
+// Shared readiness seam: the initial RED retains the foreign-append row's
+// original five-second behavior, so the delayed real-child witness fails.
+async function waitForValidationStart(started: string, _finished: string, _run: Promise<CliResult>): Promise<void> {
+  await waitForFile(started);
+}
+
+async function assertDelayedFixtureReadiness(): Promise<void> {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-heartbeat-readiness-'));
+  const started = join(root, 'started');
+  const finished = join(root, 'finished');
+  const release = join(root, 'release');
+  const child = spawn(process.execPath, ['-e', `
+    const fs = require('node:fs');
+    const [started, finished, release] = process.argv.slice(1);
+    setTimeout(() => process.exit(98), 10000).unref();
+    setTimeout(() => {
+      fs.writeFileSync(started, 'ready');
+      const poll = setInterval(() => {
+        if (!fs.existsSync(release)) return;
+        clearInterval(poll);
+        fs.writeFileSync(finished, 'finished');
+      }, 20);
+    }, 6000);
+  `, started, finished, release], { stdio: ['ignore', 'pipe', 'pipe'] });
+  let stderr = '';
+  child.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+  const run = new Promise<CliResult>((resolveResult) => {
+    child.on('close', status => resolveResult({ status, stdout: '', stderr, elapsedMs: 0 }));
+    child.on('error', error => { stderr += error.message; });
+  });
+  try {
+    await waitForValidationStart(started, finished, run);
+  } finally {
+    writeFileSync(release, 'release');
+    const result = await run;
+    rmSync(root, { recursive: true, force: true });
+    assert.equal(result.status, 0, `delayed readiness fixture child failed: ${result.stderr}`);
+  }
+  console.log('B29BC_DELAYED_FIXTURE_READINESS PASS');
+}
+
 function commitAll(root: string, message: string): void {
   git(root, ['add', '.']);
   git(root, ['commit', '-m', message]);
@@ -665,7 +706,7 @@ async function assertMainDirectHandlerClosesTerminal(): Promise<void> {
 }
 
 async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
-  const { root, storyId, started } = setupStoryAdvanceFixture();
+  const { root, storyId, started, finished } = setupStoryAdvanceFixture();
   try {
     const processEventsRel = `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
     const processEventsPath = join(root, processEventsRel);
@@ -674,7 +715,7 @@ async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
       ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
       NON_MAX_HARNESS_CEILING_MS,
     );
-    await waitForFile(started);
+    await waitForValidationStart(started, finished, run);
     mkdirSync(dirname(processEventsPath), { recursive: true });
     const foreignLine = JSON.stringify({
       type: 'human_confirmation',
@@ -792,6 +833,10 @@ async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
 void (async () => {
   const { root, started, finished } = setupFixture();
   try {
+    if (process.argv.includes('--readiness-only')) {
+      await assertDelayedFixtureReadiness();
+      return;
+    }
     if (process.env.VALIDATE_HEARTBEAT_F011_ONLY === '1') {
       await assertStoryAdvanceReceivesHeartbeat();
       console.log('validate-progress-heartbeat F-011 story-branch success PASS');
@@ -812,6 +857,7 @@ void (async () => {
       console.log('validate-progress-heartbeat main direct-handler PASS');
       return;
     }
+    await assertDelayedFixtureReadiness();
     const result = await runValidate(root);
     if (result.status !== 0) {
       assertRedBaseline(result, started, finished);

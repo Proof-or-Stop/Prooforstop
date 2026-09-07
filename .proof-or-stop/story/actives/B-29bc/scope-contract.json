@@ -23,7 +23,8 @@
     ".claude/agents/proof-or-stop-review-story-init.md",
     ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
     "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
-    "packages/main/src/handlers/finding.ts"
+    "packages/main/src/handlers/finding.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
   ],
   "allowedCreate": [
     "docs/audits/inventory-critic-purpose-isolation.md"
@@ -34,14 +35,15 @@
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "packages/main/src/tasks/review-run-smoke.ts",
-    "packages/main/src/tasks/prompt-registry-smoke.ts"
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Bounded current-acceptance repair of B-29bc:F-001: recordReviewPass currently accepts a required-lane PASS without mechanical readLog during an OPEN inventory. Add only the producer guard shared by review_pass_set and pass-only finding_add normalization, paired with the already scoped inventory consumer and regression suites. F-002 repair stays in the existing inventory core. Retain every prior allowance/exclusion and all topology, machine, configuration and other Story boundaries.",
+  "scopeChangeReason": "Bounded mandatory validation repair for BUG-VALIDATE-START-READINESS after RI-004 completeness receipt: the foreign-append witness currently imposes an unsupported 5-second CLI startup window, ignores early child diagnostics, and can remove an active fixture. Permit only this existing smoke task to add a delayed-readiness RED, bounded terminal-aware readiness, explicit completion/cleanup controls and their negative regressions. Preserve all production timeout budgets and foreign-append safety assertions; no machine, topology, configuration, host runtime or other Story changes. Retain all existing scope fields.",
   "acknowledgements": [],
   "createdAt": "2026-09-07T08:19:11.670Z",
-  "updatedAt": "2026-09-07T10:46:49.224Z",
+  "updatedAt": "2026-09-07T12:49:15.364Z",
   "fileRules": [],
   "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
@@ -69,6 +71,7 @@
     ".claude/agents/proof-or-stop-review-story-init.md": ".claude/agents/proof-or-stop-review-story-init.md",
     ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md": ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
     "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
-    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts"
+    "packages/main/src/handlers/finding.ts": "packages/main/src/handlers/finding.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
   }
 }
