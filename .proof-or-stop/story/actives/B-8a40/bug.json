@@ -3,18 +3,38 @@
     {
       "id": "BUG-VALIDATION-PROBE-PORTABILITY",
       "title": "Current TEST blocker, not a classifier regression: formal 132-command validate captured FAIL at 2026-09-07T09:21:27.902Z (commit 2165dc9618), because red-bfe8f-ledger-runtime-integrity.mjs exits 1 at parseCliJson line79 / probe read line408: repro_probe_get failed, artifact ref not found rp-mtifubae-dfbh4w. Independent read-only repro_probe_get fails in both B-8a40 and local main; original ref/digest filename search across repository evidence and current worktrees found no original object. The registered guard depends on an ephemeral historical candidate CAS; do not fabricate the old identity, broaden its special registration-mirror exception, remove registration, or waive this failure. Preserve actual historical baseline/current execution and integrity negative controls in a bounded portable guard repair after lawful DEV entry. Independent recovery audit found no exposed original candidate-CAS import command.",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-09-07T09:24:50.478Z",
-      "fixedAt": null,
-      "checklistId": "CHK-001"
+      "fixedAt": "2026-09-07T10:17:20.584Z",
+      "checklistId": "CHK-001",
+      "evidence": {
+        "symptom": "Formal routine validation failed reading an absent historical probe.",
+        "reproSteps": [
+          "Run the pre-fix registered ledger guard.",
+          "Observe repro_probe_get missing rp-mtifubae-dfbh4w in both this worktree and main."
+        ],
+        "rootCause": "The portable registered regression guard depended on missing clone-local historical candidate CAS metadata.",
+        "fixEvidence": "Commit9b8ca8879f repairs the registered guard portability defect, not the missing historical CAS. It preserves real tracked historical RED references and immutable baseline; executes the same import at the explicit historical/current roots; rejects an unbuilt existing source as a false missing-contract baseline; and performs fresh private candidate CLI create/read/review/relation checks with actual missing-ID, unreviewed-relation and one-bit-digest negative controls. Fixture-only provenance is explicit; the registration-mirror predicate is unchanged. Direct final guard exit0; Finding ledger runtime caller exit0; registration guard exit0; registration derivation26/26 exit0. The last added baseline-source assertion was separately rerun in the final guard. This is focused repair evidence, not fresh formal132 validation PASS.",
+        "reproTest": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      }
     },
     {
       "id": "BUG-VALIDATION-DESCENDANT-PREMISE",
       "title": "Current TEST blocker under diagnosis, not yet a proven production timeout defect: formal 132-command validate captured FAIL at 2026-09-07T09:21:27.902Z (commit 2165dc9618). validate-progress-heartbeat-smoke.js exited 1 after153119ms with timed out waiting for fixture file .../proof-or-stop-validate-heartbeat-CjaRVH/max-descendant.pid. The assertOuterWatchdogsKillDescendants max fixture uses a700ms outer maximum and then expects its descendant PID marker; a30-second post-return wait cannot create a descendant if the outer watchdog already prevented startup. Independently rerun the actual unchanged smoke and establish the precise startup/timeout trace before choosing an operational recheck or bounded fixture repair. Do not suppress the failed result, extend production deadlines, remove the descendant assertion, or claim a product bug solely from this timing failure.",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-09-07T09:24:50.984Z",
-      "fixedAt": null,
-      "checklistId": "CHK-001"
+      "fixedAt": "2026-09-07T10:17:21.213Z",
+      "checklistId": "CHK-001",
+      "evidence": {
+        "symptom": "Formal routine validation waited for a descendant PID never created before timeout.",
+        "reproSteps": [
+          "Run pre-fix smoke with NODE_OPTIONS=--import /tmp/b8a40-heartbeat-premise.lbYY0b/delay-max-child.mjs.",
+          "Observe before-evaluation at max700, no after-delay event and missing max-descendant.pid failure."
+        ],
+        "rootCause": "A700ms outer max could preempt startup before the descendant premise; waiting afterward cannot create the process.",
+        "fixEvidence": "Commit9b8ca8879f repairs only the max-descendant test premise: explicit1000ms startup delay, max-row fixture10000ms, max-row command20000ms, original idle-row command5000ms retained. Production deadlines, actual timeout-layer, PID/ESRCH descendant cleanup, no post-terminal heartbeat and other tight-max checks are unchanged. Pre-fix source plus1000ms target preload reproducibly exited1 before PID creation at max700. Fixed max row under that extra preload exited0 with before/after startup trace at max10000; final exact-source plain heartbeat smoke also exited0. Full formal validation remains to be rerun.",
+        "reproTest": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+      }
     }
   ]
 }
