@@ -2,20 +2,20 @@
   "storyId": "B-29bc",
   "expected": "The required inventory critic can review the current Finding set using real Git attribution, without bypassing topology checks.",
   "actual": {
-    "command": "node bin/proof-or-stop.js review_inventory_status --storyId=B-29bc",
-    "exitCode": 1,
-    "stdout": "",
-    "stderr": "Command \"review_inventory_status\" is not available in TEST phase\n   Story: B-29bc  Phase: TEST\n   Lifecycle: gateEvidence\n   Requested phase: TEST\n   Allowed phases: REVIEW\n   Reason: Projects inventory progress and atomically fail-closes an OPEN epoch to INVALIDATED when current material lineage differs from the frozen cutoff.\n   Destructive risk: metadata-write\n   Current phaseTools allow: session_brief, next, done_closure, lifecycle_check, milestone_status, milestone_closeout, global_control_status, runtime_closure_status, admissibility_waterline, queue_governance_status, queue_exception_set, plan_skeleton, init_preflight, evidence_plan, reviewer_batch, review_run_list, evidence_refresh, live_smoke_transcript, delivery_context_pack, lifecycle_orchestrate, done_prepare, done_required_validate, story_get, story_list, story_reconcile, identity_state_migrate, story_discard, aux_*, checklist_get, finding_ledger_query, frozen_claim_drift_check, truth_*, gap_*, convergence_check, story_advance, status, graph, doctor, done_recover, check, test_list, bug_list, finding_list, audit, decision_doc_quorum_check, decision_doc_preview, review_escalation_status, verify_codex, summary_get, grill_get, summary_set, verification_evidence_add, verification_evidence_batch_add, verification_evidence_refresh_stale, verification_run, verification_pin_narrow, verification_context_pack_create, verification_context_pack_expand, recover_evidence, artifact_declare, artifact_release_*, capability_release_*, capability_release_backfill, repro_*, spike_record, spike_review_set, red_green_relation_*, regression_matrix_review_set, story_create_from_repro, capsule_*, scope_contract_show, scope_contract_check, scope_diff_pack, original_intent_snapshot_get, milestone_ledger_get, slice_plan_get, parent_ledger_rollup_get, proofstory_contract_get, acceptance_matrix, acceptance_topology_check, acceptance_basis, pre_review_check_read, acceptance_rollout_report_read, acceptance_rollout_check, topology_criti\n...[truncated 6603 chars]"
+    "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js --purpose-only",
+    "exitCode": null,
+    "stdout": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\n",
+    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-09-07T15:26:21.639Z",
+  "capturedAtIso": "2026-09-07T15:28:06.149Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "225656890b2fd579993059e2d232446b8b5fcc33",
+  "headHash": "246f5d58fc0d5456f02069aa1724bdc9a66c38b9",
   "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8"
 }
