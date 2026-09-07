@@ -4492,6 +4492,68 @@
       "resolvedReason": "The current occurrence is operationally repaired through scope_contract_acknowledge for exactly .proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl at 2026-09-07T08:23:14.346Z. Before: scope_contract_check failed with the sole unacknowledged path and blocking=true. After: node bin/proof-or-stop.js scope_contract_check --storyId=B-8a40 --json exited 0, status=warn, all four out_of_scope rows acknowledged and no blocking row. This is explicit lower-assurance acknowledged expansion preserving non-authoritative generated data, not a durable registry fix or general exemption. The remaining producer classification gap is owned by future draft docs/story/drafts/dev-memory-candidate-scope-registration on main with repro, impact and escalation rule. Five classifier material files and hashes remain unchanged. F085 conditional mutant residue is a separate observation and remains open; no interruption proof or escalation is inferred from this different producer.",
       "resolutionType": "partially_mitigated",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8a40:F-089",
+      "desc": "quality-cleanup: RR-160 latest-run re-attestation of the existing verified observation B-8a40:F-085, filed only because the REVIEW gate reports finding B-8a40:F-085 bound reviewRunId B-8a40:RR-151: Not the latest run on the current lane (current: B-8a40:RR-160), with the instruction to resubmit using the latest reviewRunId. This is NOT a new defect family and NOT a duplicate raised to refresh a run; the canonical original F-085 remains open, verified and unmodified. Observation re-verified at HEAD 7e8512edf8: packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2114 still reads const mutantModuleRoot = mkdtempSync(fileURLToPath(new URL(../../../../.prompt-envelope-mutants-, import.meta.url))), which from the built entry packages/main/dist/tasks/ resolves tasks to dist to main to packages to the repository root, so the mutation tree is created inside the repository working tree, and line 2137 cpSync copies the whole built core directory into it, about 16 MB. .gitignore is byte-identical to my original audit and still contains no pattern matching .prompt-envelope-mutants-*, while its siblings dist.staging, dist.trash-*, .proof-or-stop-tmp-* and .koala-tmp-* are ignored precisely so an interrupted run cannot dirty the tree. Failure scenario unchanged: run-all-smokes auto-discovers this smoke and runs it in a worker pool sized os.cpus().length, and any termination that skips the finally block on line 2219 leaves untracked residue that a clean-tree gate then rejects. Source is byte-identical to my RR-151 audit: git diff a28a4017dd HEAD -- packages/main/src scripts bin package.json .gitignore is empty. It fails CLOSED and falsifies no evidence, because currentMaterialHash and currentStoryFilesHash derive from git ls-tree over the committed tree. Stated limitation retained: no interrupted-run witness has been executed, so this remains a conditional abrupt-termination mechanism, deferred and not disproven. It is distinct from B-8a40:F-088, which had a different producer, dev_memory_finish, and whose occurrence was separately acknowledged; nothing about this observation is inferred from that different producer. Routed to docs/story/drafts/classifier-smoke-nonblocking-cleanup as future owner. Severity medium, unchanged.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T08:31:15.116Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-160",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/summary.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "c1ec087181ac1c76078571d0d808b39fcda233b8df17d6a1d1a0118f23446322",
+      "files": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+        ".gitignore"
+      ],
+      "signatureTag": "b8a40-mutant-tree-repo-root-residue",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqzed2m_vol_09cd339a5a654b2585a12317b9c4f7ac",
+      "ledgerCommitReceiptId": "lrc_mtqzed2m_vol_10ace7b4a4af445c865d2308682e82f9"
     }
   ]
 }

@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "03a4d773e62e96e310efc46bee51f7ca59588a6cf70dc300a474c464344ea8c9",
+  "committedLedgerDigest": "8ab1179d5ee8a713b065ca732529db0e9ead94f73833470c9e90e0fc9583cc82",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -3084,6 +3084,76 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T08:25:14.751Z"
+    },
+    {
+      "recordId": "lr_mtqzed2m_vol_09cd339a5a654b2585a12317b9c4f7ac",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:7d7a3acd-ae8a-43a2-84e9-09771bd19785",
+      "payload": {
+        "id": "B-8a40:F-089",
+        "desc": "quality-cleanup: RR-160 latest-run re-attestation of the existing verified observation B-8a40:F-085, filed only because the REVIEW gate reports finding B-8a40:F-085 bound reviewRunId B-8a40:RR-151: Not the latest run on the current lane (current: B-8a40:RR-160), with the instruction to resubmit using the latest reviewRunId. This is NOT a new defect family and NOT a duplicate raised to refresh a run; the canonical original F-085 remains open, verified and unmodified. Observation re-verified at HEAD 7e8512edf8: packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2114 still reads const mutantModuleRoot = mkdtempSync(fileURLToPath(new URL(../../../../.prompt-envelope-mutants-, import.meta.url))), which from the built entry packages/main/dist/tasks/ resolves tasks to dist to main to packages to the repository root, so the mutation tree is created inside the repository working tree, and line 2137 cpSync copies the whole built core directory into it, about 16 MB. .gitignore is byte-identical to my original audit and still contains no pattern matching .prompt-envelope-mutants-*, while its siblings dist.staging, dist.trash-*, .proof-or-stop-tmp-* and .koala-tmp-* are ignored precisely so an interrupted run cannot dirty the tree. Failure scenario unchanged: run-all-smokes auto-discovers this smoke and runs it in a worker pool sized os.cpus().length, and any termination that skips the finally block on line 2219 leaves untracked residue that a clean-tree gate then rejects. Source is byte-identical to my RR-151 audit: git diff a28a4017dd HEAD -- packages/main/src scripts bin package.json .gitignore is empty. It fails CLOSED and falsifies no evidence, because currentMaterialHash and currentStoryFilesHash derive from git ls-tree over the committed tree. Stated limitation retained: no interrupted-run witness has been executed, so this remains a conditional abrupt-termination mechanism, deferred and not disproven. It is distinct from B-8a40:F-088, which had a different producer, dev_memory_finish, and whose occurrence was separately acknowledged; nothing about this observation is inferred from that different producer. Routed to docs/story/drafts/classifier-smoke-nonblocking-cleanup as future owner. Severity medium, unchanged.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T08:31:15.116Z",
+        "reviewRound": "2026-09-07T07:37:25.032Z",
+        "reviewRunId": "B-8a40:RR-160",
+        "readManifest": {
+          "filesReadFully": [
+            ".gitignore",
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/decision.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+            ".proof-or-stop/story/actives/B-8a40/summary.json",
+            ".proof-or-stop/story/actives/B-8a40/understanding.json",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "packages/main/tsconfig.json"
+          ],
+          "filesTriagedByName": [
+            "package.json",
+            "packages/main/src/core/dev-memory.ts",
+            "packages/main/src/core/evidence-freshness.ts",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/core/prompt-registry.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "packages/main/src/tasks/run-all-smokes.ts",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "c1ec087181ac1c76078571d0d808b39fcda233b8df17d6a1d1a0118f23446322",
+        "files": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          ".gitignore"
+        ],
+        "signatureTag": "b8a40-mutant-tree-repo-root-residue",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "eb559b84fb78f75000ace7aa5e66df1e080c6f74154e25ee14cfcc95f7bde19d",
+      "priorDigest": "03a4d773e62e96e310efc46bee51f7ca59588a6cf70dc300a474c464344ea8c9",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T08:31:15.118Z"
     }
   ],
   "receipts": [
@@ -7489,6 +7559,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "2bf86a26986ab407d8fa8cd6ea2f07ca04d2bb87e0d9219624ee53e60dd08b5b",
         "signature": "aZvV1VTrPHD2kPkZ7tN2aNvjjavs5rvgoqWbYu/XCWrnJt3Iqc4yhwhlle3fhpOBvCskvtaGR510V0YTa4UYDw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqzed2m_vol_10ace7b4a4af445c865d2308682e82f9",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:7d7a3acd-ae8a-43a2-84e9-09771bd19785",
+      "requestDigest": "72de7d9eb58fa5bdc8e25e3724b6bebf8e04c4cdebf7c08264250da7e16b5d36",
+      "recordIds": [
+        "lr_mtqzed2m_vol_09cd339a5a654b2585a12317b9c4f7ac"
+      ],
+      "priorLedgerDigest": "03a4d773e62e96e310efc46bee51f7ca59588a6cf70dc300a474c464344ea8c9",
+      "committedLedgerDigest": "8ab1179d5ee8a713b065ca732529db0e9ead94f73833470c9e90e0fc9583cc82",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "writerFenceToken": "dd234668-e457-4eb6-b206-832cb5ac61ea",
+      "committedAt": "2026-09-07T08:31:15.118Z",
+      "replayed": false,
+      "exactRequestDigest": "0bb29b0adfc0d656f28fab908204eb800e3fd45ecab312e9a7640b89cc448cd1",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqzed2m_vol_10ace7b4a4af445c865d2308682e82f9",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:7d7a3acd-ae8a-43a2-84e9-09771bd19785",
+        "exactRequestDigest": "0bb29b0adfc0d656f28fab908204eb800e3fd45ecab312e9a7640b89cc448cd1",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqzed2m_vol_09cd339a5a654b2585a12317b9c4f7ac"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "03a4d773e62e96e310efc46bee51f7ca59588a6cf70dc300a474c464344ea8c9",
+        "committedLedgerDigest": "8ab1179d5ee8a713b065ca732529db0e9ead94f73833470c9e90e0fc9583cc82",
+        "replayed": false,
+        "committedAt": "2026-09-07T08:31:15.118Z",
+        "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "dd234668-e457-4eb6-b206-832cb5ac61ea",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "c2b36a8ee10f71c28d495e5109e1e25aa59b7f33fe75333ee4a4a188e0136750",
+        "signature": "WEWGtZf/ZSyrqJBwWUTKu6SuBohBD8vgc0k6jHeCI+SN6uibecBiXQLeoyl2r9yQlikVaXXh6pGogbfMMmyuDg=="
       }
     }
   ]
