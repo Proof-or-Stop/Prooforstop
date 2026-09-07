@@ -5,9 +5,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-29bc:CW-001",
       "storyId": "B-29bc",
-      "state": "ADMITTED",
+      "state": "CANCELLED",
       "createdAt": "2026-09-07T11:21:57.956Z",
-      "updatedAt": "2026-09-07T11:21:57.956Z",
+      "updatedAt": "2026-09-07T12:06:06.750Z",
       "frozen": {
         "headHash": "7aa6a322c3bcdaa5b5d1f7a72b31d3ce0397f1b7",
         "materialHash": "130d0e588b87d8a5b9cba9b5b76624e6c673445dd0e1d469092dd4decaf24a78",
@@ -30,8 +30,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "receiptId": "B-29bc:PRECERT-001",
-      "_hash": "1b9d57e9510268139f9e3e43c7e76a31639778417df97b055fe0afaf87d267a0"
+      "cancelledAt": "2026-09-07T12:06:06.750Z",
+      "cancelReason": "Canonical validation failed and main now contains independently completed B-8a40 regression repairs; cancel old expected-main window before local integration.",
+      "_hash": "479e03cbd3f0b05e949614e38726a3bb3ece620bc7243071e1537044122785c2"
     }
   ],
   "receipts": [
