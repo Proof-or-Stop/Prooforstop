@@ -45,9 +45,9 @@
           "packages/main/src/tasks/prompt-registry-smoke.ts"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-07T08:23:31.663Z",
-      "endTime": "2026-09-07T09:24:02.406Z",
+      "endTime": "2026-09-07T11:03:47.711Z",
       "verificationIntent": {
         "happy": [
           {
@@ -406,6 +406,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Repair verified acceptance blockers F-001 and F-002 after RI-002 authorized remediation; preserve original observations and add failing regression witnesses before production changes."
+    },
+    {
+      "timestamp": "2026-09-07T11:03:47.711Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Committed runtime repair 0ffe4cc619 and formal batch 74997ad satisfy original intent plus F-001/F-002 regression controls."
     }
   ]
 }
