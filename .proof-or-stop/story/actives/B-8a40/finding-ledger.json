@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "dd5846e33152ed0f792b5210a23b9d8d9ed53820da4dd952d565d2e92d917379",
+  "committedLedgerDigest": "da96370266d0a4c92e4a1c9220d576f68784483a80ab98bd22cc77e687214eb9",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2827,6 +2827,61 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T07:38:23.567Z"
+    },
+    {
+      "recordId": "lr_mtqy5s1z_5g_07e1984dbd4d48fea225e1e63ab5e1ec",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:e90c84f7-3892-4761-bbc3-d5a04ba741f2",
+      "payload": {
+        "id": "B-8a40:F-085",
+        "desc": "quality-cleanup: packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2114-2137 creates the mutation module tree INSIDE the repository working tree, and .gitignore has no pattern covering it, so an aborted run leaves untracked residue that this projects own clean-tree gates reject. Mechanical evidence at this HEAD: the built entry packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exists (ls), so new URL(../../../../.prompt-envelope-mutants-, import.meta.url) on line 2114 resolves tasks to dist to main to packages to the repository root; mkdtempSync therefore creates <repoRoot>/.prompt-envelope-mutants-XXXXXX/, and line 2137 cpSync copies the whole built core directory into it (du -sh packages/main/dist/core reports 16M). I read .gitignore end to end at this HEAD: the root-level transient patterns present are dist.staging, dist.trash-*, .proof-or-stop-tmp-*, .koala-tmp-*, tmp/, output/ and *.bak, and none matches .prompt-envelope-mutants-*. Failure scenario: packages/main/src/tasks/run-all-smokes.ts discoverSmokes auto-discovers every dist/tasks/*-smoke.js and runEntrySet executes them in a worker pool sized os.cpus().length by default, so about 16 MB of untracked files sit at the repository root for the duration of every full-suite run, concurrently with the other suite members; and any termination that skips the finally block on line 2219 (CLI idle or max watchdog kill, SIGINT, SIGKILL, OOM) leaves that directory behind permanently, after which story_advance DONE and done_prepare observe a dirty tree. The same .gitignore already documents this exact hazard for its siblings: dist.staging and dist.trash-* are ignored so an interrupted build cannot dirty the tree, and the .proof-or-stop rules exist because an untracked root entry broke each fixture and command that asserts a clean tree. Suggested fix: add .prompt-envelope-mutants-* to .gitignore, matching the existing .proof-or-stop-tmp- and .koala-tmp- precedent. Severity medium: it fails closed rather than producing false evidence, and it does not change the classifier behaviour this Story repairs. Read boundary for this finding: the complete git diff main...HEAD hunks for all five changed code files, plus .gitignore and packages/main/tsconfig.json end to end, plus targeted regions of prompt-envelope.ts, retired-authority-vocabulary-guard-smoke.ts and run-all-smokes.ts.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T07:56:35.013Z",
+        "reviewRound": "2026-09-07T07:37:25.032Z",
+        "reviewRunId": "B-8a40:RR-151",
+        "readManifest": {
+          "filesReadFully": [
+            ".gitignore",
+            "packages/main/tsconfig.json"
+          ],
+          "filesTriagedByName": [
+            "package.json",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "packages/main/src/tasks/run-all-smokes.ts",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "83ea45c4ef2f3100fdc2834177dc79da0d99b2538992a3e2fa229b96ded595ce",
+        "files": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          ".gitignore"
+        ],
+        "signatureTag": "b8a40-mutant-tree-repo-root-residue",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "f8e58969902fb19665ee8b914da6874439b96a556087f3592a516ede3690678b",
+      "priorDigest": "dd5846e33152ed0f792b5210a23b9d8d9ed53820da4dd952d565d2e92d917379",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T07:56:35.015Z"
     }
   ],
   "receipts": [
@@ -7008,6 +7063,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "798c85255deb69402e44668b82222acddda721688a101852bee5a889955b6d98",
         "signature": "vY4KGvtk2ehGvu8EkPx2cOlo0eJmokWetsBCO3sR2neBpWMMnf48k3T7FTwX+c4IVJDrVhjBytv3TZocm3OeBg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqy5s20_5g_e944576ee1834c6b86004730a7208658",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:e90c84f7-3892-4761-bbc3-d5a04ba741f2",
+      "requestDigest": "153392d37b0565561e9b058be5817b0baa19aaed6b903148c621cab4170c92c1",
+      "recordIds": [
+        "lr_mtqy5s1z_5g_07e1984dbd4d48fea225e1e63ab5e1ec"
+      ],
+      "priorLedgerDigest": "dd5846e33152ed0f792b5210a23b9d8d9ed53820da4dd952d565d2e92d917379",
+      "committedLedgerDigest": "da96370266d0a4c92e4a1c9220d576f68784483a80ab98bd22cc77e687214eb9",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "writerFenceToken": "356a2a4c-62f8-495e-a919-68f70d6049b7",
+      "committedAt": "2026-09-07T07:56:35.015Z",
+      "replayed": false,
+      "exactRequestDigest": "6dfcfbcc2c8735e7084039d5a77504bab9f8b31334e34d135136618c00e9df0a",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqy5s20_5g_e944576ee1834c6b86004730a7208658",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:e90c84f7-3892-4761-bbc3-d5a04ba741f2",
+        "exactRequestDigest": "6dfcfbcc2c8735e7084039d5a77504bab9f8b31334e34d135136618c00e9df0a",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqy5s1z_5g_07e1984dbd4d48fea225e1e63ab5e1ec"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "dd5846e33152ed0f792b5210a23b9d8d9ed53820da4dd952d565d2e92d917379",
+        "committedLedgerDigest": "da96370266d0a4c92e4a1c9220d576f68784483a80ab98bd22cc77e687214eb9",
+        "replayed": false,
+        "committedAt": "2026-09-07T07:56:35.015Z",
+        "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "356a2a4c-62f8-495e-a919-68f70d6049b7",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "bdaee993a083a34f439c4e4db719f10ed3e47fe072920b5eb71d16a7710ca3bb",
+        "signature": "tJfNWwfjUeNmuKhIlUvLDsJ0C8fwDUOVA/G4CUx+YplMs1jjCQtvVx5e5VkGdBAQkOlFPFD71B9UVhVBCV+eDA=="
       }
     }
   ]
