@@ -31,7 +31,7 @@
 // rebuild-and-relink remediation, not a decorative `version=unknown`.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -168,14 +168,86 @@ function runChecks(base, corePackageRoot, globalRoot, extraOptions = {}) {
     commandResolver: () => bin,
     globalNpmRootResolver: () => globalRoot,
     corePackageRoot,
+    windowsCommandRuntimeProbe: (_commandPath, expectedVersion) => ({
+      exitCode: 0,
+      stdout: `Proof-or-Stop ${expectedVersion}\n`,
+      stderr: '',
+      errorCode: null,
+      failureReason: null,
+    }),
     ...extraOptions,
   });
 }
 
 function writeRepresentativeWindowsShim(shimPath, globalRoot, packageName = '@proof-or-stop/core', binRel = 'dist/cli.js') {
+  const commandBase = shimPath.replace(/\.(?:cmd|ps1)$/i, '');
   const lexicalTarget = join(globalRoot, ...packageName.split('/'), binRel);
-  const relativeTarget = relative(dirname(shimPath), lexicalTarget).replaceAll('/', '\\');
-  writeFileSync(shimPath, `@ECHO off\r\nSETLOCAL\r\nSET "_prog=node"\r\nendLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%" "%~dp0\\${relativeTarget}" %*\r\n`);
+  const shTarget = relative(dirname(commandBase), lexicalTarget).replaceAll('\\', '/');
+  const cmdTarget = shTarget.replaceAll('/', '\\');
+  const cmd = '@ECHO off\r\n'
+    + 'GOTO start\r\n'
+    + ':find_dp0\r\n'
+    + 'SET dp0=%~dp0\r\n'
+    + 'EXIT /b\r\n'
+    + ':start\r\n'
+    + 'SETLOCAL\r\n'
+    + 'CALL :find_dp0\r\n'
+    + '\r\n'
+    + 'IF EXIST "%dp0%\\node.exe" (\r\n'
+    + '  SET "_prog=%dp0%\\node.exe"\r\n'
+    + ') ELSE (\r\n'
+    + '  SET "_prog=node"\r\n'
+    + '  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n'
+    + ')\r\n'
+    + '\r\n'
+    + `endLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\${cmdTarget}" %*\r\n`;
+  const sh = '#!/bin/sh\n'
+    + 'basedir=$(dirname "$(echo "$0" | sed -e \'s,\\\\,/,g\')")\n'
+    + '\n'
+    + 'case `uname` in\n'
+    + '    *CYGWIN*|*MINGW*|*MSYS*)\n'
+    + '        if command -v cygpath > /dev/null 2>&1; then\n'
+    + '            basedir=`cygpath -w "$basedir"`\n'
+    + '        fi\n'
+    + '    ;;\n'
+    + 'esac\n'
+    + '\n'
+    + 'if [ -x "$basedir/node" ]; then\n'
+    + `  exec "$basedir/node"  "$basedir/${shTarget}" "$@"\n`
+    + 'else \n'
+    + `  exec node  "$basedir/${shTarget}" "$@"\n`
+    + 'fi\n';
+  const ps1 = '#!/usr/bin/env pwsh\n'
+    + '$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n'
+    + '\n'
+    + '$exe=""\n'
+    + 'if ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n'
+    + '  # Fix case when both the Windows and Linux builds of Node\n'
+    + '  # are installed in the same directory\n'
+    + '  $exe=".exe"\n'
+    + '}\n'
+    + '$ret=0\n'
+    + 'if (Test-Path "$basedir/node$exe") {\n'
+    + '  # Support pipeline input\n'
+    + '  if ($MyInvocation.ExpectingInput) {\n'
+    + `    $input | & "$basedir/node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  } else {\n'
+    + `    & "$basedir/node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  }\n'
+    + '  $ret=$LASTEXITCODE\n'
+    + '} else {\n'
+    + '  # Support pipeline input\n'
+    + '  if ($MyInvocation.ExpectingInput) {\n'
+    + `    $input | & "node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  } else {\n'
+    + `    & "node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  }\n'
+    + '  $ret=$LASTEXITCODE\n'
+    + '}\n'
+    + 'exit $ret\n';
+  writeFileSync(commandBase, sh);
+  writeFileSync(`${commandBase}.cmd`, cmd);
+  writeFileSync(`${commandBase}.ps1`, ps1);
   return shimPath;
 }
 
@@ -246,6 +318,16 @@ let executedAssertionGroups = 0;
     assert.equal(healthy.globalCoreRealpath.actual.verification, 'ok');
     executedAssertionGroups += 1;
 
+    const shimBase = shim.replace(/\.cmd$/i, '');
+    for (const selectedPeer of [shimBase, `${shimBase}.cmd`, `${shimBase}.ps1`]) {
+      const peerSelected = runChecks(join(base, `healthy-${selectedPeer.endsWith('.ps1') ? 'ps1' : selectedPeer.endsWith('.cmd') ? 'cmd' : 'sh'}`), coreRoot, globalRoot, {
+        platform: 'win32', commandResolver: () => selectedPeer,
+      });
+      assert.equal(peerSelected.globalCoreRealpath.status, 'pass', `exact official peer set must validate when ${selectedPeer} is selected`);
+      assert.equal(peerSelected.globalCoreRealpath.actual.verification, 'ok');
+      executedAssertionGroups += 1;
+    }
+
     writeFileSync(shim, `@REM node "${join(globalRoot, '@proof-or-stop', 'core', 'dist', 'cli.js')}"\r\nnode other-package\\dist\\cli.js %*\r\n`);
     const malformed = runChecks(join(base, 'malformed'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
     assert.notEqual(malformed.globalCoreRealpath.status, 'pass');
@@ -292,8 +374,107 @@ let executedAssertionGroups = 0;
 
     writeFileSync(shim, `@ECHO off\r\nnode -- "${canonicalTarget}" %*\r\n`);
     const optionTerminated = runChecks(join(base, 'option-terminator'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
-    assert.equal(optionTerminated.globalCoreRealpath.status, 'pass', 'Node -- followed immediately by the canonical target remains a real script invocation');
-    assert.equal(optionTerminated.globalCoreRealpath.actual.verification, 'ok');
+    assert.notEqual(optionTerminated.globalCoreRealpath.status, 'pass', 'a hand-written invocation is outside the bounded official npm launcher contract');
+    assert.equal(optionTerminated.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
+    executedAssertionGroups += 1;
+
+    // F-047..F-062: the supported Windows surface is the exact cmd-shim@8
+    // three-peer contract, not an approximation of cmd.exe/PowerShell syntax.
+    // Each historical false-pass family is represented as an inverse mutation
+    // of an otherwise official launcher and must fail closed.
+    const cmdControl = () => readFileSync(shim, 'utf8');
+    const cmdMutations = [
+      ['runtime-rebound', value => value.replace('SET "_prog=node"', 'SET "_prog=echo"')],
+      ['unreachable-target', value => value.replace('CALL :find_dp0\r\n', 'CALL :find_dp0\r\ngoto :eof\r\n')],
+      ['target-base-unbound', value => value.replace('SET dp0=%~dp0', 'SET dp0=C:\\definitely-wrong')],
+      ['shell-inapplicable-target-base', value => value.replace('"%dp0%\\node.exe"', '"$basedir/node.exe"')],
+      ['single-quoted-runtime', value => value.replace('"%_prog%"  ', "'%_prog%'  ")],
+      ['single-quoted-target', value => value.replace(/"(%dp0%\\[^"\r\n]+)" %\*\r\n$/, "'$1' %*\r\n")],
+      ['caret-escaped-separator', value => value.replace('endLocal & goto', 'echo ^& goto')],
+      ['arguments-not-forwarded', value => value.replace(' %*\r\n', '\r\n')],
+      ['exit-status-masked', value => `${value}exit /b 0\r\n`],
+      ['argument-injected', value => value.replace(' %*\r\n', ' definitely-no-such-command %*\r\n')],
+      ['stdout-redirected', value => value.replace(' %*\r\n', ' %* >NUL\r\n')],
+      ['adjacent-target-suffix', value => value.replace('" %*\r\n', '"garbage %*\r\n')],
+      ['adjacent-target-prefix', value => value.replace('  "%dp0%', '  garbage"%dp0%')],
+    ];
+    for (const [label, mutate] of cmdMutations) {
+      writeRepresentativeWindowsShim(shim, globalRoot);
+      writeFileSync(shim, mutate(cmdControl()));
+      const report = runChecks(join(base, `mutation-${label}`), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
+      assert.notEqual(report.globalCoreRealpath.status, 'pass', `${label} must not satisfy the official npm shim contract`);
+      assert.equal(report.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
+      assert.doesNotMatch(renderRuntimeEnvironmentReport(report), /contract: global-core-realpath-pass/);
+      executedAssertionGroups += 1;
+    }
+
+    writeRepresentativeWindowsShim(shim, globalRoot);
+    writeFileSync(`${shim.replace(/\.cmd$/i, '')}.ps1`, readFileSync(`${shim.replace(/\.cmd$/i, '')}.ps1`, 'utf8').replace('@proof-or-stop/core', 'other-package'));
+    const badPowerShellPeer = runChecks(join(base, 'bad-powershell-peer'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
+    assert.notEqual(badPowerShellPeer.globalCoreRealpath.status, 'pass', 'a corrupt official PowerShell peer cannot hide behind a healthy .cmd peer');
+    assert.equal(badPowerShellPeer.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
+    executedAssertionGroups += 1;
+
+    writeRepresentativeWindowsShim(shim, globalRoot);
+    rmSync(`${shim.replace(/\.cmd$/i, '')}.ps1`);
+    const missingPowerShellPeer = runChecks(join(base, 'missing-powershell-peer'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
+    assert.notEqual(missingPowerShellPeer.globalCoreRealpath.status, 'pass', 'all official npm launcher peers are required');
+    assert.equal(missingPowerShellPeer.globalCoreRealpath.actual.verification, 'windows-command-shim-missing');
+    executedAssertionGroups += 1;
+
+    writeRepresentativeWindowsShim(shim, globalRoot);
+    const unreadablePowerShellPeer = runChecks(join(base, 'unreadable-powershell-peer'), coreRoot, globalRoot, {
+      platform: 'win32',
+      commandResolver: () => shim,
+      commandShimReadProbe: path => {
+        if (path.endsWith('.ps1')) {
+          const error = new Error('access denied');
+          error.code = 'EACCES';
+          throw error;
+        }
+        return readFileSync(path, 'utf8');
+      },
+    });
+    assert.notEqual(unreadablePowerShellPeer.globalCoreRealpath.status, 'pass', 'an unreadable PowerShell peer cannot hide behind a healthy .cmd peer');
+    assert.equal(unreadablePowerShellPeer.globalCoreRealpath.actual.verification, 'windows-command-shim-unreadable');
+    assert.equal(unreadablePowerShellPeer.globalCoreRealpath.actual.verificationErrorCode, 'EACCES');
+    executedAssertionGroups += 1;
+
+    writeRepresentativeWindowsShim(shim, globalRoot);
+    const runtimeUnavailable = runChecks(join(base, 'runtime-unavailable'), coreRoot, globalRoot, {
+      platform: 'win32',
+      commandResolver: () => shim,
+      windowsCommandRuntimeProbe: () => ({ exitCode: null, stdout: '', stderr: '', errorCode: 'ENOENT', failureReason: 'node runtime unavailable' }),
+    });
+    assert.notEqual(runtimeUnavailable.globalCoreRealpath.status, 'pass', 'official launcher text alone cannot prove the selected Node runtime is launchable');
+    assert.equal(runtimeUnavailable.globalCoreRealpath.actual.verification, 'windows-command-runtime-probe-failed');
+    assert.equal(runtimeUnavailable.globalCoreRealpath.actual.verificationErrorCode, 'ENOENT');
+    executedAssertionGroups += 1;
+
+    writeRepresentativeWindowsShim(shim, globalRoot);
+    const outputSuppressed = runChecks(join(base, 'runtime-output-wrong'), coreRoot, globalRoot, {
+      platform: 'win32',
+      commandResolver: () => shim,
+      windowsCommandRuntimeProbe: () => ({ exitCode: 0, stdout: '', stderr: '', errorCode: null, failureReason: 'expected compiled version output was absent' }),
+    });
+    assert.notEqual(outputSuppressed.globalCoreRealpath.status, 'pass', 'the bounded runtime witness must observe version output');
+    assert.equal(outputSuppressed.globalCoreRealpath.actual.verification, 'windows-command-runtime-probe-failed');
+    executedAssertionGroups += 1;
+
+    const dishonestProbe = runChecks(join(base, 'runtime-probe-contract'), coreRoot, globalRoot, {
+      platform: 'win32',
+      commandResolver: () => shim,
+      windowsCommandRuntimeProbe: () => ({ exitCode: 1, stdout: 'Proof-or-Stop 0.0.0\n', stderr: '', errorCode: null, failureReason: null }),
+    });
+    assert.notEqual(dishonestProbe.globalCoreRealpath.status, 'pass', 'the caller cannot turn a nonzero bounded witness into a pass by omitting failureReason');
+    assert.equal(dishonestProbe.globalCoreRealpath.actual.verification, 'windows-command-runtime-probe-failed');
+    executedAssertionGroups += 1;
+
+    const fakeExe = join(dirname(shim), 'proof-or-stop.exe');
+    writeFileSync(fakeExe, `node "${canonicalTarget}" %*\r\n`);
+    const nonBatchShadow = runChecks(join(base, 'non-batch-shadow'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => fakeExe });
+    assert.notEqual(nonBatchShadow.globalCoreRealpath.status, 'pass', 'plain text under a PATHEXT native extension is not a verified npm shim');
+    assert.equal(nonBatchShadow.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
     executedAssertionGroups += 1;
 
     writeRepresentativeWindowsShim(shim, globalRoot);
@@ -347,11 +528,45 @@ let executedAssertionGroups = 0;
       assert.equal(selected.globalCoreRealpath.actual.commandShim.toLowerCase(), join(resolverBin, 'proof-or-stop.cmd').toLowerCase());
       assert.equal(selected.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
       assert.notEqual(selected.globalCoreRealpath.status, 'pass', 'PATHEXT-selected broken .cmd must win over a valid extensionless sibling');
+
+      rmSync(join(resolverBin, 'proof-or-stop.cmd'));
+      writeRepresentativeWindowsShim(join(resolverBin, 'lattice.cmd'), globalRoot);
+      const legacyOnly = runRuntimeEnvironmentChecks(join(base, 'legacy-only-project'), {
+        corePackageRoot: coreRoot,
+        globalNpmRootResolver: () => globalRoot,
+        platform: 'win32',
+        windowsCommandRuntimeProbe: (_commandPath, expectedVersion) => ({
+          exitCode: 0, stdout: `Proof-or-Stop ${expectedVersion}\n`, stderr: '', errorCode: null, failureReason: null,
+        }),
+      });
+      assert.notEqual(legacyOnly.globalCoreRealpath.status, 'pass', 'a legacy lattice launcher cannot mask absence of the canonical command');
+      assert.equal(legacyOnly.globalCoreRealpath.actual.verification, 'command-entrypoint-missing');
+      assert.equal(legacyOnly.globalCoreRealpath.actual.availableOnPath, false);
     } finally {
       Object.defineProperty(process, 'platform', originalPlatform);
       if (originalPathMixed === undefined) delete process.env.Path; else process.env.Path = originalPathMixed;
       if (originalPathUpper === undefined) delete process.env.PATH; else process.env.PATH = originalPathUpper;
       if (originalPathExt === undefined) delete process.env.PATHEXT; else process.env.PATHEXT = originalPathExt;
+    }
+    executedAssertionGroups += 1;
+
+    const legacyPosix = join(resolverBin, 'lattice');
+    writeFileSync(legacyPosix, '#!/usr/bin/env node\n');
+    chmodSync(legacyPosix, 0o755);
+    rmSync(join(resolverBin, 'proof-or-stop'), { force: true });
+    try {
+      Object.defineProperty(process, 'platform', { ...originalPlatform, value: 'linux' });
+      process.env.PATH = resolverBin;
+      const legacyOnlyPosix = runRuntimeEnvironmentChecks(join(base, 'legacy-only-posix-project'), {
+        corePackageRoot: coreRoot,
+        globalNpmRootResolver: () => globalRoot,
+        platform: 'linux',
+      });
+      assert.notEqual(legacyOnlyPosix.globalCoreRealpath.status, 'pass', 'a POSIX lattice executable cannot mask absence of proof-or-stop');
+      assert.equal(legacyOnlyPosix.globalCoreRealpath.actual.verification, 'command-entrypoint-missing');
+    } finally {
+      Object.defineProperty(process, 'platform', originalPlatform);
+      if (originalPathUpper === undefined) delete process.env.PATH; else process.env.PATH = originalPathUpper;
     }
     executedAssertionGroups += 1;
 

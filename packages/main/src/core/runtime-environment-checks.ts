@@ -1,4 +1,4 @@
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 import { basename, delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -90,6 +90,11 @@ export interface RuntimeEnvironmentOptions {
   binTargetRealpathProbe?: (path: string) => GlobalCoreRealpathProbeResult;
   // Test seam for reading the Windows npm command shim selected from PATH.
   commandShimReadProbe?: (path: string) => string;
+  // Test seam for the bounded Windows launchability witness. Production runs
+  // the exact canonical `proof-or-stop.cmd --version` command from the
+  // already-validated npm shim directory; simulated win32 tests inject the
+  // result because a POSIX host cannot execute cmd.exe semantics.
+  windowsCommandRuntimeProbe?: (commandPath: string, expectedVersion: string) => WindowsCommandRuntimeProbeResult;
   // B-e256 cross-host review B-e256-xhr-r12 MAJOR: test seam for the realpath(3)
   // resolution of the global core package. A candidate that lstat/exists as
   // `resolved` can still fail realpath (EACCES/EPERM/EIO on the target, or the
@@ -133,6 +138,14 @@ export interface CompiledCoreVersionProbeResult {
   failureReason: string | null;
 }
 
+export interface WindowsCommandRuntimeProbeResult {
+  exitCode: number | null;
+  stdout: string;
+  stderr: string;
+  errorCode: string | null;
+  failureReason: string | null;
+}
+
 interface RuntimeCheckContext {
   projectRoot: string;
   isSelfProject: boolean;
@@ -148,6 +161,7 @@ interface RuntimeCheckContext {
   binTargetStatProbe: (path: string) => { mode: number; isFile(): boolean };
   binTargetRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
   commandShimReadProbe: (path: string) => string;
+  windowsCommandRuntimeProbe: (commandPath: string, expectedVersion: string) => WindowsCommandRuntimeProbeResult;
   globalCoreRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
   compiledCoreVersionProbe: (globalRealpath: string) => CompiledCoreVersionProbeResult;
 }
@@ -274,6 +288,7 @@ export function runRuntimeEnvironmentChecks(
     binTargetStatProbe: options.binTargetStatProbe ?? statSync,
     binTargetRealpathProbe: options.binTargetRealpathProbe ?? defaultGlobalCoreRealpathProbe,
     commandShimReadProbe: options.commandShimReadProbe ?? ((path) => readFileSync(path, 'utf8')),
+    windowsCommandRuntimeProbe: options.windowsCommandRuntimeProbe ?? defaultWindowsCommandRuntimeProbe,
     globalCoreRealpathProbe: options.globalCoreRealpathProbe ?? defaultGlobalCoreRealpathProbe,
     compiledCoreVersionProbe: options.compiledCoreVersionProbe ?? defaultCompiledCoreVersionProbe,
   };
@@ -690,7 +705,8 @@ type GlobalCoreExecutableVerification =
   | 'command-entrypoint-target-mismatch'
   | 'windows-command-shim-missing'
   | 'windows-command-shim-unreadable'
-  | 'windows-command-shim-target-mismatch';
+  | 'windows-command-shim-target-mismatch'
+  | 'windows-command-runtime-probe-failed';
 
 interface GlobalCoreExecutableFacts {
   binTarget: string | null;
@@ -722,6 +738,7 @@ function describeGlobalCoreVerification(verification: Exclude<GlobalCoreExecutab
   if (verification === 'windows-command-shim-missing') return 'the proof-or-stop command selected from PATH is missing';
   if (verification === 'windows-command-shim-unreadable') return 'the proof-or-stop command shim selected from PATH could not be read';
   if (verification === 'windows-command-shim-target-mismatch') return 'the proof-or-stop command shim does not invoke this package bin target';
+  if (verification === 'windows-command-runtime-probe-failed') return 'the validated proof-or-stop command did not successfully report the expected compiled version';
   return `package.json \`bin\` has no ${CANONICAL_ROOT_PACKAGE_NAME} entry`;
 }
 
@@ -739,98 +756,176 @@ function defaultExecutableAccessProbe(path: string): boolean {
   }
 }
 
-function normalizedShimText(value: string): string {
-  return value.replace(/\\/g, '/').toLowerCase();
+interface OfficialNpmWindowsShimSet {
+  base: string;
+  cmd: string;
+  ps1: string;
+  sh: string;
 }
 
-function commandSegments(line: string): string[] {
-  const segments: string[] = [];
-  let segment = '';
-  let quoted = false;
-  for (let index = 0; index < line.length; index += 1) {
-    const char = line[index];
-    if (char === '"') quoted = !quoted;
-    if (!quoted && (char === '&' || char === '|')) {
-      if (segment.trim()) segments.push(segment.trim());
-      segment = '';
-      while (line[index + 1] === char) index += 1;
-      continue;
-    }
-    segment += char;
+// npm's cmd-shim@8 writer emits one launcher contract through three shell
+// surfaces. Certifying arbitrary batch/PowerShell text from a home-grown lexer
+// is unsound: reachability, variable binding, caret escaping, quote
+// concatenation, redirection, argv forwarding and exit propagation are all
+// language semantics. Instead, doctor supports the bounded, deterministic
+// cmd-shim@8 shape used by npm for this package's `#!/usr/bin/env node` bin and
+// validates every peer byte-for-byte. Any other generator/template is reported
+// as unverifiable until it has its own explicit contract.
+function officialNpmWindowsShimSet(commandBase: string, installedPackageRoot: string, binRel: string): OfficialNpmWindowsShimSet | null {
+  const lexicalTarget = resolve(installedPackageRoot, binRel);
+  const relativeTarget = relative(dirname(commandBase), lexicalTarget);
+  if (!relativeTarget || isAbsolute(relativeTarget)) return null;
+  const shTarget = relativeTarget.replace(/\\/g, '/');
+  const cmdTarget = shTarget.replace(/\//g, '\\');
+  const cmd = '@ECHO off\r\n'
+    + 'GOTO start\r\n'
+    + ':find_dp0\r\n'
+    + 'SET dp0=%~dp0\r\n'
+    + 'EXIT /b\r\n'
+    + ':start\r\n'
+    + 'SETLOCAL\r\n'
+    + 'CALL :find_dp0\r\n'
+    + '\r\n'
+    + 'IF EXIST "%dp0%\\node.exe" (\r\n'
+    + '  SET "_prog=%dp0%\\node.exe"\r\n'
+    + ') ELSE (\r\n'
+    + '  SET "_prog=node"\r\n'
+    + '  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n'
+    + ')\r\n'
+    + '\r\n'
+    + `endLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\${cmdTarget}" %*\r\n`;
+  const sh = '#!/bin/sh\n'
+    + 'basedir=$(dirname "$(echo "$0" | sed -e \'s,\\\\,/,g\')")\n'
+    + '\n'
+    + 'case `uname` in\n'
+    + '    *CYGWIN*|*MINGW*|*MSYS*)\n'
+    + '        if command -v cygpath > /dev/null 2>&1; then\n'
+    + '            basedir=`cygpath -w "$basedir"`\n'
+    + '        fi\n'
+    + '    ;;\n'
+    + 'esac\n'
+    + '\n'
+    + 'if [ -x "$basedir/node" ]; then\n'
+    + `  exec "$basedir/node"  "$basedir/${shTarget}" "$@"\n`
+    + 'else \n'
+    + `  exec node  "$basedir/${shTarget}" "$@"\n`
+    + 'fi\n';
+  const ps1 = '#!/usr/bin/env pwsh\n'
+    + '$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n'
+    + '\n'
+    + '$exe=""\n'
+    + 'if ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n'
+    + '  # Fix case when both the Windows and Linux builds of Node\n'
+    + '  # are installed in the same directory\n'
+    + '  $exe=".exe"\n'
+    + '}\n'
+    + '$ret=0\n'
+    + 'if (Test-Path "$basedir/node$exe") {\n'
+    + '  # Support pipeline input\n'
+    + '  if ($MyInvocation.ExpectingInput) {\n'
+    + `    $input | & "$basedir/node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  } else {\n'
+    + `    & "$basedir/node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  }\n'
+    + '  $ret=$LASTEXITCODE\n'
+    + '} else {\n'
+    + '  # Support pipeline input\n'
+    + '  if ($MyInvocation.ExpectingInput) {\n'
+    + `    $input | & "node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  } else {\n'
+    + `    & "node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  }\n'
+    + '  $ret=$LASTEXITCODE\n'
+    + '}\n'
+    + 'exit $ret\n';
+  return { base: commandBase, cmd, ps1, sh };
+}
+
+function windowsCommandBase(cliEntrypoint: string): string | null {
+  const name = basename(cliEntrypoint).toLowerCase();
+  if (name === CANONICAL_ROOT_PACKAGE_NAME) return cliEntrypoint;
+  if (name === `${CANONICAL_ROOT_PACKAGE_NAME}.cmd`) return cliEntrypoint.slice(0, -4);
+  if (name === `${CANONICAL_ROOT_PACKAGE_NAME}.ps1`) return cliEntrypoint.slice(0, -4);
+  return null;
+}
+
+function defaultWindowsCommandRuntimeProbe(commandPath: string, expectedVersion: string): WindowsCommandRuntimeProbeResult {
+  if (process.platform !== 'win32') {
+    return { exitCode: null, stdout: '', stderr: '', errorCode: 'ENOTSUP', failureReason: 'cmd.exe runtime semantics are unavailable on this host' };
   }
-  if (segment.trim()) segments.push(segment.trim());
-  return segments;
-}
-
-function commandTokens(segment: string): string[] {
-  const tokens: string[] = [];
-  const matcher = /"([^"]*)"|'([^']*)'|([^\s]+)/g;
-  for (const match of segment.matchAll(matcher)) tokens.push(match[1] ?? match[2] ?? match[3]);
-  return tokens;
-}
-
-function normalizedShimTargetToken(token: string): string {
-  return normalizedShimText(token)
-    .replace(/^%~dp0[\\/]?/, '')
-    .replace(/^%dp0%[\\/]?/, '')
-    .replace(/^\$\{?basedir\}?[\\/]?/, '')
-    .replace(/^\.\//, '');
-}
-
-function shimSegmentInvokesTarget(segment: string, normalizedRelativeTarget: string, normalizedAbsoluteTarget: string): boolean {
-  const withoutAt = segment.trim().replace(/^@/, '');
-  if (/^(?:echo|rem|set(?:local)?|goto|title|if|else|for|exit|call\s+:|write-(?:output|host))(?:\s|$)/i.test(withoutAt)) return false;
-  const tokens = commandTokens(withoutAt);
-  while (tokens[0] === '&' || /^(?:call|exec)$/i.test(tokens[0] ?? '')) tokens.shift();
-  const runtime = normalizedShimText(tokens[0] ?? '');
-  const invokesRuntime = runtime === '%_prog%'
-    || runtime === '$_prog'
-    || /(?:^|\/)node(?:\.exe)?(?:\$exe)?$/.test(runtime);
-  if (!invokesRuntime) return false;
-  let argv = tokens.slice(1);
-  // Node accepts `--` as an option terminator before the script. Other options
-  // before the target are deliberately rejected: flags such as --version/-v
-  // terminate without a script, while -e/-p consume the following token as
-  // source rather than a script pathname. npm-generated shims place their bin
-  // target directly here, so failing closed does not reject their contract.
-  if (argv[0] === '--') argv = argv.slice(1);
-  const scriptToken = normalizedShimTargetToken(argv[0] ?? '');
-  return scriptToken === normalizedRelativeTarget || scriptToken === normalizedAbsoluteTarget;
+  const result = spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', `${basename(commandPath)} --version`], {
+    cwd: dirname(commandPath),
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 10_000,
+    env: process.env,
+  });
+  const stdout = result.stdout ?? '';
+  const stderr = result.stderr ?? '';
+  const errorCode = result.error ? errnoCode(result.error) : null;
+  const expected = `Proof-or-Stop ${expectedVersion}`;
+  const ok = !result.error && result.status === 0 && stdout.trim() === expected;
+  return {
+    exitCode: result.status,
+    stdout,
+    stderr,
+    errorCode,
+    failureReason: ok ? null : result.error?.message ?? `expected exit 0 and stdout ${JSON.stringify(expected)}, got exit ${String(result.status)} and stdout ${JSON.stringify(stdout.trim())}`,
+  };
 }
 
 function validateWindowsCommandShim(
   cliEntrypoint: string | null,
   installedPackageRoot: string,
   binRel: string,
+  expectedVersion: string,
   commandShimReadProbe: (path: string) => string,
+  windowsCommandRuntimeProbe: (commandPath: string, expectedVersion: string) => WindowsCommandRuntimeProbeResult,
 ): { commandShim: string | null; executable: boolean; verification: GlobalCoreExecutableVerification; errorCode: string | null } {
   if (!cliEntrypoint) {
     return { commandShim: null, executable: false, verification: 'windows-command-shim-missing', errorCode: 'ENOENT' };
   }
-  let content: string;
-  try {
-    content = commandShimReadProbe(cliEntrypoint);
-  } catch (error) {
-    const errorCode = errnoCode(error);
+  const base = windowsCommandBase(cliEntrypoint);
+  const expected = base ? officialNpmWindowsShimSet(base, installedPackageRoot, binRel) : null;
+  if (!base || !expected) {
+    return { commandShim: cliEntrypoint, executable: false, verification: 'windows-command-shim-target-mismatch', errorCode: null };
+  }
+  const peers = [
+    { path: base, expected: expected.sh },
+    { path: `${base}.cmd`, expected: expected.cmd },
+    { path: `${base}.ps1`, expected: expected.ps1 },
+  ];
+  for (const peer of peers) {
+    let content: string;
+    try {
+      content = commandShimReadProbe(peer.path);
+    } catch (error) {
+      const errorCode = errnoCode(error);
+      return {
+        commandShim: cliEntrypoint,
+        executable: false,
+        verification: errorCode === 'ENOENT' || errorCode === 'ENOTDIR' ? 'windows-command-shim-missing' : 'windows-command-shim-unreadable',
+        errorCode,
+      };
+    }
+    if (content !== peer.expected) {
+      return { commandShim: cliEntrypoint, executable: false, verification: 'windows-command-shim-target-mismatch', errorCode: null };
+    }
+  }
+  const runtimeProbe = windowsCommandRuntimeProbe(`${base}.cmd`, expectedVersion);
+  const runtimeProbePassed = runtimeProbe.failureReason === null
+    && runtimeProbe.errorCode === null
+    && runtimeProbe.exitCode === 0
+    && runtimeProbe.stdout.trim() === `Proof-or-Stop ${expectedVersion}`;
+  if (!runtimeProbePassed) {
     return {
       commandShim: cliEntrypoint,
       executable: false,
-      verification: errorCode === 'ENOENT' || errorCode === 'ENOTDIR' ? 'windows-command-shim-missing' : 'windows-command-shim-unreadable',
-      errorCode,
+      verification: 'windows-command-runtime-probe-failed',
+      errorCode: runtimeProbe.errorCode,
     };
   }
-  const lexicalTarget = resolve(installedPackageRoot, binRel);
-  const relativeTarget = relative(dirname(cliEntrypoint), lexicalTarget);
-  const normalizedRelativeTarget = normalizedShimText(relativeTarget).replace(/^\.\//, '');
-  const normalizedAbsoluteTarget = normalizedShimText(lexicalTarget);
-  const targetMatches = normalizedRelativeTarget.length > 0 && content.split(/\r?\n/).some((line) => {
-    const trimmed = line.trim();
-    if (trimmed.length === 0 || /^(?:@?rem(?:\s|$)|::|#(?!\!))/i.test(trimmed)) return false;
-    return commandSegments(line).some((segment) => shimSegmentInvokesTarget(segment, normalizedRelativeTarget, normalizedAbsoluteTarget));
-  });
-  return targetMatches
-    ? { commandShim: cliEntrypoint, executable: true, verification: 'ok', errorCode: null }
-    : { commandShim: cliEntrypoint, executable: false, verification: 'windows-command-shim-target-mismatch', errorCode: null };
+  return { commandShim: cliEntrypoint, executable: true, verification: 'ok', errorCode: null };
 }
 
 function powershellLiteral(value: string): string {
@@ -886,6 +981,7 @@ function inspectGlobalCoreExecutable(
   binTargetStatProbe: (path: string) => { mode: number; isFile(): boolean },
   binTargetRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult,
   commandShimReadProbe: (path: string) => string,
+  windowsCommandRuntimeProbe: (commandPath: string, expectedVersion: string) => WindowsCommandRuntimeProbeResult,
 ): GlobalCoreExecutableFacts {
   const unverifiable = (verification: Exclude<GlobalCoreExecutableVerification, 'ok'>): GlobalCoreExecutableFacts =>
     ({ binTarget: null, binTargetRealpath: null, binMode: null, binTargetExists: false, verificationErrorCode: null, commandShim: null, executeBitsSet: false, executable: null, verification });
@@ -921,7 +1017,14 @@ function inspectGlobalCoreExecutable(
     return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, commandShim: null, executeBitsSet, executable: false, verification: 'bin-target-realpath-escape' };
   }
   if (platform === 'win32') {
-    const shim = validateWindowsCommandShim(cliEntrypoint, installedPackageRoot, binRel, commandShimReadProbe);
+    const shim = validateWindowsCommandShim(
+      cliEntrypoint,
+      installedPackageRoot,
+      binRel,
+      readExpectedCoreVersion(packageRoot),
+      commandShimReadProbe,
+      windowsCommandRuntimeProbe,
+    );
     return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: shim.errorCode, commandShim: shim.commandShim, executeBitsSet, executable: shim.executable, verification: shim.verification };
   }
   const commandRealpathProbe = defaultGlobalCoreRealpathProbe(cliEntrypoint!);
@@ -1166,6 +1269,7 @@ function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: Runtime
     context.binTargetStatProbe,
     context.binTargetRealpathProbe,
     context.commandShimReadProbe,
+    context.windowsCommandRuntimeProbe,
   );
   const worktreeCheckout = isWorktreeCheckoutPath(globalRealpath);
   const pathMatches = expected !== null && samePath(globalRealpath, expected);
@@ -1790,10 +1894,12 @@ function runAuthoritativeIdentityCommand(args: string[], cwd: string, budget: Id
 }
 
 function resolveCliCommandPath(projectRoot: string): string | null {
-  return resolveCommandOnPath('proof-or-stop', projectRoot) ?? resolveCommandOnPath('lattice', projectRoot);
+  // This health fact promises the canonical user-visible command. A healthy
+  // legacy `lattice` launcher cannot stand in for an absent `proof-or-stop`.
+  return resolveCommandOnPath('proof-or-stop', projectRoot);
 }
 
-function resolveCommandOnPath(command: 'proof-or-stop' | 'lattice', projectRoot: string): string | null {
+function resolveCommandOnPath(command: 'proof-or-stop', projectRoot: string): string | null {
   const pathEnv = process.platform === 'win32'
     ? process.env.Path ?? process.env.PATH ?? ''
     : process.env.PATH ?? '';
@@ -1808,7 +1914,7 @@ function resolveCommandOnPath(command: 'proof-or-stop' | 'lattice', projectRoot:
   return null;
 }
 
-function commandPathNames(command: 'proof-or-stop' | 'lattice'): string[] {
+function commandPathNames(command: 'proof-or-stop'): string[] {
   if (process.platform !== 'win32') return [command];
   const extensions = (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
     .split(';')

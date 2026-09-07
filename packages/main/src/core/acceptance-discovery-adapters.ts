@@ -420,7 +420,11 @@ export function enumerateBoundedSourceTree(
   };
 }
 
-const MAX_PROOF_OR_STOP_CONFIG_BYTES = 64 * 1024;
+// The repository's policy-rich canonical config is currently larger than
+// 64 KiB. A 128 KiB single-file ceiling admits that real authority source while
+// remaining independently bounded well below the 2 MiB lexical-source limit
+// and the 100 MiB aggregate inventory budget.
+const MAX_PROOF_OR_STOP_CONFIG_BYTES = 128 * 1024;
 
 /**
  * Which project-config spelling this snapshot should read (B-cc10 CHK-004).
