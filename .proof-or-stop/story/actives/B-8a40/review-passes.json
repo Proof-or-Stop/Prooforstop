@@ -3400,6 +3400,53 @@
       },
       "readDiagnostics": [],
       "_hash": "7f664d270d0d00fa9d174ef8b20ae22eb1178fa489ea14b6c06708e31cee3800"
+    },
+    {
+      "id": "B-8a40:RP-080",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent full-set round-6 coverage review of CHK-001 and all five committed material files, including the three CLI-acknowledged companion paths. Total intents 13; must intents 13; missing must coverage 0; waivers 0. Read the complete current checklist and its CLI-owned receipts: every intent remains pinned to the exact built focused smoke and PASS selector, with current material fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd and storyFilesHash 6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b, executed at implementation commit 1a222c4795117711818fb400dc6448e7e9322efe. Reviewed the complete repair diff at that commit and retained earlier integrated classifier coverage; core classifier and relatedDocs are unchanged from the previously fully assessed round-5 repair. Independently reran node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js, node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js, node scripts/verify-process-fact-contract.mjs and node scripts/verify-runtime-fact-contract.mjs: all exited 0 with their PASS/verified output. Both actual built-module mutants still exercise both safe fixtures and the complete 14-witness matrix across every active modular reviewer role; the broad mutant independently records every cell and retains the expected inline rejection. F-079/F-080 and their repeated observations are supported as repaired, not deferred: the diagnostic now uses neutral triage terminology, the loader accepts only two fixed labels with fixed mutation bodies, and the guard requires exact anchor/argument, whole-source fingerprint and direct module-level producer/type provenance. Read all added controls: executable drift, changed anchor/argument, and eight provenance mutations; each provenance mutant proves a real change, preserves the argument text, refreshes its expected fingerprint and still requires the named provenance rejection. Existing general dynamic-code protections remain enabled; no dynamic-code exemption was added for the smoke. Process-fact registry and its executable contract check retain the admission boundary. Fresh finding_list reports no open findings; no additional applicable coverage blocker found. Limitations are explicit: the complete root npm test and final TEST/DONE certification are separate pending owner checks, not claimed passed by this lane. acceptance_topology_check is observe/inconclusive/nonblocking; pre_review_check_read reports FAIL PR_COVERAGE_INCONCLUSIVE in observe/nonblocking mode, not PASS. The current passing acceptance rollout fixture report and policy check demonstrate their own fixture-backed contract, not actual independent-host quorum for this Story. No source, shared build, policy or owner-state edits were made by this reviewer.",
+      "createdAt": "2026-09-07T07:44:34.176Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-150",
+      "envelopeId": "3451fbc13983232c661aaf297b02c0f50551b3e386a091cee41d86d84047b9b8",
+      "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 3,
+          "tokenCount": null
+        },
+        "digest": "78cd1bf826846bce712fea74785b3e8980e76a45884755bf8d712d48e464e6ec"
+      },
+      "readDiagnostics": [],
+      "_hash": "01afa71835fb2460e1fed2a100df8f2103d33dedcde20976eb5e91eb1845ba6f"
     }
   ]
 }
