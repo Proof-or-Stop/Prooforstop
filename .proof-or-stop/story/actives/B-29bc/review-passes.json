@@ -1568,6 +1568,49 @@
       },
       "readDiagnostics": [],
       "_hash": "e62bb1bb5f9d00142a50688eab470a0c563ab86b7cae221a1b54c78077f4d924"
+    },
+    {
+      "id": "B-29bc:RP-037",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Corrected inventory-completeness terminal for RI-007 wave 1. Earlier RR-046/RP-036 is preserved: my first pure disposition probe omitted familyKey on duplicate F-006 and failed, but a combined shell block still recorded RP-036 with a premature successful-probe sentence. This run does not rely on that sentence. After reading the duplicate predicate, I supplied familyKey=finding:B-29bc:F-005 on both dispositions and canonicalFindingId=B-29bc:F-005 on F-006. A separate completed exit-zero production evaluator probe now proves exact raw IDs F-005,F-006, no invalid or unresolved dispositions, no missing lanes/duplicate identities/baseline mismatch, and one new verified family finding:B-29bc:F-005. Fresh current checks then verified RR-047 signature, envelope and exact RI-007 subject, all four required run signatures and envelopes, and every terminal signature/readManifest/readLog; RR-047 starts after each terminal. Required terminals are RR-042/RP-035, RR-043/F-005, RR-044/F-006, RR-045/RP-034. All share frozen material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and scope; previous complete bounded source/Story/decision reads remain available with no changed material. Complete current Finding observations show the same exact test lines, signing cause and controlled true/false/true reproduction; F-006 points acyclically to live verified open F-005 and needs the same Story-owner repair. F-001 through F-004 remain signed preserved resolved history. No additional inventory omission found. This is inventory inspection only: F-005/F-006 remain unrepaired acceptance defects, and no topology, independent-host assurance, TEST or DONE certification is supplied.",
+      "createdAt": "2026-09-07T17:22:17.522Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-047",
+      "envelopeId": "aa4b73cf2fd3b46bfdf4fcd823970b156bcd6331b335b8b30d63bbe829fbcaa2",
+      "writerSessionId": "codex-b29-ri007-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "ed764550e25f776263882ce2639a21a4685eb85868e564a0036bee30991543f7"
     }
   ]
 }
