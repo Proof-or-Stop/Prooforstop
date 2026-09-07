@@ -2921,7 +2921,7 @@
       "desc": "windows-command-shim-output-redirection false pass: packages/main/src/core/runtime-environment-checks.ts:780-833 verifies only that some parsed segment invokes Node with the canonical target; it ignores redirection attached to that invocation. A current compiled-runtime probe used an otherwise canonical installed package/version and PATH-selected .cmd shim `node \"%~dp0\\\\node_modules\\\\@proof-or-stop\\\\core\\\\dist\\\\cli.js\" %* >NUL`; runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true and emitted `contract: global-core-realpath-pass`. Under cmd.exe the target is reachable, caller argv is forwarded exactly, and its exit status is preserved, but `>NUL` suppresses the `proof-or-stop --version` stdout that CHK-001.userSees explicitly promises. packages/main/tests/global-core-realpath.test.mjs:175-179 has only a positive representative shim and no target-invocation stdout/stderr redirection mutation. This is distinct from F-049 reachability, F-055 missing forwarding, F-058 argv injection, and F-056 exit-status masking: execution, argv, and status can all be correct while the required observable output is discarded. Validate a recognized official npm target-invocation tail without output redirection or execute a bounded semantic `--version` witness that asserts stdout, and add `>NUL`/`2>NUL` inverse fixtures without rejecting npm's unrelated `goto ... 2>NUL` control segment. Direct Story acceptance violation; severity: high.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-07T01:37:56.923Z",
@@ -2970,7 +2970,11 @@
       "signatureTag": "windows-command-shim-output-redirection-false-pass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqkmunx_1kxt_189005a8214042c08074b443cb2d978e",
-      "ledgerCommitReceiptId": "lrc_mtqkmuny_1kxt_660bbf92c7bf4820a410656b97706354"
+      "ledgerCommitReceiptId": "lrc_mtqkmuny_1kxt_660bbf92c7bf4820a410656b97706354",
+      "resolvedReason": "Commit 9473a6f32c rejects output-redirection suffixes outside the exact official launcher contract; redirection mutations fail closed and the final full validation passes.",
+      "resolvedAt": "2026-09-07T11:06:31.959Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-060",
