@@ -1,0 +1,41 @@
+{
+  "findings": [
+    {
+      "id": "B-e124:F-001",
+      "desc": "packages/main/src/core/machine.ts:1249 hardcodes background/title/description/checklist in the INIT_CHECK tamper diagnostic instead of rendering the registered signature domain. red-b8df9-chk002-verdict-shapes.mjs:203-205 M2 rejects this stale duplicate list, and red-b49d4-registration-derivation.mjs fails through the same baseline regression (registration-repro BLOCK D). Current /private/tmp/B-e124-validate.json and /private/tmp/B-e124-registration-repro.log preserve failing output. This remaining baseline defect blocks requested normal main-validation repair, but was not introduced by this diff. Owner should use bounded scope repair to derive the diagnostic from describeInitCheckSignatureDomain while preserving tamper rejection and negative tests; do not exempt validation.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T03:58:04.930Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "75c0243572829c4c03580e54b23106664416456efa9b2982ec75b0dd1533fa50",
+      "files": [
+        "packages/main/src/core/machine.ts",
+        "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+        "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+      ],
+      "signatureTag": "missing|ts|packages-main-core",
+      "signatureTagSource": "auto"
+    }
+  ]
+}
