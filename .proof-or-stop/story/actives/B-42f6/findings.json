@@ -555,7 +555,7 @@
       "desc": "Imported original Claude final round 2, observation 2. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:493 severity=medium. Original text verbatim: The relation is constructed with baselineCommandSpec and currentCommandSpec built from the same anchoredArgs array (line 460 vs 488, the latter a spread copy), so the deepEqual at 493-494 and the evaluator's command comparison (repro-intake.ts:311-316, which compares only .command, not args or cwd) are guaranteed to pass by construction. This means the relation proves 'the fixture built two equal specs', not 'the real baseline and current invocations used the same contract'. The genuine red→green evidence is the separately executed pair at lines 448-454, which is real and cwd-anchored. Actionable: the relation artifact adds integrity/digest coverage but contributes no independent transition proof; a negative case where baselineCommandSpec.command differs (asserting pass===false with a command-mismatch reason) would make the evaluator's fail-closed branch actually exercised rather than assumed.\nIndependent current assessment at df2133a1c8: The final source adds a genuine mismatched executable relation evaluated through the CLI and requires false plus command mismatch reason. The executed baseline/current imports share anchored argv with explicit checkout cwd. The earlier missing negative is now addressed; the fixture is not claimed as independent historical transition authority. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "suspected",
       "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
       "agent": "proof-or-stop-review-quality",
@@ -584,7 +584,10 @@
       "signatureTag": "missing|mjs|imported-original-claude",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr4n4xd_nof_d482824ad06341c8ae73a4502685339f",
-      "ledgerCommitReceiptId": "lrc_mtr4n4xd_nof_3688514ec33c4336b79756f566e08881"
+      "ledgerCommitReceiptId": "lrc_mtr4n4xd_nof_3688514ec33c4336b79756f566e08881",
+      "resolvedAt": "2026-09-07T10:59:22.245Z",
+      "resolvedReason": "Added a real CLI command-mismatch negative in a1d58dd487; it requires pass=false and a command mismatch reason. Full command specs also compare equal for the executed positive pair. Focused guard passed.",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-42f6:F-016",
