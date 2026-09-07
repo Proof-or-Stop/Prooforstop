@@ -1,0 +1,78 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Distinguish explicit negative dismissal observations from linked responsibility conclusions",
+      "context": "Preserve the exact B-bcae safe description while addressing verified B-5190:F-001 and B-5190:F-002. Their immutable source is commit 0becd913c2 at .proof-or-stop/story/actives/B-5190/findings.json; that record contains the adjacent, causal, ownership, direct-outside, and benign-intervening-segment witnesses that the replacement regression matrix must reproduce. Test every witness across all active modular reviewer roles, then implement the smallest linkage-aware classifier change.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+        "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+      ],
+      "userSees": "B-bcae can start every required reviewer lane, while explicit-negative wording followed by linked out-of-scope or ownership conclusions still fails closed.",
+      "excludes": [
+        "Changing lifecycle phase transitions",
+        "Adding a general natural-language parser",
+        "Weakening affirmative triage rejection",
+        "Editing B-bcae metadata directly",
+        "Unrelated prompt policy changes"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The exact B-bcae description and a structurally equivalent explicit-negative description assemble integrity-valid envelopes for every active modular reviewer role.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Same-segment, adjacent, causal, ownership, and benign-intervening-segment responsibility conclusions following an explicit-negative dismissal observation remain rejected for every active modular reviewer role.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A mutation removing the safe narrowing restores the reproduced false red while retaining unsafe rejection, proving the safe result depends on the intended exception.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          },
+          {
+            "desc": "A mutation that broadens the exception to drop the negative segment from joined analysis admits the registered B-5190 laundering witnesses, proving the final regression matrix detects the unsafe shortcut.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+              "selector": "prompt full-context envelope smoke PASS"
+            }
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

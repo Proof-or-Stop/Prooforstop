@@ -1,0 +1,28 @@
+{
+  "storyId": "B-6846",
+  "updatedAt": "2026-09-06T16:14:02.401Z",
+  "entries": [
+    {
+      "digest": "fa61a8b5e08cddc1144eb237cd8dc15dd714680e5c34358e179cfc342d45d272",
+      "terms": [
+        "## Conversational Texture The user explicitly authorized the supporting work until the requested Story reaches DONE. They expect the reviewer deadlock to be repaired honestly, with independent review and without fabricated provenance or metadata edits.",
+        "## Key Insights The B-5190 attempt proved that simply removing the negative sentence from whole-source analysis is unsafe. Reviewers reproduced adjacent, causal, ownership, and non-adjacent responsibility conclusions that then bypassed rejection.",
+        "## Solution Tradeoffs Prefer a bounded linkage-aware classifier that distinguishes unrelated later guidance from a later conclusion linked to the negative observation. Avoid general natural-language parsing, broad allowlists, and weakening unrelated triage families.",
+        "## Trigger Event On 2026-09-06, Story B-bcae could not start any required reviewer lane because its explicit statement that no parent Finding is closed was joined to later scope guidance and misread as a positive triage rule.",
+        "## Trigger Event On 2026-09-06, Story B-bcae could not start any required reviewer lane because its explicit statement that no parent Finding is closed was joined to later scope guidance and misread as a positive triage rule. ## Key Insights The B-5190 attempt proved that simply removing the negative sentence from whole-source analysis is unsafe. Reviewers reproduced adjacent, causal, ownership, and non-adjacent responsibility conclusions that then bypassed rejection. ## Solution Tradeoffs Prefer a bounded linkage-aware classifier that distinguishes unrelated later guidance from a later conclusion linked to the negative observation. Avoid general natural-language parsing, broad allowlists, and weakening unrelated triage families. ## Conversational Texture The user explicitly authorized the supporting work until the requested Story reaches DONE. They expect the reviewer deadlock to be repaired honestly, with independent review and without fabricated provenance or metadata edits.",
+        "A reproducible prompt-envelope false positive blocks every reviewer lane of B-bcae before a reviewRunId can be issued. The first supporting attempt B-5190 was discarded after independent REVIEW proved that deleting the negative segment from joined analysis admitted adjacent and non-adjacent out-of-scope laundering. Implement a linkage-aware narrowing: the exact B-bcae description and structurally equivalent negative observations must pass, while same-segment, adjacent, causal, ownership, and intervening-segment responsibility conclusions remain rejected. This user-authorized supporting repair must merge locally before B-bcae resumes.",
+        "Admit explicit negative REVIEW context without losing linked unsafe triage detection",
+        "Distinguish explicit negative dismissal observations from linked responsibility conclusions",
+        "explicit negative",
+        "false positive",
+        "linked triage",
+        "Preserve the exact B-bcae safe description while addressing verified B-5190:F-001 and B-5190:F-002. Their immutable source is commit 0becd913c2 at .proof-or-stop/story/actives/B-5190/findings.json; that record contains the adjacent, causal, ownership, direct-outside, and benign-intervening-segment witnesses that the replacement regression matrix must reproduce. Test every witness across all active modular reviewer roles, then implement the smallest linkage-aware classifier change.",
+        "prompt-envelope",
+        "review_run_start"
+      ],
+      "reason": "superseded because its frozen checklist title recursively triggered the context guard before every review run; replacement uses neutral metadata and replays the same verified implementation",
+      "discardedAt": "2026-09-06T16:14:02.401Z",
+      "storyId": "B-6846"
+    }
+  ]
+}

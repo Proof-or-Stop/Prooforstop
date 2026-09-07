@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-212f",
+  "executionKey": "ce:v1:59bd362bc0777d159d560f9aa34d8061cf32422979178b3a68a0b635265b83c6",
+  "identityDigest": "59bd362bc0777d159d560f9aa34d8061cf32422979178b3a68a0b635265b83c6",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-212f",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f/.proof-or-stop/story/actives/B-212f/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f/.proof-or-stop/story/actives/B-212f/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:3a1fa70c3b835c1d887d635c27e723a1d8071b5b13209cedf5b3ea6a0b08f8a9",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-212f/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-212f",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/49bfef8b-d1b7-4471-84a8-3ad0baf1dd9b.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg03Ki9di:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-212f",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.276",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "47b0369250471e550d942b92c57363d84fc414a9cab58caffe97d6d65babdf60",
+  "outputTail": "=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n\n  C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n      observed: distinct=true digestLength=64\n  S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S3  [PASS      ] shape hashes deterministically and does not throw: proof-or-stop-*@fallback pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S7  [PASS      ] the documented shapes do not collide onto one digest\n      observed: distinctDigests=6 of shapes=6; collisions=none\n  X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n      observed: absentDigestDiffersFromExplicitEncoding=true\n  X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n      observed: digestMoved=true\n  D1  [PASS      ] INJECTING a reviewer record moves the digest\n      observed: digestMoved=true\n  D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n      observed: digestMoved=true\n  D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n      observed: digestMoved=true\n  M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n      observed: componentsDeclared=7 allRendered=true\n  M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n      observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n  L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n      observed: filesMeasuredOnThisRun=322 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n  L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n      observed: present=[canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | proof-or-stop-*@fallback pair | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n\n  0 FAILED / 0 BROKEN / 17 rows\n  signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n\n  PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n\n",
+  "outputProbe": "=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n\n  C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n      observed: distinct=true digestLength=64\n  S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S3  [PASS      ] shape hashes deterministically and does not throw: proof-or-stop-*@fallback pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S7  [PASS      ] the documented shapes do not collide onto one digest\n      observed: distinctDigests=6 of shapes=6; collisions=none\n  X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n      observed: absentDigestDiffersFromExplicitEncoding=true\n  X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n      observed: digestMoved=true\n  D1  [PASS      ] INJECTING a reviewer record moves the digest\n      observed: digestMoved=true\n  D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n      observed: digestMoved=true\n  D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n      observed: digestMoved=true\n  M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n      observed: componentsDeclared=7 allRendered=true\n  M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n      observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n  L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n      observed: filesMeasuredOnThisRun=322 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n  L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n      observed: present=[canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | proof-or-stop-*@fallback pair | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n\n  0 FAILED / 0 BROKEN / 17 rows\n  signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n\n  PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n\n",
+  "outputLength": 3551,
+  "executedAt": "2026-09-06T01:27:34.808Z",
+  "durationMs": 515,
+  "timeoutMs": 300000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "YK29uQxj+TFFQ7Dy+RkjC+oDEMRAvBUMnRhaMADlNKgy52GhAQZpqVJiU5atzgbLYyCPAFR3vIC2ycVDRigwBA==",
+  "receiptHash": "36941bace6a7638703ce2563e545763ad4ee978bad8ccbcfcddc04f6f7cf17b7"
+}

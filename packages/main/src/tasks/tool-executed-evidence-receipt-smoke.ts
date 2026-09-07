@@ -22,6 +22,7 @@ import { buildVerificationCoverage } from '../core/verification.js';
 import { checkEvidenceFreshnessForGit, currentGitHead, currentMaterialHash, currentStoryFilesHash } from '../core/evidence-freshness.js';
 import { EVIDENCE_COMMAND_TIMEOUT_CAP_MS } from '../core/validation-executor.js';
 import { resetConfigCache } from '../core/config.js';
+import { runValidationCommand } from '../core/validation-executor.js';
 import type { ChecklistData, StoryInfo, VerificationExecutionReceipt, VerificationIntentType } from '../core/types.js';
 
 // Mirror of the private sha256Hex / VERIFICATION_OUTPUT_TAIL_CHARS in
@@ -220,6 +221,46 @@ const SELECTOR = 'MARKER_OK';
     // Digest is over the FULL output, not the truncated tail.
     assert.equal(ev.receipt.outputDigest, sha256Hex(full), 'outputDigest == sha256(FULL untruncated output)');
     assert.notEqual(sha256Hex(ev.receipt.outputTail), ev.receipt.outputDigest, 'digest covers more than the tail (bound is real, not a no-op)');
+  } finally { cleanup(env); }
+}
+
+// ── 2c. B-212f BUG-001: receipt judgement must use the complete captured output even
+//        when the selector occurs beyond the ordinary validation-result head window. The
+//        public validation result remains bounded; only the pinned evidence path consumes
+//        the already-captured complete bytes for matching, digesting, and its 4000-char tail.
+{
+  const env = makeEnv([{ ref: 'INT-BEYOND-WINDOW', type: 'cli' }]);
+  try {
+    const full = `${'X'.repeat(12_001)}MARKER_OK`;
+    const command = `node -e "process.stdout.write('X'.repeat(12001) + 'MARKER_OK')"`;
+
+    const routineResult = await runValidationCommand({
+      label: 'bounded-routine-validation-output',
+      command: 'node',
+      args: ['-e', "process.stdout.write('X'.repeat(12001) + 'MARKER_OK')"],
+    }, env.root);
+    assert.equal(routineResult.output.slice(0, 12_000), 'X'.repeat(12_000), 'ordinary validation result retains exactly its bounded head window');
+    assert.doesNotMatch(routineResult.output, /MARKER_OK/, 'ordinary validation result retains only its bounded head window');
+    assert.match(routineResult.output, /\.\.\.\[truncated 10 chars\]$/, 'ordinary validation result describes the omitted bytes');
+
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId,
+      itemId: 'CHK-001',
+      intentRef: 'INT-BEYOND-WINDOW',
+      kind: 'integration_test',
+      command,
+      selector: SELECTOR,
+      result: 'pass',
+      note: 'selector after the ordinary 12000-character validation output window',
+    });
+
+    const evidence = env.store.readChecklist(env.storyId).items[0].verificationEvidence
+      ?.find(entry => entry.intentRef === 'INT-BEYOND-WINDOW');
+    assert.ok(evidence?.receipt, 'selector beyond the ordinary validation window earns a receipt');
+    assert.equal(evidence.receipt.selectorMatched, true, 'complete captured output is used for selector matching');
+    assert.equal(evidence.receipt.outputDigest, sha256Hex(full), 'receipt digest covers complete captured output');
+    assert.equal(evidence.receipt.outputTail.length, VERIFICATION_OUTPUT_TAIL_CHARS, 'persisted outputTail remains exactly 4000 characters');
+    assert.equal(evidence.receipt.outputTail, full.slice(-VERIFICATION_OUTPUT_TAIL_CHARS), 'persisted outputTail is the complete output tail');
   } finally { cleanup(env); }
 }
 
@@ -1167,3 +1208,4 @@ const SLOW_THEN_SELECTOR_CMD = `node -e "setTimeout(()=>console.log('MARKER_OK')
 }
 
 console.log('tool-executed-evidence-receipt-smoke: PASS');
+console.log('tool-executed evidence receipt smoke passed');

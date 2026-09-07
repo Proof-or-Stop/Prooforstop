@@ -263,6 +263,7 @@ async function partB(): Promise<void> {
     intent('INT-FAIL', 'cli'),    // pinned via add to READ_FLAG_CMD (re-fails once flag flips)
     intent('INT-PINLESS', 'cli'), // NO pin — a hand-written mechanical row (B-3b88 coexistence)
     intent('INT-DOC', 'docs'),    // docs intent with a deliberate pinned mechanical verifier
+    intent('INT-MANUAL', 'manual'), // manual intent can also deliberately pin a verifier
   ]);
   try {
     // Seed a material file the READ_FLAG pin depends on, so re-execution outcome is controllable.
@@ -283,6 +284,10 @@ async function partB(): Promise<void> {
     await env.handlers.verification_evidence_add({
       storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-DOC', kind: 'docs_check',
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the documentation verifier',
+    });
+    await env.handlers.verification_evidence_add({
+      storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-MANUAL', kind: 'manual_transcript',
+      command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin + pass the manual intent verifier',
     });
 
     // Hand-write a pin-LESS mechanical row bound to the CURRENT head+material. The intent
@@ -313,7 +318,7 @@ async function partB(): Promise<void> {
     const executedAtBefore = reexecBefore!.receipt!.executedAt;
     const materialBefore = reexecBefore!.materialHash;
 
-    // DRIFT: flip flag.txt to BROKEN and commit → material tree changes → all 3 rows go stale.
+    // DRIFT: flip flag.txt to BROKEN and commit → material tree changes → all rows go stale.
     write(env.root, 'flag.txt', 'BROKEN');
     git(env.root, ['add', 'flag.txt']);
     git(env.root, ['commit', '-m', 'flag=BROKEN (material drift)']);
@@ -327,6 +332,8 @@ async function partB(): Promise<void> {
     refreshStaleEvidenceMetadataOnly({ store: env.store, root: env.root, scanRoot: env.root }, env.storyId);
     assert.equal(findEvidence(env, 'INT-DOC')?.mechanical, false,
       'B: metadata-only refresh demotes the pinned docs receipt before recovery');
+    assert.equal(findEvidence(env, 'INT-MANUAL')?.mechanical, false,
+      'B: metadata-only refresh demotes the pinned manual receipt before recovery');
 
     // Run the REAL async re-executing refresh.
     const out = await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
@@ -361,17 +368,23 @@ async function partB(): Promise<void> {
     // B4: a deliberately pinned docs verifier is recovered too. This locks the
     // B3F3D-006-H3 path: docs/manual types are not skipped merely because their
     // intent type is non-executable by default.
+    const manualAfter = findEvidence(env, 'INT-MANUAL');
+    assert.equal(manualAfter?.mechanical, true, 'B4: pinned manual verifier re-earns mechanical authority');
+    assert.equal(manualAfter?.receipt?.selectorMatched, true, 'B4: pinned manual selector matched on recovery');
+    assert.equal(manualAfter?.receipt?.exitCode, 0, 'B4: pinned manual verifier actually exited zero');
+    assert.equal(manualAfter?.materialHash, material1, 'B4: recovered manual receipt binds current material');
     const docAfter = findEvidence(env, 'INT-DOC');
     assert.equal(docAfter?.mechanical, true, 'B4: pinned docs verifier re-earns mechanical authority');
     assert.equal(docAfter?.receipt?.selectorMatched, true, 'B4: pinned docs selector matched on recovery');
     assert.equal(docAfter?.materialHash, material1, 'B4: recovered docs receipt binds current material');
 
-    // Gate cross-check: only the re-executed row still covers; the other two are uncovered.
+    // Gate cross-check: only successfully re-executed rows cover; failing/pinless stay uncovered.
     const cov = buildVerificationCoverage(env.store.readChecklist(env.storyId));
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-REEXEC')?.status, 'covered', 'B: re-executed row covers');
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-FAIL')?.status, 'non_mechanical', 'B: demoted-fail row is uncovered');
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-PINLESS')?.status, 'non_mechanical', 'B: demoted pin-less row is uncovered');
     assert.equal(cov.entries.find(e => e.intentRef === 'INT-DOC')?.status, 'covered', 'B: recovered pinned docs row covers');
+    assert.equal(cov.entries.find(e => e.intentRef === 'INT-MANUAL')?.status, 'covered', 'B: recovered pinned manual row covers');
   } finally { cleanup(env); }
 }
 
@@ -522,9 +535,15 @@ async function partD(): Promise<string> {
 // E. stale refresh exact-semantics dedupe — real child-process execution count.
 // ════════════════════════════════════════════════════════════════════════════
 
-function externalVerifierCommand(counterPath: string, outputPath: string): string {
+function externalVerifierCommand(counterPath: string, outputPath: string, gitIndexRefreshRoot?: string): string {
   const script = [
     `require('fs').appendFileSync(${JSON.stringify(counterPath)}, 'x')`,
+    ...(gitIndexRefreshRoot ? [
+      `require('fs').utimesSync(${JSON.stringify(join(gitIndexRefreshRoot, 'packages/main/src/base.ts'))}, new Date(), new Date())`,
+      // This disposable fixture deliberately changes its own index stat cache,
+      // even when the outer validation disables optional writes to the real index.
+      `require('child_process').execFileSync('git',['status','--short'],{cwd:${JSON.stringify(gitIndexRefreshRoot)},env:{...process.env,GIT_OPTIONAL_LOCKS:'1'}})`,
+    ] : []),
     `process.stdout.write(require('fs').readFileSync(${JSON.stringify(outputPath)}, 'utf8'))`,
   ].join(';');
   return `node -e ${JSON.stringify(script)}`;
@@ -580,14 +599,22 @@ async function partE(): Promise<void> {
         const output = join(externalRoot, 'same-output.txt');
         writeFileSync(counter, '');
         writeFileSync(output, 'SHARED_OK\n');
-        const command = externalVerifierCommand(counter, output);
+        // The real B-fe8f verifier runs git probes that refresh the index stat
+        // cache. Force that otherwise-benign identity drift here: a per-row
+        // stamper produces a second causal identity and later fails canonical
+        // import, while representative-once grouping has one immutable stamp.
+        const command = externalVerifierCommand(counter, output, env.root);
         await seedPinnedReceipt(env, { intentRef: 'INT-SHARED-A', command, selector: 'SHARED_OK' });
         await seedPinnedReceipt(env, { intentRef: 'INT-SHARED-B', command, selector: 'SHARED_OK' });
         writeFileSync(counter, '');
         commitRefreshDrift(env, 'same-key');
+        const indexPath = resolve(env.root, git(env.root, ['rev-parse', '--git-path', 'index']));
+        const indexBefore = createHash('sha256').update(readFileSync(indexPath)).digest('hex');
 
         await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        const indexAfter = createHash('sha256').update(readFileSync(indexPath)).digest('hex');
         assert.equal(executionCount(counter), 1, 'E1: one exact execution key runs once for two stale rows');
+        assert.notEqual(indexAfter, indexBefore, 'E1: verifier refreshed git index identity during the shared execution');
         const a = findEvidence(env, 'INT-SHARED-A');
         const b = findEvidence(env, 'INT-SHARED-B');
         assert.equal(a?.mechanical, true, 'E1: first shared row remains mechanical');
@@ -599,12 +626,14 @@ async function partE(): Promise<void> {
       } finally { cleanup(env); }
     }
 
-    // E2: command/cwd/effective-timeout determine child execution reuse.
-    // Selectors and audited override reasons remain independent per row.
+    // E2: selector verdicts have distinct evidence identities but share one raw
+    // process execution. Timeout and audited provenance remain raw-execution
+    // boundaries. A nonmatching selector fails closed without poisoning peers.
     {
       const env = makeEnv('B-refresh-dedupe-distinct', [
         intent('INT-SELECTOR-A', 'cli'),
         intent('INT-SELECTOR-B', 'cli'),
+        intent('INT-SELECTOR-MISS', 'cli'),
         intent('INT-TIMEOUT-A', 'cli'),
         intent('INT-TIMEOUT-B', 'cli'),
         intent('INT-PROVENANCE-C', 'cli'),
@@ -613,10 +642,11 @@ async function partE(): Promise<void> {
         const counter = join(externalRoot, 'distinct-counter.txt');
         const output = join(externalRoot, 'distinct-output.txt');
         writeFileSync(counter, '');
-        writeFileSync(output, 'SELECTOR_A SELECTOR_B\n');
-        const command = externalVerifierCommand(counter, output);
+        writeFileSync(output, 'SELECTOR_A SELECTOR_B SELECTOR_GONE\n');
+        const command = externalVerifierCommand(counter, output, env.root);
         await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-A', command, selector: 'SELECTOR_A' });
         await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-B', command, selector: 'SELECTOR_B' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-MISS', command, selector: 'SELECTOR_GONE' });
         await seedPinnedReceipt(env, {
           intentRef: 'INT-TIMEOUT-A', command, selector: 'SELECTOR_A', commandTimeoutMs: 5000,
           commandTimeoutReason: 'The dedupe smoke needs an attributable first timeout provenance.',
@@ -630,14 +660,32 @@ async function partE(): Promise<void> {
           commandTimeoutReason: 'The dedupe smoke needs distinct provenance at the same timeout value.',
         });
         writeFileSync(counter, '');
+        writeFileSync(output, 'SELECTOR_A SELECTOR_B\n');
         commitRefreshDrift(env, 'distinct-keys');
+        const indexPath = resolve(env.root, git(env.root, ['rev-parse', '--git-path', 'index']));
+        const indexBefore = createHash('sha256').update(readFileSync(indexPath)).digest('hex');
 
         await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
-        assert.equal(executionCount(counter), 3, 'E2: default, 5000ms, and 7000ms timeouts require distinct executions');
-        assert.equal(findEvidence(env, 'INT-SELECTOR-A')?.receipt?.selector, 'SELECTOR_A',
-          'E2: first selector retains its own verdict');
-        assert.equal(findEvidence(env, 'INT-SELECTOR-B')?.receipt?.selector, 'SELECTOR_B',
-          'E2: second selector retains its own verdict');
+        const indexAfter = createHash('sha256').update(readFileSync(indexPath)).digest('hex');
+        assert.equal(executionCount(counter), 4,
+          'E2: three default-timeout selectors share one raw run; timeout/provenance boundaries remain distinct');
+        assert.notEqual(indexAfter, indexBefore, 'E2: raw verifier refreshed git index without cross-receipt identity mismatch');
+        const selectorA = findEvidence(env, 'INT-SELECTOR-A');
+        const selectorB = findEvidence(env, 'INT-SELECTOR-B');
+        assert.equal(selectorA?.receipt?.selector, 'SELECTOR_A', 'E2: first selector owns its evidence verdict');
+        assert.equal(selectorB?.receipt?.selector, 'SELECTOR_B', 'E2: second selector owns its evidence verdict');
+        assert.equal(selectorA?.receipt?.selectorMatched, true, 'E2: first selector independently matched');
+        assert.equal(selectorB?.receipt?.selectorMatched, true, 'E2: second selector independently matched');
+        assert.notEqual(selectorA?.receipt?.executionKey, selectorB?.receipt?.executionKey,
+          'E2: selector-specific evidence identities remain distinct over one raw run');
+        assert.notEqual(selectorA?.receipt?.causalReceiptHash, selectorB?.receipt?.causalReceiptHash,
+          'E2: selector-specific causal receipts remain independently bound');
+        assert.equal(selectorA?.receipt?.outputDigest, selectorB?.receipt?.outputDigest,
+          'E2: selector verdicts bind the same immutable raw output');
+        assert.equal(findEvidence(env, 'INT-SELECTOR-MISS')?.mechanical, false,
+          'E2: nonmatching selector is independently demoted');
+        assert.equal(findEvidence(env, 'INT-SELECTOR-MISS')?.receipt, undefined,
+          'E2: nonmatching selector receives no mechanical receipt');
         assert.equal(findEvidence(env, 'INT-TIMEOUT-A')?.receipt?.timeoutOverride?.timeoutMs, 5000,
           'E2: first timeout provenance survives refresh');
         assert.equal(findEvidence(env, 'INT-TIMEOUT-B')?.receipt?.timeoutOverride?.timeoutMs, 7000,

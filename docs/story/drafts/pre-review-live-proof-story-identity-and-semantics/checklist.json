@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Forward the resolved active Story identity through the standard live-proof runner",
+      "context": "B-aa5f convergence probe on 2026-09-05: env -u LATTICE_ACTIVE_STORY_ID PROOF_OR_STOP_ACTIVE_STORY_ID=B-aa5f node packages/main/dist/tasks/proofstory-pre-review-check-smoke.js --live-proof exits 1 in 0.29s with --proof-scenarios requires --story=<id> or PROOF_OR_STOP_ACTIVE_STORY_ID. Source line 75 reads the legacy env; lines 513-523 fail to pass the resolved ID.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Bind custom acceptance cases to their real production verifier semantics",
+      "context": "Static suspicion: productionScenarioMode routes by case count >29; B-aa5f has 23 custom cases and would use generic artifact-signature/topology-omission fixtures. Reproduce in this bounded Story before repair. Preserve exact command, IDs, sources, causal provenance, and fail-closed unsupported semantics.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

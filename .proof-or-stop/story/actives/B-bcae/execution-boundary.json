@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-bcae",
+  "allowedCommands": [
+    "git",
+    "node",
+    "npm",
+    "rg"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "proof-or-stop"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/evidence",
+    ".proof-or-stop/story/actives/B-bcae",
+    "bin",
+    "docs/requirements/decisions/repro-first-story-intake-experiment.md",
+    "packages/main/src",
+    "packages/main/tests",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean",
+    "git push",
+    "git reset --hard",
+    "rm -rf"
+  ],
+  "excludedTools": [
+    "remote publish"
+  ],
+  "excludedPaths": [
+    ".proof-or-stop/story/actives/B-1734",
+    ".proof-or-stop/story/actives/B-e256"
+  ],
+  "confirmedBy": "main-agent",
+  "confirmationNote": "Use repository-local Proof-or-Stop CLI because the global executable is unavailable. Preserve existing Story evidence; no remote push.",
+  "createdAt": "2026-09-06T13:28:36.462Z",
+  "updatedAt": "2026-09-06T13:28:36.462Z",
+  "_hash": "8b625a97ed998b55a0f47c120ff151db13b9f78f256c154afedfbb8fb386aba3"
+}

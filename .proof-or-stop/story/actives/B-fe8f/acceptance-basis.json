@@ -1,0 +1,361 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-fe8f",
+    "phaseBasis": "plan",
+    "status": "unsupported",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "proof-or-stop acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for handler_dispatch_inventory"
+        ],
+        "provenanceRefs": [
+          "registered:handler_dispatch_inventory:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+            "scope:file:packages/main/src/core/finding-ledger.ts",
+            "scope:file:packages/main/src/core/lattice-brand.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/mkdir-lock.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding-ledger.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+            "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:e810a5dc284b2a432b9c7ecabf117079c63470e2eba975ad481962f3d5ed7e3a"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for process_fact_registry"
+        ],
+        "provenanceRefs": [
+          "registered:process_fact_registry:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+            "scope:file:packages/main/src/core/finding-ledger.ts",
+            "scope:file:packages/main/src/core/lattice-brand.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/mkdir-lock.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding-ledger.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+            "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:c3a965a15a3d6fbcf69ed603a723393003f36853d39ed3c612684421acbbaaf4"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for runtime_trace"
+        ],
+        "provenanceRefs": [
+          "registered:runtime_trace:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+            "scope:file:packages/main/src/core/finding-ledger.ts",
+            "scope:file:packages/main/src/core/lattice-brand.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/mkdir-lock.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding-ledger.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+            "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:236208a19214bc1c87963df197e1000737cbab3c82f8094c716e96bd899603c9"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for scope_contract"
+        ],
+        "provenanceRefs": [
+          "registered:scope_contract:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+            "scope:file:packages/main/src/core/finding-ledger.ts",
+            "scope:file:packages/main/src/core/lattice-brand.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/mkdir-lock.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding-ledger.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+            "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:34cc0b597655ca7198a8693c0274bd7058a0bedecfcb4d10dbb1f44c431161de"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for static_call_graph"
+        ],
+        "provenanceRefs": [
+          "registered:static_call_graph:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:checklist:CHK-004",
+            "scope:checklist:CHK-005",
+            "scope:checklist:CHK-006",
+            "scope:file:package-lock.json",
+            "scope:file:package.json",
+            "scope:file:packages/main/package.json",
+            "scope:file:packages/main/src/cli/command-catalog.ts",
+            "scope:file:packages/main/src/core/command-policy.ts",
+            "scope:file:packages/main/src/core/config.ts",
+            "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+            "scope:file:packages/main/src/core/finding-ledger.ts",
+            "scope:file:packages/main/src/core/lattice-brand.ts",
+            "scope:file:packages/main/src/core/machine.ts",
+            "scope:file:packages/main/src/core/mkdir-lock.ts",
+            "scope:file:packages/main/src/core/process-fact-levels.ts",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+            "scope:file:packages/main/src/core/store.ts",
+            "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding-ledger.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
+            "scope:file:packages/main/src/registry.ts",
+            "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+            "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:6a1fd1de1ebe7686e9ac814970c33b8072245cae6468c26a5895042e560db8dc"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:checklist:CHK-004",
+      "scope:checklist:CHK-005",
+      "scope:checklist:CHK-006",
+      "scope:file:package-lock.json",
+      "scope:file:package.json",
+      "scope:file:packages/main/package.json",
+      "scope:file:packages/main/src/cli/command-catalog.ts",
+      "scope:file:packages/main/src/core/command-policy.ts",
+      "scope:file:packages/main/src/core/config.ts",
+      "scope:file:packages/main/src/core/evidence/artifact-store.ts",
+      "scope:file:packages/main/src/core/finding-ledger.ts",
+      "scope:file:packages/main/src/core/lattice-brand.ts",
+      "scope:file:packages/main/src/core/machine.ts",
+      "scope:file:packages/main/src/core/mkdir-lock.ts",
+      "scope:file:packages/main/src/core/process-fact-levels.ts",
+      "scope:file:packages/main/src/core/process-fact-registry.ts",
+      "scope:file:packages/main/src/core/runtime-evidence-receipt.ts",
+      "scope:file:packages/main/src/core/store.ts",
+      "scope:file:packages/main/src/core/types.ts",
+      "scope:file:packages/main/src/handlers/finding-ledger.ts",
+      "scope:file:packages/main/src/handlers/finding.ts",
+      "scope:file:packages/main/src/registry.ts",
+      "scope:file:packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+      "scope:file:packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+      "scope:file:scripts/verify-process-fact-contract.mjs"
+    ],
+    "sourceInventoryRefs": [],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+      "snapshot-seal:snapshot_missing:config:proof-or-stop.config.json",
+      "unsupported discovery profile for handler_dispatch_inventory",
+      "unsupported discovery profile for process_fact_registry",
+      "unsupported discovery profile for runtime_trace",
+      "unsupported discovery profile for scope_contract",
+      "unsupported discovery profile for static_call_graph"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryDirectoryCount": 0,
+      "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sourceSnapshotCount": 0,
+      "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "inventory_unsealable",
+          "targetKind": "inventory",
+          "canonicalRef": "configured-source-root"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "config",
+          "canonicalRef": "proof-or-stop.config.json"
+        }
+      ],
+      "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
+    },
+    "binding": {
+      "headHash": "bbf2797766fb9bc6be4298be932a8b9a365607ac",
+      "materialHash": "29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6",
+      "storyFilesHash": "c0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8",
+      "scopeCheckDigest": "sha256:628e858da16e12e1425cb47c4c2713e2b31a7afd726d679d3fcebfb2bf4e5b51",
+      "scopeContractDigest": "sha256:db44a785eafb8b1386b23283cb58c8bd3c125a9ac2d5acf7c103a4fb0dcc7d87",
+      "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "receiptRef": "receipt:coverage-basis:B-fe8f:plan:008332d456de96c6",
+    "basisDigest": "sha256:7d3402ddcd627b808fecc4a03d62096d5aad8b0e9615e793a93df889c68f5820"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-fe8f:plan:008332d456de96c6",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:88c38c129a5fa2cc9611a6a42e29bd486882476e837bcc10cb4d8c57b1eb5c80",
+    "signerPublicKey": "TUhHCWWnF3l4K94Cb2b+UWichXM0znjU7zftclFBBMs=",
+    "storyId": "B-fe8f",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:7d3402ddcd627b808fecc4a03d62096d5aad8b0e9615e793a93df889c68f5820",
+    "topologyDigest": "sha256:80f899a6331ce896d652d56b5268b894632aefab95c3b0409a12224e3fb6d3af",
+    "scopeCheckDigest": "sha256:628e858da16e12e1425cb47c4c2713e2b31a7afd726d679d3fcebfb2bf4e5b51",
+    "scopeContractDigest": "sha256:db44a785eafb8b1386b23283cb58c8bd3c125a9ac2d5acf7c103a4fb0dcc7d87",
+    "headHash": "bbf2797766fb9bc6be4298be932a8b9a365607ac",
+    "materialHash": "29c6cd9bff1c630d3d14e6d151271b31ccfe37136d3087a11f8d7a3b648118a6",
+    "storyFilesHash": "c0ccab06019e92f1ac0f0d27ed0541ddc083ff6545dd1123a1e3a346b97ee6c8",
+    "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
+    "workspaceIdentityDigest": "sha256:9a1fbd2abf1b464dc46a05fa5b6b34444b3ea56e9a6a53f009f20a73a99b6fec",
+    "signature": "ym9GAe/enoFPms0gsF8qWjGYRzb9ROJTfZNooiorTDaokvnI+yxW9y+79qzWUZgbmX/HEVNsIOoRWVA0c+grAg=="
+  }
+}

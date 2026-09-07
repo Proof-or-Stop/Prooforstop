@@ -2,11 +2,1818 @@
   "items": [
     {
       "id": "CHK-001",
-      "title": "Implement fix for reproduced failure",
-      "context": "Probe: rp-mtn2kjzu-pap3kp, Review: rr-mtn2kqun-vcqatu",
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "title": "Commit the reviewed executable done_prepare/DONE parity RED and register it",
+      "context": "Candidate probe rp-mtn2kjzu-pap3kp and red review rr-mtn2kqun-vcqatu bind the exact executable design; red/green relation rgr-mtn2ppnx-h2nqoj and passing evaluation rgre-mtn2ptyg-asgnhf bind the same command to current-main RED and isolated-candidate GREEN. Before implementation, the test exits 1 because the real DONE guard rejects missing dev_memory_finish_decision and stale scopeBinding.diffPackHash while buildDoneClosureRunbook has neither blocker row. The already-run GREEN candidate proves the unchanged test can pass after the parity fix, but DEV must commit this test and rerun it in the Story worktree.",
+      "status": "done",
+      "startTime": "2026-09-05T11:28:42.223Z",
+      "endTime": "2026-09-05T11:28:43.978Z",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md#command-contract",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md#target-capability"
+      ],
+      "userSees": "The terminal prints \"GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\".",
+      "excludes": [
+        "Do not replace the test with static source-string assertions.",
+        "Do not treat candidate or temporary-clone GREEN output as Story verification evidence.",
+        "Do not add an unregistered orphan smoke script.",
+        "Do not remove or weaken either reviewed parity assertion; adding explicit before/after evidence-byte and git-state checks is required to prove the read-only acceptance intent."
+      ],
+      "files": {
+        "modify": [
+          "proof-or-stop.config.json"
+        ],
+        "create": [
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The committed behavior test drives the done_prepare closure runbook and real DONE guard on identical state and ends with the exact GREEN parity summary.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The stale-review fixture changes the live diff pack without changing HEAD/materialHash and proves diff_pack_changed specifically, rather than using a generic malformed pass.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN control: real DONE rejects the stale lane diffPackHash"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The current-main baseline remains a genuine RED: both real-DONE controls pass while both done_prepare parity assertions fail because the rows are absent; candidate evidence cannot be substituted for post-fix evidence.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review"
+            }
+          }
+        ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "2d5cf2e2003a5653a675cdcb163ee28d2cb1241f1c0ced1735ce59326a77ebde",
+        "storyFilesHash": "e3fec69858fc9a08ecf097d3ef58056f09de51f27dcc72bbf4615c61ca4230eb",
+        "headHash": "414e02135bdae86f899b3c574bf348970b07bcc1",
+        "attestedAt": "2026-09-04T20:58:39.824Z",
+        "materialHash": "7e3c95c5e8b697114daa3daca78aa5505f2ab0736387fee0a39996daedc6eb7d"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes",
+            "executedAt": "2026-09-06T01:20:56.753Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:8816b44684dc1e34c709de57455d3ee281e990c90643a4f74264153898c2db84",
+            "causalReceiptHash": "f94edc9cc62c333e2978fd5dbe12e24a6094323492f4d1d5ac657579d54975c9",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN control: real DONE rejects the stale lane diffPackHash",
+            "executedAt": "2026-09-06T01:20:56.753Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:8816b44684dc1e34c709de57455d3ee281e990c90643a4f74264153898c2db84",
+            "causalReceiptHash": "f94edc9cc62c333e2978fd5dbe12e24a6094323492f4d1d5ac657579d54975c9",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review",
+            "executedAt": "2026-09-06T01:20:56.753Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:8816b44684dc1e34c709de57455d3ee281e990c90643a4f74264153898c2db84",
+            "causalReceiptHash": "f94edc9cc62c333e2978fd5dbe12e24a6094323492f4d1d5ac657579d54975c9",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make done_prepare consume the real DONE finish-decision and reviewer-verdict predicates",
+      "context": "The production path is done_prepare -> buildDoneClosureRunbook -> buildDoneChecklist, while machine.ts independently enforces readDevMemoryFinishDecision and evaluateReviewVerdict. Implement the smallest shared or mechanically parity-guarded path so done_prepare blocks before recommending DONE. Stale evidence is reported, never refreshed, re-signed, rebound, or fabricated. The temporary candidate that added dev-memory-finish-decision and review-verdict rows is feasibility evidence, not the required final design.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md#execution-flow",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md#output-contract"
+      ],
+      "userSees": "For a missing finish decision done_prepare prints \"missing_dev_memory_finish_decision\"; for a stale reviewer diffPackHash it prints both \"stale_closeout_review\" and \"diff_pack_changed\".",
+      "excludes": [
+        "Do not change which finish-decision values satisfy DONE.",
+        "Do not weaken or bypass evaluateReviewVerdict.",
+        "Do not change B-c86f dev-memory path classification.",
+        "Do not automatically create reviewer passes or mutate reviewer evidence."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/done-oracle.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "packages/main/src/tasks/flow-stability-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "With every other fixture condition held constant, a missing finish decision makes both real DONE and the done_prepare runbook fail with missing_dev_memory_finish_decision.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN parity: done_prepare oracle rejects the missing finish decision with the same code"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "A signed reviewer pass whose live scope diff changes while HEAD/materialHash stay fixed makes both surfaces fail with diff_pack_changed mapped to stale_closeout_review.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The done_prepare/runbook path remains read-only and never rewrites or re-endorses the stale reviewer pass while surfacing the blocker.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged"
+            }
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-09-05T11:28:45.898Z",
+      "endTime": "2026-09-05T11:28:47.466Z",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "106bcf0c684825c7ede14e868a905a057a8c002631f4f5ae40b5867b9be45de1",
+        "storyFilesHash": "1a3fec54a8521f83d4ccbdf42981df15fa0f16c85ebff314b868931130d4d4ba",
+        "headHash": "7e188145568bbbf05f09f0ad1313f3536d0208a0",
+        "attestedAt": "2026-09-04T21:04:21.134Z",
+        "materialHash": "d81e690512633bda40c683cd67d9ed656dceb77b09e556bd19f07699e0ce0e20"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN parity: done_prepare oracle rejects the missing finish decision with the same code",
+            "executedAt": "2026-09-06T01:20:56.753Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:8816b44684dc1e34c709de57455d3ee281e990c90643a4f74264153898c2db84",
+            "causalReceiptHash": "f94edc9cc62c333e2978fd5dbe12e24a6094323492f4d1d5ac657579d54975c9",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review",
+            "executedAt": "2026-09-06T01:20:56.753Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:8816b44684dc1e34c709de57455d3ee281e990c90643a4f74264153898c2db84",
+            "causalReceiptHash": "f94edc9cc62c333e2978fd5dbe12e24a6094323492f4d1d5ac657579d54975c9",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged",
+            "executedAt": "2026-09-06T01:20:56.753Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:8816b44684dc1e34c709de57455d3ee281e990c90643a4f74264153898c2db84",
+            "causalReceiptHash": "f94edc9cc62c333e2978fd5dbe12e24a6094323492f4d1d5ac657579d54975c9",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-003",
+      "title": "Mechanically guard DONE/preflight predicate parity",
+      "context": "The future-divergence guard must prove every DONE blocker reaches preflight through a single executable source. Export a shared evaluator from machine.ts, make the machine guard and DONE diagnostic delegate to it, and project every result into final oracle rows. Inventory reachable literal codes, enforce thin consumer bindings, and exercise real consumer behavior with future-predicate and adapter mutations. Keep the contract limited to DONE/preflight parity.",
+      "relatedDocs": [
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+        "docs/requirements/decisions/done-closure-runbook-assistant-execution-plan.md"
+      ],
+      "userSees": "The contract command prints \"DONE/preflight predicate inventory parity passed\" and \"Process-fact contract verification passed\", while the flow suite prints \"flow stability smoke passed\".",
+      "excludes": [
+        "Do not weaken or bypass any DONE predicate.",
+        "Do not replace executable parity checks with source-text assertions.",
+        "Do not duplicate every DONE gate implementation in a second oracle without a mechanical parity guard.",
+        "Do not broaden the verifier beyond DONE/preflight predicate inventory.",
+        "Do not change unrelated runtime behavior or documentation."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/done-oracle.ts"
+        ],
+        "create": [
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "test": [
+          "packages/main/src/tasks/flow-stability-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The process-fact contract registers done_prepare consumption of finish-decision presence and the phase-agnostic reviewer verdict, and its verifier passes.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs",
+              "selector": "Process-fact contract verification passed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The existing shared DONE-oracle flow-stability suite remains green after adding the two blocker rows and guards the done_prepare/runbook consumer path.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:flow-stability-smoke",
+              "selector": "flow stability smoke passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Removing either finish-decision or reviewer-verdict consumption from done_prepare fails the committed executable parity regression.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+              "selector": "GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes"
+            }
+          },
+          {
+            "desc": "The process-fact verifier follows the thin machine.ts DONE consumer into its shared evaluator, inventories its literal blocker codes, checks registry coverage, and executes future-predicate and adapter mutations proving every shared blocker reaches real DONE and the final done-oracle rows. An unregistered future predicate fails the contract.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node scripts/verify-process-fact-contract.mjs",
+              "selector": "DONE/preflight predicate inventory parity passed"
+            }
+          },
+          {
+            "desc": "Executable shared-evaluator parity rejects wrong root or Story inputs, skipped outer conditions, and discarded blocker rows; a new shared predicate automatically blocks all consumers. Existing pass, failure-order, and read-only behavior remain covered.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-done-shared-predicates.mjs",
+              "selector": "Shared DONE predicate parity passed"
+            }
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-09-05T11:28:49.377Z",
+      "endTime": "2026-09-05T15:46:23.430Z",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "52dbfce77407fe2644a500a5ded8c954504525ab65710a9ff4eaf69a24ed3d2a",
+        "storyFilesHash": "4ae2fcae560bde8d30aa9607f58034f8500a0f90edb7818b4377b335a7f5365e",
+        "headHash": "0bc957dad0ddf368be2b753b6e8235f632236ff6",
+        "attestedAt": "2026-09-04T21:17:08.805Z",
+        "materialHash": "74bbe9329c9d40136bfdee5d8ac35474d9166c7d069b8b9a01c753fbcde8b584"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ce452ecd3cc678cf02dadd9fe1ad1cd49f4bcf263066c9ce4fa84e60f421e630",
+            "outputTail": "Done and validate verification coverage artifact=checklist.json\n- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist gate=validate verification freshness gate artifact=checklist.json\n- verification_intent_repair [L2/command] producer=handlers/checklist\n- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard\n- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match\n- verification_run [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\n- workflow_explain [L0/command] producer=core/config\n- workflow_set [L1/command] producer=core/config\n- workflow_show [L0/command] producer=core/config\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- phase advance\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/transition-orchestrator.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/core/machine.ts\n- review_run_start\n  packages/main/src/core/owner-session-adapters.ts\n  packages/main/src/handlers/story-dispatch.ts\n  packages/main/src/handlers/review-run.ts\n  packages/main/src/cli/command-catalog.ts\n- finding_add\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n- flow fact policy\n  packages/main/src/core/flow-fact-policy.ts\n  packages/main/src/core/process-fact-registry.ts\n- finding evidenceState gate dimension\n  packages/main/src/core/advisory.ts\n  packages/main/src/core/machine.ts\n  packages/main/src/core/types.ts\n- gap_log\n  packages/main/src/handlers/gap-log.ts\n  packages/main/src/core/audit-meta-store.ts\n  packages/main/src/registry.ts\n- review_pass_set\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/review-pass-provenance.ts\n  packages/main/src/core/finding-verify.ts\n- verification evidence\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts\n  packages/main/src/core/verification.ts\n  packages/main/src/core/machine.ts\n- init check\n  packages/main/src/handlers/init-check.ts\n  packages/main/src/core/init-check-gate.ts\n  packages/main/src/core/machine.ts\n- scope anti-expansion\n  packages/main/src/core/machine.ts\n  packages/main/src/handlers/story-create.ts\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/handlers/story-query.ts\n  packages/main/src/handlers/scope-anti-expansion.ts\n  packages/main/src/core/scope-anti-expansion.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/command-policy.ts\n  packages/main/src/handlers/worktree.ts\n  packages/main/src/core/process-fact-registry.ts\n  packages/main/src/core/lifecycle-registry.ts\n- scope check\n  packages/main/src/handlers/scope-check.ts\n  packages/main/src/handlers/story-review.ts\n- delivery check\n  packages/main/src/handlers/delivery-check.ts\n  packages/main/src/core/machine.ts\n- REVIEW/TEST/DONE gates\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/handlers/review-preflight.ts\n  packages/main/src/core/machine.ts\n- lifecycle registry\n  packages/main/src/core/lifecycle-registry.ts\n  packages/main/src/core/phase-flow.ts\n  packages/main/src/handlers/context.ts\n  packages/main/src/tasks/flow-stability-smoke.ts\n- CLI schema\n  packages/main/src/cli/command-catalog.ts\n  packages/main/src/core/config.ts\n\nProcess fact contract verified\nProcess-fact contract verification passed\n",
+            "selectorMatched": true,
+            "selector": "Process-fact contract verification passed",
+            "executedAt": "2026-09-06T01:21:07.994Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:a86ae8a5f03448e9e18f3c077525e5d9c4701f1a0cb5cc61b7533e43ff748a0c",
+            "causalReceiptHash": "4cf6c1ff10e2970fef49d8bd40997d25c6aecf9657aa292fbafaa24f799913f1",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:flow-stability-smoke",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "692a90660151263ce6a18d6e00f655c7e852f9985632f2e30434d6a4eeaa8d0f",
+            "outputTail": "args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.\n(Use `node --trace-deprecation ...` to show where the warning was created)\n  ✓ CHK-001:happy:1 cross_host_review is registered\n  ✓ CHK-001:happy:0 fake FAIL verdict → recorded host-B decision fail, materialDigest bound\n  ✓ CHK-001:edge:0 garbage stdout → blocked, codex_review_no_parseable_verdict, no raw stdout\n  ✓ CHK-001:edge:1 valid JSON missing `decision` → blocked, no_parseable_verdict\n  ✓ CHK-001:edge:2 wrong materialHash → blocked (material mismatch)\n  ✓ CHK-001:edge:3 non-zero exit + timeout, no verdict → blocked, stdoutDigest present, no raw; truncated stdout → blocked (codex_review_stdout_truncated), honest digest\n  ✓ CHK-001:adversarial:0 verdict + injection noise BEFORE (only structured fields parsed); trailing JSON object / prose AFTER → fail-closed; harness noise AFTER → still parses\n  ✓ CHK-001:adversarial:1 dispatch policy refuses non-review codex impl + gemini/antigravity under review-only flag\n  ✓ CHK-001:adversarial:2 codex with BOTH allowRealHostSubprocess + allowReviewOnlyRealHostSubprocess → REFUSED\n  ✓ CHK-001:adversarial:3 missing policy → fail-closed (no spawn, no verdict recorded)\n  ✓ CHK-001:adversarial:4 unauthorized policy (no codex review grant) → fail-closed\n  ✓ CHK-001:adversarial:5 closed-allowlist env redaction (allowlist no longer injects) + envDenylist drops a base var + timeout ceiling threaded\n  ✓ CHK-001:adversarial:6 dirty SOURCE worktree → fail-closed dirty-worktree; Codex reviews clean captured-HEAD snapshot; pre-hash/post-spawn/post-write clean HEAD drift blocked; .proof-or-stop-only dirty → proceeds\n  ✓ CHK-001:adversarial:7 malformed host-A findings file (missing field / extra key / wrong type) → fail-closed (no spawn, no verdict); well-formed control passes\n  ✓ CHK-002:happy:0 host-B-only finding → jointDecision blocked, onlyHostB=1, disagreement\n  ✓ CHK-002:happy:1 identical findings both pass → jointDecision pass, no disagreement\n  ✓ CHK-002:edge:0 host-A-only finding → onlyHostA>=1, disagreement, blocked (symmetric)\n  ✓ CHK-002:edge:1 one pass / one fail, no overlap → blocked, blockedReason, decisions accurate\n  ✓ CHK-002:edge:2 same file:line, differently-cased titles → treated as SAME (agreed)\n  ✓ CHK-002:edge:3 both fail identical findings → blocked, no disagreement, agreed shared\n  ✓ CHK-002:edge:4 host-B verdict blocked → jointDecision blocked (propagation)\n  ✓ CHK-002:adversarial:0 divergent materialHash → jointDecision blocked (never pass on divergent code)\n  ✓ CHK-002:adversarial:1 host-B returns same finding twice → diffFindings dedups, counts correct\n  ✓ CHK-002:adversarial:2 same host identity for hostA/hostB → fail-closed before spawn/record\n  [PASS] host B findings persisted: a FAIL leaf with two findings leaves title, severity, file and description in the verdict artifact\n  ✓ CHK-004:happy:0 host B FAIL verdict with two findings → title, severity, file, description persisted in the verdict JSON and exposed by --json\n  ✓ CHK-004:edge:0 PASS verdict persists an empty findings array; oversized fields and finding count are capped\n  [PASS] F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names\n  ✓ F-001 per-field truncation is visible: a cut field ends with the truncation marker and the finding lists the cut field names\n  ✓ CHK-004:adversarial:0 raw provider stdout sentinel is absent from every persisted file under the story/state tree\n\n✓ cross_host_review smoke passed (28 checks)\n✓ repair-retry-loop smoke passed: outer validation/repair/revalidate loop, configured repair provider step, provider timeout retry budget, cross-iteration no-progress via material/evidence hash, exact blocked stop reasons after limits, repair never bypasses validation/gate/multi-host, and defensive policy normalization verified\nagent-liveness-suite-smoke PASS\n✓ flow stability smoke passed\n",
+            "selectorMatched": true,
+            "selector": "flow stability smoke passed",
+            "executedAt": "2026-09-06T01:22:50.484Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:12c6023332801864442d405b376f3ab036aef70f8b2e8f95cebee76a09155105",
+            "causalReceiptHash": "692df2a328c05ed83ce6defb22f1869bfd7e7145f285d5b47c2322bbbedc548d",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-prepare-done-parity.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "efc78a128c087f0b3d1eee78c1a3b80742b9f002fa7229002979d9e5eef5184a",
+            "outputTail": "GREEN control: real DONE rejects the missing finish decision\nGREEN parity: done_prepare oracle rejects the missing finish decision with the same code\nGREEN control: real DONE rejects the stale lane diffPackHash\nGREEN parity: done_prepare oracle rejects the same stale lane diffPackHash with stale_closeout_review\nGREEN adversarial: done_prepare parity evaluation leaves reviewer evidence and git state unchanged\n\nGREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes\n",
+            "selectorMatched": true,
+            "selector": "GREEN red-done-prepare-done-parity: done_prepare and DONE reject both missing finish decision and stale lane diffPackHash with matching codes",
+            "executedAt": "2026-09-06T01:20:56.753Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:8816b44684dc1e34c709de57455d3ee281e990c90643a4f74264153898c2db84",
+            "causalReceiptHash": "f94edc9cc62c333e2978fd5dbe12e24a6094323492f4d1d5ac657579d54975c9",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:1",
+          "kind": "logic_test",
+          "command": "node scripts/verify-process-fact-contract.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ce452ecd3cc678cf02dadd9fe1ad1cd49f4bcf263066c9ce4fa84e60f421e630",
+            "outputTail": "Done and validate verification coverage artifact=checklist.json\n- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist gate=validate verification freshness gate artifact=checklist.json\n- verification_intent_repair [L2/command] producer=handlers/checklist\n- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard\n- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match\n- verification_run [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\n- workflow_explain [L0/command] producer=core/config\n- workflow_set [L1/command] producer=core/config\n- workflow_show [L0/command] producer=core/config\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- phase advance\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/transition-orchestrator.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/core/machine.ts\n- review_run_start\n  packages/main/src/core/owner-session-adapters.ts\n  packages/main/src/handlers/story-dispatch.ts\n  packages/main/src/handlers/review-run.ts\n  packages/main/src/cli/command-catalog.ts\n- finding_add\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n- flow fact policy\n  packages/main/src/core/flow-fact-policy.ts\n  packages/main/src/core/process-fact-registry.ts\n- finding evidenceState gate dimension\n  packages/main/src/core/advisory.ts\n  packages/main/src/core/machine.ts\n  packages/main/src/core/types.ts\n- gap_log\n  packages/main/src/handlers/gap-log.ts\n  packages/main/src/core/audit-meta-store.ts\n  packages/main/src/registry.ts\n- review_pass_set\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/review-pass-provenance.ts\n  packages/main/src/core/finding-verify.ts\n- verification evidence\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts\n  packages/main/src/core/verification.ts\n  packages/main/src/core/machine.ts\n- init check\n  packages/main/src/handlers/init-check.ts\n  packages/main/src/core/init-check-gate.ts\n  packages/main/src/core/machine.ts\n- scope anti-expansion\n  packages/main/src/core/machine.ts\n  packages/main/src/handlers/story-create.ts\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/handlers/story-query.ts\n  packages/main/src/handlers/scope-anti-expansion.ts\n  packages/main/src/core/scope-anti-expansion.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/command-policy.ts\n  packages/main/src/handlers/worktree.ts\n  packages/main/src/core/process-fact-registry.ts\n  packages/main/src/core/lifecycle-registry.ts\n- scope check\n  packages/main/src/handlers/scope-check.ts\n  packages/main/src/handlers/story-review.ts\n- delivery check\n  packages/main/src/handlers/delivery-check.ts\n  packages/main/src/core/machine.ts\n- REVIEW/TEST/DONE gates\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/handlers/review-preflight.ts\n  packages/main/src/core/machine.ts\n- lifecycle registry\n  packages/main/src/core/lifecycle-registry.ts\n  packages/main/src/core/phase-flow.ts\n  packages/main/src/handlers/context.ts\n  packages/main/src/tasks/flow-stability-smoke.ts\n- CLI schema\n  packages/main/src/cli/command-catalog.ts\n  packages/main/src/core/config.ts\n\nProcess fact contract verified\nProcess-fact contract verification passed\n",
+            "selectorMatched": true,
+            "selector": "DONE/preflight predicate inventory parity passed",
+            "executedAt": "2026-09-06T01:21:07.994Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:a86ae8a5f03448e9e18f3c077525e5d9c4701f1a0cb5cc61b7533e43ff748a0c",
+            "causalReceiptHash": "4cf6c1ff10e2970fef49d8bd40997d25c6aecf9657aa292fbafaa24f799913f1",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:2",
+          "kind": "logic_test",
+          "command": "node packages/main/tests/red/red-done-shared-predicates.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "d0c9f973a307c64d6e8ded711950bbea656bebd76cccbfb08e24e29cb108aa71",
+            "outputTail": "GREEN shared DONE predicates: 20 production-consumer fixture cases\nGREEN shared DONE predicates: lazy first failure and legacy diagnostic precedence\nGREEN shared DONE predicates: new predicate automatically reaches boolean, diagnostic, and emitted oracle row\nGREEN shared DONE predicates: root/story/outer-path/discarded-result adapter mutations rejected\nGREEN historical DONE presentation: original assurance preserved; no new reviewer PASS/audit; TEST future predicates remain strict\nGREEN shared DONE predicates: runtime inverse/skipped/discarded mutations killed; completedSnapshot cannot downgrade live failure\nF027 legacy absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 current absent fields: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent projection: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 absent reasons: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 empty arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 populated arrays: {\"rawIntegrity\":true,\"rawPrior\":\"RP-001\",\"snapshotIntegrity\":true,\"snapshotPrior\":\"RP-001\"}\nF027 prompt-envelope snapshot preserves absent fields, signatures, trusted prior and mutation isolation\nShared DONE predicate parity passed\n",
+            "selectorMatched": true,
+            "selector": "Shared DONE predicate parity passed",
+            "executedAt": "2026-09-06T01:22:55.445Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:47c3c8162046a56fda8e4971355dc711ce41698817e54892d01db3b38bfca2a6",
+            "causalReceiptHash": "6ee895a2cd8cc82de83e00ccff4be6c6745bde724535ed02a80e9a94f621e89a",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-004",
+      "title": "Repair verification evidence matching for selectors beyond the persisted output window",
+      "context": "BUG-001 was reproduced while adding CHK-003 evidence: the exact process-fact verifier exits 0 and prints its selector after the 12000-character presentation window, but verification_evidence_batch_add reports receipt_selector_absent. The two prior selector-truncation drafts document the same root cause. This false negative directly blocked B-212f mechanical acceptance evidence, so repair only the bounded command-output matching path while preserving public and persisted output limits.",
+      "relatedDocs": [
+        "docs/story/drafts/evidence-selector-head-truncation/background.md",
+        "docs/story/drafts/evidence-executor-selector-truncation/background.md"
+      ],
+      "userSees": "The terminal prints \"tool-executed evidence receipt smoke passed\"; the long-output selector is accepted, a genuinely absent selector still reports \"receipt_selector_absent\", and the persisted outputTail remains bounded.",
+      "excludes": [
+        "Changing routine validation artifact size limits",
+        "Raising the 12000-character validation receipt ceiling",
+        "Permitting shell commands or weakening immutable evidence pins"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/validation-executor.ts",
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "A command emitting more than 12000 characters before MARKER_OK records mechanical evidence through verification_evidence_add.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
+              "selector": "tool-executed evidence receipt smoke passed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The long-output receipt persists only the bounded 4000-character outputTail while its digest is computed from the complete untruncated output.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
+              "selector": "tool-executed evidence receipt smoke passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "A completed command whose selector is genuinely absent remains refused with receipt_selector_absent, and routine validation output remains bounded.",
+            "type": "logic",
+            "priority": "must",
+            "verification": {
+              "command": "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
+              "selector": "tool-executed evidence receipt smoke passed"
+            }
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-09-05T11:53:54.549Z",
+      "endTime": "2026-09-05T11:53:55.532Z",
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "7f1816d0b22dc35d70cfbd8bdfea6d3a540b359d2ee731003473f06c0d30f73c",
+        "storyFilesHash": "0d8ea937d9d4f58d71827d2c3a51c5ae145ede572b058e06c13875e28165e090",
+        "headHash": "8b1e7bce0ab53508bc4eca368386236a28df517a",
+        "attestedAt": "2026-09-04T21:30:50.475Z",
+        "materialHash": "ffdbd9afade1fc3f2f057c492b82b16a36aa78b9b7d1a0466e22a5bcfca85d50"
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-004:happy:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6a0f313cb484f10ecac8470a48e48e298f3427ed972f80dfff5a28074fc83c3b",
+            "outputTail": "\n> @proof-or-stop/core@0.3.276 test:tool-executed-evidence-receipt-smoke\n> node dist/tasks/tool-executed-evidence-receipt-smoke.js\n\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\ntool-executed evidence receipt smoke passed\n",
+            "selectorMatched": true,
+            "selector": "tool-executed evidence receipt smoke passed",
+            "executedAt": "2026-09-06T01:23:39.390Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:dfc938ad2f2fc8b4ea6546d63c4650d2c40a879e99a4111725d186c2cdcc1bf1",
+            "causalReceiptHash": "c36598a878410e0ac98a3d7f1228c6c0658e6c2126c30e58e7caad5cf4134b96",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-004:edge:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6a0f313cb484f10ecac8470a48e48e298f3427ed972f80dfff5a28074fc83c3b",
+            "outputTail": "\n> @proof-or-stop/core@0.3.276 test:tool-executed-evidence-receipt-smoke\n> node dist/tasks/tool-executed-evidence-receipt-smoke.js\n\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\ntool-executed evidence receipt smoke passed\n",
+            "selectorMatched": true,
+            "selector": "tool-executed evidence receipt smoke passed",
+            "executedAt": "2026-09-06T01:23:39.390Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:dfc938ad2f2fc8b4ea6546d63c4650d2c40a879e99a4111725d186c2cdcc1bf1",
+            "causalReceiptHash": "c36598a878410e0ac98a3d7f1228c6c0658e6c2126c30e58e7caad5cf4134b96",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        },
+        {
+          "intentRef": "CHK-004:adversarial:0",
+          "kind": "logic_test",
+          "command": "npm --prefix packages/main run test:tool-executed-evidence-receipt-smoke",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6a0f313cb484f10ecac8470a48e48e298f3427ed972f80dfff5a28074fc83c3b",
+            "outputTail": "\n> @proof-or-stop/core@0.3.276 test:tool-executed-evidence-receipt-smoke\n> node dist/tasks/tool-executed-evidence-receipt-smoke.js\n\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\n↻ Written and persistence confirmed: CHK-001 current status=in_progress. For long sessions please reload (proof-or-stop checklist_get / session_brief) before relying on the snapshot.\ntool-executed-evidence-receipt-smoke: PASS\ntool-executed evidence receipt smoke passed\n",
+            "selectorMatched": true,
+            "selector": "tool-executed evidence receipt smoke passed",
+            "executedAt": "2026-09-06T01:23:39.390Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:dfc938ad2f2fc8b4ea6546d63c4650d2c40a879e99a4111725d186c2cdcc1bf1",
+            "causalReceiptHash": "c36598a878410e0ac98a3d7f1228c6c0658e6c2126c30e58e7caad5cf4134b96",
+            "commandReruns": 0
+          },
+          "headHash": "e3144850a52395d8e38b6f15133cda4067e11262",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:23:41.580Z"
+        }
+      ]
+    },
+    {
+      "id": "CHK-005",
+      "title": "Repair the evidenced blockers in B-212f mandatory validation",
+      "context": "The official 131-command validation at 2026-09-05T16:22:02.145Z failed nine commands. RI-003 records eight roots in F-034 through F-041 plus corroboration F-042. Seven roots reproduce on main 69403365; the fixed inventory digest omission was introduced by the three B-212f command registrations. The user requires current acceptance blockers to be repaired in this Story. Preserve the original parity RED and all sound rejection controls. This item is limited to those eight evidenced families, not repository-wide cleanup.",
+      "relatedDocs": [
+        "AGENTS.md#defect-triage-and-bounded-scope",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md",
+        "docs/requirements/decisions/done-prepare-automation-execution-plan.md"
+      ],
+      "userSees": "All eight targeted regression commands finish with their existing success summaries, and the configured 131-command validation reports PASS.",
+      "excludes": [
+        "Restore retired runtime brands or Lab aliases.",
+        "Remove failing validation commands or replace fixed expected digests with dynamically computed expectations.",
+        "Weaken signature, immutable pin, timeout, selector, or DONE freshness checks.",
+        "Repair unrelated nonblocking defects."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Pinned docs and manual intents re-execute and earn fresh mechanical evidence under unchanged pin and stamping safeguards.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Canonical mutation controls exercise and reject removed acceptance-basis process facts.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+              "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed"
+            }
+          },
+          {
+            "desc": "English authoring checks read the real repository guides and preserve all behavioral rejection cases.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+              "selector": "english-early-check smoke passed"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The real validation inventory matches the reviewed fixed digest without declared or absolute command working directories.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+              "selector": "validation-tier-planner-smoke: PASS"
+            }
+          },
+          {
+            "desc": "Current CLI aliases normalize correctly while retired Lab aliases stay unavailable.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+              "selector": "cli surface smoke passed"
+            }
+          },
+          {
+            "desc": "Canonical ambient transport fields stay session-neutral while retired semantic fields and explicit overlays affect evidence identity.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+              "selector": "done-required-validation smoke passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The canonical fixture actually schedules the hanging command, records its timeout, and preserves named progress diagnostics.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+              "selector": "validate-progress-heartbeat smoke passed"
+            }
+          },
+          {
+            "desc": "INIT_CHECK tamper diagnostics derive from the signature domain while valid, malformed, and tampered verdict controls retain their rejection behavior.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+              "selector": "PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest."
+            }
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-09-05T16:59:18.671Z",
+      "endTime": "2026-09-05T17:40:48.825Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-005:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "verification-run-and-guard-smoke: PASS",
+            "executedAt": "2026-09-06T01:24:22.159Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:e293b7340d0958a1af75dc584a42568ab222d8884d2b16138be7128aa48c3604",
+            "causalReceiptHash": "4095bf32eb30702e312d2f4df2614012eb0daf1b845f170c49a681bd2d3d7991",
+            "commandReruns": 0
+          },
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8eec03ad6ac7bc657a770f256c76631d00cdf2ae9100e0e84981943c9066f73b",
+            "outputTail": "cli surface smoke passed\n",
+            "selectorMatched": true,
+            "selector": "cli surface smoke passed",
+            "executedAt": "2026-09-06T01:24:30.171Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:bc4042c3da06027a14e32a6604361afc537a3888153f5cbf9bda1611bc2978fb",
+            "causalReceiptHash": "b4455ef8e8a5c3365b915d28f1af52c0a5adeb3aed475151946d97dee2913dfe",
+            "commandReruns": 0
+          },
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:1",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/proofstory-acceptance-basis-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "1fab61fa1f38ec6dcd8677d6b07de043761108e83720195276b25d2cf539fd39",
+            "outputTail": "ProofStory acceptance coverage basis Wave 1A smoke passed\n",
+            "selectorMatched": true,
+            "selector": "ProofStory acceptance coverage basis Wave 1A smoke passed",
+            "executedAt": "2026-09-06T01:25:43.158Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:b0a9ed8a88600fdc95b19b8992f1687541b5414deba6adf665f3374f49324742",
+            "causalReceiptHash": "b9f85151654b5c09479375121170581b00f8a9c41d7107118ebefb50dc210890",
+            "commandReruns": 0
+          },
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
+        },
+        {
+          "intentRef": "CHK-005:happy:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6ee7f3bf34f5cc2495df380c8222ad2c09cce45144857707a4403ce2166e8c65",
+            "outputTail": "ok: story_create refuses CJK background before persistence\nok: story_create refuses CJK checklist title/context before persistence\nok: story_create refuses CJK relatedDocs before persistence\nok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement\nok: English story_create succeeds with em dash punctuation\nok: background_set refuses CJK before writing\nok: early authoring check and english-artifact gate agree on containsCJK\nok: agent docs preserve the recursive English-authoring boundary\nenglish-early-check smoke passed\n",
+            "selectorMatched": true,
+            "selector": "english-early-check smoke passed",
+            "executedAt": "2026-09-06T01:25:51.180Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:433979c61c00733be9dfa1ca8c86992ab65d9770823a4eefec06680cb9cb6ea2",
+            "causalReceiptHash": "9c2425cb808cd4fb255bda9de968cfa0f492cb87643221fa8362b566b6d1bc72",
+            "commandReruns": 0
+          },
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b30cf30db8f94074e8e99139d959410419dfba0354ed676837a37c59cc353403",
+            "outputTail": "validation-tier-planner-smoke: running CHK-001 stable command identity cases\n  ok  25 cases passed\n\nvalidation-tier-planner-smoke: running CHK-002 legacy pin resolver cases\n  ok  13 cases passed\n\nvalidation-tier-planner-smoke: running CHK-003 Story input collector cases\n  ok  18 cases passed\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  11 cases passed\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n  ok  prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail\n  ok  a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing\n  ok  merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified\n  ok  priorRedIds on this real repository does not throw and matches an independent bounded git query\n  ok  priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)\n  ok  priorRedIds raises when the git call fails instead of returning an empty set\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\ndefault stdout projection: 2519 chars (bound 11000)\n  ok  bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars\n\nvalidation-tier-planner-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "validation-tier-planner-smoke: PASS",
+            "executedAt": "2026-09-06T01:25:58.143Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:5d9def7e8f05f1559973ad28a9a5853cbdb6760612d3f9303a499386c4325b32",
+            "causalReceiptHash": "25f357774df0ff243d170e5e9ddcef4138c49e345f71d7afaee9f7459b1b723e",
+            "commandReruns": 0
+          },
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
+        },
+        {
+          "intentRef": "CHK-005:edge:2",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6dd10f3968ede29c836a9c05f2d4817c125b1735ab601017a5959b3fb21e415d",
+            "outputTail": "done-required-validation smoke passed\n",
+            "selectorMatched": true,
+            "selector": "done-required-validation smoke passed",
+            "executedAt": "2026-09-06T01:26:14.988Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:c9994c250c5dd4babaa10e981d2b22129b34e3835c00543a80ef4d8ea2da0b19",
+            "causalReceiptHash": "1910530cc9f8dbdf4fc2358c026c4015580ecf5b62aca34a9dfe6834b23e47dd",
+            "commandReruns": 0
+          },
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "b69977fdb8dc67dbadbb3c37be74eb15971b149cdf9d72d0d2a2288593eb4278",
+            "outputTail": "validate-progress-heartbeat smoke passed\n",
+            "selectorMatched": true,
+            "selector": "validate-progress-heartbeat smoke passed",
+            "executedAt": "2026-09-06T01:27:32.927Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:553b33eb14d49cc72eefb8a073e5d3bf477238c5ca2ff40def7b6508a2869acb",
+            "causalReceiptHash": "5b760a15c9f1fb7d1cfc927fa17d9d1bb1eb5804e1af22c16d573b8741473e03",
+            "commandReruns": 0
+          },
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
+        },
+        {
+          "intentRef": "CHK-005:adversarial:1",
+          "kind": "integration_test",
+          "command": "node packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "47b0369250471e550d942b92c57363d84fc414a9cab58caffe97d6d65babdf60",
+            "outputTail": "=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape ===\n\n  C0  [CONTROL-OK] CONTROL: two different verdicts produce two different digests (the hash is not a constant)\n      observed: distinct=true digestLength=64\n  S1  [PASS      ] shape hashes deterministically and does not throw: canonical pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S2  [PASS      ] shape hashes deterministically and does not throw: koala-* pair (pre-rename actor)\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S3  [PASS      ] shape hashes deterministically and does not throw: proof-or-stop-*@fallback pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S4  [PASS      ] shape hashes deterministically and does not throw: koala-*@fallback pair\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S5  [PASS      ] shape hashes deterministically and does not throw: three-entry historical actor\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S6  [PASS      ] shape hashes deterministically and does not throw: no agentResults field (synthesized from top-level fields)\n      observed: stableAcrossCalls=true stableAcrossJsonRoundTripWithReorderedKeys=true\n  S7  [PASS      ] the documented shapes do not collide onto one digest\n      observed: distinctDigests=6 of shapes=6; collisions=none\n  X1  [PASS      ] an ABSENT agentResults is a DISTINCT value from its explicit synthesized encoding (absence is not equated with the synthesis)\n      observed: absentDigestDiffersFromExplicitEncoding=true\n  X2  [PASS      ] on a record with NO agentResults, editing the top-level agentId the gate synthesizes from MOVES the digest\n      observed: digestMoved=true\n  D1  [PASS      ] INJECTING a reviewer record moves the digest\n      observed: digestMoved=true\n  D2  [PASS      ] ERASING a recorded blocking issue moves the digest\n      observed: digestMoved=true\n  D3  [PASS      ] editing the top-level issues array moves the digest even where the gate reads agentResults instead\n      observed: digestMoved=true\n  M1  [PASS      ] the domain renderer emits every declared component, so widening the domain widens the message\n      observed: componentsDeclared=7 allRendered=true\n  M2  [PASS      ] the shipped guard RENDERS the domain in its tamper message instead of restating a field list\n      observed: rendersDomain=true stillCarriesTheOldHandWrittenList=false\n  L1  [PASS      ] every init-check.json in the live corpus hashes without throwing and without varying between reads\n      observed: filesMeasuredOnThisRun=322 threw=0 unstable=0 recordsWithNoAgentResultsField=0\n  L2  [MEASURED  ] documented shapes still present in the live corpus (measured, not asserted — a shape that has left the corpus is reported, not failed)\n      observed: present=[canonical pair | three-entry historical actor]; absentFromThisCorpus=[koala-* pair (pre-rename actor) | proof-or-stop-*@fallback pair | koala-*@fallback pair | no agentResults field (synthesized from top-level fields)] — those are still covered by the constructed rows above\n\n  0 FAILED / 0 BROKEN / 17 rows\n  signed components rendered from the domain declaration: storyId / background.md / title / description / checklist / reviewRound / reviewer verdict (agentResults + issues)\n\n  PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.\n\n",
+            "selectorMatched": true,
+            "selector": "PASS: total and deterministic over every documented shape, and each gate-relevant edit moves the digest.",
+            "executedAt": "2026-09-06T01:27:34.808Z",
+            "timeoutMs": 300000,
+            "executionKey": "ce:v1:59bd362bc0777d159d560f9aa34d8061cf32422979178b3a68a0b635265b83c6",
+            "causalReceiptHash": "36941bace6a7638703ce2563e545763ad4ee978bad8ccbcfcddc04f6f7cf17b7",
+            "commandReruns": 0
+          },
+          "headHash": "b85650aba6b51d5281b436dc03647f4e2f6b9fca",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:27:35.169Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "f7cda645e4d75257c772a14da949c31836d086a7cf085968b6c459d0c0e82f83",
+        "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+        "headHash": "b4f76a06919954354fd443a4b13befc497870251",
+        "attestedAt": "2026-09-05T17:40:49.275Z",
+        "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2"
+      }
+    },
+    {
+      "id": "CHK-006",
+      "title": "Repair the two follow-on canonical CLI blockers exposed by CHK-005",
+      "context": "F-050 and F-051 were exposed when commit61ea99033b let the existing verification and CLI smoke commands proceed beyond their original failures. The pinned manual/docs recovery assertions now pass, but guard fixtures use an unrecognized old script name. The real config doctor alias resolves to an unregistered command, independently reproduced by Owner. Both current acceptance blockers require this exact additional repair under the user's bounded-scope policy. Preserve CHK-005's original eight-family accounting and all existing rejection checks.",
+      "relatedDocs": [
+        "AGENTS.md#defect-triage-and-bounded-scope",
+        "docs/requirements/decisions/proof-or-stop-identity-migration.md"
+      ],
+      "userSees": "The verification guard smoke and CLI surface smoke complete with their existing success summaries; nested config doctor and repair help resolve to registered canonical commands.",
+      "excludes": [
+        "Change production guard acceptance to recognize unsupported invocations.",
+        "Restore retired command registrations.",
+        "Remove nested alias or mismatch rejection tests.",
+        "Modify real project configuration when testing repair."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Real nested config aliases reach registered canonical commands while existing retired-alias negatives remain enforced.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+              "selector": "cli surface smoke passed"
+            }
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "Canonical CLI fixture invocations exercise pin-mismatch denial, valid matching commands and wrapper guard behavior without broadening production marker recognition.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-09-05T17:09:47.986Z",
+      "endTime": "2026-09-05T17:40:50.995Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-006:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8eec03ad6ac7bc657a770f256c76631d00cdf2ae9100e0e84981943c9066f73b",
+            "outputTail": "cli surface smoke passed\n",
+            "selectorMatched": true,
+            "selector": "cli surface smoke passed",
+            "executedAt": "2026-09-06T01:24:30.171Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:bc4042c3da06027a14e32a6604361afc537a3888153f5cbf9bda1611bc2978fb",
+            "causalReceiptHash": "b4455ef8e8a5c3365b915d28f1af52c0a5adeb3aed475151946d97dee2913dfe",
+            "commandReruns": 0
+          },
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
+        },
+        {
+          "intentRef": "CHK-006:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "verification-run-and-guard-smoke: PASS",
+            "executedAt": "2026-09-06T01:24:22.159Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:e293b7340d0958a1af75dc584a42568ab222d8884d2b16138be7128aa48c3604",
+            "causalReceiptHash": "4095bf32eb30702e312d2f4df2614012eb0daf1b845f170c49a681bd2d3d7991",
+            "commandReruns": 0
+          },
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "41c40eb0ff8db81ab28cb30ebf9fe5be08f16ae54ad81e3499cadad15f855cb2",
+        "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+        "headHash": "c9df0eb7c58c8aac67ed520d4a5785a1c9c46b7f",
+        "attestedAt": "2026-09-05T17:40:51.333Z",
+        "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2"
+      }
+    },
+    {
+      "id": "CHK-007",
+      "title": "Restore the documented stale-refresh execution grouping and receipt timestamps",
+      "context": "F-052 and F-053 are distinct pre-existing blockers exposed by the unchanged Part E controls after CHK-006 repaired earlier fixture and alias failures. One signed causal execution is projected with invented per-intent timestamps. The strict refresh-specific grouping established by a8f73da7bc3 and current command policy was partially lost in merge594908f8df, so the real five-key fixture executes only three identities. Preserve the current strict refresh behavior rather than changing public semantics to match the accidental runtime. Generic causal batching outside refresh retains its existing semantics.",
+      "relatedDocs": [
+        "AGENTS.md#two-layer-process-fact-contract",
+        "docs/requirements/decisions/cross-story-agent-session-performance-root-causes-and-prioritized-optimization-plan.md",
+        "docs/requirements/decisions/merged-state-b5a15-b1482-narrowing-fixture-resolution.md"
+      ],
+      "userSees": "The unchanged E1, E2 and E3 guard smoke assertions pass: shared exact refresh identities retain one signed execution timestamp, distinct strict refresh identities execute separately, and failing rows remain non-mechanical.",
+      "excludes": [
+        "Change E2's five-execution expectation to three.",
+        "Relax immutable pins, selector checks, signed receipt provenance, timeout safeguards or failure demotion.",
+        "Change generic causal batching semantics outside the explicit refresh context.",
+        "Add caller-authored execution identity or receipt authority."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Existing exact-key and distinct-key runtime controls prove strict refresh grouping and signed execution timestamp projection.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "The unchanged failing-command, pinless, selector, timeout and provenance controls remain enforced by the same complete guard smoke.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-09-05T17:24:25.756Z",
+      "endTime": "2026-09-05T17:40:30.165Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-007:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "verification-run-and-guard-smoke: PASS",
+            "executedAt": "2026-09-06T01:24:22.159Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:e293b7340d0958a1af75dc584a42568ab222d8884d2b16138be7128aa48c3604",
+            "causalReceiptHash": "4095bf32eb30702e312d2f4df2614012eb0daf1b845f170c49a681bd2d3d7991",
+            "commandReruns": 0
+          },
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
+        },
+        {
+          "intentRef": "CHK-007:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "verification-run-and-guard-smoke: PASS",
+            "executedAt": "2026-09-06T01:24:22.159Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:e293b7340d0958a1af75dc584a42568ab222d8884d2b16138be7128aa48c3604",
+            "causalReceiptHash": "4095bf32eb30702e312d2f4df2614012eb0daf1b845f170c49a681bd2d3d7991",
+            "commandReruns": 0
+          },
+          "headHash": "a85e2821826de050960a69f9c59d0c20d06bf383",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:24:34.168Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "ca90f585d2484c0e3c8bcff3994391d6dff7c8457aa0089233cce58b27b54baa",
+        "storyFilesHash": "93551a2501b5a95489d09378346d9a6b30eaceae5be95427186de7ceb12ba8c1",
+        "headHash": "9e7e15055b1bdc8a1bb19f85e95564f05fe6a643",
+        "attestedAt": "2026-09-05T17:40:30.546Z",
+        "materialHash": "33021a0e0f7d00680b4c9ac5128fde10fe4c1e169f1f3c0671f18be1d53718a2"
+      }
+    },
+    {
+      "id": "CHK-008",
+      "title": "Keep registration-proof mirrors isolated from the real Git index",
+      "context": "F-054 directly blocks required validation after passing command79. Make temporary mirrors use private Git administrative/index state while retaining real committed HEAD and meaningful Git-based controls. The production raw-index causal gate remains unchanged. Freeze a deterministic RED for the shared index path before the narrow fix, then prove the original registration controls and real-index preservation in GREEN.",
+      "relatedDocs": [
+        "AGENTS.md#defect-triage-and-bounded-scope"
+      ],
+      "userSees": "The registration proof reports GREEN private Git index isolation and unchanged real repository index.",
+      "excludes": [
+        "Do not change production causal preflight or index freshness checks.",
+        "Do not omit Git metadata or weaken existing registration, tamper, newcomer and cleanliness controls.",
+        "Do not add or remove configured validation commands or widen to unrelated validation infrastructure."
+      ],
+      "files": {
+        "modify": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Private registration-proof mirrors retain the intended Git HEAD and use an index distinct from the real repository while all original registration controls pass.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+              "selector": "GREEN private Git index isolation"
+            }
+          }
+        ],
+        "edge": [],
+        "adversarial": [
+          {
+            "desc": "Git activity in temporary mirrors cannot rewrite the real repository index; the regression fails on the original shared administrative path without weakening the production preflight.",
+            "type": "cli",
+            "priority": "must",
+            "verification": {
+              "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+              "selector": "GREEN unchanged real repository index"
+            }
+          }
+        ]
+      },
+      "status": "done",
+      "startTime": "2026-09-06T01:08:32.143Z",
+      "endTime": "2026-09-06T01:27:47.628Z",
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-008:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "393a112a4ae719adbce488c4cc90581e9419caff6ba01275d29d3c1824fb3106",
+            "outputTail": "rget (red-w2c-validate-registration.mjs, red-b49d4-harness-registration.mjs) gaining a mention of red-b49d4-registration-derivation.mjs, each ceasing to qualify, a stale cycle break and an unreasoned one\n  [GREEN] NEWCOMER_MIRROR_IS_FAITHFUL (BLOCK D)\n      observed: before the newcomer was planted: red-w2c-validate-registration.mjs(exit=0), red-b49d4-harness-registration.mjs(exit=0)\n  [GREEN] NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS (BLOCK D)\n      observed: spawned 7 committed guard(s) as child processes: red-b2aa7-chk007-receipt.mjs(exit=0, 17297ms), red-b3434-blob-buffer-ceiling.mjs(exit=0, 3671ms), red-b49d4-chk002-receipt.mjs(exit=0, 313ms), red-b49d4-harness-registration.mjs(exit=1, 32ms), red-b8df9-chk002-verdict-shapes.mjs(exit=0, 210ms), red-w2c-validate-registration.mjs(exit=0, 29ms), red-w2d-command-readonly.mjs(exit=0, 6898ms); every spawned file is sha256-identical to its committed counterpart=true\n  [GREEN] EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE (BLOCK D)\n      observed: targets that failed WITHOUT naming the newcomer: none\n  [GREEN] DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION (BLOCK D)\n      observed: packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs planted, registered nowhere and excluded nowhere; guards that caught it: red-b49d4-harness-registration.mjs; guards that reported success anyway: red-b2aa7-chk007-receipt.mjs(\"INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f…\") | red-b3434-blob-buffer-ceiling.mjs(\"✓ fixture blob survives the git pipeline above 1,048,576 bytes ✓ commitImmutableMetadataTr…\") | red-b49d4-chk002-receipt.mjs(\"TOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness car…\") | red-b8df9-chk002-verdict-shapes.mjs(\"=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape === C0 [CONTROL…\") | red-w2c-validate-registration.mjs(\"red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members f…\") | red-w2d-command-readonly.mjs(\"red-w2d-command-readonly: PASS registration: MAIN_TOOLS + command-policy(readOnly/none) + …\")\n  [GREEN] REAL_CONFIG_BYTE_UNMODIFIED (BLOCK E)\n      observed: sha256 before=90a70bfdbdf0d266… after=90a70bfdbdf0d266…; git status --porcelain -- proof-or-stop.config.json => \"\"\n  [GREEN] PROBES_CLEANED_UP (BLOCK E)\n      observed: packages/main/dist/tasks/red-evidence-b49d4-blindness-probe.js=absent, packages/main/src/tasks/red-evidence-b49d4-blindness-probe.ts=absent, packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs=absent\n  [GREEN] REPO_TREE_NEVER_WRITTEN_TO (BLOCK E)\n      observed: listing digest of packages/main/tests/red, packages/main/dist/tasks, packages/main/src/tasks before=b65e89f1c65959b7… after=b65e89f1c65959b7…; git status --porcelain over those paths unchanged=true\n  [OBS  ] NARROWED_ENUMERATION_MISSES_NEWCOMER — red-b2aa7-chk007-receipt.mjs, red-b3434-blob-buffer-ceiling.mjs, red-b49d4-chk002-receipt.mjs, red-b8df9-chk002-verdict-shapes.mjs, red-w2d-command-readonly.mjs derive their population from disk yet reported success with the newcomer sitting undecided in the same directory, because their enumeration is narrowed by name. Measured on real shipped guards rather than argued: coverage of the whole population can only come from an UNFILTERED enumeration.\n\n0 RED / 26 GREEN of 26 rows (28739ms in child processes)\nred-b49d4-registration-derivation: OK (registration is DERIVED from disk: an unregistered member of packages/main/dist/tasks/red-evidence-*.js is caught, every packages/main/tests/red/*.mjs is either registered in validate.commands or carried by the audited exclusion record of a registered guard that was spawned here and passed — accounted for, which is a DIFFERENT and weaker claim than executed, and no claim about execution is made — a differently-prefixed newcomer is caught by the shipped guards themselves, and the control bites on a config COPY while the real proof-or-stop.config.json stays byte-identical)\n",
+            "selectorMatched": true,
+            "selector": "GREEN private Git index isolation",
+            "executedAt": "2026-09-06T01:20:39.769Z",
+            "timeoutMs": 300000,
+            "executionKey": "ce:v1:5268af1337d801225ee6ef7efc7f6c70fb10b8942cd02340bd40fc548210a36a",
+            "causalReceiptHash": "d7e954ad1a1ec426eea4d27fd24831810e95bbb03ba5684c8d0836d101563d33",
+            "commandReruns": 0
+          },
+          "headHash": "e6673f1a0fb4b138245fb296e0dfb9a5b0fdb399",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:20:41.125Z"
+        },
+        {
+          "intentRef": "CHK-008:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/tests/red/red-b49d4-registration-derivation.mjs",
+          "result": "pass",
+          "note": "Owner executes the unchanged pinned command and selector on committed B-212f material including e6673f1a0f. Exit status and selector coverage must be derived by the tool; no prior or candidate receipt is substituted.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "393a112a4ae719adbce488c4cc90581e9419caff6ba01275d29d3c1824fb3106",
+            "outputTail": "rget (red-w2c-validate-registration.mjs, red-b49d4-harness-registration.mjs) gaining a mention of red-b49d4-registration-derivation.mjs, each ceasing to qualify, a stale cycle break and an unreasoned one\n  [GREEN] NEWCOMER_MIRROR_IS_FAITHFUL (BLOCK D)\n      observed: before the newcomer was planted: red-w2c-validate-registration.mjs(exit=0), red-b49d4-harness-registration.mjs(exit=0)\n  [GREEN] NEWCOMER_TARGETS_ARE_REAL_SHIPPED_GUARDS (BLOCK D)\n      observed: spawned 7 committed guard(s) as child processes: red-b2aa7-chk007-receipt.mjs(exit=0, 17297ms), red-b3434-blob-buffer-ceiling.mjs(exit=0, 3671ms), red-b49d4-chk002-receipt.mjs(exit=0, 313ms), red-b49d4-harness-registration.mjs(exit=1, 32ms), red-b8df9-chk002-verdict-shapes.mjs(exit=0, 210ms), red-w2c-validate-registration.mjs(exit=0, 29ms), red-w2d-command-readonly.mjs(exit=0, 6898ms); every spawned file is sha256-identical to its committed counterpart=true\n  [GREEN] EVERY_TARGET_VERDICT_IS_ATTRIBUTABLE (BLOCK D)\n      observed: targets that failed WITHOUT naming the newcomer: none\n  [GREEN] DIFFERENTLY_PREFIXED_NEWCOMER_IS_INSIDE_THE_POPULATION (BLOCK D)\n      observed: packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs planted, registered nowhere and excluded nowhere; guards that caught it: red-b49d4-harness-registration.mjs; guards that reported success anyway: red-b2aa7-chk007-receipt.mjs(\"INVARIANCE_DIGEST_UNCHANGED_POST_FIX (2d584cc157e83ebb2f8396735f04d46946f0ba90d18a55d9fb2f…\") | red-b3434-blob-buffer-ceiling.mjs(\"✓ fixture blob survives the git pipeline above 1,048,576 bytes ✓ commitImmutableMetadataTr…\") | red-b49d4-chk002-receipt.mjs(\"TOTAL_ENUMERATION_SEES_AN_UNPREFIXED_NEWCOMER (chk002-receipt-probe-unprefixed.harness car…\") | red-b8df9-chk002-verdict-shapes.mjs(\"=== B-8df9 CHK-002: the verdict hash over every on-disk agentResults shape === C0 [CONTROL…\") | red-w2c-validate-registration.mjs(\"red-w2c-validate-registration: OK (all 4 packages/main/dist/tasks/red-evidence-* members f…\") | red-w2d-command-readonly.mjs(\"red-w2d-command-readonly: PASS registration: MAIN_TOOLS + command-policy(readOnly/none) + …\")\n  [GREEN] REAL_CONFIG_BYTE_UNMODIFIED (BLOCK E)\n      observed: sha256 before=90a70bfdbdf0d266… after=90a70bfdbdf0d266…; git status --porcelain -- proof-or-stop.config.json => \"\"\n  [GREEN] PROBES_CLEANED_UP (BLOCK E)\n      observed: packages/main/dist/tasks/red-evidence-b49d4-blindness-probe.js=absent, packages/main/src/tasks/red-evidence-b49d4-blindness-probe.ts=absent, packages/main/tests/red/b49d4-newcomer-probe-unprefixed.mjs=absent\n  [GREEN] REPO_TREE_NEVER_WRITTEN_TO (BLOCK E)\n      observed: listing digest of packages/main/tests/red, packages/main/dist/tasks, packages/main/src/tasks before=b65e89f1c65959b7… after=b65e89f1c65959b7…; git status --porcelain over those paths unchanged=true\n  [OBS  ] NARROWED_ENUMERATION_MISSES_NEWCOMER — red-b2aa7-chk007-receipt.mjs, red-b3434-blob-buffer-ceiling.mjs, red-b49d4-chk002-receipt.mjs, red-b8df9-chk002-verdict-shapes.mjs, red-w2d-command-readonly.mjs derive their population from disk yet reported success with the newcomer sitting undecided in the same directory, because their enumeration is narrowed by name. Measured on real shipped guards rather than argued: coverage of the whole population can only come from an UNFILTERED enumeration.\n\n0 RED / 26 GREEN of 26 rows (28739ms in child processes)\nred-b49d4-registration-derivation: OK (registration is DERIVED from disk: an unregistered member of packages/main/dist/tasks/red-evidence-*.js is caught, every packages/main/tests/red/*.mjs is either registered in validate.commands or carried by the audited exclusion record of a registered guard that was spawned here and passed — accounted for, which is a DIFFERENT and weaker claim than executed, and no claim about execution is made — a differently-prefixed newcomer is caught by the shipped guards themselves, and the control bites on a config COPY while the real proof-or-stop.config.json stays byte-identical)\n",
+            "selectorMatched": true,
+            "selector": "GREEN unchanged real repository index",
+            "executedAt": "2026-09-06T01:20:39.769Z",
+            "timeoutMs": 300000,
+            "executionKey": "ce:v1:5268af1337d801225ee6ef7efc7f6c70fb10b8942cd02340bd40fc548210a36a",
+            "causalReceiptHash": "d7e954ad1a1ec426eea4d27fd24831810e95bbb03ba5684c8d0836d101563d33",
+            "commandReruns": 0
+          },
+          "headHash": "e6673f1a0fb4b138245fb296e0dfb9a5b0fdb399",
+          "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8",
+          "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+          "timestamp": "2026-09-06T01:20:41.125Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "fc288c12f79cdedd20f1f7de75ffab66ee7a7a8cf4f05dc3b6b0741940ee3ed1",
+        "storyFilesHash": "fc0ad7989962351caf5df9e89e0c1b1fe4481fd9020051312496c1f718989b41",
+        "headHash": "a35ec1a87b8b7d9ebd04f0cb88cb323080420d16",
+        "attestedAt": "2026-09-06T01:27:48.019Z",
+        "materialHash": "196d70929c257e736b6a5027c10d2ace864f11f29865b077015a2613824890b8"
+      }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-09-04T20:53:57.577Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin DEV by materializing the reviewed RED, adding the scope-review-required read-only controls, and registering the exact command before any production change."
+    },
+    {
+      "timestamp": "2026-09-04T20:58:39.582Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer commit 414e02135b registers the executable test; owner rerun reproduced exactly two parity failures while both real-DONE controls and the read-only evidence/git-state control passed."
+    },
+    {
+      "timestamp": "2026-09-04T20:58:40.830Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin the minimal production fix by adding the real finish-decision and reviewer-verdict predicates to the shared done-oracle checklist."
+    },
+    {
+      "timestamp": "2026-09-04T21:04:20.551Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer commit 7e18814556 reuses the real finish-decision and reviewer-verdict predicates; owner rerun produced all five GREEN outputs including evidence/git-state immutability."
+    },
+    {
+      "timestamp": "2026-09-04T21:04:23.172Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Begin the generic process-fact parity inventory, mutation proof, flow-stability guard, and decision-document synchronization required by the resolved scope review."
+    },
+    {
+      "timestamp": "2026-09-04T21:17:08.514Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer commit 0bc957dad0 adds the two L4 facts, seven-code inventory, source-first verifier and future_done_predicate mutation, flow-stability assertions, and decision-doc contract. Owner reran process-fact verifier and parity test successfully. The implementer repaired its introduced snapshot_missing acceptance blocker in-scope before commit; no deferred defects remain."
+    },
+    {
+      "timestamp": "2026-09-05T08:42:04.713Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed implementer work for the executable RED/parity fixture and validation registration."
+    },
+    {
+      "timestamp": "2026-09-05T08:42:05.536Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified that implementer commit 414e02135b remains present and is the committed implementation for CHK-001; fresh tool-owned intent evidence will now be regenerated.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T08:42:06.435Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed implementer work that reuses the real DONE predicates in done-oracle."
+    },
+    {
+      "timestamp": "2026-09-05T08:42:07.232Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified that implementer commit 7e18814556 remains present and is the committed implementation for CHK-002; fresh tool-owned intent evidence will now be regenerated.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T08:42:08.049Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed process-fact registry, omission inventory, flow-stability, and decision-document work under the corrected defect-triage contract."
+    },
+    {
+      "timestamp": "2026-09-05T08:42:08.801Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified that implementer commit 0bc957dad0 remains present and is the committed implementation for CHK-003; fresh tool-owned intent evidence will now be regenerated.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T08:42:09.626Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed bounded acceptance-blocker repair for complete private output matching with bounded public/persisted output."
+    },
+    {
+      "timestamp": "2026-09-05T08:42:10.419Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified that implementer commit 8b1e7bce0a remains present and is the committed implementation for CHK-004; fresh tool-owned intent evidence will now be regenerated.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T08:58:49.649Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Apply the scope-review-required narrow correction: remove the accidentally added normative defect-triage paragraph from the done_prepare decision document while preserving all parity/process-fact documentation and code."
+    },
+    {
+      "timestamp": "2026-09-05T09:00:08.779Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer commit 4ae0de6cdc removes the misplaced Finding-policy paragraph while preserving the DONE/preflight parity contract; process-fact verifier passed.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:00:09.905Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed executable RED/parity fixture and validation registration from implementer commit 414e02135b."
+    },
+    {
+      "timestamp": "2026-09-05T09:00:10.876Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified implementer commit 414e02135b remains the committed CHK-001 implementation; fresh material-bound evidence will be regenerated.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:00:11.910Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed real-DONE predicate reuse from implementer commit 7e18814556."
+    },
+    {
+      "timestamp": "2026-09-05T09:00:12.835Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified implementer commit 7e18814556 remains the committed CHK-002 implementation; fresh material-bound evidence will be regenerated.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:00:13.956Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Reopen recovery: resume the already committed bounded evidence selector-window repair from implementer commit 8b1e7bce0a."
+    },
+    {
+      "timestamp": "2026-09-05T09:00:15.095Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Reopen recovery verified implementer commit 8b1e7bce0a remains the committed CHK-004 implementation; fresh material-bound evidence will be regenerated.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:03.583Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 414e02135b; executable RED is registered and already has tool-owned RED/GREEN evidence.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:04.383Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 414e02135b; executable RED is registered and already has tool-owned RED/GREEN evidence.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:05.320Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 7e18814556; done_prepare now consumes the shared finish-decision and reviewer-verdict predicates.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:06.141Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 7e18814556; done_prepare now consumes the shared finish-decision and reviewer-verdict predicates.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:07.059Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implemented by proof-or-stop-implementer at 0bc957dad0 with the out-of-scope prose correction at 4ae0de6cdc; predicate inventory and omission guard are committed.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:07.860Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented by proof-or-stop-implementer at 0bc957dad0 with the out-of-scope prose correction at 4ae0de6cdc; predicate inventory and omission guard are committed.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:08.710Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 8b1e7bce0a; private full-output selector matching remains bounded at public and persisted surfaces.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:16:09.493Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 8b1e7bce0a; private full-output selector matching remains bounded at public and persisted surfaces.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:26:15.818Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for verified review Findings B-212f:F-001 and B-212f:F-002: add a wrong-row/wrong-predicate RED and make the omission guard prove exact blocker-to-oracle correspondence.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:38:50.606Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "proof-or-stop-implementer commit 2480d37f8b1cd4845c0bb79415cc68c9314c8dba repaired verified Findings B-212f:F-001/F-002 with executable wrong-row and wrong-predicate mutations plus exact blocker-to-oracle correspondence.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:49:27.563Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Reopen for verified critical Findings B-212f:F-003/F-004: replace lexical shared-reference parity with a semantic same-source predicate binding and polarity-inversion RED.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T09:58:55.003Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "proof-or-stop-implementer commit 1002a29499cca1a0a57d4cd5ec9a561156076665 repairs F-003/F-004 with branch-polarity semantic signatures, source provenance, and three executable inverse mutations.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:28:42.223Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Retain verified implementer commit 414e02135b; shared evaluator refinement is tracked by CHK-003.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:28:43.978Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Retain verified implementer commit 414e02135b; shared evaluator refinement is tracked by CHK-003.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:28:45.898Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Retain verified implementer commit 7e18814556; shared evaluator refinement is tracked by CHK-003.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:28:47.466Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Retain verified implementer commit 7e18814556; shared evaluator refinement is tracked by CHK-003.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:28:49.377Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Implement approved shared evaluator and executable mutation proof after local main sync.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:53:53.460Z",
+      "phase": "DEV",
+      "itemId": "CHK-003",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implemented and committed by proof-or-stop-implementer at 5d0abf0edda6c3128da953c932223ec28e4310ac. Shared evaluator replaces disproven parser; final frozen test e61291fd92 passes, original parity remains unchanged, build/process-fact/flow smoke pass.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:53:54.549Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Restore already implemented bounded selector repair after main merge f23f3d70ca; merged build and evidence-receipt smoke passed.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T11:53:55.532Z",
+      "phase": "DEV",
+      "itemId": "CHK-004",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Verified implementer commit8b1e7bce0a and merge f23f3d70ca retain complete private output selector/digest with bounded public and persisted windows. Current merged build and evidence-receipt smoke passed; tool-owned receipts will be refreshed on committed material.",
+      "agent": "proof-or-stop-implementer"
+    },
+    {
+      "timestamp": "2026-09-05T16:59:18.671Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Owner starts the exact eight-family repair assigned to the canonical independent implementer after RI-003 authorized remediation."
+    },
+    {
+      "timestamp": "2026-09-05T17:09:47.027Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "pending",
+      "reason": "Implementation61ea99033b is committed; full pinned verification is blocked by separately tracked F-050/F-051 and CHK-006. Keep one item in progress without claiming CHK-005 acceptance."
+    },
+    {
+      "timestamp": "2026-09-05T17:09:47.986Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Owner starts exact F-050/F-051 repairs while CHK-005 awaits its dependent verifier results."
+    },
+    {
+      "timestamp": "2026-09-05T17:24:24.911Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "pending",
+      "reason": "Repair08680744ba is committed and CLI verifier passes; complete guard verification remains blocked by F-052/F-053, assigned separately to CHK-007."
+    },
+    {
+      "timestamp": "2026-09-05T17:24:25.756Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Owner authorizes exact F-052/F-053 repair preserving the existing strict refresh contract and unchanged runtime rejection tests."
+    },
+    {
+      "timestamp": "2026-09-05T17:40:30.165Z",
+      "phase": "DEV",
+      "itemId": "CHK-007",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Canonical implementer31351f6c67, unchanged E1/E2/E3 plus generic causal control pass; Owner tool receipts0993b46/6006220/9e7e150 cover all26 pinned intents on final source. Formal131 validation still pending."
+    },
+    {
+      "timestamp": "2026-09-05T17:40:47.805Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Resume acceptance of the preserved canonical implementer commit after its separately tracked verifier dependencies were repaired."
+    },
+    {
+      "timestamp": "2026-09-05T17:40:48.825Z",
+      "phase": "DEV",
+      "itemId": "CHK-005",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer61ea99033b and08680744ba are preserved with final dependency repair31351f6c67. Owner real batches0993b46/6006220/9e7e150 verify all26 pins; dry-run freshness reports no stale evidence. Original parity/shared and strict E controls retained; formal131 validation pending."
+    },
+    {
+      "timestamp": "2026-09-05T17:40:50.149Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "pending",
+      "to": "in_progress",
+      "reason": "Resume acceptance of the preserved canonical implementer commit after its separately tracked verifier dependencies were repaired."
+    },
+    {
+      "timestamp": "2026-09-05T17:40:50.995Z",
+      "phase": "DEV",
+      "itemId": "CHK-006",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Implementer61ea99033b and08680744ba are preserved with final dependency repair31351f6c67. Owner real batches0993b46/6006220/9e7e150 verify all26 pins; dry-run freshness reports no stale evidence. Original parity/shared and strict E controls retained; formal131 validation pending."
     }
   ]
 }

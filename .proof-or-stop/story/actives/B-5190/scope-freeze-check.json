@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-5190",
+  "checkedAt": "2026-09-06T15:15:46.377Z",
+  "mode": "correctness_fix",
+  "status": "pass",
+  "scopeBoundaryHash": "2faded339a7e0da1fbc5a5f2682f6a66fc14aa1f9e98852c679e28e141bf8013",
+  "executionBoundaryHash": "d88023d4f71670b7c2387c0a8716e70b1e61742b7a08f2f3d2308e1e19467513",
+  "freshnessHash": "9c34887286254050afd9e96fd7226e1c1e483a736bc67dc456751ea74094445a",
+  "effectiveExcludedKeywords": [
+    "Authority",
+    "B-bcae metadata edits",
+    "Broader prompt policy redesign",
+    "customerKeyRef",
+    "Layer4",
+    "repair UX",
+    "Story state-machine changes"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Authority",
+      "source": "checklist.excludes",
+      "text": "Weakening affirmative or ambiguous triage-authority rejection",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "B-bcae metadata edits",
+      "source": "scopeBoundary.excluded",
+      "text": "B-bcae metadata edits",
+      "excluded": true
+    },
+    {
+      "keyword": "Broader prompt policy redesign",
+      "source": "scopeBoundary.excluded",
+      "text": "Broader prompt policy redesign",
+      "excluded": true
+    },
+    {
+      "keyword": "Story state-machine changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Story state-machine changes",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "c2df2e5d112e4e2126952cc2936cdd44f8a87627edd280a6477b17a852a9a262"
+}

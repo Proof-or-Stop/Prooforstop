@@ -782,7 +782,9 @@ const typeProgramInstrumentation = {
 // AST candidate, so that previously prefilter-skipped file now reaches full
 // dynamic analysis too. Every other file B-1482 touches under the scanned
 // directories was already counted, so the ceiling moved by exactly two.
-const DYNAMIC_BINDING_BUILD_CEILING = 811;
+// B-fe8f adds five further candidate-bearing Finding Ledger and Runtime
+// Evidence Integrity sources, so the merged inventory moves from 811 to 816.
+const DYNAMIC_BINDING_BUILD_CEILING = 816;
 const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {

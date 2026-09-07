@@ -1436,6 +1436,51 @@
         "policySource": "explicit-dyn1-audit-v1"
       },
       {
+        "label": "B-212f CHK-001: done_prepare and DONE reject missing finish decisions and stale reviewer diff-pack bindings with matching diagnostics without mutating reviewer evidence",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-done-prepare-done-parity.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "label": "B-212f CHK-003: shared DONE predicates reach boolean, diagnostic and preflight consumers with executable mutation protection",
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-done-shared-predicates.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "label": "B-212f CHK-003: historical DONE presentation preserves snapshot assurance without reopening live reviewer eligibility, and rejected delivery artifacts remain structured blockers",
+        "command": "node",
+        "args": [
+          "packages/main/dist/tasks/post-done-closure-snapshot-smoke.js"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
         "command": "node",
         "args": [
           "packages/main/tests/red/red-b49d4-harness-registration.mjs"
@@ -2216,6 +2261,20 @@
           {
             "class": "fixed-path",
             "key": "proof-or-stop.config.json",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
             "access": "shared"
           }
         ]
