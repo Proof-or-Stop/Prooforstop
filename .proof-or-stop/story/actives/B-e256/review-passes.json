@@ -4683,6 +4683,56 @@
       },
       "readDiagnostics": [],
       "_hash": "8d55457c0f831ee389313eb18037c0bf8bcb67fb934b0d7668aa32e345bb1ea2"
+    },
+    {
+      "id": "B-e256:RP-107",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 24 test coverage review passed: 18 intents total, all 16 must intents are bound by AC-001 and covered by current material/story-bound evidence, with zero waivers or gaps. F-045 repair is mutation-sensitive: real Node executions prove --version and -e decoys do not execute the following target, the production Windows-shim verifier rejects both and suppresses the pass marker, while the representative npm shim and node -- target positive forms remain accepted. F-046 repair is real: proofstory_review_completeness_check in enforce mode returns pass with gaps=[], and the stored full validation is PASS for all 132 configured commands with matching materialHash b25423a5 and storyFilesHash efe5a8bf. Fresh focused runs passed global-core-realpath, runtime-fact contract, red-global-cli-exec-bit, validation-tier-planner-smoke, and git diff --check.",
+      "createdAt": "2026-09-07T00:38:50.202Z",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "reviewRunId": "B-e256:RR-152",
+      "envelopeId": "3aa7f54a22bf2de6838f0568ea7579798c2eddb77819c9ca379a54f15c31f159",
+      "writerSessionId": "sess-79fa6c9f2bcd285437701996e2d42f4b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/test-evidence.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json",
+          "scripts/build-main-with-binding.mjs",
+          "scripts/build-utils-with-binding.mjs",
+          "scripts/promote-dist.mjs",
+          "scripts/verify-runtime-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/understanding.json",
+          "packages/main/src/core/proofstory.ts",
+          "packages/main/src/handlers/doctor.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b6ea4bc3e7e38aa11113ed50b1b75b798d33fdd758e32a2fa384ae7fe1ffdf75"
     }
   ]
 }
