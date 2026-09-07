@@ -672,7 +672,7 @@
       "desc": "Imported original Claude final round 2, observation 5. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:409 severity=medium. Original text verbatim: historicalProbe is now unconditionally sourced from the in-file registrationMirrorBinding constant on BOTH paths, whereas previously the non-mirror path executed a real repro_probe_get CLI read. The four historical assertions at 410-414 consequently compare the constant against constants declared in the same file (PROBE_DIGEST at line 36, BASELINE_HEAD at 42), so they are tautological except insofar as they cross-check against `original.failureReceiptHash` and `official.baselineHeadHash`, which on the non-mirror path DO come from a real red_evidence_get CLI read (line 402). Those two cross-checks (413, 414) are the real content and they remain intact. The digest-integrity pin on the whole binding object (REGISTRATION_MIRROR_BINDING_DIGEST, line 190, asserted at 383-387) only fires in mirror mode, so on the normal path the constant block is unpinned. Actionable: extending that binding-digest assertion to both paths would restore tamper-evidence for the constants that the surviving cross-checks depend on. This is the honest cost of removing the non-distributed probe dependency, and the comment at 406-408 states the tradeoff plainly rather than concealing it.\nIndependent current assessment at df2133a1c8: The binding SHA256 assertion now executes unconditionally before the mirror branch. Normal red_evidence_get cross-checks remain. The identified normal-path missing binding pin is addressed. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "suspected",
       "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
       "agent": "proof-or-stop-review-quality",
@@ -701,7 +701,10 @@
       "signatureTag": "missing|mjs|imported-original-claude",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr4ndkz_oo3_675c14aae76f4988a18a95e57dd531ef",
-      "ledgerCommitReceiptId": "lrc_mtr4ndkz_oo3_f08caf5f07864964a167a7f90ee1a30e"
+      "ledgerCommitReceiptId": "lrc_mtr4ndkz_oo3_f08caf5f07864964a167a7f90ee1a30e",
+      "resolvedAt": "2026-09-07T10:59:26.086Z",
+      "resolvedReason": "a1d58dd487 applies the original historical binding digest pin unconditionally on both normal and mirror paths. The pin value and historical identity references remain unchanged. Focused and mirror checks passed.",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-42f6:F-019",
