@@ -2465,7 +2465,7 @@
       "desc": "acceptance-binding topology/proof absent independently of F-048: .proof-or-stop/story/actives/B-e256/proofstory.json:34-62 defines high-assurance AC-001 and its 16 must intent refs but no `verificationTopology`. On the current frozen material, read-only `acceptance_topology_check --storyId=B-e256 --json` returns status=inconclusive, structuralPass=false, basisStatus=unsupported, topologyState=legacy_missing with AT_COVERAGE_BASIS_PARTIAL and AT_MISSING_TOPOLOGY in addition to F-048's separate AT_SCOPE_BINDING_MISSING. The persisted plan basis is already `status: unsupported` at acceptance-basis.json:7, so merely rebinding its stale scope digest cannot establish topology. Independently, current `pre_review_check_read` returns status=inconclusive/ok=false with PR_COVERAGE_INCONCLUSIVE, PR_PRODUCTION_PATH_UNPROVEN, PR_MUTATION_EVIDENCE_MISSING, PR_MUTATION_DID_NOT_BITE, PR_CONTROL_NOT_RESTORED, PR_TRANSCRIPT_MISSING and PR_AUTHORITY_INADMISSIBLE; pre-review-check.json:437-446 persists that result against the current scope-check digest. This canonical lane requires executable verifier-owned topology/pre-review evidence, so AC-001 still lacks a passing structural and mutation-sensitive acceptance proof even after F-048 is repaired. Add the required verificationTopology and generate a current passing acceptance basis/pre-review proof with production-path, mutation/control-restoration and transcript evidence. Direct high-assurance acceptance/lifecycle evidence gap; severity: high.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-07T00:45:43.364Z",
@@ -2510,7 +2510,11 @@
       "signatureTag": "proofstory-acceptance-topology-and-pre-review-proof-missing",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqirosm_1tce_3c36969f16154607bcf4eabbde9905ca",
-      "ledgerCommitReceiptId": "lrc_mtqirosm_1tce_93f20181bf8a4cbda95e4603b5ace7d7"
+      "ledgerCommitReceiptId": "lrc_mtqirosm_1tce_93f20181bf8a4cbda95e4603b5ace7d7",
+      "resolvedReason": "Commits 9a8f26766f and 866a15937f bind pre-review and production proof scenarios to the active Story; the 58-assertion terminal contract, pre_review_check, acceptance-basis smoke, and full validation all pass on the final binding.",
+      "resolvedAt": "2026-09-07T11:06:10.293Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-052",
