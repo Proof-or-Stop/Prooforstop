@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "da96370266d0a4c92e4a1c9220d576f68784483a80ab98bd22cc77e687214eb9",
+  "committedLedgerDigest": "daed2a24b5e25e321cbd7c3b14ae90a59b9fb93deb5e83b7caedf7c571e2b666",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2882,6 +2882,60 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T07:56:35.015Z"
+    },
+    {
+      "recordId": "lr_mtqy6bp6_97s_5f383acaa89f4c3e9294a35b83a65838",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:4558d86b-4b8d-4ca7-bfc5-6b243c372da8",
+      "payload": {
+        "id": "B-8a40:F-086",
+        "desc": "quality-cleanup: packages/main/src/core/prompt-envelope.ts:379 declares TRIAGE_INVENTORY_AUTHORITY_ACTION and nothing ever reads it, so this diff adds dead code that no build or lint step can catch. Mechanical evidence at this HEAD: a repository-wide search for the identifier returns exactly one hit in executable source, packages/main/src/core/prompt-envelope.ts:1, which is the declaration itself; the only other hits are B-8a40 story metadata (findings.json, review-inventory-epochs.json, prompt-envelopes.json). The constant is a module-local const with no export, so no other module can reference it. Provenance: it was the finite verb blacklist that the earlier resolved test-inventory finding rejected; the repair replaced that approach with isNominalTriageTestTopics plus the recursive reviewTriageAuthorityViolation call at lines 716-722, and the old constant was left behind. Failure scenario: packages/main/tsconfig.json (read end to end) sets strict but does not set noUnusedLocals or noUnusedParameters, so tsc --noEmit, and therefore the proof-or-stop validate --lint REVIEW gate, compiles this file clean and the dead declaration survives indefinitely; a future editor of this classifier reads a live-looking verb blacklist next to the live specs and can reasonably believe the inventory path still consults it. Suggested fix: delete line 379. Severity low: no runtime behaviour depends on it and no gate evidence is affected. Read boundary for this finding: packages/main/tsconfig.json end to end, the complete git diff main...HEAD hunk that introduces line 379, prompt-envelope.ts lines 150-285, 376-382 and 586-645, and a repository-wide identifier search.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T07:57:00.471Z",
+        "reviewRound": "2026-09-07T07:37:25.032Z",
+        "reviewRunId": "B-8a40:RR-151",
+        "readManifest": {
+          "filesReadFully": [
+            ".gitignore",
+            "packages/main/tsconfig.json"
+          ],
+          "filesTriagedByName": [
+            "package.json",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "packages/main/src/tasks/run-all-smokes.ts",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "d15e0dcc37d4445bc9914ca907e8bb6a6bc8876adfcd5dafc7b27a4bcb41f7c6",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts"
+        ],
+        "signatureTag": "b8a40-classifier-dead-code",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "6c0c1a3b8685d094dc23bfe47125e18b20f4fe1bed4a0a7da0e0ae7793df37ad",
+      "priorDigest": "da96370266d0a4c92e4a1c9220d576f68784483a80ab98bd22cc77e687214eb9",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T07:57:00.474Z"
     }
   ],
   "receipts": [
@@ -7106,6 +7160,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "bdaee993a083a34f439c4e4db719f10ed3e47fe072920b5eb71d16a7710ca3bb",
         "signature": "tJfNWwfjUeNmuKhIlUvLDsJ0C8fwDUOVA/G4CUx+YplMs1jjCQtvVx5e5VkGdBAQkOlFPFD71B9UVhVBCV+eDA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqy6bp7_97s_0cfc181053d54d0ea6fa808944edd49d",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:4558d86b-4b8d-4ca7-bfc5-6b243c372da8",
+      "requestDigest": "90cd867d0c2f6167b136bb2918be2450db089dcd10086eedc91e852550dacf2b",
+      "recordIds": [
+        "lr_mtqy6bp6_97s_5f383acaa89f4c3e9294a35b83a65838"
+      ],
+      "priorLedgerDigest": "da96370266d0a4c92e4a1c9220d576f68784483a80ab98bd22cc77e687214eb9",
+      "committedLedgerDigest": "daed2a24b5e25e321cbd7c3b14ae90a59b9fb93deb5e83b7caedf7c571e2b666",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "writerFenceToken": "d26ef4ee-e566-48aa-aa3b-b88886f96cfd",
+      "committedAt": "2026-09-07T07:57:00.474Z",
+      "replayed": false,
+      "exactRequestDigest": "4f7afca52324bbea34223e50e65e592b3e0d8300324bcc0061f40ac91a583ce7",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqy6bp7_97s_0cfc181053d54d0ea6fa808944edd49d",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:4558d86b-4b8d-4ca7-bfc5-6b243c372da8",
+        "exactRequestDigest": "4f7afca52324bbea34223e50e65e592b3e0d8300324bcc0061f40ac91a583ce7",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqy6bp6_97s_5f383acaa89f4c3e9294a35b83a65838"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "da96370266d0a4c92e4a1c9220d576f68784483a80ab98bd22cc77e687214eb9",
+        "committedLedgerDigest": "daed2a24b5e25e321cbd7c3b14ae90a59b9fb93deb5e83b7caedf7c571e2b666",
+        "replayed": false,
+        "committedAt": "2026-09-07T07:57:00.474Z",
+        "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "d26ef4ee-e566-48aa-aa3b-b88886f96cfd",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "592f139323a48f78153f5722fd381106ce27a88928916018b8774c323731969d",
+        "signature": "JEemX3NZlMbYJJIDOtWBaCqIv7N/WuVMDn5v69SvPrgDYmnNH2aK2H4BDMj6ZqNtWgabSyicECFP8an4CjGFCw=="
       }
     }
   ]

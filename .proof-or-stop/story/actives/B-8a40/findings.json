@@ -4333,6 +4333,52 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqy5s1z_5g_07e1984dbd4d48fea225e1e63ab5e1ec",
       "ledgerCommitReceiptId": "lrc_mtqy5s20_5g_e944576ee1834c6b86004730a7208658"
+    },
+    {
+      "id": "B-8a40:F-086",
+      "desc": "quality-cleanup: packages/main/src/core/prompt-envelope.ts:379 declares TRIAGE_INVENTORY_AUTHORITY_ACTION and nothing ever reads it, so this diff adds dead code that no build or lint step can catch. Mechanical evidence at this HEAD: a repository-wide search for the identifier returns exactly one hit in executable source, packages/main/src/core/prompt-envelope.ts:1, which is the declaration itself; the only other hits are B-8a40 story metadata (findings.json, review-inventory-epochs.json, prompt-envelopes.json). The constant is a module-local const with no export, so no other module can reference it. Provenance: it was the finite verb blacklist that the earlier resolved test-inventory finding rejected; the repair replaced that approach with isNominalTriageTestTopics plus the recursive reviewTriageAuthorityViolation call at lines 716-722, and the old constant was left behind. Failure scenario: packages/main/tsconfig.json (read end to end) sets strict but does not set noUnusedLocals or noUnusedParameters, so tsc --noEmit, and therefore the proof-or-stop validate --lint REVIEW gate, compiles this file clean and the dead declaration survives indefinitely; a future editor of this classifier reads a live-looking verb blacklist next to the live specs and can reasonably believe the inventory path still consults it. Suggested fix: delete line 379. Severity low: no runtime behaviour depends on it and no gate evidence is affected. Read boundary for this finding: packages/main/tsconfig.json end to end, the complete git diff main...HEAD hunk that introduces line 379, prompt-envelope.ts lines 150-285, 376-382 and 586-645, and a repository-wide identifier search.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T07:57:00.471Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-151",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d15e0dcc37d4445bc9914ca907e8bb6a6bc8876adfcd5dafc7b27a4bcb41f7c6",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "signatureTag": "b8a40-classifier-dead-code",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqy6bp6_97s_5f383acaa89f4c3e9294a35b83a65838",
+      "ledgerCommitReceiptId": "lrc_mtqy6bp7_97s_0cfc181053d54d0ea6fa808944edd49d"
     }
   ]
 }
