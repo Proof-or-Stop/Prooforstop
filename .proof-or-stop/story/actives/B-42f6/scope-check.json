@@ -82,10 +82,12 @@
       "q": "How will the authorized inherited remote path population be represented to the mechanical scope gate while preserving the narrow eleven-conflict hand-edit boundary?",
       "evidence": "execution-boundary explicitly authorizes inherited remote changes across the repository, but scope-contract is enforce mode and lists only eleven allowedModify paths. The merge brings a much larger nonconflicting remote diff. This is an accounting question, not permission to broaden hand edits.",
       "sourcePointers": [
-        ".proof-or-stop/story/actives/B-42f6/execution-boundary.json",
         ".proof-or-stop/story/actives/B-42f6/scope-contract.json",
-        ".proof-or-stop/story/actives/B-42f6/checklist.json"
-      ]
+        ".proof-or-stop/story/actives/B-42f6/execution-boundary.json",
+        ".proof-or-stop/story/actives/B-42f6/plan.md"
+      ],
+      "resolution": "The enforced scope contract now enumerates exact modified/new paths from the pinned merge-tree 98280893666479d0bdf6d2ef916f3b21fea24e06 of local d5b00d0ff3 and remote c853ab5e63. These inherited paths are explicitly authorized by the user integration request and execution boundary. Manual resolutions remain limited to the eleven observed conflict files; independent review will compare the final diff with both parents and preserve nonconflicting inherited blobs. CLI-owned lifecycle metadata remains separately classified.",
+      "resolvedAt": "2026-09-07T07:59:13.233Z"
     }
   ]
 }
