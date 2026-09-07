@@ -1,0 +1,251 @@
+{
+  "schemaVersion": "proofstory.pre_review_check.v1",
+  "storyId": "B-5a52",
+  "mode": "observe",
+  "cutoffAt": "2026-09-07T02:25:33.327Z",
+  "planBasisDigest": "sha256:6c50792cbb783da2a21d3bd446180f5bdefbca6bc23a905e4657b458b39d00c0",
+  "preReviewBasisArtifact": {
+    "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+    "basis": {
+      "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+      "storyId": "B-5a52",
+      "phaseBasis": "pre_review",
+      "priorPlanBasisDigest": "sha256:6c50792cbb783da2a21d3bd446180f5bdefbca6bc23a905e4657b458b39d00c0",
+      "status": "unsupported",
+      "generatedBy": {
+        "verifier": "acceptance-coverage-basis-verifier",
+        "command": "proof-or-stop pre_review_check",
+        "algorithmVersion": "v1"
+      },
+      "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+      "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+      "discoveryMethods": [
+        "scope_contract",
+        "process_fact_registry",
+        "handler_dispatch_inventory",
+        "static_call_graph",
+        "runtime_trace"
+      ],
+      "adapterResults": [
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "handler-dispatch-inventory:plan:v1",
+          "method": "handler_dispatch_inventory",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for handler_dispatch_inventory"
+          ],
+          "provenanceRefs": [
+            "registered:handler_dispatch_inventory:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/graph/src/shells/web/playback.js"
+            ]
+          },
+          "resultDigest": "sha256:4d27015dcab4064f49af6a50e90e82444c0ca0624e0f0c3d09fa5637fd6b44a2"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "process-fact-registry:plan:v1",
+          "method": "process_fact_registry",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for process_fact_registry"
+          ],
+          "provenanceRefs": [
+            "registered:process_fact_registry:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/graph/src/shells/web/playback.js"
+            ]
+          },
+          "resultDigest": "sha256:27b4dc04a89e89a11d873bcd2ea741da66a1313f73a2d551f4fad708da87193d"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "runtime-trace:plan:v1",
+          "method": "runtime_trace",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for runtime_trace"
+          ],
+          "provenanceRefs": [
+            "registered:runtime_trace:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/graph/src/shells/web/playback.js"
+            ]
+          },
+          "resultDigest": "sha256:46cac1c04ae953418d66a30ce3210498bba23d8bc63316eec9ab887984b9a412"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "scope-contract:plan:v1",
+          "method": "scope_contract",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for scope_contract"
+          ],
+          "provenanceRefs": [
+            "registered:scope_contract:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/graph/src/shells/web/playback.js"
+            ]
+          },
+          "resultDigest": "sha256:bb75658738f74606a1f543b166befcd10c577ca1d018a411e44fcc4d1d4e478e"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "static-call-graph:plan:v1",
+          "method": "static_call_graph",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for static_call_graph"
+          ],
+          "provenanceRefs": [
+            "registered:static_call_graph:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/graph/src/shells/web/playback.js"
+            ]
+          },
+          "resultDigest": "sha256:d5b41608c56bf011b1e3396a89c8e7745799907e51800ae58bc140f8b2002a42"
+        }
+      ],
+      "scopeRefs": [
+        "scope:checklist:CHK-001",
+        "scope:file:packages/graph/src/shells/web/playback.js"
+      ],
+      "sourceInventoryRefs": [],
+      "plannedPathRecords": [],
+      "plannedActualReconciliations": [],
+      "enumeratedPathRefs": [],
+      "excludedPathRefs": [],
+      "blindSpots": [
+        "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+        "snapshot-seal:snapshot_missing:config:proof-or-stop.config.json",
+        "unsupported discovery profile for handler_dispatch_inventory",
+        "unsupported discovery profile for process_fact_registry",
+        "unsupported discovery profile for runtime_trace",
+        "unsupported discovery profile for scope_contract",
+        "unsupported discovery profile for static_call_graph"
+      ],
+      "snapshotSeal": {
+        "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+        "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inventoryDirectoryCount": 0,
+        "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "sourceSnapshotCount": 0,
+        "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "status": "partial",
+        "issues": [
+          {
+            "code": "inventory_unsealable",
+            "targetKind": "inventory",
+            "canonicalRef": "configured-source-root"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "config",
+            "canonicalRef": "proof-or-stop.config.json"
+          }
+        ],
+        "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
+      },
+      "binding": {
+        "headHash": "c8263eb450262df4a940cf6356c4817beaf394b0",
+        "materialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345",
+        "storyFilesHash": "da2ef4ccdb9a07a7daa004a24ebfb120b1001059fee6d6f0442add6152484c94",
+        "scopeCheckDigest": "sha256:ef099b8f127a708d5020cb72ddae1329a1334eadb8201fb03d5120906d42a1f7",
+        "scopeContractDigest": "sha256:dbf2fa8cdb622898dbcdcb7f128da9d98e6b3b1d332e2963151bc31a20461405",
+        "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "receiptRef": "receipt:coverage-basis:B-5a52:pre_review:8d94da668ee6f8a7",
+      "basisDigest": "sha256:23f2fddf5813023de90a30ba40cbb070299f86dad0321bbc2aeb7ed1c198378f"
+    },
+    "receipt": {
+      "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+      "receiptRef": "receipt:coverage-basis:B-5a52:pre_review:8d94da668ee6f8a7",
+      "issuer": "acceptance-coverage-basis-verifier",
+      "issuerKeyId": "sha256:fc6efb8f40aa4137710e0ee71d8a2fcea3538e9f7e516c82f2691113b34d657f",
+      "signerPublicKey": "KwFmo5bRLWrhI7wKjbpDmQnv+QelTsY549l9lL1TyaY=",
+      "storyId": "B-5a52",
+      "phaseBasis": "pre_review",
+      "basisDigest": "sha256:23f2fddf5813023de90a30ba40cbb070299f86dad0321bbc2aeb7ed1c198378f",
+      "topologyDigest": "sha256:d023537e454c04e03a653bcd7bddd0ab3a3140d799b8e59bbb68c294ef68c8b5",
+      "scopeCheckDigest": "sha256:ef099b8f127a708d5020cb72ddae1329a1334eadb8201fb03d5120906d42a1f7",
+      "scopeContractDigest": "sha256:dbf2fa8cdb622898dbcdcb7f128da9d98e6b3b1d332e2963151bc31a20461405",
+      "headHash": "c8263eb450262df4a940cf6356c4817beaf394b0",
+      "materialHash": "d9b970cf4b377c7b9861201d0daa85abd8814ec7419a4be6b636dd6657626345",
+      "storyFilesHash": "da2ef4ccdb9a07a7daa004a24ebfb120b1001059fee6d6f0442add6152484c94",
+      "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
+      "workspaceIdentityDigest": "sha256:447b9249a31c51b517213575ae8075a7e3e9c3946c1355ad6d62aa788ba2125c",
+      "signature": "bpxKWzDBAAzHncKs9hiErU5DsiJobthGPERxINEJ2Am+eFD90TGa+ca8bO76GtwKw2oelcy5TfJq9bieKtTUCA=="
+    }
+  },
+  "topologyDigest": "sha256:d023537e454c04e03a653bcd7bddd0ab3a3140d799b8e59bbb68c294ef68c8b5",
+  "scopeCheckDigest": "sha256:ef099b8f127a708d5020cb72ddae1329a1334eadb8201fb03d5120906d42a1f7",
+  "scopeContractDigest": "sha256:dbf2fa8cdb622898dbcdcb7f128da9d98e6b3b1d332e2963151bc31a20461405",
+  "storyFilesHash": "da2ef4ccdb9a07a7daa004a24ebfb120b1001059fee6d6f0442add6152484c94",
+  "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "evidenceRefs": [],
+  "executableProof": {
+    "schemaVersion": "proofstory.pre_review_executable_proof.v1",
+    "storyId": "B-5a52",
+    "producer": "registered-verification-command",
+    "verifier": "pre-review-check-command-runner",
+    "commandDigests": [],
+    "caseRecordsEncoding": "gzip-base64",
+    "caseRecords": "",
+    "provenance": {
+      "runnerPath": "",
+      "runnerDigest": "",
+      "targetPath": "",
+      "targetDigest": "",
+      "buildCommand": ""
+    },
+    "bindingProofs": []
+  },
+  "codes": [
+    "PR_COVERAGE_INCONCLUSIVE",
+    "PR_POSITIVE_EVIDENCE_MISSING",
+    "PR_PRODUCTION_PATH_UNPROVEN",
+    "PR_MUTATION_EVIDENCE_MISSING",
+    "PR_MUTATION_DID_NOT_BITE",
+    "PR_CONTROL_NOT_RESTORED",
+    "PR_TRANSCRIPT_MISSING",
+    "PR_AUTHORITY_INADMISSIBLE",
+    "PR_EVIDENCE_STALE"
+  ],
+  "status": "inconclusive",
+  "issuedAt": "2026-09-07T02:25:33.327Z",
+  "signerPublicKey": "Vk8Szjse1H/bpS7CSJZAHaa19VFMJPDZaOIo5dYz7CU=",
+  "signature": "xe3c6iNJUaYgiOBg0dbTk5pB/WKCc5k281mx9ZdUgaaeSxUPSKY+8rK0wh5AO70N1GSlWbkG7HEXEPQvFLm5DA=="
+}
