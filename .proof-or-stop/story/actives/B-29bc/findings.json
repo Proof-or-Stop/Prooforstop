@@ -137,6 +137,52 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3lhm8_ebo_bd9e5dd0228e4ae1b26305f8875a0347",
       "ledgerCommitReceiptId": "lrc_mtr3lhm8_ebo_6786804b131c49799f130a389cf95d3b"
+    },
+    {
+      "id": "B-29bc:F-004",
+      "desc": "doc-promise-undelivered: RI-002 wave-2 re-observation of the exact documentary defect in B-29bc:F-003, whose underlying runtime cause is B-29bc:F-001; no new runtime cause or additional family is claimed. Fresh full reads of docs/audits/inventory-critic-purpose-isolation.md and docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md show the same audit promise at lines 26-27 and 86-87: signed terminal reads are required and missing reads remain refusals. The controlling decision lines 129-140 requires BOTH readManifest and readLog. Fresh inspection of packages/main/src/core/review-inventory-epoch.ts:309-318 confirms the unchanged pass predicate accepts verifyReviewPass alone and hashes absent readLog as null, whereas findings require both read fields. The same current-round F-001/F-002/F-003 are verified/open in official finding_list and this run's canonical context. git diff 5ebed6e...HEAD shows only reviewer/inventory bookkeeping, no implementation, docs, checklist, background or plan change; the selected SAFE_INCREMENTAL context reports changedFiles=[] and unchanged Story/scope bindings. Thus the previously completed integrated two-item concept review remains applicable: there is no en-masse concept deletion, intended legacy topology/default behavior remains, and the sole documentary observation here remains unfixed. The current lane body requires critical missing for this promised-but-undelivered behavior, so this is a fresh finding terminal, not a no-blocker PASS or a repair claim. Preserve F-001, F-002 and F-003 without severity/status rewrite; F-002 is the separate already-tracked critic-aggregate defect, not this observation's root. Family/duplicate classification belongs to the independent critic and owner, not this description. CHK-002 audit accuracy and CHK-001 terminal-read acceptance remain the applicability candidates. Prior full Story-input reads are reused only after the unchanged-material and exact diff checks; the two documentation full-read events supplied here were freshly performed in this wave. No tests rerun, source edited, topology authority or actual-host assurance claimed.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T10:35:32.731Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "81d42b06ff95ab506407c68abe8b6cf75df9663909f6fd43bc92e6ee97da348d",
+      "files": [
+        "docs/audits/inventory-critic-purpose-isolation.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-wave",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3u7ek_1w3l_e18cca4a813040c1a6d3a61f63dae39d",
+      "ledgerCommitReceiptId": "lrc_mtr3u7ek_1w3l_7db18eb644fc48e1aacce19a64b221df"
     }
   ]
 }

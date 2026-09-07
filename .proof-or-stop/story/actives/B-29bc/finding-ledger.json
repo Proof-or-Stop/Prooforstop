@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "ed94708658b33a8eae018be3dacc66dced665f728af98ea904d819e815bbaa91",
+  "committedLedgerDigest": "44b1d73322acce5c8410b33a6461ccf7507e37d11daba8d42e0c56f1d4a49f82",
   "records": [
     {
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
@@ -165,6 +165,60 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T10:28:46.064Z"
+    },
+    {
+      "recordId": "lr_mtr3u7ek_1w3l_e18cca4a813040c1a6d3a61f63dae39d",
+      "recordType": "finding",
+      "idempotencyKey": "codex-b29bc-ri002-wave2-concept-audit-read-promise-v1",
+      "payload": {
+        "id": "B-29bc:F-004",
+        "desc": "doc-promise-undelivered: RI-002 wave-2 re-observation of the exact documentary defect in B-29bc:F-003, whose underlying runtime cause is B-29bc:F-001; no new runtime cause or additional family is claimed. Fresh full reads of docs/audits/inventory-critic-purpose-isolation.md and docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md show the same audit promise at lines 26-27 and 86-87: signed terminal reads are required and missing reads remain refusals. The controlling decision lines 129-140 requires BOTH readManifest and readLog. Fresh inspection of packages/main/src/core/review-inventory-epoch.ts:309-318 confirms the unchanged pass predicate accepts verifyReviewPass alone and hashes absent readLog as null, whereas findings require both read fields. The same current-round F-001/F-002/F-003 are verified/open in official finding_list and this run's canonical context. git diff 5ebed6e...HEAD shows only reviewer/inventory bookkeeping, no implementation, docs, checklist, background or plan change; the selected SAFE_INCREMENTAL context reports changedFiles=[] and unchanged Story/scope bindings. Thus the previously completed integrated two-item concept review remains applicable: there is no en-masse concept deletion, intended legacy topology/default behavior remains, and the sole documentary observation here remains unfixed. The current lane body requires critical missing for this promised-but-undelivered behavior, so this is a fresh finding terminal, not a no-blocker PASS or a repair claim. Preserve F-001, F-002 and F-003 without severity/status rewrite; F-002 is the separate already-tracked critic-aggregate defect, not this observation's root. Family/duplicate classification belongs to the independent critic and owner, not this description. CHK-002 audit accuracy and CHK-001 terminal-read acceptance remain the applicability candidates. Prior full Story-input reads are reused only after the unchanged-material and exact diff checks; the two documentation full-read events supplied here were freshly performed in this wave. No tests rerun, source edited, topology authority or actual-host assurance claimed.",
+        "severity": "critical",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-07T10:35:32.731Z",
+        "reviewRound": "2026-09-07T10:03:42.307Z",
+        "reviewRunId": "B-29bc:RR-011",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-29bc/background.md",
+            ".proof-or-stop/story/actives/B-29bc/checklist.json",
+            ".proof-or-stop/story/actives/B-29bc/plan.md",
+            "docs/audits/inventory-critic-purpose-isolation.md",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+        },
+        "readDiagnostics": [],
+        "_hash": "81d42b06ff95ab506407c68abe8b6cf75df9663909f6fd43bc92e6ee97da348d",
+        "files": [
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts"
+        ],
+        "signatureTag": "missing|md|promise-undelivered-wave",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "844bda57b4803649ad2b757c95ec87dcc4501f95f16ef7dbe0977ba7cda9b34f",
+      "priorDigest": "ed94708658b33a8eae018be3dacc66dced665f728af98ea904d819e815bbaa91",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T10:35:32.732Z"
     }
   ],
   "receipts": [
@@ -295,6 +349,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "d3a19903537736c282b70af38fc031225dd31d06055272d2bce83bbddac3031b",
         "signature": "aofXPO2TBHv/RyCMsJLVbBs7s8KpON+99SglIgVgY8uAvizVBo8t4tW0tN5VQ9JKt7wT/3Bfq/f76LVAHg/lAQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr3u7ek_1w3l_7db18eb644fc48e1aacce19a64b221df",
+      "operation": "append_finding",
+      "idempotencyKey": "codex-b29bc-ri002-wave2-concept-audit-read-promise-v1",
+      "requestDigest": "79f62ad16649a96164178f152104e10505b560cbaec05e82ae4c6137f43c8359",
+      "recordIds": [
+        "lr_mtr3u7ek_1w3l_e18cca4a813040c1a6d3a61f63dae39d"
+      ],
+      "priorLedgerDigest": "ed94708658b33a8eae018be3dacc66dced665f728af98ea904d819e815bbaa91",
+      "committedLedgerDigest": "44b1d73322acce5c8410b33a6461ccf7507e37d11daba8d42e0c56f1d4a49f82",
+      "writerSessionId": "codex-b29bc-ri002-wave2-concept",
+      "writerFenceToken": "e1f6c7bf-07d7-4cb8-920d-557a34d3bb1e",
+      "committedAt": "2026-09-07T10:35:32.732Z",
+      "replayed": false,
+      "exactRequestDigest": "c1b7a804d42be9b7b0a2c3834465c5e3012db238fa331ba48f35ba4456c06dca",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr3u7ek_1w3l_7db18eb644fc48e1aacce19a64b221df",
+        "storyId": "B-29bc",
+        "idempotencyKey": "codex-b29bc-ri002-wave2-concept-audit-read-promise-v1",
+        "exactRequestDigest": "c1b7a804d42be9b7b0a2c3834465c5e3012db238fa331ba48f35ba4456c06dca",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr3u7ek_1w3l_e18cca4a813040c1a6d3a61f63dae39d"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "ed94708658b33a8eae018be3dacc66dced665f728af98ea904d819e815bbaa91",
+        "committedLedgerDigest": "44b1d73322acce5c8410b33a6461ccf7507e37d11daba8d42e0c56f1d4a49f82",
+        "replayed": false,
+        "committedAt": "2026-09-07T10:35:32.732Z",
+        "writerSessionId": "codex-b29bc-ri002-wave2-concept",
+        "writerLeaseId": "codex-01a05441-inventory-recovery-owner",
+        "writerFenceToken": "e1f6c7bf-07d7-4cb8-920d-557a34d3bb1e",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "bfa27689b671a8d798f02411faccbb650d235304d054a72395944b63cac8510b",
+        "signature": "o17sTz+/DyuvvpyIPVfMSzz7oJlN2I1rAqoQJlu2+2yaGjyJQhhboQMquLmfxB/R8IdV4oM1u1NTFWW2dgBnDA=="
       }
     }
   ]
