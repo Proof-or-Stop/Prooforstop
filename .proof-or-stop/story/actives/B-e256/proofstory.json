@@ -389,6 +389,26 @@
           {
             "refKind": "existing",
             "canonicalSourceRef": "intent:CHK-003:adversarial:2"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#buildAcceptanceMatrixReport->consumer:packages/main/src/handlers/proofstory.ts#buildAcceptanceMatrixReport"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/core/acceptance-topology.ts#evaluateAcceptanceTopologyCheck->consumer:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyCheck"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceRolloutForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceRolloutForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluateAcceptanceTopologyForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluateAcceptanceTopologyForContext"
+          },
+          {
+            "refKind": "existing",
+            "canonicalSourceRef": "basis-path:path:static-call:packages/main/src/handlers/proofstory.ts#evaluatePreReviewCheckForContext->consumer:packages/main/src/handlers/transition-orchestrator.ts#evaluatePreReviewCheckForContext"
           }
         ]
       }
@@ -397,5 +417,5 @@
   "diagnosticGaps": [],
   "note": "B-e256 fail-closed cross-platform contract after RI-016: AC-001 binds every must verification intent to executable positive or mutation proof, the signed acceptance basis, and the acceptance topology gate. The implementation verifies promotion wiring, PATH/package agreement, target containment, exact npm cmd-shim peers, runtime invocation, and host-safe remediation.",
   "createdAt": "2026-09-02T15:27:29.019Z",
-  "updatedAt": "2026-09-07T08:43:59.807Z"
+  "updatedAt": "2026-09-07T08:44:37.324Z"
 }
