@@ -1,0 +1,52 @@
+{
+  "storyId": "B-42f6",
+  "changes": "Integrated remote main c853ab5e63 with completed local video branding and validation repairs using a normal merge. Preserved exact Proof-or-stop playback and exported-frame branding, remote stronger review/provenance guards, and the local mixed-selector regression. Included completed B-adc3 scope inventory repair via normal local main merge.",
+  "usage": "Open Story Graph timeline playback, use Export for video or GIF, and observe Proof-or-stop in the playback heading and exported frame chrome. Use the integrated CLI normally at version 0.3.278 before the automatic DONE version bump.",
+  "expectedOutcome": "Both remote and completed local histories remain ancestors; exported playback branding remains byte-identical to the accepted implementation; the integrated CLI and regression guards remain functional.",
+  "actualTranscript": "MERGE_HISTORY_BRANDING_PASS; MERGED_CLI_VERSION_PASS; english-early-check smoke passed; done-required-validation smoke passed; verification-run-and-guard-smoke: PASS. All five pinned intents refreshed on the actual merged code. Final source matched independent review candidate 1eba9af460 across packages, scripts, bin, configuration and package manifests.",
+  "outcomeDiff": "No difference in the verified branding, ancestry and targeted CLI behavior; full integrated validation and publication remain pending.",
+  "acceptanceVerdict": "partial",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Full integrated suite, final host bindings, delivery certification, DONE and remote publication are pending. Acceptance topology basis remains explicitly inconclusive rather than being represented as coverage proof. Scope inventories are bounded at 4096 entries and 1 MiB; generic lists and protected anchors retain 512.",
+  "pitfalls": "The original 799-path scope inventory exposed writer/reader budget mismatch. Separate Story B-adc3 repaired this and completed 128/128 plus 65/65 and real 3x2 reviews. Actual signed inventory recovery returned B-42f6 to DEV without bypass. Freeze all Story writes during full-suite verification because graph no-project-writes checks detect concurrent evidence metadata.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 137215
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 103733
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 359636
+    },
+    "DEV": {
+      "count": 2,
+      "durationMs": 4254077
+    },
+    "REVIEW": {
+      "count": 2,
+      "durationMs": 3399825
+    }
+  },
+  "totalDurationMs": 8255542,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-07T10:08:14.624Z",
+  "updatedAt": "2026-09-07T10:08:14.624Z"
+}
