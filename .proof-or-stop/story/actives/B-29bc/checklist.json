@@ -107,16 +107,16 @@
             "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK001_MATRIX PASS",
-            "executedAt": "2026-09-07T09:23:22.020Z",
+            "executedAt": "2026-09-07T09:41:58.311Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:f47314bf58233a34f9bacf827717b282d80a13fea914b56e7e35dd731be6b468",
-            "causalReceiptHash": "3201e0061ebebd2dd7c98dda5cc5fa6d70752a76f3079d6c8c35d2d3b29b8982",
+            "executionKey": "ce:v1:2c85879a69da8add3e6b9557d56e05f1d8914b444275334d129760caa4b97250",
+            "causalReceiptHash": "ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe",
             "commandReruns": 0
           },
-          "headHash": "f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8",
-          "materialHash": "1369a841626875e3887f7b1d5334989491a3fd6fc4c252448340313e3b8f2c0f",
-          "storyFilesHash": "1a9e57ff66cb58950c81af0a452f0e0e5b5791c6d8b82905e9195ffe403df054",
-          "timestamp": "2026-09-07T09:23:25.496Z"
+          "headHash": "418515e3b7d3cb86bd0d6d18e60a32ab12dc35a1",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+          "timestamp": "2026-09-07T09:47:38.583Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -132,16 +132,16 @@
             "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK001_MATRIX PASS",
-            "executedAt": "2026-09-07T09:23:22.020Z",
+            "executedAt": "2026-09-07T09:41:58.311Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:f47314bf58233a34f9bacf827717b282d80a13fea914b56e7e35dd731be6b468",
-            "causalReceiptHash": "3201e0061ebebd2dd7c98dda5cc5fa6d70752a76f3079d6c8c35d2d3b29b8982",
+            "executionKey": "ce:v1:2c85879a69da8add3e6b9557d56e05f1d8914b444275334d129760caa4b97250",
+            "causalReceiptHash": "ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe",
             "commandReruns": 0
           },
-          "headHash": "f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8",
-          "materialHash": "1369a841626875e3887f7b1d5334989491a3fd6fc4c252448340313e3b8f2c0f",
-          "storyFilesHash": "1a9e57ff66cb58950c81af0a452f0e0e5b5791c6d8b82905e9195ffe403df054",
-          "timestamp": "2026-09-07T09:23:25.496Z"
+          "headHash": "418515e3b7d3cb86bd0d6d18e60a32ab12dc35a1",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+          "timestamp": "2026-09-07T09:47:38.583Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -157,16 +157,16 @@
             "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK001_MATRIX PASS",
-            "executedAt": "2026-09-07T09:23:22.020Z",
+            "executedAt": "2026-09-07T09:41:58.311Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:f47314bf58233a34f9bacf827717b282d80a13fea914b56e7e35dd731be6b468",
-            "causalReceiptHash": "3201e0061ebebd2dd7c98dda5cc5fa6d70752a76f3079d6c8c35d2d3b29b8982",
+            "executionKey": "ce:v1:2c85879a69da8add3e6b9557d56e05f1d8914b444275334d129760caa4b97250",
+            "causalReceiptHash": "ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe",
             "commandReruns": 0
           },
-          "headHash": "f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8",
-          "materialHash": "1369a841626875e3887f7b1d5334989491a3fd6fc4c252448340313e3b8f2c0f",
-          "storyFilesHash": "1a9e57ff66cb58950c81af0a452f0e0e5b5791c6d8b82905e9195ffe403df054",
-          "timestamp": "2026-09-07T09:23:25.496Z"
+          "headHash": "418515e3b7d3cb86bd0d6d18e60a32ab12dc35a1",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+          "timestamp": "2026-09-07T09:47:38.583Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -182,16 +182,16 @@
             "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK001_MATRIX PASS",
-            "executedAt": "2026-09-07T09:23:22.020Z",
+            "executedAt": "2026-09-07T09:41:58.311Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:f47314bf58233a34f9bacf827717b282d80a13fea914b56e7e35dd731be6b468",
-            "causalReceiptHash": "3201e0061ebebd2dd7c98dda5cc5fa6d70752a76f3079d6c8c35d2d3b29b8982",
+            "executionKey": "ce:v1:2c85879a69da8add3e6b9557d56e05f1d8914b444275334d129760caa4b97250",
+            "causalReceiptHash": "ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe",
             "commandReruns": 0
           },
-          "headHash": "f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8",
-          "materialHash": "1369a841626875e3887f7b1d5334989491a3fd6fc4c252448340313e3b8f2c0f",
-          "storyFilesHash": "1a9e57ff66cb58950c81af0a452f0e0e5b5791c6d8b82905e9195ffe403df054",
-          "timestamp": "2026-09-07T09:23:25.496Z"
+          "headHash": "418515e3b7d3cb86bd0d6d18e60a32ab12dc35a1",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+          "timestamp": "2026-09-07T09:47:38.583Z"
         }
       ],
       "userSeesSnapshot": {
@@ -237,29 +237,157 @@
           {
             "desc": "Run the affected inventory handler/epoch, dispatch registry, reviewer-run, prompt registry and pre-review topology compatibility suites plus the process-fact verifier. Check the purpose schema, signed producer fields, canonical role prompt and consumer checks as one contract; retain existing assertions and report actual commands, exit codes and selectors rather than treating prompt prose as evidence.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/agent-dispatch-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-run-smoke.js\\\"],[\\\"packages/main/dist/tasks/prompt-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"],[\\\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\"],[\\\"scripts/verify-process-fact-contract.mjs\\\"]]) {const r=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(r.error)throw r.error; if(r.status!==0)process.exit(r.status??1);} console.log(\\\"B29BC_CHK002_COMPATIBILITY PASS\\\");\"",
+              "selector": "B29BC_CHK002_COMPATIBILITY PASS"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Review the English audit log against actual source and RED/GREEN commits and outputs. It states the recovered inventory-only workflow, preserved topology admission, real Git attribution, finite scope, synthetic-fixture limitations and local consumer freshness steps. It preserves original assertion outcomes, distinguishes recovery from B-7abb/B-03b7 completion, and does not present disposable host identity as independent-host assurance.",
             "type": "docs",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const assert=require(\\\"node:assert/strict\\\"); const {readFileSync}=require(\\\"node:fs\\\"); const {createHash}=require(\\\"node:crypto\\\"); const {execFileSync}=require(\\\"node:child_process\\\"); const text=readFileSync(\\\"docs/audits/inventory-critic-purpose-isolation.md\\\",\\\"utf8\\\"); assert.doesNotMatch(text,/[\\\\u3400-\\\\u9fff]/u); for(const token of [\\\"0c726415eab8a599ae2844d42386bc5a57d49d07\\\",\\\"91d8133a8f92aff7e02efff4fea31362bd6f4949\\\",\\\"f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8\\\",\\\"ff4e1bc2c7\\\",\\\"211fcc3\\\"]) {assert.ok(text.includes(token));execFileSync(\\\"git\\\",[\\\"cat-file\\\",\\\"-e\\\",token+\\\"^{commit}\\\"]);} for(const file of [\\\"packages/main/src/core/topology-critic-receipt.ts\\\",\\\"packages/main/src/core/machine.ts\\\",\\\"proof-or-stop.config.json\\\"]){execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--exit-code\\\",\\\"main...HEAD\\\",\\\"--\\\",file],{stdio:\\\"pipe\\\"});} const template=\\\"packages/main/templates/agents/proof-or-stop-review-topology-critic.md\\\"; assert.equal(readFileSync(template,\\\"utf8\\\"),execFileSync(\\\"git\\\",[\\\"show\\\",\\\"0c726415ea:\\\"+template],{encoding:\\\"utf8\\\"})); for(const token of [\\\"not a DONE certificate\\\",\\\"only preliminary symptom\\\",\\\"signed terminal\\\",\\\"authorizesTest=false\\\",\\\"Disposable fixture\\\",\\\"never declare an old hash fresh\\\",\\\"B-e6d9\\\"])assert.ok(text.includes(token),token); const outside=execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--name-only\\\",\\\"main...HEAD\\\",\\\"--\\\",\\\".proof-or-stop/story/actives/B-7abb\\\",\\\".proof-or-stop/story/actives/B-03b7\\\"],{encoding:\\\"utf8\\\"}); assert.equal(outside.trim(),\\\"\\\"); for(const file of [\\\"packages/main/src/handlers/story-dispatch.ts\\\",\\\"packages/main/src/handlers/review-run.ts\\\",\\\"packages/main/src/handlers/review-inventory.ts\\\"])assert.doesNotMatch(readFileSync(file,\\\"utf8\\\"),/Harmonynet|ordinary@example/); const guide=readFileSync(\\\"docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md\\\",\\\"utf8\\\");assert.ok(guide.includes('\\\"reviewPurpose\\\":\\\"inventory-completeness\\\"'));assert.ok(guide.includes('\\\"inventoryEpochId\\\":\\\"<epoch>\\\"'));console.log(\\\"B29BC_AUDIT_AND_BOUNDARIES PASS\\\");\"",
+              "selector": "B29BC_AUDIT_AND_BOUNDARIES PASS"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Present an inventory-purpose dispatch, run, terminal pass/finding or completeness receipt to each affected topology certification consumer, including purpose-field removal, mutation and alias replay. None may supply topology implementation provenance, waive missing topology evidence or authorize TEST/DONE. Conversely, an unbound default-topology run cannot silently satisfy the new explicit inventory-purpose binding; any retained historical compatibility is read-only and grants no stronger credential.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/agent-dispatch-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-run-smoke.js\\\"],[\\\"packages/main/dist/tasks/prompt-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"],[\\\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\"],[\\\"scripts/verify-process-fact-contract.mjs\\\"]]) {const r=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(r.error)throw r.error; if(r.status!==0)process.exit(r.status??1);} console.log(\\\"B29BC_CHK002_COMPATIBILITY PASS\\\");\"",
+              "selector": "B29BC_CHK002_COMPATIBILITY PASS"
+            }
           },
           {
             "desc": "Verify the committed diff and recovery instructions preserve the existing topology business-author/provenance checks, mandatory lifecycle predicates and consumer Story metadata. No username allowlist, fake implementer dispatch, author rewrite, configuration downgrade or topology-refusal-to-inventory retry may establish admission. Local integration into B-7abb must use canonical freshness and inventory status before remediation; no old signature or hash is manually declared current.",
             "type": "docs",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const assert=require(\\\"node:assert/strict\\\"); const {readFileSync}=require(\\\"node:fs\\\"); const {createHash}=require(\\\"node:crypto\\\"); const {execFileSync}=require(\\\"node:child_process\\\"); const text=readFileSync(\\\"docs/audits/inventory-critic-purpose-isolation.md\\\",\\\"utf8\\\"); assert.doesNotMatch(text,/[\\\\u3400-\\\\u9fff]/u); for(const token of [\\\"0c726415eab8a599ae2844d42386bc5a57d49d07\\\",\\\"91d8133a8f92aff7e02efff4fea31362bd6f4949\\\",\\\"f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8\\\",\\\"ff4e1bc2c7\\\",\\\"211fcc3\\\"]) {assert.ok(text.includes(token));execFileSync(\\\"git\\\",[\\\"cat-file\\\",\\\"-e\\\",token+\\\"^{commit}\\\"]);} for(const file of [\\\"packages/main/src/core/topology-critic-receipt.ts\\\",\\\"packages/main/src/core/machine.ts\\\",\\\"proof-or-stop.config.json\\\"]){execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--exit-code\\\",\\\"main...HEAD\\\",\\\"--\\\",file],{stdio:\\\"pipe\\\"});} const template=\\\"packages/main/templates/agents/proof-or-stop-review-topology-critic.md\\\"; assert.equal(readFileSync(template,\\\"utf8\\\"),execFileSync(\\\"git\\\",[\\\"show\\\",\\\"0c726415ea:\\\"+template],{encoding:\\\"utf8\\\"})); for(const token of [\\\"not a DONE certificate\\\",\\\"only preliminary symptom\\\",\\\"signed terminal\\\",\\\"authorizesTest=false\\\",\\\"Disposable fixture\\\",\\\"never declare an old hash fresh\\\",\\\"B-e6d9\\\"])assert.ok(text.includes(token),token); const outside=execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--name-only\\\",\\\"main...HEAD\\\",\\\"--\\\",\\\".proof-or-stop/story/actives/B-7abb\\\",\\\".proof-or-stop/story/actives/B-03b7\\\"],{encoding:\\\"utf8\\\"}); assert.equal(outside.trim(),\\\"\\\"); for(const file of [\\\"packages/main/src/handlers/story-dispatch.ts\\\",\\\"packages/main/src/handlers/review-run.ts\\\",\\\"packages/main/src/handlers/review-inventory.ts\\\"])assert.doesNotMatch(readFileSync(file,\\\"utf8\\\"),/Harmonynet|ordinary@example/); const guide=readFileSync(\\\"docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md\\\",\\\"utf8\\\");assert.ok(guide.includes('\\\"reviewPurpose\\\":\\\"inventory-completeness\\\"'));assert.ok(guide.includes('\\\"inventoryEpochId\\\":\\\"<epoch>\\\"'));console.log(\\\"B29BC_AUDIT_AND_BOUNDARIES PASS\\\");\"",
+              "selector": "B29BC_AUDIT_AND_BOUNDARIES PASS"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/agent-dispatch-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-run-smoke.js\\\"],[\\\"packages/main/dist/tasks/prompt-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"],[\\\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\"],[\\\"scripts/verify-process-fact-contract.mjs\\\"]]) {const r=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(r.error)throw r.error; if(r.status!==0)process.exit(r.status??1);} console.log(\\\"B29BC_CHK002_COMPATIBILITY PASS\\\");\"",
+          "result": "pass",
+          "note": "Execute all seven affected programs with fail-on-nonzero orchestration: full inventory handler/epoch, full ProofStory signed topology receipt and gate controls, dispatch registry, reviewer-run, prompt registry, and process-fact verifier. Canonical fixture corrections preserve historical anchors and admission assertions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5efd829acd9a72b5ccab6efb7de89ad584506c9f1981eb37d38249751c6c6d31",
+            "outputTail": "overage artifact=checklist.json\n- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist gate=validate verification freshness gate artifact=checklist.json\n- verification_intent_repair [L2/command] producer=handlers/checklist\n- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard\n- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match\n- verification_run [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\n- workflow_explain [L0/command] producer=core/config\n- workflow_set [L1/command] producer=core/config\n- workflow_show [L0/command] producer=core/config\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- phase advance\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/transition-orchestrator.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/core/machine.ts\n- review_run_start\n  packages/main/src/core/owner-session-adapters.ts\n  packages/main/src/handlers/story-dispatch.ts\n  packages/main/src/handlers/review-run.ts\n  packages/main/src/cli/command-catalog.ts\n- finding_add\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n- flow fact policy\n  packages/main/src/core/flow-fact-policy.ts\n  packages/main/src/core/process-fact-registry.ts\n- finding evidenceState gate dimension\n  packages/main/src/core/advisory.ts\n  packages/main/src/core/machine.ts\n  packages/main/src/core/types.ts\n- gap_log\n  packages/main/src/handlers/gap-log.ts\n  packages/main/src/core/audit-meta-store.ts\n  packages/main/src/registry.ts\n- review_pass_set\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/review-pass-provenance.ts\n  packages/main/src/core/finding-verify.ts\n- verification evidence\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts\n  packages/main/src/core/verification.ts\n  packages/main/src/core/machine.ts\n- init check\n  packages/main/src/handlers/init-check.ts\n  packages/main/src/core/init-check-gate.ts\n  packages/main/src/core/machine.ts\n- scope anti-expansion\n  packages/main/src/core/machine.ts\n  packages/main/src/handlers/story-create.ts\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/handlers/story-query.ts\n  packages/main/src/handlers/scope-anti-expansion.ts\n  packages/main/src/core/scope-anti-expansion.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/command-policy.ts\n  packages/main/src/handlers/worktree.ts\n  packages/main/src/core/process-fact-registry.ts\n  packages/main/src/core/lifecycle-registry.ts\n- scope check\n  packages/main/src/handlers/scope-check.ts\n  packages/main/src/handlers/story-review.ts\n- delivery check\n  packages/main/src/handlers/delivery-check.ts\n  packages/main/src/core/machine.ts\n- REVIEW/TEST/DONE gates\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/handlers/review-preflight.ts\n  packages/main/src/core/machine.ts\n- lifecycle registry\n  packages/main/src/core/lifecycle-registry.ts\n  packages/main/src/core/phase-flow.ts\n  packages/main/src/handlers/context.ts\n  packages/main/src/tasks/flow-stability-smoke.ts\n- CLI schema\n  packages/main/src/cli/command-catalog.ts\n  packages/main/src/core/config.ts\n\nProcess fact contract verified\nProcess-fact contract verification passed\nB29BC_CHK002_COMPATIBILITY PASS\n",
+            "selectorMatched": true,
+            "selector": "B29BC_CHK002_COMPATIBILITY PASS",
+            "executedAt": "2026-09-07T09:47:32.954Z",
+            "timeoutMs": 600000,
+            "executionKey": "ce:v1:0e1e6ea1a38d1c7705347bca40e48a950169b96fd1061051d68d4ab5ac3bce75",
+            "causalReceiptHash": "928db2e458726048deb365d01824024e512b4d738eca7aff1c42d28c0529f8e6",
+            "commandReruns": 0,
+            "timeoutOverride": {
+              "timeoutMs": 600000,
+              "defaultTimeoutMs": 270000,
+              "reason": "Bounded sequential compatibility campaign: production CLI inventory interleavings and signed topology receipt/gate fixtures plus five smaller registry checks need a shared ten-minute ceiling. This does not skip checks or extend the outer lifecycle watchdog."
+            }
+          },
+          "headHash": "418515e3b7d3cb86bd0d6d18e60a32ab12dc35a1",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+          "timestamp": "2026-09-07T09:47:38.583Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "docs_check",
+          "file": "docs/audits/inventory-critic-purpose-isolation.md",
+          "command": "node -e \"const assert=require(\\\"node:assert/strict\\\"); const {readFileSync}=require(\\\"node:fs\\\"); const {createHash}=require(\\\"node:crypto\\\"); const {execFileSync}=require(\\\"node:child_process\\\"); const text=readFileSync(\\\"docs/audits/inventory-critic-purpose-isolation.md\\\",\\\"utf8\\\"); assert.doesNotMatch(text,/[\\\\u3400-\\\\u9fff]/u); for(const token of [\\\"0c726415eab8a599ae2844d42386bc5a57d49d07\\\",\\\"91d8133a8f92aff7e02efff4fea31362bd6f4949\\\",\\\"f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8\\\",\\\"ff4e1bc2c7\\\",\\\"211fcc3\\\"]) {assert.ok(text.includes(token));execFileSync(\\\"git\\\",[\\\"cat-file\\\",\\\"-e\\\",token+\\\"^{commit}\\\"]);} for(const file of [\\\"packages/main/src/core/topology-critic-receipt.ts\\\",\\\"packages/main/src/core/machine.ts\\\",\\\"proof-or-stop.config.json\\\"]){execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--exit-code\\\",\\\"main...HEAD\\\",\\\"--\\\",file],{stdio:\\\"pipe\\\"});} const template=\\\"packages/main/templates/agents/proof-or-stop-review-topology-critic.md\\\"; assert.equal(readFileSync(template,\\\"utf8\\\"),execFileSync(\\\"git\\\",[\\\"show\\\",\\\"0c726415ea:\\\"+template],{encoding:\\\"utf8\\\"})); for(const token of [\\\"not a DONE certificate\\\",\\\"only preliminary symptom\\\",\\\"signed terminal\\\",\\\"authorizesTest=false\\\",\\\"Disposable fixture\\\",\\\"never declare an old hash fresh\\\",\\\"B-e6d9\\\"])assert.ok(text.includes(token),token); const outside=execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--name-only\\\",\\\"main...HEAD\\\",\\\"--\\\",\\\".proof-or-stop/story/actives/B-7abb\\\",\\\".proof-or-stop/story/actives/B-03b7\\\"],{encoding:\\\"utf8\\\"}); assert.equal(outside.trim(),\\\"\\\"); for(const file of [\\\"packages/main/src/handlers/story-dispatch.ts\\\",\\\"packages/main/src/handlers/review-run.ts\\\",\\\"packages/main/src/handlers/review-inventory.ts\\\"])assert.doesNotMatch(readFileSync(file,\\\"utf8\\\"),/Harmonynet|ordinary@example/); const guide=readFileSync(\\\"docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md\\\",\\\"utf8\\\");assert.ok(guide.includes('\\\"reviewPurpose\\\":\\\"inventory-completeness\\\"'));assert.ok(guide.includes('\\\"inventoryEpochId\\\":\\\"<epoch>\\\"'));console.log(\\\"B29BC_AUDIT_AND_BOUNDARIES PASS\\\");\"",
+          "result": "pass",
+          "note": "Check English audit text, resolved RED/GREEN/compatibility commits, explicit preliminary-RED limitation and synthetic-host limitations, current operator fields, and protected source/template/no-other-Story diff. This mechanical check supports but does not replace independent docs review.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f5d27511ce43f328f866cf802df61dd5e9fd7ba92979498b31c4892d71b1c037",
+            "outputTail": "B29BC_AUDIT_AND_BOUNDARIES PASS\n",
+            "selectorMatched": true,
+            "selector": "B29BC_AUDIT_AND_BOUNDARIES PASS",
+            "executedAt": "2026-09-07T09:47:35.447Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:62f5d9a698dd35f292e04a6a0b1f59f76e15ddb41eb727e302c6ff902102186c",
+            "causalReceiptHash": "56398a2bfef0254e75776560e0dfc24db75cefad37b4b0aa7de3fb673138ea3c",
+            "commandReruns": 0
+          },
+          "headHash": "418515e3b7d3cb86bd0d6d18e60a32ab12dc35a1",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+          "timestamp": "2026-09-07T09:47:38.583Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/agent-dispatch-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-run-smoke.js\\\"],[\\\"packages/main/dist/tasks/prompt-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"],[\\\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\"],[\\\"scripts/verify-process-fact-contract.mjs\\\"]]) {const r=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(r.error)throw r.error; if(r.status!==0)process.exit(r.status??1);} console.log(\\\"B29BC_CHK002_COMPATIBILITY PASS\\\");\"",
+          "result": "pass",
+          "note": "The full inventory campaign includes actual inventory carrier purpose removal/mutation/alias rejection at the unchanged topology provenance consumer; epoch mutations reject default topology runs and authority promotion. Full ProofStory tests separately retain signed topology receipt, gate and rollback positive/negative controls. No synthetic host fixture is actual host-quorum assurance.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "5efd829acd9a72b5ccab6efb7de89ad584506c9f1981eb37d38249751c6c6d31",
+            "outputTail": "overage artifact=checklist.json\n- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist gate=validate verification freshness gate artifact=checklist.json\n- verification_intent_repair [L2/command] producer=handlers/checklist\n- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard\n- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match\n- verification_run [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\n- workflow_explain [L0/command] producer=core/config\n- workflow_set [L1/command] producer=core/config\n- workflow_show [L0/command] producer=core/config\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- phase advance\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/transition-orchestrator.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/core/machine.ts\n- review_run_start\n  packages/main/src/core/owner-session-adapters.ts\n  packages/main/src/handlers/story-dispatch.ts\n  packages/main/src/handlers/review-run.ts\n  packages/main/src/cli/command-catalog.ts\n- finding_add\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n- flow fact policy\n  packages/main/src/core/flow-fact-policy.ts\n  packages/main/src/core/process-fact-registry.ts\n- finding evidenceState gate dimension\n  packages/main/src/core/advisory.ts\n  packages/main/src/core/machine.ts\n  packages/main/src/core/types.ts\n- gap_log\n  packages/main/src/handlers/gap-log.ts\n  packages/main/src/core/audit-meta-store.ts\n  packages/main/src/registry.ts\n- review_pass_set\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/review-pass-provenance.ts\n  packages/main/src/core/finding-verify.ts\n- verification evidence\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts\n  packages/main/src/core/verification.ts\n  packages/main/src/core/machine.ts\n- init check\n  packages/main/src/handlers/init-check.ts\n  packages/main/src/core/init-check-gate.ts\n  packages/main/src/core/machine.ts\n- scope anti-expansion\n  packages/main/src/core/machine.ts\n  packages/main/src/handlers/story-create.ts\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/handlers/story-query.ts\n  packages/main/src/handlers/scope-anti-expansion.ts\n  packages/main/src/core/scope-anti-expansion.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/command-policy.ts\n  packages/main/src/handlers/worktree.ts\n  packages/main/src/core/process-fact-registry.ts\n  packages/main/src/core/lifecycle-registry.ts\n- scope check\n  packages/main/src/handlers/scope-check.ts\n  packages/main/src/handlers/story-review.ts\n- delivery check\n  packages/main/src/handlers/delivery-check.ts\n  packages/main/src/core/machine.ts\n- REVIEW/TEST/DONE gates\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/handlers/review-preflight.ts\n  packages/main/src/core/machine.ts\n- lifecycle registry\n  packages/main/src/core/lifecycle-registry.ts\n  packages/main/src/core/phase-flow.ts\n  packages/main/src/handlers/context.ts\n  packages/main/src/tasks/flow-stability-smoke.ts\n- CLI schema\n  packages/main/src/cli/command-catalog.ts\n  packages/main/src/core/config.ts\n\nProcess fact contract verified\nProcess-fact contract verification passed\nB29BC_CHK002_COMPATIBILITY PASS\n",
+            "selectorMatched": true,
+            "selector": "B29BC_CHK002_COMPATIBILITY PASS",
+            "executedAt": "2026-09-07T09:47:32.954Z",
+            "timeoutMs": 600000,
+            "executionKey": "ce:v1:0e1e6ea1a38d1c7705347bca40e48a950169b96fd1061051d68d4ab5ac3bce75",
+            "causalReceiptHash": "928db2e458726048deb365d01824024e512b4d738eca7aff1c42d28c0529f8e6",
+            "commandReruns": 0,
+            "timeoutOverride": {
+              "timeoutMs": 600000,
+              "defaultTimeoutMs": 270000,
+              "reason": "Bounded sequential compatibility campaign: production CLI inventory interleavings and signed topology receipt/gate fixtures plus five smaller registry checks need a shared ten-minute ceiling. This does not skip checks or extend the outer lifecycle watchdog."
+            }
+          },
+          "headHash": "418515e3b7d3cb86bd0d6d18e60a32ab12dc35a1",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+          "timestamp": "2026-09-07T09:47:38.583Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:1",
+          "kind": "docs_check",
+          "file": "docs/audits/inventory-critic-purpose-isolation.md",
+          "command": "node -e \"const assert=require(\\\"node:assert/strict\\\"); const {readFileSync}=require(\\\"node:fs\\\"); const {createHash}=require(\\\"node:crypto\\\"); const {execFileSync}=require(\\\"node:child_process\\\"); const text=readFileSync(\\\"docs/audits/inventory-critic-purpose-isolation.md\\\",\\\"utf8\\\"); assert.doesNotMatch(text,/[\\\\u3400-\\\\u9fff]/u); for(const token of [\\\"0c726415eab8a599ae2844d42386bc5a57d49d07\\\",\\\"91d8133a8f92aff7e02efff4fea31362bd6f4949\\\",\\\"f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8\\\",\\\"ff4e1bc2c7\\\",\\\"211fcc3\\\"]) {assert.ok(text.includes(token));execFileSync(\\\"git\\\",[\\\"cat-file\\\",\\\"-e\\\",token+\\\"^{commit}\\\"]);} for(const file of [\\\"packages/main/src/core/topology-critic-receipt.ts\\\",\\\"packages/main/src/core/machine.ts\\\",\\\"proof-or-stop.config.json\\\"]){execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--exit-code\\\",\\\"main...HEAD\\\",\\\"--\\\",file],{stdio:\\\"pipe\\\"});} const template=\\\"packages/main/templates/agents/proof-or-stop-review-topology-critic.md\\\"; assert.equal(readFileSync(template,\\\"utf8\\\"),execFileSync(\\\"git\\\",[\\\"show\\\",\\\"0c726415ea:\\\"+template],{encoding:\\\"utf8\\\"})); for(const token of [\\\"not a DONE certificate\\\",\\\"only preliminary symptom\\\",\\\"signed terminal\\\",\\\"authorizesTest=false\\\",\\\"Disposable fixture\\\",\\\"never declare an old hash fresh\\\",\\\"B-e6d9\\\"])assert.ok(text.includes(token),token); const outside=execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--name-only\\\",\\\"main...HEAD\\\",\\\"--\\\",\\\".proof-or-stop/story/actives/B-7abb\\\",\\\".proof-or-stop/story/actives/B-03b7\\\"],{encoding:\\\"utf8\\\"}); assert.equal(outside.trim(),\\\"\\\"); for(const file of [\\\"packages/main/src/handlers/story-dispatch.ts\\\",\\\"packages/main/src/handlers/review-run.ts\\\",\\\"packages/main/src/handlers/review-inventory.ts\\\"])assert.doesNotMatch(readFileSync(file,\\\"utf8\\\"),/Harmonynet|ordinary@example/); const guide=readFileSync(\\\"docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md\\\",\\\"utf8\\\");assert.ok(guide.includes('\\\"reviewPurpose\\\":\\\"inventory-completeness\\\"'));assert.ok(guide.includes('\\\"inventoryEpochId\\\":\\\"<epoch>\\\"'));console.log(\\\"B29BC_AUDIT_AND_BOUNDARIES PASS\\\");\"",
+          "result": "pass",
+          "note": "Verify branch-relative protected topology consumer/machine/config and historical critic template remain unchanged, no B-7abb/B-03b7 metadata was modified by this branch, no named-user admission appears in changed handlers, and audit/current workflow require canonical freshness before local consumer recovery.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f5d27511ce43f328f866cf802df61dd5e9fd7ba92979498b31c4892d71b1c037",
+            "outputTail": "B29BC_AUDIT_AND_BOUNDARIES PASS\n",
+            "selectorMatched": true,
+            "selector": "B29BC_AUDIT_AND_BOUNDARIES PASS",
+            "executedAt": "2026-09-07T09:47:35.447Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:62f5d9a698dd35f292e04a6a0b1f59f76e15ddb41eb727e302c6ff902102186c",
+            "causalReceiptHash": "56398a2bfef0254e75776560e0dfc24db75cefad37b4b0aa7de3fb673138ea3c",
+            "commandReruns": 0
+          },
+          "headHash": "418515e3b7d3cb86bd0d6d18e60a32ab12dc35a1",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+          "timestamp": "2026-09-07T09:47:38.583Z"
+        }
+      ]
     }
   ]
 }
