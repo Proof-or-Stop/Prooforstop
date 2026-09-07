@@ -2305,7 +2305,7 @@
       "desc": "acceptance-basis-scope-binding-stale-after-repair: .proof-or-stop/story/actives/B-e256/acceptance-basis.json:250,267 still signs scopeCheckDigest sha256:4e750b5b..., but the current verifier reports `AT_SCOPE_BINDING_MISSING ... scope-check digest mismatch` after the later scope_check_save commit e521893d7f. The sequence is mechanically visible: e365326331 added CHK-001:edge:0 to AC-001 and generated the basis, then e521893d7f refreshed the independent scope check without regenerating that basis. Current `acceptance_topology_check` is therefore inconclusive with AT_SCOPE_BINDING_MISSING even though `acceptance_rollout_report_read` and `acceptance_rollout_check` report PASS/current/full-3x2. F-046's semantic repair itself is correct—the only acceptance-binding semantic change is adding CHK-001:edge:0 and the acceptanceClaim is unchanged—but its verifier-owned topology evidence is not current to the final scope artifact. Regenerate/rebind the acceptance basis after the final scope check and refresh dependent pre-review/rollout evidence so the PASS chain cannot coexist with a scope-mismatched topology basis. severity: high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-07T00:38:53.914Z",
@@ -2345,7 +2345,11 @@
       "signatureTag": "proofstory-acceptance-basis-scope-binding-stale-after-repair",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqiiwv0_1r2j_fec2987735854f32b1cc54a65ae76224",
-      "ledgerCommitReceiptId": "lrc_mtqiiwv0_1r2j_b0a3ba9e7b844bb38bfb034b9a5d13e0"
+      "ledgerCommitReceiptId": "lrc_mtqiiwv0_1r2j_b0a3ba9e7b844bb38bfb034b9a5d13e0",
+      "resolvedReason": "The current acceptance-basis and independent scope-check were regenerated and re-attested after the repairs; pre_review_check reports plannedActual=complete and acceptance rollout reports a current full-3x2 receipt on the final Story binding.",
+      "resolvedAt": "2026-09-07T11:06:02.042Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-049",
