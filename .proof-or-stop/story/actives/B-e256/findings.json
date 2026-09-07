@@ -2278,7 +2278,7 @@
       "desc": "windows-shim-runtime-variable-binding false pass: packages/main/src/core/runtime-environment-checks.ts:780-798 accepts the runtime tokens %_prog% and $_prog as Node solely by their spelling, without verifying what those variables are bound to. A current compiled-runtime probe used a canonical package, target, version, and PATH-selected .cmd shim containing SET \"_prog=echo\" followed by \"%_prog%\" \"%~dp0\\<canonical-relative-target>\" %*. cmd.exe expands that invocation to echo the target rather than execute it, yet runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true, warnings=[], and emitted contract: global-core-realpath-pass. packages/main/tests/global-core-realpath.test.mjs:178 only exercises the positive SET \"_prog=node\" form; the F-045 option-decoy mutations at lines 269-297 use a literal node token and cannot detect a malicious or broken variable binding. This is distinct from F-045 script-argv positioning: the target now occupies argv[0], but the supposed runtime is not Node. The current 132-command validation and focused suite remain green, so summary.json:3-5 and F-045 resolution prose overclaim that non-invoking Windows shims fail closed. Bind accepted runtime indirection to a verified Node assignment/control-flow form or reject unverified indirection, and add a mutation proving a non-Node _prog binding cannot emit the healthy marker. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-07T00:38:46.499Z",
@@ -2294,7 +2294,11 @@
       "signatureTag": "windows-command-shim-unverified-runtime-variable-binding",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqiir52_1p97_fa6c08b6eebb4146a542018d011a49ca",
-      "ledgerCommitReceiptId": "lrc_mtqiir53_1p97_6fcdc4c0eaa64bfc9afe867e3c930ef2"
+      "ledgerCommitReceiptId": "lrc_mtqiir53_1p97_6fcdc4c0eaa64bfc9afe867e3c930ef2",
+      "resolvedReason": "Commit 9473a6f32c removes trust in unbound Windows runtime variables and validates the official generated launcher grammar; the focused global-core fixture and the complete 132-command validation pass on the final material.",
+      "resolvedAt": "2026-09-07T11:05:58.363Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-048",
