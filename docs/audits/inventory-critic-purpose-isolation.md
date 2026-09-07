@@ -83,10 +83,13 @@ snapshot. Formal gate evidence is separately produced and checked by the CLI.
 The public campaign checks malformed purpose/epoch arguments, canonical and
 registered-alias ingress, missing dispatch, forged epoch and dispatch bindings,
 an actual cancellation/publication lock interleaving, finalized/rebegun epochs,
-scope drift, dirty-run refusal and committed source-cutoff drift. The pure epoch
-suite also re-signs invalid semantic substitutions before checking rejection;
-it is not limited to corrupting a hash. The original campaign covered critic
-terminal-read rejection and incomplete historical Finding dispositions, but
+scope drift, dirty-run refusal and committed source-cutoff drift. The original
+pure epoch suite intended to re-sign invalid semantic receipt substitutions, but
+RI-007 found that it included the old signature in those signing inputs. Its
+historical PASS therefore did not prove semantic receipt rejection or the signed
+omitted-disposition case. The corrected tests described below assert valid
+signatures and the intended rejection reasons separately. The original campaign
+also exercised critic terminal-read rejection, but
 missed required-lane PASS read-log omission and a current critic's own discovery.
 Those omissions are not evidence that all terminal paths were protected.
 
@@ -287,3 +290,28 @@ mutation and deterministic measurement checks. It still validates all 18 roles
 and rejects self-authorized body changes. This focused GREEN is not a new
 DONE-required full-suite PASS; that run and current lifecycle evidence must be
 obtained separately after this bounded correction.
+
+## Semantic mutation witness correction (2026-09-07)
+
+RI-007 registered canonical `B-29bc:F-005` and its coverage/documentary
+re-observations `F-006` through `F-009`. The two receipt mutation sites passed an
+object retaining `_hash` to `signReviewInventoryCriticReceipt`, while verification
+removes `_hash` before hashing. Thus a rejection could occur at signature
+validation instead of the intended purpose/subject or disposition guard. This
+was an introduced test-evidence defect, not a demonstrated production bypass.
+The original observations, severities and prior passing receipts remain history.
+
+RED commit `e13ea60b84` added signature-validity prerequisites and exact semantic
+rejection assertions without changing the signing inputs. After a successful
+build, `node packages/main/dist/tasks/review-inventory-epoch-smoke.js` exited 1:
+`semantic mutation must retain a valid signature`, with `false !== true`.
+The earlier F-001 and F-002 recovery controls passed before this failure.
+
+GREEN commit `6f45dfd032` removes only the old `_hash` from each signing input.
+The same command exits 0, including `B29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS`.
+Each mutated receipt must first have a valid signature, then fail at the named
+purpose/subject or missing-dispositions guard. The original unmodified receipt
+must still pass afterward. No production signature algorithm, admission predicate,
+scope policy or existing safety assertion was relaxed. This GREEN repairs these
+witnesses and the overclaim above; it does not itself establish fresh full-suite,
+independent-host, TEST or DONE evidence.
