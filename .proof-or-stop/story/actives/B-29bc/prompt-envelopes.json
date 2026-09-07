@@ -1099,6 +1099,94 @@
       "estimatedTokens": 7208,
       "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
       "envelopeId": "539db369f6b56f11232807afc94782c0e7155f0dabe42b74069667a2c552619b"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-topology-critic",
+      "storyId": "B-29bc",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-29bc:RR-015",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "lane": "proof-or-stop-review-topology-critic",
+      "dispatchPromptDigest": "a7b502ed177c734f7aad6a6ffa9c927fc625c74f8e574becbf76fbfa59c82f87",
+      "hostRenderIdentityDigest": "c235038e317998aaa1539ae512a7d3635d35a65300b3ace0f54f957f1fe49633",
+      "createdAt": "2026-09-07T10:43:48.994Z",
+      "headHash": "f4a1109bea7585de51ca4b899dfd080fe5a8690e",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "babb4da5cdddc30dbaaa95b91211c1c81e9365f09f13c544fce874f6bbe52406",
+      "roleRenderDigest": "b1c6e7bf447ce4b3847edc58b89f4368b32cca4f8246d8e2bf55b93d8c712c04",
+      "contextMode": "incremental",
+      "contextDigest": "ddc02ab37c970fd48b5ea0dff21773d9776fd298f851510591924a592e58e463",
+      "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+      "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+      "policyHash": "cc1cb895c43b8a5c3e88b940f87356d972dcb890fc9ed8b35ae189e1d9bbd3c9",
+      "eligibilityDecision": "incremental",
+      "eligibilityDigest": "f9e076426f07f3158a9cd652009f78ca0391e76eeb4277792aba19dc3e3e829e",
+      "knownExecutionEnvironmentDigest": "b2a618bd210256e971014f5a7a68c7235ac51cac82f585d7646100015c82f97e",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "3c4af201db3a24cb6d28a831a9fb30aff58a0cfbeda89d6a82793fd1dbcad49a",
+      "commandPolicyDigest": "722b924abcff385e3f5dc79d2826fc75661c348e98569212653d9d985fc13242",
+      "assembledPromptDigest": "dd378d19b4fbe8c4a4f508e6fe3d41888f98c8845ab1cd689764e61152b024e6",
+      "bytes": 27230,
+      "lines": 128,
+      "estimatedTokens": 6808,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "51fc4f1c1cfdc46b87429a795db46f89843c503567f54b777371ca3f70928696",
+      "priorPassRef": "B-29bc:RP-008",
+      "freshnessClassification": "CURRENT_MATERIAL",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "ELIGIBLE_NO_MATERIAL_CHANGE",
+        "ELIGIBLE_TRUSTED_PRIOR_BINDINGS"
+      ],
+      "changedFilesDigest": "ce39c82f18aea7568f558050388905f8e7e6ebc9a14d39e222b3ac3c57419ff2",
+      "impactedFilesDigest": "dd8f5205a92536795510a242fad3802357c41d2c486aa747162ba37bd521b049",
+      "taskSemanticDigest": "c2ceded58742cc3546056e8f38c44ea0b082849317453525fbd409ccc03960b7",
+      "findingProjection": [
+        {
+          "id": "B-29bc:F-001",
+          "createdAt": "2026-09-07T10:19:39.903Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Required inventory lane passes without mechanical readLog are admitted as complete. WHY: the retained implemented saturation contract at docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:129-140 requires both signed readManifest AND readLog for every pass/finding terminal; CHK-001 promises preservation of signed terminal read evidence. Actual current B-29bc:RP-001 (test-coverage/RR-004), RP-002 (concept/RR-003), and RP-004 (docs/RR-001) have readManifest but no readLog in .proof-or-stop/story/actives/B-29bc/review-passes.json:3-29,30-71,133-163. RP-003 is a positive control with a persisted mechanical log. core/review-inventory-epoch.ts:309 accepts passes based solely on verifyReviewPass while the adjacent finding path requires both read fields; lines317-318 hash missing logs as null. handlers/finding.ts:554-557 accepts absent mechanical input for passes. Official purpose-bound review_run_start admitted RR-005 after those terminals, and fresh owner review_inventory_status reports all four lanes pass with only critic incomplete. This is not evidence that any reviewer failed to read; it is verified missing signed mechanical evidence and false complete-lane admission. Applicability candidate: directly blocks truthful current inventory completeness and the retained CHK-001 read-evidence promise, irrespective of whether the omitted guard predates this Story. Restore legitimate reviewer terminal read evidence without rewriting old records; preserve a failing missing-readLog admission control and repair the applicable producer/consumer path through authorized DEV scope. No topology or quorum claim is made."
+        },
+        {
+          "id": "B-29bc:F-002",
+          "createdAt": "2026-09-07T10:21:10.917Z",
+          "status": "open",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Current verified inventory-critic Findings are omitted from the aggregate and cannot receive a completeness disposition. WHY: packages/main/src/core/review-inventory-epoch.ts:397-406 collects current-wave rawFindings only while iterating epoch.requiredLanes. The independent critic is deliberately not one of those four lanes, so its new signature-valid Finding is excluded. Concrete production witness: finding_add persisted B-29bc:F-001 on current purpose-bound RR-005 with signed manifest and mechanical readLog; finding_list returns it open/verified. The immediately following review_inventory_critic_set for RI-001/RR-005 with exactly one verified_family disposition for F-001 exited 1 with REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: B-29bc:F-001. The rejecting predicate is core/review-inventory-epoch.ts:435 and handler/review-inventory.ts:521. Thus a critic following the canonical duty to find missed issues cannot include its own discovery in the exact-set receipt; submitting an empty set would erase it from inventory accounting. This is a distinct aggregate completeness defect, not a second copy of the missing-readLog issue. Applicability candidate: directly blocks the explicitly promised independent critic workflow and per-Finding completeness in CHK-001/002. The required-lane aggregation predicate may predate B-29bc; do not label it an introduced regression without base proof. Preserve the real recorded Finding, include eligible critic discoveries in the immutable current aggregate through authorized scoped remediation, and retain a production negative/positive regression. No receipt was issued, no empty-disposition fallback was attempted, and no topology or quorum claim is made."
+        },
+        {
+          "id": "B-29bc:F-003",
+          "createdAt": "2026-09-07T10:28:46.062Z",
+          "status": "open",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: The new implementation audit asserts a terminal-read refusal which the current implementation does not enforce. docs/audits/inventory-critic-purpose-isolation.md:26-27 says terminal records still require signed reading evidence; lines 86-87 specifically assert missing/tampered terminal reads remain refusals. The controlling retained contract at docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:129-140 explicitly requires BOTH readManifest and readLog. However packages/main/src/core/review-inventory-epoch.ts:309 admits run passes using verifyReviewPass alone, unlike the adjacent finding predicate which requires both fields; lines 317-318 include null missing read logs in the coverage digest. The current-round canonical run context and official finding_list preserve verified open B-29bc:F-001, whose real RP-001/RP-002/RP-004 and RR-005 witness confirms admission without mechanical logs. Fresh RI-002 terminal logs do not repair that predicate or make the broad audit assertion true. This is the documentary-contract manifestation of F-001, not a separately invented runtime root cause; preserve the original Finding and link this observation during owner disposition. Critical severity follows this lane's mandatory closing rule for newly added promised-but-undelivered behavior. Applicability candidate: CHK-002's accurate English recovery audit and CHK-001's preserved terminal-read guarantee. Correct the scoped consumer/producer behavior and its negative control through authorized DEV, or accurately qualify the audit to the actual proved boundary without waiving the controlling acceptance contract. B-29bc:F-002 also remains verified/open; this record neither repairs nor dismisses either original. The integrated two-item diff otherwise introduces a purpose-specific carrier/signature binding rather than deleting a concept en masse; preserved legacy topology defaults and compatibility aliases are intentional. No actual host assurance or topology certificate is inferred from fixture successes."
+        },
+        {
+          "id": "B-29bc:F-004",
+          "createdAt": "2026-09-07T10:35:32.731Z",
+          "status": "open",
+          "severity": "critical",
+          "category": "missing",
+          "desc": "doc-promise-undelivered: RI-002 wave-2 re-observation of the exact documentary defect in B-29bc:F-003, whose underlying runtime cause is B-29bc:F-001; no new runtime cause or additional family is claimed. Fresh full reads of docs/audits/inventory-critic-purpose-isolation.md and docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md show the same audit promise at lines 26-27 and 86-87: signed terminal reads are required and missing reads remain refusals. The controlling decision lines 129-140 requires BOTH readManifest and readLog. Fresh inspection of packages/main/src/core/review-inventory-epoch.ts:309-318 confirms the unchanged pass predicate accepts verifyReviewPass alone and hashes absent readLog as null, whereas findings require both read fields. The same current-round F-001/F-002/F-003 are verified/open in official finding_list and this run's canonical context. git diff 5ebed6e...HEAD shows only reviewer/inventory bookkeeping, no implementation, docs, checklist, background or plan change; the selected SAFE_INCREMENTAL context reports changedFiles=[] and unchanged Story/scope bindings. Thus the previously completed integrated two-item concept review remains applicable: there is no en-masse concept deletion, intended legacy topology/default behavior remains, and the sole documentary observation here remains unfixed. The current lane body requires critical missing for this promised-but-undelivered behavior, so this is a fresh finding terminal, not a no-blocker PASS or a repair claim. Preserve F-001, F-002 and F-003 without severity/status rewrite; F-002 is the separate already-tracked critic-aggregate defect, not this observation's root. Family/duplicate classification belongs to the independent critic and owner, not this description. CHK-002 audit accuracy and CHK-001 terminal-read acceptance remain the applicability candidates. Prior full Story-input reads are reused only after the unchanged-material and exact diff checks; the two documentation full-read events supplied here were freshly performed in this wave. No tests rerun, source edited, topology authority or actual-host assurance claimed."
+        }
+      ],
+      "findingProjectionDigest": "769b7e5a30c0c229017f4a8c78b37f1f516599fbe1e6f2895b5b54f6a8b9aa58",
+      "reviewBasisDigest": "ddc02ab37c970fd48b5ea0dff21773d9776fd298f851510591924a592e58e463",
+      "incrementalContextDigest": "057924dbff03e0b566226e2269a2be92c95cc0e3fa7a9552d98cc979393c49aa",
+      "selectionReason": "SAFE_INCREMENTAL",
+      "fullContextBytes": 28832,
+      "incrementalContextBytes": 27230,
+      "escalatedToFull": false
     }
   ]
 }
