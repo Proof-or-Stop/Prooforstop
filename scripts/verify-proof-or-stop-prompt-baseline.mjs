@@ -112,6 +112,9 @@ const PROBE_ROLE_MATRIX_SNAPSHOT_DRIFT = process.argv.includes('--probe-role-mat
  * its live direct StoryStore reads/writes with background_get, story_get,
  * checklist_get, and init_check_set. The CLI-only surface invariant below binds
  * the source template, both generated mirrors, and the assembled registry body.
+ * B-29bc: independently re-approved only the selected critic body after auditing
+ * its exact trusted-purpose appendix. The historical template and reconstruction
+ * remain unchanged; inventory-only duties do not supply topology authority.
  */
 const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   {
@@ -181,7 +184,7 @@ const APPROVED_PROMPT_POLICY_MANIFEST = Object.freeze([
   },
   {
     role: 'proof-or-stop-review-topology-critic',
-    templateHash: '9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99',
+    templateHash: '22da73c85400f6cf0a073593b998d665e71dd4d74da9432a1717a1260b82cb88',
   },
   {
     role: 'proof-or-stop-product-reviewer',
@@ -568,14 +571,14 @@ const ROLE_MATRIX_DEFAULTS = {
   'proof-or-stop-review-topology-critic': {
     status: 'active',
     phase: 'PLAN/DEV/REVIEW',
-    purpose: 'Independently reviews acceptance topology completeness and signs a current critic receipt.',
-    commands: 'git diff; topology_critic_receipt_set; topology_critic_receipt_check.',
-    directFileAccess: 'Reads current source, topology, basis, and scope artifacts; writes only through registered ProofOrStop receipt commands.',
-    inputs: 'Current acceptance basis/topology, scope bindings, findings, exclusions, and implementation provenance.',
-    outputs: 'Signed topology-critic receipt with pass or request_changes verdict.',
-    capabilities: 'Topology completeness criticism; four-dimensional independence verification; exclusion-approval validation.',
-    overlapCategory: 'independent acceptance-topology authority critic',
-    notes: 'Cannot override partial or unsupported discovery and cannot approve its own exclusions.',
+    purpose: 'Independently reviews acceptance topology by default, or exact inventory completeness only under an explicit mechanically validated inventory-purpose assignment.',
+    commands: 'git diff; topology_critic_receipt_set; topology_critic_receipt_check; review_run_start; finding_add; review_pass_set; review_inventory_critic_set.',
+    directFileAccess: 'Reads current source, topology, basis, scope artifacts, and purpose-bound inventory terminal/read records; writes evidence only through registered ProofOrStop commands, never direct Story artifacts.',
+    inputs: 'Topology: current acceptance basis, scope, exclusions, and implementation provenance. Inventory only: signed OPEN epoch, wave, cutoff, required-lane terminal reads, and exact aggregate Findings.',
+    outputs: 'Topology: signed topology-critic receipt with pass or request_changes. Explicit inventory only: signed reviewer terminal and exact per-Finding completeness receipt, never topology authority.',
+    capabilities: 'Topology completeness, four-dimensional independence, and exclusion validation remain unchanged; explicit inventory review preserves real Git authors and signed current-subject completeness.',
+    overlapCategory: 'independent purpose-selected topology or inventory critic',
+    notes: 'Cannot override partial or unsupported discovery or approve its own exclusions. No topology-refusal fallback; inventory credentials never prove topology, TEST, DONE, dependency approval, or independent-host assurance.',
   },
   'proof-or-stop-review-test-coverage': {
     status: 'active',

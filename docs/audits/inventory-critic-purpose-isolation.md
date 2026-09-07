@@ -270,3 +270,20 @@ body and row, an exact current-body approval update, and regeneration of the
 three declared snapshot outputs. No other role approval, immutable template pin,
 role count, topology guard or semantic rejection test may be relaxed. This RED
 record does not claim that repair, renewed review or DONE has already passed.
+
+After the RED was committed as `2056751bf8`, an independent reviewer compared
+all 18 selected bodies: only the critic changed, and its old body remained
+byte-identical before the single trusted-purpose appendix. The reviewer approved
+the exact new selected-body digest and rejected in-memory appendix removal,
+weakened binding, inventory-authority promotion and topology-refusal retry
+substitutions even when their collector hashes were recomputed.
+
+The correction changes that one approval pin and the critic's human-authored
+matrix row, then runs the existing `--write` generator for its three declared
+snapshots. The focused manifest probe now exits zero. Complete
+`node scripts/verify-proof-or-stop-prompt-baseline.mjs` also exits zero, including
+the existing manifest, baseline-drift, role-matrix-drift, real source-collection
+mutation and deterministic measurement checks. It still validates all 18 roles
+and rejects self-authorized body changes. This focused GREEN is not a new
+DONE-required full-suite PASS; that run and current lifecycle evidence must be
+obtained separately after this bounded correction.
