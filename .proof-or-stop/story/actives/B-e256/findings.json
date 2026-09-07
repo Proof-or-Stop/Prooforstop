@@ -3098,7 +3098,7 @@
       "desc": "windows-command-shim-adjacent-quoted-token-concatenation false pass: packages/main/src/core/runtime-environment-checks.ts:762-769 tokenizes a double-quoted fragment and immediately adjacent unquoted characters as separate tokens, then lines 780-798 certifies the quoted canonical target as the first Node script argument while ignoring the adjacent suffix. A current compiled-runtime probe used an otherwise canonical package, bin target, compiled version, and PATH-selected .cmd shim `node \"%~dp0\\\\node_modules\\\\@proof-or-stop\\\\core\\\\dist\\\\cli.js\"garbage %*`; runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true, warnings=[], and emitted `contract: global-core-realpath-pass`. Under cmd.exe, adjacent quoted and unquoted fragments form one argv token, so Node receives a nonexistent `cli.jsgarbage` script rather than the canonical target and the global command fails before Proof-or-Stop starts. The focused fixture has no adjacent-fragment mutation. This is distinct from F-052, where single quotes are misinterpreted as quoting; F-058, where a separate fixed argv is inserted after a valid target; F-059 redirection; and F-061 runtime unavailability. Parse cmd.exe token concatenation correctly or accept only the exact supported npm-generated invocation grammar, and add mutations for quoted-target suffix and prefix adjacency so neither can emit the healthy marker. Direct CHK-001 user-visible and CHK-003 happy:0/adversarial:2 acceptance violation; severity: high.",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-07T07:34:44.984Z",
@@ -3150,7 +3150,11 @@
       "signatureTag": "windows-command-shim-adjacent-token-concatenation-false-pass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqxdp89_av2_803c3300a4494f8db5914f0ee814b8ed",
-      "ledgerCommitReceiptId": "lrc_mtqxdp8a_av2_c4be5bd91a1e4547a1faeec7f8102137"
+      "ledgerCommitReceiptId": "lrc_mtqxdp8a_av2_c4be5bd91a1e4547a1faeec7f8102137",
+      "resolvedReason": "Commit 9473a6f32c parses adjacent quoted and unquoted Windows token fragments according to the supported official grammar and rejects target prefix or suffix concatenation; focused mutations and final full validation pass.",
+      "resolvedAt": "2026-09-07T11:06:41.583Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
