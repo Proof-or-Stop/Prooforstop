@@ -23,8 +23,10 @@ uses a distinct `inventory-critic-review` dispatch carrier. It binds the signed
 current OPEN epoch, Story, review round, wave, cutoff, scope, required-lane digest
 and run-sequence boundary. Dispatch/run publication and inventory transitions
 share the existing inventory lock. The signed run and completeness receipt
-retain that subject; the terminal records still require signed reading evidence
-and complete per-Finding dispositions.
+retain that subject. The intended contract also requires both signed readManifest
+and mechanical readLog on terminals, and complete per-Finding dispositions.
+The original implementation did not fully enforce those retained requirements;
+the independent-review discoveries and bounded correction are recorded below.
 
 Omitted purpose retains the original topology path. There is no automatic
 fallback from a topology refusal to inventory, no username allowlist, and no
@@ -83,8 +85,69 @@ registered-alias ingress, missing dispatch, forged epoch and dispatch bindings,
 an actual cancellation/publication lock interleaving, finalized/rebegun epochs,
 scope drift, dirty-run refusal and committed source-cutoff drift. The pure epoch
 suite also re-signs invalid semantic substitutions before checking rejection;
-it is not limited to corrupting a hash. Missing/tampered terminal reads and
-incomplete historical Finding dispositions remain refusals.
+it is not limited to corrupting a hash. The original campaign covered critic
+terminal-read rejection and incomplete historical Finding dispositions, but
+missed required-lane PASS read-log omission and a current critic's own discovery.
+Those omissions are not evidence that all terminal paths were protected.
+
+## Independent-review discoveries and remediation
+
+On the frozen material
+`53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d`,
+the independent inventory critic registered these observations through the CLI:
+
+- `B-29bc:F-001`: original required-lane passes RP-001, RP-002 and RP-004
+  carried a readManifest but no mechanical readLog. RP-003 was the positive
+  control with a log. The original `evidenceForRun` PASS predicate checked the
+  signature without requiring both read fields; `recordReviewPass` likewise
+  admitted an incomplete terminal during an OPEN inventory. This violated the
+  decision's Saturation rule, not merely a preferred reporting style.
+- `B-29bc:F-002`: `evaluateReviewInventoryWave` collected current Findings only
+  from required lanes, omitting the separately purpose-bound critic. The real
+  `review_inventory_critic_set` rejected RR-005's exact F-001 disposition with
+  `REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID`. Passing an empty list would
+  have concealed the observation and was not used as recovery.
+- `B-29bc:F-003` and `B-29bc:F-004` recorded the audit text's contradictory
+  promise about reading evidence. The independent RI-002 critic linked their
+  cause to F-001 without deleting observations, lowering severity or claiming
+  repair. RI-002 wave 2 certified zero new families, not correctness. Its
+  signed completeness receipt authorized the one return to DEV.
+
+The two runtime predicates predated this branch, but both directly contradicted
+CHK-001's retained read-evidence and exact-Finding-set acceptance. They were
+therefore repaired here. The official scope update added only
+`packages/main/src/handlers/finding.ts` for the shared PASS producer guard;
+the inventory consumer, regression suites and process-fact registry/verifier
+were already scoped. No unrelated global-green repair was authorized.
+
+Test-only commit `d2461f5794` built successfully and produced actual exit-1 RED:
+the epoch smoke reported both incomplete signed PASS admission and omitted
+critic discovery; the public handler smoke reported a missing expected exception
+for a manifest-only PASS. An earlier test-authoring compile error was corrected
+before that commit's successful build and is not counted as RED.
+
+The bounded production correction requires both read fields in OPEN-inventory
+PASS publication and in lane coverage, including pass-only `finding_add`
+normalization. Aggregation additionally consumes signed, current, exact-purpose
+critic Findings without counting the critic as another required lane. Default
+topology, wrong subject, tampered signature and missing read evidence remain
+ineligible. A later critic PASS cannot hide an earlier same-wave Finding.
+
+The public discovery witness uses a separate disposable repository: the critic
+records its Finding before its first receipt, an empty disposition is refused,
+and an exact disposition is accepted. An early test revision tried to replace
+an already-issued empty-set receipt and correctly received `conflicting receipt`;
+the test setup was corrected, not the immutable-receipt production rule. The
+original empty-set success and all topology/freshness assertions remain intact.
+
+GREEN correction commit: `0ffe4cc619`. The epoch smoke exited zero with both
+`B29BC_RECOVERY` checks passing. The public `--purpose-only` handler smoke
+exited zero with `B29BC_CRITIC_OWN_FINDING_DISPOSITION PASS`, as well as the
+original purpose/schema/alias/full-envelope/locked-freshness success selectors.
+`node scripts/verify-process-fact-contract.mjs` exited zero after adding the
+producer/consumer checks. These are observed development executions, not fresh
+formal checklist receipts or independent final REVIEW/TEST/DONE certification.
+Those are separate CLI-controlled prerequisites after this committed correction.
 
 The cross-purpose campaign presents the real inventory carrier, including
 removed/mutated purpose fields and an alias, to the unchanged topology
