@@ -1,18 +1,18 @@
 {
   "storyId": "B-5a52",
-  "changes": "Added Proof-or-stop to playback/export headings and shared MP4/GIF frame chrome; measured title width preserves Story subtitle spacing.",
-  "usage": "Open Story Graph, select a story, Timeline, Playback, then export MP4 or GIF.",
-  "expectedOutcome": "Proof-or-stop is visible in playback and all exported frames while preserving story context.",
-  "actualTranscript": "Actual light MP4 and dark GIF display Proof-or-stop · Story Graph and B-fe8f timeline; playback shows Proof-or-stop · B-fe8f · timeline playback. Graph build, syntax, typecheck and three independent code reviews passed.",
-  "outcomeDiff": "Branding matches request. User approved local merge under a one-time exception for main baseline failures. Formal DONE remains blocked by express-story inventory/implementer-provenance circularity; no DONE or full-suite PASS is claimed.",
+  "changes": "Playback header and every exported canvas frame now show Proof-or-stop. Story Graph and the story identifier remain visible; measured title width keeps the subtitle separate.",
+  "usage": "Open Story Graph, select a story, open Timeline playback, then export MP4 or GIF.",
+  "expectedOutcome": "Users recognize Proof-or-stop in the playback export interface and in the exported video or GIF while retaining the story context.",
+  "actualTranscript": "Actual light MP4 and dark GIF display Proof-or-stop · Story Graph and B-fe8f timeline. Playback displays Proof-or-stop · B-fe8f · timeline playback. The exact branding implementation is unchanged after merging repaired main; worktree main, utils, lab and graph builds passed.",
+  "outcomeDiff": "No difference in the requested branding behavior. Formal Story validation and DONE are still being completed.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Manual user-approved local merge, not lifecycle DONE. Full-suite failures reproduced on main remain. Temporary validation config was restored byte-for-byte before merge; original project validation policy remains intact.",
-  "pitfalls": "REVIEW-to-DEV requires finalized inventory; topology critic requires an implementer-authored business commit; implementer dispatch is DEV-only. This express Story was legitimately implemented by Owner. No fabricated provenance, Story JSON writes, or fake PASS was used. Source implementation c8263eb450. User approved exception on 2026-09-07.",
+  "limitations": "The three visual intents use explicit manual-verification waivers and actual export artifacts, not automated pixel tests. Local-only delivery. Branding was already merged locally; baseline failures were separately repaired in completed B-e124 without retaining the temporary configuration exception.",
+  "pitfalls": "An earlier temporary DONE-required configuration exception was fully restored before the branding merge. B-e124 repaired the pre-existing registered validation failures and merged normally. Merge drift requires fresh independent reviewer passes. Historical manual visual waivers were inspected by refresh_stale, which reported no stale verification evidence and did not re-execute or rebind them.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -32,10 +32,10 @@
     },
     "REVIEW": {
       "count": 1,
-      "durationMs": 1714611
+      "durationMs": 13990014
     }
   },
-  "totalDurationMs": 2540497,
+  "totalDurationMs": 14815900,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -48,5 +48,5 @@
     "open": 0
   },
   "createdAt": "2026-09-07T02:40:54.445Z",
-  "updatedAt": "2026-09-07T02:57:31.614Z"
+  "updatedAt": "2026-09-07T06:22:07.017Z"
 }
