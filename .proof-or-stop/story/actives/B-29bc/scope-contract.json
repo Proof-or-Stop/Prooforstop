@@ -19,7 +19,9 @@
     "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
     "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "packages/main/src/tasks/review-run-smoke.ts",
-    "packages/main/src/tasks/prompt-registry-smoke.ts"
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    ".claude/agents/proof-or-stop-review-story-init.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md"
   ],
   "allowedCreate": [
     "docs/audits/inventory-critic-purpose-isolation.md"
@@ -34,10 +36,12 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "scopeChangeReason": "Bounded acceptance-blocker repair for CHK-002 happy:0: baseline prompt-registry-smoke requires exact canonical host mirror equality. Read-only render comparison proved that each of the Claude and Codex story-init mirrors differs only at line 219: product-reviewer must be proof-or-stop-product-reviewer (14 bytes per file); all other lines are identical. B-49df owner confirmed no reusable main repair exists and declined ownership of this exact main mirror delta. Permit only those two alias substitutions; retain full mirror equality assertions, all topology author rules, and the original behavioral scope. Do not sync other managed assets.",
   "acknowledgements": [],
   "createdAt": "2026-09-07T08:19:11.670Z",
-  "updatedAt": "2026-09-07T08:19:11.670Z",
+  "updatedAt": "2026-09-07T08:50:52.015Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -59,6 +63,8 @@
     "packages/main/src/tasks/agent-dispatch-registry-smoke.ts": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
     "packages/main/src/tasks/review-run-smoke.ts": "packages/main/src/tasks/review-run-smoke.ts",
     "packages/main/src/tasks/prompt-registry-smoke.ts": "packages/main/src/tasks/prompt-registry-smoke.ts",
-    "docs/audits/inventory-critic-purpose-isolation.md": "docs/audits/inventory-critic-purpose-isolation.md"
+    "docs/audits/inventory-critic-purpose-isolation.md": "docs/audits/inventory-critic-purpose-isolation.md",
+    ".claude/agents/proof-or-stop-review-story-init.md": ".claude/agents/proof-or-stop-review-story-init.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md": ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md"
   }
 }

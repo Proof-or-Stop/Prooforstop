@@ -216,7 +216,7 @@ Read `items[].title` and `items[].context` in checklist.json and perform mechani
    proof-or-stop init_check_set '{"storyId":"B-xxx","agentId":"proof-or-stop-review-story-init","issues":[{"id":"INIT-001","severity":"medium","desc":"..."},...]}'
    ```
 
-   - `agentId` must be exactly `proof-or-stop-review-story-init`. Do not pass `product-reviewer`; that is another INIT reviewer.
+   - `agentId` must be exactly `proof-or-stop-review-story-init`. Do not pass `proof-or-stop-product-reviewer`; that is another INIT reviewer.
    - `issues` may be an empty array (when there are no problems, `"issues":[]`)
    - critical/high issues will block INIT_CHECK at the CLI level; medium/low are advisory
    - The signature is computed internally by the CLI (concatenating storyId + sha256(background) + title + description + sha256(checklist items) + reviewRound + SALT); if the main agent changes any field, the signature will mismatch.
