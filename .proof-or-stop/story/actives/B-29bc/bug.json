@@ -3,9 +3,19 @@
     {
       "id": "BUG-VALIDATE-HISTORICAL-PROBE",
       "title": "Required B-fe8f regression cannot read the immutable historical probe rp-mtifubae-dfbh4w in a real worktree",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-09-07T11:48:12.670Z",
-      "fixedAt": null
+      "fixedAt": "2026-09-07T12:13:07.061Z",
+      "evidence": {
+        "symptom": "Mandatory red-bfe8f-ledger-runtime-integrity.mjs failed because it required historical clone-local candidate cache bytes not present in this real worktree.",
+        "reproSteps": [
+          "Before integration, run node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs: artifact ref not found for rp-mtifubae-dfbh4w.",
+          "Merge independently completed main 874e081862 at 5f2eab09fb, build current main package, rerun the same command."
+        ],
+        "rootCause": "The regression guard conflated portable checks of committed historical RED references and actual baseline/current execution with availability of old clone-local candidate CAS. Upstream 9b8ca8879f separates historical reference/replay checks from actual current candidate API integrity checks in a private fixture.",
+        "fixEvidence": "Exact post-merge command exited 0 with historicalBaselineFails=true currentGreenPasses=true currentCorruptedRelationRejected=true assertionUnchanged=true. Output explicitly declares historicalCandidateCAS=not-consumed liveCandidate=fixture-only restoredHistoricalCAS=false. This closes the mandatory-regression portability defect, not restoration of the historical CAS. Original probe content was independently located in its original reviewer transcript and its digest recomputed exactly; no historical object or timestamp was fabricated. Canonical full validation and other failures remain pending.",
+        "reproTest": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      }
     }
   ]
 }

@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-29bc",
+  "executionKey": "ce:v1:5b1158bee37dfea2f59153bddc195687a4a5cca649ed63d903377163b9b10464",
+  "identityDigest": "5b1158bee37dfea2f59153bddc195687a4a5cca649ed63d903377163b9b10464",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-29bc",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc",
+    "command": {
+      "executable": "node",
+      "args": [
+        "-e",
+        "const {spawnSync}=require(\\node:child_process\\); for(const args of [[\\packages/main/dist/tasks/review-inventory-handler-smoke.js\\,\\--purpose-only\\],[\\packages/main/dist/tasks/review-inventory-epoch-smoke.js\\]]) { const result=spawnSync(process.execPath,args,{stdio:\\inherit\\}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\B29BC_CHK001_MATRIX",
+        "PASS\\);"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "30a14f2575e229f8ad1b90a56cfaae9bf485a7a722d41eaf0055101971b29762",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc/.proof-or-stop/story/actives/B-29bc/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc/.proof-or-stop/story/actives/B-29bc/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:12215c1d2a4f84f62b3ed7ea4add80f807f66b8b782785b69fb8df5998a1be12",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-29bc/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "5f2eab09fb53a3b495ba2f4c2accfcd6479d8d06",
+          "materialHash": "30a14f2575e229f8ad1b90a56cfaae9bf485a7a722d41eaf0055101971b29762",
+          "storyFilesHash": "af9f9aaf4d1e6fc22c63e3ade9c71025d5177358e64e98561db2258082c3f330"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-29bc",
+      "timeoutMs": 270000,
+      "verificationExecutionSemanticsKey": "{\"version\":1,\"rawExecutionKey\":\"{\\\"version\\\":1,\\\"command\\\":{\\\"executable\\\":\\\"node\\\",\\\"args\\\":[\\\"-e\\\",\\\"const {spawnSync}=require(\\\\\\\"node:child_process\\\\\\\"); for(const args of [[\\\\\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\\\\\",\\\\\\\"--purpose-only\\\\\\\"],[\\\\\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\\\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\\\\\"inherit\\\\\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\\\\\"B29BC_CHK001_MATRIX PASS\\\\\\\");\\\"]},\\\"cwd\\\":\\\"/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc\\\",\\\"effectiveTimeoutMs\\\":270000,\\\"timeoutProvenance\\\":{\\\"source\\\":\\\"executor-default\\\",\\\"configuredTimeoutMs\\\":null}}\",\"selector\":\"B29BC_CHK001_MATRIX PASS\",\"intentType\":\"cli\",\"evidenceKind\":\"integration_test\"}"
+    },
+    "storyFilesHash": "af9f9aaf4d1e6fc22c63e3ade9c71025d5177358e64e98561db2258082c3f330",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/9fa2f60e-acd6-4d7f-8eec-3a553e15d0be.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg0sdXHW0:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PROOF_OR_STOP_IDLE_TIMEOUT_MS": "900000",
+      "PROOF_OR_STOP_MAX_TIMEOUT_MS": "1200000",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.279",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "aa0962e780a3c1e124f1ddaba7aa78acb3c0a99019c3b8f9f710292f4d022f67",
+  "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_CRITIC_OWN_FINDING_DISPOSITION PASS\nB29BC_RECOVERY F-001 signed PASS requires both read fields: PASS\nB29BC_RECOVERY F-002 current purpose-bound critic findings enter the exact aggregate: PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
+  "outputProbe": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_CRITIC_OWN_FINDING_DISPOSITION PASS\nB29BC_RECOVERY F-001 signed PASS requires both read fields: PASS\nB29BC_RECOVERY F-002 current purpose-bound critic findings enter the exact aggregate: PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
+  "outputLength": 1471,
+  "executedAt": "2026-09-07T12:12:47.631Z",
+  "durationMs": 185231,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "1E4/8MfR8BV5EYBT66aeHZ3JK8f3W+U6SBZ/E3gSQYvzlc+u80dvVHIdOsM3CUW1Dx+PUgStoq0mlhwcMreKDA==",
+  "receiptHash": "7bf4c752bec7e6f3ddafa3b953ffd49804cd612de8994fda6e1c34bc111f638e"
+}
