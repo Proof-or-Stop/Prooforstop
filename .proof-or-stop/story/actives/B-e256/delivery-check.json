@@ -1,53 +1,64 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-07T11:25:05.891Z",
-  "headHash": "455fc60337bc94aa5d246f453f65316d3f533e26",
-  "materialHash": "80f3cf782e51f297b10fab790ddcb65f9c3076504917c7b7ed927fdc5c90f509",
-  "storyFilesHash": "4f284f04a1900552573799470ff9de77fd8b3ff62c8fafdafe56612b60656f9b",
-  "reviewRound": "2026-09-07T11:03:41.655Z",
+  "checkedAt": "2026-09-07T13:50:31.165Z",
+  "headHash": "6f46d0699c29766e12f1c6cb626b542196685d26",
+  "materialHash": "6d21f37dec8289d4d3a9c183938fc0569aa3ddf82ec296232fb452d4963e6891",
+  "storyFilesHash": "348d1a1d2e5d5b157503febd33fbf4d24146b26ac351cba8be398b76da3d1896",
+  "reviewRound": "2026-09-07T13:24:02.709Z",
   "agentId": "proof-or-stop-review-delivery",
   "docsPromises": [
     {
       "docPath": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-001.userSees",
       "promise": "After npm --prefix packages/main run build re-emits dist, proof-or-stop --version prints the compiled version instead of permission denied; POSIX keeps executable mode bits and Windows keeps a validated npm command shim bound to the promoted CLI.",
       "status": "verified",
-      "verifiedBy": "current checklist read, real macOS launcher probe, build, and committed regression",
-      "evidence": "Current CHK-001.userSees is host-specific and does not claim ls -la or 0755 on Windows. On this macOS host npm --prefix packages/main run build exited 0; packages/main/dist/cli.js was mode 0755; /opt/homebrew/bin/proof-or-stop resolved to /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js, its target was mode 0755, and proof-or-stop --version exited 0 with Proof-or-Stop 0.3.278. The red regression exited 0 after constructing a tsc-shaped 0644 staging entrypoint, promoting it to 0755, preserving byte content, and printing contract: global-cli-bin-target-restored."
+      "verifiedBy": "current checklist read, real macOS global launcher and build probes, plus committed cross-platform regression",
+      "evidence": "On the current macOS host, /opt/homebrew/bin/proof-or-stop resolves to /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js at mode 0755 and proof-or-stop --version exited 0 with Proof-or-Stop 0.3.279. npm --prefix packages/main run build exited 0 and left the Story worktree CLI at mode 0755. The red regression then constructed a tsc-shaped 0644 staging entry, promoted it to 0755 with byte-identical content, and printed contract: global-cli-bin-target-restored."
     },
     {
       "docPath": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-002.userSees",
       "promise": "GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable",
       "status": "verified",
-      "verifiedBy": "committed registration inspection and live regression run",
-      "evidence": "node packages/main/tests/red/red-global-cli-exec-bit.mjs exited 0 and printed the exact GREEN summary. The same run exercised staging-before-eviction, benign absent targets, non-absence failure propagation, symlink containment, and byte-preserving mode restoration. validation-tier-planner-smoke exited 0 and confirmed the real validation_plan exposes red-global-cli-exec-bit by stable id and label."
+      "verifiedBy": "live committed regression and validation-plan registration smoke",
+      "evidence": "node packages/main/tests/red/red-global-cli-exec-bit.mjs exited 0 and printed the exact GREEN summary after exercising staging-before-eviction, benign absent targets, non-absence error propagation, symlink containment, and byte-preserving restoration. node packages/main/dist/tasks/validation-tier-planner-smoke.js also exited 0 and proved the real validation_plan exposes the regression by stable id and label."
     },
     {
       "docPath": ".proof-or-stop/story/actives/B-e256/checklist.json#CHK-003.userSees",
       "promise": "proof-or-stop doctor prints a global-cli row with realpath, version and mode, and a one-line remediation when any of them drift",
       "status": "verified",
-      "verifiedBy": "live macOS doctor row plus cross-platform fixture",
-      "evidence": "The worktree CLI doctor rendered global-core-realpath PASS with /Users/jek/Documents/GitHub/Prooforstop/packages/main, version 0.3.278, mode 0755, executable=yes, and contract: global-core-realpath-pass. The separate global-core-realpath fixture exited 0. Its explicit win32 seam verifies the exact official npm extensionless shell, .cmd, and .ps1 peer bytes, accepts selection through each peer, and requires the bounded .cmd --version probe to exit 0 with exact Proof-or-Stop <compiled-version> stdout. Missing, unreadable, or byte-mutated peers and unavailable, nonzero, missing-output, or wrong-output runtime probes all fail closed. Windows remediation assertions use encoded PowerShell and explicitly reject POSIX chmod and ls commands."
+      "verifiedBy": "current macOS doctor probe plus cross-platform global-core fixture",
+      "evidence": "node bin/proof-or-stop.js doctor rendered global-core-realpath PASS for /Users/jek/Documents/GitHub/Prooforstop/packages/main with version 0.3.279, mode 0755, executable=yes, and contract: global-core-realpath-pass. node packages/main/tests/global-core-realpath.test.mjs exited 0 with ok global-core-realpath. Its explicit win32 seam verifies byte-exact official npm extensionless, .cmd, and .ps1 peers, a bounded .cmd --version invocation with exact Proof-or-Stop <compiled-version> output, encoded PowerShell remediation, and fail-closed missing, unreadable, mutated-peer, argv, exit, stdout, target, and runtime cases without applying POSIX chmod or ls semantics to Windows."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-e256/summary.json#expectedOutcome",
+      "promise": "A globally installed Proof-or-Stop command launches without EACCES, reports its version and healthy doctor diagnostics, preserves the Windows npm shim contract, and gives convergent review-assurance commands.",
+      "status": "verified",
+      "verifiedBy": "current launcher/doctor commands, assurance regression, and live guidance status",
+      "evidence": "The live launcher, build, red regression, and doctor checks passed. node packages/main/dist/tasks/review-assurance-floor-smoke.js passed all 19 checks, including duplicate-poisoned run-id skipping and complete recovery-set allocation. Current review_escalation_status reports review_assurance_floor_satisfied with ok=true for materialHash 6d21f37dec8289d4d3a9c183938fc0569aa3ddf82ec296232fb452d4963e6891 and storyFilesHash 348d1a1d2e5d5b157503febd33fbf4d24146b26ac351cba8be398b76da3d1896."
     }
   ],
   "realMachineTests": [
     {
       "featureId": "CHK-001",
-      "transcript": "macOS current-host transcript: npm --prefix packages/main run build exited 0; stat packages/main/dist/cli.js reported mode=755. command -v proof-or-stop returned /opt/homebrew/bin/proof-or-stop; realpath returned /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js; followed target mode was 755; proof-or-stop --version exited 0 and printed Proof-or-Stop 0.3.278. The committed regression then exited 0 and demonstrated tsc-style staging mode 0644 promoted to 0755 with byte-identical content."
+      "transcript": "Current macOS host: command -v proof-or-stop returned /opt/homebrew/bin/proof-or-stop; realpath resolved to /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js; stat reported mode 755; proof-or-stop --version exited 0 with Proof-or-Stop 0.3.279. npm --prefix packages/main run build exited 0 and stat reported postBuildMode=755. The committed regression independently demonstrated a tsc-style 0644 staging file promoted to 0755 with unchanged bytes."
     },
     {
       "featureId": "CHK-002",
-      "transcript": "node packages/main/tests/red/red-global-cli-exec-bit.mjs exited 0 and printed GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable. node packages/main/dist/tasks/validation-tier-planner-smoke.js exited 0 and confirmed registered validation-plan discovery."
+      "transcript": "node packages/main/tests/red/red-global-cli-exec-bit.mjs exited 0 with contract: global-cli-bin-target-restored and GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable. node packages/main/dist/tasks/validation-tier-planner-smoke.js exited 0 and its CHK-005/CHK-006 checks confirmed registration and real validation_plan discovery."
     },
     {
       "featureId": "CHK-003",
-      "transcript": "On macOS, node packages/main/dist/cli.js doctor rendered the global-core-realpath pass row with realpath, compiled version, mode 0755, executable=yes and the contract marker. node packages/main/tests/global-core-realpath.test.mjs exited 0 with ok global-core-realpath; its simulated win32 cases inspect exact extensionless, .cmd and .ps1 npm peer bytes and inject both successful and failing .cmd --version results. This is a host simulation for Windows semantics, not a claim of execution on a physical Windows host."
+      "transcript": "On the current macOS host, node bin/proof-or-stop.js doctor reported the global core realpath, compiled version 0.3.279, mode 0755, executable=yes, and the pass contract marker. node packages/main/tests/global-core-realpath.test.mjs exited 0 with ok global-core-realpath; its host-independent win32 seam executed the supported npm command-shim contract and negative mutations. This is a Windows contract simulation, not a claim that a physical Windows host was used."
+    },
+    {
+      "featureId": "BUG-001",
+      "transcript": "node packages/main/dist/tasks/review-assurance-floor-smoke.js exited 0 with review-assurance-floor smoke passed (19 checks), including no-round r1/r2/r3 allocation, one-valid-round r2/r3 allocation, duplicate-poisoned r1 recovery via r2/r3/r4, and zero replay after satisfaction. The live review_escalation_status now reports review_assurance_floor_satisfied for the current committed binding."
     }
   ],
   "closingSelfCheck": {
     "hasRealMachineTest": true,
     "hasEdgeCaseCoverage": true,
     "hasUnresolvedTodos": false,
-    "summary": "All three current user-visible promises are verified. The real macOS launcher and post-build mode are healthy; Windows claims are limited to validated npm peer bytes and a bounded exact-version execution contract, with no Windows ls -la or 0755 promise. The committed cross-platform fixture passes and fail-closes peer, argv, exit, stdout, target, and runtime mutations. No unresolved TODO, FIXME, or HACK was found in the business-code and test diff. The worktree doctor also reports a separate package-version skew because local Story version 0.3.277 is behind current main/global 0.3.278; the global-core delivery row itself passes, and main synchronization is a separate DONE step."
+    "summary": "All current user-visible promises and the final summary are verified against the committed Story. The real macOS global launcher and post-build POSIX mode are healthy. Windows claims are deliberately limited to the supported npm extensionless/.cmd/.ps1 peer-byte and exact --version contract exercised through the explicit win32 seam, not a physical-host claim. BUG-001 guidance convergence is covered by the 19-case regression and live satisfied status. A scan of added business/test lines found no TODO, FIXME, or HACK markers, and the checklist, delivery, summary, and bug artifacts contain no waiver fields; host-capability skips in tests retain independent non-link assertions and do not waive the user promise."
   },
-  "_hash": "b0feee8d1877e5673d5acdfd410b2f7e74d8233e046570e80a5f5b4f984f07ce"
+  "_hash": "600ba2ea3d38098874fb0730a6ab70598806f9400abf383556b2d75fadd032eb"
 }
