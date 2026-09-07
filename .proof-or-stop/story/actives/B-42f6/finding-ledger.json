@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "f4332f3720b2276b023885884cb075b6ea061f033b1c556b290701385cd5c614",
+  "committedLedgerDigest": "0278be031be6a60e5a40de3985057dbe3dfed5df1451e25bc8c91af1453b8013",
   "records": [
     {
       "recordId": "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768",
@@ -187,6 +187,52 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T10:09:10.635Z"
+    },
+    {
+      "recordId": "lr_mtr2wdgb_giu_41a2d24c916b43aba26dd088a80f7873",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:4aa48be8-792b-434b-aacb-5886b768bd88",
+      "payload": {
+        "id": "B-42f6:F-005",
+        "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 146, \"reason\": \"The new nested-Lab help assertion normalizes with `.replaceAll('lab <sub>', 'lab_<sub>')` on the nested output before comparing to the flat output. That substitution is broad enough to also rewrite any incidental occurrence of the display alias inside help prose, so the equality check proves 'same help body modulo every alias spelling' rather than 'same help body with only the invocation line differing'. It cannot produce a false PASS for a missing or wrong handler (a divergent body still fails), so this is a precision limitation of the assertion, not an unsound test. Retained local CLI negative coverage (unknownLab: nonzero status + /Unknown command: lab/ on stderr) is correct and does spawn a real process.\", \"severity\": \"low\"} Independent assessment: Alias-normalized help comparison has the stated precision limit but no wrong-handler pass is demonstrated. No current acceptance defect verified. No repair, deferral or signed applicability verdict asserted.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "suspected",
+        "uncertaintyReason": "Alias-normalized help comparison has the stated precision limit but no wrong-handler pass is demonstrated. No current acceptance defect verified.",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T10:09:14.267Z",
+        "reviewRound": "2026-09-07T10:06:11.989Z",
+        "reviewRunId": "B-42f6:RR-011",
+        "readManifest": {
+          "filesReadFully": [
+            "packages/main/src/core/scope-inventory-budget.ts"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "eafb9ad8a901333f62c247af704f5070c99d1a13d6b952acc9caa0eb516e06df",
+        "files": [
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "signatureTag": "missing|ts|imported-claude-round",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "28ff2f6dd86af6ac08bbcf6c0a88237afb57d6f79c6dc656b1573a2fba92fdae",
+      "priorDigest": "f4332f3720b2276b023885884cb075b6ea061f033b1c556b290701385cd5c614",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T10:09:14.267Z"
     }
   ],
   "receipts": [
@@ -360,6 +406,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "59cfb0539d9dce05c3518aefc990451e5a610d02bdd3e3e4a61e7068d2a6b74a",
         "signature": "I/4RN3LsjC1XTbFJFHWX+SJKJ4tI4DL6b4xJk24PyvKaKlzj/XLGixg4kcm96ETz2gnrvFbRqsbb+Palkks0DA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr2wdgb_giu_531997c23a454a11b5306ab9b1fe1a95",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:4aa48be8-792b-434b-aacb-5886b768bd88",
+      "requestDigest": "c5fa2d43d7c448769e7053c369307954ffb6a642f0da1ad32ae2062231ac1812",
+      "recordIds": [
+        "lr_mtr2wdgb_giu_41a2d24c916b43aba26dd088a80f7873"
+      ],
+      "priorLedgerDigest": "f4332f3720b2276b023885884cb075b6ea061f033b1c556b290701385cd5c614",
+      "committedLedgerDigest": "0278be031be6a60e5a40de3985057dbe3dfed5df1451e25bc8c91af1453b8013",
+      "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+      "writerFenceToken": "b23739c0-44c1-4058-b572-9b5c020535be",
+      "committedAt": "2026-09-07T10:09:14.267Z",
+      "replayed": false,
+      "exactRequestDigest": "a6663500ed200954bc076095c05dff05c52bb1e2cd12c3b96b6ae4eeeecf464a",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr2wdgb_giu_531997c23a454a11b5306ab9b1fe1a95",
+        "storyId": "B-42f6",
+        "idempotencyKey": "finding_add:4aa48be8-792b-434b-aacb-5886b768bd88",
+        "exactRequestDigest": "a6663500ed200954bc076095c05dff05c52bb1e2cd12c3b96b6ae4eeeecf464a",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr2wdgb_giu_41a2d24c916b43aba26dd088a80f7873"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "f4332f3720b2276b023885884cb075b6ea061f033b1c556b290701385cd5c614",
+        "committedLedgerDigest": "0278be031be6a60e5a40de3985057dbe3dfed5df1451e25bc8c91af1453b8013",
+        "replayed": false,
+        "committedAt": "2026-09-07T10:09:14.267Z",
+        "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+        "writerLeaseId": "sess-111f787341add2cdbadb7c69b7d6e96a",
+        "writerFenceToken": "b23739c0-44c1-4058-b572-9b5c020535be",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "a31db46f69ebcdbb94110a1a332ce82a7efaaa99004b70e8458c04c45a367750",
+        "signature": "9u2ZoFnWsHqBCPjdMGxMHM9b7pIpOIduUPO1/820Xmqq4aAzOpM3sCMIE7R62DyPb9mADtypYpsXUzyJcTU+DQ=="
       }
     }
   ]

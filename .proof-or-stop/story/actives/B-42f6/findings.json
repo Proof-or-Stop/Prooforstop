@@ -151,6 +151,44 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2wanf_g6a_16febbca93e34c24937cbb09dbed4622",
       "ledgerCommitReceiptId": "lrc_mtr2wanf_g6a_3559145486d64eb393a3e1a4751a725a"
+    },
+    {
+      "id": "B-42f6:F-005",
+      "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 146, \"reason\": \"The new nested-Lab help assertion normalizes with `.replaceAll('lab <sub>', 'lab_<sub>')` on the nested output before comparing to the flat output. That substitution is broad enough to also rewrite any incidental occurrence of the display alias inside help prose, so the equality check proves 'same help body modulo every alias spelling' rather than 'same help body with only the invocation line differing'. It cannot produce a false PASS for a missing or wrong handler (a divergent body still fails), so this is a precision limitation of the assertion, not an unsound test. Retained local CLI negative coverage (unknownLab: nonzero status + /Unknown command: lab/ on stderr) is correct and does spawn a real process.\", \"severity\": \"low\"} Independent assessment: Alias-normalized help comparison has the stated precision limit but no wrong-handler pass is demonstrated. No current acceptance defect verified. No repair, deferral or signed applicability verdict asserted.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Alias-normalized help comparison has the stated precision limit but no wrong-handler pass is demonstrated. No current acceptance defect verified.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:09:14.267Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "eafb9ad8a901333f62c247af704f5070c99d1a13d6b952acc9caa0eb516e06df",
+      "files": [
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr2wdgb_giu_41a2d24c916b43aba26dd088a80f7873",
+      "ledgerCommitReceiptId": "lrc_mtr2wdgb_giu_531997c23a454a11b5306ab9b1fe1a95"
     }
   ]
 }
