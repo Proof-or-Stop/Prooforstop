@@ -2265,9 +2265,9 @@
       "epochId": "B-8a40:RI-012",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T23:51:29.750Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-06T23:52:40.136Z",
-      "updatedAt": "2026-09-06T23:52:40.136Z",
+      "updatedAt": "2026-09-07T00:00:54.425Z",
       "cutoff": {
         "headHash": "6ebce5b81e98257855066a33225692b8c9d53ffb",
         "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
@@ -2281,9 +2281,59 @@
       ],
       "initialRunSequenceBoundary": 136,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-06T23:52:40.136Z",
+          "completedAt": "2026-09-07T00:00:52.237Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-139",
+              "terminal": "pass",
+              "hostIdentity": "a37d9223f2ad7e7f6125b2b86b0722191d57284842014e029c929d344f9c2142",
+              "promptIdentity": "fe3dc0cb868a1f275e9108677205b5fabe6a8ac6b177cd345443d1a1d2593db6",
+              "evidenceIds": [
+                "B-8a40:RP-075"
+              ],
+              "coverageDigest": "26b0dbdc8fd5d1aa8670429d8dac9e491e9ac08c08859a886f7228d0b7dad11b"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-138",
+              "terminal": "pass",
+              "hostIdentity": "a070e2ea09ffe585a4f7103d62e41c544ac0ce01d97c026365bcd671bd4a023b",
+              "promptIdentity": "4739c8a6467e9959f56d3f17c5df5532f0a1e076b77285c54a026d05a21318b9",
+              "evidenceIds": [
+                "B-8a40:RP-074"
+              ],
+              "coverageDigest": "72960ec981d088a2c1769ac1929464e5ca91a9fe5760fff844bedc8a072566f3"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-137",
+              "terminal": "pass",
+              "hostIdentity": "a070e2ea09ffe585a4f7103d62e41c544ac0ce01d97c026365bcd671bd4a023b",
+              "promptIdentity": "77805fb5d072d25b0ce7b5ee297d82f6cfe4c4413552c2f4bd13fc18e581cc1b",
+              "evidenceIds": [
+                "B-8a40:RP-073"
+              ],
+              "coverageDigest": "ce5164dafb84598861a96c4691ea4ee30290a17d899289abeeeb111c79646c56"
+            }
+          ],
+          "verifiedFindingFamilies": [],
+          "verifiedFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "d53fb9d6823626d5e8e0373ecfbc79acd21be2c3bf1a1f8f7e2546128fd17209",
+          "saturated": true,
+          "nextRunSequenceBoundary": 140
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "397ba68560c27d4edbe4b5f8b7e899dc8d4c60712f46e358c59d2d037467d704"
+      "receiptId": "B-8a40:RI-012:RCP-001",
+      "consumedAt": "2026-09-07T00:00:54.425Z",
+      "consumedByReviewRound": "2026-09-06T23:51:29.750Z",
+      "_hash": "d4cfe2f78475d340bb76301de59f85305e19d234c0f2225ed57413901cbd0236"
     }
   ],
   "receipts": [
@@ -2394,6 +2444,33 @@
       "issuedAt": "2026-09-06T23:26:09.767Z",
       "consumedAt": "2026-09-06T23:26:42.339Z",
       "_hash": "774f0aff1110b5efed0f16eb71b6951ee2246e073ad640aeadc2e864aaf9baef"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-8a40:RI-012:RCP-001",
+      "epochId": "B-8a40:RI-012",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T23:51:29.750Z",
+      "cutoff": {
+        "headHash": "6ebce5b81e98257855066a33225692b8c9d53ffb",
+        "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
+        "storyFilesHash": "712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd"
+      },
+      "scopeDigest": "bdc70ab91487f3206bee10fa2d4e4eaf703f7583ea98d03425ed1b821e0e7062",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 1,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "196edbdd3932f0b53880147c39e6490f1fb9eebb56ba065d65dd113bf87f91be",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T00:00:52.237Z",
+      "consumedAt": "2026-09-07T00:00:54.425Z",
+      "_hash": "cb1b7c9adbd2f233fee5073a836faafab1428f6cb8b328f9c67b8ed98ec7c9f5"
     }
   ],
   "criticReceipts": [
@@ -4262,6 +4339,30 @@
       ],
       "createdAt": "2026-09-06T23:25:55.527Z",
       "_hash": "3b523f81e9bab7dc0aa5a5ccc31a06cf60c216207668cb07b8ed005d497b6569"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-012:CRIT-01",
+      "epochId": "B-8a40:RI-012",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T23:51:29.750Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "6ebce5b81e98257855066a33225692b8c9d53ffb",
+        "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
+        "storyFilesHash": "712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd"
+      },
+      "aggregateFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "requiredLaneCoverageDigest": "93afefa3331d0b3945d4b22156c0a78c8d9e910b8628e3552cb89a0e0efe63fe",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-140",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-076"
+      ],
+      "readEvidenceDigest": "cf952d1bb9c54b9f7e5ba7ae49bff78386fa86a1b76f56ff22e44dc01a758195",
+      "findingDispositions": [],
+      "createdAt": "2026-09-07T00:00:38.326Z",
+      "_hash": "50249b9dcf56381b75e9e85efedfe43518cb29214d68151c858d0e0c7e9f3253"
     }
   ]
 }
