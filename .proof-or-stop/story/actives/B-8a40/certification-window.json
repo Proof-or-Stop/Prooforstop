@@ -38,9 +38,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-8a40:CW-002",
       "storyId": "B-8a40",
-      "state": "RUNNING",
+      "state": "CANCELLED",
       "createdAt": "2026-09-07T08:44:15.549Z",
-      "updatedAt": "2026-09-07T08:44:32.898Z",
+      "updatedAt": "2026-09-07T09:24:51.533Z",
       "frozen": {
         "headHash": "1874513a22a66419fbca8eb536a6160633b567b8",
         "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
@@ -63,8 +63,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "receiptId": "B-8a40:PRECERT-002",
-      "_hash": "6313ba8925614f91eeaf4e8a307592bcdad1b52824ffcc1ab1eb1fc89525a1ca"
+      "cancelledAt": "2026-09-07T09:24:51.533Z",
+      "cancelReason": "The completed canonical 132-command validate at 2165dc9618 records FAIL: missing historical probe in the registered ledger guard and missing max-descendant PID premise in the heartbeat smoke. Preserve genuine prior DONE-required PASS but cancel this certification window for bounded diagnosed remediation; no TEST/DONE authority or bypass is claimed.",
+      "_hash": "01565657d99e2bf6d194cffce6aec466b1297543d81e0c9c3c54c4b8bcec744c"
     }
   ],
   "receipts": [

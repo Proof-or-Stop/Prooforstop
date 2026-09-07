@@ -1,0 +1,20 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-VALIDATION-PROBE-PORTABILITY",
+      "title": "Current TEST blocker, not a classifier regression: formal 132-command validate captured FAIL at 2026-09-07T09:21:27.902Z (commit 2165dc9618), because red-bfe8f-ledger-runtime-integrity.mjs exits 1 at parseCliJson line79 / probe read line408: repro_probe_get failed, artifact ref not found rp-mtifubae-dfbh4w. Independent read-only repro_probe_get fails in both B-8a40 and local main; original ref/digest filename search across repository evidence and current worktrees found no original object. The registered guard depends on an ephemeral historical candidate CAS; do not fabricate the old identity, broaden its special registration-mirror exception, remove registration, or waive this failure. Preserve actual historical baseline/current execution and integrity negative controls in a bounded portable guard repair after lawful DEV entry. Independent recovery audit found no exposed original candidate-CAS import command.",
+      "status": "open",
+      "foundAt": "2026-09-07T09:24:50.478Z",
+      "fixedAt": null,
+      "checklistId": "CHK-001"
+    },
+    {
+      "id": "BUG-VALIDATION-DESCENDANT-PREMISE",
+      "title": "Current TEST blocker under diagnosis, not yet a proven production timeout defect: formal 132-command validate captured FAIL at 2026-09-07T09:21:27.902Z (commit 2165dc9618). validate-progress-heartbeat-smoke.js exited 1 after153119ms with timed out waiting for fixture file .../proof-or-stop-validate-heartbeat-CjaRVH/max-descendant.pid. The assertOuterWatchdogsKillDescendants max fixture uses a700ms outer maximum and then expects its descendant PID marker; a30-second post-return wait cannot create a descendant if the outer watchdog already prevented startup. Independently rerun the actual unchanged smoke and establish the precise startup/timeout trace before choosing an operational recheck or bounded fixture repair. Do not suppress the failed result, extend production deadlines, remove the descendant assertion, or claim a product bug solely from this timing failure.",
+      "status": "open",
+      "foundAt": "2026-09-07T09:24:50.984Z",
+      "fixedAt": null,
+      "checklistId": "CHK-001"
+    }
+  ]
+}
