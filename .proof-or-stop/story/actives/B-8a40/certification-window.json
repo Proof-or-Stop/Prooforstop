@@ -5,9 +5,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-8a40:CW-001",
       "storyId": "B-8a40",
-      "state": "RUNNING",
+      "state": "CANCELLED",
       "createdAt": "2026-09-07T00:00:54.441Z",
-      "updatedAt": "2026-09-07T00:01:14.267Z",
+      "updatedAt": "2026-09-07T00:05:46.529Z",
       "frozen": {
         "headHash": "9ad6e93f771621ab168c86fde8376eae34e68870",
         "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
@@ -30,8 +30,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "receiptId": "B-8a40:PRECERT-001",
-      "_hash": "601c94d03400a1187e3fbea874c29645399cf5035721e1fb02889c8caba88ebf"
+      "cancelledAt": "2026-09-07T00:05:46.529Z",
+      "cancelReason": "DONE-required npm test failed with two directly introduced safety-scanner violations in the scoped mutation smoke; cancel before bounded repair.",
+      "_hash": "541772b695212216ce7f8fbe8f7930219880a2d9132b71f2e118d36695f1328b"
     }
   ],
   "receipts": [
