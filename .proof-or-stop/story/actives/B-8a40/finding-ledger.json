@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "71c51039ff2433f20fdda839e11aaa1afce8815886dac95efd0db400ae30813c",
+  "committedLedgerDigest": "3dd763cd4339ac8cdfc7789a79ba4230ff3067f993da9e80a3388298853666ea",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -3223,6 +3223,75 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T08:31:41.373Z"
+    },
+    {
+      "recordId": "lr_mtqzfiik_107w_47e327e209254596b5514335f6b3b6e0",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:a6ea09cd-1416-4f8e-8bcc-2def5c01887f",
+      "payload": {
+        "id": "B-8a40:F-091",
+        "desc": "quality-cleanup: RR-160 latest-run re-attestation of the existing verified observation B-8a40:F-087, filed only because the REVIEW gate requires open lane findings to bind the latest reviewRunId (current: B-8a40:RR-160) and the original binds B-8a40:RR-151. NOT a new defect family; the canonical original F-087 remains open, verified and unmodified. Observation re-verified at HEAD 7e8512edf8, where packages/main/src/core/prompt-envelope.ts:233-235 in hasAffirmativeConceptRelation still reads exactly: if (relationRange.end > conceptEnd || relationRange.start > conceptStart) { if (relationRange.start < conceptStart || relationRange.end > conceptEnd) continue; }. That nested guard is provably equivalent to the single test relationRange.end > conceptEnd, so both relationRange.start comparisons are dead. Exhaustive case analysis with r0 for relationRange.start, r1 for relationRange.end, cs for conceptStart and ce for conceptEnd: case 1, r1 > ce, outer true and inner true, continue; case 2, r1 <= ce and r0 > cs, outer true and inner false or false, no continue; case 3, r1 <= ce and r0 <= cs, outer false or false so the inner test is skipped, no continue. The relation is therefore skipped exactly when r1 > ce for every value of r0. Impact unchanged: this is the replacement for the maxBridgeLength horizon removed from this same function by an earlier resolved finding, and it sits on the affirmative-relation path deciding assertsCurrentVerdict and residualSchemaAmendment in the fail-closed REVIEW authority classifier, so a future editor will read two dead comparisons as live containment constraints and reason about a rule the code does not implement. Suggested fix unchanged: replace lines 233-235 with the single skip when relationRange.end > conceptEnd, or, if containment is genuinely intended, implement it explicitly as r0 >= cs AND r1 <= ce and add a fixture that distinguishes the two. No observable behaviour changes today and no current behaviour claim depends on r0; I did not execute the function. Routed to docs/story/drafts/classifier-smoke-nonblocking-cleanup as future owner. Severity low, unchanged.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T08:32:08.825Z",
+        "reviewRound": "2026-09-07T07:37:25.032Z",
+        "reviewRunId": "B-8a40:RR-160",
+        "readManifest": {
+          "filesReadFully": [
+            ".gitignore",
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/decision.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+            ".proof-or-stop/story/actives/B-8a40/summary.json",
+            ".proof-or-stop/story/actives/B-8a40/understanding.json",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "packages/main/tsconfig.json"
+          ],
+          "filesTriagedByName": [
+            "package.json",
+            "packages/main/src/core/dev-memory.ts",
+            "packages/main/src/core/evidence-freshness.ts",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/core/prompt-registry.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "packages/main/src/tasks/run-all-smokes.ts",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "69fd1d33ef0d5060eaaf391074bb088d334d99a0f4056cad4fd679af7ce5e23a",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts"
+        ],
+        "signatureTag": "b8a40-classifier-dead-code",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "0965cb490eebd809c3bb9209f10b6ef26f32663a0c5352537279beb3826a6afc",
+      "priorDigest": "71c51039ff2433f20fdda839e11aaa1afce8815886dac95efd0db400ae30813c",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T08:32:08.828Z"
     }
   ],
   "receipts": [
@@ -7714,6 +7783,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "3a0fd8ce441febb913fc504ab64120b06ffce03528618c8accd8ae8b78e597e7",
         "signature": "s6h6MVxfmtMLeq7UL08ubAteYBC0ixjr48vsPsHJ0iNgbeOyojkJo9/Hp03Pck5fwZH106m+Xqxb8PC3k9mmBA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqzfiik_107w_fce5bbc657054e52b82ca71567acb631",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:a6ea09cd-1416-4f8e-8bcc-2def5c01887f",
+      "requestDigest": "3a7728ebdc2acc44f7ea8cfbc01445fc3cd3dd4c915517781805f59a46152d64",
+      "recordIds": [
+        "lr_mtqzfiik_107w_47e327e209254596b5514335f6b3b6e0"
+      ],
+      "priorLedgerDigest": "71c51039ff2433f20fdda839e11aaa1afce8815886dac95efd0db400ae30813c",
+      "committedLedgerDigest": "3dd763cd4339ac8cdfc7789a79ba4230ff3067f993da9e80a3388298853666ea",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "writerFenceToken": "e451ffd5-8a52-4e46-a65d-17d76512b455",
+      "committedAt": "2026-09-07T08:32:08.828Z",
+      "replayed": false,
+      "exactRequestDigest": "29de7fe36da0dedd3b1ac42fa161381152fbc6853dca314c436372ad3a753d01",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqzfiik_107w_fce5bbc657054e52b82ca71567acb631",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:a6ea09cd-1416-4f8e-8bcc-2def5c01887f",
+        "exactRequestDigest": "29de7fe36da0dedd3b1ac42fa161381152fbc6853dca314c436372ad3a753d01",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqzfiik_107w_47e327e209254596b5514335f6b3b6e0"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "71c51039ff2433f20fdda839e11aaa1afce8815886dac95efd0db400ae30813c",
+        "committedLedgerDigest": "3dd763cd4339ac8cdfc7789a79ba4230ff3067f993da9e80a3388298853666ea",
+        "replayed": false,
+        "committedAt": "2026-09-07T08:32:08.828Z",
+        "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "e451ffd5-8a52-4e46-a65d-17d76512b455",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "9ee79e7a00d4eb0a354359f2b946c55abdd0870c6e328a3c020daf4b169dd940",
+        "signature": "mMPiwsGXYTovffGtde/Ye24aNuf7XJXJl47n55bQxRPPylPF0Ft0bPHf1KQl4AOd6FUohQ+sihlYj5bqqKXsCQ=="
       }
     }
   ]
