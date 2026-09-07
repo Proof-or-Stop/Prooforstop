@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-e256",
+  "executionKey": "ce:v1:f2ab42fb458b7391da56742bc8921c6304b3706f1c3c6eca38f36d3f6bbe59d1",
+  "identityDigest": "f2ab42fb458b7391da56742bc8921c6304b3706f1c3c6eca38f36d3f6bbe59d1",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-e256",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/dist/tasks/validation-tier-planner-smoke.js"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "80f3cf782e51f297b10fab790ddcb65f9c3076504917c7b7ed927fdc5c90f509",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:95d4e9f22a6f841900c229c0bb8d7a51f47be78e1a13d38a1f86652edb045107",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-e256/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "6007b0b7ed4fe6d8b24f2cf8bd456b17652b0f62",
+          "materialHash": "80f3cf782e51f297b10fab790ddcb65f9c3076504917c7b7ed927fdc5c90f509",
+          "storyFilesHash": "4f284f04a1900552573799470ff9de77fd8b3ff62c8fafdafe56612b60656f9b"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "refreshExecutionKey": "{\"version\":1,\"command\":\"node packages/main/dist/tasks/validation-tier-planner-smoke.js\",\"selector\":\"ok  the real validation_plan output exposes red-global-cli-exec-bit by stable id and label\",\"intentType\":\"logic\",\"evidenceKind\":\"logic_test\",\"cwd\":\"/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256\",\"effectiveTimeoutMs\":180000,\"timeoutProvenance\":{\"source\":\"configured-command-timeout\",\"configuredTimeoutMs\":180000}}",
+      "storyId": "B-e256",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "4f284f04a1900552573799470ff9de77fd8b3ff62c8fafdafe56612b60656f9b",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/9fa2f60e-acd6-4d7f-8eec-3a553e15d0be.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg0sdXHW0:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.277",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "fec74dc45328b943e2bd8a102cbd203b958ad3879bec133e4c1c451d6c72f368",
+  "outputTail": "validation-tier-planner-smoke: running CHK-001 stable command identity cases\n  ok  25 cases passed\n\nvalidation-tier-planner-smoke: running CHK-002 legacy pin resolver cases\n  ok  13 cases passed\n\nvalidation-tier-planner-smoke: running CHK-003 Story input collector cases\n  ok  18 cases passed\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  11 cases passed\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n  ok  prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail\n  ok  a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing\n  ok  merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified\n  ok  priorRedIds on this real repository does not throw and matches an independent bounded git query\n  ok  priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)\n  ok  priorRedIds raises when the git call fails instead of returning an empty set\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the real validation_plan output exposes red-global-cli-exec-bit by stable id and label\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\ndefault stdout projection: 2507 chars (bound 11000)\n  ok  bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars\n\nvalidation-tier-planner-smoke: PASS\n",
+  "outputProbe": "validation-tier-planner-smoke: running CHK-001 stable command identity cases\n  ok  25 cases passed\n\nvalidation-tier-planner-smoke: running CHK-002 legacy pin resolver cases\n  ok  13 cases passed\n\nvalidation-tier-planner-smoke: running CHK-003 Story input collector cases\n  ok  18 cases passed\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  11 cases passed\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n  ok  prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail\n  ok  a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing\n  ok  merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified\n  ok  priorRedIds on this real repository does not throw and matches an independent bounded git query\n  ok  priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)\n  ok  priorRedIds raises when the git call fails instead of returning an empty set\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the real validation_plan output exposes red-global-cli-exec-bit by stable id and label\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\ndefault stdout projection: 2507 chars (bound 11000)\n  ok  bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars\n\nvalidation-tier-planner-smoke: PASS\n",
+  "outputLength": 2507,
+  "executedAt": "2026-09-07T10:34:35.295Z",
+  "durationMs": 9768,
+  "timeoutMs": 180000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "l3KCxaZZY5PgsYHKmb/3hbW0DazcpYgf245OCax0vwih6qtTX+bpOvZHoBPgXy1bnK4kcn0J7nWX7Big0XglDQ==",
+  "receiptHash": "314cca9cb04537a0117fc3330dde6621b090e1f49915b288a3a79e906228698e"
+}
