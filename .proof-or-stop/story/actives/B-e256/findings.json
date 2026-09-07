@@ -2574,7 +2574,7 @@
       "desc": "windows-command-shim-caret-escaped-separator false pass: packages/main/src/core/runtime-environment-checks.ts:746-758 splits every unquoted `&`/`|` into executable command segments without honoring cmd.exe caret escaping, and lines 826-830 accept any later segment that looks like a Node invocation. A current compiled-runtime probe used the canonical installed package/bin/version and a PATH-selected .cmd shim containing `echo ^& node \"<canonical-target>\" %*`. In cmd.exe, `^&` is a literal ampersand passed to echo, so the `node ...` text is not a separate command and the target is never executed; nevertheless runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true and emitted `contract: global-core-realpath-pass`. packages/main/tests/global-core-realpath.test.mjs:175-179 and 249-297 cover a representative shim, echo decoy, and Node option decoys, but no escaped-command-separator mutation. This is distinct from F-047 runtime-variable binding, F-049 unreachable control flow, F-050 target-base binding, and F-052 single-quote tokenization: the runtime and target tokens are literal and correctly positioned, but the parser invents a command boundary that cmd.exe explicitly escapes. Parse cmd.exe caret escapes or accept only a verified npm-generated shim grammar, and add a mutation proving an escaped separator cannot emit the healthy marker. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-07T01:04:33.224Z",
@@ -2626,7 +2626,11 @@
       "signatureTag": "windows-command-shim-caret-escaped-separator-false-pass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqjfwlm_ep1_a7384305309c4670a7f2e3f0472e8694",
-      "ledgerCommitReceiptId": "lrc_mtqjfwlm_ep1_923f659d86ea4ae88f288a3671e2f26e"
+      "ledgerCommitReceiptId": "lrc_mtqjfwlm_ep1_923f659d86ea4ae88f288a3671e2f26e",
+      "resolvedReason": "Commit 9473a6f32c handles cmd caret escaping without treating escaped separators as valid executable boundaries; adversarial mutation coverage and final full validation pass.",
+      "resolvedAt": "2026-09-07T11:06:15.479Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-054",
