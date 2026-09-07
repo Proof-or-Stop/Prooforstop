@@ -4630,6 +4630,49 @@
       ],
       "createdAt": "2026-09-07T07:17:34.888Z",
       "_hash": "ba7bba8a3db370dc1dace1f731a110b57bd4d934c2f66740515936afbe96d44c"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-014:CRIT-01",
+      "epochId": "B-8a40:RI-014",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "a0b5dd133ddefc554003d27d3edda4b5e1349e9e",
+        "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+        "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b"
+      },
+      "aggregateFindingSetDigest": "af73c0105cc85416c3fdc9ad78fc46feb79d05e4eb5c2142fe6037ba3f96e621",
+      "requiredLaneCoverageDigest": "d0219870a78edabcf67a34ad7a5d574639c80a670842941b29bccc2380b59164",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-153",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-082"
+      ],
+      "readEvidenceDigest": "32e9b63590f642faa3b4ebaa1b89f719c0cdf1ade6439a0da9a34a5096e6a75d",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-085",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-mutant-tree-repo-root-residue",
+          "reason": "Independent source/path-policy inspection confirms the repository-root .prompt-envelope-mutants- prefix has no ignore rule and a process termination bypassing finally can leave untracked built-module residue. The actual abort path has not been executed; normal completion removes the directory and no current residue or acceptance/core-result failure was observed. This medium hazard fails closed rather than falsifying evidence. Keep the verified original and route its bounded follow-up through the existing classifier-smoke-nonblocking-cleanup draft under the user's nonblocking medium/low rule; re-escalate if actual current acceptance or protected/gate impact appears. This inventory classification does not issue signed deferral, declare non-applicability, dismiss or resolve the Finding."
+        },
+        {
+          "findingId": "B-8a40:F-086",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-unused-inventory-authority-action-constant",
+          "reason": "Independent targeted source and identifier search confirm TRIAGE_INVENTORY_AUTHORITY_ACTION is an unused module-local constant at prompt-envelope.ts:379. It is a distinct low maintainability mechanism: no current runtime consumer, acceptance regression or gate-evidence effect was demonstrated. Preserve the open observation and reproduction in the existing classifier-smoke-nonblocking-cleanup draft as later cleanup; no current scope expansion or repair claim. A shared signature tag with F-087 does not make these different code mechanisms duplicates."
+        },
+        {
+          "findingId": "B-8a40:F-087",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-redundant-affirmative-relation-range-guard",
+          "reason": "Independent reading and Boolean case analysis confirm the nested guard at prompt-envelope.ts:233-235 is equivalent to relationRange.end greater than conceptEnd; its two start comparisons add no current behavior. This separate low maintainability observation is not the unused-constant mechanism in F-086 and no present behavior/gate regression was demonstrated. Keep its original verified open record and the evidence-backed classifier-smoke-nonblocking-cleanup follow-up route. Any future behavioral change requires its own acceptance evidence; this classification is neither authorization to alter classifier semantics nor signed deferral/closure."
+        }
+      ],
+      "createdAt": "2026-09-07T08:14:39.010Z",
+      "_hash": "c3c8a58cf160340ab4fcf74d7c4b3b5df31f30c5e40ee2c13819346e4fc33eaf"
     }
   ]
 }
