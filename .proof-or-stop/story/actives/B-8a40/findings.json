@@ -4213,6 +4213,55 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqwoveh_10tm_c151f63a5c80499c81af5f6db56db8f5",
       "ledgerCommitReceiptId": "lrc_mtqwoveh_10tm_aad3e0c4b5234fa28b898639ecc96508"
+    },
+    {
+      "id": "B-8a40:F-084",
+      "desc": "The committed B-8a40 mutation harness introduces a nonliteral dynamic module load without the existing guard admission contract, so the actual DONE-required test cannot pass. Independent reproduction at the unchanged round-5 material with `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exited 1 and reported packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2123: unapproved non-literal dynamic module load: import() `${pathToFileURL(mutantPath).href}?run=${Date.now()}`; canonical AST fingerprint 55ccba2baaaea566f2b25fedb2b2187d258d45e2d08b54515004c2627f5c65ce. `git diff main...HEAD -- packages/main/src/tasks/prompt-full-context-envelope-smoke.ts` confirms this complete importEnvelopeMutant helper is introduced by this Story. The same run separately reports line 2188 vocabulary violation, already recorded as F-079. The guard's scanConcealedCompatibilityLoads and isKnownBenignNonLiteralLoaderCall require a finite approved anchor/argument plus canonical source fingerprint (and applicable provenance pins); tests at lines 5616-5626 explicitly reject even unrelated nonliteral module loads. The focused envelope smoke and its 13 pinned receipts do not establish compatibility with that separate required guard. This is an applicable current-Story verification/DONE blocker, not an unrelated repository issue; medium reflects the demonstrated validation failure, not an assertion of exploitable runtime harm. Repair must preserve both independently biting complete all-role mutant matrices and the guard's fail-closed load checks. The vocabulary diagnostic can be corrected inside the scoped smoke file. No transparent two-file admission for this runtime-generated loader is established: retaining the isolated generated-module design requires an explicitly authorized narrow guard extension with exact source/argument/provenance binding and negative controls. Replacing it with eval, Function, concealed subprocess-generated loader text, or weakening/exempting the scanner is not a valid repair. A genuinely static redesign would require fresh isolation/cache/cleanup and mutant-bite evidence, not an import-spelling workaround. This review supplies evidence and repair constraints, not scope or policy approval.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T07:15:52.165Z",
+      "reviewRound": "2026-09-06T23:51:29.750Z",
+      "reviewRunId": "B-8a40:RR-147",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "3128f15add32c8ddc82ea12184a077aea799c6a56251bd45d76d34f538e34302"
+      },
+      "readDiagnostics": [],
+      "_hash": "7ce5bb5cf2f4334b44bf289b108609017532951e9bf0173c2ef1e4405c4f7c9a",
+      "files": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "b8a40-mutant-loader-guard-admission",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqwpf53_14dz_fb424f931a7540419329ff6dd8d10caf",
+      "ledgerCommitReceiptId": "lrc_mtqwpf54_14dz_77c9780fabbd4ea5ba4ae6ecde8b9d01"
     }
   ]
 }

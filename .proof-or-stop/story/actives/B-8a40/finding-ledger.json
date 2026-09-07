@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "ab621039c3cdb4c537fdbc1c3594e66e37fea96ab835bc680dc298f7b405196b",
+  "committedLedgerDigest": "6aca330b02edce9bf1218ae854acabb1e01e8fba3a091ae4d7089a4fb7cd28d2",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2632,6 +2632,63 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T07:15:26.584Z"
+    },
+    {
+      "recordId": "lr_mtqwpf53_14dz_fb424f931a7540419329ff6dd8d10caf",
+      "recordType": "finding",
+      "idempotencyKey": "b8a40-ri013-wave2-quality-rr147-repeat-f080",
+      "payload": {
+        "id": "B-8a40:F-084",
+        "desc": "The committed B-8a40 mutation harness introduces a nonliteral dynamic module load without the existing guard admission contract, so the actual DONE-required test cannot pass. Independent reproduction at the unchanged round-5 material with `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exited 1 and reported packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2123: unapproved non-literal dynamic module load: import() `${pathToFileURL(mutantPath).href}?run=${Date.now()}`; canonical AST fingerprint 55ccba2baaaea566f2b25fedb2b2187d258d45e2d08b54515004c2627f5c65ce. `git diff main...HEAD -- packages/main/src/tasks/prompt-full-context-envelope-smoke.ts` confirms this complete importEnvelopeMutant helper is introduced by this Story. The same run separately reports line 2188 vocabulary violation, already recorded as F-079. The guard's scanConcealedCompatibilityLoads and isKnownBenignNonLiteralLoaderCall require a finite approved anchor/argument plus canonical source fingerprint (and applicable provenance pins); tests at lines 5616-5626 explicitly reject even unrelated nonliteral module loads. The focused envelope smoke and its 13 pinned receipts do not establish compatibility with that separate required guard. This is an applicable current-Story verification/DONE blocker, not an unrelated repository issue; medium reflects the demonstrated validation failure, not an assertion of exploitable runtime harm. Repair must preserve both independently biting complete all-role mutant matrices and the guard's fail-closed load checks. The vocabulary diagnostic can be corrected inside the scoped smoke file. No transparent two-file admission for this runtime-generated loader is established: retaining the isolated generated-module design requires an explicitly authorized narrow guard extension with exact source/argument/provenance binding and negative controls. Replacing it with eval, Function, concealed subprocess-generated loader text, or weakening/exempting the scanner is not a valid repair. A genuinely static redesign would require fresh isolation/cache/cleanup and mutant-bite evidence, not an import-spelling workaround. This review supplies evidence and repair constraints, not scope or policy approval.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T07:15:52.165Z",
+        "reviewRound": "2026-09-06T23:51:29.750Z",
+        "reviewRunId": "B-8a40:RR-147",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "3128f15add32c8ddc82ea12184a077aea799c6a56251bd45d76d34f538e34302"
+        },
+        "readDiagnostics": [],
+        "_hash": "7ce5bb5cf2f4334b44bf289b108609017532951e9bf0173c2ef1e4405c4f7c9a",
+        "files": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "b8a40-mutant-loader-guard-admission",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "d2bb371c13a828b032f9a02af81ddb33c6e25b07ed3a34de75b2d34739b21d9d",
+      "priorDigest": "ab621039c3cdb4c537fdbc1c3594e66e37fea96ab835bc680dc298f7b405196b",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T07:15:52.167Z"
     }
   ],
   "receipts": [
@@ -6458,6 +6515,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "fc4ba3f25b75aec105bf22a2078598b1e8107e17a99f6fee0aee2d28461063a6",
         "signature": "/yKVNu/zYZZy4q8lh8iJqyrIKuhuBROHDGq9kDCoDttclGFQ/jw4KoxKCWFtJMniPlo8BeyXfCdjWGZggC0qAQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqwpf54_14dz_77c9780fabbd4ea5ba4ae6ecde8b9d01",
+      "operation": "append_finding",
+      "idempotencyKey": "b8a40-ri013-wave2-quality-rr147-repeat-f080",
+      "requestDigest": "402863e27c8e70356be26511e16eb7935810eed0358805c766db927287e2b3e3",
+      "recordIds": [
+        "lr_mtqwpf53_14dz_fb424f931a7540419329ff6dd8d10caf"
+      ],
+      "priorLedgerDigest": "ab621039c3cdb4c537fdbc1c3594e66e37fea96ab835bc680dc298f7b405196b",
+      "committedLedgerDigest": "6aca330b02edce9bf1218ae854acabb1e01e8fba3a091ae4d7089a4fb7cd28d2",
+      "writerSessionId": "sess-9de450e3485c005ac8327ed97c1fc9f4",
+      "writerFenceToken": "3668df1b-815f-412c-b2e5-f9821eb6ce0f",
+      "committedAt": "2026-09-07T07:15:52.167Z",
+      "replayed": false,
+      "exactRequestDigest": "71677012a6a9bd0ed5976c8a26df461e28b1da0a2935ac7bf860d1f02abee7bd",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqwpf54_14dz_77c9780fabbd4ea5ba4ae6ecde8b9d01",
+        "storyId": "B-8a40",
+        "idempotencyKey": "b8a40-ri013-wave2-quality-rr147-repeat-f080",
+        "exactRequestDigest": "71677012a6a9bd0ed5976c8a26df461e28b1da0a2935ac7bf860d1f02abee7bd",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqwpf53_14dz_fb424f931a7540419329ff6dd8d10caf"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "ab621039c3cdb4c537fdbc1c3594e66e37fea96ab835bc680dc298f7b405196b",
+        "committedLedgerDigest": "6aca330b02edce9bf1218ae854acabb1e01e8fba3a091ae4d7089a4fb7cd28d2",
+        "replayed": false,
+        "committedAt": "2026-09-07T07:15:52.167Z",
+        "writerSessionId": "sess-9de450e3485c005ac8327ed97c1fc9f4",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "3668df1b-815f-412c-b2e5-f9821eb6ce0f",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "e1ffa287c9912424e57b250c77b976ed9b252f1ff19ee8f135530b04e8fb2b70",
+        "signature": "4ja81UXYxkJNlzhqZHfxYh4Hvlqv5FMmQDQ0hRo8oRLzBhVqk/Psx/mK3t6oK9yjrGVNGVqZKiRTh8qnYB8aBQ=="
       }
     }
   ]
