@@ -129,6 +129,72 @@
         "scanEscalationReason": null
       },
       "_hash": "0fd09582a8b29e3deaa09132771af76dde5c10398e606eb630e93cdd7fa80347"
+    },
+    {
+      "id": "B-5a52:RP-007",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Concept review of bc8b78b9f5: branding code is unchanged from reviewed c8263eb450; no concepts were removed or replaced. Compared temporary config to original backup structurally: only validate.commands and doneRequiredCommands differ, each names graph build, playback syntax and diff whitespace. Scope acknowledgement explicitly records user-authorized one-time focused closeout and immediate original-byte restoration after merge. This is a limited verification exception, not full-suite success or permanent suite retirement; retained test definitions are not concept residue. No undelivered implementation promise found. Owner must still perform and verify stated post-merge restoration; this pass does not claim that future action completed.",
+      "createdAt": "2026-09-07T02:52:19.378Z",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "reviewRunId": "B-5a52:RR-007",
+      "envelopeId": "e3f65dce9417af91534530abe0d908d65b3e998e7440c4a516c34b9f81bc5c9d",
+      "writerSessionId": "sess-b12911417fd7011c9a16975e9b477405",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a52/background.md",
+          ".proof-or-stop/story/actives/B-5a52/checklist.json",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "7f4febf13c284c74c514fceab50d9b8c1a0b18c51d668607bc6c44c4349294e2"
+    },
+    {
+      "id": "B-5a52:RP-008",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Fresh quality review of bc8b78b9f5. Branding source unchanged from prior reviewed implementation. Parsed original backup and current config and asserted deep equality after removing exactly validate.commands and doneRequiredCommands; backup bytes match 7d8166a config. Both arrays now contain only graph build, playback syntax and git diff whitespace checks, consistent with user-authorized one-time focused closeout recorded in the scope acknowledgement. No added runtime logic, dead code or unsafe type/IO changes. No full-suite success is claimed; restoration remains an outstanding Owner action immediately after local merge, not an accomplished result. No current quality findings.",
+      "createdAt": "2026-09-07T02:52:41.495Z",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "reviewRunId": "B-5a52:RR-009",
+      "envelopeId": "48e5a9fae8e61221bb4d22208a4f99fc632868a1110d8d80e7aa8df11ac03e6c",
+      "writerSessionId": "sess-02a7ec717c1204ff97d9b0157931a964",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a52/background.md",
+          ".proof-or-stop/story/actives/B-5a52/checklist.json",
+          ".proof-or-stop/story/actives/B-5a52/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a52/understanding.json",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "9ff2a24343ef3a387a14d584df25a7352585022a421e8146fd8eda258d9a85c8"
+    },
+    {
+      "id": "B-5a52:RP-009",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed for current focused-closeout change. Three intents have three explicit proportional automation waivers, zero must gaps. Verified core/verification.ts buildVerificationCoverage classifies permanent waivers as waived before freshness checking; handler collectStaleRefreshContext consumes that predicate, so stored older hashes do not require reissue. Corrects my earlier provisional stale concern. Independently verified original config backup equals parent bytes and all config fields outside validate.commands/doneRequiredCommands are identical; selected commands genuinely run graph build, syntax and whitespace checks. Scope acknowledgement records explicit one-time user authorization and immediate original-config restoration after local merge. Playback source and previously inspected visual evidence remain unchanged. This pass does not claim full-suite success or completed restoration; Owner must perform restoration and preserve limited-validation reporting.",
+      "createdAt": "2026-09-07T02:53:56.508Z",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "reviewRunId": "B-5a52:RR-008",
+      "envelopeId": "6bd011731eb99c75f0f902d921799209cb567e00348e668998950d3d31d41c70",
+      "writerSessionId": "sess-6cc59cd2a21240a96c9b5b2667610cb0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a52/background.md",
+          ".proof-or-stop/story/actives/B-5a52/checklist.json",
+          ".proof-or-stop/story/actives/B-5a52/scope-contract.json",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "3ed163b7fbbcad35f3aed363fac246ccf06746816269c01b3ddd9d4622eb733f"
     }
   ]
 }
