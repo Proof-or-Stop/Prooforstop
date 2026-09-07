@@ -3,15 +3,15 @@
   "changes": "Integrated remote main c853ab5e63 with completed local video branding and validation repairs using a normal merge. Preserved exact Proof-or-stop playback and exported-frame branding, remote stronger review/provenance guards, and the local mixed-selector regression. Included completed B-adc3 scope inventory repair via normal local main merge. Fixed the remote ledger guard's non-portable historical runtime-artifact dependency in the same test file, retaining actual baseline/current execution and restoring real CLI good/bad digest and command-mismatch checks using disposable candidate fixtures.",
   "usage": "Open Story Graph timeline playback, use Export for video or GIF, and observe Proof-or-stop in the playback heading and exported frame chrome. Use the integrated CLI normally at version 0.3.278 before the automatic DONE version bump.",
   "expectedOutcome": "Both remote and completed local histories remain ancestors; exported playback branding remains byte-identical to the accepted implementation; the integrated CLI and regression guards remain functional.",
-  "actualTranscript": "MERGE_HISTORY_BRANDING_PASS; MERGED_CLI_VERSION_PASS; english-early-check smoke passed; done-required-validation smoke passed; verification-run-and-guard-smoke: PASS. All five pinned intents refreshed on the actual merged code. Final source matched independent review candidate 1eba9af460 across packages, scripts, bin, configuration and package manifests. Final candidate df2133a1c8: focused portable ledger guard PASS; registration derivation 26 GREEN; process-fact contract PASS; real CLI corruption and changed-command negatives pass. The previous full run was 131/132, failing only the now-repaired missing historical probe dependency; its failure record is preserved.",
-  "outcomeDiff": "No difference in the verified branding, ancestry and targeted CLI behavior; full integrated validation and publication remain pending.",
-  "acceptanceVerdict": "partial",
+  "actualTranscript": "MERGE_HISTORY_BRANDING_PASS; MERGED_CLI_VERSION_PASS; english-early-check smoke passed; done-required-validation smoke passed; verification-run-and-guard-smoke: PASS. All five pinned intents refreshed on the actual merged code. Final source matched independent review candidate 1eba9af460 across packages, scripts, bin, configuration and package manifests. Final candidate df2133a1c8: focused portable ledger guard PASS; registration derivation 26 GREEN; process-fact contract PASS; real CLI corruption and changed-command negatives pass. The previous full run was 131/132, failing only the now-repaired missing historical probe dependency; its failure record is preserved. Final full configured validation PASS: 132/132 on df2133a1c8 source, preserved in B-42f6-pinned-validate.json. All three actual Claude/Codex pairs have two passing independent hosts and zero stale/failing verdicts. TEST live capture exit 0 confirms exact branding bytes, all parent ancestries, CLI 0.3.278 and genuine historical/current plus corrupted-digest controls.",
+  "outcomeDiff": "No difference in tested integration behavior: exact requested branding and both histories are preserved, and the original missing-probe failure is repaired. Normal local DONE merge and remote push remain subsequent release actions.",
+  "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "Full integrated suite, final host bindings, delivery certification, DONE and remote publication are pending. Acceptance topology basis remains explicitly inconclusive rather than being represented as coverage proof. Scope inventories are bounded at 4096 entries and 1 MiB; generic lists and protected anchors retain 512.",
+  "limitations": "Remote publication has not occurred yet; normal DONE merge and authorized main push remain required release actions. Acceptance topology basis is explicitly inconclusive, not coverage proof. Fresh fixture review is automated candidate-test classification, not recreated historical evidence. DONE-required root checks remain pending.",
   "pitfalls": "The original 799-path scope inventory exposed writer/reader budget mismatch. Separate Story B-adc3 repaired this and completed 128/128 plus 65/65 and real 3x2 reviews. Actual signed inventory recovery returned B-42f6 to DEV without bypass. Freeze all Story writes during full-suite verification because graph no-project-writes checks detect concurrent evidence metadata. The integrated full run additionally exposed an upstream guard dependency on an original-machine-only historical probe artifact. Canonical two-wave inventory RI-003 preserved one verified family and authorized normal DEV repair. Fresh disposable artifacts are explicitly not historical receipt replacements.",
   "phaseStats": {
     "INIT": {
@@ -32,10 +32,14 @@
     },
     "REVIEW": {
       "count": 3,
-      "durationMs": 5289203
+      "durationMs": 6966212
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 187962
     }
   },
-  "totalDurationMs": 11163045,
+  "totalDurationMs": 13028016,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -48,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-07T10:08:14.624Z",
-  "updatedAt": "2026-09-07T10:56:42.127Z"
+  "updatedAt": "2026-09-07T11:27:47.098Z"
 }
