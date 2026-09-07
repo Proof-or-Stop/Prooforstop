@@ -2272,6 +2272,29 @@
       "resolvedReason": "The PLAN-only proofstory_contract_set command updated AC-001 to bind CHK-001:edge:0 without dropping any prior reference. Independent scope check e521893 verified the set delta is exactly that one ref and all 16 must intents are bound. proofstory_review_completeness_check reports pass with zero gaps and current 132/132 full validation passes.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-e256:F-047",
+      "desc": "windows-shim-runtime-variable-binding false pass: packages/main/src/core/runtime-environment-checks.ts:780-798 accepts the runtime tokens %_prog% and $_prog as Node solely by their spelling, without verifying what those variables are bound to. A current compiled-runtime probe used a canonical package, target, version, and PATH-selected .cmd shim containing SET \"_prog=echo\" followed by \"%_prog%\" \"%~dp0\\<canonical-relative-target>\" %*. cmd.exe expands that invocation to echo the target rather than execute it, yet runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true, warnings=[], and emitted contract: global-core-realpath-pass. packages/main/tests/global-core-realpath.test.mjs:178 only exercises the positive SET \"_prog=node\" form; the F-045 option-decoy mutations at lines 269-297 use a literal node token and cannot detect a malicious or broken variable binding. This is distinct from F-045 script-argv positioning: the target now occupies argv[0], but the supposed runtime is not Node. The current 132-command validation and focused suite remain green, so summary.json:3-5 and F-045 resolution prose overclaim that non-invoking Windows shims fail closed. Bind accepted runtime indirection to a verified Node assignment/control-flow form or reject unverified indirection, and add a mutation proving a non-Node _prog binding cannot emit the healthy marker. severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T00:38:46.499Z",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "reviewRunId": "B-e256:RR-151",
+      "_hash": "df699b84a1ddfb72d39331d34e86931bd0c733acf116abaaee6bd9d33ffdae92",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs",
+        ".proof-or-stop/story/actives/B-e256/summary.json",
+        ".proof-or-stop/story/actives/B-e256/findings.json"
+      ],
+      "signatureTag": "windows-command-shim-unverified-runtime-variable-binding",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqiir52_1p97_fa6c08b6eebb4146a542018d011a49ca",
+      "ledgerCommitReceiptId": "lrc_mtqiir53_1p97_6fcdc4c0eaa64bfc9afe867e3c930ef2"
     }
   ]
 }

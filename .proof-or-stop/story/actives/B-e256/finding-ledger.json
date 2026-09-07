@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "ac24cdb6092bdda62e772d55890dac14415a14e95e23e1c8165d1e4038794d2f",
+  "committedLedgerDigest": "911ea1e22164456a61ba8d998c46f0a51a20fb0b355da07a8ac4ce5fc3b00a1f",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -1520,6 +1520,37 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T00:36:04.078Z"
+    },
+    {
+      "recordId": "lr_mtqiir52_1p97_fa6c08b6eebb4146a542018d011a49ca",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:57761db7-1854-491b-83f0-c83c660767f5",
+      "payload": {
+        "id": "B-e256:F-047",
+        "desc": "windows-shim-runtime-variable-binding false pass: packages/main/src/core/runtime-environment-checks.ts:780-798 accepts the runtime tokens %_prog% and $_prog as Node solely by their spelling, without verifying what those variables are bound to. A current compiled-runtime probe used a canonical package, target, version, and PATH-selected .cmd shim containing SET \"_prog=echo\" followed by \"%_prog%\" \"%~dp0\\<canonical-relative-target>\" %*. cmd.exe expands that invocation to echo the target rather than execute it, yet runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true, warnings=[], and emitted contract: global-core-realpath-pass. packages/main/tests/global-core-realpath.test.mjs:178 only exercises the positive SET \"_prog=node\" form; the F-045 option-decoy mutations at lines 269-297 use a literal node token and cannot detect a malicious or broken variable binding. This is distinct from F-045 script-argv positioning: the target now occupies argv[0], but the supposed runtime is not Node. The current 132-command validation and focused suite remain green, so summary.json:3-5 and F-045 resolution prose overclaim that non-invoking Windows shims fail closed. Bind accepted runtime indirection to a verified Node assignment/control-flow form or reject unverified indirection, and add a mutation proving a non-Node _prog binding cannot emit the healthy marker. severity: high",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T00:38:46.499Z",
+        "reviewRound": "2026-09-07T00:35:44.550Z",
+        "reviewRunId": "B-e256:RR-151",
+        "_hash": "df699b84a1ddfb72d39331d34e86931bd0c733acf116abaaee6bd9d33ffdae92",
+        "files": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          ".proof-or-stop/story/actives/B-e256/findings.json"
+        ],
+        "signatureTag": "windows-command-shim-unverified-runtime-variable-binding",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "2e211de91c4791a396da4bff20e60146fde5be5058321b1ddb914a2e25a0e096",
+      "priorDigest": "ac24cdb6092bdda62e772d55890dac14415a14e95e23e1c8165d1e4038794d2f",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T00:38:46.502Z"
     }
   ],
   "receipts": [
@@ -3611,6 +3642,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "8da887cbc28fe03af50031ee39cf35f300986ba524e7da4b09c67a4794284c47",
         "signature": "PDwR/LusvhlRk9h2jxrsYZonGdNVdYHLavYkD/8Q6WIPb0p+CUNpZd+iq7c2avbD1yqK69a63uiAdKbupGExDA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqiir53_1p97_6fcdc4c0eaa64bfc9afe867e3c930ef2",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:57761db7-1854-491b-83f0-c83c660767f5",
+      "requestDigest": "a944c91b71688f84f310c027da16f2f6d9a4d58cc6e604c1fed8cfe5655e1b98",
+      "recordIds": [
+        "lr_mtqiir52_1p97_fa6c08b6eebb4146a542018d011a49ca"
+      ],
+      "priorLedgerDigest": "ac24cdb6092bdda62e772d55890dac14415a14e95e23e1c8165d1e4038794d2f",
+      "committedLedgerDigest": "911ea1e22164456a61ba8d998c46f0a51a20fb0b355da07a8ac4ce5fc3b00a1f",
+      "writerSessionId": "sess-054da53c4557246c98956ae1d1295326",
+      "writerFenceToken": "9f4b8c4b-76d9-41e0-a980-14e3b8e9867a",
+      "committedAt": "2026-09-07T00:38:46.502Z",
+      "replayed": false,
+      "exactRequestDigest": "5551e71eeb8fc2012a46010add755c8f14aeaad785617824b3960dd54bf0cae6",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqiir53_1p97_6fcdc4c0eaa64bfc9afe867e3c930ef2",
+        "storyId": "B-e256",
+        "idempotencyKey": "finding_add:57761db7-1854-491b-83f0-c83c660767f5",
+        "exactRequestDigest": "5551e71eeb8fc2012a46010add755c8f14aeaad785617824b3960dd54bf0cae6",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqiir52_1p97_fa6c08b6eebb4146a542018d011a49ca"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "ac24cdb6092bdda62e772d55890dac14415a14e95e23e1c8165d1e4038794d2f",
+        "committedLedgerDigest": "911ea1e22164456a61ba8d998c46f0a51a20fb0b355da07a8ac4ce5fc3b00a1f",
+        "replayed": false,
+        "committedAt": "2026-09-07T00:38:46.502Z",
+        "writerSessionId": "sess-054da53c4557246c98956ae1d1295326",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "9f4b8c4b-76d9-41e0-a980-14e3b8e9867a",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "e0050967e06a462602b245339ec72aebb24361f5b9253ab2deeb0b36383361b1",
+        "signature": "Dh7ggTibkY+fZoV5bV57XrXnBPclKJkJ0D2SNqvKf72OmbinCuqogspiqZZELt3nwPGMJqdAtAvuo7GkMOyLCg=="
       }
     }
   ]
