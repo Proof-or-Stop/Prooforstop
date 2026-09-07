@@ -6256,6 +6256,34 @@
         "scanEscalationReason": null
       },
       "_hash": "d073fcad2e09073e05a63ddd207fb20b2af1375ed3a65df969429b7f1829f8c8"
+    },
+    {
+      "id": "B-e256:RP-141",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed after BUG-001: all 18 intents remain evidenced, all 16 must intents have current storyFilesHash tool-owned PASS receipts with matched selectors, with zero required gaps and zero waivers. The fixed BUG-001 regression suite passes 19/19 and bites the original replay defect: empty failure state emits distinct r1/r2/r3, valid r1 emits only r2/r3, duplicate-poisoned r1 recovers with r2/r3/r4, and satisfied assurance emits no replay command. The suite is registered in test:serial-reference and full-suite RESOURCE_POLICY, hence the DONE-required npm test path covers it. Fresh validation is complete at 132 commands with zero failures, and independent global executable plus global-core-realpath regressions also pass.",
+      "createdAt": "2026-09-07T13:31:05.787Z",
+      "reviewRound": "2026-09-07T13:24:02.709Z",
+      "reviewRunId": "B-e256:RR-203",
+      "envelopeId": "84c638a7f6c08047f058dd7bf892401971fb9ce3752ef5e94c8ac88bb610a87f",
+      "writerSessionId": "sess-6b6f22c800196565f2babfb8de931f4e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/bug.json",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "5fa71581aa4123ca2ff2be5bb9b0c8f7188ddae93c327285a1ab42254274b1bd"
     }
   ]
 }
