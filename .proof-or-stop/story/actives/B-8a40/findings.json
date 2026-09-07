@@ -4931,6 +4931,71 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtr22wth_17ea_f679583f621240cc8b3978717f5511d7",
       "ledgerCommitReceiptId": "lrc_mtr22wth_17ea_26499cc5fb4e4d15a4e33f77b74e51dd"
+    },
+    {
+      "id": "B-8a40:F-096",
+      "desc": "quality-cleanup: NEW family, distinct from F-089 to F-093. packages/main/src/core/prompt-envelope.ts removed every input bound from the pre-digest reviewer authority classifier without substituting any replacement ceiling, leaving a superlinear scan over unbounded Story-authored text on the path that gates reviewer startup. Provable by reading at HEAD 8e2f343953: a repository search of this file for maxSpan, maxBridgeLength and the former claim length bound returns ZERO occurrences, and the diff deleted each of them individually: hasAffirmativeConceptRelation lost its maxBridgeLength=180 parameter; hasConceptPair lost maxSpan=240 and now only tests that both concepts occur anywhere; countBoundedConceptPairInstances was renamed countConceptPairInstances and lost its span filter; controlledConceptPairIsExplicitlyNegative lost maxSpan=240; the maxSpan field was deleted from ControlledTriageRelationSpec and from all three specs; isExplicitRejectedAuthorityStatement lost its claim length limit of 240; relationIsNegated replaced a 256 character prefix window and its bounded quantifier windows with unbounded scanning; hasCrossSegmentSeverityAuthority and isExplicitlyProhibitedDispositionAuthority replaced bounded repetition counts with unbounded repetition. Algorithmic shape after removal: countConceptPairInstances performs a full left by right cross product with a sort per left match and no pruning; controlledConceptPairIsExplicitlyNegative iterates the entire left by right cross product; hasAffirmativeConceptRelation iterates left by right by relation; and crossSourceControlledAuthority additionally concatenates the segments of ALL eligible Task Context sources and re-runs classification over that join, so cost grows with total Story text rather than per field. Exposure: Story description carries a minimum of 5 characters and NO maximum in the command catalog schema, so classifier input length is unbounded, and assertReviewerTaskContextAuthoritySafety runs pre-digest and fail-closed, which is precisely the position whose failure prevented B-bcae from issuing a reviewer run identifier at all. What I did NOT establish, stated plainly: I have no measured pathological input, no demonstrated hang and no ReDoS proof, because command execution for a timing probe was refused in this invocation; that is why this record is filed with evidenceState suspected rather than verified. This is NOT a claim that the classifier is incorrect and NOT a claim that the B-bcae repair regressed. Removing the evadable windows was the correct fix for the earlier bypass family, and the safe fixtures and full unsafe matrix still pass. The observation is only that a bypass surface was traded for an unbounded cost surface with no replacement bound. Suggested direction for a FUTURE owner, explicitly not for this Story and not an authorization to edit source in REVIEW: add a total input or per source ceiling at the entry point plus a fixture pinning worst case cost, and do NOT restore the per relation character windows, because that would reintroduce the bypasses this Story repaired. Severity medium reflects potential denial of reviewer startup; evidenceState suspected reflects that it is unmeasured, and a suspected finding does not block the gate.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Static reading only. Command execution for a timing probe was not permitted in this invocation, so I have NOT measured any pathological runtime and do not claim a demonstrated hang or ReDoS.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T09:47:05.187Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-168",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/certification-window.json",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/summary.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/review-inventory-epochs.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "bddf9f84883d937a7090d3ae231d857f8e5530cd10e481af8fd361a97ca8795a",
+      "files": [
+        "packages/main/src/core/prompt-envelope.ts"
+      ],
+      "signatureTag": "b8a40-unbounded-classifier-input-cost",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtr23vxh_1hrc_3797e6177c69457b80cbda440024881d",
+      "ledgerCommitReceiptId": "lrc_mtr23vxh_1hrc_4bf2c12d200b4617a21e8b159cc6f902"
     }
   ]
 }
