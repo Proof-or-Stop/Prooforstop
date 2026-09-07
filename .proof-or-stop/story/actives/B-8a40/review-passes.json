@@ -3447,6 +3447,57 @@
       },
       "readDiagnostics": [],
       "_hash": "01afa71835fb2460e1fed2a100df8f2103d33dedcde20976eb5e91eb1845ba6f"
+    },
+    {
+      "id": "B-8a40:RP-081",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Quality lane, REVIEW round 2026-09-07T07:37:25.032Z, run RR-151. Scope reviewed: the complete git diff main...HEAD for all five changed code files (prompt-envelope.ts, prompt-full-context-envelope-smoke.ts, retired-authority-vocabulary-guard-smoke.ts, process-fact-registry.ts, verify-process-fact-contract.mjs) plus the canonical Story inputs and both relatedDocs candidate-spec documents, all read end to end this round. NO BLOCKING FINDING. Basis: (1) no critical or high observation exists in this lane; (2) acceptance is mechanically evidenced, all 13 verificationIntent records carry mechanical:true receipts with exitCode 0 and selectorMatched true against selector prompt full-context envelope smoke PASS, with no waiver and no nonMechanicalReason; (3) the three companion paths outside the two declared checklist files each carry a recorded acknowledgement in scope-contract.json with actor, reason, phase DEV and hash bindings, so the diff does not silently exceed the declared scope; (4) the acceptance claim across every active reviewer role is exact, ACTIVE_MODULAR_REVIEWER_ROLE_IDS in prompt-registry.ts resolves to exactly the five roles behavior, concept, docs, quality and test-coverage that the triage proposal section 3 names, and the smoke iterates that same constant for the safe matrix, the unsafe matrix and both mutants; (5) neither relatedDocs document adds a promise this diff fails to deliver, and no doc-promise-undelivered condition was found. THREE OPEN ADVISORY OBSERVATIONS ARE RETAINED, NOT RESOLVED and NOT DISMISSED: B-8a40:F-085 medium, the mutation module tree is created under the repository root and .gitignore has no matching pattern, so a run terminated before its finally block would leave untracked residue; B-8a40:F-086 low, TRIAGE_INVENTORY_AUTHORITY_ACTION at prompt-envelope.ts:379 is declared and never read; B-8a40:F-087 low, the nested guard at prompt-envelope.ts:233-235 is provably equivalent to a single relationRange.end greater than conceptEnd test, so both relationRange.start comparisons are dead. Each remains open and verified with reproduction, evidence and impact preserved, routed to the named follow-up draft classifier-smoke-nonblocking-cleanup as future owner. Why they do not block: none is critical or high; none regresses the current acceptance conclusion; and I verified mechanically that F-085 cannot falsify lifecycle evidence, because currentMaterialHash and currentStoryFilesHash in core/evidence-freshness.ts both derive from git ls-tree and committed blob ids over the committed tree, so untracked working-tree residue cannot perturb materialHash or storyFilesHash; the hazard fails closed as a dirty tree that blocks a gate, never as a false pass. STATED LIMITATION: no interrupted-run witness has been executed, so the F-085 abort path is structurally demonstrated but not reproduced; it is deferred, not disproven. I ran no rebuild and no root suite, and I make no claim about full-suite, quorum, cross-host assurance or DONE readiness.",
+      "createdAt": "2026-09-07T08:10:29.562Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-151",
+      "envelopeId": "9502d1b9f7b14235aa97575dc20b1b9a5774b8ff4fcdefa0ed3199e59d64702a",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "4fa87030b10b5348758e3355644513cf59e3daa45ea773e1a39a799b4bf0324b"
     }
   ]
 }
