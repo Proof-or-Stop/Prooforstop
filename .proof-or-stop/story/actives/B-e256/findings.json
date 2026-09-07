@@ -2166,7 +2166,7 @@
       "desc": "packages/main/src/core/runtime-environment-checks.ts:772-783 and packages/main/tests/global-core-realpath.test.mjs:262-267: the F-037 repair still classifies a non-invoking Windows shim as healthy whenever a segment starts with node and merely contains the expected target anywhere. A current compiled-runtime probe used `node --version \"<canonical dist/cli.js>\"`; Node itself exited 0 and a marker proved the target script was not executed, while runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true, no warnings, and emitted `contract: global-core-realpath-pass`. The added regression covers an `echo` decoy only, not Node options such as `--version` (or `-e`) that consume the target as a non-script argument. This reopens the same Windows nonexecuting-reference false-pass family after F-037 was marked fixed and directly violates CHK-003 happy/adversarial and ProofStory AC-001. Validate the target executable argv position for accepted npm shim forms and add a mutation/regression proving option-consuming decoys cannot emit the marker. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T23:42:59.537Z",
@@ -2205,7 +2205,11 @@
       "signatureTag": "windows-command-shim-nonexecuting-line-false-pass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqgj0lv_om8_d67cc56679be4f679c1cccc227057a9e",
-      "ledgerCommitReceiptId": "lrc_mtqgj0lw_om8_664ceb043b2d498e87da26447f16c028"
+      "ledgerCommitReceiptId": "lrc_mtqgj0lw_om8_664ceb043b2d498e87da26447f16c028",
+      "resolvedAt": "2026-09-07T00:36:02.522Z",
+      "resolvedReason": "Commit b480c94f5e validates the canonical Windows target only in Node's actual script argv position. Hermetic regressions prove node --version target and node -e source target do not execute the target and remain non-pass, while node -- target and representative npm shims pass. global-core-realpath.test.mjs, runtime fact contract, and current 132/132 full validation pass.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-046",
