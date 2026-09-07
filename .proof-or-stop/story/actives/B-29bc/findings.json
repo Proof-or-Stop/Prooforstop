@@ -105,7 +105,7 @@
       "desc": "doc-promise-undelivered: The new implementation audit asserts a terminal-read refusal which the current implementation does not enforce. docs/audits/inventory-critic-purpose-isolation.md:26-27 says terminal records still require signed reading evidence; lines 86-87 specifically assert missing/tampered terminal reads remain refusals. The controlling retained contract at docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:129-140 explicitly requires BOTH readManifest and readLog. However packages/main/src/core/review-inventory-epoch.ts:309 admits run passes using verifyReviewPass alone, unlike the adjacent finding predicate which requires both fields; lines 317-318 include null missing read logs in the coverage digest. The current-round canonical run context and official finding_list preserve verified open B-29bc:F-001, whose real RP-001/RP-002/RP-004 and RR-005 witness confirms admission without mechanical logs. Fresh RI-002 terminal logs do not repair that predicate or make the broad audit assertion true. This is the documentary-contract manifestation of F-001, not a separately invented runtime root cause; preserve the original Finding and link this observation during owner disposition. Critical severity follows this lane's mandatory closing rule for newly added promised-but-undelivered behavior. Applicability candidate: CHK-002's accurate English recovery audit and CHK-001's preserved terminal-read guarantee. Correct the scoped consumer/producer behavior and its negative control through authorized DEV, or accurately qualify the audit to the actual proved boundary without waiving the controlling acceptance contract. B-29bc:F-002 also remains verified/open; this record neither repairs nor dismisses either original. The integrated two-item diff otherwise introduces a purpose-specific carrier/signature binding rather than deleting a concept en masse; preserved legacy topology defaults and compatibility aliases are intentional. No actual host assurance or topology certificate is inferred from fixture successes.",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-07T10:28:46.062Z",
@@ -144,7 +144,11 @@
       "signatureTag": "missing|md|promise-undelivered-implementation",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3lhm8_ebo_bd9e5dd0228e4ae1b26305f8875a0347",
-      "ledgerCommitReceiptId": "lrc_mtr3lhm8_ebo_6786804b131c49799f130a389cf95d3b"
+      "ledgerCommitReceiptId": "lrc_mtr3lhm8_ebo_6786804b131c49799f130a389cf95d3b",
+      "resolvedAt": "2026-09-07T11:09:56.129Z",
+      "resolvedReason": "Fixed by runtime guard 0ffe4cc619 plus audit correction b2e7b6f495. The audit now distinguishes the original intended read-evidence contract from the missed producer/consumer enforcement, records F-001/F-002 and the documentary observations honestly, and cites actual test-only RED and passing GREEN. Both missing read fields now prevent inventory PASS coverage; the OPEN producer also refuses them. This is repair of the documentary contradiction and its underlying behavior, not dismissal or a claimed duplicate resolution. Original observation and severity remain in history; final independent review is still required. Formal current eight-intent evidence batch 74997ad completed successfully: three unique commands, zero reruns and zero false freshness.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-29bc:F-004",
