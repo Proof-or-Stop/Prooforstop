@@ -1,0 +1,201 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-29bc:CW-001",
+      "storyId": "B-29bc",
+      "state": "CANCELLED",
+      "createdAt": "2026-09-07T11:21:57.956Z",
+      "updatedAt": "2026-09-07T12:06:06.750Z",
+      "frozen": {
+        "headHash": "7aa6a322c3bcdaa5b5d1f7a72b31d3ce0397f1b7",
+        "materialHash": "130d0e588b87d8a5b9cba9b5b76624e6c673445dd0e1d469092dd4decaf24a78",
+        "storyFilesHash": "3692899e996b07b3ab553ea739ce26656e31ea419e1ec471c816267a26354d57",
+        "causalInputHashes": {
+          "certification:source": "6f95cd627206e02ba1cfc7f9ebfacb47b06ff796abc3e7c4b7743db52d1083c4",
+          "certification:test": "46a564a4f640d1d21bc20a148afe8fc4955a4aeb2d3d7a83bcbf5537a2b2da5f",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "24e0ca551be4aec5152765235b457898e8a7c64c37e97347403212cc9d70cddd",
+          "certification:integration": "a99708f326f06e25e5b9794e945529450fe5abd521ff90fe4437a4caf21df1ab",
+          "certification:review-subject": "f310a95fa9dac23eba34fd87263c6b7043b002d4a9cf35279f6180699fc8fe57"
+        },
+        "expectedMainSha": "48b620fafab862ec7fbf7381da8cce8418d046cc",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-29bc:RI-003",
+        "receiptId": "B-29bc:RI-003:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "cancelledAt": "2026-09-07T12:06:06.750Z",
+      "cancelReason": "Canonical validation failed and main now contains independently completed B-8a40 regression repairs; cancel old expected-main window before local integration.",
+      "_hash": "479e03cbd3f0b05e949614e38726a3bb3ece620bc7243071e1537044122785c2"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-29bc:CW-002",
+      "storyId": "B-29bc",
+      "state": "CANCELLED",
+      "createdAt": "2026-09-07T13:36:08.017Z",
+      "updatedAt": "2026-09-07T15:50:53.266Z",
+      "frozen": {
+        "headHash": "5694b96fee9379866f373399d739f27cfe21d038",
+        "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
+        "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+        "causalInputHashes": {
+          "certification:source": "9ee1b2827c7b70f21f9b568b37e9483bfbdad497c2432715329fb8398e8f4ee1",
+          "certification:test": "6ec50589b50e094ba4594c132fa9daffc764c3e2c328929ff4c4c92233cdf3c9",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "24e0ca551be4aec5152765235b457898e8a7c64c37e97347403212cc9d70cddd",
+          "certification:integration": "4bd49b125acbfdd8cf74a56e1dd00e1abb33ba7fcf4e605d4d3979a59ee63a71",
+          "certification:review-subject": "a3efe3af05362d3cdcbb5e27fe88db8917be3cbd446924c03442a728f89b0b18"
+        },
+        "expectedMainSha": "874e0818625ac0a0afee2cd67371997d6ff09524",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-29bc:RI-005",
+        "receiptId": "B-29bc:RI-005:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "cancelledAt": "2026-09-07T15:50:53.266Z",
+      "cancelReason": "The approved candidate changed for the demonstrated critic baseline repair; preserve CW-002 history and obtain a new complete inventory before certification.",
+      "_hash": "1af4c7b74b4a0607339b213a1ff767909ddd632cd1643923d9ed59255afcecb8"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-29bc:CW-003",
+      "storyId": "B-29bc",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-07T17:53:10.365Z",
+      "updatedAt": "2026-09-07T17:53:10.365Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "55ff573fe6851845bef33af4b46248824e59b5bd8bd8a293eb0fc358a793a79a"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-29bc:CW-004",
+      "storyId": "B-29bc",
+      "state": "RUNNING",
+      "createdAt": "2026-09-07T17:53:28.202Z",
+      "updatedAt": "2026-09-07T17:54:17.057Z",
+      "frozen": {
+        "headHash": "68c151ad05f69090f462fc4cb2dc7bf5b31968c9",
+        "materialHash": "dcea02d0bc26f8e845cd0150d25f26a34c738244da5009ba9783b5a417dd6f69",
+        "storyFilesHash": "2b2588053b17cd03955352e58e2db3cbbef6495d64e1d63a32f2576364351720",
+        "causalInputHashes": {
+          "certification:source": "9ee1b2827c7b70f21f9b568b37e9483bfbdad497c2432715329fb8398e8f4ee1",
+          "certification:test": "b56fcf62dac4cc636c53897ebbf4d203e55e67c482b5c6f50845a20df3f083be",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "24e0ca551be4aec5152765235b457898e8a7c64c37e97347403212cc9d70cddd",
+          "certification:integration": "772c1aa2265ef2b3c688b3e50422de8cc3aeebd8f79de4563da929aa16901482",
+          "certification:review-subject": "67e0d310a6c38342551a2f1cbc0da22ffcda2d55a1b2bbf557f1d50aa3518ab2"
+        },
+        "expectedMainSha": "13753a6354ee9fb182c7eabdd753c0201dce9f6f",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-29bc:RIE-008",
+        "receiptId": "B-29bc:RIE-008:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-29bc:PRECERT-003",
+      "_hash": "9eb7e446342a96559b3179e8dcc827aa34fd5e3ccb375c56e863ce46becb910e"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-29bc:PRECERT-001",
+      "windowId": "B-29bc:CW-001",
+      "storyId": "B-29bc",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "7aa6a322c3bcdaa5b5d1f7a72b31d3ce0397f1b7",
+        "materialHash": "130d0e588b87d8a5b9cba9b5b76624e6c673445dd0e1d469092dd4decaf24a78",
+        "storyFilesHash": "3692899e996b07b3ab553ea739ce26656e31ea419e1ec471c816267a26354d57",
+        "causalInputHashes": {
+          "certification:source": "6f95cd627206e02ba1cfc7f9ebfacb47b06ff796abc3e7c4b7743db52d1083c4",
+          "certification:test": "46a564a4f640d1d21bc20a148afe8fc4955a4aeb2d3d7a83bcbf5537a2b2da5f",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "24e0ca551be4aec5152765235b457898e8a7c64c37e97347403212cc9d70cddd",
+          "certification:integration": "a99708f326f06e25e5b9794e945529450fe5abd521ff90fe4437a4caf21df1ab",
+          "certification:review-subject": "f310a95fa9dac23eba34fd87263c6b7043b002d4a9cf35279f6180699fc8fe57"
+        },
+        "expectedMainSha": "48b620fafab862ec7fbf7381da8cce8418d046cc",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-29bc:RI-003",
+      "inventoryReceiptId": "B-29bc:RI-003:RCP-001",
+      "createdAt": "2026-09-07T11:21:57.956Z",
+      "_hash": "84cbb898c09396b497f6ee2b73d8feda7a5916cbf4fc9855f0d4683f1dde1e7c"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-29bc:PRECERT-002",
+      "windowId": "B-29bc:CW-002",
+      "storyId": "B-29bc",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "5694b96fee9379866f373399d739f27cfe21d038",
+        "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
+        "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+        "causalInputHashes": {
+          "certification:source": "9ee1b2827c7b70f21f9b568b37e9483bfbdad497c2432715329fb8398e8f4ee1",
+          "certification:test": "6ec50589b50e094ba4594c132fa9daffc764c3e2c328929ff4c4c92233cdf3c9",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "24e0ca551be4aec5152765235b457898e8a7c64c37e97347403212cc9d70cddd",
+          "certification:integration": "4bd49b125acbfdd8cf74a56e1dd00e1abb33ba7fcf4e605d4d3979a59ee63a71",
+          "certification:review-subject": "a3efe3af05362d3cdcbb5e27fe88db8917be3cbd446924c03442a728f89b0b18"
+        },
+        "expectedMainSha": "874e0818625ac0a0afee2cd67371997d6ff09524",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-29bc:RI-005",
+      "inventoryReceiptId": "B-29bc:RI-005:RCP-001",
+      "createdAt": "2026-09-07T13:36:08.017Z",
+      "_hash": "45617161a325416b5f0c758661a8f912b8a765c5c8dc985a731cbda6cb1ec90b"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-29bc:PRECERT-003",
+      "windowId": "B-29bc:CW-004",
+      "storyId": "B-29bc",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "68c151ad05f69090f462fc4cb2dc7bf5b31968c9",
+        "materialHash": "dcea02d0bc26f8e845cd0150d25f26a34c738244da5009ba9783b5a417dd6f69",
+        "storyFilesHash": "2b2588053b17cd03955352e58e2db3cbbef6495d64e1d63a32f2576364351720",
+        "causalInputHashes": {
+          "certification:source": "9ee1b2827c7b70f21f9b568b37e9483bfbdad497c2432715329fb8398e8f4ee1",
+          "certification:test": "b56fcf62dac4cc636c53897ebbf4d203e55e67c482b5c6f50845a20df3f083be",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "24e0ca551be4aec5152765235b457898e8a7c64c37e97347403212cc9d70cddd",
+          "certification:integration": "772c1aa2265ef2b3c688b3e50422de8cc3aeebd8f79de4563da929aa16901482",
+          "certification:review-subject": "67e0d310a6c38342551a2f1cbc0da22ffcda2d55a1b2bbf557f1d50aa3518ab2"
+        },
+        "expectedMainSha": "13753a6354ee9fb182c7eabdd753c0201dce9f6f",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-29bc:RIE-008",
+      "inventoryReceiptId": "B-29bc:RIE-008:RCP-001",
+      "createdAt": "2026-09-07T17:53:28.202Z",
+      "_hash": "314b2fd26b578db322cfddff15e075a255dc51e0b2c551fef467c66f147ff215"
+    }
+  ]
+}

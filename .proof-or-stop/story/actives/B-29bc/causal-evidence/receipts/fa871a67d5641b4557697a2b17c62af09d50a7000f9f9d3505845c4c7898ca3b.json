@@ -1,0 +1,158 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-29bc",
+  "executionKey": "ce:v1:9570e299c866766a49a8dc97e99531eff3de57b2fe15b3a1cabc9bf6b549a3cb",
+  "identityDigest": "9570e299c866766a49a8dc97e99531eff3de57b2fe15b3a1cabc9bf6b549a3cb",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-29bc",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc",
+    "command": {
+      "executable": "node",
+      "args": [
+        "-e",
+        "const assert=require(\\node:assert/strict\\); const {readFileSync}=require(\\node:fs\\); const {createHash}=require(\\node:crypto\\); const {execFileSync}=require(\\node:child_process\\); const text=readFileSync(\\docs/audits/inventory-critic-purpose-isolation.md\\,\\utf8\\); assert.doesNotMatch(text,/[\\\\u3400-\\\\u9fff]/u); for(const token of [\\0c726415eab8a599ae2844d42386bc5a57d49d07\\,\\91d8133a8f92aff7e02efff4fea31362bd6f4949\\,\\f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8\\,\\ff4e1bc2c7\\,\\211fcc3\\]) {assert.ok(text.includes(token));execFileSync(\\git\\,[\\cat-file\\,\\-e\\,token+\\^{commit}\\]);} for(const file of [\\packages/main/src/core/topology-critic-receipt.ts\\,\\packages/main/src/core/machine.ts\\,\\proof-or-stop.config.json\\]){execFileSync(\\git\\,[\\diff\\,\\--exit-code\\,\\main...HEAD\\,\\--\\,file],{stdio:\\pipe\\});} const template=\\packages/main/templates/agents/proof-or-stop-review-topology-critic.md\\; assert.equal(readFileSync(template,\\utf8\\),execFileSync(\\git\\,[\\show\\,\\0c726415ea:\\+template],{encoding:\\utf8\\})); for(const token of [\\not",
+        "a",
+        "DONE",
+        "certificate\\,\\only",
+        "preliminary",
+        "symptom\\,\\signed",
+        "terminal\\,\\authorizesTest=false\\,\\Disposable",
+        "fixture\\,\\never",
+        "declare",
+        "an",
+        "old",
+        "hash",
+        "fresh\\,\\B-e6d9\\])assert.ok(text.includes(token),token); const outside=execFileSync(\\git\\,[\\diff\\,\\--name-only\\,\\main...HEAD\\,\\--\\,\\.proof-or-stop/story/actives/B-7abb\\,\\.proof-or-stop/story/actives/B-03b7\\],{encoding:\\utf8\\}); assert.equal(outside.trim(),\\\\); for(const file of [\\packages/main/src/handlers/story-dispatch.ts\\,\\packages/main/src/handlers/review-run.ts\\,\\packages/main/src/handlers/review-inventory.ts\\])assert.doesNotMatch(readFileSync(file,\\utf8\\),/Harmonynet|ordinary@example/); const guide=readFileSync(\\docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md\\,\\utf8\\);assert.ok(guide.includes('\\reviewPurpose\\:\\inventory-completeness\\'));assert.ok(guide.includes('\\inventoryEpochId\\:\\<epoch>\\'));console.log(\\B29BC_AUDIT_AND_BOUNDARIES",
+        "PASS\\);"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "130d0e588b87d8a5b9cba9b5b76624e6c673445dd0e1d469092dd4decaf24a78",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc/.proof-or-stop/story/actives/B-29bc/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc/.proof-or-stop/story/actives/B-29bc/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:9c8624fd3c32d8a85c8f5b75f2286a080723f18d64ff8989111a93d3a983473f",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-29bc/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "b2e7b6f495c99b01c7e0e7810a5894e91a8eaa51",
+          "materialHash": "130d0e588b87d8a5b9cba9b5b76624e6c673445dd0e1d469092dd4decaf24a78",
+          "storyFilesHash": "3692899e996b07b3ab553ea739ce26656e31ea419e1ec471c816267a26354d57"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-29bc",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "3692899e996b07b3ab553ea739ce26656e31ea419e1ec471c816267a26354d57",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/9fa2f60e-acd6-4d7f-8eec-3a553e15d0be.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg0sdXHW0:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PROOF_OR_STOP_IDLE_TIMEOUT_MS": "900000",
+      "PROOF_OR_STOP_MAX_TIMEOUT_MS": "1200000",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-29bc",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.278",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "f5d27511ce43f328f866cf802df61dd5e9fd7ba92979498b31c4892d71b1c037",
+  "outputTail": "B29BC_AUDIT_AND_BOUNDARIES PASS\n",
+  "outputProbe": "B29BC_AUDIT_AND_BOUNDARIES PASS\n",
+  "outputLength": 32,
+  "executedAt": "2026-09-07T11:02:50.623Z",
+  "durationMs": 704,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "A2yEqY2uyYqJU3t97OsBzWXk/tqNieph1Wzo6beSnOaToODpgnqbyMb0h25kDyiwQmBg7UNv69/d0bO9WZVtAQ==",
+  "receiptHash": "fa871a67d5641b4557697a2b17c62af09d50a7000f9f9d3505845c4c7898ca3b"
+}

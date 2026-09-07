@@ -1,0 +1,57 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-VALIDATE-HISTORICAL-PROBE",
+      "title": "Required B-fe8f regression cannot read the immutable historical probe rp-mtifubae-dfbh4w in a real worktree",
+      "status": "fixed",
+      "foundAt": "2026-09-07T11:48:12.670Z",
+      "fixedAt": "2026-09-07T12:13:07.061Z",
+      "evidence": {
+        "symptom": "Mandatory red-bfe8f-ledger-runtime-integrity.mjs failed because it required historical clone-local candidate cache bytes not present in this real worktree.",
+        "reproSteps": [
+          "Before integration, run node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs: artifact ref not found for rp-mtifubae-dfbh4w.",
+          "Merge independently completed main 874e081862 at 5f2eab09fb, build current main package, rerun the same command."
+        ],
+        "rootCause": "The regression guard conflated portable checks of committed historical RED references and actual baseline/current execution with availability of old clone-local candidate CAS. Upstream 9b8ca8879f separates historical reference/replay checks from actual current candidate API integrity checks in a private fixture.",
+        "fixEvidence": "Exact post-merge command exited 0 with historicalBaselineFails=true currentGreenPasses=true currentCorruptedRelationRejected=true assertionUnchanged=true. Output explicitly declares historicalCandidateCAS=not-consumed liveCandidate=fixture-only restoredHistoricalCAS=false. This closes the mandatory-regression portability defect, not restoration of the historical CAS. Original probe content was independently located in its original reviewer transcript and its digest recomputed exactly; no historical object or timestamp was fabricated. Canonical full validation and other failures remain pending.",
+        "reproTest": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      }
+    },
+    {
+      "id": "BUG-VALIDATE-START-READINESS",
+      "title": "Mandatory heartbeat foreign-append fixture times out after an unsupported 5-second CLI startup wait, hides early child diagnostics and can remove its directory before child completion; isolated F010 passes but delayed-marker counterexample reproduces the readiness defect.",
+      "status": "fixed",
+      "foundAt": "2026-09-07T12:36:03.813Z",
+      "fixedAt": "2026-09-07T13:22:33.432Z",
+      "evidence": {
+        "symptom": "The required heartbeat suite intermittently timed out waiting for command-started.txt; an isolated foreign-append run could pass.",
+        "reproSteps": [
+          "Build test-only RED 9e3ac2e5ef, then run node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js --readiness-only.",
+          "The unchanged readiness path exits 1 after five seconds although the real six-second delayed child completes normally.",
+          "Inspect original readiness and runCli: early output was not observed, and the watchdog result could settle before close."
+        ],
+        "rootCause": "The test imposed an unsupported five-second CLI startup assumption and conflated a settled harness result with child closure. This is a fixture defect, not evidence of a production timeout defect.",
+        "fixEvidence": "GREEN 5662e8274e supplies bounded terminal-aware startup, a release handshake, actual-close draining, retention on missing closure/null status, and real-child plus synthetic negative controls. After the final successful build, the entire validate-progress-heartbeat-smoke command exited 0 and printed validate-progress-heartbeat smoke passed, including the unchanged foreign-append safety assertions. Audit 0fc834f56d records the limits. Canonical repository-wide validation, independent host assurance and lifecycle completion remain separate requirements.",
+        "reproTest": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts --readiness-only"
+      }
+    },
+    {
+      "id": "BUG-CRITIC-PROMPT-BASELINE",
+      "title": "DONE-required root suite rejects the B-29bc purpose-selected critic body because its current-body approval manifest and generated prompt baseline were not updated",
+      "status": "fixed",
+      "foundAt": "2026-09-07T15:34:41.432Z",
+      "fixedAt": "2026-09-07T15:50:52.708Z",
+      "checklistId": "CHK-002",
+      "evidence": {
+        "symptom": "DONE-required root npm test exited1 at the approved critic prompt manifest mismatch; fail-fast result8/65passed.",
+        "reproSteps": [
+          "Run official done_required_validate --storyId=B-29bc: receipt5a2846ff27",
+          "Run node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-prompt-policy-manifest before2056751bf8 correction: exit1 old9bcf versusnew22da."
+        ],
+        "rootCause": "The Story appended a trusted-purpose selection to the current critic body but omitted its independent approved-body pin and generated snapshots; the critic matrix also still described topology only.",
+        "fixEvidence": "Independent exactbody and post-edit review approved only critic22da body and purpose-aware matrix; feba6c0e0e updates onepin and three generatedsnapshots without changing immutabletemplates,other17records,fiverolemanifest ornegativecontrols. Both focused manifestprobe and completebaseline verifier exited0, including self-authorization,baseline/matrixdrift and realcollection mutations. Full DONErequired rerun remains separately required.",
+        "reproTest": "scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-prompt-policy-manifest"
+      }
+    }
+  ]
+}

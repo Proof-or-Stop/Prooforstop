@@ -57,6 +57,9 @@ type CliResult = {
   elapsedMs: number;
 };
 
+// A watchdog result can precede process closure. Keep those facts separate.
+type CliRun = Promise<CliResult> & { closed: Promise<void> };
+
 type ValidateJson = {
   allPass?: boolean;
   failureKind?: string;
@@ -107,7 +110,7 @@ function gitOutput(root: string, args: string[]): string {
 // write, because the child had already exited without spawning its command.
 const CHILD_FILE_WAIT_MARGIN_MS = 10_000;
 
-type CliRun = { result: Promise<CliResult>; kill: () => void };
+type StartedCliRun = { result: CliRun; kill: () => void };
 
 type ChildFileWait =
   | { outcome: 'written' }
@@ -122,7 +125,7 @@ function fileHasContent(path: string): boolean {
   }
 }
 
-async function waitForChildFile(run: CliRun, path: string, boundMs: number): Promise<ChildFileWait> {
+async function waitForChildFile(run: StartedCliRun, path: string, boundMs: number): Promise<ChildFileWait> {
   let exited: CliResult | undefined;
   const settled = run.result.then((result) => { exited = result; return result; });
   const deadline = Date.now() + boundMs;
@@ -158,6 +161,155 @@ function describeChildFileWait(
       ? `the configured command "${label}" started but was killed before its descendant published a pid`
       : `the configured command "${label}" never started (the CLI's own setup consumed the outer budget)`);
   return `${head}\nstderr=${result.stderr.slice(-1500)}`;
+}
+
+async function waitForFile(path: string, timeoutMs = 5_000): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (!existsSync(path) && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+  assert.ok(existsSync(path), `timed out waiting for fixture file: ${path}`);
+}
+
+async function waitForValidationStart(started: string, finished: string, run: Promise<CliResult>, timeoutMs = 30_000): Promise<void> {
+  let terminal: CliResult | undefined;
+  const completion = run.then(result => { terminal = result; });
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    await Promise.resolve();
+    assert.ok(!terminal,
+      `validation child exited before readiness: status=${terminal?.status}\n${terminal?.stdout ?? ''}\n${terminal?.stderr ?? ''}`);
+    assert.ok(!existsSync(finished), 'validation command already finished before foreign append');
+    if (existsSync(started)) return;
+    assert.ok(Date.now() < deadline, `validation readiness timed out after ${timeoutMs}ms: ${started}`);
+    await Promise.race([completion, new Promise(resolve => setTimeout(resolve, 20))]);
+  }
+}
+
+async function drainBeforeFixtureRemoval(run: CliRun, root: string, closeTimeoutMs = 5_000): Promise<void> {
+  const result = await run;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      run.closed,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(
+          `child closure unconfirmed; fixture retained at ${root}\n${result.stdout}\n${result.stderr}`,
+        )), closeTimeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+  // Parent close alone does not establish descendant cleanup after a kill.
+  assert.notEqual(result.status, null,
+    `abnormal child result; fixture retained at ${root}\n${result.stdout}\n${result.stderr}`);
+}
+
+function createReadinessProbe(mode: 'delayed' | 'error' | 'zero' | 'finished' | 'never'): {
+  root: string; started: string; finished: string; release: string; run: CliRun;
+} {
+  const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-heartbeat-readiness-'));
+  const started = join(root, 'started');
+  const finished = join(root, 'finished');
+  const release = join(root, 'release');
+  const child = spawn(process.execPath, ['-e', `
+    const fs = require('node:fs');
+    const [started, finished, release, mode] = process.argv.slice(1);
+    if (mode === 'error') { console.log('probe stdout'); console.error('probe preflight failed'); process.exit(23); }
+    if (mode === 'zero') process.exit(0);
+    if (mode === 'never') {
+      setTimeout(() => process.exit(0), 150);
+    } else {
+    setTimeout(() => process.exit(98), 45000).unref();
+    setTimeout(() => {
+      fs.writeFileSync(started, 'ready');
+      if (mode === 'finished') fs.writeFileSync(finished, 'finished');
+      const poll = setInterval(() => {
+        if (!fs.existsSync(release)) return;
+        clearInterval(poll);
+        fs.writeFileSync(finished, 'finished');
+      }, 20);
+    }, mode === 'delayed' ? 6000 : 0);
+    }
+  `,
+  started, finished, release, mode], { stdio: ['ignore', 'pipe', 'pipe'] });
+  let stdout = '';
+  let stderr = '';
+  child.stdout.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
+  child.stderr.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
+  const closed = new Promise<void>(resolveClosed => child.once('close', () => resolveClosed()));
+  const run = Object.assign(new Promise<CliResult>((resolveResult) => {
+    child.on('close', status => resolveResult({ status, stdout, stderr, elapsedMs: 0 }));
+    child.on('error', error => { stderr += error.message; });
+  }), { closed });
+  return { root, started, finished, release, run };
+}
+
+async function assertDelayedFixtureReadiness(): Promise<void> {
+  const { root, started, finished, release, run } = createReadinessProbe('delayed');
+  try {
+    await waitForValidationStart(started, finished, run);
+  } finally {
+    writeFileSync(release, 'release');
+    const result = await run;
+    await drainBeforeFixtureRemoval(run, root);
+    rmSync(root, { recursive: true, force: true });
+    assert.equal(result.status, 0, `delayed readiness fixture child failed: ${result.stderr}`);
+  }
+  console.log('B29BC_DELAYED_FIXTURE_READINESS PASS');
+}
+
+async function assertReadinessFailureControls(): Promise<void> {
+  for (const mode of ['error', 'zero', 'finished', 'never'] as const) {
+    const { root, started, finished, release, run } = createReadinessProbe(mode);
+    try {
+      if (mode === 'finished') await waitForFile(finished, 30_000);
+      const expected = mode === 'error' ? /status=23[\s\S]*probe stdout[\s\S]*probe preflight failed/
+        : mode === 'zero' ? /status=0/
+          : mode === 'finished' ? /already finished/ : /readiness timed out/;
+      await assert.rejects(waitForValidationStart(started, finished, run, mode === 'never' ? 40 : 30_000), expected);
+    } finally {
+      writeFileSync(release, 'release');
+      await drainBeforeFixtureRemoval(run, root);
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+  // Model the harness result settling before the actual process close event.
+  for (const confirmClose of [true, false]) {
+    const root = mkdtempSync(join(tmpdir(), 'proof-or-stop-heartbeat-close-'));
+    let close!: () => void;
+    const run = Object.assign(Promise.resolve<CliResult>({ status: 0, stdout: '', stderr: '', elapsedMs: 0 }), {
+      closed: new Promise<void>(resolve => { close = resolve; }),
+    });
+    try {
+      const cleanup = drainBeforeFixtureRemoval(run, root, 100).then(() => rmSync(root, { recursive: true, force: true }));
+      if (confirmClose) {
+        await new Promise(resolve => setTimeout(resolve, 20));
+        assert.ok(existsSync(root), 'result settlement must not authorize fixture deletion');
+        close();
+        await cleanup;
+        assert.ok(!existsSync(root));
+      } else {
+        await assert.rejects(cleanup, /closure unconfirmed; fixture retained/);
+        assert.ok(existsSync(root), 'unconfirmed closure must preserve the fixture');
+      }
+    } finally {
+      close();
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+  const abnormalRoot = mkdtempSync(join(tmpdir(), 'proof-or-stop-heartbeat-abnormal-'));
+  try {
+    const killed = Object.assign(Promise.resolve<CliResult>({ status: null, stdout: '', stderr: 'harness killed child', elapsedMs: 0 }), {
+      closed: Promise.resolve(),
+    });
+    await assert.rejects(drainBeforeFixtureRemoval(killed, abnormalRoot), /abnormal child result; fixture retained/);
+    assert.ok(existsSync(abnormalRoot), 'parent closure after a kill must not imply descendant cleanup');
+  } finally {
+    rmSync(abnormalRoot, { recursive: true, force: true });
+  }
+  console.log('B29BC_READINESS_TERMINAL_AND_CLOSE_CONTROLS PASS');
 }
 
 function commitAll(root: string, message: string): void {
@@ -281,7 +433,7 @@ function admitSyntheticWindow(root: string, storyId: string): void {
   persistFixtureCertificationWindow(new StoryStore(root), storyId, root);
 }
 
-function startCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): CliRun {
+function startCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): StartedCliRun {
   const start = Date.now();
   const inheritedEnv = stripCanonicalBrandEnvTwins(
     { ...process.env },
@@ -307,7 +459,8 @@ function startCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEIL
   child.stdout?.on('data', (chunk: Buffer) => { stdout += chunk.toString(); });
   child.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
 
-  const result = new Promise<CliResult>((resolveResult) => {
+  const closed = new Promise<void>(resolveClosed => child.once('close', () => resolveClosed()));
+  const result = Object.assign(new Promise<CliResult>((resolveResult) => {
     let ceilingTriggered = false;
     const ceiling = setTimeout(() => {
       ceilingTriggered = true;
@@ -332,7 +485,7 @@ function startCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEIL
         elapsedMs: Date.now() - start,
       });
     });
-  });
+  }), { closed });
   return {
     result,
     kill: () => killCliProcessTree(child.pid),
@@ -375,7 +528,7 @@ function killCliProcessTree(rootPid: number | undefined): void {
   }
 }
 
-function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): Promise<CliResult> {
+function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): CliRun {
   return startCli(root, args, ceilingMs, env).result;
 }
 
@@ -867,20 +1020,33 @@ async function assertMainDirectHandlerClosesTerminal(): Promise<void> {
 }
 
 async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
-  const { root, storyId, started } = setupStoryAdvanceFixture();
+  const { root, storyId, started, finished } = setupStoryAdvanceFixture();
+  const release = join(root, 'command-release.txt');
+  let run: CliRun | undefined;
   try {
+    // Hold the command in flight until the foreign write is complete. A
+    // started/finished observation alone cannot eliminate an interprocess race.
+    appendFileSync(join(root, '.gitignore'), 'command-release.txt\n');
+    const commandPath = join(root, 'silent-active-validate.mjs');
+    const script = readFileSync(commandPath, 'utf8')
+      .replace("import { writeFileSync }", "import { writeFileSync, existsSync }")
+      .replace('const durationMs = Number(durationRaw);',
+        `const durationMs = Number(durationRaw);\nconst release = ${JSON.stringify(release)};`)
+      .replace('await new Promise((resolve) => setTimeout(resolve, durationMs));',
+        'while (!existsSync(release)) await new Promise(resolve => setTimeout(resolve, 20));\n'
+        + 'await new Promise((resolve) => setTimeout(resolve, durationMs));');
+    assert.match(script, /while \(!existsSync\(release\)\)/);
+    writeFileSync(commandPath, script);
+    commitAll(root, 'bind foreign-append command release handshake');
+    admitSyntheticWindow(root, storyId);
     const processEventsRel = `.proof-or-stop/story/actives/${storyId}/process-events.jsonl`;
     const processEventsPath = join(root, processEventsRel);
-    const run = startCli(
+    run = runCli(
       root,
       ['story_advance', JSON.stringify({ storyId, phase: 'TEST' })],
       NON_MAX_HARNESS_CEILING_MS,
     );
-    const startedBoundMs = NON_MAX_OUTER_TIMEOUT_MS + CHILD_FILE_WAIT_MARGIN_MS;
-    const startedWait = await waitForChildFile(run, started, startedBoundMs);
-    if (startedWait.outcome !== 'written') {
-      assert.fail(`foreign-append fixture: ${describeChildFileWait(startedWait, started, 'silent-active-validate', startedBoundMs)}`);
-    }
+    await waitForValidationStart(started, finished, run);
     mkdirSync(dirname(processEventsPath), { recursive: true });
     const foreignLine = JSON.stringify({
       type: 'human_confirmation',
@@ -890,8 +1056,9 @@ async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
       result: 'pass',
     }) + '\n';
     appendFileSync(processEventsPath, foreignLine, 'utf8');
+    writeFileSync(release, 'foreign append completed');
 
-    const result = await run.result;
+    const result = await run;
     assert.notEqual(result.status, 0,
       'mid-validation foreign canonical append must fail closed instead of joining the TEST transaction');
     const preservedEvents = readFileSync(processEventsPath, 'utf8');
@@ -911,6 +1078,10 @@ async function assertMidValidationForeignAppendFailsClosed(): Promise<void> {
     assert.equal(new StoryStore(root).readStory(storyId).phase, 'REVIEW',
       'foreign append rejection must not persist TEST phase');
   } finally {
+    if (run) {
+      writeFileSync(release, 'release during cleanup');
+      await drainBeforeFixtureRemoval(run, root);
+    }
     rmSync(root, { recursive: true, force: true });
   }
 }
@@ -998,6 +1169,11 @@ async function assertTrueHangFailsClosedWithNamedDiagnostics(): Promise<void> {
 void (async () => {
   const { root, started, finished } = setupFixture();
   try {
+    if (process.argv.includes('--readiness-only')) {
+      await assertDelayedFixtureReadiness();
+      await assertReadinessFailureControls();
+      return;
+    }
     if (process.env.VALIDATE_HEARTBEAT_F011_ONLY === '1') {
       await assertStoryAdvanceReceivesHeartbeat();
       console.log('validate-progress-heartbeat F-011 story-branch success PASS');
@@ -1018,6 +1194,8 @@ void (async () => {
       console.log('validate-progress-heartbeat main direct-handler PASS');
       return;
     }
+    await assertDelayedFixtureReadiness();
+    await assertReadinessFailureControls();
     const result = await runValidate(root);
     if (result.status !== 0) {
       assertRedBaseline(result, started, finished);

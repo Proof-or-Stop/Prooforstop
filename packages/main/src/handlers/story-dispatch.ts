@@ -56,6 +56,9 @@ import type { OwnerSessionHostProvider } from '../core/owner-session-adapters.js
 import type { PromptHost } from '../core/prompt-registry.js';
 import { currentImplementationBusinessCommit, topologyDispatchBusinessAuthor } from '../core/topology-critic-receipt.js';
 import { renderAgentLivenessGuidance } from '../core/agent-liveness-policy.js';
+import type { ReviewInventoryPurposeBinding } from '../core/types.js';
+import { withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
+import { requireInventoryCriticSubjectLocked } from './review-inventory.js';
 
 // B-45ed CHK-008: agent-type → background injection strategy mapping table
 // Source: CLAUDE.md "background.md tiered injection (subagent)" subsection
@@ -171,7 +174,9 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
   function appendDispatchEvent(args: {
     storyId: string;
     agentType?: string;
-    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'story-review' | 'delivery-review' | 'rollout-verify' | 'checklist' | 'finding' | 'cluster';
+    targetKind: 'init-review' | 'scope-plan-review' | 'topology-critic-review' | 'inventory-critic-review' | 'story-review' | 'delivery-review' | 'rollout-verify' | 'checklist' | 'finding' | 'cluster';
+    reviewPurpose?: 'inventory-completeness';
+    inventoryBinding?: ReviewInventoryPurposeBinding;
     itemId?: string;
     findingId?: string;
     clusterId?: string;
@@ -206,6 +211,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         targetKind: args.targetKind,
         agentType,
         sessionId: getSessionIdentity().sessionId,
+        ...(args.reviewPurpose ? { reviewPurpose: args.reviewPurpose, inventoryBinding: args.inventoryBinding } : {}),
         ...(args.headHash ? { headHash: args.headHash } : {}),
         ...(args.storyFilesHash ? { storyFilesHash: args.storyFilesHash } : {}),
         ...(args.businessCommit ? { businessCommit: args.businessCommit } : {}),
@@ -274,6 +280,7 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
     try {
       persistEvent();
     } catch (e: any) {
+      if (args.reviewPurpose === 'inventory-completeness') throw e;
       reportHealthIssue('persist:dispatchProcessEvent', e as Error, {
         storyId: args.storyId,
         agentType: args.agentType,
@@ -896,6 +903,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
       findingId?: string;
       clusterId?: string;
       agentType?: string;
+      reviewPurpose?: 'topology' | 'inventory-completeness';
+      inventoryEpochId?: string;
     }): { prompt: string } {
       if (!args.storyId) throw new Error('storyId is required');
       let story;
@@ -910,6 +919,8 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         itemId: args.itemId,
         findingId: args.findingId,
         clusterId: args.clusterId,
+        reviewPurpose: args.reviewPurpose,
+        inventoryEpochId: args.inventoryEpochId,
       });
       const canonicalType = resolved.canonicalType;
       const identifierKind = args.itemId ? 'itemId' : args.findingId ? 'findingId' : args.clusterId ? 'clusterId' : undefined;
@@ -963,6 +974,35 @@ export function createStoryDispatchHandlers(ctx: HandlerContext) {
         return wrapped;
       }
       if (promptBuilder === 'topology-critic-review') {
+        if (args.reviewPurpose === 'inventory-completeness') {
+          return withReviewInventoryMutationLock(store, args.storyId, () => {
+            const inventoryBinding = requireInventoryCriticSubjectLocked(ctx, args.storyId, args.inventoryEpochId!);
+            const currentStory = store.readStory(args.storyId);
+            const dispatchPrompt = [
+              'Review purpose: inventory-completeness. This is not topology certification.',
+              `Trusted inventory subject: ${JSON.stringify(inventoryBinding)}`,
+              renderAgentLivenessGuidance({ label: 'proof-or-stop-review-topology-critic/inventory', startSignal: 'DISPATCH_START:proof-or-stop-review-topology-critic/inventory' }),
+              'Use the canonical critic role with the inventory-only duties. Preserve real Git attribution; never manufacture role-named implementation commits.',
+              `First run proof-or-stop review_run_start '${JSON.stringify({ storyId: args.storyId, agent: canonicalType, reviewPurpose: args.reviewPurpose, inventoryEpochId: args.inventoryEpochId })}'.`,
+              'Inspect every required-lane signed terminal/read record and every verified Finding on this exact cutoff. Report missed paths through finding_add or review_pass_set with complete read evidence.',
+              `Then call proof-or-stop review_inventory_critic_set with storyId=${args.storyId}, epochId=${inventoryBinding.epochId}, the exact new reviewRunId and one independently justified findingDisposition per aggregate Finding. Empty dispositions are valid only for an empty set.`,
+              'Do not call topology_critic_receipt_set or claim topology, TEST, DONE, dependency approval, or independent-host assurance from this inventory purpose.',
+            ].join('\n');
+            const wrapped = assembleComplexStoryDispatch(currentStory, canonicalType, dispatchPrompt);
+            const envelopeMode = resolvePromptEnvelopeRolloutMode(canonicalType, loadConfig(root).promptEnvelope);
+            const hostRenderHost = currentReviewerPromptHost();
+            const hostIdentity = reviewerHostRenderIdentity(root, canonicalType, hostRenderHost, envelopeMode);
+            const dispatchPromptDigest = reviewerDispatchPromptDigest(dispatchPrompt);
+            appendDispatchEvent({
+              storyId: args.storyId, agentType: canonicalType, targetKind: 'inventory-critic-review',
+              reviewPurpose: 'inventory-completeness', inventoryBinding, dispatchPrompt, dispatchPromptDigest,
+              hostRenderHost, hostRenderIdentityDigest: hostIdentity.identityDigest, reviewRound: currentStory.currentReviewRound,
+              dispatchBindingDigest: reviewerDispatchBindingDigest({ storyId: args.storyId, lane: canonicalType, reviewRound: currentStory.currentReviewRound!, dispatchPromptDigest, hostRenderIdentityDigest: hostIdentity.identityDigest }),
+              ...(wrapped.envelope ? { promptEnvelope: wrapped.envelope, promptEnvelopeId: wrapped.envelope.envelopeId, promptEnvelopeDigest: wrapped.envelope.contextDigest, assembledPromptDigest: wrapped.envelope.assembledPromptDigest } : {}),
+            });
+            return wrapped;
+          });
+        }
         const result = buildTopologyCriticReviewPrompt({ storyId: args.storyId });
         const wrapped = assembleComplexStoryDispatch(story, canonicalType, result.prompt);
         const authorityBinding = topologyAuthorityDispatchBinding(story, true);

@@ -1,0 +1,1882 @@
+{
+  "passes": [
+    {
+      "id": "B-29bc:RP-001",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across CHK-001 (4 intents: happy, edge, 2 adversarial) and CHK-002 (4 intents: happy, edge, 2 adversarial), all 8 intents verified with valid execution evidence, 0 gaps, 0 waivers, no blocker.",
+      "createdAt": "2026-09-07T10:08:51.686Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-004",
+      "envelopeId": "a183cbbe62389745caed0ac7f9cc7f47e0b5e62f70c53ea3bd1ede1832e376a4",
+      "writerSessionId": "b29bc-agy-test-coverage-r1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/56398a2bfef0254e75776560e0dfc24db75cefad37b4b0aa7de3fb673138ea3c.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/928db2e458726048deb365d01824024e512b4d738eca7aff1c42d28c0529f8e6.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe.json",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6144d2c2a3fdd9ac8a9d2ef227fa4022e63dbd41341073978afec47f016a0a50"
+    },
+    {
+      "id": "B-29bc:RP-002",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept deletion/replacement this round; concept residue check completed, no blocker. Checked git diff against main across all changed files; explicit inventory-completeness purpose is additive with preserved default topology review; 0 concept residue findings.",
+      "createdAt": "2026-09-07T10:09:39.290Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-003",
+      "envelopeId": "cd6ce921d2bbe8d6930df97f548f79cb6802c73813d604b84dda845beb65bf96",
+      "writerSessionId": "b29bc-agy-concept-r1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5e85304fc469157749739f463e169c9ed137c268060bb48adc0bdea425522e09"
+    },
+    {
+      "id": "B-29bc:RP-003",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Audited code quality, dead code, type safety, error handling, proof metadata coverage, and documentation alignment for B-29bc. All changed files across core, handlers, CLI catalog, tasks, and documentation were inspected. The verification smoke matrix and doc boundaries pass cleanly with zero blockers.",
+      "createdAt": "2026-09-07T10:12:07.017Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-002",
+      "envelopeId": "4286b2c7ba35774cd3825c42b711374bca1f68d074e998c112dac8e6c268012a",
+      "writerSessionId": "b29bc-agy-quality-r1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "f9b12438dcafda52b40d1c6fea251520a9c769a81e637d0a608ab99072b73f25"
+    },
+    {
+      "id": "B-29bc:RP-004",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Documentation and code are fully consistent. Audit and decision docs accurately describe the explicit inventory-completeness purpose isolation, schemas, and preserved topology boundaries.",
+      "createdAt": "2026-09-07T10:12:27.967Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-001",
+      "envelopeId": "28fbb543db0085cf569c324a26bc6d11275a34554cade09caaac303ccc8248ba",
+      "writerSessionId": "b29bc-agy-docs-r1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "e8fe164f1970cbccd0fa1091f96e3f4cc9ee2f64ad1723ae67d81993eda60870"
+    },
+    {
+      "id": "B-29bc:RP-005",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Step 1 extracted 7 primary exported symbols and CLI options (ReviewInventoryPurposeBinding, ReviewPurpose, ReviewInventoryPurpose, validateCriticReviewPurpose, purposeSelectedCriticBody, requireInventoryCriticSubjectLocked, inventoryPurposeMatchesEpoch, reviewPurpose, inventoryEpochId). Step 2/3 compared the 2 referencing doc files (review-inventory-epoch-and-saturation-gate.md, inventory-critic-purpose-isolation.md) and top-level README/CLAUDE. Verified documentation-code consistency with zero drift, zero undelivered promises, and preserved Wave 4 boundaries. No blockers in docs lane.",
+      "createdAt": "2026-09-07T10:25:56.975Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-007",
+      "envelopeId": "6f5814abbd9c9cf9ce1e875b18d8cce5f5bd2e2d977529556e348fda149eae92",
+      "writerSessionId": "b29bc-agy-docs-ri2w1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "CLAUDE.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "README.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ad79e3b98bc779f117b1d65a2635a558497471396f4f392c41bd4ed1a4d7f4c"
+    },
+    {
+      "id": "B-29bc:RP-006",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Audited code quality for B-29bc across all modified files (core, handlers, CLI catalog, tasks, docs, scripts). Verified no dead code, proper error handling and type safety without unhandled exceptions, correct I/O shell isolation, accurate proof metadata coverage (signReviewRun/verifyReviewRun critic purpose and inventory binding), and full alignment with documentation promises. Zero blockers in quality lane.",
+      "createdAt": "2026-09-07T10:26:27.568Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-009",
+      "envelopeId": "ca8f1ac55b5f04b04d73b8544f011cd13407e5046b35b9c488317f0ffd65c32c",
+      "writerSessionId": "b29bc-agy-quality-ri2w1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe.json",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "f9ef287f2a794c008897a63c5da0fce43d8061635bf24bb4ed77ff3b26075647"
+    },
+    {
+      "id": "B-29bc:RP-007",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across CHK-001 (4 intents: happy, edge, 2 adversarial) and CHK-002 (4 intents: happy, edge, 2 adversarial), all 8 intents verified with valid execution evidence, 0 must-gaps, 0 waivers, no blocker.",
+      "createdAt": "2026-09-07T10:26:48.561Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-008",
+      "envelopeId": "54e4142a916557dfb2a753306339533b2c3f674a0ac35c592f650629fe2d9fed",
+      "writerSessionId": "b29bc-agy-test-coverage-ri2w1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/56398a2bfef0254e75776560e0dfc24db75cefad37b4b0aa7de3fb673138ea3c.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/928db2e458726048deb365d01824024e512b4d738eca7aff1c42d28c0529f8e6.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe.json",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "86bbcb8fb45ce62c9f4e3f047492ff9890323e749586b68ebc4ffbbb694735b3"
+    },
+    {
+      "id": "B-29bc:RP-008",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Inventory-completeness-only terminal for RI-002 wave 1: no additional unrecorded issue discovered. Independently inspected all current required terminals: concept F-003/RR-006, docs RP-005/RR-007, coverage RP-007/RR-008, quality RP-006/RR-009. Production signature verification confirms every terminal and run; all four carry signed manifests and mechanical readLog. Exact aggregate contains F-001,F-002,F-003 with no missing lanes, duplicate identities or baseline mismatch. F-001 and F-002 remain open verified baseline defects; F-003 is the documented audit-promise manifestation of F-001 and will share its inventory family only, without status/severity alteration. Fresh logs cure this wave evidence omission, not the production acceptance predicate. This terminal certifies only that known Findings and read records are accounted for; it does not approve implementation, repair any Finding, authorize TEST/DONE, certify topology, or establish independent-host quorum. Files listed fully were actually read in this continuing critic session; source and review-run metadata were inspected through bounded excerpts/projections, not falsely claimed as full-file reads.",
+      "createdAt": "2026-09-07T10:32:09.156Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-010",
+      "envelopeId": "361fe5b63f1c85b4aef957d8852904e7d8e3eb250ad77de1c0975b92bd1e56ec",
+      "writerSessionId": "codex-b29bc-inventory-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "2a2e517115846f67d3c04f514d01aee35527c1f61238bd9493e9c247d529de94"
+    },
+    {
+      "id": "B-29bc:RP-009",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Step 1 extracted 7 primary exported symbols and CLI options (ReviewInventoryPurposeBinding, validateCriticReviewPurpose, purposeSelectedCriticBody, inventoryPurposeMatchesEpoch, requireInventoryCriticSubjectLocked, reviewPurpose, inventoryEpochId). Step 2/3 compared the referencing documentation files (review-inventory-epoch-and-saturation-gate.md, inventory-critic-purpose-isolation.md, README.md). Verified documentation-code consistency with zero additional blockers; existing documentary defect regarding terminal-read assertion is already tracked under open verified finding B-29bc:F-003 (documentary duplicate of B-29bc:F-001) and preserved.",
+      "createdAt": "2026-09-07T10:36:34.861Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-012",
+      "envelopeId": "659cd6f6e99188171726a26626764ffd3c0ffc7b2c970c67a93e0bb883bbf583",
+      "writerSessionId": "b29bc-agy-docs-ri2w2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "README.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "3ebbe7d42fce81697487084050fa858a6c9ee8bdb0284d9f1c206da155f04fc7"
+    },
+    {
+      "id": "B-29bc:RP-010",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Audited code quality for B-29bc RI-002 wave 2 across all changed files (core, handlers, CLI catalog, tasks, docs, scripts). Verified dead code absence, type safety, error handling without unhandled exceptions, correct I/O shell isolation, proof metadata coverage across ReviewRun and ReviewInventoryCriticReceipt, and alignment with documentation promises. Zero new/additional blockers found in the quality lane; existing verified open findings B-29bc:F-001, F-002, F-003, and F-004 remain tracked in story inventory.",
+      "createdAt": "2026-09-07T10:36:39.483Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-013",
+      "envelopeId": "346664441e5c78c1ff40decf630767032d6b3ce35fc64f5b296746ac8d6bfb65",
+      "writerSessionId": "b29bc-agy-quality-ri2w2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "ca622bc87a7778fab5207406aba81b715383e5216ee723ee86dd9e4e414588e4"
+    },
+    {
+      "id": "B-29bc:RP-011",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across CHK-001 (4 intents: happy, edge, 2 adversarial) and CHK-002 (4 intents: happy, edge, 2 adversarial), all 8 intents verified with valid execution evidence and causal receipts, 0 must-gaps, 0 waivers, no new blocker.",
+      "createdAt": "2026-09-07T10:36:57.883Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-014",
+      "envelopeId": "3888832a6673d88e8657879289ab91ae3451d0470bcf1c5a8a56fbadfc8869f3",
+      "writerSessionId": "b29bc-agy-test-coverage-ri2w2",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/56398a2bfef0254e75776560e0dfc24db75cefad37b4b0aa7de3fb673138ea3c.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/928db2e458726048deb365d01824024e512b4d738eca7aff1c42d28c0529f8e6.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe.json",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "fd88feebe351fbefad79ea3422242e2264a1bdc2596c76581883ac05b0a27507"
+    },
+    {
+      "id": "B-29bc:RP-012",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-002 wave-2 inventory-completeness-only terminal: no additional unrecorded issue found. Independently inspected F-004/RR-011, RP-009/RR-012, RP-010/RR-013 and RP-011/RR-014; production signature verification validates every terminal and run, and all four contain signed readManifest and mechanical readLog. The signed wave-1 checkpoint and CRIT-01 preserve both known families. Exact current-wave evaluation contains only F-004, with no missing lanes, duplicate identities or baseline mismatch. Full comparison confirms F-004 re-observes the unchanged F-001/F-003 missing-log documentary/runtime family; assigning that existing family yields zero new families without an invalid cross-wave duplicate target. F-001 through F-004 all remain signature-valid, open and unfixed with original severities; prior signed evidence is retained rather than replaced. This terminal approves inventory accounting only, not implementation, repair, topology, TEST/DONE or independent-host quorum. Prior full reads are reused under the returned SAFE_INCREMENTAL unchanged-material basis; all new terminal and epoch records were read, and excerpted source/run projections are not claimed fully read.",
+      "createdAt": "2026-09-07T10:44:48.899Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-015",
+      "envelopeId": "51fc4f1c1cfdc46b87429a795db46f89843c503567f54b777371ca3f70928696",
+      "writerSessionId": "codex-b29bc-inventory-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "c8d05e7ac89d5b184671d8d74486beccf85bb03990bc78200386f137effb34bd"
+    },
+    {
+      "id": "B-29bc:RP-013",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Documentation and code consistency review for B-29bc. Extracted 53 symbols from git diff main...HEAD across packages/main/src. Compared 7 referenced doc sections in docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md, docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, docs/audits/inventory-critic-purpose-isolation.md, and reviewer templates. Verified that new reviewPurpose and inventoryEpochId parameters in dispatch, review_run_start, and review_inventory_critic_set CLI schemas, core types, prompt templates, and process-fact registrations are completely and accurately documented. Verified all documentary promises match implementation and tests. Verified F-001 through F-004 resolutions regarding mandatory readManifest and mechanical readLog on reviewer passes, critic-own-finding aggregation, immutable receipts, and honest audit limits. No blockers.",
+      "createdAt": "2026-09-07T11:12:55.674Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-018",
+      "envelopeId": "5f4ef897e7629931e18f4819a7404c092641b65e1167caab2f5d40730a7e0ec2",
+      "writerSessionId": "b29bc-agy-final-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "1406d8e1500bd263841c5fe7c17b9057340619b2c70f287a73ad0047df06b5a1"
+    },
+    {
+      "id": "B-29bc:RP-014",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Audited code quality, dead code, type safety, error handling, proof metadata coverage, and documentation alignment for B-29bc. Verified that all changed files across core, handlers, CLI catalog, tasks, process-fact verifier, and documentation conform strictly to quality guidelines. The F-001 through F-004 fixes (missing readLog PASS rejection at producer/consumer, critic own-finding aggregation in current-wave evaluation, and audit accuracy) are independently verified. All 8 intents across CHK-001 and CHK-002 pass without regression or blocker.",
+      "createdAt": "2026-09-07T11:13:04.542Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-017",
+      "envelopeId": "cc505bc12ea14214e2ebf4d952f676a92ec63828a78deeea70968a2b6af9a113",
+      "writerSessionId": "b29bc-agy-final-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "2553c01fd4c15f27058dc376e48d790262603a7dbdc6f21c64fc747bc0443fa8"
+    },
+    {
+      "id": "B-29bc:RP-015",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent full-task concept review of both CHK-001 and CHK-002 and the integrated main...HEAD change, including the exact c980f6f...HEAD remediation delta, found no remaining concept-lane blocker. No concept was deleted en masse: explicit inventory purpose is added while historical/default topology semantics and documented compatibility aliases remain deliberate. Schema, purpose validation, signed dispatch/run/receipt subject, prompt composition and producer/consumer checks correspond to the declared behavior; protected topology consumer, machine, configuration, historical critic template and B-7abb/B-03b7 metadata have zero integrated diff. Independently inspected the concrete repair rather than relying on resolved status: recordReviewPass rejects either missing read field during OPEN inventory before publication and is shared by pass-only finding normalization; evidenceForRun independently rejects incomplete signed passes; evaluateReviewInventoryWave aggregates exact-purpose/current-subject signed critic findings without extra lane coverage; receipt validation still requires complete dispositions and both terminal read fields. Fresh node packages/main/dist/tasks/review-inventory-epoch-smoke.js exited 0 with both B29BC_RECOVERY selectors, including signed omission controls, wrong-purpose/subject controls and earlier-Finding/later-PASS retention. The public handler discovery and producer negative controls were read in the committed tests and current tool-owned eight-intent receipts were inspected; the seven-program campaign was not redundantly rerun. Audit b2e7b6f495 replaces the false blanket reading-evidence assertion with historical failures, bounded correction and explicit fixture/host limitations; d2461f5794 and 0ffe4cc619 provenance and Harmonynet Git identity were checked. F-001 through F-004 remain preserved in official history with resolved reasons; this review concurs with the bounded runtime and documentary correction, not with retroactive repair of old terminals. No new finding was discovered. This pass is concept-lane evidence only, not final inventory/TEST/DONE, topology certification or actual independent-host quorum. The unchanged topology decision source previously read remains reference context; manifest below identifies fully read current Story/audit/inventory inputs, while source inspections used integrated diffs and targeted code sections.",
+      "createdAt": "2026-09-07T11:13:38.259Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-016",
+      "envelopeId": "f11baec75ad73d806edc12175e00d8acf7def9aa48016ea0ee5f48e3df459263",
+      "writerSessionId": "codex-b29bc-ri003-final-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "2943015c12ee4ee65597deea35bff3077b63dc127766a4fb51c4a50d0b269116"
+    },
+    {
+      "id": "B-29bc:RP-016",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent test coverage review for story B-29bc (round 2026-09-07T11:09:29.410Z, RI-003, RR-019). Verified verificationIntent and verificationEvidence coverage across CHK-001 (4 intents: happy, edge, 2 adversarial) and CHK-002 (4 intents: happy, edge, 2 adversarial). All 8 intents verified with mechanical receipts and no gaps. Verified resolution of F-001/F-003 (missing mechanical readLog rejected at shared pass producer and inventory consumer), F-002 (critic own-Finding aggregated into wave rawFindings), and F-004 (audit documentation consistency). Verified independent targeted runs of verify-process-fact-contract, audit boundaries, and review-inventory-handler-smoke --purpose-only. Zero blockers.",
+      "createdAt": "2026-09-07T11:15:24.156Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-019",
+      "envelopeId": "7665b420e4934ceaee04f127416b34b9cb271b30f7b51ef52b920af890adbdc2",
+      "writerSessionId": "b29bc-agy-final-test-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "b9453c9b6c2ade8b48d9f9b33bba62d89fd9760b7eafee73b96e4b2e0c31bbf1"
+    },
+    {
+      "id": "B-29bc:RP-017",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Final inventory-completeness review for RI-003 wave 1 found no missed current Finding or incomplete required terminal. Independently inspected exact concept RR-016/RP-015, quality RR-017/RP-014, docs RR-018/RP-013 and coverage RR-019/RP-016 records; production verification validates all run/pass signatures and each has signed readManifest plus mechanical readLog. Signature-valid current epoch and live evaluation have no missing lanes, duplicate identities, baseline mismatch, raw Findings or new families. Official finding_list preserves F-001..004 as resolved/fixed historical observations. Compared their full repair explanations with test-only d2461f5794, runtime 0ffe4cc619 and audit b2e7b6f495: OPEN PASS producer and inventory consumer independently reject missing read fields; exact-purpose current critic discoveries join the aggregate without lane promotion; committed negative controls cover absent fields, wrong subject/purpose, empty dispositions and immutable receipt setup; corrected audit distinguishes original failures from bounded repair. Current eight intent evidence projections report mechanical exit-zero/selector-matched results bound to material 130d0e588b87d8a5b9cba9b5b76624e6c673445dd0e1d469092dd4decaf24a78. Tests were inspected, not rerun in this critic task. Current audit fully reread; prior full background, plan and decision reads retained after exact no-diff freshness check. Terminal/run/epoch records and source were inspected as bounded records/diffs/excerpts, not falsely claimed as full-file reads. This is inventory-only evidence: no topology certification, TEST/DONE authorization, independent-host quorum or finalization/consumption claim.",
+      "createdAt": "2026-09-07T11:19:04.246Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-020",
+      "envelopeId": "1d48c1c0954e5e9cf1fb5895539486054b65422110b166e792062b5c50cbb809",
+      "writerSessionId": "codex-b29bc-inventory-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "d1f45d749a50e5d6dce38ad8b9bdd52f81311581eeae0efd27129b5d1a9c6486"
+    },
+    {
+      "id": "B-29bc:RP-018",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Step 1: extracted 5 exported symbols/types (ReviewInventoryPurposeBinding, reviewInventoryPurposeBinding, inventoryPurposeMatchesEpoch, requireInventoryCriticSubjectLocked, validateCriticReviewPurpose) plus field additions (reviewPurpose, inventoryEpochId, inventoryBinding). Step 2/3: compared 10 documentation sections/paragraphs across docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md, docs/audits/inventory-critic-purpose-isolation.md, and reviewer agent templates against code. No blocker: all documented CLI commands, parameter schemas, runtime behaviors, and audit records match code diff exactly with zero doc-code drift and no promised-but-undelivered features.",
+      "createdAt": "2026-09-07T12:23:56.630Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-024",
+      "envelopeId": "031b92c93d742c2657fd176acbf99c597b5c1329edc8a41a56606903b55815e5",
+      "writerSessionId": "codex-01a05441-inventory-recovery-owner",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "894137221eebdf8955d58c84e019154d954dc9eb9ba59247539fcd235f7fa781"
+    },
+    {
+      "id": "B-29bc:RP-019",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent RI-004 wave-1 post-main concept review of both CHK-001 and CHK-002 on material 30a14f2575e229f8ad1b90a56cfaae9bf485a7a722d41eaf0055101971b29762. Read the current canonical bootstrap and selected full body, current complete background/plan/checklist, corrected audit and inventory decision. Reviewed current main...HEAD scope and the post-RI-003 merge delta; exact comparison against fdc3bd45e1 confirms the already independently reviewed B-29bc dispatch, run, inventory, shared PASS producer, role composition, purpose signatures and audit remain unchanged. Reused prior integrated code and RED/GREEN analysis only after this freshness comparison, not as an assertion that old terminals remain current. Current checklist differs only in receipt freshness pins: all eight pinned intents retain their commands, observations, exit 0 and selector matches, now bound to merged material and Story files af9f9aaf4d1e6fc22c63e3ade9c71025d5177358e64e98561db2258082c3f330. No duplicate seven-program campaign was run. Explicit purpose remains separate from topology; required-lane PASS publication and coverage require both reading fields; exact current-purpose critic discoveries enter the aggregate without granting lane/topology authority; immutable receipt and prior-Finding preservation remain intact. No concept was removed en masse; retained default and alias compatibility is deliberate. F-001 through F-004 remain preserved with actual runtime/documentary repair reasons, not dismissed or retroactively repaired terminals. The current audit accurately distinguishes preliminary RED, actual test-only RED/GREEN, synthetic fixtures and deferred real lifecycle delivery. The merged historical-probe portability repair and official fixed bug explicitly do not claim restored historical CAS. No new concept-lane issue or unfulfilled new documentary claim was found. This is concept-only terminal evidence: the reported foreign-append heartbeat readiness issue is under quality review, canonical validation is not PASS, and fresh actual host assurance, critic/inventory and subsequent lifecycle checks remain necessary. No host quorum or Story completion is claimed. Manifest/readEvents identify actual full current input reads; source review used prior full-task inspection plus verified unchanged scoped content and bounded merge-delta inspection.",
+      "createdAt": "2026-09-07T12:27:14.345Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-022",
+      "envelopeId": "14e5ebf0c6396ac1a201e272d04e5b8002882fae3764e052d8a2b9c749f2a283",
+      "writerSessionId": "codex-b29bc-ri004-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "5ee34e97e610c0f56d873066fac41dd73a669add202c4fb5f9ccf8b8c49aec34"
+    },
+    {
+      "id": "B-29bc:RP-020",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent code quality audit of B-29bc: verified dead code, type safety, error handling, I/O shell isolation, proof metadata review coverage, and documentation parity across all modified files. Zero as-any types, zero unhandled catches, no unused imports or commented code. F-001 through F-004 fixes are verified. All 8 intents across CHK-001 and CHK-002 pass cleanly. No blockers found.",
+      "createdAt": "2026-09-07T12:35:32.242Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-021",
+      "envelopeId": "d8ce718e73efb110009ed0f5edcd20f5def6fe28b3ba1ac9bd5bd1f83fb82b04",
+      "writerSessionId": "codex-01a05441-inventory-recovery-owner",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "ff0bc8c93ad0e8dfc812ba428a55daf9532870bace8d6feddc91b2eee7bafb93"
+    },
+    {
+      "id": "B-29bc:RP-021",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence, no blocker.",
+      "createdAt": "2026-09-07T12:37:30.747Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-023",
+      "envelopeId": "e2de8c68d4783706119eed135da27ef038a03bf2e6f7de616540dbeb5a385c84",
+      "writerSessionId": "codex-01a05441-inventory-recovery-owner",
+      "sessionSource": "explicit-env",
+      "provenanceFlag": "same_session_write",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/core/reviewer-read-evidence.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "cc7d9a35b47a800674b8293267b2c99e6e88a6ab60be9fc9e11699e285615c53"
+    },
+    {
+      "id": "B-29bc:RP-022",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent replacement coverage review: all 8 must intents across CHK-001 and CHK-002 have mechanical PASS receipts with matching selectors and current reviewed material/story hashes; 0 must gaps and 0 waivers. Inspected structured checklist/receipt projections, purpose handler and epoch mutations, topology compatibility sections and audit. Independently reran the bounded epoch smoke: exit 0, including F-001/F-002 semantic negative controls and exact-set disposition. Reused existing public-handler/compatibility execution receipts as inputs, not as my executions. Full canonical validation is not PASS; BUG-VALIDATE-START-READINESS remains owner-tracked and unresolved, with bounded foreign-append fixture readiness/cleanup repair required before TEST/DONE. This lane PASS covers intent/evidence coverage only; it is not TEST/DONE, host quorum, old CAS restoration or resolution of that bug. Topology decision was reviewed by title and relevant sections, not fully; checklist was inspected via structured projection, not claimed as a complete raw-file read.",
+      "createdAt": "2026-09-07T12:42:29.911Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-025",
+      "envelopeId": "85df504ddfcbf02aac0895ccb234d41f433e9334165061d215d1e6831049c0cc",
+      "writerSessionId": "sess-7893c1f1d7ec288f2ec612f8f5cb8b03",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "fb8836ce5e74cb5c661a91e332bb2952e3fc3d9e12401744d6ec1da967f9dfa7"
+    },
+    {
+      "id": "B-29bc:RP-023",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent RI-004 wave-1 inventory-completeness review only. Verified the signed OPEN epoch, current material 30a14f2575e229f8ad1b90a56cfaae9bf485a7a722d41eaf0055101971b29762 and Story-files af9f9aaf4d1e6fc22c63e3ade9c71025d5177358e64e98561db2258082c3f330, sequence boundary 20 and exact four required lanes. Independently verified current run signatures and pass signatures, read complete terminal records RP-018 through RP-022, and inspected bounded run/scope/workspace projections. The pure current wave consumer selects concept RR-022/RP-019, quality RR-021/RP-020, docs RR-024/RP-018 and replacement coverage RR-025/RP-022, all with both signed readManifest and mechanical readLog; no missing lane, duplicate coverage identity, baseline mismatch or eligible raw Finding remains. RR-026 starts after these terminals and binds explicit inventory purpose, exact epoch and wave. RP-021 remains signature-valid but incomplete and is excluded, not retroactively repaired. Its exact writer executable provenance is unresolved; the installed global producer reportedly lacks the local OPEN guard, while current source and dist contain it. This is not proof of a current local producer bypass or a claim that old incomplete records are valid inventory evidence. F-001 through F-004 remain preserved, signature-valid and resolved with exact repair explanations; read all four via official finding_list and checked real Harmonynet commits d2461f5794, 0ffe4cc619 and b2e7b6f495. Bounded freshness comparison confirms the previously reviewed purpose/aggregate/read-guard source and audit remain unchanged since the repair. Inspected current checklist intent/evidence projections: all eight receipt rows retain mechanical pass, exit zero, matching selectors and current material/Story-files pins. These are inspected existing receipts, not executions by this critic. No new inventory-completeness defect was established. BUG-VALIDATE-START-READINESS remains unresolved and requires bounded authorized remediation; full validation is not PASS. The owner-inherited writer sessions on Agy terminal records do not establish independent-host assurance. This result does not certify topology, host quorum, TEST, DONE, restored historical CAS or consumer Story completion. Read manifest lists only full current reads; run, epoch, checklist, source and process-event inspection used bounded projections/excerpts and prior analysis with freshness checks, not claimed full-file reads.",
+      "createdAt": "2026-09-07T12:47:53.849Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-026",
+      "envelopeId": "67f1ab7e5f11e350195cd997e6b1bfca9f1b1f74c82cebf0baf2f9fc13bf2e79",
+      "writerSessionId": "codex-b29bc-inventory-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "86629debc9f637b3fd2a02c588d62d32a2be533f854bbd7a413c59b87a19cfcc"
+    },
+    {
+      "id": "B-29bc:RP-024",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Final RI-005 story-level coverage review: CHK-001 and CHK-002 retain 8 must intents, all with current material 2d923753 and story-file 1243892b mechanical PASS receipts, exit 0 and matching pinned selectors; 0 must gaps and 0 waivers. Re-examined the full heartbeat/audit delta and test-only RED 9e3ac2e5ef; the RED shared the original five-second readiness helper, GREEN 5662e8274e adds bounded terminal-aware readiness, release ordering, and actual-close-aware fixture preservation. Independently executed readiness-only smoke: exit 0 with B29BC_DELAYED_FIXTURE_READINESS PASS and B29BC_READINESS_TERMINAL_AND_CLOSE_CONTROLS PASS. Original foreign-byte prefix, dirty-audit, no-terminal/transition, uncommitted-history and REVIEW assertions are retained. Reviewed existing public purpose/compatibility/audit receipts as coverage inputs, not as my executions; no duplicated full validation. Original F-001..F-004 observations and old incomplete RP-021 remain history, not new proof. This PASS is coverage only; canonical repository validation, actual independent-host quorum, TEST and DONE remain separate. Synthetic close/rollout fixtures do not prove descendant termination or real-host assurance; no old CAS restoration claimed. Checklist read through structured intent/receipt projections; topology decision title and relevant section inspected, not a full-file claim.",
+      "createdAt": "2026-09-07T13:26:11.124Z",
+      "reviewRound": "2026-09-07T13:21:43.709Z",
+      "reviewRunId": "B-29bc:RR-029",
+      "envelopeId": "29b4b88da53bb0af9e542fbddab8e23d9f714bf2e49448052b1a15d9c30aa180",
+      "writerSessionId": "sess-7893c1f1d7ec288f2ec612f8f5cb8b03",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "6981db9d42e12587ed0e4430a0da966818882d3dcef77f8bc902d2f7478d6c6f"
+    },
+    {
+      "id": "B-29bc:RP-025",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Documentation and code consistency review for story B-29bc. Step 1: extracted 5 exported symbols/types (ReviewInventoryPurposeBinding, reviewInventoryPurposeBinding, inventoryPurposeMatchesEpoch, requireInventoryCriticSubjectLocked, validateCriticReviewPurpose) plus field additions (reviewPurpose, inventoryEpochId, inventoryBinding). Step 2/3: compared 8 referenced documentation sections across docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md, docs/audits/inventory-critic-purpose-isolation.md, docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, and agent templates against code. No blocker: all documented CLI commands, parameter schemas, runtime behaviors, and audit records match code diff exactly with zero doc-code drift and no promised-but-undelivered features.",
+      "createdAt": "2026-09-07T13:26:23.811Z",
+      "reviewRound": "2026-09-07T13:21:43.709Z",
+      "reviewRunId": "B-29bc:RR-030",
+      "envelopeId": "3622ff2e853050eadd91c8f77214dc13cdfea9c5af96e8f356ee6e407ea79889",
+      "writerSessionId": "agy-b29bc-ri005-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "dd36032ec8061d3791a7546b06847fc3f381d9acaf2dbc78d0d287ba6d5eac74"
+    },
+    {
+      "id": "B-29bc:RP-026",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent RI-005 wave-1 full-task concept reassessment of both CHK-001 and CHK-002 found zero new findings. Current main...HEAD scope reviewed; exact ba66a1d...HEAD comparison limits new material to validate-progress-heartbeat-smoke.ts and the audit appendix, with prior purpose-isolation implementation, both read-field producer/consumer repair, exact critic Finding aggregation, topology boundaries and protected sources unchanged. Prior full integrated inspection was reused only after that freshness check. Current background/plan, audit and inventory decision read fully. Checklist was previously read fully in RI-004; this run reviewed every changed JSON leaf against that baseline and canonical complete requirement context: only eight receipts' execution/freshness pins changed, while commands, intent semantics, result, exit 0, selector matches and observed output remained unchanged. Checklist is therefore not falsely listed as a fresh full-file read. Inspected actual RED 9e3ac2e5ef and GREEN 5662e8274e diff: delayed real-child witness shares the old five-second readiness seam; the replacement is bounded and terminal-aware, the release handshake orders the foreign append before normal completion, and cleanup requires actual close plus non-null status. Original foreign-byte, dirty-audit, no-transition, uncommitted-history and REVIEW-phase assertions remain present. No concept deletion/replacement en masse or unimplemented new documentary promise was found. Full audit 0fc834f56d accurately limits synthetic close controls, describes fixture rather than production watchdog repair, preserves old incomplete terminal history and leaves actual validation/quorum/lifecycle completion separate. Official bug records retain historical-CAS-not-restored and witness-only repair distinctions. Original F-001 through F-004 are preserved resolved with their prior evidence, not dismissed or retroactively repaired. No build, pinned matrix or full validation was redundantly executed. This is only a concept-lane PASS: observe/inconclusive pre-review is not PASS; rollout fixtures are not actual host quorum; canonical validation, inventory critic and genuine post-repair host assurance remain independent prerequisites. Source inspection used committed diffs and targeted sections, not a claim of fresh whole-source reads.",
+      "createdAt": "2026-09-07T13:26:29.051Z",
+      "reviewRound": "2026-09-07T13:21:43.709Z",
+      "reviewRunId": "B-29bc:RR-027",
+      "envelopeId": "d12a874e6f7974d9f8a717e45760b38c4fa205ad10f3b350cb1dca2f262c3689",
+      "writerSessionId": "codex-b29bc-ri005-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "ec83ec59d7a76e2c6732a3873efce20e3f9a2153c5d56d725dcb4b01302a1aaa"
+    },
+    {
+      "id": "B-29bc:RP-027",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent native Codex quality review of both checklist items and the integrated committed main...HEAD diff at material 2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8 found no current blocking or advisory defect. Inspected changed runtime producer/consumer, schema, registry, prompt compatibility, scoped regression assertions and audit promises. Explicit inventory purpose, epoch/wave/cutoff/required-lane binding, signed dispatch carrier and locked publication remain isolated from the unchanged topology provenance path; stale bindings fail closed. Both OPEN PASS producer and inventory consumer require manifest plus mechanical log, and eligible current critic discoveries remain in the exact aggregate. The heartbeat fixture repair preserves production timeout and foreign-append assertions, uses terminal-aware bounded readiness, appends before release, and distinguishes bounded result from actual child close before fixture deletion; unconfirmed closure and null parent status preserve the root. Reviewed positive delayed-start and early-error/zero/finished/never plus delayed/missing/null-close controls; no source or test changes or test reruns by this reviewer. Read current eight tool-owned mechanical PASS receipts and both fixed bug explanations, attributing executions to their actual recorded commands, not to this review. Original F-001 through F-004 remain resolved with original observations and severities preserved. Historical candidate cache was not restored. Closing documentation/CLI/schema promise check found no newly promised but undelivered behavior. Full reads are exactly those in the manifest; source inspection was integrated diff and targeted context, not a claim of full-file reads. Topology decision received title triage and bounded relevant section reads only. Read-only topology/pre-review diagnostics are inconclusive and non-blocking in observe mode; the separate rollout check reports current full-3x2, but this lane does not attest real host execution, topology certification, global validation, or quorum. No decisions-directory escalation occurred.",
+      "createdAt": "2026-09-07T13:31:09.427Z",
+      "reviewRound": "2026-09-07T13:21:43.709Z",
+      "reviewRunId": "B-29bc:RR-028",
+      "envelopeId": "a30ed1b128f9469186166c588dbca9da10298f1ecfb04aa3b2ebb19a1348d78d",
+      "writerSessionId": "codex-b29bc-ri005-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "741c3af81a0ab610baeae6815cf322fc30727b09b369f794885c33e3a025a6c8"
+      },
+      "readDiagnostics": [],
+      "_hash": "cd8ba662c28ed0bdd552197b8c212d52d01ef091751525b4d4503de9e5379cdb"
+    },
+    {
+      "id": "B-29bc:RP-028",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent inventory-completeness review only for B-29bc:RI-005 wave 1, material 2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8. Fully inspected the exact four terminal objects: concept RR-027/RP-026, quality RR-028/RP-027, coverage RR-029/RP-024, docs RR-030/RP-025. Each run and pass signature verifies; all runs bind the same round, material, Story files, scope and diff, have distinct canonical lanes and prompt identities, and are after signed run boundary 26. All four terminals include both manifest and mechanical log with no read diagnostics. Read the signed current epoch object, verified its signature and empty baseline, and checked this critic run started after all four terminals with exact explicit inventory purpose/epoch/wave/cutoff binding. Pure production wave evaluation independently returns all four lanes, no missing lanes or duplicate identities, empty raw Finding/family/new-family/disposition/baseline-mismatch sets. Official full Finding inspection and exact signature checks retain F-001 through F-004 as resolved with their original observations and severity; no historical Finding was dropped or rewritten. Reviewed repair explanations against the integrated same-material quality inspection just completed under RR-028, including producer/consumer mechanical-read guards, current critic aggregation and heartbeat fixture repair; no missed current inventory path or new defect established. Current terminal records and selected run/epoch fields were bounded reads, not full reads of their entire historical JSON files. The decision document was freshly read in full for this critic run; prior Story and source reads were reused only on the unchanged signed material and Story-file subject. This independent critic is not the implementer; the quality terminal was my separately assigned earlier lane and is identified as such, not another host. Docs records its own agy-b29bc-ri005-docs writer. Historical incomplete RP-021 remains history and is not selected. This credential supplies no topology certification, actual-host quorum, validation, TEST/DONE or historical CAS-restoration claim. No source edits, tests, builds, lifecycle or owner actions performed. Exact current aggregate is empty, so empty critic dispositions are justified.",
+      "createdAt": "2026-09-07T13:34:59.427Z",
+      "reviewRound": "2026-09-07T13:21:43.709Z",
+      "reviewRunId": "B-29bc:RR-031",
+      "envelopeId": "a35b0b8f88536e2e3dc99b154768d09f43d9cbab02c5acf3a6e5d1716a958084",
+      "writerSessionId": "codex-b29bc-ri005-inventory",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "264f174e10899770f9f9ada1feca8dde0df861859b70ab94ac70f80a3a7644e1"
+    },
+    {
+      "id": "B-29bc:RP-029",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-006 independent story-level coverage: canonical checklist_get was reloaded and all 8 must intents have mechanical PASS receipts, exit 0 and exact matched pinned selectors, bound to current reviewed material acbb6c30 and story-files 5b32f214; 0 must gaps, 0 waivers. Reviewed baseline RED 2056751bf8 and GREEN feba6c0e0e, the exact selected critic approval change, human-authored role row, and recursive JSON snapshot delta: only critic records and derived totals changed; no other role approval was repinned. Independently executed node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-prompt-policy-manifest: exit 0, with structural/hash/content/add/remove, generated-audit, direct/legacy collector and baseline self-authorization negative controls passing. Examined unchanged exact-hash rejection implementation; the pin update does not authorize arbitrary body changes. Reviewed new audit section and retained original purpose-isolation/heartbeat RED-GREEN coverage via current receipts and source delta; no implementation source changed in this bounded baseline correction. Existing matrices were consumed as current CLI evidence, not claimed as my executions. Old RP-021 is not reused. This coverage PASS does not certify new DONE-required full suite, actual independent-host quorum, delivery, local merge or DONE. Full-read manifest is limited to files actually reread fully; checklist and baseline JSON were inspected through structured projections, audit through relevant sections and diff, topology decision through title/intro.",
+      "createdAt": "2026-09-07T15:54:38.364Z",
+      "reviewRound": "2026-09-07T15:50:32.710Z",
+      "reviewRunId": "B-29bc:RR-034",
+      "envelopeId": "f02565ef119db4c048725a686cad289bcabffe23b2613ce7031cf11045f0acf3",
+      "writerSessionId": "codex-b29bc-coverage-recovery-ri6",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "95e1a3d5710da6798ae205f10a6b66a475010eeef4b75c852e97334fe655a456"
+    },
+    {
+      "id": "B-29bc:RP-030",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent RI-006 full-set concept review covers both checklist items and integrated Story scope on material acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b / Story files 5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb. Fresh canonical run and full selected body read; no earlier terminal or host verdict is asserted fresh. Current main...HEAD scope and complete new baseline-approval delta inspected, with prior integrated implementation analysis reused only after confirming packages/main unchanged from a5ed381. Background, plan, audit, inventory decision and role-matrix read fully; checklist inspected via canonical all-item context plus every changed JSON leaf against the previously fully read version. All eight current mechanical receipts retain commands/results/exit 0/selector matches; refreshed pins and CHK-002 completion timestamp are the only checklist deltas. Independently ran the focused --probe-prompt-policy-manifest command: exit 0, including role/hash/content mutation controls, collector rejection and baseline-refresh self-authorization refusal. Separately collected all 18 selected current role bodies and verified their exact approval hashes: only critic differs from old approval, and stripping the single trusted-purpose appendix restores old 9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99 exactly; new approval is 22da73c85400f6cf0a073593b998d665e71dd4d74da9432a1717a1260b82cb88. Structured snapshot deltas affect only critic approval/row/measurements and derived aggregate digests. The human-authored row accurately describes explicit signed inventory admission versus unchanged default topology, exact current terminal/Finding evidence, no fallback and no authority promotion. The immutable historical template, other role approvals and existing rejection logic are not changed by this repair. No concept deletion/replacement en masse or promised-but-unimplemented new behavior was found. Audit preserves actual failing DONE-required provenance and precisely limits focused GREEN; it does not claim renewed full-suite DONE or current host quorum. Official F-001 through F-004 remain verified/resolved history, with no new observation discovered. No source edit, build, full validation, matrix rerun, lifecycle write or host verdict was performed. Manifest is limited to actual full current reads; source/baseline/checklist inspections were bounded diffs, JSON projections and focused collector checks, not claimed whole-file reads.",
+      "createdAt": "2026-09-07T15:54:59.187Z",
+      "reviewRound": "2026-09-07T15:50:32.710Z",
+      "reviewRunId": "B-29bc:RR-032",
+      "envelopeId": "a062293dc2dd1094f8a4dee568e98ac190a8039d28b9a225f956e67bf0f46287",
+      "writerSessionId": "codex-b29bc-ri006-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "27ac80b39c8536d51f3ff300b7c65d3b249659d1b44856e260fd006accb968a2"
+    },
+    {
+      "id": "B-29bc:RP-031",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent RI-006 full-set quality review of both CHK-001 and CHK-002 and the integrated main...HEAD change found zero current findings. Fresh canonical body, background, plan, checklist, audit and inventory decision inspected. Re-read runtime/schema/registry/producer-consumer diffs; previously reviewed unchanged regression bodies and heartbeat lifecycle were reused only after exact 68ac6f6...HEAD source comparison showed no change in packages/main, mirrors or process-fact verifier. Explicit inventory purpose still derives signed OPEN epoch/wave/cutoff/scope/lane/boundary under the publication lock, requires trusted dispatch, signed terminal manifest/log and exact current critic Finding aggregation, and cannot provide default topology provenance. Historical signature domains, topology consumer, lifecycle machine, configuration and immutable critic/prompt-registry source remain unchanged. No new unused runtime imports, unreferenced implementation, unsafe cast or swallowed-error defect established; fail-closed catches remain deliberate. No job.metadata/linked run.metadata keys were introduced; signed purpose fields were checked across actual dispatch, run and critic receipt producers and consumers without treating prose as server-authored proof. New baseline repair feba6c0e0e matches independent exact-body approval: only critic legacy-projected selected-body pin 22da73c85400f6cf0a073593b998d665e71dd4d74da9432a1717a1260b82cb88, critic purpose-aware matrix and derived snapshots change. Fresh structural comparisons confirm all other 17 measurement records, five-role rollout manifest, agent_prompt output snapshot and runtime contract are unchanged; generated measurement bytes exactly equal the current deterministic report and provider input remains explicitly unavailable. The baseline verifier logic and negative controls were not weakened. Read actual bug/audit RED and focused GREEN provenance, with whole-suite DONE-required rerun explicitly still separate; the four original Findings retain valid signatures, resolved status and original severity. Current eight mechanical intent receipts have exit zero, matched fixed selectors and current material acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b / Story files 5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb. Their execution is attributed to the recorded verifier, not this reviewer. Closing promise check found no newly documented undelivered behavior. Source and baseline inspection used diffs, exact structured comparisons and bounded source sections, not full-file claims; topology decision received title triage only in this run. No candidate artifact exists and no directory escalation occurred. Fresh read-only topology and pre-review results remain observe-mode inconclusive/nonblocking; rollout read/check report current enforce PASS/full-3x2, not independently established actual-host quorum by this lane. No topology certification, historical CAS restoration, global validation, TEST or DONE approval is claimed. No source edits, builds, full suites or pinned matrix reruns performed.",
+      "createdAt": "2026-09-07T15:55:24.677Z",
+      "reviewRound": "2026-09-07T15:50:32.710Z",
+      "reviewRunId": "B-29bc:RR-033",
+      "envelopeId": "893eb235621cfd0eb535dc2f9face11463173de76a29f90850ed6e5aadf79dc3",
+      "writerSessionId": "codex-b29bc-ri006-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "a297f8719fa0e6568cbf05953b2902095a1e6701e9dff8c6b412964b764b83ae"
+    },
+    {
+      "id": "B-29bc:RP-032",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Independent documentation-code consistency review for story B-29bc under review run RR-040. Step 1: extracted exported symbols and types from git diff main...HEAD across packages/main/src, including ReviewInventoryPurposeBinding, validateCriticReviewPurpose, requireInventoryCriticSubjectLocked, inventoryPurposeMatchesEpoch, and withReviewInventoryMutationLock, along with CLI fields reviewPurpose and inventoryEpochId. Step 2/3: inspected referenced sections in docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md, docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, docs/audits/inventory-critic-purpose-isolation.md, and agent templates. Closed self-check: verified all new CLI arguments, command examples, and runtime behavior descriptions match handler registrations and schemas exactly with no promised-but-undelivered features or dangling deleted symbols. No blocking documentation issues found.",
+      "createdAt": "2026-09-07T15:56:15.539Z",
+      "reviewRound": "2026-09-07T15:50:32.710Z",
+      "reviewRunId": "B-29bc:RR-040",
+      "envelopeId": "1b72d2a1cc5391be88e7ae746a49be0ba32f3c828fde1200776713058eab634a",
+      "writerSessionId": "agy-b29bc-ri006-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "5683e03d8ba04d28b5299a05fb68145fd1266ed4f6776bcd84a17af33a6bd1b8"
+    },
+    {
+      "id": "B-29bc:RP-033",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent inventory-completeness-only review for RI-006 wave 1 on material acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b and Story files 5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb. Fresh canonical dispatch and selected run body read; epoch and purpose binding signatures independently verified. Inspected full selected terminal records concept RR-032/RP-030, quality RR-033/RP-031, test-coverage RR-034/RP-029 and docs RR-040/RP-032; every run/pass signature is valid, same round/material/Story bindings hold, all terminals precede RR-041, and all carry signed manifest plus mechanical readLog with no read diagnostics. Docs writer is agy-b29bc-ri006-docs, not the owner; the quality record is this independent reviewers preceding quality assignment, not an additional host. Read required-lane notes and bounded run bindings rather than claiming whole historical run/pass files or provider transcripts were read. The pure canonical wave evaluation independently reports four complete required lanes, no missing lanes, duplicate identities, baseline mismatches, invalid dispositions, raw Findings or unresolved Findings. Fully reread exact findings.json: original F-001 through F-004 remain verified, signature-valid and resolved with original observations/severity intact. Their closure cites real test RED d2461f5794, runtime repair 0ffe4cc619 and audit correction b2e7b6f495; commits resolve and current producer/read coverage guards plus eligible critic aggregation remain present. Full inventory decision reread supplies the mechanical read event. Prior integrated Story inputs and repair analysis are reused only on the identical material/Story bindings from RR-033, not claimed fresh whole source reads here. No new defect found in this bounded inventory review. Empty dispositions reflect an actually empty current aggregate, not deletion or dismissal of historical Findings. This result does not certify topology, actual host quorum, full validation, TEST, DONE, main integration or permission to fabricate identity. No source/build/test/lifecycle/owner mutation was performed.",
+      "createdAt": "2026-09-07T16:03:03.470Z",
+      "reviewRound": "2026-09-07T15:50:32.710Z",
+      "reviewRunId": "B-29bc:RR-041",
+      "envelopeId": "37a47eba1d0af845b364724cf9cf310a2ab6e8b11bd3d13b1b5d81af827aee58",
+      "writerSessionId": "codex-b29bc-ri006-inventory",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b25483be92beca81703413ddf51e26f8d5fe7b73209cbbf9877b23189d3fd963"
+    },
+    {
+      "id": "B-29bc:RP-034",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Independent documentation-code consistency review for story B-29bc under review run RR-045. Step 1: extracted exported symbols and types from git diff main...HEAD across packages/main/src, including ReviewInventoryPurposeBinding, validateCriticReviewPurpose, requireInventoryCriticSubjectLocked, inventoryPurposeMatchesEpoch, and withReviewInventoryMutationLock, along with CLI fields reviewPurpose and inventoryEpochId. Step 2/3: inspected referenced sections in docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md, docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, docs/audits/inventory-critic-purpose-isolation.md, and agent templates. Closed self-check: verified all new CLI arguments, command examples, and runtime behavior descriptions match handler registrations and schemas exactly with no promised-but-undelivered features or dangling deleted symbols. No blocking documentation issues found.",
+      "createdAt": "2026-09-07T17:14:04.695Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-045",
+      "envelopeId": "bc7ab74e944649f4d5aca9fdd264ffaa34394c1fe206902dd512685863988c6b",
+      "writerSessionId": "agy-b29bc-ri007-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "2185b11599b6fd5519c7c84968c21c315cfc9f07563c3e15ffd9207b49de5f15"
+    },
+    {
+      "id": "B-29bc:RP-035",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent full-set concept review of CHK-001 and CHK-002 at frozen material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b. Inspected the committed material diff, complete background/plan/decision/understanding and audit, checklist claims/intents/current receipt projections, and the full inventory decision; consulted bounded topology independence and rollout sections after title triage. No concept is deleted en masse: explicit inventory purpose is additive, registered aliases and historical marker projections remain deliberate compatibility. Cross-checked new public fields, dispatch carrier, locked OPEN subject, signature suffix, run/evidence/receipt consumers, current critic Finding aggregation, and shared OPEN PASS readManifest/readLog producer against actual code. F-001 through F-004 remain preserved as resolved observations; their guard and documentary contradictions are repaired in the inspected source. The heartbeat diff confines readiness/release/close safety to its witness and preserves original foreign-byte/phase assertions. The prompt approval diff changes the selected critic approval and matrix, with unchanged historical template/topology consumer/machine/config verified by empty branch diff. Checked cited RED/GREEN commits and current checklist exit-zero matched selectors. Audit limitations correctly distinguish fixture results from independent-host quorum and TEST/DONE. No new promised-but-undelivered or concept-residue blocker found; no new Findings registered. This pass is lane evidence only, not actual-host quorum or lifecycle completion.",
+      "createdAt": "2026-09-07T17:15:01.770Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-042",
+      "envelopeId": "947e11edb1a20f53c62e46e685c7f3f5aa763100bc08944498c70ecd3f779c2d",
+      "writerSessionId": "codex-b29-ri007-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/decision.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/understanding.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "2068a4a661a72477be8d23eb0a93fb2e441673763b7c814aac282be2f640ed60"
+    },
+    {
+      "id": "B-29bc:RP-036",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Inventory-completeness-only review of RI-007 wave 1 at material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b. Actual signature and prompt-envelope verification succeeded for RR-042 through RR-046; required terminals RR-042/RP-035, RR-043/F-005, RR-044/F-006 and RR-045/RP-034 have signed manifests and mechanical logs, matching material/story/scope bindings and no read diagnostics. RR-046 started after all four terminals. Pure production evaluation reports no missing lanes, duplicate identities or baseline mismatch and the exact raw set F-005,F-006. Read both complete current Finding observations and the earlier resolved F-001 through F-004; all signatures verify and original observations remain preserved. F-005 and F-006 name the same two test lines, same prior-_hash signing mistake and identical true/false/true runtime controls; F-006 is an acyclic inventory duplicate of live open verified F-005, whose current-Story repair remains owned by the Story owner. Tested exact dispositions through the production evaluator: both IDs covered, no invalid or unresolved disposition, one new verified family finding:B-29bc:F-005. Reviewed the unchanged committed source diff and acceptance evidence already inspected in this session; no additional inventory omission discovered. This terminal certifies only this inventory inspection. F-005/F-006 remain unrepaired current acceptance defects; this is not a product correctness, topology, independent-host assurance, TEST or DONE pass.",
+      "createdAt": "2026-09-07T17:19:52.613Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-046",
+      "envelopeId": "abb281a6373bfd7e0bf06fe2e043b9ec75f3290ca8bb8bf586de29cbb0b0f1ed",
+      "writerSessionId": "codex-b29-ri007-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "e62bb1bb5f9d00142a50688eab470a0c563ab86b7cae221a1b54c78077f4d924"
+    },
+    {
+      "id": "B-29bc:RP-037",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Corrected inventory-completeness terminal for RI-007 wave 1. Earlier RR-046/RP-036 is preserved: my first pure disposition probe omitted familyKey on duplicate F-006 and failed, but a combined shell block still recorded RP-036 with a premature successful-probe sentence. This run does not rely on that sentence. After reading the duplicate predicate, I supplied familyKey=finding:B-29bc:F-005 on both dispositions and canonicalFindingId=B-29bc:F-005 on F-006. A separate completed exit-zero production evaluator probe now proves exact raw IDs F-005,F-006, no invalid or unresolved dispositions, no missing lanes/duplicate identities/baseline mismatch, and one new verified family finding:B-29bc:F-005. Fresh current checks then verified RR-047 signature, envelope and exact RI-007 subject, all four required run signatures and envelopes, and every terminal signature/readManifest/readLog; RR-047 starts after each terminal. Required terminals are RR-042/RP-035, RR-043/F-005, RR-044/F-006, RR-045/RP-034. All share frozen material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and scope; previous complete bounded source/Story/decision reads remain available with no changed material. Complete current Finding observations show the same exact test lines, signing cause and controlled true/false/true reproduction; F-006 points acyclically to live verified open F-005 and needs the same Story-owner repair. F-001 through F-004 remain signed preserved resolved history. No additional inventory omission found. This is inventory inspection only: F-005/F-006 remain unrepaired acceptance defects, and no topology, independent-host assurance, TEST or DONE certification is supplied.",
+      "createdAt": "2026-09-07T17:22:17.522Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-047",
+      "envelopeId": "aa4b73cf2fd3b46bfdf4fcd823970b156bcd6331b335b8b30d63bbe829fbcaa2",
+      "writerSessionId": "codex-b29-ri007-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "ed764550e25f776263882ce2639a21a4685eb85868e564a0036bee30991543f7"
+    },
+    {
+      "id": "B-29bc:RP-038",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Independent documentation-code consistency review for story B-29bc under review run RR-051 (RI-007 wave 2). Step 1: extracted exported symbols and types from git diff main...HEAD across packages/main/src, including ReviewInventoryPurposeBinding, validateCriticReviewPurpose, requireInventoryCriticSubjectLocked, inventoryPurposeMatchesEpoch, and withReviewInventoryMutationLock, along with CLI fields reviewPurpose and inventoryEpochId. Step 2/3: compared referenced paragraphs in docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md, docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md, docs/audits/inventory-critic-purpose-isolation.md, and agent templates. Closed self-check: verified all new CLI arguments, command examples, and runtime behavior descriptions match handler registrations and schemas exactly with no promised-but-undelivered features or dangling deleted symbols. No new defect family found; known F-005/F-006 epoch negative test signing / audit semantic coverage items remain registered under canonical F-005. Documentation consistency check passed with no blocking issues.",
+      "createdAt": "2026-09-07T17:26:42.484Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-051",
+      "envelopeId": "0e7b39958d0d61b628d434a0cb5073a4af0c0dd02ca0a1a83ef84d4c8516ea61",
+      "writerSessionId": "agy-b29bc-ri007w2-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "851bb29f66ba35d4a5e004189eea37ff140a6949ad0dc4cd563aa152486273b2"
+    },
+    {
+      "id": "B-29bc:RP-039",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-007 wave-2 inventory-completeness inspection only. Fresh production checks verified the signed OPEN wave, RR-052 purpose/subject and envelope, and all four required run/terminal signatures, envelopes, readManifest/readLog and empty read diagnostics: RR-048/F-007, RR-049/F-008, RR-050/F-009, RR-051/RP-038. All retain frozen material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and scope; critic started after every required terminal. Full current terminal observations confirm the same receipt-mutant old-_hash cause at test lines516/529, including its documentary manifestation; no new cause or omitted current finding was discovered. Production evaluation returns exact current raw F-007,F-008,F-009. The prior wave preserves original F-005/F-006 and family finding:B-29bc:F-005, so they must not be inserted as extra current-wave raw dispositions. I separately tested the exact runtime-supported set before this terminal: F-007 verified_family with the existing finding:B-29bc:F-005 key, F-008/F-009 direct duplicates of current carrier F-007 with that same key. Result: no invalid or unresolved dispositions, no missing lanes, no duplicate identities, no baseline mismatch and zero new families. F-007 is only the current carrier for original F-005, not a new root; its critical severity and all original findings/statuses remain unchanged. Earlier bounded source/decision/context reads are reused only on the unchanged material binding. F-005 through F-009 remain open current-Story acceptance repairs; this inspection does not certify correct tests, resolve findings, authorize topology, independent-host assurance, TEST or DONE. RP-036 diagnostic mistake and correction RP-037 remain historical and are not the terminal of this receipt.",
+      "createdAt": "2026-09-07T17:30:33.300Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-052",
+      "envelopeId": "7033d0003ffa5e9993d0e5cf3e21b2fe349f3990f0cbe3b7f320302b6de31f9f",
+      "writerSessionId": "codex-b29-ri007-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "a88b22a94de3b799f5340ee5ee9fa52dc1e8b7156f4cded3892a6dc3ee7e32ba"
+    },
+    {
+      "id": "B-29bc:RP-040",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Final story-level concept review covers CHK-001 and CHK-002 at material dcea02d0bc26f8e845cd0150d25f26a34c738244da5009ba9783b5a417dd6f69 and Story files 2b2588053b17cd03955352e58e2db3cbbef6495d64e1d63a32f2576364351720. Read the new canonical full task context, current background/plan, complete audit and inventory decision, current checklist evidence projection and all nine official Finding resolutions. Reviewed the entire committed repair against the retained integrated source review: git diff 751592a...HEAD contains only the epoch smoke and audit among material files; the current main...HEAD material inventory confirms the additive purpose-isolation scope. Both faulty receipt sign calls now exclude old _hash, assert signature validity before the specific semantic rejection, and retain the unmodified positive receipt. The audit explicitly retracts old semantic-coverage claims and accurately records RED e13ea60b84, GREEN 6f45dfd032 and audit d66977d67f; these commits resolve in Git. Current checklist_get exposes all eight mechanical PASS receipts with exitCode 0 and matched selectors bound to this candidate. F-005 through F-009, including this lane's F-007, are repaired rather than waived; F-001 through F-004 remain preserved with their earlier scoped runtime/audit repairs. Grep confirms the old faulty sign expressions and unqualified audit claim are absent from the repaired files. No en-masse concept deletion, residual removed concept, or remaining promised-but-undelivered behavior was found. Purpose-bound inventory credentials still supply no topology provenance; the historical critic template, protected topology consumer, machine/config and B-7abb/B-03b7 metadata have empty branch diffs. No new Findings registered. No build/full-suite rerun, new inventory, source/owner mutation, actual-host quorum or DONE assertion is part of this lane result.",
+      "createdAt": "2026-09-07T17:49:27.784Z",
+      "reviewRound": "2026-09-07T17:46:50.623Z",
+      "reviewRunId": "B-29bc:RR-053",
+      "envelopeId": "b54ffde2b57fe30eda76396b1d8a117c3c77736991694ea15f14cb0cba3b6ba0",
+      "writerSessionId": "codex-b29-ri007-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "e07d89b81d1765eacc15bef847392ccadf0ab28f4935b32c32efb37d9fc8b1ec"
+    },
+    {
+      "id": "B-29bc:RP-041",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Current integrated coverage review passed: 8 required verification intents, 0 must coverage gaps, 0 waivers, and no new finding. Fresh checklist_get confirms all 8 mechanical PASS rows from refresh commit 8cafbfb bind current material dcea02d0bc26f8e845cd0150d25f26a34c738244da5009ba9783b5a417dd6f69 and Story files 2b2588053b17cd03955352e58e2db3cbbef6495d64e1d63a32f2576364351720, with exitCode=0 and selectorMatched=true. Inspected execution timestamps/selectors and current command coverage: public purpose/epoch matrix at 17:35:23.729Z, complete affected compatibility campaign at 17:40:37.865Z, and audit/boundary check at 17:40:39.970Z. Prior independent source inspection established public malformed/default/alias/topology separation, inventory-lock publication/cancel interleaving, signed readManifest plus readLog producer/consumer protection, exact Finding aggregation, and earlier-run Finding retention. Current source/docs/background/plan diff from inspected correction d66977d67f is empty. RED e13ea60b84 adds signature-validity and branch-specific assertions; GREEN 6f45dfd032 removes only prior _hash from both receipt signing inputs. Fresh source inspection confirms each repaired receipt mutant first passes verifyReviewInventoryCriticReceipt, then asserts the intended purpose/subject or missing-dispositions rejection, with original positive and negative controls retained. This repairs F-005/F-006/F-008 coverage rather than hiding signature-first rejection. Fresh finding_list shows F-001 through F-009 resolved as fixed; audit d66977d67f explicitly retracts the historical semantic-coverage overclaim and bounds RED/GREEN evidence. The full affected ProofStory campaign retains signed topology, Wave 4 production consumer, mutation, mode and rollback coverage previously inspected; disposable fixture identities are not actual independent-host assurance. Fresh full inventory-decision read is supplied as a real mechanical read event; unchanged previously read Story/audit context is reused after the bounded diff check. No redundant tests/builds, new inventory, source or owner mutations performed. This PASS is the test-coverage lane only; current full validation, independent-host policy and DONE remain separate prerequisites.",
+      "createdAt": "2026-09-07T17:49:49.489Z",
+      "reviewRound": "2026-09-07T17:46:50.623Z",
+      "reviewRunId": "B-29bc:RR-054",
+      "envelopeId": "a0b13a5186d0953e92dd2570965333bc020e76687282ef141b5e8d7798569d4a",
+      "writerSessionId": "codex-b29-ri007-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "6d6b24de41e3fd53e284d9102d3e219c424450e349a14df936efb35826ec4ef4"
+    },
+    {
+      "id": "B-29bc:RP-042",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Documentation-code consistency review for story B-29bc. Extracted symbols from git diff main...HEAD across packages/main/src and scripts (including ReviewInventoryPurposeBinding, reviewPurpose, inventoryEpochId, validateCriticReviewPurpose, purposeSelectedCriticBody, requireInventoryCriticSubjectLocked, inventoryPurposeMatchesEpoch, reviewInventoryPurposeBinding). Compared 6 referenced documentation files and sections (review-inventory-epoch-and-saturation-gate.md, inventory-critic-purpose-isolation.md, proof-or-stop-prompt-overlap-matrix.md, proof-or-stop-review-story-init.md mirrors, AGENTS.md, Proof-or-Stop.md). Verified that all CLI arguments, schemas, runtime behaviors, Wave 4 diagnostic boundaries, and historical F-001..F-009 resolution descriptions are completely and accurately documented with zero drift and zero undelivered promises. No blockers.",
+      "createdAt": "2026-09-07T17:50:08.965Z",
+      "reviewRound": "2026-09-07T17:46:50.623Z",
+      "reviewRunId": "B-29bc:RR-056",
+      "envelopeId": "b585bc098240fc4a7f97f02d2c27424fb0833507f373e451b2bae40b0196c2af",
+      "writerSessionId": "agy-b29bc-final-post-f005-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "AGENTS.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "d5ab7320c83d5a1aa3fabb90b6d70cecea53047a1cb0e5708677dcc95cbcd1b7"
+    },
+    {
+      "id": "B-29bc:RP-043",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Final independent quality review on material dcea02d0bc26f8e845cd0150d25f26a34c738244da5009ba9783b5a417dd6f69 and Story files 2b2588053b17cd03955352e58e2db3cbbef6495d64e1d63a32f2576364351720. Retained the previously inspected bounded committed implementation and independently checked the complete post-inventory delta from 3e347b11df: only epoch regression assertions/signing inputs and audit text changed. Reviewed actual RED e13ea60b84 and GREEN 6f45dfd032 diffs and current test context: both mutant receipt signing inputs now omit old _hash; each mutation must first verify its signature, then reject with the intended purpose/subject or missing-dispositions reason, and the original signed receipt remains a positive control. Read the complete current audit correction and controlling inventory decision. Inspected all nine preserved fixed resolution records and all eight current mechanical evidence rows: material/story-files match this run, exitCode=0 and selectorMatched=true; CHK-001 output includes both earlier recovery controls and B29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS. Run signature and canonical prompt envelope independently verify. No new quality blocker or promised-but-undelivered behavior found in this bounded candidate. This is current quality evidence, not a claim that a historical PASS was repaired or that fixture hosts establish real independent-host assurance, TEST or DONE. No source/lifecycle changes or redundant suite execution performed.",
+      "createdAt": "2026-09-07T17:52:41.630Z",
+      "reviewRound": "2026-09-07T17:46:50.623Z",
+      "reviewRunId": "B-29bc:RR-055",
+      "envelopeId": "ae197fc02742f26bed199044a1a5f1ce17387b22584d9f0be947b38cc3fa77a7",
+      "writerSessionId": "codex-b29-final-quality",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "25dc0806428bec4c3be4e5228cabbf5883b6cc7d91bac7a5f58d380f8a3733c5"
+    }
+  ]
+}

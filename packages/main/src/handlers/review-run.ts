@@ -24,12 +24,13 @@ import {
   classifyGitStatusRows,
   isBlockingDirty,
 } from '../core/dirty-worktree-gate.js';
-import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
+import { resolveAgentMutationAuthority, validateCriticReviewPurpose } from '../core/agent-dispatch-registry.js';
 import {
   promptRoleContract,
   resolvePromptRoleBody,
 } from '../core/prompt-role-contract-registry.js';
 import { readPromptRegistry } from '../core/prompt-registry.js';
+import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import { BASELINE_RUNTIME_CONTRACT } from '../core/prompt-measurement.js';
 import {
   assembleConditionalReviewPromptEnvelope,
@@ -38,7 +39,7 @@ import {
 } from '../core/prompt-envelope.js';
 import { reviewIncrementalContext } from '../core/review-incremental-context.js';
 import { assertReviewInventoryCutoff, withReviewInventoryMutationLock } from '../core/review-inventory-epoch.js';
-import { assertReviewInventoryContextFreshLocked } from './review-inventory.js';
+import { assertReviewInventoryContextFreshLocked, requireInventoryCriticSubjectLocked } from './review-inventory.js';
 
 function withReviewMetadataTransactionLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
   const lockDir = ctx.store.runtimeLockDirPath(storyId, 'review-run', 'review-runs');
@@ -105,7 +106,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       // Return only signed, compact metadata: this reader neither mints evidence
       // nor exposes prompt bytes that can be mistaken for a newly issued prompt.
       const matchingRuns = store.readReviewRuns(args.storyId).runs
-        .filter(run => (!lane || run.lane === lane))
+        .filter(run => (!lane || agentRoleIdsEqual(run.lane, lane)))
         .sort((left, right) => right.startedAt.localeCompare(left.startedAt) || right.reviewRunId.localeCompare(left.reviewRunId));
       const runs = (args.latest ? matchingRuns.slice(0, 1) : matchingRuns)
         .map(run => ({
@@ -141,6 +142,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       lane?: string;
       reviewedIntentRefs?: string[];
       reviewerEscalationReason?: string;
+      reviewPurpose?: 'topology' | 'inventory-completeness';
+      inventoryEpochId?: string;
     }): string {
       const authority = resolveAgentMutationAuthority({
         command: 'review_run_start',
@@ -181,6 +184,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       // status.ok === false → fail-open: after this preflight declines to block, proceed to the snapshot.
 
       const lane = resolveReviewRunLane(authority.actor, args.lane);
+      validateCriticReviewPurpose(lane, args.reviewPurpose, args.inventoryEpochId);
       const reviewerEscalationReason = args.reviewerEscalationReason?.trim();
       if (args.reviewerEscalationReason !== undefined && !reviewerEscalationReason) {
         throw new Error('review_run_start: reviewerEscalationReason must be nonblank when provided');
@@ -206,6 +210,14 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
       }, workspace.metadataRoot || ctx.root);
       assertReviewInventoryContextFreshLocked(ctx, args.storyId);
       assertReviewInventoryCutoff(store, args.storyId, { materialHash, storyFilesHash });
+      const inventoryBinding = args.reviewPurpose === 'inventory-completeness'
+        ? requireInventoryCriticSubjectLocked(ctx, args.storyId, args.inventoryEpochId!) : undefined;
+      if (inventoryBinding) {
+        const dispatch = verifyCurrentReviewerDispatchBinding({ store, storyId: args.storyId, lane,
+          reviewRound: preflightStory.currentReviewRound!, projectRoot: workspace.metadataRoot || ctx.root,
+          reviewPurpose: args.reviewPurpose, inventoryBinding });
+        if (!dispatch.ok) throw new Error(`review_run_start: ${dispatch.reason}`);
+      }
       // Test-only barrier proves cancel/wave checkpoints cannot linearize
       // between the inventory precheck and durable RR publication.
       holdInventoryLockForDeterministicRunPublicationStress();
@@ -269,6 +281,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             lane,
             reviewRound: story.currentReviewRound!,
             projectRoot: workspace.metadataRoot || ctx.root,
+            reviewPurpose: args.reviewPurpose,
+            inventoryBinding,
           });
           if (!dispatchBinding.ok) {
             throw new Error(`review_run_start: ${dispatchBinding.reason}; rerun proof-or-stop dispatch for ${lane}`);
@@ -312,6 +326,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
               reviewedIntentRefs: args.reviewedIntentRefs ?? [],
               dispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest,
               hostRenderHost: dispatchBinding.binding.hostRenderHost,
+              ...(inventoryBinding ? { reviewPurpose: args.reviewPurpose, inventoryBinding } : {}),
             },
             incrementalEligible: incremental.contextMode === 'incremental',
             eligibilityDigest: incremental.eligibilityDigest,
@@ -360,6 +375,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
           materialHash,
           ...(storyFilesHash ? { storyFilesHash } : {}),
           promptHash,
+          ...(args.reviewPurpose ? { reviewPurpose: args.reviewPurpose } : {}),
+          ...(inventoryBinding ? { inventoryBinding } : {}),
           ...(envelopeId ? { envelopeId } : {}),
           ...(assembledPrompt ? { assembledPrompt } : {}),
           ...(reviewerEscalationReason
@@ -382,6 +399,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             storyFilesHash,
             envelopeId,
             reviewerEscalationReason,
+            args.reviewPurpose,
+            inventoryBinding,
           ),
         };
         data.runs.push(run);
@@ -408,7 +427,8 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
         const escalationNote = reviewerEscalationReason
           ? `, reviewer escalation: ${reviewerEscalationReason}`
           : '';
-        const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote}${escalationNote})`;
+        const purposeNote = inventoryBinding ? `\nReview purpose: inventory-completeness\nTrusted inventory subject: ${JSON.stringify(inventoryBinding)}\nInventory-only duties apply; this run supplies no topology certification.` : '';
+        const summary = `Review run ${reviewRunId} started for ${lane} (round ${story.currentReviewRound}, head ${headHash.slice(0, 7)}${storyHashNote}${scopeNote}${envelopeNote}${escalationNote})${purposeNote}`;
         return assembledPrompt
           ? `${summary}\n\n--- BEGIN EXACT ASSEMBLED REVIEW PROMPT ---\n${assembledPrompt}\n--- END EXACT ASSEMBLED REVIEW PROMPT ---`
           : `${summary}\n\nThe host first loads a content-addressed thin bootstrap; the bytes below are the single selected role body, not the total model input.\n\n--- BEGIN EXACT SELECTED LEGACY ROLE BODY ---\n${canonicalRolePrompt}\n--- END EXACT SELECTED LEGACY ROLE BODY ---`;

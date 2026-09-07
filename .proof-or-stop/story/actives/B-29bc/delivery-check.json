@@ -1,0 +1,112 @@
+{
+  "storyId": "B-29bc",
+  "checkedAt": "2026-09-07T18:54:29.756Z",
+  "headHash": "11a33a65642069f9e4c4c676c65cca89edc57ba8",
+  "materialHash": "dcea02d0bc26f8e845cd0150d25f26a34c738244da5009ba9783b5a417dd6f69",
+  "storyFilesHash": "2b2588053b17cd03955352e58e2db3cbbef6495d64e1d63a32f2576364351720",
+  "reviewRound": "2026-09-07T17:46:50.623Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#during-review",
+      "promise": "Explicit inventory-completeness dispatch and review_run_start accept the current epoch without role-named Git authors; omitted purpose preserves topology admission.",
+      "status": "verified",
+      "verifiedBy": "Independent committed diff/source inspection and public CLI purpose campaign",
+      "evidence": "command-catalog.ts enumerates purpose and epoch inputs; validateCriticReviewPurpose restricts role and combinations; story-dispatch.ts routes inventory before the unchanged topology branch. review-inventory-handler-smoke.ts asserts Harmonynet and Ordinary Contributor success plus default topology positive/refusal controls."
+    },
+    {
+      "docPath": "docs/audits/inventory-critic-purpose-isolation.md#failure-and-bounded-repair",
+      "promise": "Inventory dispatch, signed run and completeness receipt bind the signed OPEN Story/round/epoch/wave/cutoff/scope/required-lanes/run-sequence subject under the inventory lock.",
+      "status": "verified",
+      "verifiedBy": "Source tracing and executable assertions",
+      "evidence": "requireInventoryCriticSubjectLocked, reviewInventoryPurposeBinding, verifyCurrentReviewerDispatchBinding, signReviewRun, inventoryPurposeMatchesEpoch and validateReviewInventoryCriticReceipt form the producer/consumer chain. Public campaign asserts cancellation publication serialization, scope/material drift, finalized and rebegun refusal; epoch smoke independently passed signed semantic substitution guards."
+    },
+    {
+      "docPath": "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md#saturation",
+      "promise": "Required lanes and the separate inventory critic retain signed terminal/read evidence; every aggregate Finding needs an exact disposition.",
+      "status": "verified",
+      "verifiedBy": "Source inspection and independently executed epoch/public handler assertions",
+      "evidence": "recordReviewPass rejects OPEN-inventory passes lacking either read field, including pass-only finding normalization; evidenceForRun rejects incomplete signed passes; purpose-bound critic discoveries enter rawFindings without lane promotion. Epoch smoke passed missing-read, later-pass retention and exact disposition controls; public handler tests check refused publication leaves records unchanged."
+    },
+    {
+      "docPath": "docs/audits/inventory-critic-purpose-isolation.md#preserved-boundaries-and-local-recovery",
+      "promise": "Inventory credentials cannot replace topology business-author provenance, TEST/DONE gates or independent-host assurance; lifecycle, topology consumer, config and historical critic template remain unchanged.",
+      "status": "verified",
+      "verifiedBy": "Independent protected-file Git diff assertion and source/test inspection",
+      "evidence": "git diff main...HEAD is empty for topology-critic-receipt.ts, machine.ts, proof-or-stop.config.json and the critic template. Public purpose test sends actual inventory carrier, removed/mutated purpose and alias variants to unchanged deriveRoleProvenance and asserts refusal against a default-dispatch positive control. Inventory authority remains completeness-only; synthetic host counters are explicitly limited in audit."
+    },
+    {
+      "docPath": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md#role-matrix",
+      "promise": "The critic has purpose-selected duties: topology remains default; explicit inventory assignment uses trusted subject, signed reads and exact per-Finding receipt with no automatic fallback or authority promotion.",
+      "status": "verified",
+      "verifiedBy": "Registry and canonical body diff inspection; independent prompt-policy probe",
+      "evidence": "purposeSelectedCriticBody appends trusted-purpose rules in resolvePromptRoleBody, host render and contract digest paths. ROLE_POLICIES and ROLE_MATRIX_DEFAULTS name both purposes. --probe-prompt-policy-manifest exited 0 with body/hash/content mutation and baseline self-authorization rejections."
+    },
+    {
+      "docPath": "docs/audits/inventory-critic-purpose-isolation.md#red-and-green-provenance",
+      "promise": "The English audit preserves traceable RED/GREEN commits, bounded purpose recovery and explicit historical/synthetic limitations without claiming downstream Story completion.",
+      "status": "verified",
+      "verifiedBy": "Independent commit existence, text and scope assertions",
+      "evidence": "Verified all cited principal RED/GREEN commits resolve with git cat-file, English text contains no CJK, and protected files have no branch diff. Audit separates preliminary incomplete setup, historical executions, current witness corrections and remaining B-7abb/B-03b7/B-e6d9 work. Historical prose is not used as fresh validation or host assurance."
+    },
+    {
+      "docPath": "docs/audits/inventory-critic-purpose-isolation.md#compatibility-failures-kept-visible",
+      "promise": "Compatibility corrections preserve original semantic pins and current aliases rather than weakening production topology admission.",
+      "status": "verified",
+      "verifiedBy": "Committed compatibility test and mirror diffs",
+      "evidence": "prompt-registry-smoke historicalMarkerProjection changes only exact marker lines, retaining old digest constants and negative malformed/duplicate marker assertions. review_run_list uses canonical role equality with public alias equality/count/unknown-role controls. INIT mirrors change one canonical product-reviewer alias each, and pre-review fixture uses canonical role equality."
+    },
+    {
+      "docPath": ".claude/agents/proof-or-stop-review-story-init.md#init-check-set",
+      "promise": "INIT story reviewer identity remains distinct from the canonical proof-or-stop-product-reviewer identity.",
+      "status": "verified",
+      "verifiedBy": "Both generated mirror diffs and registered role schema inspection",
+      "evidence": "Both .claude and .proof-or-stop-codex mirrors substitute only the canonical product-reviewer spelling; agent-dispatch-registry retains separate registered mutation authority for the roles."
+    },
+    {
+      "docPath": "docs/audits/inventory-critic-purpose-isolation.md#mandatory-heartbeat-witness-recovery-2026-09-07",
+      "promise": "The test witness waits for bounded live readiness, retains early-exit output, places foreign append before completion and waits for actual close before fixture deletion.",
+      "status": "verified",
+      "verifiedBy": "Source diff and independently executed readiness controls",
+      "evidence": "waitForValidationStart is terminal-aware; foreign-append test uses a release handshake; CliRun separates result from closed; drainBeforeFixtureRemoval retains fixtures on unconfirmed close/null status. --readiness-only exited 0 with delayed readiness plus terminal/close controls. Existing foreign-byte, dirty-audit, no-transition and REVIEW-phase assertions remain in source."
+    },
+    {
+      "docPath": "docs/audits/inventory-critic-purpose-isolation.md#done-required-prompt-approval-recovery-2026-09-07",
+      "promise": "Only the changed critic selected-body approval and role row are updated; regenerated snapshots retain 18 roles and prohibit self-authorized body changes.",
+      "status": "verified",
+      "verifiedBy": "Manifest diff, parsed snapshot comparison and independent prompt-policy probe",
+      "evidence": "Only critic approval hash changes to 22da73c85400f6cf0a073593b998d665e71dd4d74da9432a1717a1260b82cb88. Parsed measurement comparison found only the critic record changed and roleCount=18. Manifest probe independently exited 0, including baseline-refresh self-authorization rejection."
+    },
+    {
+      "docPath": "docs/audits/inventory-critic-purpose-isolation.md#semantic-mutation-witness-correction-2026-09-07",
+      "promise": "Receipt mutation witnesses first prove valid signatures, then fail specifically at purpose/subject or missing-disposition guards while unmodified receipt remains accepted.",
+      "status": "verified",
+      "verifiedBy": "Committed source and independent epoch smoke execution",
+      "evidence": "Both mutation sites destructure out old _hash before signReviewInventoryCriticReceipt; assertions require verifyReviewInventoryCriticReceipt=true and exact rejection reason. Independently executed epoch smoke exited 0 with B29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS and the unchanged receipt positive control."
+    },
+    {
+      "docPath": "docs/audits/inventory-critic-purpose-isolation.md#preserved-boundaries-and-local-recovery",
+      "promise": "Process-fact registration and regression verification cover changed signed producers, consumers and the retained reading/discovery requirements.",
+      "status": "verified",
+      "verifiedBy": "Registry/verifier diff and independent verifier execution",
+      "evidence": "process-fact-registry.ts registers purpose-bound receipt/run signature semantics and pass normalization; verify-process-fact-contract.mjs checks dispatch/run locking, distinct carrier, purpose subject consumer, both PASS read fields and critic discovery aggregation. Independent command exited 0: Process-fact contract verification passed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Personally inspected production-CLI assertions in review-inventory-handler-smoke.ts and review-inventory-epoch-smoke.ts. Independent epoch execution exited 0: signed incomplete PASS rejection, current critic finding retention and correctly signed purpose/subject/disposition mutation rejection, with positive receipt controls. Independent public --purpose-only campaign tests ordinary Git attribution, default topology controls, schema/alias/refusal cases, signed dispatch/run bindings, both prompt modes, terminal evidence, exact own-finding dispositions and locked freshness. Disposable hosts/Git authors are fixtures, not independent-host quorum. The independently executed public campaign exited 0, ending with B29BC_CRITIC_OWN_FINDING_DISPOSITION PASS."
+    },
+    {
+      "featureId": "CHK-002",
+      "transcript": "Personally inspected compatibility, prompt, pre-review topology and heartbeat assertions and the English audit. Independent --probe-prompt-policy-manifest exited 0; process-fact verifier exited 0; heartbeat --readiness-only exited 0 with delayed-readiness and terminal/close controls. Independent Git/text checks confirmed cited commits exist, unchanged topology/machine/config/template, English audit and only critic measurement record changed with 18 roles. Full repository validation/build and historical host verdicts were not rerun or adopted as delivery proof."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The documented inventory-purpose workflow is delivered through explicit signed current-subject admission and retained topology boundaries. Independently inspected executable happy, negative and adversarial assertions and ran focused epoch, public CLI purpose, prompt-policy, process-contract and readiness checks. No unresolved delivery gap or introduced production TODO was found; synthetic fixtures and historical audit claims do not establish full-suite, independent-host, downstream Story or DONE completion."
+  },
+  "_hash": "849a95b9f2c940e49c89889e3e99e9ea548f35a4ac90571e5516086d3d35107f"
+}

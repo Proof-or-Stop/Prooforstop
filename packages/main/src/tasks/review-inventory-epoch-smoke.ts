@@ -16,6 +16,7 @@ import {
   reviewInventoryAggregateFamilies,
   reviewInventoryAcceptanceSubjectDigest,
   reviewInventoryDigest,
+  reviewInventoryPurposeBinding,
   reviewInventoryLaneCoverageDigest,
   reviewInventoryRemediationGate,
   signReviewInventoryCriticReceipt,
@@ -28,7 +29,7 @@ import {
   type ReviewInventoryEvaluation,
 } from '../core/review-inventory-epoch.js';
 import { signReviewRun } from '../core/review-run.js';
-import { signReviewPass, signFinding } from '../core/finding-verify.js';
+import { signReviewPass, signFinding, verifyReviewPass, verifyFinding } from '../core/finding-verify.js';
 import type {
   Finding,
   ReviewInventoryCriticReceipt,
@@ -77,6 +78,7 @@ function epoch(unsignedOverrides: Partial<Omit<ReviewInventoryEpoch, '_hash'>> =
     scopeDigest: reviewInventoryAcceptanceSubjectDigest(null, { items: [] }),
     requiredLanes,
     maxWaves: 3,
+    initialRunSequenceBoundary: 0,
     waves: [],
     ...unsignedOverrides,
   };
@@ -164,6 +166,11 @@ function criticEvidence(
   findingDispositions: ReviewInventoryFindingDisposition[] = [],
 ): { run: ReviewRun; pass: ReviewPass; receipt: ReviewInventoryCriticReceipt } {
   const criticRun = run('lattice-review-topology-critic', id, terminalAt);
+  criticRun.reviewPurpose = 'inventory-completeness';
+  criticRun.inventoryBinding = reviewInventoryPurposeBinding(subjectEpoch);
+  criticRun._hash = signReviewRun(criticRun.storyId, criticRun.reviewRunId, criticRun.agent, criticRun.lane,
+    criticRun.reviewRound, criticRun.startedAt, criticRun.headHash, criticRun.materialHash, criticRun.promptHash,
+    undefined, undefined, criticRun.storyFilesHash, undefined, undefined, criticRun.reviewPurpose, criticRun.inventoryBinding);
   const criticPass = pass(criticRun, id);
   const unsigned: Omit<ReviewInventoryCriticReceipt, '_hash'> = {
     schemaVersion: 'proofbound.review_inventory_critic_receipt.v1',
@@ -177,6 +184,8 @@ function criticEvidence(
     requiredLaneCoverageDigest: reviewInventoryLaneCoverageDigest(evaluation),
     criticLane: 'lattice-review-topology-critic',
     reviewRunId: criticRun.reviewRunId,
+    reviewPurpose: 'inventory-completeness',
+    inventoryBinding: criticRun.inventoryBinding,
     terminalEvidenceIds: [criticPass.id],
     readEvidenceDigest: reviewInventoryDigest([{ id: criticPass.id, readManifest: criticPass.readManifest, readLog: criticPass.readLog?.digest ?? null }]),
     findingDispositions,
@@ -215,7 +224,7 @@ const emptyEvaluation = evaluateReviewInventoryWave({ epoch: initial, runs: [], 
 const statusText = renderReviewInventoryStatus(initial, { evaluation: emptyEvaluation });
 for (const lane of requiredLanes) assert.match(statusText, new RegExp(`Lane ${lane}: pending`));
 assert.match(statusText, /Blockers: REVIEW_INVENTORY_LANES_INCOMPLETE/);
-assert.match(statusText, /Next: lattice dispatch .*lattice-review-concept/);
+assert.match(statusText, /Next: proof-or-stop dispatch .*lattice-review-concept/);
 assert.equal((statusText.match(/^Next:/gm) ?? []).length, 1, 'status exposes exactly one next command');
 
 const firstRuns = requiredLanes.map((lane, index) => run(lane, index + 1));
@@ -224,6 +233,86 @@ const clean = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns, pas
 assert.deepEqual(clean.missingLanes, []);
 assert.equal(clean.newFamilies.length, 0);
 assert.equal(buildWave(initial, clean, '2026-08-14T00:10:00.000Z').saturated, true);
+
+// B-29bc F-001/F-002: collect both regression failures on the unchanged
+// implementation so the RED proves two independent acceptance gaps.
+const recoveryFailures: string[] = [];
+for (const [label, check] of [
+  ['F-001 signed PASS requires both read fields', () => {
+    for (const field of ['readManifest', 'readLog'] as const) {
+      const incomplete = { ...firstPasses[0] };
+      delete incomplete[field];
+      incomplete._hash = signReviewPass(storyId, incomplete.id, incomplete.agent, incomplete.note,
+        incomplete.createdAt!, reviewRound, incomplete.reviewRunId, incomplete.readManifest, incomplete.readLog);
+      assert.equal(verifyReviewPass(storyId, incomplete), true, 'semantic negative control has a valid signature');
+      const result = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns,
+        passes: [incomplete, ...firstPasses.slice(1)], findings: [] });
+      assert.ok(result.missingLanes.includes(firstRuns[0].lane), `signed PASS without ${field} cannot terminate a lane`);
+    }
+  }],
+  ['F-002 current purpose-bound critic findings enter the exact aggregate', () => {
+    const critic = criticEvidence(initial, clean, 9, '2026-08-14T00:09:00.000Z');
+    const discovered = finding(critic.run);
+    assert.equal(verifyFinding(storyId, discovered), true);
+    const input = { epoch: initial, runs: [...firstRuns, critic.run], passes: [...firstPasses, critic.pass], findings: [discovered] };
+    const missing = evaluateReviewInventoryWave(input);
+    assert.deepEqual(missing.rawFindingIds, [discovered.id], 'critic discovery must not disappear because critic is not a required lane');
+    assert.deepEqual(missing.unresolvedFindingIds, [discovered.id]);
+    assert.equal(missing.lanes.length, clean.lanes.length, 'critic discovery never adds required-lane coverage');
+    assert.equal(validateReviewInventoryCriticReceipt({ ...input, evaluation: missing, receipt: critic.receipt }).ok, false,
+      'a previously empty receipt becomes invalid after critic discovery');
+    const dispositions: ReviewInventoryFindingDisposition[] = [{ findingId: discovered.id, disposition: 'verified_family',
+      familyKey: 'critic-discovered-family', reason: 'Independent critic verified the current signed observation.' }];
+    const complete = evaluateReviewInventoryWave({ ...input, findingDispositions: dispositions });
+    assert.deepEqual(complete.invalidDispositionIds, []);
+    assert.deepEqual(complete.unresolvedFindingIds, []);
+    assert.deepEqual(complete.newFamilies, ['critic-discovered-family']);
+    const retriedCritic = criticEvidence(initial, complete, 10, '2026-08-14T00:10:00.000Z');
+    assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...input.runs, retriedCritic.run],
+      passes: [...input.passes, retriedCritic.pass] }).rawFindingIds, [discovered.id],
+    'a later critic PASS cannot hide the earlier same-wave critic Finding');
+    const terminal = criticEvidence(initial, complete, 9, '2026-08-14T00:09:00.000Z', dispositions);
+    terminal.receipt.terminalEvidenceIds = [terminal.pass.id, discovered.id].sort();
+    terminal.receipt.readEvidenceDigest = reviewInventoryDigest([terminal.pass, discovered].map(row => ({
+      id: row.id, readManifest: row.readManifest, readLog: row.readLog?.digest ?? null,
+    })));
+    const { _hash: _oldSignature, ...unsigned } = terminal.receipt;
+    terminal.receipt._hash = signReviewInventoryCriticReceipt(unsigned);
+    assert.equal(validateReviewInventoryCriticReceipt({ ...input, evaluation: complete, receipt: terminal.receipt }).ok, true,
+      'exact critic disposition and signed terminal set are accepted');
+    for (const mutation of [
+      { reviewPurpose: undefined, inventoryBinding: undefined },
+      { reviewPurpose: 'topology' as const, inventoryBinding: undefined },
+      { inventoryBinding: { ...critic.run.inventoryBinding!, wave: 99 } },
+      { inventoryBinding: { ...critic.run.inventoryBinding!, epochId: 'wrong-epoch' } },
+      { lane: 'proof-or-stop-review-quality', agent: 'proof-or-stop-review-quality' },
+    ]) {
+      const changed = { ...critic.run, ...mutation };
+      changed._hash = signReviewRun(changed.storyId, changed.reviewRunId, changed.agent, changed.lane,
+        changed.reviewRound, changed.startedAt, changed.headHash, changed.materialHash, changed.promptHash,
+        undefined, undefined, changed.storyFilesHash, undefined, undefined, changed.reviewPurpose, changed.inventoryBinding);
+      assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, changed] }).rawFindingIds, [],
+        'signed wrong-purpose/subject/role critic cannot supply inventory discovery');
+    }
+    const canonical = { ...critic.run, lane: 'proof-or-stop-review-topology-critic', agent: 'proof-or-stop-review-topology-critic' };
+    canonical._hash = signReviewRun(canonical.storyId, canonical.reviewRunId, canonical.agent, canonical.lane,
+      canonical.reviewRound, canonical.startedAt, canonical.headHash, canonical.materialHash, canonical.promptHash,
+      undefined, undefined, canonical.storyFilesHash, undefined, undefined, canonical.reviewPurpose, canonical.inventoryBinding);
+    assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, canonical] }).rawFindingIds, [discovered.id],
+      'canonical and registered critic alias share the exact purpose contract');
+    const tampered = { ...critic.run, _hash: 'tampered' };
+    assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, tampered] }).rawFindingIds, []);
+    const missingRead = { ...discovered, readLog: undefined };
+    missingRead._hash = signFinding(storyId, missingRead.id, missingRead.desc, missingRead.severity,
+      missingRead.createdAt!, reviewRound, missingRead.reviewRunId, missingRead.readManifest, undefined);
+    assert.deepEqual(evaluateReviewInventoryWave({ ...input, findings: [missingRead] }).rawFindingIds, [],
+      'critic discoveries retain the same signed mechanical read evidence requirement');
+  }],
+] as const) {
+  try { check(); console.log(`B29BC_RECOVERY ${label}: PASS`); }
+  catch (error) { recoveryFailures.push(`${label}: ${error instanceof Error ? error.message : String(error)}`); }
+}
+assert.deepEqual(recoveryFailures, [], `B29BC_RECOVERY RED/GREEN\n${recoveryFailures.join('\n')}`);
 
 const equalTimestampEpoch = epoch({ initialRunSequenceBoundary: 3 });
 const equalOldRun = run(requiredLanes[0], 3, equalTimestampEpoch.begunAt);
@@ -382,9 +471,9 @@ assert.match(lanesCompleteStatus, /Lane lattice-review-quality: pass/);
 assert.match(lanesCompleteStatus, /Verified findings: 0/);
 assert.match(lanesCompleteStatus, /New verified findings: 0/);
 assert.match(lanesCompleteStatus, /REVIEW_INVENTORY_FINDING_DISPOSITION_INCOMPLETE/);
-assert.match(lanesCompleteStatus, /Next: lattice dispatch .*lattice-review-topology-critic/);
+assert.match(lanesCompleteStatus, /Next: proof-or-stop dispatch .*proof-or-stop-review-topology-critic/);
 assert.equal((lanesCompleteStatus.match(/^Next:/gm) ?? []).length, 1);
-const firstWave = buildWave(initial, discovery, '2026-08-14T00:10:00.000Z');
+const firstWave = buildWave(initial, discovery, '2026-08-14T00:10:05.000Z', 4);
 assert.equal(firstWave.saturated, false);
 
 const secondEpoch = epoch({ waves: [firstWave], updatedAt: firstWave.completedAt! });
@@ -400,7 +489,7 @@ const saturated = evaluateReviewInventoryWave({
 assert.deepEqual(saturated.missingLanes, []);
 assert.equal(saturated.newFamilies.length, 0, 'second unchanged-material full-lane wave saturates');
 
-const firstCritic = criticEvidence(initial, discovery, 40, '2026-08-14T00:10:02.000Z', historicalDispositions);
+const firstCritic = criticEvidence(initial, discovery, 4, '2026-08-14T00:10:02.000Z', historicalDispositions);
 assert.equal(verifyReviewInventoryCriticReceipt(firstCritic.receipt), true);
 assert.equal(validateReviewInventoryCriticReceipt({
   receipt: firstCritic.receipt,
@@ -414,17 +503,52 @@ const criticTerminalStatus = renderReviewInventoryStatus(initial, {
   evaluation: discovery,
   criticReviewRunId: firstCritic.run.reviewRunId,
 });
-assert.match(criticTerminalStatus, /Next: lattice review_inventory_critic_set/);
+const criticInput = { epoch: initial, evaluation: discovery, runs: [...firstRuns, firstCritic.run], passes: [...firstPasses, firstCritic.pass], findings: [historical] };
+for (const changes of [
+  { reviewPurpose: undefined }, { inventoryBinding: undefined },
+  ...['storyId', 'epochId', 'reviewRound', 'scopeDigest', 'requiredLanesDigest'].map(key => ({ inventoryBinding: { ...firstCritic.receipt.inventoryBinding!, [key]: 'substituted' } })),
+  { inventoryBinding: { ...firstCritic.receipt.inventoryBinding!, wave: 99 } },
+  { inventoryBinding: { ...firstCritic.receipt.inventoryBinding!, runSequenceBoundary: 99 } },
+  { inventoryBinding: { ...firstCritic.receipt.inventoryBinding!, cutoff: { ...cutoff, materialHash: 'substituted' } } },
+]) {
+  const changed = { ...firstCritic.receipt, ...changes };
+  // Correctly re-sign semantic mutations: rejection must not rely solely on a stale hash.
+  const { _hash: _oldSignature, ...unsignedChanged } = changed;
+  changed._hash = signReviewInventoryCriticReceipt(unsignedChanged);
+  assert.equal(verifyReviewInventoryCriticReceipt(changed), true, 'semantic mutation must retain a valid signature');
+  const rejected = validateReviewInventoryCriticReceipt({ ...criticInput, receipt: changed });
+  assert.equal(rejected.ok, false, `critic subject substitution rejected: ${JSON.stringify(changes)}`);
+  assert.equal(rejected.reason, 'critic inventory purpose/subject binding missing or mismatched');
+}
+for (const changes of [{ reviewPurpose: undefined, inventoryBinding: undefined }, { reviewPurpose: 'topology' as const, inventoryBinding: undefined }, { inventoryBinding: { ...firstCritic.run.inventoryBinding!, wave: 99 } }]) {
+  const changed = { ...firstCritic.run, ...changes };
+  changed._hash = signReviewRun(changed.storyId, changed.reviewRunId, changed.agent, changed.lane, changed.reviewRound, changed.startedAt,
+    changed.headHash, changed.materialHash, changed.promptHash, undefined, undefined, changed.storyFilesHash, undefined, undefined, changed.reviewPurpose, changed.inventoryBinding);
+  assert.equal(validateReviewInventoryCriticReceipt({ ...criticInput, runs: [...firstRuns, changed], receipt: firstCritic.receipt }).ok, false, 'a signed default/topology/wrong-wave run cannot become inventory authority');
+}
+for (const terminal of [undefined, { ...firstCritic.pass, readManifest: undefined }, { ...firstCritic.pass, _hash: 'tampered' }]) {
+  assert.equal(validateReviewInventoryCriticReceipt({ ...criticInput, passes: [...firstPasses, ...(terminal ? [terminal] : [])], receipt: firstCritic.receipt }).ok, false, 'missing or tampered signed read terminal rejected');
+}
+const incompleteDispositions = { ...firstCritic.receipt, findingDispositions: [] };
+const { _hash: _oldDispositionSignature, ...unsignedDispositions } = incompleteDispositions;
+incompleteDispositions._hash = signReviewInventoryCriticReceipt(unsignedDispositions);
+assert.equal(verifyReviewInventoryCriticReceipt(incompleteDispositions), true, 'disposition mutation must retain a valid signature');
+const rejectedDispositions = validateReviewInventoryCriticReceipt({ ...criticInput, receipt: incompleteDispositions });
+assert.equal(rejectedDispositions.ok, false, 'signed receipt cannot omit a verified historical Finding disposition');
+assert.match(rejectedDispositions.reason ?? '', /^critic finding dispositions missing: /);
+assert.equal(validateReviewInventoryCriticReceipt({ ...criticInput, receipt: firstCritic.receipt }).ok, true, 'the unmodified signed receipt remains the positive control');
+console.log('B29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS');
+assert.match(criticTerminalStatus, /Next: proof-or-stop review_inventory_critic_set/);
 assert.match(criticTerminalStatus, /"findingDispositions":\[/, 'critic Next must include the CLI-required disposition inventory');
 assert.equal((criticTerminalStatus.match(/^Next:/gm) ?? []).length, 1);
 const criticCompleteStatus = renderReviewInventoryStatus(initial, { evaluation: discovery, criticComplete: true });
 assert.match(criticCompleteStatus, /Completeness critic: complete/);
 assert.match(criticCompleteStatus, /Blockers: REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/);
-assert.match(criticCompleteStatus, /Next: lattice review_inventory_wave_advance/);
+assert.match(criticCompleteStatus, /Next: proof-or-stop review_inventory_wave_advance/);
 assert.equal((criticCompleteStatus.match(/^Next:/gm) ?? []).length, 1);
 const saturationReadyStatus = renderReviewInventoryStatus(secondEpoch, { evaluation: saturated, criticComplete: true });
 assert.match(saturationReadyStatus, /Blockers: none/);
-assert.match(saturationReadyStatus, /Next: lattice review_inventory_finalize/);
+assert.match(saturationReadyStatus, /Next: proof-or-stop review_inventory_finalize/);
 assert.equal((saturationReadyStatus.match(/^Next:/gm) ?? []).length, 1);
 assert.equal(validateReviewInventoryCriticReceipt({
   receipt: { ...firstCritic.receipt, aggregateFindingSetDigest: '0'.repeat(64) },
@@ -485,7 +609,7 @@ const finalizedData: ReviewInventoryEpochData = {
   criticReceipts: [firstCritic.receipt, secondCritic.receipt],
 };
 const finalizedStatus = renderReviewInventoryStatus(finalized, { criticComplete: true });
-assert.match(finalizedStatus, /Next: lattice story_advance --storyId=B-cdf6-replay --phase=DEV/);
+assert.match(finalizedStatus, /Next: proof-or-stop story_advance --storyId=B-cdf6-replay --phase=DEV/);
 assert.equal((finalizedStatus.match(/^Next:/gm) ?? []).length, 1);
 const mockStore = memoryStore(finalizedData);
 assert.deepEqual(reviewInventoryRemediationGate(mockStore as never, storyId, reviewRound), { required: true, ok: true });
@@ -601,7 +725,7 @@ function replay(): Record<string, number> {
   }
   assert.equal(attackStore.snapshot().epochs[0].state, 'INVALIDATED', 'stale mutation invalidates the OPEN epoch');
   const invalidatedStatus = renderReviewInventoryStatus(attackStore.snapshot().epochs[0]);
-  assert.match(invalidatedStatus, /Next: lattice review_inventory_begin/);
+  assert.match(invalidatedStatus, /Next: proof-or-stop review_inventory_begin/);
   assert.equal((invalidatedStatus.match(/^Next:/gm) ?? []).length, 1);
 
   events.push({ type: 'discovery-wave', host: hosts[0] });
@@ -621,7 +745,7 @@ function replay(): Record<string, number> {
   events.push({ type: 'remediation-transition', accepted: phase === 'DEV' });
   const consumedStatus = renderReviewInventoryStatus(transitionStore.snapshot().epochs[0], { criticComplete: true });
   assert.match(consumedStatus, /REVIEW_INVENTORY_RECEIPT_ALREADY_CONSUMED/);
-  assert.match(consumedStatus, /Next: lattice review_inventory_begin/);
+  assert.match(consumedStatus, /Next: proof-or-stop review_inventory_begin/);
   assert.throws(
     () => consumeReviewInventoryReceipt(transitionStore as never, storyId, reviewRound, cutoff),
     /REVIEW_INVENTORY_REMEDIATION_BLOCKED/,
@@ -676,16 +800,16 @@ function replay(): Record<string, number> {
     findings: [],
   });
   assert.ok(duplicate.duplicateIdentities.length > 0, 'duplicate reviewer identity is rejected');
-  assert.match(renderReviewInventoryStatus(initial, { evaluation: duplicate }), /Next: lattice review_inventory_cancel/);
+  assert.match(renderReviewInventoryStatus(initial, { evaluation: duplicate }), /Next: proof-or-stop review_inventory_cancel/);
   const cancelled = epoch({ state: 'CANCELLED', cancelledAt: issuedAt, cancelReason: 'operator cancelled bounded review' });
   const cancelledStore = memoryStore({ schemaVersion: 'proofbound.review_inventory_epochs.v1', epochs: [cancelled], receipts: [], criticReceipts: [] });
   assert.equal(reviewInventoryRemediationGate(cancelledStore as never, storyId, reviewRound).ok, false, 'cancel cannot grant DEV');
-  assert.match(renderReviewInventoryStatus(cancelled), /Next: lattice review_inventory_begin/);
+  assert.match(renderReviewInventoryStatus(cancelled), /Next: proof-or-stop review_inventory_begin/);
   const exhausted = epoch({ waves: [firstWave, firstWave, firstWave], maxWaves: 3 });
   assert.equal(exhausted.waves.length >= exhausted.maxWaves && !exhausted.waves.at(-1)?.saturated, true, 'budget exhaustion cannot manufacture a receipt');
   const exhaustedStatus = renderReviewInventoryStatus(exhausted, { evaluation: discovery });
   assert.match(exhaustedStatus, /REVIEW_INVENTORY_BUDGET_EXHAUSTED/);
-  assert.match(exhaustedStatus, /Next: lattice review_inventory_cancel/);
+  assert.match(exhaustedStatus, /Next: proof-or-stop review_inventory_cancel/);
   assert.equal((exhaustedStatus.match(/^Next:/gm) ?? []).length, 1);
   const staleRuns = firstRuns.map(row => ({ ...row, materialHash: '9'.repeat(64) }));
   assert.equal(evaluateReviewInventoryWave({ epoch: initial, runs: staleRuns, passes: firstPasses, findings: [] }).missingLanes.length, requiredLanes.length,
