@@ -5,7 +5,7 @@
       "desc": "Required inventory lane passes without mechanical readLog are admitted as complete. WHY: the retained implemented saturation contract at docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:129-140 requires both signed readManifest AND readLog for every pass/finding terminal; CHK-001 promises preservation of signed terminal read evidence. Actual current B-29bc:RP-001 (test-coverage/RR-004), RP-002 (concept/RR-003), and RP-004 (docs/RR-001) have readManifest but no readLog in .proof-or-stop/story/actives/B-29bc/review-passes.json:3-29,30-71,133-163. RP-003 is a positive control with a persisted mechanical log. core/review-inventory-epoch.ts:309 accepts passes based solely on verifyReviewPass while the adjacent finding path requires both read fields; lines317-318 hash missing logs as null. handlers/finding.ts:554-557 accepts absent mechanical input for passes. Official purpose-bound review_run_start admitted RR-005 after those terminals, and fresh owner review_inventory_status reports all four lanes pass with only critic incomplete. This is not evidence that any reviewer failed to read; it is verified missing signed mechanical evidence and false complete-lane admission. Applicability candidate: directly blocks truthful current inventory completeness and the retained CHK-001 read-evidence promise, irrespective of whether the omitted guard predates this Story. Restore legitimate reviewer terminal read evidence without rewriting old records; preserve a failing missing-readLog admission control and repair the applicable producer/consumer path through authorized DEV scope. No topology or quorum claim is made.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-topology-critic",
       "createdAt": "2026-09-07T10:19:39.903Z",
@@ -45,7 +45,11 @@
       "signatureTag": "missing|ts|required-inventory-lane",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
-      "ledgerCommitReceiptId": "lrc_mtr39s73_llr_2d9bca3d053e401c9c949f91f340ccaf"
+      "ledgerCommitReceiptId": "lrc_mtr39s73_llr_2d9bca3d053e401c9c949f91f340ccaf",
+      "resolvedAt": "2026-09-07T11:09:51.296Z",
+      "resolvedReason": "Fixed in 0ffe4cc619 after test-only RED d2461f5794. The shared recordReviewPass producer now refuses OPEN-inventory PASS records lacking signed readManifest or mechanical readLog, including pass-only finding_add normalization; evidenceForRun independently enforces both fields before lane coverage. The epoch and public handler regressions pass with signature-valid negative controls and valid positive terminals. Historical incomplete passes are retained, not retroactively repaired; RI-002 current required terminals carried fresh logs, and final REVIEW must produce new current-material evidence. Formal current eight-intent evidence batch 74997ad completed successfully: three unique commands, zero reruns and zero false freshness.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-29bc:F-002",
