@@ -2521,7 +2521,7 @@
       "desc": "windows-command-shim-posix-single-quote false pass: packages/main/src/core/runtime-environment-checks.ts:765-769 tokenizes both double-quoted and single-quoted strings, then lines 780-798 use those tokens to certify a PATH-selected Windows .cmd shim. cmd.exe does not treat single quotes as quoting. Current compiled-runtime probes using a canonical package/target/version returned global-core-realpath status=pass, verification=ok, executable=true and emitted `contract: global-core-realpath-pass` for both `'node' \"<canonical-target>\" %*` and `node '<canonical-target>' %*`; on cmd.exe the first command name includes apostrophes and is not the standard Node runtime, while the second passes apostrophes as literal target characters rather than invoking the canonical file. The focused global-core-realpath suite remains green and contains no single-quote shim mutation. This is distinct from F-047 runtime-variable binding, F-049 unreachable control flow, and F-050 target-base-variable binding: it is cross-shell tokenization/quoting semantics. Parse .cmd using cmd.exe quoting rules or reject single-quoted runtime/target tokens, and add both negative mutations so neither can emit the healthy marker. severity: high",
       "severity": "high",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-07T00:55:15.298Z",
@@ -2563,7 +2563,11 @@
       "signatureTag": "windows-command-shim-posix-single-quote-false-pass",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqj3y3n_r6_a47a35c0e44b439e90096f317904290b",
-      "ledgerCommitReceiptId": "lrc_mtqj3y3o_r6_8d8c7bc3dacd47e2b35a3411310233d6"
+      "ledgerCommitReceiptId": "lrc_mtqj3y3o_r6_8d8c7bc3dacd47e2b35a3411310233d6",
+      "resolvedReason": "Commit 9473a6f32c accepts only the supported Windows command quoting grammar and rejects POSIX single-quote lookalikes; the corresponding mutation and final full validation pass.",
+      "resolvedAt": "2026-09-07T11:06:12.923Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-053",
