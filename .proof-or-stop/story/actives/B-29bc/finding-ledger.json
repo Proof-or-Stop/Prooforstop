@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "finding-ledger.v1",
+  "ledgerSchemaEpoch": 1,
+  "minimumWriterCapability": "finding-ledger-writer-v1",
+  "committedLedgerDigest": "0a6e2f6f0325bb4ec738ddd39a71f6bec84981c00c8d792ed4c0a51c50c500ad",
+  "records": [
+    {
+      "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
+      "recordType": "finding",
+      "idempotencyKey": "codex-b29bc-ri001-missing-lane-readlog",
+      "payload": {
+        "id": "B-29bc:F-001",
+        "desc": "Required inventory lane passes without mechanical readLog are admitted as complete. WHY: the retained implemented saturation contract at docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:129-140 requires both signed readManifest AND readLog for every pass/finding terminal; CHK-001 promises preservation of signed terminal read evidence. Actual current B-29bc:RP-001 (test-coverage/RR-004), RP-002 (concept/RR-003), and RP-004 (docs/RR-001) have readManifest but no readLog in .proof-or-stop/story/actives/B-29bc/review-passes.json:3-29,30-71,133-163. RP-003 is a positive control with a persisted mechanical log. core/review-inventory-epoch.ts:309 accepts passes based solely on verifyReviewPass while the adjacent finding path requires both read fields; lines317-318 hash missing logs as null. handlers/finding.ts:554-557 accepts absent mechanical input for passes. Official purpose-bound review_run_start admitted RR-005 after those terminals, and fresh owner review_inventory_status reports all four lanes pass with only critic incomplete. This is not evidence that any reviewer failed to read; it is verified missing signed mechanical evidence and false complete-lane admission. Applicability candidate: directly blocks truthful current inventory completeness and the retained CHK-001 read-evidence promise, irrespective of whether the omitted guard predates this Story. Restore legitimate reviewer terminal read evidence without rewriting old records; preserve a failing missing-readLog admission control and repair the applicable producer/consumer path through authorized DEV scope. No topology or quorum claim is made.",
+        "severity": "high",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-topology-critic",
+        "createdAt": "2026-09-07T10:19:39.903Z",
+        "reviewRound": "2026-09-07T10:03:42.307Z",
+        "reviewRunId": "B-29bc:RR-005",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-29bc/background.md",
+            ".proof-or-stop/story/actives/B-29bc/plan.md",
+            ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+            ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+            "docs/audits/inventory-critic-purpose-isolation.md",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+        },
+        "readDiagnostics": [],
+        "_hash": "b00ed69cec1eff2dda4f9928121a5be68ac75f120e92ad08316969f7262a309c",
+        "files": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/finding.ts",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json"
+        ],
+        "signatureTag": "missing|ts|required-inventory-lane",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "6865016b7dc189da08d8ba47aa9071282416782e90fcfb4d2128031d0852db17",
+      "priorDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T10:19:39.903Z"
+    }
+  ],
+  "receipts": [
+    {
+      "receiptId": "lrc_mtr39s73_llr_2d9bca3d053e401c9c949f91f340ccaf",
+      "operation": "append_finding",
+      "idempotencyKey": "codex-b29bc-ri001-missing-lane-readlog",
+      "requestDigest": "1e7cc93af9426450fca8b54091696edf58028ec940dfc60270ead53eca400b2d",
+      "recordIds": [
+        "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557"
+      ],
+      "priorLedgerDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "committedLedgerDigest": "0a6e2f6f0325bb4ec738ddd39a71f6bec84981c00c8d792ed4c0a51c50c500ad",
+      "writerSessionId": "codex-b29bc-inventory-critic",
+      "writerFenceToken": "97370235-82d4-4bff-8baa-02bc4bd12a00",
+      "committedAt": "2026-09-07T10:19:39.903Z",
+      "replayed": false,
+      "exactRequestDigest": "7b3d82b9a65045d18caf8fa15355a2e744ee8cd3591436c770f2268b28500838",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr39s73_llr_2d9bca3d053e401c9c949f91f340ccaf",
+        "storyId": "B-29bc",
+        "idempotencyKey": "codex-b29bc-ri001-missing-lane-readlog",
+        "exactRequestDigest": "7b3d82b9a65045d18caf8fa15355a2e744ee8cd3591436c770f2268b28500838",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "committedLedgerDigest": "0a6e2f6f0325bb4ec738ddd39a71f6bec84981c00c8d792ed4c0a51c50c500ad",
+        "replayed": false,
+        "committedAt": "2026-09-07T10:19:39.903Z",
+        "writerSessionId": "codex-b29bc-inventory-critic",
+        "writerLeaseId": "codex-01a05441-inventory-recovery-owner",
+        "writerFenceToken": "97370235-82d4-4bff-8baa-02bc4bd12a00",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "5efc22608055669ea9a31674376468d62e79d7459ac763498a8b2b593efae661",
+        "signature": "eCEIdpXyJuWIs6hka9W9NlMB5iXvg8NR56avlhy+VwGzDup6+/fsXLgd83eAUmq5lsQjwG9N81k5+nEBoVKFAg=="
+      }
+    }
+  ]
+}
