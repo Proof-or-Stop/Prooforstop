@@ -1,6 +1,6 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-07T08:39:06.271Z",
+  "checkedAt": "2026-09-07T09:29:42.552Z",
   "features": [
     {
       "feature": "A normal rebuild preserves a usable global proof-or-stop command instead of replacing its target with a non-executable entrypoint.",
@@ -141,21 +141,36 @@
       "status": "excluded",
       "excluded_by": ".proof-or-stop/story/actives/B-e256/scope-boundary.json",
       "source": ".proof-or-stop/story/actives/B-e256/scope-boundary.json"
+    },
+    {
+      "feature": "Scope-extension commit 2f6ad975f4 is a bounded lifecycle-metadata change: it adds only packages/main/src/tasks/proofstory-pre-review-check-smoke.ts to allowedModify, allowedTest, and canonicalPaths with a concrete DEV-to-REVIEW blocker reason; it grants no broader implementation authority.",
+      "covered_by": "CHK-001, CHK-002, CHK-003 (DEV-to-REVIEW acceptance evidence)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-e256/scope-contract.json#scopeChangeReason"
+    },
+    {
+      "feature": "Implementer commit 9a8f26766f changes only the verifier-owned pre-review smoke and preserves the active Story through the canonical PROOF_OR_STOP_ACTIVE_STORY_ID handoff, explicit-argument precedence, deprecated fallback, canonical nested agent identity, and canonical topology-critic dispatch; the full smoke proves the repaired lifecycle path and inverse controls.",
+      "covered_by": "CHK-001, CHK-002, CHK-003 (DEV-to-REVIEW acceptance evidence)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
     }
   ],
   "readManifest": {
     "filesReadFully": [
       ".proof-or-stop/story/actives/B-e256/background.md",
+      ".proof-or-stop/story/actives/B-e256/checklist.json",
       ".proof-or-stop/story/actives/B-e256/decision.json",
       ".proof-or-stop/story/actives/B-e256/plan.md",
       ".proof-or-stop/story/actives/B-e256/proofstory.json",
       ".proof-or-stop/story/actives/B-e256/scope-boundary.json",
       ".proof-or-stop/story/actives/B-e256/scope-contract.json",
       ".proof-or-stop/story/actives/B-e256/understanding.json",
-      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+      "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
     ],
     "filesTriagedByName": [
-      ".proof-or-stop/story/actives/B-e256/checklist.json",
       "docs/requirements/decisions/.gitkeep",
       "docs/requirements/decisions/annotation-system.md",
       "docs/requirements/decisions/assets/lattice-lifecycle-readiness-check-flow.svg",
@@ -308,6 +323,7 @@
       "packages/main/src/core/runtime-environment-checks.ts",
       "packages/main/src/core/version-bump.ts",
       "packages/main/src/handlers/doctor.ts",
+      "packages/main/src/handlers/live-smoke-transcript.ts",
       "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
       "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
       "packages/main/src/tasks/validation-tier-planner-smoke.ts",
@@ -321,14 +337,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 20,
-    "covered": 19,
+    "total": 22,
+    "covered": 21,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "2026-09-07T00:35:44.550Z",
-  "_hash": "6656c7fe28823f23dadc58a6d122ea61277b1a5af6bcfa48bfa64d58459dfb2f",
+  "_hash": "438f8ed27ce4160a50e689f41bf2b215d33bc160bb07e7cd85ea605d659e439a",
   "openQuestions": []
 }
