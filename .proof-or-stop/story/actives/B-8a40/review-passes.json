@@ -4006,6 +4006,62 @@
       },
       "readDiagnostics": [],
       "_hash": "7d59c2bedb7faaf5cc7ee83c0c33111df043989d586e56a814d166c336e45d6d"
+    },
+    {
+      "id": "B-8a40:RP-092",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-016 wave 2 discovery, quality lane, run RR-168 at HEAD 8e2f343953, material fb029a3a and Story files 6bac3354 unchanged. RESULT FOR THE CRITIC, stated so it cannot be misread: this wave is NOT zero-new for my lane. I registered ONE new family, B-8a40:F-096, distinct from F-089 through F-093. However F-096 carries evidenceState=suspected, NOT verified, so it is not an additional VERIFIED family and does not block; the critic should treat my lane as producing one new SUSPECTED family and zero new VERIFIED families. NO BLOCKING FINDING in this lane, and this is expressly NOT TEST or DONE readiness, not a topology result, and not a claim the Story is releasable. F-096 substance: prompt-envelope.ts removed every input bound from the pre-digest reviewer authority classifier with no replacement ceiling. A search of that file for maxSpan, maxBridgeLength and the former 240 character claim bound returns ZERO occurrences, and the diff deleted each individually across hasAffirmativeConceptRelation, hasConceptPair, countConceptPairInstances, controlledConceptPairIsExplicitlyNegative, the ControlledTriageRelationSpec type and all three specs, isExplicitRejectedAuthorityStatement, relationIsNegated, hasCrossSegmentSeverityAuthority and isExplicitlyProhibitedDispositionAuthority. The remaining scans are left by right cross products, and crossSourceControlledAuthority concatenates all eligible sources and reclassifies the join, so cost grows with total Story text. Story description has a 5 character minimum and NO maximum in the command catalog schema, and assertReviewerTaskContextAuthoritySafety runs pre-digest fail-closed on the path that gates reviewer startup. I explicitly did NOT measure any pathological runtime and claim no hang and no ReDoS: command execution for a timing probe was refused in this invocation, which is exactly why the record is suspected rather than verified. I also explicitly do NOT claim the classifier is incorrect or that the B-bcae repair regressed; removing the evadable windows was the correct fix for the earlier bypass family, and any future ceiling must not restore the per relation character windows. Candidate integrity re-checked: git diff a28a4017dd HEAD limited to packages/main/src, scripts, bin, package.json and .gitignore is EMPTY, so the five file candidate is byte-identical to my original full RR-151 audit and F-096 is a property of that unchanged code, not of a new edit. Baseline handling: B-8a40:F-089, F-090, F-091, F-092 and F-093 remain OPEN and untouched as the frozen RI-016 baseline. I did not resolve, supersede, dismiss or re-file any of them, did not ask the Owner to alter them mid-epoch, and claim no repair, resolution or deferral proof for any of them. The two current TEST blockers remain unrepaired and are not mine to clear: the missing original rp-mtifubae-dfbh4w CAS metadata reached through red-bfe8f-ledger-runtime-integrity.mjs, and the heartbeat max-descendant PID never created under the 700 ms startup premise. I note without asserting a conclusion that the reported delay-only preload diagnostic, which reproduced the same missing PID by increasing only target startup, is consistent with the recorded premise contradiction rather than with any change in this candidate; the owner owns that diagnosis and F-093 stays open. The genuine 65 of 65 DONE-required PASS is a different command universe and does not override the routine 132 command FAIL. Reading limitation disclosed: I displayed only the first lines of the RR-168 command output, and there is no read-only path to re-render an existing runs assembled prompt, since agent_prompt returns the thin bootstrap only and a further review_run_start would create a new run and stale RR-168; the RR-168 roleBody digest bb102ce is identical to the body I previously read through EOF at RR-160, and its Task Context differs only by headHash. Other limitations: no interruption witness for F-089; the dev-memory producer registry gap remains durably unfixed; no build, tests, rebuild or source edit this wave; pre-review is observe or inconclusive; topology is unsupported or inconclusive and not PASS; rollout fixture output is not host quorum; I submit no cross-host verdict and took no owner lease.",
+      "createdAt": "2026-09-07T09:48:03.146Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-168",
+      "envelopeId": "9b2d1063ae8a0908df384a6d5e1bf054438f04bf88646ae68ae0d2e33273b1e8",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/certification-window.json",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/summary.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/review-inventory-epochs.json",
+          "package.json",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "e491ef574e566b3ea1d272735210e2ca5c94d0984349bc1ea8ec947a11cd40d9"
     }
   ]
 }
