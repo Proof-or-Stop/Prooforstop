@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "e490cea8da0ad1989588025393c65bf8e545006ce1d311b2e9be7ebbbd0b0236",
+  "committedLedgerDigest": "4c416b5a5b6ef6f06ad2612bb3a143c3457f029179fb661a31bb7234215e90db",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2990,6 +2990,77 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T07:57:27.673Z"
+    },
+    {
+      "recordId": "lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:b705b2a8-1720-4223-9d55-9f5bc6973c4c",
+      "payload": {
+        "id": "B-8a40:F-088",
+        "desc": "quality-cleanup: the REVIEW to TEST scope gate is CURRENTLY FAILING CLOSED on this Story because dev_memory_finish wrote an unregistered runtime artifact into the Story metadata directory. Mechanical evidence at HEAD 275e2ebec6: node bin/proof-or-stop.js scope_contract_check --storyId=B-8a40 prints Scope gate: fail (1 unacknowledged violation(s), mode=enforce), and the single blocking row is scope.out_of_scope:.proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl with fail blocking=true rule=out_of_scope and detail: No lifecycle/runtime registry entry and no scope-contract path pattern matched. The three companion code paths are NOT the cause: process-fact-registry.ts, retired-authority-vocabulary-guard-smoke.ts and verify-process-fact-contract.mjs each report warn blocking=false with A matching acknowledgement exists. session_brief independently reports path gate: fail with next action Out-of-scope change blocks the gate. Producer and root cause: packages/main/src/core/dev-memory.ts:211-213 resolveStoryCandidatePath writes storyDir/storyId/dev-memory-candidates.jsonl, documented in the same file at lines 5-9 as a non-authoritative store whose entries CANNOT satisfy gate evidence. The file appeared untracked at 2026-09-07T08:17:49Z when the owner ran dev_memory_finish. It fails the gate because .gitignore force-includes the Story tree through the negated pattern for .proof-or-stop/story/actives, while listing no pattern for this artifact, unlike its sibling managed runtime artifacts which ARE ignored by name: owner-lease.json, breaker-state.json, takeover-count.json, gate-failure-counts.json and the story-scoped activity.jsonl. Failure scenario: any session that runs dev_memory_finish inside a Story worktree leaves an untracked non-authoritative artifact that immediately flips the enforce-mode scope contract gate from warn to fail and blocks REVIEW to TEST until an operator intervenes. This is NOT a defect in the five reviewed code files and NOT a regression of the classifier repair: the reviewed source is byte-identical to my RR-151 audit, because git diff a28a4017dd HEAD -- packages/main/src scripts is empty. Remediation is the owner action the CLI itself prints: run scope_contract_acknowledge with a reviewer-visible reason, add the path to the contract, or remove the untracked file; the durable framework fix is to register or ignore this artifact like its siblings. Severity medium: the gate fails CLOSED and no evidence is falsified, but it is a real current blocker on this Story at this moment. Family note: this is the same defect class as the open B-8a40:F-085, a framework or test produced working-tree artifact with no ignore or registry entry, and it is the live witness that F-085 lacked; I am deliberately NOT re-filing F-085 and leave family classification to the critic.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T08:22:11.932Z",
+        "reviewRound": "2026-09-07T07:37:25.032Z",
+        "reviewRunId": "B-8a40:RR-156",
+        "readManifest": {
+          "filesReadFully": [
+            ".gitignore",
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/decision.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+            ".proof-or-stop/story/actives/B-8a40/summary.json",
+            ".proof-or-stop/story/actives/B-8a40/understanding.json",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "packages/main/tsconfig.json"
+          ],
+          "filesTriagedByName": [
+            "package.json",
+            "packages/main/src/core/dev-memory.ts",
+            "packages/main/src/core/evidence-freshness.ts",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/core/prompt-registry.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "packages/main/src/tasks/run-all-smokes.ts",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+        },
+        "readDiagnostics": [],
+        "_hash": "d148bbd53181f7715560c8ef817a39284131ca01fba5bcd07dfce196cea02caa",
+        "files": [
+          ".proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl",
+          "packages/main/src/core/dev-memory.ts",
+          ".gitignore"
+        ],
+        "signatureTag": "b8a40-unregistered-runtime-artifact-scope-block",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "5a1f06ba7ff153f8ff0fbee95a7a92097d05278cd86a6cacde7b7850cfc72a68",
+      "priorDigest": "e490cea8da0ad1989588025393c65bf8e545006ce1d311b2e9be7ebbbd0b0236",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T08:22:11.934Z"
     }
   ],
   "receipts": [
@@ -7300,6 +7371,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "bad1e5ea868f1d620dd5ff4cfe9e86c76506b44c9edb7da2dec84c7950c11da4",
         "signature": "cBx/2it5TH+7nfDu2XMwDmZQu1vWzamvh3OfSI4zqjxzODQA2FVi41lqxMrWDLG8+4UeGN9vTcT/j/EnHhxJAA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqz2py7_14e7_7da268bce3564682adb187aca589f156",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:b705b2a8-1720-4223-9d55-9f5bc6973c4c",
+      "requestDigest": "1c7bd2d5de55de1582306bd44c9bfd84664f60c4aabd03f14386c4df0b3bcab5",
+      "recordIds": [
+        "lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc"
+      ],
+      "priorLedgerDigest": "e490cea8da0ad1989588025393c65bf8e545006ce1d311b2e9be7ebbbd0b0236",
+      "committedLedgerDigest": "4c416b5a5b6ef6f06ad2612bb3a143c3457f029179fb661a31bb7234215e90db",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "writerFenceToken": "236e430c-032b-44ae-97a3-c0da1d2253e3",
+      "committedAt": "2026-09-07T08:22:11.934Z",
+      "replayed": false,
+      "exactRequestDigest": "5acd14e83798d798c9aa202ad973f2e641891074323204d1487b96a313b67263",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqz2py7_14e7_7da268bce3564682adb187aca589f156",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:b705b2a8-1720-4223-9d55-9f5bc6973c4c",
+        "exactRequestDigest": "5acd14e83798d798c9aa202ad973f2e641891074323204d1487b96a313b67263",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqz2py6_14e7_4695eed59303420fa7158c70399738dc"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "e490cea8da0ad1989588025393c65bf8e545006ce1d311b2e9be7ebbbd0b0236",
+        "committedLedgerDigest": "4c416b5a5b6ef6f06ad2612bb3a143c3457f029179fb661a31bb7234215e90db",
+        "replayed": false,
+        "committedAt": "2026-09-07T08:22:11.934Z",
+        "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "236e430c-032b-44ae-97a3-c0da1d2253e3",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "0ab1e6a4e7ee14690a3d207616ab0f3ad6fd9395f196ea62fc670acd2f37910f",
+        "signature": "2+YLu65c07bbN5eVATdRy2gQp7YpE5yBiAb1glCp3hKFYPqsGphB66RRHhT8K8fDzlp+QJJbQYQADTEnUYRjCQ=="
       }
     }
   ]
