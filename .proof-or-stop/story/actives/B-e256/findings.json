@@ -2216,7 +2216,7 @@
       "desc": "ProofStory acceptance topology omits a current must intent that its own acceptance claim promises. .proof-or-stop/story/actives/B-e256/proofstory.json:42-58 binds 15 verificationIntentRefs but omits CHK-001:edge:0, even though checklist.json declares that absent-bin-target behavior priority=must and AC-001 at proofstory.json:60 explicitly claims missing targets remain benign. packages/main/src/core/proofstory.ts:2141-2174 derives REVIEW completeness only from effective binding verificationIntentRefs (plus milestones), so removing or staling CHK-001:edge:0 evidence would not produce review_completeness_missing_evidence. The current receipt passes, but the signed acceptance topology does not machine-bind this promised must behavior. Add CHK-001:edge:0 to AC-001 and refresh dependent acceptance artifacts. severity: high",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-06T23:43:44.561Z",
@@ -2267,7 +2267,11 @@
       "signatureTag": "proofstory-acceptance-omits-promised-must-intent",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqgjzcj_1g24_f974f24f73f441c3a02a081e547dfe3f",
-      "ledgerCommitReceiptId": "lrc_mtqgjzcj_1g24_b3d525e4b8714febb79425fa87e0bedd"
+      "ledgerCommitReceiptId": "lrc_mtqgjzcj_1g24_b3d525e4b8714febb79425fa87e0bedd",
+      "resolvedAt": "2026-09-07T00:36:04.077Z",
+      "resolvedReason": "The PLAN-only proofstory_contract_set command updated AC-001 to bind CHK-001:edge:0 without dropping any prior reference. Independent scope check e521893 verified the set delta is exactly that one ref and all 16 must intents are bound. proofstory_review_completeness_check reports pass with zero gaps and current 132/132 full validation passes.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
