@@ -201,12 +201,30 @@ if (scenarioMode) {
   }
 }
 
-// A live production contract is materially larger than the historical A-*
-// fixture catalog.  Its active-witness run needs only the clean canonical
-// fixture plus the per-assertion verifier loop below; the focused regression
-// mutations remain covered by the ordinary smoke path and should not be
-// replayed a second time inside the bounded live-proof capture.
-const productionScenarioMode = scenarioMode && activeScenarioAssertions.size > registeredScenarioKinds.size;
+function isProductionScenarioExecution(
+  requestedScenarioMode: boolean,
+  selectedStoryId: string | undefined,
+): boolean {
+  // Production authority comes from the explicit active-Story handoff, not
+  // from topology size. A legitimate Story may declare fewer assertions than
+  // the historical 29-case fixture catalog (B-e256 currently does), and its
+  // direct Wave 4 reads must still target that Story rather than the isolated
+  // B-pre-review-smoke fixture.
+  return requestedScenarioMode && selectedStoryId !== undefined;
+}
+
+// The ordinary no-selector smoke remains fixture mode. `--proof-scenarios`
+// with an explicit active Story is the bounded production capture path; its
+// per-assertion verifier loop below avoids replaying unrelated fixture-only
+// mutations.
+const productionScenarioMode = isProductionScenarioExecution(scenarioMode, activeScenarioStoryId);
+
+if (!liveProofMode && !scenarioMode) {
+  assert.equal(isProductionScenarioExecution(true, 'B-small-production-topology'), true,
+    'a production topology smaller than the built-in fixture catalog remains production mode');
+  assert.equal(isProductionScenarioExecution(false, undefined), false,
+    'the ordinary no-selector regression smoke remains fixture mode');
+}
 
 function scenarioSourceRef(assertionId: string): string {
   return scenarioSourceRefs.get(assertionId) ?? `intent:${assertionId}`;
