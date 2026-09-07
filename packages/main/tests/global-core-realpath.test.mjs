@@ -31,7 +31,7 @@
 // rebuild-and-relink remediation, not a decorative `version=unknown`.
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { chmodSync, lstatSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, existsSync, lstatSync, mkdirSync, mkdtempSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -264,6 +264,36 @@ let executedAssertionGroups = 0;
     assert.notEqual(echoedTarget.globalCoreRealpath.status, 'pass', 'an echo of the expected target is not an executing invocation');
     assert.equal(echoedTarget.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
     assert.doesNotMatch(renderRuntimeEnvironmentReport(echoedTarget), /contract: global-core-realpath-pass/);
+    executedAssertionGroups += 1;
+
+    const canonicalTarget = join(globalRoot, '@proof-or-stop', 'core', 'dist', 'cli.js');
+    const executionMarker = join(base, 'option-decoy-executed');
+    const semanticTarget = join(base, 'option-decoy-target.cjs');
+    writeFileSync(semanticTarget, `require('node:fs').writeFileSync(${JSON.stringify(executionMarker)}, 'executed');\n`);
+    for (const args of [['--version', semanticTarget], ['-e', 'void 0', semanticTarget]]) {
+      rmSync(executionMarker, { force: true });
+      execFileSync(process.execPath, args, { stdio: 'pipe' });
+      assert.equal(existsSync(executionMarker), false, `fixture sanity: node ${args[0]} must not execute the following target`);
+    }
+    const optionDecoys = [
+      ['version-option', `node --version "${canonicalTarget}" %*`],
+      ['eval-option', `node -e "console.log(String.raw\`${canonicalTarget}\`)" %*`],
+    ];
+    for (const [label, invocation] of optionDecoys) {
+      assert.ok(invocation.includes(canonicalTarget), `${label} mutation must retain the canonical path as a decoy`);
+      writeFileSync(shim, `@ECHO off\r\n${invocation}\r\n`);
+      const decoy = runChecks(join(base, label), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
+      assert.notEqual(decoy.globalCoreRealpath.status, 'pass', `${label} does not execute the canonical target as Node's script`);
+      assert.equal(decoy.globalCoreRealpath.actual.verification, 'windows-command-shim-target-mismatch');
+      assert.equal(decoy.globalCoreRealpath.actual.executable, false);
+      assert.doesNotMatch(renderRuntimeEnvironmentReport(decoy), /contract: global-core-realpath-pass/);
+      executedAssertionGroups += 1;
+    }
+
+    writeFileSync(shim, `@ECHO off\r\nnode -- "${canonicalTarget}" %*\r\n`);
+    const optionTerminated = runChecks(join(base, 'option-terminator'), coreRoot, globalRoot, { platform: 'win32', commandResolver: () => shim });
+    assert.equal(optionTerminated.globalCoreRealpath.status, 'pass', 'Node -- followed immediately by the canonical target remains a real script invocation');
+    assert.equal(optionTerminated.globalCoreRealpath.actual.verification, 'ok');
     executedAssertionGroups += 1;
 
     writeRepresentativeWindowsShim(shim, globalRoot);

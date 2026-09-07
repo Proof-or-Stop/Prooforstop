@@ -769,6 +769,14 @@ function commandTokens(segment: string): string[] {
   return tokens;
 }
 
+function normalizedShimTargetToken(token: string): string {
+  return normalizedShimText(token)
+    .replace(/^%~dp0[\\/]?/, '')
+    .replace(/^%dp0%[\\/]?/, '')
+    .replace(/^\$\{?basedir\}?[\\/]?/, '')
+    .replace(/^\.\//, '');
+}
+
 function shimSegmentInvokesTarget(segment: string, normalizedRelativeTarget: string, normalizedAbsoluteTarget: string): boolean {
   const withoutAt = segment.trim().replace(/^@/, '');
   if (/^(?:echo|rem|set(?:local)?|goto|title|if|else|for|exit|call\s+:|write-(?:output|host))(?:\s|$)/i.test(withoutAt)) return false;
@@ -779,8 +787,15 @@ function shimSegmentInvokesTarget(segment: string, normalizedRelativeTarget: str
     || runtime === '$_prog'
     || /(?:^|\/)node(?:\.exe)?(?:\$exe)?$/.test(runtime);
   if (!invokesRuntime) return false;
-  const normalizedSegment = normalizedShimText(withoutAt);
-  return normalizedSegment.includes(normalizedRelativeTarget) || normalizedSegment.includes(normalizedAbsoluteTarget);
+  let argv = tokens.slice(1);
+  // Node accepts `--` as an option terminator before the script. Other options
+  // before the target are deliberately rejected: flags such as --version/-v
+  // terminate without a script, while -e/-p consume the following token as
+  // source rather than a script pathname. npm-generated shims place their bin
+  // target directly here, so failing closed does not reject their contract.
+  if (argv[0] === '--') argv = argv.slice(1);
+  const scriptToken = normalizedShimTargetToken(argv[0] ?? '');
+  return scriptToken === normalizedRelativeTarget || scriptToken === normalizedAbsoluteTarget;
 }
 
 function validateWindowsCommandShim(
