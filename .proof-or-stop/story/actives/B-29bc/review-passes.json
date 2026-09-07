@@ -747,6 +747,40 @@
       },
       "readDiagnostics": [],
       "_hash": "b9453c9b6c2ade8b48d9f9b33bba62d89fd9760b7eafee73b96e4b2e0c31bbf1"
+    },
+    {
+      "id": "B-29bc:RP-017",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Final inventory-completeness review for RI-003 wave 1 found no missed current Finding or incomplete required terminal. Independently inspected exact concept RR-016/RP-015, quality RR-017/RP-014, docs RR-018/RP-013 and coverage RR-019/RP-016 records; production verification validates all run/pass signatures and each has signed readManifest plus mechanical readLog. Signature-valid current epoch and live evaluation have no missing lanes, duplicate identities, baseline mismatch, raw Findings or new families. Official finding_list preserves F-001..004 as resolved/fixed historical observations. Compared their full repair explanations with test-only d2461f5794, runtime 0ffe4cc619 and audit b2e7b6f495: OPEN PASS producer and inventory consumer independently reject missing read fields; exact-purpose current critic discoveries join the aggregate without lane promotion; committed negative controls cover absent fields, wrong subject/purpose, empty dispositions and immutable receipt setup; corrected audit distinguishes original failures from bounded repair. Current eight intent evidence projections report mechanical exit-zero/selector-matched results bound to material 130d0e588b87d8a5b9cba9b5b76624e6c673445dd0e1d469092dd4decaf24a78. Tests were inspected, not rerun in this critic task. Current audit fully reread; prior full background, plan and decision reads retained after exact no-diff freshness check. Terminal/run/epoch records and source were inspected as bounded records/diffs/excerpts, not falsely claimed as full-file reads. This is inventory-only evidence: no topology certification, TEST/DONE authorization, independent-host quorum or finalization/consumption claim.",
+      "createdAt": "2026-09-07T11:19:04.246Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-020",
+      "envelopeId": "1d48c1c0954e5e9cf1fb5895539486054b65422110b166e792062b5c50cbb809",
+      "writerSessionId": "codex-b29bc-inventory-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "d1f45d749a50e5d6dce38ad8b9bdd52f81311581eeae0efd27129b5d1a9c6486"
     }
   ]
 }
