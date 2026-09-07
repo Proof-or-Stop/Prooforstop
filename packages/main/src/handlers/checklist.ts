@@ -1236,7 +1236,7 @@ async function enforceAndStampEvidence(
     // pin actually executed above (never from the caller — this block is inside the
     // tool-owned receipt that every caller-facing schema strips).
     selector: pinSelector,
-    executedAt: new Date().toISOString(),
+    executedAt: receipt.executedAt,
     // B-cdf6 (B-META F-012): always stamp the armed ceiling, and — only when the caller
     // RAISED it — an attributable override block, so a reviewer reading the receipt can
     // see this pass was earned under a raised budget rather than the default. Lives in
