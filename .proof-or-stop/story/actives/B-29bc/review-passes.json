@@ -26,6 +26,48 @@
         "scanEscalationReason": null
       },
       "_hash": "6144d2c2a3fdd9ac8a9d2ef227fa4022e63dbd41341073978afec47f016a0a50"
+    },
+    {
+      "id": "B-29bc:RP-002",
+      "agent": "proof-or-stop-review-concept",
+      "note": "No concept deletion/replacement this round; concept residue check completed, no blocker. Checked git diff against main across all changed files; explicit inventory-completeness purpose is additive with preserved default topology review; 0 concept residue findings.",
+      "createdAt": "2026-09-07T10:09:39.290Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-003",
+      "envelopeId": "cd6ce921d2bbe8d6930df97f548f79cb6802c73813d604b84dda845beb65bf96",
+      "writerSessionId": "b29bc-agy-concept-r1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "5e85304fc469157749739f463e169c9ed137c268060bb48adc0bdea425522e09"
     }
   ]
 }
