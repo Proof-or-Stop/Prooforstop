@@ -2129,9 +2129,9 @@
       "epochId": "B-e256:RI-014",
       "storyId": "B-e256",
       "reviewRound": "2026-09-07T00:35:44.550Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-07T01:23:54.517Z",
-      "updatedAt": "2026-09-07T01:23:54.517Z",
+      "updatedAt": "2026-09-07T01:34:12.683Z",
       "cutoff": {
         "headHash": "5ffc774bd78db3f9ca4d337b75d505b024b2e593",
         "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
@@ -2145,7 +2145,65 @@
       ],
       "initialRunSequenceBoundary": 168,
       "maxWaves": 1,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T01:23:54.517Z",
+          "completedAt": "2026-09-07T01:34:11.922Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-170",
+              "terminal": "finding",
+              "hostIdentity": "46bb3e752d2e7591d65a3d48f7912bac5e532105fec45e8860b598ac65faede8",
+              "promptIdentity": "5333dcaea0dabaa713c6ca4dc3072507f016211647216daec8f2c187c41d7624",
+              "evidenceIds": [
+                "B-e256:F-058"
+              ],
+              "coverageDigest": "178eeb48de1d8b7d0b3d0be0b921fd8f7b49ed3280e70c435705070d0e372958"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-171",
+              "terminal": "pass",
+              "hostIdentity": "46bb3e752d2e7591d65a3d48f7912bac5e532105fec45e8860b598ac65faede8",
+              "promptIdentity": "2e273f6ef437a62876c75eaad74555ba7d9ef7523e4cb8900aa4f687c35a41e2",
+              "evidenceIds": [
+                "B-e256:RP-116"
+              ],
+              "coverageDigest": "7f29eeb24c139f6651ddbb0f76da810638b6fcee679780fdc20b265612a97cd5"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-169",
+              "terminal": "pass",
+              "hostIdentity": "46bb3e752d2e7591d65a3d48f7912bac5e532105fec45e8860b598ac65faede8",
+              "promptIdentity": "fb30edca08d3d703e82e7bb5d920e26037cde5395f37f404d2d93fd5d5502dd4",
+              "evidenceIds": [
+                "B-e256:RP-117"
+              ],
+              "coverageDigest": "0ce99a4642b9ab15457e91aeb7554c8eee83730b2d6c9bd303daf2cc3c0a94f2"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "proofstory-acceptance-topology-and-pre-review-proof-missing",
+            "windows-command-shim-argument-forwarding-false-pass",
+            "windows-command-shim-argument-injection-false-pass",
+            "windows-command-shim-caret-escaped-separator-false-pass",
+            "windows-command-shim-exit-status-propagation-false-pass",
+            "windows-command-shim-posix-single-quote-false-pass",
+            "windows-command-shim-unreachable-invocation-false-pass",
+            "windows-command-shim-unverified-target-base-binding",
+            "windows-non-batch-pathext-entrypoint-textual-false-pass",
+            "windows-powershell-npm-shim-selection-unverified"
+          ],
+          "verifiedFindingSetDigest": "5b94efadd2b64d0bb921e68be2353d8f243cfcda91d35f8b12cd73f987d3e190",
+          "newVerifiedFindingCount": 10,
+          "criticDigest": "dac90d2f9ddc10b83566946bbf31dfb7986fa72190f957ef3c416459005e1d0f",
+          "saturated": false,
+          "nextRunSequenceBoundary": 172
+        }
+      ],
       "baselineFindingIds": [
         "B-e256:F-049",
         "B-e256:F-050",
@@ -2157,7 +2215,46 @@
         "B-e256:F-056",
         "B-e256:F-057"
       ],
-      "_hash": "78eef10756b189851f1473b25e8ab7fab961da6fd5c1d626d26cce05f4b9dd9c"
+      "cancelledAt": "2026-09-07T01:34:12.683Z",
+      "cancelReason": "Replan after RI-014 exposed fixed-argument injection; repair must prove exact supported shim behavior rather than mere target occurrence.",
+      "terminalRunSequenceBoundary": 172,
+      "_hash": "86b55788183ebebf47658bfc02e1693660d85b28449da41e9366439bd67cb337"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e256:RI-015",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-07T01:34:14.159Z",
+      "updatedAt": "2026-09-07T01:34:14.159Z",
+      "cutoff": {
+        "headHash": "17896baaa73241932b55258be50ab19c25ea1920",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "scopeDigest": "da0b1ff512984dbc2f30520078cdfe889b1ffc7b369e1ab57df3e805dede7ffc",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 172,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-e256:F-049",
+        "B-e256:F-050",
+        "B-e256:F-051",
+        "B-e256:F-052",
+        "B-e256:F-053",
+        "B-e256:F-054",
+        "B-e256:F-055",
+        "B-e256:F-056",
+        "B-e256:F-057",
+        "B-e256:F-058"
+      ],
+      "_hash": "ca56944c5138d4cad1d32b7f42f103facd7d65bbe0f182cc099b67ea65fe2b21"
     }
   ],
   "receipts": [
@@ -3672,6 +3769,91 @@
       ],
       "createdAt": "2026-09-07T01:23:29.402Z",
       "_hash": "6d8d8fb158f5ff77573824aae06310a3474e18df0575a7cdc0f85687b8089ae1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-014:CRIT-01",
+      "epochId": "B-e256:RI-014",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "5ffc774bd78db3f9ca4d337b75d505b024b2e593",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "aggregateFindingSetDigest": "5b94efadd2b64d0bb921e68be2353d8f243cfcda91d35f8b12cd73f987d3e190",
+      "requiredLaneCoverageDigest": "c34c661f0c8f0dbd63c9778ce155aa2673a996d11f5f5fbd237269f7f98ba724",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-172",
+      "terminalEvidenceIds": [
+        "B-e256:RP-118"
+      ],
+      "readEvidenceDigest": "8b77a4bb99cec3da6fd3f61a2415850e3e8dfc81c1648a30216a6711cae2c8de",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-049",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-unreachable-invocation-false-pass",
+          "reason": "Verified distinct reachability/control-flow family: a correct literal Node/target/%* invocation can be dead after unconditional goto/exit; direct high CHK-003/AC-001 blocker requiring current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-050",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-unverified-target-base-binding",
+          "reason": "Verified distinct target-base data-flow family: textual stripping of unbound or wrong %dp0%/$basedir is not cmd target resolution; direct high Windows acceptance blocker requiring current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-051",
+          "disposition": "verified_family",
+          "familyKey": "proofstory-acceptance-topology-and-pre-review-proof-missing",
+          "reason": "Verified distinct acceptance-evidence family: current basis is unsupported, receipt scope binding mismatches, AC-001 topology is legacy-missing, and pre-review proof is inconclusive; high lifecycle/acceptance blocker requiring current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-052",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-posix-single-quote-false-pass",
+          "reason": "Verified distinct cmd quoting family: cmd.exe does not give single quotes POSIX grouping semantics, so accepted runtime/target tokens do not execute as modeled; high direct acceptance blocker requiring current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-053",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-caret-escaped-separator-false-pass",
+          "reason": "Verified distinct cmd caret/separator family: the parser invents an executable segment after an escaped separator; high direct acceptance blocker requiring current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-054",
+          "disposition": "verified_family",
+          "familyKey": "windows-powershell-npm-shim-selection-unverified",
+          "reason": "Verified distinct shell-entrypoint coverage family: the official npm PowerShell peer may be selected by the operator but is neither selected nor validated by the PATHEXT cmd path; high Windows compatibility blocker requiring current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-055",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-argument-forwarding-false-pass",
+          "reason": "Verified distinct missing-forwarding family: a reachable correct target without %* discards the caller operation; high CHK-001 user outcome blocker requiring current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-056",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-exit-status-propagation-false-pass",
+          "reason": "Verified distinct exit-status family: target executes with caller argv but a later exit /b 0 masks target failure; high automation truth blocker requiring current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-057",
+          "disposition": "verified_family",
+          "familyKey": "windows-non-batch-pathext-entrypoint-textual-false-pass",
+          "reason": "Verified distinct selected-artifact-type family: .COM/.EXE candidates are parsed as UTF-8 batch text without native executable validation; high PATH/operator truth blocker requiring current Story repair."
+        },
+        {
+          "findingId": "B-e256:F-058",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-argument-injection-false-pass",
+          "reason": "Verified new distinct argv-integrity family: the witness contains %* and may preserve the target exit code, yet prepends a fixed invalid command so the caller requested --version is replaced/corrupted while doctor passes. F-055 presence-of-forwarding and F-056 status propagation repairs do not reject it. This directly breaks CHK-001 userSees and CHK-003/AC-001, so the user rule mandates repair_current in this Story."
+        }
+      ],
+      "createdAt": "2026-09-07T01:33:23.339Z",
+      "_hash": "cc28ffd31a9a7c9dc4501a0d6cec3cee92c3c5cbd28917d51ed692679d2a4b00"
     }
   ]
 }
