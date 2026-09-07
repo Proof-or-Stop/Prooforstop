@@ -4393,7 +4393,7 @@
       "desc": "quality-cleanup: packages/main/src/core/prompt-envelope.ts:233-235 in hasAffirmativeConceptRelation is a nested two-branch guard that is provably equivalent to the single test relationRange.end > conceptEnd, so both relationRange.start comparisons are dead and the code misrepresents its own decision rule. Mechanical evidence by exhaustive case analysis of the three variables at this HEAD, writing r0 for relationRange.start, r1 for relationRange.end, cs for conceptStart and ce for conceptEnd. The outer condition is (r1 > ce OR r0 > cs) and the inner condition is (r0 < cs OR r1 > ce) continue. Case 1, r1 > ce: outer true, inner true, continue. Case 2, r1 <= ce and r0 > cs: outer true, inner is false OR false, so no continue. Case 3, r1 <= ce and r0 <= cs: outer is false OR false, the inner test is skipped, so no continue. The relation is therefore skipped exactly when r1 > ce, for every value of r0. Failure scenario: this is the replacement for the maxBridgeLength horizon that an earlier resolved finding removed from this same function, and it sits on the affirmative-relation path that decides assertsCurrentVerdict and residualSchemaAmendment, that is the fail-closed REVIEW authority classifier. A future editor tightening or loosening the window will read the two r0 comparisons as live containment constraints and reason about a rule the code does not implement; conversely anyone deleting what looks like an obviously redundant outer branch changes nothing, which hides that the containment intent expressed by the comment on lines 229-231 is only enforced by the separate leftRange/rightRange subset test on lines 231-232. Suggested fix: replace lines 233-235 with the single statement that skips when relationRange.end > conceptEnd, or, if containment really is intended, implement it explicitly as r0 >= cs AND r1 <= ce and add a fixture that distinguishes the two. Severity low: no observable behaviour changes today, and I verified no current behaviour claim depends on r0; the cost is maintainability of the classifier core. Read boundary for this finding: prompt-envelope.ts lines 150-285 read directly plus the complete git diff main...HEAD hunk that replaces this guard; I did not execute the function.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-07T07:57:27.671Z",
@@ -4432,7 +4432,11 @@
       "signatureTag": "b8a40-classifier-dead-code",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqy6wop_h9x_6a75e7120a0944799aea828780647b56",
-      "ledgerCommitReceiptId": "lrc_mtqy6woq_h9x_35dc7b0ca044457990d576a8fe6af695"
+      "ledgerCommitReceiptId": "lrc_mtqy6woq_h9x_35dc7b0ca044457990d576a8fe6af695",
+      "resolvedAt": "2026-09-07T08:32:39.676Z",
+      "resolvedReason": "Historical observation retained without repair, dismissal or disproval. The actual same independent Claude session re-verified this exact observation and carried it forward through finding_add as OPEN verified B-8a40:F-091, bound to current RR160, because the mechanical REVIEW consumer requires latest-run binding. This old record is superseded only as the active binding; the current observation remains open with unchanged low severity, source truth and named future owner docs/story/drafts/classifier-smoke-nonblocking-cleanup. This is not evidence of implementation repair, signed deferral or non-applicability. Treat any new acceptance, protected-surface or evidence-integrity impact as a current-Story blocker immediately.",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-088",
