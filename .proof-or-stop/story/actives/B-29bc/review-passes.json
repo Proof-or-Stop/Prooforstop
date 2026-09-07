@@ -1611,6 +1611,68 @@
       },
       "readDiagnostics": [],
       "_hash": "ed764550e25f776263882ce2639a21a4685eb85868e564a0036bee30991543f7"
+    },
+    {
+      "id": "B-29bc:RP-038",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Independent documentation-code consistency review for story B-29bc under review run RR-051 (RI-007 wave 2). Step 1: extracted exported symbols and types from git diff main...HEAD across packages/main/src, including ReviewInventoryPurposeBinding, validateCriticReviewPurpose, requireInventoryCriticSubjectLocked, inventoryPurposeMatchesEpoch, and withReviewInventoryMutationLock, along with CLI fields reviewPurpose and inventoryEpochId. Step 2/3: compared referenced paragraphs in docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md, docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md, docs/audits/inventory-critic-purpose-isolation.md, and agent templates. Closed self-check: verified all new CLI arguments, command examples, and runtime behavior descriptions match handler registrations and schemas exactly with no promised-but-undelivered features or dangling deleted symbols. No new defect family found; known F-005/F-006 epoch negative test signing / audit semantic coverage items remain registered under canonical F-005. Documentation consistency check passed with no blocking issues.",
+      "createdAt": "2026-09-07T17:26:42.484Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-051",
+      "envelopeId": "0e7b39958d0d61b628d434a0cb5073a4af0c0dd02ca0a1a83ef84d4c8516ea61",
+      "writerSessionId": "agy-b29bc-ri007w2-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "AGENTS.md",
+          "CLAUDE.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "README.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "scripts/verify-proof-or-stop-prompt-baseline.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "851bb29f66ba35d4a5e004189eea37ff140a6949ad0dc4cd563aa152486273b2"
     }
   ]
 }
