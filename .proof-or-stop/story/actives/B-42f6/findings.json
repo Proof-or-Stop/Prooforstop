@@ -404,7 +404,7 @@
       "desc": "RI-003 wave2 duplicate contribution to canonical B-42f6:F-006 and prior coverage F-008; no new defect family. Fresh inspection confirms unchanged source at packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 and existing full132 validation failure for missing historical probe rp-mtifubae-dfbh4w. The plan requires configured validation success; the five passing pinned receipts cannot replace that missing acceptance evidence. No code diff since wave1 and no new execution is claimed. Keep the canonical blocker for repair and genuine verification; this terminal does not claim PASS or resolved status.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-07T10:35:47.918Z",
@@ -434,7 +434,10 @@
       "signatureTag": "missing|mjs|wave2-duplicate-contribution",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3uj4f_1cr4_6d8e3e0ba2a74750b21692f04d41241b",
-      "ledgerCommitReceiptId": "lrc_mtr3uj4f_1cr4_ef8d83fce881469d800848c8069820b4"
+      "ledgerCommitReceiptId": "lrc_mtr3uj4f_1cr4_ef8d83fce881469d800848c8069820b4",
+      "resolvedAt": "2026-09-07T10:55:25.540Z",
+      "resolvedReason": "Fixed by commits 780cc42ed6, a1d58dd487 and df2133a1c8 in the existing ledger integrity guard. Historical Story identity assertions remain; actual fixed historical missing-module and current GREEN imports feed fresh production candidate fixtures. Real CLI probe reads and good/bad relation evaluation are exercised; changed commands fail closed. Original historical artifacts are not recreated. Focused final guard, registration 26 GREEN and process-fact contract passed; /private/tmp/B-42f6-integration/ledger-cli-final-guard.log and ledger-cli-registration.log preserve results. Full132 on final code is still required.",
+      "resolutionType": "fixed"
     }
   ]
 }
