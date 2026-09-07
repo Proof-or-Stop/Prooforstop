@@ -37,6 +37,44 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768",
       "ledgerCommitReceiptId": "lrc_mtr2w29b_f4z_2ac516b309ed46259b1e23e0f2cda2c8"
+    },
+    {
+      "id": "B-42f6:F-002",
+      "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 143, \"reason\": \"The new loop's normalizeNestedSpaceAlias assertion (lines 144-145) duplicates the pre-existing assertion at lines 132-137, which already covers the empty prefix with the identical expectation. The genuinely new coverage in this block is the actual runCli help-equivalence check (146-148) and the unknown-action CLI rejection (150-152); the alias re-assertion adds no discrimination. Redundant test coverage only, no false-pass risk.\", \"severity\": \"low\"} Independent assessment: Redundant assertion is real but adds no false-pass risk; adjacent real CLI checks add coverage. Informational cleanup observation, not verified acceptance defect. No repair, deferral or signed applicability verdict asserted.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Redundant assertion is real but adds no false-pass risk; adjacent real CLI checks add coverage. Informational cleanup observation, not verified acceptance defect.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:09:03.370Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3aab5ee471c301928259cb249a19b4e56ff304c0639bacb7524c909d159fac00",
+      "files": [
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr2w51n_fh8_72de3d03d7584e4cb8cc530282a4a454",
+      "ledgerCommitReceiptId": "lrc_mtr2w51n_fh8_ea77e87043e14e7fa62db9f6eaf24bda"
     }
   ]
 }

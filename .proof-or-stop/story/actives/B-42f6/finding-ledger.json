@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "c885dd468094c103a94e092c8fe8f0b6bc0027d9d452e21cfda52d6cde0ea0f3",
+  "committedLedgerDigest": "976ee05716abc1f952776f9a5fd39141cc93fc3e5cf82931f730dc42918eb563",
   "records": [
     {
       "recordId": "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768",
@@ -49,6 +49,52 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T10:08:59.759Z"
+    },
+    {
+      "recordId": "lr_mtr2w51n_fh8_72de3d03d7584e4cb8cc530282a4a454",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:ba7d0df4-353b-48cd-b4c9-0c2a9279dba4",
+      "payload": {
+        "id": "B-42f6:F-002",
+        "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 143, \"reason\": \"The new loop's normalizeNestedSpaceAlias assertion (lines 144-145) duplicates the pre-existing assertion at lines 132-137, which already covers the empty prefix with the identical expectation. The genuinely new coverage in this block is the actual runCli help-equivalence check (146-148) and the unknown-action CLI rejection (150-152); the alias re-assertion adds no discrimination. Redundant test coverage only, no false-pass risk.\", \"severity\": \"low\"} Independent assessment: Redundant assertion is real but adds no false-pass risk; adjacent real CLI checks add coverage. Informational cleanup observation, not verified acceptance defect. No repair, deferral or signed applicability verdict asserted.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "suspected",
+        "uncertaintyReason": "Redundant assertion is real but adds no false-pass risk; adjacent real CLI checks add coverage. Informational cleanup observation, not verified acceptance defect.",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T10:09:03.370Z",
+        "reviewRound": "2026-09-07T10:06:11.989Z",
+        "reviewRunId": "B-42f6:RR-011",
+        "readManifest": {
+          "filesReadFully": [
+            "packages/main/src/core/scope-inventory-budget.ts"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "3aab5ee471c301928259cb249a19b4e56ff304c0639bacb7524c909d159fac00",
+        "files": [
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ],
+        "signatureTag": "missing|ts|imported-claude-round",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "92fda89d60d504f65e0d27728f5a0736ef05621eb32da872939dd9122e8659fb",
+      "priorDigest": "c885dd468094c103a94e092c8fe8f0b6bc0027d9d452e21cfda52d6cde0ea0f3",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T10:09:03.371Z"
     }
   ],
   "receipts": [
@@ -93,6 +139,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "7e0e56e30d1b7e446320958e593db3986b05fe1aaa256f27241d2b6f8bfd699c",
         "signature": "vMz1g2EDtM2rFUPn2PwP+lyRxDAsr0rME33Oz1S72PEFvAPme7yTD+sd6r63Hxzo4+/47xu9ZqP880Fx3CSpAA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr2w51n_fh8_ea77e87043e14e7fa62db9f6eaf24bda",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:ba7d0df4-353b-48cd-b4c9-0c2a9279dba4",
+      "requestDigest": "741f4d681395eb748dace56a7fe124248aa1a62013ab43eb22a89e1f3035c46d",
+      "recordIds": [
+        "lr_mtr2w51n_fh8_72de3d03d7584e4cb8cc530282a4a454"
+      ],
+      "priorLedgerDigest": "c885dd468094c103a94e092c8fe8f0b6bc0027d9d452e21cfda52d6cde0ea0f3",
+      "committedLedgerDigest": "976ee05716abc1f952776f9a5fd39141cc93fc3e5cf82931f730dc42918eb563",
+      "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+      "writerFenceToken": "152b7d5a-b447-4035-b1a1-47a9b4c07c3c",
+      "committedAt": "2026-09-07T10:09:03.371Z",
+      "replayed": false,
+      "exactRequestDigest": "abdd6f6eedd5001522b3c7c4847974ab21484d82b751def76a6a8789342e7fd1",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr2w51n_fh8_ea77e87043e14e7fa62db9f6eaf24bda",
+        "storyId": "B-42f6",
+        "idempotencyKey": "finding_add:ba7d0df4-353b-48cd-b4c9-0c2a9279dba4",
+        "exactRequestDigest": "abdd6f6eedd5001522b3c7c4847974ab21484d82b751def76a6a8789342e7fd1",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr2w51n_fh8_72de3d03d7584e4cb8cc530282a4a454"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "c885dd468094c103a94e092c8fe8f0b6bc0027d9d452e21cfda52d6cde0ea0f3",
+        "committedLedgerDigest": "976ee05716abc1f952776f9a5fd39141cc93fc3e5cf82931f730dc42918eb563",
+        "replayed": false,
+        "committedAt": "2026-09-07T10:09:03.371Z",
+        "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+        "writerLeaseId": "sess-111f787341add2cdbadb7c69b7d6e96a",
+        "writerFenceToken": "152b7d5a-b447-4035-b1a1-47a9b4c07c3c",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "f97061f9dec927fab927e32b026aed0654d4ea233bd3d466709dbc520027288c",
+        "signature": "HNkmWefWZCH+rKjW/zF5en+IIR5iyheEBu25t90byKyDfc60Uf2gCK8PIsbhHAH49/zbMP+hlFP1xHGdwKteDg=="
       }
     }
   ]
