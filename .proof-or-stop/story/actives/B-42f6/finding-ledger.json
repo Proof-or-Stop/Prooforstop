@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "976ee05716abc1f952776f9a5fd39141cc93fc3e5cf82931f730dc42918eb563",
+  "committedLedgerDigest": "8012ad9e812c1fbb8f03288699b2550d95b5bba2f0ec292a6d15fa2c6ea84d7d",
   "records": [
     {
       "recordId": "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768",
@@ -95,6 +95,52 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T10:09:03.371Z"
+    },
+    {
+      "recordId": "lr_mtr2w7ts_fts_e455cbfe8b7345348199fdd56ab4adde",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:9c76b429-d307-437f-8485-dd4cb3754e95",
+      "payload": {
+        "id": "B-42f6:F-003",
+        "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/handlers/scope-contract.ts\", \"line\": 446, \"reason\": \"Third writer `scope_contract_acknowledge` persists via store.writeScopeContract without the new validateFullTaskScopeContext(projectScopeInventory(...)) guard that scope_contract_set (line 197) and scope_contract_init_from_plan (line 354) now apply. It only appends acknowledgements and merges originalPathInputs, so it cannot itself push a path list past 4096 entries; but the projected scope is byte-budgeted in aggregate and the acknowledge path is the one writer that can grow a contract unboundedly (unbounded acknowledgements array, and canonicalAckPaths.originals merged into originalPathInputs). originalPathInputs and acknowledgements are not part of projectScopeInventory's output, so the serialized-byte budget is not currently reachable through this path \\u2014 the gap is that the writer-side invariant is enforced at two of three writers by construction rather than at a single choke point. Per the project's Handler encoding convention (every consuming point revalidates), a future field promoted into the projection, or a future acknowledge-time scope widening, would bypass the boundary silently. Non-blocking for this candidate: not reachable today, no gate evidence is falsified.\", \"severity\": \"medium\"} Independent assessment: Acknowledgement writes only nonprojected fields today. Hypothetical future projection changes are not a verified current bypass. No repair, deferral or signed applicability verdict asserted.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "suspected",
+        "uncertaintyReason": "Acknowledgement writes only nonprojected fields today. Hypothetical future projection changes are not a verified current bypass.",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T10:09:06.975Z",
+        "reviewRound": "2026-09-07T10:06:11.989Z",
+        "reviewRunId": "B-42f6:RR-011",
+        "readManifest": {
+          "filesReadFully": [
+            "packages/main/src/core/scope-inventory-budget.ts"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "27893ff9f20bed846f7ecd2b608863d5a0dd62c8fda08f8e1c072e69fbcbdc7a",
+        "files": [
+          "packages/main/src/handlers/scope-contract.ts"
+        ],
+        "signatureTag": "missing|ts|imported-claude-round",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "ec405577a54ce120db2d6b39db505505df2be337c68e560078e29e528fe6be9d",
+      "priorDigest": "976ee05716abc1f952776f9a5fd39141cc93fc3e5cf82931f730dc42918eb563",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T10:09:06.976Z"
     }
   ],
   "receipts": [
@@ -182,6 +228,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "f97061f9dec927fab927e32b026aed0654d4ea233bd3d466709dbc520027288c",
         "signature": "HNkmWefWZCH+rKjW/zF5en+IIR5iyheEBu25t90byKyDfc60Uf2gCK8PIsbhHAH49/zbMP+hlFP1xHGdwKteDg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr2w7ts_fts_105edad49df6408cb656d24f2f74a1fa",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:9c76b429-d307-437f-8485-dd4cb3754e95",
+      "requestDigest": "43bb26747c7c0c66795f1e19cadcd6165d5937dcb3621114cab8b42a9127a061",
+      "recordIds": [
+        "lr_mtr2w7ts_fts_e455cbfe8b7345348199fdd56ab4adde"
+      ],
+      "priorLedgerDigest": "976ee05716abc1f952776f9a5fd39141cc93fc3e5cf82931f730dc42918eb563",
+      "committedLedgerDigest": "8012ad9e812c1fbb8f03288699b2550d95b5bba2f0ec292a6d15fa2c6ea84d7d",
+      "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+      "writerFenceToken": "db502cd4-4387-4a9d-8172-5596d98e45cb",
+      "committedAt": "2026-09-07T10:09:06.976Z",
+      "replayed": false,
+      "exactRequestDigest": "cad59e0acd05d62f15c6291a94e306261f1dea95119bacb78dd290f41922b00b",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr2w7ts_fts_105edad49df6408cb656d24f2f74a1fa",
+        "storyId": "B-42f6",
+        "idempotencyKey": "finding_add:9c76b429-d307-437f-8485-dd4cb3754e95",
+        "exactRequestDigest": "cad59e0acd05d62f15c6291a94e306261f1dea95119bacb78dd290f41922b00b",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr2w7ts_fts_e455cbfe8b7345348199fdd56ab4adde"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "976ee05716abc1f952776f9a5fd39141cc93fc3e5cf82931f730dc42918eb563",
+        "committedLedgerDigest": "8012ad9e812c1fbb8f03288699b2550d95b5bba2f0ec292a6d15fa2c6ea84d7d",
+        "replayed": false,
+        "committedAt": "2026-09-07T10:09:06.976Z",
+        "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+        "writerLeaseId": "sess-111f787341add2cdbadb7c69b7d6e96a",
+        "writerFenceToken": "db502cd4-4387-4a9d-8172-5596d98e45cb",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "80171bb50a33e9bd45bc81101c870557601d8da811fd1d52915be2f61744d35c",
+        "signature": "O2wul+295kqMGluWybamlD+QtYKIzzqaaiJcy1twcvnQM76pOKz3eQ31LS/j7ibt46ZWN84A6KFLIptkpyGxCQ=="
       }
     }
   ]

@@ -75,6 +75,44 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2w51n_fh8_72de3d03d7584e4cb8cc530282a4a454",
       "ledgerCommitReceiptId": "lrc_mtr2w51n_fh8_ea77e87043e14e7fa62db9f6eaf24bda"
+    },
+    {
+      "id": "B-42f6:F-003",
+      "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/handlers/scope-contract.ts\", \"line\": 446, \"reason\": \"Third writer `scope_contract_acknowledge` persists via store.writeScopeContract without the new validateFullTaskScopeContext(projectScopeInventory(...)) guard that scope_contract_set (line 197) and scope_contract_init_from_plan (line 354) now apply. It only appends acknowledgements and merges originalPathInputs, so it cannot itself push a path list past 4096 entries; but the projected scope is byte-budgeted in aggregate and the acknowledge path is the one writer that can grow a contract unboundedly (unbounded acknowledgements array, and canonicalAckPaths.originals merged into originalPathInputs). originalPathInputs and acknowledgements are not part of projectScopeInventory's output, so the serialized-byte budget is not currently reachable through this path \\u2014 the gap is that the writer-side invariant is enforced at two of three writers by construction rather than at a single choke point. Per the project's Handler encoding convention (every consuming point revalidates), a future field promoted into the projection, or a future acknowledge-time scope widening, would bypass the boundary silently. Non-blocking for this candidate: not reachable today, no gate evidence is falsified.\", \"severity\": \"medium\"} Independent assessment: Acknowledgement writes only nonprojected fields today. Hypothetical future projection changes are not a verified current bypass. No repair, deferral or signed applicability verdict asserted.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Acknowledgement writes only nonprojected fields today. Hypothetical future projection changes are not a verified current bypass.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:09:06.975Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "27893ff9f20bed846f7ecd2b608863d5a0dd62c8fda08f8e1c072e69fbcbdc7a",
+      "files": [
+        "packages/main/src/handlers/scope-contract.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr2w7ts_fts_e455cbfe8b7345348199fdd56ab4adde",
+      "ledgerCommitReceiptId": "lrc_mtr2w7ts_fts_105edad49df6408cb656d24f2f74a1fa"
     }
   ]
 }
