@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-e124",
+  "executionKey": "ce:v1:8d89cc5f43139d077b80f3add7787a064a2e6b61fa11953daa90e1f656fefcab",
+  "identityDigest": "8d89cc5f43139d077b80f3add7787a064a2e6b61fa11953daa90e1f656fefcab",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-e124",
+    "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/dist/tasks/done-required-validation-smoke.js"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124/.proof-or-stop/story/actives/B-e124/causal-evidence/receipts",
+          "probe": "access_w:/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124/.proof-or-stop/story/actives/B-e124/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:f594b083b43a8a335b8006f43809e16336b928f624c401f2f2f824eaeeee42dc",
+          "path": "/Users/qipan/work/repo/Prooforstop/.git/worktrees/B-e124/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124",
+          "expected": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-e124",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+    "effectiveEnvironment": {
+      "CODEX_CI": "1",
+      "CODEX_PERMISSION_PROFILE": ":workspace",
+      "CODEX_SANDBOX": "seatbelt",
+      "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+      "COLORTERM": "",
+      "DISABLE_AUTOUPDATER": "1",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/qipan",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "qipan",
+      "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S": "9230e2bd8b24b7ac7a0ba6774c64bf0d78ecdabbdd91d0ed627b02a587bae2df",
+      "NO_COLOR": "1",
+      "PAGER": "cat",
+      "PATH": "/Users/qipan/.local/bin:/Users/qipan/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/VMware Fusion.app/Contents/Public:/Users/qipan/.codex/tmp/arg0/codex-arg0fV9bD4:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/qipan/.grok/bin:/Users/qipan/.kimi-code/bin:/Users/qipan/flutter/bin:/Users/qipan/.local/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/bin/maxit-v11.400/bin:/Users/qipan/.opencode/bin:/Users/qipan/bin/depot_tools:/opt/homebrew/sbin:/Users/qipan/.bun/bin:/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/Users/qipan/Library/pnpm:/Users/qipan/.cabal/bin:/Users/qipan/.ghcup/bin:/opt/homebrew/opt/mysql-client/bin:/Users/qipan/bin/FlameGraph:/Users/qipan/bin:/opt/homebrew/opt/rabbitmq/sbin:/opt/homebrew/bin:/Users/qipan/.cargo/bin:/Users/qipan/.orbstack/bin:/Users/qipan/.lmstudio/bin:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Users/qipan/.orbstack/bin",
+      "PWD": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124",
+      "SHELL": "/bin/zsh",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/",
+      "USER": "qipan",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0x19:0x34"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.275",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "6dd10f3968ede29c836a9c05f2d4817c125b1735ab601017a5959b3fb21e415d",
+  "outputTail": "done-required-validation smoke passed\n",
+  "outputProbe": "done-required-validation smoke passed\n",
+  "outputLength": 38,
+  "executedAt": "2026-09-07T03:20:11.726Z",
+  "durationMs": 12358,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "dl4jUF6gj1VXYvBGXZmdS0RbNdUFEDoIrNEeZ/6U+MM=",
+  "signature": "z+9q7h79mk3zdh3C3f3s8i7UJ6br02pHgGn/Ry5y24YhdJJXH+usGDV1RvG3RK4GDNB2LEGRySDsv5DsF1CCCQ==",
+  "receiptHash": "cfa70aa8fae795a2713ee05c1788c64f57a95d8e64e0db00ae3e6224c0de3139"
+}

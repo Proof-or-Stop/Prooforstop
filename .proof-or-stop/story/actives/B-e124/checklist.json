@@ -24,19 +24,31 @@
         "happy": [
           {
             "desc": "All six advertised lab subcommands resolve to their registered flat handlers, including real CLI lab create --help returning command help successfully.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+              "selector": "cli surface smoke passed"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Flat Lab commands remain available and nested aliases preserve forwarded arguments without altering handler behavior.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+              "selector": "cli surface smoke passed"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Unknown lab subcommands remain unmatched and fail as unknown commands rather than silently selecting a registered handler.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+              "selector": "cli surface smoke passed"
+            }
           }
         ]
       },
@@ -46,7 +58,81 @@
         "headHash": "741d64e4d1e0e288571862e9ac56f90782567954",
         "attestedAt": "2026-09-07T03:09:13.828Z",
         "materialHash": "636d812547a9e1fb7edb37980cd12d39df2f2ed6173c7027032d863b6cedaaf2"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "Runs the complete bounded regression checks, including negative assertions; result and receipt must be derived by the CLI.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8eec03ad6ac7bc657a770f256c76631d00cdf2ae9100e0e84981943c9066f73b",
+            "outputTail": "cli surface smoke passed\n",
+            "selectorMatched": true,
+            "selector": "cli surface smoke passed",
+            "executedAt": "2026-09-07T03:19:55.933Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:e1099bce4aa2526d159f0502d3a040cb7c48dad97cdd9997f9777a06ccb56975",
+            "causalReceiptHash": "02b16e0b20de0e7372a26d4ac508cf63c28a112f966139a86a1fcfc7241f86cc",
+            "commandReruns": 0
+          },
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+          "timestamp": "2026-09-07T03:23:11.558Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "Runs the complete bounded regression checks, including negative assertions; result and receipt must be derived by the CLI.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8eec03ad6ac7bc657a770f256c76631d00cdf2ae9100e0e84981943c9066f73b",
+            "outputTail": "cli surface smoke passed\n",
+            "selectorMatched": true,
+            "selector": "cli surface smoke passed",
+            "executedAt": "2026-09-07T03:19:55.933Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:e1099bce4aa2526d159f0502d3a040cb7c48dad97cdd9997f9777a06ccb56975",
+            "causalReceiptHash": "02b16e0b20de0e7372a26d4ac508cf63c28a112f966139a86a1fcfc7241f86cc",
+            "commandReruns": 0
+          },
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+          "timestamp": "2026-09-07T03:23:11.558Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/cli-surface-smoke.js",
+          "result": "pass",
+          "note": "Runs the complete bounded regression checks, including negative assertions; result and receipt must be derived by the CLI.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "8eec03ad6ac7bc657a770f256c76631d00cdf2ae9100e0e84981943c9066f73b",
+            "outputTail": "cli surface smoke passed\n",
+            "selectorMatched": true,
+            "selector": "cli surface smoke passed",
+            "executedAt": "2026-09-07T03:19:55.933Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:e1099bce4aa2526d159f0502d3a040cb7c48dad97cdd9997f9777a06ccb56975",
+            "causalReceiptHash": "02b16e0b20de0e7372a26d4ac508cf63c28a112f966139a86a1fcfc7241f86cc",
+            "commandReruns": 0
+          },
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+          "timestamp": "2026-09-07T03:23:11.558Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
@@ -70,19 +156,31 @@
         "happy": [
           {
             "desc": "Changing ambient canonical PROOF_OR_STOP transport identity keys leaves the effective validation environment digest unchanged.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+              "selector": "done-required-validation smoke passed"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Frozen historical transport key list and its pinned digest remain unchanged while retired LATTICE spellings are not active transport matches.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+              "selector": "done-required-validation smoke passed"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Semantic ambient values and explicit command.env overlays, including overlays of normally transport-only keys, remain digest-sensitive.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+              "selector": "done-required-validation smoke passed"
+            }
           }
         ]
       },
@@ -92,7 +190,81 @@
         "headHash": "62fd943a88488d0160286db21826347da9cc384d",
         "attestedAt": "2026-09-07T03:10:02.831Z",
         "materialHash": "1867a1176e53cbe55286f476266f6793ad8269e75a88f2a37fac61f3f12906b9"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-002:happy:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Runs the complete bounded regression checks, including negative assertions; result and receipt must be derived by the CLI.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6dd10f3968ede29c836a9c05f2d4817c125b1735ab601017a5959b3fb21e415d",
+            "outputTail": "done-required-validation smoke passed\n",
+            "selectorMatched": true,
+            "selector": "done-required-validation smoke passed",
+            "executedAt": "2026-09-07T03:20:11.726Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:8d89cc5f43139d077b80f3add7787a064a2e6b61fa11953daa90e1f656fefcab",
+            "causalReceiptHash": "cfa70aa8fae795a2713ee05c1788c64f57a95d8e64e0db00ae3e6224c0de3139",
+            "commandReruns": 0
+          },
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+          "timestamp": "2026-09-07T03:23:11.558Z"
+        },
+        {
+          "intentRef": "CHK-002:edge:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Runs the complete bounded regression checks, including negative assertions; result and receipt must be derived by the CLI.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6dd10f3968ede29c836a9c05f2d4817c125b1735ab601017a5959b3fb21e415d",
+            "outputTail": "done-required-validation smoke passed\n",
+            "selectorMatched": true,
+            "selector": "done-required-validation smoke passed",
+            "executedAt": "2026-09-07T03:20:11.726Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:8d89cc5f43139d077b80f3add7787a064a2e6b61fa11953daa90e1f656fefcab",
+            "causalReceiptHash": "cfa70aa8fae795a2713ee05c1788c64f57a95d8e64e0db00ae3e6224c0de3139",
+            "commandReruns": 0
+          },
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+          "timestamp": "2026-09-07T03:23:11.558Z"
+        },
+        {
+          "intentRef": "CHK-002:adversarial:0",
+          "kind": "integration_test",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Runs the complete bounded regression checks, including negative assertions; result and receipt must be derived by the CLI.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6dd10f3968ede29c836a9c05f2d4817c125b1735ab601017a5959b3fb21e415d",
+            "outputTail": "done-required-validation smoke passed\n",
+            "selectorMatched": true,
+            "selector": "done-required-validation smoke passed",
+            "executedAt": "2026-09-07T03:20:11.726Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:8d89cc5f43139d077b80f3add7787a064a2e6b61fa11953daa90e1f656fefcab",
+            "causalReceiptHash": "cfa70aa8fae795a2713ee05c1788c64f57a95d8e64e0db00ae3e6224c0de3139",
+            "commandReruns": 0
+          },
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+          "timestamp": "2026-09-07T03:23:11.558Z"
+        }
+      ]
     },
     {
       "id": "CHK-003",
@@ -121,19 +293,31 @@
         "happy": [
           {
             "desc": "All four remaining reproduced baseline smokes pass their original assertions.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const name of [\\\"english-early-check-smoke\\\",\\\"verification-run-and-guard-smoke\\\",\\\"validate-progress-heartbeat-smoke\\\",\\\"proofstory-acceptance-basis-smoke\\\"]){const r=spawnSync(process.execPath,[\\\"packages/main/dist/tasks/\\\"+name+\\\".js\\\"],{stdio:\\\"inherit\\\"});if(r.status!==0)process.exit(r.status||1)} console.log(\\\"B-e124 remaining baseline checks passed\\\");\"",
+              "selector": "B-e124 remaining baseline checks passed"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Compiled document checks find root guidance and the timeout fixture uses canonical config.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const name of [\\\"english-early-check-smoke\\\",\\\"verification-run-and-guard-smoke\\\",\\\"validate-progress-heartbeat-smoke\\\",\\\"proofstory-acceptance-basis-smoke\\\"]){const r=spawnSync(process.execPath,[\\\"packages/main/dist/tasks/\\\"+name+\\\".js\\\"],{stdio:\\\"inherit\\\"});if(r.status!==0)process.exit(r.status||1)} console.log(\\\"B-e124 remaining baseline checks passed\\\");\"",
+              "selector": "B-e124 remaining baseline checks passed"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Only pinned passing docs verifiers regain mechanical coverage; command substitution, acceptance-basis mutations and true command hangs remain rejected.",
-            "type": "cli"
+            "type": "cli",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const name of [\\\"english-early-check-smoke\\\",\\\"verification-run-and-guard-smoke\\\",\\\"validate-progress-heartbeat-smoke\\\",\\\"proofstory-acceptance-basis-smoke\\\"]){const r=spawnSync(process.execPath,[\\\"packages/main/dist/tasks/\\\"+name+\\\".js\\\"],{stdio:\\\"inherit\\\"});if(r.status!==0)process.exit(r.status||1)} console.log(\\\"B-e124 remaining baseline checks passed\\\");\"",
+              "selector": "B-e124 remaining baseline checks passed"
+            }
           }
         ]
       },
@@ -144,7 +328,81 @@
         "headHash": "c7aca06d7f7fd3f0361bd4741e5adbb86105622b",
         "attestedAt": "2026-09-07T03:19:36.088Z",
         "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932"
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-003:happy:0",
+          "kind": "integration_test",
+          "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const name of [\\\"english-early-check-smoke\\\",\\\"verification-run-and-guard-smoke\\\",\\\"validate-progress-heartbeat-smoke\\\",\\\"proofstory-acceptance-basis-smoke\\\"]){const r=spawnSync(process.execPath,[\\\"packages/main/dist/tasks/\\\"+name+\\\".js\\\"],{stdio:\\\"inherit\\\"});if(r.status!==0)process.exit(r.status||1)} console.log(\\\"B-e124 remaining baseline checks passed\\\");\"",
+          "result": "pass",
+          "note": "Runs the complete bounded regression checks, including negative assertions; result and receipt must be derived by the CLI.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "874b7e627980a82aaac612022fa6ec9a6e51a04864551776802bac03c4bc831c",
+            "outputTail": "ok: story_create refuses CJK background before persistence\nok: story_create refuses CJK checklist title/context before persistence\nok: story_create refuses CJK relatedDocs before persistence\nok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement\nok: English story_create succeeds with em dash punctuation\nok: background_set refuses CJK before writing\nok: early authoring check and english-artifact gate agree on containsCJK\nok: agent docs preserve the recursive English-authoring boundary\nenglish-early-check smoke passed\nNOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\nvalidate-progress-heartbeat smoke passed\nProofStory acceptance coverage basis Wave 1A smoke passed\nB-e124 remaining baseline checks passed\n",
+            "selectorMatched": true,
+            "selector": "B-e124 remaining baseline checks passed",
+            "executedAt": "2026-09-07T03:23:09.103Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:eff17df91f5cc2bc3638eab86106862eab9d2a3772a7831d0dc03f66aca7ee88",
+            "causalReceiptHash": "49019ffb1171a897469bd511e9a5aa00a2ab1c7a90238f642817ee29ebd72535",
+            "commandReruns": 0
+          },
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+          "timestamp": "2026-09-07T03:23:11.558Z"
+        },
+        {
+          "intentRef": "CHK-003:edge:0",
+          "kind": "integration_test",
+          "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const name of [\\\"english-early-check-smoke\\\",\\\"verification-run-and-guard-smoke\\\",\\\"validate-progress-heartbeat-smoke\\\",\\\"proofstory-acceptance-basis-smoke\\\"]){const r=spawnSync(process.execPath,[\\\"packages/main/dist/tasks/\\\"+name+\\\".js\\\"],{stdio:\\\"inherit\\\"});if(r.status!==0)process.exit(r.status||1)} console.log(\\\"B-e124 remaining baseline checks passed\\\");\"",
+          "result": "pass",
+          "note": "Runs the complete bounded regression checks, including negative assertions; result and receipt must be derived by the CLI.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "874b7e627980a82aaac612022fa6ec9a6e51a04864551776802bac03c4bc831c",
+            "outputTail": "ok: story_create refuses CJK background before persistence\nok: story_create refuses CJK checklist title/context before persistence\nok: story_create refuses CJK relatedDocs before persistence\nok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement\nok: English story_create succeeds with em dash punctuation\nok: background_set refuses CJK before writing\nok: early authoring check and english-artifact gate agree on containsCJK\nok: agent docs preserve the recursive English-authoring boundary\nenglish-early-check smoke passed\nNOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\nvalidate-progress-heartbeat smoke passed\nProofStory acceptance coverage basis Wave 1A smoke passed\nB-e124 remaining baseline checks passed\n",
+            "selectorMatched": true,
+            "selector": "B-e124 remaining baseline checks passed",
+            "executedAt": "2026-09-07T03:23:09.103Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:eff17df91f5cc2bc3638eab86106862eab9d2a3772a7831d0dc03f66aca7ee88",
+            "causalReceiptHash": "49019ffb1171a897469bd511e9a5aa00a2ab1c7a90238f642817ee29ebd72535",
+            "commandReruns": 0
+          },
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+          "timestamp": "2026-09-07T03:23:11.558Z"
+        },
+        {
+          "intentRef": "CHK-003:adversarial:0",
+          "kind": "integration_test",
+          "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const name of [\\\"english-early-check-smoke\\\",\\\"verification-run-and-guard-smoke\\\",\\\"validate-progress-heartbeat-smoke\\\",\\\"proofstory-acceptance-basis-smoke\\\"]){const r=spawnSync(process.execPath,[\\\"packages/main/dist/tasks/\\\"+name+\\\".js\\\"],{stdio:\\\"inherit\\\"});if(r.status!==0)process.exit(r.status||1)} console.log(\\\"B-e124 remaining baseline checks passed\\\");\"",
+          "result": "pass",
+          "note": "Runs the complete bounded regression checks, including negative assertions; result and receipt must be derived by the CLI.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "874b7e627980a82aaac612022fa6ec9a6e51a04864551776802bac03c4bc831c",
+            "outputTail": "ok: story_create refuses CJK background before persistence\nok: story_create refuses CJK checklist title/context before persistence\nok: story_create refuses CJK relatedDocs before persistence\nok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement\nok: English story_create succeeds with em dash punctuation\nok: background_set refuses CJK before writing\nok: early authoring check and english-artifact gate agree on containsCJK\nok: agent docs preserve the recursive English-authoring boundary\nenglish-early-check smoke passed\nNOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\nvalidate-progress-heartbeat smoke passed\nProofStory acceptance coverage basis Wave 1A smoke passed\nB-e124 remaining baseline checks passed\n",
+            "selectorMatched": true,
+            "selector": "B-e124 remaining baseline checks passed",
+            "executedAt": "2026-09-07T03:23:09.103Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:eff17df91f5cc2bc3638eab86106862eab9d2a3772a7831d0dc03f66aca7ee88",
+            "causalReceiptHash": "49019ffb1171a897469bd511e9a5aa00a2ab1c7a90238f642817ee29ebd72535",
+            "commandReruns": 0
+          },
+          "headHash": "9a6411fa5d8011220c5acf884da21623676d19f0",
+          "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+          "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738",
+          "timestamp": "2026-09-07T03:23:11.558Z"
+        }
+      ]
     }
   ]
 }
