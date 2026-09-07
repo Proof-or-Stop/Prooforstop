@@ -1,6 +1,6 @@
 {
   "storyId": "B-e256",
-  "checkedAt": "2026-09-07T09:29:42.552Z",
+  "checkedAt": "2026-09-07T09:46:28.052Z",
   "features": [
     {
       "feature": "A normal rebuild preserves a usable global proof-or-stop command instead of replacing its target with a non-executable entrypoint.",
@@ -151,6 +151,13 @@
     },
     {
       "feature": "Implementer commit 9a8f26766f changes only the verifier-owned pre-review smoke and preserves the active Story through the canonical PROOF_OR_STOP_ACTIVE_STORY_ID handoff, explicit-argument precedence, deprecated fallback, canonical nested agent identity, and canonical topology-critic dispatch; the full smoke proves the repaired lifecycle path and inverse controls.",
+      "covered_by": "CHK-001, CHK-002, CHK-003 (DEV-to-REVIEW acceptance evidence)",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts"
+    },
+    {
+      "feature": "Implementer commit 866a15937f remains within the already-authorized verifier smoke and derives production execution from the explicit active-Story selector rather than assertion-count heuristics, so a legitimate topology smaller than the built-in fixture catalog still targets its real Story while the no-selector regression path stays fixture-only.",
       "covered_by": "CHK-001, CHK-002, CHK-003 (DEV-to-REVIEW acceptance evidence)",
       "status": "covered",
       "excluded_by": null,
@@ -337,14 +344,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 22,
-    "covered": 21,
+    "total": 23,
+    "covered": 22,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "2026-09-07T00:35:44.550Z",
-  "_hash": "438f8ed27ce4160a50e689f41bf2b215d33bc160bb07e7cd85ea605d659e439a",
+  "_hash": "4c114b1074826f0a02b1c8da9f869399a235cc9c4bf75083e68e407549f725da",
   "openQuestions": []
 }
