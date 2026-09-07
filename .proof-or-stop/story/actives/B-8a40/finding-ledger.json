@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "88e980769dd1c9ab871c305c48b63e5e1b454334bf7cc68a1da68ddb95f8352d",
+  "committedLedgerDigest": "5a8d556ec49a667fb4e82911cc333b839399e85abe08ba4ccb7e00c1626ad16b",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -3361,6 +3361,74 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T08:32:39.678Z"
+    },
+    {
+      "recordId": "lr_mtr1jnbq_1tkc_d60796bdf62849d89e9297c7f196c0f3",
+      "recordType": "finding",
+      "idempotencyKey": "b8a40-ri016-wave1-coverage-probe-portability-rr162",
+      "payload": {
+        "id": "B-8a40:F-092",
+        "desc": "Current required-validation blocker, same observed family as BUG-VALIDATION-PROBE-PORTABILITY. packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:35/408 pins ephemeral historical candidate probe rp-mtifubae-dfbh4w in the normal worktree path; that ref is unavailable in this repository environment, so the registered regression guard exits before exercising its real historical/current execution and relation-integrity negative controls. Independently parsed the actual CLI test_list.latest.output, not an owner summary: completed FAIL at 2026-09-07T09:21:27.902Z, head d4f74f03ca4148b5f7d06d43ce56744365db93c7, material fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd, storyFiles 6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b. Required commands total 132, 130 code 0, two required failures and no optional failures. Command[127] node packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs returned code 1 in 2329 ms: repro_probe_get failed, evidence-store artifact ref not found rp-mtifubae-dfbh4w; stack is parseCliJson line 79 and the live probe read line 408. Independently executed node bin/proof-or-stop.js repro_probe_get --probeId=rp-mtifubae-dfbh4w in BOTH the B-8a40 worktree and local main, each exit 1 with that exact missing-ref diagnostic. red_evidence_get for B-fe8f still returns both historical RED records with their reviewed identities; metadata references are not the missing candidate artifact bytes. Fully read this 578-line guard. Its special registration mirror branch requires a private Git layout, preserve-symlinks-main and symlinked config (100-109); its integrity-pinned static subset (160-191) is not the original complete CAS object and cannot honestly be promoted to that identity or used by broadening the mirror predicate. The ordinary path currently cannot reach exact baseline/current import controls at 430-447, relation evaluator/bad-digest controls at 485-503, or terminal selectors. Medium reflects a fail-closed test portability/dependency defect, not demonstrated data corruption or a newly broken classifier. It nevertheless directly blocks current TEST/DONE and needs bounded current-Story remediation, not merely backlog routing. Recommended lawful DEV repair must make the guard portable while preserving independently executed historical baseline, current GREEN, executable integrity negatives and immutable evidence provenance; no fabricated old ref, registration removal, waiver or passing hard-code. Existing same-material 13 focused must receipts, both complete real all-role mutant matrices and DONE-required 65/65 PASS remain distinct and cannot substitute for the failing formal command. Original F089-F091 observations remain preserved and no source/build/test rerun or owner state mutation was performed by this reviewer.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-07T09:31:20.916Z",
+        "reviewRound": "2026-09-07T07:37:25.032Z",
+        "reviewRunId": "B-8a40:RR-162",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+            "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-8a40/test-evidence.json",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/core/review-escalation.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "proof-or-stop.config.json",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 4,
+            "tokenCount": null
+          },
+          "digest": "d33601fea8d758db734e1982479f59c61a2043662a5b89f1a3ffb8a06bc7c1c3"
+        },
+        "readDiagnostics": [],
+        "_hash": "df9349f877de012cd84522688af335649349ac19eb817e5743ec28002e7b2254",
+        "files": [
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "signatureTag": "b8a40-validation-historical-probe-portability",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "68c20997db482612772a868e65655a89d7f1386bbd82e10afd5f08e9ec58301c",
+      "priorDigest": "88e980769dd1c9ab871c305c48b63e5e1b454334bf7cc68a1da68ddb95f8352d",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T09:31:20.918Z"
     }
   ],
   "receipts": [
@@ -8051,6 +8119,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "2e3f4a112165376c09dc1b1cd078e66674d59794beaafbd35320bc18b118e0d1",
         "signature": "EKbAVY5oi+Wf8rx2xER70WEOZfBaw2uZ1GOe2wDq+z44IBQk00G4Ca0D0SkXbJ7YUn5vJxmH/VTTPCl2RkTkAA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr1jnbr_1tkc_a23ec02cbdf343988aaf29489f605acc",
+      "operation": "append_finding",
+      "idempotencyKey": "b8a40-ri016-wave1-coverage-probe-portability-rr162",
+      "requestDigest": "67f66875422b1ea8ac27311670aaa9baaab874462098aff08e3e5aa318b03cef",
+      "recordIds": [
+        "lr_mtr1jnbq_1tkc_d60796bdf62849d89e9297c7f196c0f3"
+      ],
+      "priorLedgerDigest": "88e980769dd1c9ab871c305c48b63e5e1b454334bf7cc68a1da68ddb95f8352d",
+      "committedLedgerDigest": "5a8d556ec49a667fb4e82911cc333b839399e85abe08ba4ccb7e00c1626ad16b",
+      "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+      "writerFenceToken": "1498f162-6381-445d-90d0-391580dc7ed5",
+      "committedAt": "2026-09-07T09:31:20.918Z",
+      "replayed": false,
+      "exactRequestDigest": "df8fc23c982476815fe1bbbfa0e1545405f9937120393f5d05e1cb3d0b2556c9",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr1jnbr_1tkc_a23ec02cbdf343988aaf29489f605acc",
+        "storyId": "B-8a40",
+        "idempotencyKey": "b8a40-ri016-wave1-coverage-probe-portability-rr162",
+        "exactRequestDigest": "df8fc23c982476815fe1bbbfa0e1545405f9937120393f5d05e1cb3d0b2556c9",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr1jnbq_1tkc_d60796bdf62849d89e9297c7f196c0f3"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "88e980769dd1c9ab871c305c48b63e5e1b454334bf7cc68a1da68ddb95f8352d",
+        "committedLedgerDigest": "5a8d556ec49a667fb4e82911cc333b839399e85abe08ba4ccb7e00c1626ad16b",
+        "replayed": false,
+        "committedAt": "2026-09-07T09:31:20.918Z",
+        "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "1498f162-6381-445d-90d0-391580dc7ed5",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "0d1373003473fb9787f6dad150ead0ce3359495a07d5cddc405ff307dbdf730c",
+        "signature": "+Gw+ZTzmKLDIXgq1AEv1C91YwbgRxyn45s/SPYeZZgbsFRxCG/Cqz0vwDwycj/4rbArRzJX9sDWY725OIFTUCg=="
       }
     }
   ]

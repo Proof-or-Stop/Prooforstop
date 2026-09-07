@@ -1,14 +1,14 @@
 {
   "storyId": "B-8a40",
-  "generatedAt": "2026-09-07T08:32:41.934Z",
+  "generatedAt": "2026-09-07T09:31:21.169Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 1,
     "reviewRounds": 1,
-    "findings": 91,
-    "bugs": 0,
+    "findings": 92,
+    "bugs": 2,
     "testRuns": 0,
     "hasEvalEvidence": false,
     "hasSummary": true
@@ -99,7 +99,7 @@
           ]
         },
         "missingFindingCount": {
-          "value": 19,
+          "value": 20,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -126,13 +126,12 @@
     },
     "debugging": {
       "effective": {
-        "value": "n/a",
-        "unit": "text",
-        "confidence": "high",
+        "value": null,
+        "unit": "bool",
+        "confidence": "unknown",
         "sources": [
           "bug.json"
-        ],
-        "note": "no bugs reported"
+        ]
       },
       "metrics": {
         "bugsWithEvidenceRatio": {
@@ -227,7 +226,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 149,
+          "value": 153,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -276,7 +275,7 @@
           "note": "express channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 39,
+          "value": 40,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -317,7 +316,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 91,
+          "value": 92,
           "unit": "count",
           "confidence": "high",
           "sources": [
