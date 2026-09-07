@@ -1,0 +1,22 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "State the readCount, digest-copy, list-equality, one-submission and relative-path invariants in the managed-review protocol",
+      "context": "B-137a landed prompt text for these in commits 4906de10, 1c514a82 and 2b4858e2, each placed next to the gate that enforces it. Confirm all five still hold and add regression coverage so a later prompt edit cannot silently drop one and reintroduce a wasted review round.",
+      "userSees": "A reviewer violating any of the five rules is told which field is wrong before it spends a review, and the process-fact contract test proves the prompt text and the gate agree.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Authenticate archive.binding on the receipt-archive recovery path",
+      "context": "F-299, verified in source: the receiptId preimage has 13 fields and none is binding; readManagedHostRunBinding at managed-host-run.ts:3183 returns archive.binding after only a runId match, while the import-seal reader at :3522 re-digests bindingText against archive.evidenceBindingDigest and throws on mismatch. The protection already exists in the same file; one reader skips it.",
+      "userSees": "Editing archive.binding in a receipt archive makes readManagedHostRunBinding throw, and a smoke test proves the forged-binding case is refused.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

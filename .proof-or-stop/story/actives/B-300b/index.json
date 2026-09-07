@@ -1,0 +1,23 @@
+{
+  "storyId": "B-300b",
+  "name": "managed-review-prompt-gate-contract-gaps",
+  "title": "Close the managed-review prompt/gate contract gaps",
+  "description": "Six managed-review gates enforce invariants that no reviewer prompt states, so a compliant-looking reviewer completes a full review and is then refused. Each gap costs one wasted review round to discover. Found during B-137a across roughly fifteen review rounds; framework-wide, not B-137a-specific. Five are prose gaps in the managed-review protocol (readCount semantics, verbatim routing-digest copy, manifest/log list equality, exactly-one submission, repository-relative paths) and the sixth, F-299, is the same failure in code: readManagedHostRunBinding trusts archive.binding after only a runId check while its sibling import-seal reader re-digests it against archive.evidenceBindingDigest.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "createdAt": "2026-09-07T14:39:23.134Z",
+  "startedAt": "2026-09-07T14:39:23.134Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-07T14:39:24.236Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-390231183e0d8aec7a09085f4e7f34cf",
+      "agent": "main"
+    }
+  ]
+}
