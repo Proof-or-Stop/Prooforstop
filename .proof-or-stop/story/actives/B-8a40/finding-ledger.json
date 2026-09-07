@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "d9c901b76b2730497d00bcb55b93eb1630ff8e4631f035beeed287bfa21f9d3c",
+  "committedLedgerDigest": "9b2bafc4c3c11145dbf454ad18b76e0c6e0f05140f691d0d86fb945860c61d54",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2781,6 +2781,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T07:38:20.362Z"
+    },
+    {
+      "recordId": "lr_mtqxicqz_19xn_b0a332f84b7b42058b82c80ce4e52c7c",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqwoveh_10tm_c151f63a5c80499c81af5f6db56db8f5:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtqwoveh_10tm_c151f63a5c80499c81af5f6db56db8f5",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-92acea60-2534-4b03-96b4-1be3aa45ebea",
+        "findingId": "B-8a40:F-083",
+        "findingRecordId": "lr_mtqwoveh_10tm_c151f63a5c80499c81af5f6db56db8f5",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-07T07:38:22.089Z",
+        "reason": "Duplicate re-attestation of B-8a40:F-080, fixed in commit 1a222c4795117711818fb400dc6448e7e9322efe: the test-owned producer accepts only two fixed mutation labels, with no path or injected-code parameter. The scanner admits exactly importEnvelopeMutant/pathToFileURL(mutantPath).href bound to whole-source fingerprint 3c932df7aa37d3f489dacf3bb8696e2c895dfeee625033d595a5aa9275d26633 and a module-level producer signature pin. Drift, anchor/argument changes, rebinding, aliasing, mutable binding, type/parameter widening, default parameters and shadowed producer/URL-helper controls reject. Both all-role full-matrix mutants still execute; focused smoke and guard pass, as do process/runtime contract checks. Required companion scope acknowledgements are CLI-recorded and reviewer-visible. All 13 pinned receipts refreshed at this commit; original failures retained. This is repair, not a deferral, broad dynamic-code exemption or claim that final DONE certification has passed.",
+        "resolutionType": "duplicate",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "28af6eb9a3454a0dc181c1369fd54a06f15230b76259517f2140819050471b19",
+      "priorDigest": "d9c901b76b2730497d00bcb55b93eb1630ff8e4631f035beeed287bfa21f9d3c",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T07:38:22.091Z"
     }
   ],
   "receipts": [
@@ -6858,6 +6881,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "671af9c6f8c5c0157db9b79851178133ff6405a314d53fe5688a3d8b7a6333ac",
         "signature": "0FfhCDSJm3TBXJbz0h6tV2bJsJ1jqx+XY52noNz9LcfnJp3fYOfJvtDJuKSEVzSuLCvEABQAry0GlX+vtj9fDg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqxicr0_19xn_eeeffa563d8142ffb3534a3f487daec2",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtqwoveh_10tm_c151f63a5c80499c81af5f6db56db8f5:resolved",
+      "requestDigest": "c9af14def798a3947a5422e7559ca0e394132f63ebfac7fd4d647e545aae8a29",
+      "recordIds": [
+        "lr_mtqxicqz_19xn_b0a332f84b7b42058b82c80ce4e52c7c"
+      ],
+      "priorLedgerDigest": "d9c901b76b2730497d00bcb55b93eb1630ff8e4631f035beeed287bfa21f9d3c",
+      "committedLedgerDigest": "9b2bafc4c3c11145dbf454ad18b76e0c6e0f05140f691d0d86fb945860c61d54",
+      "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+      "writerFenceToken": "c7f838d8-4a85-4bab-a290-864f6f5a3040",
+      "committedAt": "2026-09-07T07:38:22.091Z",
+      "replayed": false,
+      "exactRequestDigest": "2edb08cb99d512f9b2e53697da3abaa85685957748d002be4c0ba01efa005168",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqxicr0_19xn_eeeffa563d8142ffb3534a3f487daec2",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding-lifecycle:lr_mtqwoveh_10tm_c151f63a5c80499c81af5f6db56db8f5:resolved",
+        "exactRequestDigest": "2edb08cb99d512f9b2e53697da3abaa85685957748d002be4c0ba01efa005168",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtqxicqz_19xn_b0a332f84b7b42058b82c80ce4e52c7c"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtqwoveh_10tm_c151f63a5c80499c81af5f6db56db8f5",
+            "expectedRecordHash": "c235755620314a8ae81fae331944b8df22070e7ae1909651289984e43d653927",
+            "observedChainHeadId": "lr_mtqxibey_17o7_3e6098c1fc7e4e1eab418089eed0c2f2",
+            "observedChainHeadHash": "c291dc68015faa589a22090001798885a6e9586408c6245d2bb72bcbb7e4248e",
+            "predicateDigest": "84d8efb067c0d4c5fd5cc7e60d482ab9702d17a0a076e909a2c5a36c4fd830ba"
+          }
+        ],
+        "priorLedgerDigest": "d9c901b76b2730497d00bcb55b93eb1630ff8e4631f035beeed287bfa21f9d3c",
+        "committedLedgerDigest": "9b2bafc4c3c11145dbf454ad18b76e0c6e0f05140f691d0d86fb945860c61d54",
+        "replayed": false,
+        "committedAt": "2026-09-07T07:38:22.091Z",
+        "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "c7f838d8-4a85-4bab-a290-864f6f5a3040",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "b2c95dc6c619bbb8f901e69a1995ed26a11a03382d0c9ce820bdddc87516ebb7",
+        "signature": "K50M6B6CarETV9KD04SxacLRDulTW3UnsNYb7+oNkP/fI1gyxqNl/nzKzAi43YV9iqF1s/CYSsRL6fy3VTI4Bg=="
       }
     }
   ]
