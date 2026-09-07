@@ -9,7 +9,9 @@ import {
   assembleConditionalReviewPromptEnvelope,
   computePromptEnvelopeId,
   verifyPromptEnvelopeIntegrity,
+  fullTaskSemanticDigest,
 } from '../core/prompt-envelope.js';
+import { SCOPE_INVENTORY_LIMITS } from '../core/scope-inventory-budget.js';
 import {
   PromptContractValidationError,
   validateFullTaskContext,
@@ -1186,6 +1188,30 @@ for (const [, unsafeAuthorityText] of unsafeTaskContextAuthorityStatements) {
 }
 
 const first = assembleFullPromptEnvelope({ ...common, createdAt: '2026-07-18T00:00:01.000Z' });
+// B-adc3: scope inventories have a separate bounded capacity; no path is omitted.
+for (const count of [513, 799, SCOPE_INVENTORY_LIMITS.pathsPerList]) {
+  const paths = Array.from({ length: count }, (_, i) => `inventory/f${String(i).padStart(5, '0')}.ts`);
+  const large = { ...taskContext, scope: { ...taskContext.scope!, allowedCreate: paths } };
+  validateFullTaskContext(large);
+  const assembled = assembleFullPromptEnvelope({ ...common, taskContext: large, createdAt: '2026-07-18T00:00:01.000Z' });
+  assert.deepEqual(assembled.taskContext.scope?.allowedCreate, paths);
+  assert.ok(assembled.prompt.includes(paths.at(-1)!));
+  const modified = { ...large, scope: { ...large.scope, allowedCreate: [...paths.slice(0, -1), 'inventory/changed-last.ts'] } };
+  assert.notEqual(fullTaskSemanticDigest(large), fullTaskSemanticDigest(modified));
+  assert.notEqual(assembled.envelope.envelopeId, assembleFullPromptEnvelope({ ...common, taskContext: modified, createdAt: '2026-07-18T00:00:01.000Z' }).envelope.envelopeId);
+}
+assert.throws(() => validateFullTaskContext({ ...taskContext, scope: { ...taskContext.scope!, allowedCreate: Array.from({ length: 4097 }, (_, i) => `p${i}`) } }), /4096/);
+assert.throws(() => validateFullTaskContext({ ...taskContext, checklist: [{ ...taskContext.checklist[0], relatedDocs: Array.from({ length: 513 }, (_, i) => `doc${i}`) }] }), /512/);
+assert.throws(() => validateFullTaskContext({ ...taskContext, scope: { ...taskContext.scope!, protectedAnchors: Array.from({ length: 513 }, (_, i) => `anchor${i}`) } }), /512/);
+const byteBoundary = { ...taskContext, scope: { ...taskContext.scope!, allowedCreate: Array.from({ length: 20 }, (_, i) => `p${i}/${'界'.repeat(16000)}`) } };
+const remaining = SCOPE_INVENTORY_LIMITS.serializedBytes - Buffer.byteLength(JSON.stringify(byteBoundary.scope), 'utf8');
+assert.ok(remaining > 0);
+// Spread ASCII padding so no individual text exceeds the existing 65536-byte bound.
+for (let i = 0; i < remaining; i++) byteBoundary.scope.allowedCreate[i % 20] += 'x';
+assert.equal(Buffer.byteLength(JSON.stringify(byteBoundary.scope), 'utf8'), SCOPE_INVENTORY_LIMITS.serializedBytes);
+validateFullTaskContext(byteBoundary);
+byteBoundary.scope.allowedCreate[0] += 'x';
+assert.throws(() => validateFullTaskContext(byteBoundary), /bytes|budget/i);
 const repeated = assembleFullPromptEnvelope({ ...common, createdAt: '2026-07-18T00:00:02.000Z' });
 assert.equal(first.prompt, repeated.prompt, 'semantic assembly is deterministic');
 assert.equal(occurrenceCount(first.prompt, reviewFindingTriageContractMarker), 1, 'full prompt carries one REVIEW triage contract');

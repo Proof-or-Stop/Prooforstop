@@ -1,0 +1,35 @@
+{
+  "storyId": "B-adc3",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [
+    "packages/main/src/core/scope-inventory-budget.ts"
+  ],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-09-07T08:33:25.331Z",
+  "updatedAt": "2026-09-07T08:35:05.961Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
+    "packages/main/src/handlers/scope-contract.ts": "packages/main/src/handlers/scope-contract.ts",
+    "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+    "packages/main/src/tasks/scope-contract-smoke.ts": "packages/main/src/tasks/scope-contract-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/core/scope-inventory-budget.ts": "packages/main/src/core/scope-inventory-budget.ts"
+  }
+}

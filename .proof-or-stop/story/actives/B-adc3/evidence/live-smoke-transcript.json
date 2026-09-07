@@ -1,0 +1,20 @@
+{
+  "storyId": "B-adc3",
+  "expected": "A valid 799-path scope starts canonical review with every path intact; oversized scope input fails before persistence instead of trapping REVIEW.",
+  "actual": {
+    "command": "node /private/tmp/B-adc3-actual-scope-replay.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-adc3",
+    "exitCode": 0,
+    "stdout": "ACTUAL_INTEGRATION_SCOPE_PASS: all 799 create paths and every other captured exact scope list preserved\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-07T09:41:40.382Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "0fd0ecd7748652c611d9845c6942731a2f3cea4c",
+  "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8"
+}

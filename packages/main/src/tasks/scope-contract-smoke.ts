@@ -20,7 +20,7 @@
  */
 import { strict as assert } from 'node:assert';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -42,6 +42,8 @@ import {
 import { createScopeContractHandlers, runScopeGate } from '../handlers/scope-contract.js';
 import { runScopeTransitionGate } from '../handlers/phase-gates.js';
 import type { HandlerContext } from '../handlers/context.js';
+import { buildFullTaskContext } from '../core/prompt-envelope.js';
+import { projectScopeInventory, SCOPE_INVENTORY_LIMITS } from '../core/scope-inventory-budget.js';
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cliPath = join(packageRoot, 'cli.js');
@@ -927,6 +929,56 @@ try {
   } finally {
     rmSync(wrapperRoot, { recursive: true, force: true });
   }
+
+  // B-adc3: accepted scope must remain representable by the downstream reviewer.
+  const budgetId = 'B-scope-budget';
+  store.writeStory(budgetId, { ...story, storyId: budgetId });
+  store.writeChecklist(budgetId, checklist);
+  const budgetHandlers = createScopeContractHandlers({ root, scanRoot: root, store } as HandlerContext);
+  const paths = (count: number) => Array.from({ length: count }, (_, i) => `packages/main/src/inventory/f${String(i).padStart(5, '0')}.ts`);
+  const budgetFile = join(root, '.proof-or-stop/story/actives', budgetId, 'scope-contract.json');
+  for (const count of [513, 799, SCOPE_INVENTORY_LIMITS.pathsPerList]) {
+    budgetHandlers.scope_contract_set({ storyId: budgetId, mode: 'enforce', allowedCreate: paths(count) });
+    const contract = store.readScopeContract(budgetId)!;
+    const context = buildFullTaskContext({ story: { ...story, storyId: budgetId }, checklist, headHash: 'a'.repeat(40), scopeContract: contract });
+    assert.equal(context.scope?.allowedCreate.length, count);
+    assert.deepEqual(context.scope?.allowedCreate, paths(count), 'writer-to-review seam preserves every exact path');
+  }
+  const beforeOverflow = readFileSync(budgetFile, 'utf8');
+  assert.throws(() => budgetHandlers.scope_contract_set({ storyId: budgetId, mode: 'enforce', allowedCreate: paths(4097) }), /4096|scope.*budget/i);
+  assert.equal(readFileSync(budgetFile, 'utf8'), beforeOverflow, 'count overflow leaves persisted contract byte-identical');
+
+  // Init-from-plan uses the same boundary and must not partially replace authority.
+  store.writeChecklist(budgetId, { items: [{ ...checklist.items[0], files: { modify: [], create: paths(4097), test: [] } }] });
+  assert.throws(() => budgetHandlers.scope_contract_init_from_plan({ storyId: budgetId }), /4096|scope.*budget/i);
+  assert.equal(readFileSync(budgetFile, 'utf8'), beforeOverflow);
+  store.writeChecklist(budgetId, checklist);
+
+  // UTF-8 aggregate accounting spans multiple lists; each individual string remains bounded.
+  const hugePaths = Array.from({ length: 32 }, (_, i) => `inventory/${i}/${'界'.repeat(12000)}.ts`);
+  assert.throws(() => budgetHandlers.scope_contract_set({ storyId: budgetId, mode: 'enforce', allowedCreate: hugePaths }), /bytes|budget/i);
+  assert.equal(readFileSync(budgetFile, 'utf8'), beforeOverflow, 'byte overflow cannot partially persist');
+  assert.ok(Buffer.byteLength(JSON.stringify(projectScopeInventory(store.readScopeContract(budgetId)!)), 'utf8') < SCOPE_INVENTORY_LIMITS.serializedBytes);
+
+  const atByteLimit = Array.from({ length: 32 }, (_, i) => `packages/main/src/inventory/${String(i).padStart(2, '0')}/${'界'.repeat(9000)}.ts`);
+  const candidate = { ...store.readScopeContract(budgetId)!, allowedCreate: atByteLimit };
+  const bytePadding = SCOPE_INVENTORY_LIMITS.serializedBytes - Buffer.byteLength(JSON.stringify(projectScopeInventory(candidate)), 'utf8');
+  assert.ok(bytePadding > 0);
+  for (let i = 0; i < bytePadding; i++) atByteLimit[i % atByteLimit.length] += 'x';
+  budgetHandlers.scope_contract_set({ storyId: budgetId, mode: 'enforce', allowedCreate: atByteLimit });
+  const exactContract = store.readScopeContract(budgetId)!;
+  assert.equal(Buffer.byteLength(JSON.stringify(projectScopeInventory(exactContract)), 'utf8'), SCOPE_INVENTORY_LIMITS.serializedBytes);
+  buildFullTaskContext({ story, checklist, headHash: 'a'.repeat(40), scopeContract: exactContract });
+  const beforeByteOverflow = readFileSync(budgetFile, 'utf8');
+  atByteLimit[0] += 'x';
+  assert.throws(() => budgetHandlers.scope_contract_set({ storyId: budgetId, mode: 'enforce', allowedCreate: atByteLimit }), /bytes|budget/i);
+  assert.equal(readFileSync(budgetFile, 'utf8'), beforeByteOverflow);
+
+  // An omitted field is inherited by buildScopeContract: validate the merged contract.
+  store.writeScopeContract(budgetId, { ...exactContract, allowedCreate: paths(4097) });
+  const inheritedOverflow = readFileSync(budgetFile, 'utf8');
+  assert.throws(() => budgetHandlers.scope_contract_set({ storyId: budgetId, mode: 'shadow', allowedModify: ['README.md'] }), /4096/);
+  assert.equal(readFileSync(budgetFile, 'utf8'), inheritedOverflow);
 
   console.log('scope contract smoke passed');
 } finally {

@@ -1,0 +1,65 @@
+{
+  "principles": [
+    "Retain exact scope authority",
+    "Align writer and consumer contracts",
+    "Bound reviewer resource exposure"
+  ],
+  "drivers": [
+    "Real 799-path scope traps REVIEW",
+    "Generic512 list limit is inappropriate for inherited inventories"
+  ],
+  "options": [
+    {
+      "name": "Shared scope-specific count and byte budget",
+      "pros": [
+        "Preserves all paths",
+        "Rejects oversize before persistence",
+        "Keeps generic limits"
+      ],
+      "cons": [
+        "Adds one shared validator and boundary policy"
+      ]
+    },
+    {
+      "name": "Glob or truncate inventory",
+      "pros": [
+        "Shorter prompt"
+      ],
+      "cons": [
+        "Changes scope authority and omits audit facts"
+      ]
+    },
+    {
+      "name": "Raise all generic list limits",
+      "pros": [
+        "Small implementation"
+      ],
+      "cons": [
+        "Unnecessarily widens unrelated reviewer input limits"
+      ]
+    }
+  ],
+  "chosen": "Shared scope-specific count and byte budget",
+  "rationale": "4096 entries accommodates the measured799 exact paths; a1MiB aggregate scope cap bounds prompt bytes without weakening unrelated512-entry contracts.",
+  "preMortem": [
+    {
+      "scenario": "Writer accepts unreviewable scope",
+      "trigger": "Different count or byte accounting",
+      "consequence": "Lifecycle deadlock repeats",
+      "mitigation": "One shared normal-form validator and writer-to-builder regression"
+    },
+    {
+      "scenario": "Oversize input exhausts prompt budget",
+      "trigger": "Huge path strings or lists",
+      "consequence": "Resource exhaustion",
+      "mitigation": "Aggregate UTF8 JSON byte and per-list count caps before persistence"
+    },
+    {
+      "scenario": "Last paths vanish silently",
+      "trigger": "Truncation to fit",
+      "consequence": "Lost scope authority",
+      "mitigation": "799-path full-envelope roundtrip and last-path digest sensitivity assertions"
+    }
+  ],
+  "timestamp": "2026-09-07T08:32:47.989Z"
+}
