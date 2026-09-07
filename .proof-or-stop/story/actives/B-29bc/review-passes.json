@@ -1263,6 +1263,41 @@
       },
       "readDiagnostics": [],
       "_hash": "95e1a3d5710da6798ae205f10a6b66a475010eeef4b75c852e97334fe655a456"
+    },
+    {
+      "id": "B-29bc:RP-030",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent RI-006 full-set concept review covers both checklist items and integrated Story scope on material acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b / Story files 5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb. Fresh canonical run and full selected body read; no earlier terminal or host verdict is asserted fresh. Current main...HEAD scope and complete new baseline-approval delta inspected, with prior integrated implementation analysis reused only after confirming packages/main unchanged from a5ed381. Background, plan, audit, inventory decision and role-matrix read fully; checklist inspected via canonical all-item context plus every changed JSON leaf against the previously fully read version. All eight current mechanical receipts retain commands/results/exit 0/selector matches; refreshed pins and CHK-002 completion timestamp are the only checklist deltas. Independently ran the focused --probe-prompt-policy-manifest command: exit 0, including role/hash/content mutation controls, collector rejection and baseline-refresh self-authorization refusal. Separately collected all 18 selected current role bodies and verified their exact approval hashes: only critic differs from old approval, and stripping the single trusted-purpose appendix restores old 9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99 exactly; new approval is 22da73c85400f6cf0a073593b998d665e71dd4d74da9432a1717a1260b82cb88. Structured snapshot deltas affect only critic approval/row/measurements and derived aggregate digests. The human-authored row accurately describes explicit signed inventory admission versus unchanged default topology, exact current terminal/Finding evidence, no fallback and no authority promotion. The immutable historical template, other role approvals and existing rejection logic are not changed by this repair. No concept deletion/replacement en masse or promised-but-unimplemented new behavior was found. Audit preserves actual failing DONE-required provenance and precisely limits focused GREEN; it does not claim renewed full-suite DONE or current host quorum. Official F-001 through F-004 remain verified/resolved history, with no new observation discovered. No source edit, build, full validation, matrix rerun, lifecycle write or host verdict was performed. Manifest is limited to actual full current reads; source/baseline/checklist inspections were bounded diffs, JSON projections and focused collector checks, not claimed whole-file reads.",
+      "createdAt": "2026-09-07T15:54:59.187Z",
+      "reviewRound": "2026-09-07T15:50:32.710Z",
+      "reviewRunId": "B-29bc:RR-032",
+      "envelopeId": "a062293dc2dd1094f8a4dee568e98ac190a8039d28b9a225f956e67bf0f46287",
+      "writerSessionId": "codex-b29bc-ri006-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "27ac80b39c8536d51f3ff300b7c65d3b249659d1b44856e260fd006accb968a2"
     }
   ]
 }
