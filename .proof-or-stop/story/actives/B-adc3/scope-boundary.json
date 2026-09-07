@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "lattice.scope_boundary.v1",
+  "storyId": "B-adc3",
+  "mode": "maintenance",
+  "allowed": [
+    "Add bounded count and byte regression tests",
+    "Repair scope writer and reviewer inventory bounds while preserving every exact path and existing authority"
+  ],
+  "excluded": [
+    "Changing B-42f6 Story state",
+    "Truncation or wildcard broadening",
+    "Widening generic prompt list limits"
+  ],
+  "confirmedBy": "qipan",
+  "confirmationNote": "User authorized framework repair of accepted scope REVIEW deadlock. Maintenance mode is necessary because correctness_fix generic Authority keyword denylist would reject preservation of the existing signed scope; no new authority mechanism is introduced.",
+  "createdAt": "2026-09-07T08:30:58.910Z",
+  "updatedAt": "2026-09-07T08:30:58.910Z",
+  "_hash": "6cea5995ff7d781480f9734ec1333a078d7319a17abe646e7d0e227085ed2fe4"
+}

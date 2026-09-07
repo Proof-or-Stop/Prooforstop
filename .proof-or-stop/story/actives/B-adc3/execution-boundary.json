@@ -1,0 +1,30 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-adc3",
+  "allowedCommands": [
+    "git",
+    "node",
+    "npm"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "exec_command",
+    "independent agents"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop",
+    "packages/main",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git push",
+    "git reset --hard"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Use isolated repair Story lifecycle and local merge only; root handles later integration and publication.",
+  "createdAt": "2026-09-07T08:30:02.552Z",
+  "updatedAt": "2026-09-07T08:30:02.552Z",
+  "_hash": "78884a1140f677a1c80be7a12d647d30ede32d6b9b6a8ba06709a4898af4770d"
+}
