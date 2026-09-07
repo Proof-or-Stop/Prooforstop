@@ -651,6 +651,41 @@
       },
       "readDiagnostics": [],
       "_hash": "2553c01fd4c15f27058dc376e48d790262603a7dbdc6f21c64fc747bc0443fa8"
+    },
+    {
+      "id": "B-29bc:RP-015",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent full-task concept review of both CHK-001 and CHK-002 and the integrated main...HEAD change, including the exact c980f6f...HEAD remediation delta, found no remaining concept-lane blocker. No concept was deleted en masse: explicit inventory purpose is added while historical/default topology semantics and documented compatibility aliases remain deliberate. Schema, purpose validation, signed dispatch/run/receipt subject, prompt composition and producer/consumer checks correspond to the declared behavior; protected topology consumer, machine, configuration, historical critic template and B-7abb/B-03b7 metadata have zero integrated diff. Independently inspected the concrete repair rather than relying on resolved status: recordReviewPass rejects either missing read field during OPEN inventory before publication and is shared by pass-only finding normalization; evidenceForRun independently rejects incomplete signed passes; evaluateReviewInventoryWave aggregates exact-purpose/current-subject signed critic findings without extra lane coverage; receipt validation still requires complete dispositions and both terminal read fields. Fresh node packages/main/dist/tasks/review-inventory-epoch-smoke.js exited 0 with both B29BC_RECOVERY selectors, including signed omission controls, wrong-purpose/subject controls and earlier-Finding/later-PASS retention. The public handler discovery and producer negative controls were read in the committed tests and current tool-owned eight-intent receipts were inspected; the seven-program campaign was not redundantly rerun. Audit b2e7b6f495 replaces the false blanket reading-evidence assertion with historical failures, bounded correction and explicit fixture/host limitations; d2461f5794 and 0ffe4cc619 provenance and Harmonynet Git identity were checked. F-001 through F-004 remain preserved in official history with resolved reasons; this review concurs with the bounded runtime and documentary correction, not with retroactive repair of old terminals. No new finding was discovered. This pass is concept-lane evidence only, not final inventory/TEST/DONE, topology certification or actual independent-host quorum. The unchanged topology decision source previously read remains reference context; manifest below identifies fully read current Story/audit/inventory inputs, while source inspections used integrated diffs and targeted code sections.",
+      "createdAt": "2026-09-07T11:13:38.259Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-016",
+      "envelopeId": "f11baec75ad73d806edc12175e00d8acf7def9aa48016ea0ee5f48e3df459263",
+      "writerSessionId": "codex-b29bc-ri003-final-concept",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "2943015c12ee4ee65597deea35bff3077b63dc127766a4fb51c4a50d0b269116"
     }
   ]
 }
