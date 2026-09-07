@@ -363,7 +363,7 @@
       "desc": "RI003 wave2 reaffirmation of canonical B-42f6:F-006, same missing-historical-ledger-probe family. Unchanged source still requires absent rp-mtifubae-dfbh4w at red-bfe8f-ledger-runtime-integrity.mjs:408. The observed full-suite failure prevents the promised verified integration. No new defect family or repair is claimed; canonical F006 remains the mandatory repair target and this lane records no implementation PASS.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-07T10:35:44.540Z",
@@ -394,7 +394,10 @@
       "signatureTag": "missing|mjs|ri003-wave2-reaffirmation",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3ugil_1cg4_5b7b3e55c4c049348511570c68955744",
-      "ledgerCommitReceiptId": "lrc_mtr3ugil_1cg4_b744d732fefa403582a8308a5653bd3b"
+      "ledgerCommitReceiptId": "lrc_mtr3ugil_1cg4_b744d732fefa403582a8308a5653bd3b",
+      "resolvedAt": "2026-09-07T10:55:24.251Z",
+      "resolvedReason": "Fixed by commits 780cc42ed6, a1d58dd487 and df2133a1c8 in the existing ledger integrity guard. Historical Story identity assertions remain; actual fixed historical missing-module and current GREEN imports feed fresh production candidate fixtures. Real CLI probe reads and good/bad relation evaluation are exercised; changed commands fail closed. Original historical artifacts are not recreated. Focused final guard, registration 26 GREEN and process-fact contract passed; /private/tmp/B-42f6-integration/ledger-cli-final-guard.log and ledger-cli-registration.log preserve results. Full132 on final code is still required.",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-42f6:F-011",
