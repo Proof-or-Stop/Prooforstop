@@ -1,0 +1,84 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Allow current inventory-only critic review without role-named Git commits",
+      "context": "Reproduce the Harmonynet dispatch refusal through real handlers before implementation. Bind explicit inventory purpose to a valid OPEN epoch and current cutoff, preserve canonical independent reviewer launch and terminal read evidence, and leave topology-purpose provenance admission unchanged.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+      ],
+      "userSees": "The required inventory critic can review the current Finding set using real Git attribution, without bypassing topology checks.",
+      "excludes": [
+        "Changing topology business-author independence",
+        "Repairing B-7abb classifier source",
+        "Changing unrelated Story content"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/cli/main-tools.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Prove review-purpose isolation and record local recovery evidence",
+      "context": "Exercise signed dispatch and run binding, invalid or stale inventory refusal, independent actor requirements, no omitted Finding dispositions, and rejection of inventory evidence when presented as topology certification. Preserve English RED/GREEN provenance and instructions to refresh consumers after the local merge.",
+      "relatedDocs": [
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+      ],
+      "userSees": "A verified local repair and English evidence log explain the exact recovered workflow and remaining Story work.",
+      "excludes": [
+        "Remote publication",
+        "Changing the Dynamic Finding execution plan",
+        "Relaxing REVIEW TEST or DONE acceptance"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/audits/inventory-critic-purpose-isolation.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/review-run-smoke.ts",
+          "packages/main/src/tasks/prompt-registry-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

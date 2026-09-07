@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-29bc",
+  "allowedCommands": [
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge *",
+    "git show *",
+    "git status *",
+    "node *",
+    "npm *",
+    "proof-or-stop *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "collaboration",
+    "exec_command"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives",
+    "docs/audits/inventory-critic-purpose-isolation.md",
+    "packages/main/src/cli/main-tools.ts",
+    "packages/main/src/core/agent-dispatch-registry.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/core/review-inventory-epoch.ts",
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/core/types.ts",
+    "packages/main/src/handlers/review-inventory.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+    "packages/main/src/tasks/prompt-registry-smoke.ts",
+    "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+    "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/review-run-smoke.ts",
+    "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "excludedCommands": [
+    "git commit --author=*",
+    "git push *",
+    "git reset --hard *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    ".worktrees/B-03b7",
+    ".worktrees/B-7abb",
+    "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+  ],
+  "confirmedBy": "story_create",
+  "confirmationNote": "Use official Story lifecycle in a separate local repair worktree; do not mutate frozen consumers.",
+  "createdAt": "2026-09-07T08:12:38.878Z",
+  "updatedAt": "2026-09-07T08:12:38.878Z",
+  "_hash": "2df64bdfe8b688ceb28e871a8d6ef0e51da8c51ea9f0772130b76fdd6c111a2c"
+}
