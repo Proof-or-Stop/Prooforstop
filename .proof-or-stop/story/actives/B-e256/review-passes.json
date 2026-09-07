@@ -5749,6 +5749,54 @@
       },
       "readDiagnostics": [],
       "_hash": "53d64aa0bacda040fc51c700e58cb5ac946ebc0b310ea5f5c1f8e87c4e5d382e"
+    },
+    {
+      "id": "B-e256:RP-129",
+      "agent": "proof-or-stop-review-concept",
+      "note": "RI-016 wave 1 unchanged-material concept saturation found zero new verified families beyond F-047–F-062. I compared the exact installed npm cmd-shim generator semantics (find_dp0/dp0 binding, runtime branch, PATHEXT sanitation, target argv, and %* forwarding) against the current parser and operator-facing Story claims. Remaining candidate failures map to existing families: runtime binding/availability F-047/F-061; reachability F-049; target-base binding F-050; cmd quoting, separators, and adjacent-token concatenation F-052/F-053/F-062; peer and artifact selection F-054/F-057; argv, status, and output preservation F-055/F-058/F-056/F-059; canonical command availability F-060; and acceptance-topology evidence F-048/F-051. The focused global-core-realpath suite passed. This saturation pass neither resolves nor weakens any known finding.",
+      "createdAt": "2026-09-07T07:46:09.207Z",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "reviewRunId": "B-e256:RR-187",
+      "envelopeId": "a7c9c54ca1cbc9c9afe879e8237edfb5e1361a30d1345aa6625b51485a688822",
+      "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-e256/scope-contract.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json",
+          "scripts/promote-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "ae488b4a9c840e9f01f32049e0442c63f7c6f71ab171dd5c618800f544eeb9e1"
     }
   ]
 }
