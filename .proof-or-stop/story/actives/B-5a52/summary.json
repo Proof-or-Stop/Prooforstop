@@ -3,8 +3,8 @@
   "changes": "Playback header and every exported canvas frame now show Proof-or-stop. Story Graph and the story identifier remain visible; measured title width keeps the subtitle separate.",
   "usage": "Open Story Graph, select a story, open Timeline playback, then export MP4 or GIF.",
   "expectedOutcome": "Users recognize Proof-or-stop in the playback export interface and in the exported video or GIF while retaining the story context.",
-  "actualTranscript": "Actual light MP4 and dark GIF display Proof-or-stop · Story Graph and B-fe8f timeline. Playback displays Proof-or-stop · B-fe8f · timeline playback. The exact branding implementation is unchanged after merging repaired main; worktree main, utils, lab and graph builds passed. Formal project validation passed128/128 with canonical persisted evidence; three current reviewer passes and independent delivery verification accepted the unchanged user-visible branding.",
-  "outcomeDiff": "No difference in the requested branding behavior. DONE-required validation and formal closeout remain pending.",
+  "actualTranscript": "Actual light MP4 and dark GIF display Proof-or-stop · Story Graph and B-fe8f timeline. Playback displays Proof-or-stop · B-fe8f · timeline playback. The exact branding implementation is unchanged after merging repaired main; worktree main, utils, lab and graph builds passed. Formal project validation passed128/128 with canonical persisted evidence; three current reviewer passes and independent delivery verification accepted the unchanged user-visible branding. CLI-owned DONE-required build and root test suite passed65/65 with retries0.",
+  "outcomeDiff": "No difference in the requested branding behavior; all required validation and independent delivery checks passed.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 131400
+      "durationMs": 778559
     }
   },
-  "totalDurationMs": 18467108,
+  "totalDurationMs": 19114267,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-07T02:40:54.445Z",
-  "updatedAt": "2026-09-07T07:22:58.226Z"
+  "updatedAt": "2026-09-07T07:33:45.385Z"
 }
