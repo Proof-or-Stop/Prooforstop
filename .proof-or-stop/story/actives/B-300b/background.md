@@ -13,3 +13,7 @@ The fix must land on the prompt side, never by relaxing a gate: every one of the
 ## Conversational Texture
 
 The user asked which of three remaining options best fits the repository's own practice. Two of the three required either a multi-hour signed acceptance campaign or a critic pass that cannot be authored by the same agent it is meant to check. This one is the only option the Defect triage discipline actually prescribes: framework-wide defects that are not regressions of the current story's acceptance scope get recorded with evidence and routed to a named follow-up, rather than widening the current story to chase all-green.
+
+## Dependency on B-137a (INIT-001)
+
+Every source location this story cites lives in `packages/main/src/core/managed-host-run.ts` and `managed-review-evidence.ts`, and those modules exist ONLY on the unmerged `story/B-137a` branch. On `main` they are absent entirely; the pre-split equivalent is `packages/main/src/core/host-run.ts`, which contains no `readManagedHostRunBinding` (verified: zero matches across `packages/main/src/core` on main). A worktree cut from `main` per the documented lifecycle therefore cannot locate any of the cited code, which is what the INIT reviewer flagged. This story must not enter DEV until B-137a merges to main, and the cited line numbers must then be re-resolved by symbol name because they will have shifted. B-137a itself is currently held in REVIEW by two structural gate blockers that require a re-run acceptance campaign, so this dependency is not a short wait.

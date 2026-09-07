@@ -1,0 +1,30 @@
+{
+  "storyId": "B-300b",
+  "checkedAt": "2026-09-07T15:01:19.405Z",
+  "reviewRound": "",
+  "agentId": "proof-or-stop-product-reviewer",
+  "issues": [
+    {
+      "severity": "medium",
+      "desc": "CHK-001 userSees conflates two distinct user outcomes: prevention (the reviewer reads the invariant in the protocol and avoids violating it) versus detection (the gate catches the violation early and names the specific field). The checklist title and context focus on writing rules into the protocol prompt, which is prevention. The userSees text says the reviewer is told which field is wrong before spending a review, which implies early detection by the gate. Both are valid, but the story should clarify which one it actually delivers -- or ideally both. Advisory only; does not block INIT_CHECK."
+    }
+  ],
+  "agentResults": [
+    {
+      "agentId": "proof-or-stop-review-story-init",
+      "checkedAt": "2026-09-07T14:59:59.724Z",
+      "issues": []
+    },
+    {
+      "agentId": "proof-or-stop-product-reviewer",
+      "checkedAt": "2026-09-07T15:01:19.405Z",
+      "issues": [
+        {
+          "severity": "medium",
+          "desc": "CHK-001 userSees conflates two distinct user outcomes: prevention (the reviewer reads the invariant in the protocol and avoids violating it) versus detection (the gate catches the violation early and names the specific field). The checklist title and context focus on writing rules into the protocol prompt, which is prevention. The userSees text says the reviewer is told which field is wrong before spending a review, which implies early detection by the gate. Both are valid, but the story should clarify which one it actually delivers -- or ideally both. Advisory only; does not block INIT_CHECK."
+        }
+      ]
+    }
+  ],
+  "_hash": "da7799b2864fd2728b554da7e19012e2dca5914d569c4e2d684344f3f5a0b4de"
+}

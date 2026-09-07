@@ -3,8 +3,8 @@
     {
       "id": "CHK-001",
       "title": "State the readCount, digest-copy, list-equality, one-submission and relative-path invariants in the managed-review protocol",
-      "context": "B-137a landed prompt text for these in commits 4906de10, 1c514a82 and 2b4858e2, each placed next to the gate that enforces it. Confirm all five still hold and add regression coverage so a later prompt edit cannot silently drop one and reintroduce a wasted review round.",
-      "userSees": "A reviewer violating any of the five rules is told which field is wrong before it spends a review, and the process-fact contract test proves the prompt text and the gate agree.",
+      "context": "BLOCKED ON B-137a MERGE (INIT-001). The managed-review protocol text lives in packages/main/src/core/managed-review-evidence.ts, which exists only on the unmerged story/B-137a branch; it is absent from main. B-137a landed prompt text for these five invariants in commits 4906de10 (readCount semantics in the emitted schema), 1c514a82 (verbatim routing-digest copy) and 2b4858e2 (exactly-one submission), each placed next to the gate that enforces it; the relative-path and list-equality rules were diagnosed but not yet written into the protocol. After B-137a merges, re-locate each rule in the merged tree rather than trusting these commit hashes to still be the tip, confirm all five statements are present, and add regression coverage in the process-fact contract test so a later prompt edit cannot silently drop one and reintroduce a wasted review round.",
+      "userSees": "Prevention (primary): the managed-review protocol a reviewer receives states all five invariants explicitly, so a compliant reviewer never emits a mismatched readCount, an invented routing digest, unequal manifest/log lists, a second submission, or an absolute path in the first place. Detection (already present, not this item's deliverable): the gates continue to refuse a violation and the existing error text names the offending field. The observable proof is the process-fact contract test failing if any of the five statements is later removed from the protocol while its gate still enforces it.",
       "status": "pending",
       "startTime": null,
       "endTime": null
@@ -12,7 +12,7 @@
     {
       "id": "CHK-002",
       "title": "Authenticate archive.binding on the receipt-archive recovery path",
-      "context": "F-299, verified in source: the receiptId preimage has 13 fields and none is binding; readManagedHostRunBinding at managed-host-run.ts:3183 returns archive.binding after only a runId match, while the import-seal reader at :3522 re-digests bindingText against archive.evidenceBindingDigest and throws on mismatch. The protection already exists in the same file; one reader skips it.",
+      "context": "BLOCKED ON B-137a MERGE (INIT-001). This defect exists only on the unmerged story/B-137a branch: packages/main/src/core/managed-host-run.ts is absent from main, whose pre-split equivalent packages/main/src/core/host-run.ts contains no readManagedHostRunBinding at all (verified: zero matches across packages/main/src/core on main). Recorded in B-137a as F-299 and verified there in source: the receiptId preimage carries 13 fields and none of them is binding; readManagedHostRunBinding returns archive.binding after only a runId match, while the import-seal reader in the same file re-digests bindingText against archive.evidenceBindingDigest and throws on mismatch. So the protection already exists twenty-odd lines away and one reader simply skips it. After B-137a merges, re-resolve both call sites by symbol name rather than by line number, then make the archive reader reuse the existing digest check.",
       "userSees": "Editing archive.binding in a receipt archive makes readManagedHostRunBinding throw, and a smoke test proves the forged-binding case is refused.",
       "status": "pending",
       "startTime": null,

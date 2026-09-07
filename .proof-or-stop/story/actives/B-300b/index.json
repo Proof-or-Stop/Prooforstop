@@ -2,9 +2,9 @@
   "storyId": "B-300b",
   "name": "managed-review-prompt-gate-contract-gaps",
   "title": "Close the managed-review prompt/gate contract gaps",
-  "description": "Six managed-review gates enforce invariants that no reviewer prompt states, so a compliant-looking reviewer completes a full review and is then refused. Each gap costs one wasted review round to discover. Found during B-137a across roughly fifteen review rounds; framework-wide, not B-137a-specific. Five are prose gaps in the managed-review protocol (readCount semantics, verbatim routing-digest copy, manifest/log list equality, exactly-one submission, repository-relative paths) and the sixth, F-299, is the same failure in code: readManagedHostRunBinding trusts archive.binding after only a runId check while its sibling import-seal reader re-digests it against archive.evidenceBindingDigest.",
+  "description": "Six managed-review gates enforce invariants that no reviewer prompt states, so a compliant-looking reviewer completes a full review and is then refused. Each gap costs one wasted review round to discover. Found during B-137a across roughly fifteen review rounds; framework-wide, not B-137a-specific. Five are prose gaps in the managed-review protocol (readCount semantics, verbatim routing-digest copy, manifest/log list equality, exactly-one submission, repository-relative paths) and the sixth, recorded in B-137a as F-299, is the same failure in code: readManagedHostRunBinding trusts archive.binding after only a runId check while its sibling import-seal reader re-digests it against archive.evidenceBindingDigest. DEPENDS ON B-137a (INIT-001): every source location cited by this story lives in packages/main/src/core/managed-host-run.ts and managed-review-evidence.ts, which exist ONLY on the unmerged story/B-137a branch. On main those modules do not exist at all; the pre-split equivalent is packages/main/src/core/host-run.ts and it contains no readManagedHostRunBinding. A worktree cut from main therefore cannot locate the cited code. This story must not enter DEV until B-137a merges to main, and the cited line numbers must be re-resolved against the merged tree because they will have shifted.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "createdAt": "2026-09-07T14:39:23.134Z",
   "startedAt": "2026-09-07T14:39:23.134Z",
@@ -18,6 +18,20 @@
       "user": "Pan Qi",
       "sessionId": "sess-390231183e0d8aec7a09085f4e7f34cf",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-07T15:03:10.726Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-390231183e0d8aec7a09085f4e7f34cf",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-300b",
+    "branch": "story/B-300b",
+    "createdAt": "2026-09-07T15:03:02.360Z"
+  }
 }
