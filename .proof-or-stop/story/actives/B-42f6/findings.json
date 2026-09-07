@@ -5,7 +5,7 @@
       "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/graph/src/shells/web/playback.js\", \"line\": 42, \"reason\": \"PLAYBACK_BRAND is \\\"Proof-or-stop\\\" (lowercase s), which does not match the canonical product name PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' declared in packages/main/src/core/proof-or-stop-brand.ts:20 and mandated by docs/requirements/decisions/brand-rename-mapping.md:93 ('Prose / product name | Proof-or-Stop'). This casing is unique in packages/** (grep for 'Proof-or-stop' returns only this line) and is user-visible in three places: the exported MP4/GIF chrome heading (line 1844), the playback modal heading (line 2381) and the post-load heading (line 2821). It does not trip a gate: verify-proof-or-stop-residue.mjs detects retired brand names (lattice/Proofbound spellings), not casing variants of the canonical name, so the residue scan of packages/graph/src passes. Cosmetic branding inconsistency in a rendered export surface, not a correctness or gate defect.\", \"severity\": \"low\"} Independent assessment: Exact user-requested Proof-or-stop casing and preservation from c8263eb450 control over generic casing guidance. No current requirement defect verified. No repair, deferral or signed applicability verdict asserted.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "Exact user-requested Proof-or-stop casing and preservation from c8263eb450 control over generic casing guidance. No current requirement defect verified.",
       "agent": "proof-or-stop-review-quality",
@@ -36,14 +36,16 @@
       "signatureTag": "missing|js|imported-claude-round",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768",
-      "ledgerCommitReceiptId": "lrc_mtr2w29b_f4z_2ac516b309ed46259b1e23e0f2cda2c8"
+      "ledgerCommitReceiptId": "lrc_mtr2w29b_f4z_2ac516b309ed46259b1e23e0f2cda2c8",
+      "dismissedAt": "2026-09-07T10:10:13.854Z",
+      "dismissReason": "User explicitly requires the exact Proof-or-stop spelling on these surfaces. Current playback equals accepted c8263eb450 byte for byte and the refreshed intent passes. Generic casing guidance does not override this user requirement. Audited compatibility dismissal preserves original suspected observation; no repair or signed deferral is claimed."
     },
     {
       "id": "B-42f6:F-002",
       "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 143, \"reason\": \"The new loop's normalizeNestedSpaceAlias assertion (lines 144-145) duplicates the pre-existing assertion at lines 132-137, which already covers the empty prefix with the identical expectation. The genuinely new coverage in this block is the actual runCli help-equivalence check (146-148) and the unknown-action CLI rejection (150-152); the alias re-assertion adds no discrimination. Redundant test coverage only, no false-pass risk.\", \"severity\": \"low\"} Independent assessment: Redundant assertion is real but adds no false-pass risk; adjacent real CLI checks add coverage. Informational cleanup observation, not verified acceptance defect. No repair, deferral or signed applicability verdict asserted.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "Redundant assertion is real but adds no false-pass risk; adjacent real CLI checks add coverage. Informational cleanup observation, not verified acceptance defect.",
       "agent": "proof-or-stop-review-quality",
@@ -74,14 +76,16 @@
       "signatureTag": "missing|ts|imported-claude-round",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2w51n_fh8_72de3d03d7584e4cb8cc530282a4a454",
-      "ledgerCommitReceiptId": "lrc_mtr2w51n_fh8_ea77e87043e14e7fa62db9f6eaf24bda"
+      "ledgerCommitReceiptId": "lrc_mtr2w51n_fh8_ea77e87043e14e7fa62db9f6eaf24bda",
+      "dismissedAt": "2026-09-07T10:10:50.071Z",
+      "dismissReason": "The duplicate normalization assertion is harmless redundancy; adjacent real CLI help comparisons and unknown-action rejection provide distinct coverage and pass in the current pinned command. No false pass or acceptance failure is established. Preserve the original informational observation; compatibility dismissal is not repair or deferral proof."
     },
     {
       "id": "B-42f6:F-003",
       "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/handlers/scope-contract.ts\", \"line\": 446, \"reason\": \"Third writer `scope_contract_acknowledge` persists via store.writeScopeContract without the new validateFullTaskScopeContext(projectScopeInventory(...)) guard that scope_contract_set (line 197) and scope_contract_init_from_plan (line 354) now apply. It only appends acknowledgements and merges originalPathInputs, so it cannot itself push a path list past 4096 entries; but the projected scope is byte-budgeted in aggregate and the acknowledge path is the one writer that can grow a contract unboundedly (unbounded acknowledgements array, and canonicalAckPaths.originals merged into originalPathInputs). originalPathInputs and acknowledgements are not part of projectScopeInventory's output, so the serialized-byte budget is not currently reachable through this path \\u2014 the gap is that the writer-side invariant is enforced at two of three writers by construction rather than at a single choke point. Per the project's Handler encoding convention (every consuming point revalidates), a future field promoted into the projection, or a future acknowledge-time scope widening, would bypass the boundary silently. Non-blocking for this candidate: not reachable today, no gate evidence is falsified.\", \"severity\": \"medium\"} Independent assessment: Acknowledgement writes only nonprojected fields today. Hypothetical future projection changes are not a verified current bypass. No repair, deferral or signed applicability verdict asserted.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "Acknowledgement writes only nonprojected fields today. Hypothetical future projection changes are not a verified current bypass.",
       "agent": "proof-or-stop-review-quality",
@@ -112,14 +116,16 @@
       "signatureTag": "missing|ts|imported-claude-round",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2w7ts_fts_e455cbfe8b7345348199fdd56ab4adde",
-      "ledgerCommitReceiptId": "lrc_mtr2w7ts_fts_105edad49df6408cb656d24f2f74a1fa"
+      "ledgerCommitReceiptId": "lrc_mtr2w7ts_fts_105edad49df6408cb656d24f2f74a1fa",
+      "dismissedAt": "2026-09-07T10:10:55.612Z",
+      "dismissReason": "Inspected current scope_contract_acknowledge: it only replaces acknowledgements, originalPathInputs and updatedAt, none included by projectScopeInventory. It cannot increase any current projected list or byte budget. The report explicitly requires hypothetical future code changes. No current bypass is verified. Preserve original suspected observation; no formal non-applicability certificate or repair claimed."
     },
     {
       "id": "B-42f6:F-004",
       "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/core/scope-inventory-budget.ts\", \"line\": 10, \"reason\": \"SCOPE_INVENTORY_LISTS deliberately omits protectedAnchors, which validateFullTaskScopeContext keeps at the generic FULL_TASK_CONTEXT_LIMITS.pathsPerList (512) via the defaulted requireBoundedStringArray at prompt-contracts.ts:893. This asymmetry is intentional and tested (the 513-anchor negative case asserts /512/), and it is defensible \\u2014 anchors are not exact path authority. The observation is that the two limits now diverge silently with no comment at the SCOPE_INVENTORY_LISTS definition explaining that protectedAnchors is excluded on purpose; the only place the intent is recorded is the file-header doc comment. A future editor adding a new exact-authority list to FullTaskScopeContext gets the 512 default rather than 4096, or conversely widens anchors by accident. Documentation/robustness observation only.\", \"severity\": \"low\"} Independent assessment: Generic512 anchor limit is intentional and negatively tested. Comment recommendation does not demonstrate a current failure. No repair, deferral or signed applicability verdict asserted.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "Generic512 anchor limit is intentional and negatively tested. Comment recommendation does not demonstrate a current failure.",
       "agent": "proof-or-stop-review-quality",
@@ -150,14 +156,16 @@
       "signatureTag": "missing|ts|imported-claude-round",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2wanf_g6a_16febbca93e34c24937cbb09dbed4622",
-      "ledgerCommitReceiptId": "lrc_mtr2wanf_g6a_3559145486d64eb393a3e1a4751a725a"
+      "ledgerCommitReceiptId": "lrc_mtr2wanf_g6a_3559145486d64eb393a3e1a4751a725a",
+      "dismissedAt": "2026-09-07T10:11:00.928Z",
+      "dismissReason": "Current helper explicitly separates exact authority inventories from generic prompt lists in its file header. Protected anchors deliberately remain at 512 and the 513 negative is covered. The proposed extra comment is an editorial improvement without a present functional failure. Audited compatibility dismissal preserves the original observation."
     },
     {
       "id": "B-42f6:F-005",
       "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 146, \"reason\": \"The new nested-Lab help assertion normalizes with `.replaceAll('lab <sub>', 'lab_<sub>')` on the nested output before comparing to the flat output. That substitution is broad enough to also rewrite any incidental occurrence of the display alias inside help prose, so the equality check proves 'same help body modulo every alias spelling' rather than 'same help body with only the invocation line differing'. It cannot produce a false PASS for a missing or wrong handler (a divergent body still fails), so this is a precision limitation of the assertion, not an unsound test. Retained local CLI negative coverage (unknownLab: nonzero status + /Unknown command: lab/ on stderr) is correct and does spawn a real process.\", \"severity\": \"low\"} Independent assessment: Alias-normalized help comparison has the stated precision limit but no wrong-handler pass is demonstrated. No current acceptance defect verified. No repair, deferral or signed applicability verdict asserted.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "Alias-normalized help comparison has the stated precision limit but no wrong-handler pass is demonstrated. No current acceptance defect verified.",
       "agent": "proof-or-stop-review-quality",
@@ -188,7 +196,9 @@
       "signatureTag": "missing|ts|imported-claude-round",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2wdgb_giu_41a2d24c916b43aba26dd088a80f7873",
-      "ledgerCommitReceiptId": "lrc_mtr2wdgb_giu_531997c23a454a11b5306ab9b1fe1a95"
+      "ledgerCommitReceiptId": "lrc_mtr2wdgb_giu_531997c23a454a11b5306ab9b1fe1a95",
+      "dismissReason": "The comparison intentionally proves help equivalence modulo public alias spelling. Independent report and current code show no missing or wrong-handler false pass; the real unknown-action negative remains active. The precision limitation is acknowledged rather than claimed resolved. Preserve original suspected observation; no repair or formal deferral claim.",
+      "dismissedAt": "2026-09-07T10:11:04.875Z"
     }
   ]
 }

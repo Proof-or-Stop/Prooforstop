@@ -81,9 +81,9 @@
       "epochId": "B-42f6:RI-002",
       "storyId": "B-42f6",
       "reviewRound": "2026-09-07T10:06:11.989Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-07T10:07:15.519Z",
-      "updatedAt": "2026-09-07T10:07:15.519Z",
+      "updatedAt": "2026-09-07T10:12:48.818Z",
       "cutoff": {
         "headHash": "32d4c4d668418459cef74b6c1f549d177646a50c",
         "materialHash": "4e7064d179848f003b9b347d91e71fcca7141bd1778c00899c602553564569ed",
@@ -97,9 +97,62 @@
       ],
       "initialRunSequenceBoundary": 8,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T10:07:15.519Z",
+          "completedAt": "2026-09-07T10:12:48.818Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-42f6:RR-010",
+              "terminal": "pass",
+              "hostIdentity": "32728aadc014ad216840ce154c273950c33e8182b199a97a6393110f51a7e816",
+              "promptIdentity": "9a2970c2042d74aa26cbbcce6e099c5be585fd81ba424019f4e52c361e88978b",
+              "evidenceIds": [
+                "B-42f6:RP-007"
+              ],
+              "coverageDigest": "0aee27954accbc93d996ae9b115f8329413913258b831cabc5c57f73c2c4627c"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-42f6:RR-011",
+              "terminal": "finding",
+              "hostIdentity": "32728aadc014ad216840ce154c273950c33e8182b199a97a6393110f51a7e816",
+              "promptIdentity": "77722713a583647ef10be9d703504fb734d007675f680df6ef8a03726c363127",
+              "evidenceIds": [
+                "B-42f6:F-001",
+                "B-42f6:F-002",
+                "B-42f6:F-003",
+                "B-42f6:F-004",
+                "B-42f6:F-005",
+                "B-42f6:RP-008"
+              ],
+              "coverageDigest": "0c3b22bfba3063bf1f7400e571fc8edd4b64fb8d899957b9274f6976dc9df12b"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-42f6:RR-009",
+              "terminal": "pass",
+              "hostIdentity": "32728aadc014ad216840ce154c273950c33e8182b199a97a6393110f51a7e816",
+              "promptIdentity": "6f3d9a5e090da423f2f689f1ac8390596d85e7ec3374c159ca1822f9aaa45632",
+              "evidenceIds": [
+                "B-42f6:RP-006"
+              ],
+              "coverageDigest": "abfe189153b06b5a4abb54734fe5af27f6cedbf88ef74f9fe89b264b96069fc8"
+            }
+          ],
+          "verifiedFindingFamilies": [],
+          "verifiedFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "b1449138d7d56b83f3156e6ac635bc08d5b9db7052c50bc6088353e374aee471",
+          "saturated": true,
+          "nextRunSequenceBoundary": 12
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "fdabc08266fae4241a41c1e4ba014a7d349a97decdffe7d61f7a5edb7ee67116"
+      "receiptId": "B-42f6:RI-002:RCP-001",
+      "_hash": "9aebda489ec9e79d40639e2c2ccdd3661f070664e5700e9dd00238b7e5a3097a"
     }
   ],
   "receipts": [
@@ -129,6 +182,32 @@
       "issuedAt": "2026-09-07T09:10:09.005Z",
       "consumedAt": "2026-09-07T09:10:20.102Z",
       "_hash": "c15e37beb114789e92c48fd5e304e884d00f9a59a7803ff69a144af25af57a03"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-42f6:RI-002:RCP-001",
+      "epochId": "B-42f6:RI-002",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "cutoff": {
+        "headHash": "32d4c4d668418459cef74b6c1f549d177646a50c",
+        "materialHash": "4e7064d179848f003b9b347d91e71fcca7141bd1778c00899c602553564569ed",
+        "storyFilesHash": "766321e5e38513aefc1f2cd6325d8b77df5b82ff8fa3d8197077d8a27826e578"
+      },
+      "scopeDigest": "ff124224fcedabe493fd756b94a5d938b692b6d34135aa2bf6173b06899cf443",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 1,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "9e7b8928bab4d26317c27f531b1b00191cdd457ba7fc274dbf696e828351b0e0",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T10:12:48.818Z",
+      "_hash": "500a1d3e2062a8545a34d8f4bec5f8c670841e1208b6f1de1d04177ca2a2c47c"
     }
   ],
   "criticReceipts": [
@@ -155,6 +234,30 @@
       "findingDispositions": [],
       "createdAt": "2026-09-07T09:09:38.281Z",
       "_hash": "c254aeccbfea04376ace4681e1c6d7fe982f4883ccae66047256ba28fc03eee3"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-42f6:RI-002:CRIT-01",
+      "epochId": "B-42f6:RI-002",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "32d4c4d668418459cef74b6c1f549d177646a50c",
+        "materialHash": "4e7064d179848f003b9b347d91e71fcca7141bd1778c00899c602553564569ed",
+        "storyFilesHash": "766321e5e38513aefc1f2cd6325d8b77df5b82ff8fa3d8197077d8a27826e578"
+      },
+      "aggregateFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "requiredLaneCoverageDigest": "97549639a3bffa5f14f91ed90045410d13eb6afca573d2a8f1fe64987a50f936",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-42f6:RR-012",
+      "terminalEvidenceIds": [
+        "B-42f6:RP-009"
+      ],
+      "readEvidenceDigest": "a82fd140f70c99d452e28e4192a81ecb2ff0742745291cd346d4b761ef1487a6",
+      "findingDispositions": [],
+      "createdAt": "2026-09-07T10:12:31.717Z",
+      "_hash": "b4b204065163ef6a830ddb71713d97c6e19bf85bbe9f152e36bd0454937d6a83"
     }
   ]
 }
