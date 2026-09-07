@@ -1,0 +1,31 @@
+{
+  "passes": [
+    {
+      "id": "B-29bc:RP-001",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "test coverage review passed: verified coverage between verificationIntent and verificationEvidence across CHK-001 (4 intents: happy, edge, 2 adversarial) and CHK-002 (4 intents: happy, edge, 2 adversarial), all 8 intents verified with valid execution evidence, 0 gaps, 0 waivers, no blocker.",
+      "createdAt": "2026-09-07T10:08:51.686Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-004",
+      "envelopeId": "a183cbbe62389745caed0ac7f9cc7f47e0b5e62f70c53ea3bd1ede1832e376a4",
+      "writerSessionId": "b29bc-agy-test-coverage-r1",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/56398a2bfef0254e75776560e0dfc24db75cefad37b4b0aa7de3fb673138ea3c.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/928db2e458726048deb365d01824024e512b4d738eca7aff1c42d28c0529f8e6.json",
+          ".proof-or-stop/story/actives/B-29bc/causal-evidence/receipts/ed1efb67a901c86c84cd503a6a447139a50177b3cf4a813d03d7e61775896cbe.json",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6144d2c2a3fdd9ac8a9d2ef227fa4022e63dbd41341073978afec47f016a0a50"
+    }
+  ]
+}
