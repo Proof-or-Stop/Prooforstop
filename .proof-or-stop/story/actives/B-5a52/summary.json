@@ -1,0 +1,52 @@
+{
+  "storyId": "B-5a52",
+  "changes": "Added Proof-or-stop to playback headings and exported frame chrome in playback.js, using measured title width to preserve story subtitle spacing.",
+  "usage": "Open Story Graph, select a story, open Timeline and Playback, then export MP4 or GIF.",
+  "expectedOutcome": "Playback and exported frames visibly identify Proof-or-stop and retain story context.",
+  "actualTranscript": "Observed Proof-or-stop · B-fe8f · timeline playback in the browser and Proof-or-stop · Story Graph with B-fe8f timeline in actual light MP4 and dark GIF frames.",
+  "outcomeDiff": "Requested branding is present in the Story worktree; main has not been updated because project validation fails.",
+  "acceptanceVerdict": "partial",
+  "outcomeKind": "blocked",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Story remains REVIEW; not merged. Graph build, syntax and three independent reviews passed. Full project validation had failures and was interrupted after independently reproducing two failures on main.",
+  "pitfalls": "The global CLI was unavailable, so local builds were used. cli-surface-smoke fails on lab create alias and done-required-validation-smoke fails on LATTICE_ACTIVITY_RECORD_READONLY neutrality in both main and the Story worktree; these are outside the branding implementation.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 67096
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 70336
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 195635
+    },
+    "DEV": {
+      "count": 1,
+      "durationMs": 491827
+    },
+    "REVIEW": {
+      "count": 1,
+      "durationMs": 717442
+    }
+  },
+  "totalDurationMs": 1543328,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 0,
+    "fixed": 0,
+    "open": 0
+  },
+  "createdAt": "2026-09-07T02:40:54.445Z",
+  "updatedAt": "2026-09-07T02:40:54.445Z"
+}

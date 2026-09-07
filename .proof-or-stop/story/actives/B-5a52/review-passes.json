@@ -1,0 +1,69 @@
+{
+  "passes": [
+    {
+      "id": "B-5a52:RP-001",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed complete material diff and CHK-001 promises. This adds text branding rather than deleting or replacing a concept: Story Graph and timeline playback concepts remain. Both DOM assignments and shared frame chrome implement the requested brand; no promised-but-undelivered behavior was found. Read playback.js changed hunks and renderPreparedFrame context, and inspected light MP4/dark GIF frame images. Manual waiver statements are not mechanical coverage. Current acceptance_rollout_check returned enforce PASS with current receipt and full-3x2 quorum. plan.md is absent; requirements are captured by background and checklist. No blocker or finding.",
+      "createdAt": "2026-09-07T02:30:03.382Z",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "reviewRunId": "B-5a52:RR-001",
+      "envelopeId": "d95552497a5ee247abf2c70eb270ebd986cbd2e65a6008f0ff144d71cc598aff",
+      "writerSessionId": "sess-b12911417fd7011c9a16975e9b477405",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a52/background.md",
+          ".proof-or-stop/story/actives/B-5a52/checklist.json",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "78cd3658e8ed9a919f1d31267701a57c1a07b52267928285b28156ac4d8b254b"
+    },
+    {
+      "id": "B-5a52:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed for CHK-001: three browser intents, zero must gaps, three explicit automation waivers. Waivers identify concrete manual observations and are proportionate to the cosmetic committed diff c8263eb450. Independently inspected both decoded frame images: light 1920x1080 and dark 1440x810 branding and story metadata are legible without overlap. Reviewed the full committed diff and bounded drawChrome, renderPreparedFrame, and both modal-heading paths. No automated visual coverage claimed. Owner-gated validate refused this independent session; routine TEST validation remains Owner work. Legacy plan.md and candidate-spec-set.json are absent; current checklist and assembled task context supply bounded scope.",
+      "createdAt": "2026-09-07T02:30:24.835Z",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "reviewRunId": "B-5a52:RR-002",
+      "envelopeId": "2ccfb27017623ae1fdfb332dec33675b49779790cb3fc7d1f6ad8dbae81da7a6",
+      "writerSessionId": "sess-6cc59cd2a21240a96c9b5b2667610cb0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a52/background.md",
+          ".proof-or-stop/story/actives/B-5a52/checklist.json",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "d669edd1cebaf88ec3dafe84f6285b0a49008d98e488b087d08ff4507cca9841"
+    },
+    {
+      "id": "B-5a52:RP-003",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed the complete playback.js implementation diff and surrounding heading/export call sites against CHK-001, understanding and scope. Shared constant is used at both DOM heading assignments and canvas chrome; subtitle measurement occurs with the heading font before switching font. No new dead code, unsafe types, swallowed errors or I/O boundary changes; no newly added documentation promises. Inspected supplied decoded light MP4 and dark GIF frames: branding and story context are separate and legible. plan.md is absent; checklist and understanding supply sufficient bounded plan context. No findings. Source review was diff plus relevant context, not a full-file read.",
+      "createdAt": "2026-09-07T02:30:36.013Z",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "reviewRunId": "B-5a52:RR-003",
+      "envelopeId": "37b4482da9ddb73a896d0fd37baba8f18d5770b99fd7f3c89e2e607b44a95367",
+      "writerSessionId": "sess-02a7ec717c1204ff97d9b0157931a964",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a52/background.md",
+          ".proof-or-stop/story/actives/B-5a52/checklist.json",
+          ".proof-or-stop/story/actives/B-5a52/scope-contract.json",
+          ".proof-or-stop/story/actives/B-5a52/understanding.json",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "87b8f4b92c27d91e7462947d7ec99b717b496f144de315ab0167341c7abd89ac"
+    }
+  ]
+}
