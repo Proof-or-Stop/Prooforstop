@@ -3,9 +3,19 @@
     {
       "id": "BUG-CERT-001",
       "title": "Integrated release provenance ledgers are unclassified certification inputs and block certification_window_begin despite passing validation",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-09-07T11:37:04.899Z",
-      "fixedAt": null
+      "fixedAt": "2026-09-07T11:48:51.606Z",
+      "evidence": {
+        "symptom": "certification_window_begin refused B-42f6 with pre_cert_causal_freshness_required after full validation passed",
+        "reproSteps": [
+          "Run certification_window_begin on B-42f6 at a57d648",
+          "Enumerate certification inputs: two exact release ledger paths had no domain"
+        ],
+        "rootCause": "Certification path classifier omitted the canonical tracked artifact and capability release provenance ledgers",
+        "fixEvidence": "e88726c0ad maps only the two exact paths to review-subject. Red-before derivation returned undefined; final actual 72-entry derivation has six hashes and gateAdmissible true. Build, certification smoke with real Git add/modify/delete, blob/tombstone and stale-closure negatives, and process contract pass. Fresh full validation remains pending.",
+        "reproTest": "packages/main/src/tasks/certification-window-smoke.ts"
+      }
     }
   ]
 }

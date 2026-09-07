@@ -1,13 +1,13 @@
 {
   "storyId": "B-42f6",
-  "generatedAt": "2026-09-07T11:37:56.475Z",
+  "generatedAt": "2026-09-07T11:51:29.129Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": true,
     "checklistItems": 1,
     "reviewRounds": 3,
-    "findings": 20,
+    "findings": 25,
     "bugs": 1,
     "testRuns": 0,
     "hasEvalEvidence": false,
@@ -35,13 +35,12 @@
           ]
         },
         "bugFixWithReproEvidenceRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "validateFailBeforePass": {
           "value": null,
@@ -99,7 +98,7 @@
           ]
         },
         "missingFindingCount": {
-          "value": 20,
+          "value": 25,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -126,49 +125,45 @@
     },
     "debugging": {
       "effective": {
-        "value": null,
+        "value": true,
         "unit": "bool",
-        "confidence": "unknown",
+        "confidence": "high",
         "sources": [
           "bug.json"
         ]
       },
       "metrics": {
         "bugsWithEvidenceRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "bugsWithHypothesisRatio": {
-          "value": null,
+          "value": 0,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "bugsWithReproTestRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "avgFixTimeHours": {
-          "value": null,
+          "value": 0.2,
           "unit": "hours",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "bug.json"
-          ],
-          "note": "no data (0 denominator)"
+          ]
         },
         "reopenCount": {
           "value": 0,
@@ -225,7 +220,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 23,
+          "value": 26,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -274,7 +269,7 @@
           "note": "express channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 6,
+          "value": 7,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -315,7 +310,7 @@
           ]
         },
         "formalFindingCount": {
-          "value": 20,
+          "value": 25,
           "unit": "count",
           "confidence": "high",
           "sources": [

@@ -783,8 +783,208 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtr4nja5_pbr_09b1b9e7fff84b7fbe47da79a674078d",
       "ledgerCommitReceiptId": "lrc_mtr4nja5_pbr_7579b7a6babc401fb84f12175a639da4",
-      "dismissReason": "The reason flag is derived from evaluation and intentionally redundant, while full command equality and the actual CLI command-mismatch rejection independently exercise the property. This does not conceal an untested failing branch. Preserve original observation without representing redundancy as fixed.",
-      "dismissedAt": "2026-09-07T10:59:29.247Z"
+      "dismissedAt": "2026-09-07T10:59:29.247Z",
+      "dismissReason": "The reason flag is derived from evaluation and intentionally redundant, while full command equality and the actual CLI command-mismatch rejection independently exercise the property. This does not conceal an untested failing branch. Preserve original observation without representing redundancy as fixed."
+    },
+    {
+      "id": "B-42f6:F-021",
+      "desc": "Original Claude certification round 2 findings entry 1. Source /private/tmp/B-42f6-cross-host/claude-cert-2.verdict.json. Original packages/main/src/handlers/certification-window.ts:177, severity=low; CLI schema severity=low (info maps to low without upgrading evidence). Original text verbatim: The new rule is appended AFTER the pre-existing broad review-subject rule /^(?:docs\\/|(?:AGENTS|CLAUDE|README)(?:\\.[^/]+)?$)/. Because certificationDomainForPath resolves by scanning CERTIFICATION_DOMAIN_PATH_RULES, ordering matters for any path that could match more than one rule. Here the two review-subject patterns are disjoint (the earlier one is anchored to docs/ or three exact root basenames; the new one is anchored to a fixed .proof-or-stop/ prefix), and both map to the same domain, so no ordering hazard exists today and the result is identical either way. The smoke asserts exactly-one-domain via CERTIFICATION_DOMAIN_PATH_RULES.filter(...) which would catch a future overlapping rule that resolved to a different domain. Observation only, not a defect: worth noting because appending to an ordered rule table is the position where a future non-disjoint rule would silently change classification.\nIndependent assessment against e88726c0ad: Actual classifier filters all matching rules and accepts exactly one, rather than first-match ordering. Ambiguous overlap fails closed even if domains match. The two canonical paths match only the new anchored literal rule. Thus the original hypothetical silent-ordering concern does not describe current behavior. No repair, deferral, or host certification is asserted by this import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Original explicitly nondefect observation preserved; source inspection establishes no current verified behavioral defect.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T11:50:15.860Z",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "reviewRunId": "B-42f6:RR-025",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "5445834e1203695c10036a87769abf1d59d7ba41dfea64626c0c47ff633272c9",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|original-claude-certification",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr6ialx_u4r_13340bf918fc45bea20d5bf3cee72bdb",
+      "ledgerCommitReceiptId": "lrc_mtr6ialx_u4r_d7f8234fbd9d477ca8c97a77ec580bda",
+      "dismissedAt": "2026-09-07T11:51:13.198Z",
+      "dismissReason": "Owner assessment at e88726c0ad: classifier filters every matching rule and requires exactly one; overlaps fail closed. The exact two ledger patterns are disjoint. Original observation explicitly alleges no present defect; its first-match premise contradicts source. Audited dismissal is not repair or deferral.",
+      "dismissReasonType": "false_positive",
+      "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-42f6:F-022",
+      "desc": "Original Claude certification round 2 findings entry 2. Source /private/tmp/B-42f6-cross-host/claude-cert-2.verdict.json. Original packages/main/src/tasks/certification-window-smoke.ts:1284, severity=low; CLI schema severity=low (info maps to low without upgrading evidence). Original text verbatim: The drift/closure branch is guarded by `if (action !== 'deleted')`, so the affectedNodeIds closure assertion and the gateAdmissible=false assertion are exercised only for the added and modified actions. Deleted paths still get blob/tombstone binding coverage (entries[0].blobId === '<deleted>' plus the causalDigest equality), which is the property specific to deletion, and the closure logic under test is domain-keyed rather than status-keyed so it is not deletion-specific. Non-blocking coverage note rather than a gap that changes a verdict: the invalidation closure is proven once per ledger path via the modified case, and adding a delete-then-drift case would require constructing a second post-deletion commit whose review-subject digest differs, which the fixture does not currently model.\nIndependent assessment against e88726c0ad: The deletion fixture proves actual Git deletion status and tombstone-derived hash. The closure evaluator consumes changed domain hashes, not file status; added and modified cases prove review-subject plus integration/test invalidation. A further post-deletion drift fixture is optional coverage, with no current incorrect gate result established. No repair, deferral, or host certification is asserted by this import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Original explicitly nondefect observation preserved; source inspection establishes no current verified behavioral defect.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T11:50:18.864Z",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "reviewRunId": "B-42f6:RR-025",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "527f3d88b39a7e8a47005554dc13d0072d664969408e14d5e8d9a2b4e26f3782",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|original-claude-certification",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr6icxe_uep_a27f00ed2a664e5287c35fc15708353e",
+      "ledgerCommitReceiptId": "lrc_mtr6icxe_uep_0a506663b2c4460ba4ae0ad642928a89",
+      "dismissedAt": "2026-09-07T11:51:17.642Z",
+      "dismissReason": "Owner assessment at e88726c0ad: real Git deletion binds the tombstone; add and modify assert exact dependent closure. Causal closure is domain-keyed, not file status keyed, so another deletion-specific drift fixture is optional redundancy. Original states no defect. No repair or deferral claimed.",
+      "dismissReasonType": "already_covered",
+      "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-42f6:F-023",
+      "desc": "Original Claude certification round 3 observations entry 1. Source /private/tmp/B-42f6-cross-host/claude-cert-3.verdict.json. Original packages/main/src/tasks/certification-window-smoke.ts:1291, severity=info; CLI schema severity=low (info maps to low without upgrading evidence). Original text verbatim: SUGGESTION, not a present defect. The closure assertion uses assert.deepEqual on an exact ordered array ['certification-integration','certification-review-subject','certification-test']. This correctly proves the full dependent closure is invalidated, but it also pins the current ordering of affectedNodeIds, so a future non-semantic reordering of node ids would fail this check for a reason unrelated to the contract being protected. Sorting both sides, or comparing as a set, would keep the same strength while removing the ordering coupling. No behavioral concern in the diff as written.\nIndependent assessment against e88726c0ad: Current core/causal-evidence.ts:1314 already returns affectedNodeIds as [...affected].sort(). The expected array is in that canonical order. The assertion therefore verifies the current sorted output contract, and suggested sorting adds no missing protection. No current defect. No repair, deferral, or host certification is asserted by this import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Original explicitly nondefect observation preserved; source inspection establishes no current verified behavioral defect.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T11:50:23.637Z",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "reviewRunId": "B-42f6:RR-025",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "308191d2baf5d963aba0f12d1c5a9f67c5bcf98c3534d34bfb5de25a405af884",
+      "files": [
+        "packages/main/src/tasks/certification-window-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|original-claude-certification",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr6iglz_urn_9eb076f0ac9d4adab5d3e7d6647fd048",
+      "ledgerCommitReceiptId": "lrc_mtr6iglz_urn_455ee08a4a6d422484f635154eefa35c",
+      "dismissedAt": "2026-09-07T11:51:21.386Z",
+      "dismissReason": "Owner assessment at e88726c0ad: core/causal-evidence.ts already sorts affectedNodeIds before returning. The exact expected sorted array therefore expresses the current contract. Original suggestion does not expose a defect. No repair or deferral claimed.",
+      "dismissReasonType": "false_positive",
+      "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-42f6:F-024",
+      "desc": "Original Claude certification round 3 observations entry 2. Source /private/tmp/B-42f6-cross-host/claude-cert-3.verdict.json. Original scripts/verify-process-fact-contract.mjs:5573, severity=info; CLI schema severity=low (info maps to low without upgrading evidence). Original text verbatim: SUGGESTION, not a present defect. The seven required terms are asserted via substring .includes on the registry rationale prose. Each term does appear verbatim in the new rationale, so the check passes as intended, but prose-presence checks pin the documented contract rather than the behavior; a future rationale rewording that preserves meaning while changing wording (for example 'Git blob/tombstone' singular) would fail. The mechanical behavior is separately proven by the certification-window smoke, so this is acceptable layering; recording the coupling is worthwhile for whoever next edits that rationale.\nIndependent assessment against e88726c0ad: The verifier intentionally pins registry wording while the smoke separately verifies actual Git blob/tombstone binding, drift and fail-closed classification. Wording maintenance coupling exists but is explicit two-layer protection, not a demonstrated behavioral defect. No repair, deferral, or host certification is asserted by this import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Original explicitly nondefect observation preserved; source inspection establishes no current verified behavioral defect.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T11:50:26.611Z",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "reviewRunId": "B-42f6:RR-025",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "df8fb00475f75eafa7c90578e576fd61e78e5911ef04e6f6e43f58b7bba220ad",
+      "files": [
+        "scripts/verify-process-fact-contract.mjs"
+      ],
+      "signatureTag": "missing|mjs|original-claude-certification",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr6iiwk_v8f_fcb6949b144947998bcf5ccbefb4260e",
+      "ledgerCommitReceiptId": "lrc_mtr6iiwk_v8f_1b7c6620805c429b8d6d1e1431d46f8d",
+      "dismissedAt": "2026-09-07T11:51:25.457Z",
+      "dismissReason": "Owner assessment at e88726c0ad: intentional registry prose pin preserves documented process facts; independent real-Git smoke exercises behavior. A hypothetical semantically equivalent rewording failing the prose check is intentional contract maintenance, not current regression. Original explicitly nondefect. No repair or deferral claimed.",
+      "dismissReasonType": "already_covered",
+      "dismissEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-42f6:F-025",
+      "desc": "Original Claude certification round 3 observations entry 3. Source /private/tmp/B-42f6-cross-host/claude-cert-3.verdict.json. Original packages/main/src/handlers/certification-window.ts:177, severity=info; CLI schema severity=low (info maps to low without upgrading evidence). Original text verbatim: SUGGESTION, not a present defect. The new rule is appended after an existing rule that assigns the same 'review-subject' domain. Because the domains are identical and the patterns cannot overlap (the earlier pattern is anchored on docs/ or the AGENTS/CLAUDE/README basenames), placement is outcome-neutral under first-match resolution. Grouping the two review-subject rules adjacently, or adding a brief note that ordering is immaterial here because the domain matches, would make that safety explicit for a future editor who adds a rule between them.\nIndependent assessment against e88726c0ad: Current classifier filters all matches and requires exactly one, not first-match resolution. The existing and new review-subject rules are already adjacent with an explanatory comment between. Their patterns are disjoint. No missing grouping or silent ordering issue exists in current code. No repair, deferral, or host certification is asserted by this import.",
+      "severity": "low",
+      "category": "missing",
+      "status": "dismissed",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Original explicitly nondefect observation preserved; source inspection establishes no current verified behavioral defect.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T11:50:29.599Z",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "reviewRunId": "B-42f6:RR-025",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d40ee8bbc979e0b11104a372c7976932c5e8b727c37798be487fced82f6fd637",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts"
+      ],
+      "signatureTag": "missing|ts|original-claude-certification",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr6il7l_vic_d780249775804d52a9617ed7c02f06f4",
+      "ledgerCommitReceiptId": "lrc_mtr6il7l_vic_2e22fbb10e444d4ca557913e431f3ef0",
+      "dismissReason": "Owner assessment at e88726c0ad: both review-subject rules are already adjacent with explanatory comment. Classifier requires exactly one match rather than first-match ordering. Original explicitly nondefect suggestion has no missing implementation. No repair or deferral claimed.",
+      "dismissedAt": "2026-09-07T11:51:29.078Z",
+      "dismissReasonType": "false_positive",
+      "dismissEvidenceStrength": "strong"
     }
   ]
 }

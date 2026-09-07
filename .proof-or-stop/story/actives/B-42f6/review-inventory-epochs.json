@@ -363,6 +363,26 @@
       "baselineFindingIds": [],
       "receiptId": "B-42f6:RI-004:RCP-001",
       "_hash": "dc5ed6f470bb3c6dfad37908b8cbd53b9eb858277fc9ab3cc861172c9e7f5798"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-42f6:RIE-005",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-07T11:52:53.478Z",
+      "updatedAt": "2026-09-07T11:52:53.478Z",
+      "cutoff": {
+        "headHash": "5494d31238f75ef738c31924b34dc1d326a3fe21",
+        "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+        "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f"
+      },
+      "scopeDigest": "8a092118d8535b0f8bbe40a4224da7925e4c52241186f383b3b721779043e543",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-42f6:RIE-005:RCP-001",
+      "_hash": "987b61140268108725a6dace4cbb2614453129263753b42e090dbe416c297155"
     }
   ],
   "receipts": [
@@ -473,6 +493,28 @@
       "authorizesTest": false,
       "issuedAt": "2026-09-07T11:00:48.711Z",
       "_hash": "1543c554bf9be35bdb24137c1864ccfc7ac4eecd91b9a8b84f5184a2622e0f78"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-42f6:RIE-005:RCP-001",
+      "epochId": "B-42f6:RIE-005",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "cutoff": {
+        "headHash": "5494d31238f75ef738c31924b34dc1d326a3fe21",
+        "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+        "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f"
+      },
+      "scopeDigest": "8a092118d8535b0f8bbe40a4224da7925e4c52241186f383b3b721779043e543",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T11:52:53.478Z",
+      "_hash": "3e9d094510ece8ab2e60af238ee4421f1f24f6e19a5d0ece6cdfca768f7cd650"
     }
   ],
   "criticReceipts": [

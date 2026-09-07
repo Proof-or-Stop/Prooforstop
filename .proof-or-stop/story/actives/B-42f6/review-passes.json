@@ -417,6 +417,122 @@
       },
       "readDiagnostics": [],
       "_hash": "7341198d4385eda444dc0bcf308cc4ad7732c0fefa1e559ba2db63b2035837ca"
+    },
+    {
+      "id": "B-42f6:RP-016",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed e88726c0ad release-provenance classification delta and related regression assertions. The two exact canonical tracked ledger paths are review-subject inputs, not runtime input or gate evidence. Classification feeds existing actual Git blob/tombstone hashing and review-subject dependent integration/test invalidation; unknown sibling paths remain unclassified and fail closed. Registry rationale matches handler implementation and tests cover add/modify/delete plus near misses. No concept retirement/residual or undocumented authority substitution found; no blocker. Full132 remains pending and this lane does not assert certification or external-host quorum.",
+      "createdAt": "2026-09-07T11:50:10.057Z",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "reviewRunId": "B-42f6:RR-027",
+      "envelopeId": "02111a6b21d308c6450831790e3ff9dba624a0300bba864cffcdd6056157a3f7",
+      "writerSessionId": "sess-e5374aaf519f4d11856844522442ad28",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-42f6/background.md",
+          ".proof-or-stop/story/actives/B-42f6/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "294b3a415da6d3e85a38eacac006c04dee43940fb7eaec38cd876c6c2205ee85"
+    },
+    {
+      "id": "B-42f6:RP-017",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage passed for release-provenance classification repair e88726c0ad. All five pinned intents have refreshed matching selectors, exit0 and current material0e3e1ef/story785eab5 bindings; zero gaps or waivers. Inspected four-file diff and focused certification smoke log: both exact ledger paths are exercised through actual Git additions, modifications and deletion tombstones; actual blob-derived hashes are asserted, byte changes invalidate review-subject/integration/test closure and gate admissibility, and six near-miss namespaces remain refused. Registry and process-contract assertions preserve the non-authoritative provenance boundary. Earlier portable ledger CLI guard remains unchanged. Full132 fresh validation is still pending; this coverage pass is not a full-validation result or publication/external-host certificate.",
+      "createdAt": "2026-09-07T11:50:21.143Z",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "reviewRunId": "B-42f6:RR-026",
+      "envelopeId": "8ed7a282e51c4c022dcfae1cb688a56015f4333d59a74850f0c776b284befeb4",
+      "writerSessionId": "sess-5ec17c679908822f2a07826223fefff3",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-42f6/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "935617df109f1e2eee5d7ae2a1fa2a960daec042d0f192819768603a5b1b44ae"
+    },
+    {
+      "id": "B-42f6:RP-018",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Independent quality review of e88726c0ad four-file certification delta against previously reviewed df2133a1c8. Exact escaped canonical ledger paths classify as review-subject with actual Git blob/tombstone hashing; unknown or ambiguous matches remain fail-closed. Real-Git smoke covers add/modify/delete binding, changed bytes, exact integration/review-subject/test closure and refusal of near misses. Registry prose protection is paired with behavior coverage. Checked actual exact-one classifier and sorted affectedNodeIds, correcting external prose assumptions. F021-F025 originals preserved and owner dismissals independently read back as false_positive/already_covered with source-grounded reasons; no repair or deferral inferred from dismissal. No remaining verified quality blocker. Prior integration and guard review context remains; this code-quality PASS does not claim fresh full132, required65, host quorum certification or publication.",
+      "createdAt": "2026-09-07T11:52:08.729Z",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "reviewRunId": "B-42f6:RR-025",
+      "envelopeId": "29bd8b9af75c40c4951cb030c31702f95dc3a43419271c970a2d3dff8ce3cebd",
+      "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "013e5aa74de225a5044da468612637c3aedb4b62620e641529e8e111cad85ed4"
+    },
+    {
+      "id": "B-42f6:RP-019",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI005 inventory completeness only: read five original observations F021-F025 and preserved suspected/dismissed assessments against e88726. Actual classifier requires exactly one matching rule; exact ledger paths, blob/tombstone hashes and domain-based invalidation remain covered. Suggested ordering, redundant sorting, prose coupling and optional deletion drift do not establish an unrecorded present defect. No verified open defect is claimed repaired by dismissal, and this terminal is not topology PASS or completed certification.",
+      "createdAt": "2026-09-07T11:52:26.745Z",
+      "reviewRound": "2026-09-07T11:48:29.914Z",
+      "reviewRunId": "B-42f6:RR-028",
+      "envelopeId": "e8252ae0a987b16a7e2910f989e46b61e84e205bc5024b35d27108d5a6c13e3d",
+      "writerSessionId": "sess-d068019ca31deebba9b38312e19a2290",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-42f6/background.md",
+          ".proof-or-stop/story/actives/B-42f6/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7bd5d990c325016c1c56ec3df68ad3e9a8731f77a38a6bbbb26ea6c74c9325d9"
     }
   ]
 }
