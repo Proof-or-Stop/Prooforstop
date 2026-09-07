@@ -4292,7 +4292,7 @@
       "desc": "quality-cleanup: packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2114-2137 creates the mutation module tree INSIDE the repository working tree, and .gitignore has no pattern covering it, so an aborted run leaves untracked residue that this projects own clean-tree gates reject. Mechanical evidence at this HEAD: the built entry packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exists (ls), so new URL(../../../../.prompt-envelope-mutants-, import.meta.url) on line 2114 resolves tasks to dist to main to packages to the repository root; mkdtempSync therefore creates <repoRoot>/.prompt-envelope-mutants-XXXXXX/, and line 2137 cpSync copies the whole built core directory into it (du -sh packages/main/dist/core reports 16M). I read .gitignore end to end at this HEAD: the root-level transient patterns present are dist.staging, dist.trash-*, .proof-or-stop-tmp-*, .koala-tmp-*, tmp/, output/ and *.bak, and none matches .prompt-envelope-mutants-*. Failure scenario: packages/main/src/tasks/run-all-smokes.ts discoverSmokes auto-discovers every dist/tasks/*-smoke.js and runEntrySet executes them in a worker pool sized os.cpus().length by default, so about 16 MB of untracked files sit at the repository root for the duration of every full-suite run, concurrently with the other suite members; and any termination that skips the finally block on line 2219 (CLI idle or max watchdog kill, SIGINT, SIGKILL, OOM) leaves that directory behind permanently, after which story_advance DONE and done_prepare observe a dirty tree. The same .gitignore already documents this exact hazard for its siblings: dist.staging and dist.trash-* are ignored so an interrupted build cannot dirty the tree, and the .proof-or-stop rules exist because an untracked root entry broke each fixture and command that asserts a clean tree. Suggested fix: add .prompt-envelope-mutants-* to .gitignore, matching the existing .proof-or-stop-tmp- and .koala-tmp- precedent. Severity medium: it fails closed rather than producing false evidence, and it does not change the classifier behaviour this Story repairs. Read boundary for this finding: the complete git diff main...HEAD hunks for all five changed code files, plus .gitignore and packages/main/tsconfig.json end to end, plus targeted regions of prompt-envelope.ts, retired-authority-vocabulary-guard-smoke.ts and run-all-smokes.ts.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-07T07:56:35.013Z",
@@ -4332,7 +4332,11 @@
       "signatureTag": "b8a40-mutant-tree-repo-root-residue",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqy5s1z_5g_07e1984dbd4d48fea225e1e63ab5e1ec",
-      "ledgerCommitReceiptId": "lrc_mtqy5s20_5g_e944576ee1834c6b86004730a7208658"
+      "ledgerCommitReceiptId": "lrc_mtqy5s20_5g_e944576ee1834c6b86004730a7208658",
+      "resolvedAt": "2026-09-07T08:32:13.826Z",
+      "resolvedReason": "Historical observation retained without repair, dismissal or disproval. The actual same independent Claude session re-verified this exact observation and carried it forward through finding_add as OPEN verified B-8a40:F-089, bound to current RR160, because the mechanical REVIEW consumer requires latest-run binding. This old record is superseded only as the active binding; the current observation remains open with unchanged severity, reproduction limits and named future owner docs/story/drafts/classifier-smoke-nonblocking-cleanup. This is not evidence of implementation repair, signed deferral or non-applicability. Treat any new acceptance, protected-surface or evidence-integrity impact as a current-Story blocker immediately.",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-086",
