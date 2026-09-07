@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "0576eea58749b00782e78aa66d2c8a2a5f79fb0314ca26941e9b0c4048053e23",
+  "committedLedgerDigest": "313e7539759e600f21fc20b61dc8d0c07589c96a6964b94bb849e2c28f43f908",
   "records": [
     {
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
@@ -520,6 +520,64 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T17:25:33.852Z"
+    },
+    {
+      "recordId": "lr_mtrii4gr_15p6_b3f90fcff77d4565b4a63a128adc235d",
+      "recordType": "finding",
+      "idempotencyKey": "b29-ri007-wave2-quality-known-f005",
+      "payload": {
+        "id": "B-29bc:F-009",
+        "desc": "RI-007 wave-2 re-observation of canonical B-29bc:F-005; duplicate of that exact root cause, not a new defect or repair claim. packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 still re-sign the complete mutated receipt including its prior _hash, so the verifier rejects the signature before the intended semantic receipt guards. Fresh bounded line inspection confirms both calls remain unchanged. A fresh git diff from frozen a36b3b36af to HEAD is empty across packages/main/src, scripts, docs and managed agent mirrors; signed RR-050 and RI-007 retain material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and scope 2b0a7de. The earlier complete two-item source/context review and controlled runtime result original=true,current-test-pattern=false,unsigned-resign=true therefore remain applicable without rerunning tests. Fresh reads verify F-005 and coverage manifestation F-006 are still signed, verified and open. Both remain current-Story acceptance-evidence repairs; a quality green claim would be misleading. No additional quality root cause found. The signed first inventory wave already carries family finding:B-29bc:F-005; independent critic should retain this same family when classifying this current observation rather than count a new family. Preserve F-005/F-006 and this observation; no dismissal, resolution, topology, TEST/DONE or actual-host assurance is claimed.",
+        "severity": "medium",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T17:26:03.290Z",
+        "reviewRound": "2026-09-07T17:10:43.986Z",
+        "reviewRunId": "B-29bc:RR-050",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/Proof-or-Stop.md",
+            ".proof-or-stop/story/actives/B-29bc/background.md",
+            ".proof-or-stop/story/actives/B-29bc/plan.md",
+            "docs/audits/inventory-critic-purpose-isolation.md",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+            "packages/main/src/core/review-inventory-epoch.ts",
+            "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+          ],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+        },
+        "readDiagnostics": [],
+        "_hash": "9e3ed73db7da16b784d899f47066ad2e7218a21fc82a8a82c319ce496b8626f2",
+        "files": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "signatureTag": "adversarial|ts|wave-observation-canonical",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "7a7bce839bfe48f2bcce6571b92b910f5edf2b708e2f8394eced1ebc0aaed209",
+      "priorDigest": "0576eea58749b00782e78aa66d2c8a2a5f79fb0314ca26941e9b0c4048053e23",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T17:26:03.291Z"
     }
   ],
   "receipts": [
@@ -1073,6 +1131,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "dd87e327dcb92a4d7c1f30c54ac05cd16801c112e7db7e048921d231da3fb289",
         "signature": "+OGXtRYixk/E238BrcungWwUdGUTku0hbRsxfWnOnfrCzZ9qNlZ9O/tJb1FMaUqouqg9gyHcTOQqG0JQFDG5Bg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtrii4gr_15p6_8779764e9d974d0c87dad021033188db",
+      "operation": "append_finding",
+      "idempotencyKey": "b29-ri007-wave2-quality-known-f005",
+      "requestDigest": "54c14512cd3fe9ca9ddf075e887daa2fc8e2144db59ca77d8c807d7080909711",
+      "recordIds": [
+        "lr_mtrii4gr_15p6_b3f90fcff77d4565b4a63a128adc235d"
+      ],
+      "priorLedgerDigest": "0576eea58749b00782e78aa66d2c8a2a5f79fb0314ca26941e9b0c4048053e23",
+      "committedLedgerDigest": "313e7539759e600f21fc20b61dc8d0c07589c96a6964b94bb849e2c28f43f908",
+      "writerSessionId": "codex-b29-ri007-quality",
+      "writerFenceToken": "3cfa7420-8a6e-45ce-81b5-aca55d10d973",
+      "committedAt": "2026-09-07T17:26:03.291Z",
+      "replayed": false,
+      "exactRequestDigest": "1463e2aa45e6d5795ca1f9e043b7477e8fdcb5d6467f39fbb6ea292c022ab059",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtrii4gr_15p6_8779764e9d974d0c87dad021033188db",
+        "storyId": "B-29bc",
+        "idempotencyKey": "b29-ri007-wave2-quality-known-f005",
+        "exactRequestDigest": "1463e2aa45e6d5795ca1f9e043b7477e8fdcb5d6467f39fbb6ea292c022ab059",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtrii4gr_15p6_b3f90fcff77d4565b4a63a128adc235d"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "0576eea58749b00782e78aa66d2c8a2a5f79fb0314ca26941e9b0c4048053e23",
+        "committedLedgerDigest": "313e7539759e600f21fc20b61dc8d0c07589c96a6964b94bb849e2c28f43f908",
+        "replayed": false,
+        "committedAt": "2026-09-07T17:26:03.291Z",
+        "writerSessionId": "codex-b29-ri007-quality",
+        "writerLeaseId": "codex-01a05441-inventory-recovery-owner",
+        "writerFenceToken": "3cfa7420-8a6e-45ce-81b5-aca55d10d973",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "ee09fdc9eac46140d6edb970e7bff0cdea3a183d313e6e7799b12052a64d68bd",
+        "signature": "3Srp8R761/1KgAEyoKlimiRnlzQPHfHuWacvprkbHnMsxgEtX+w2aCPlLNgIO1/DzrN2SZOvVoN3XIxE+RjBAQ=="
       }
     }
   ]

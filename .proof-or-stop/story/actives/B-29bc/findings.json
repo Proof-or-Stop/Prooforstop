@@ -376,6 +376,56 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4",
       "ledgerCommitReceiptId": "lrc_mtrihhr1_100r_91b42962e4ac40d195ab559a8f048be4"
+    },
+    {
+      "id": "B-29bc:F-009",
+      "desc": "RI-007 wave-2 re-observation of canonical B-29bc:F-005; duplicate of that exact root cause, not a new defect or repair claim. packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 still re-sign the complete mutated receipt including its prior _hash, so the verifier rejects the signature before the intended semantic receipt guards. Fresh bounded line inspection confirms both calls remain unchanged. A fresh git diff from frozen a36b3b36af to HEAD is empty across packages/main/src, scripts, docs and managed agent mirrors; signed RR-050 and RI-007 retain material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and scope 2b0a7de. The earlier complete two-item source/context review and controlled runtime result original=true,current-test-pattern=false,unsigned-resign=true therefore remain applicable without rerunning tests. Fresh reads verify F-005 and coverage manifestation F-006 are still signed, verified and open. Both remain current-Story acceptance-evidence repairs; a quality green claim would be misleading. No additional quality root cause found. The signed first inventory wave already carries family finding:B-29bc:F-005; independent critic should retain this same family when classifying this current observation rather than count a new family. Preserve F-005/F-006 and this observation; no dismissal, resolution, topology, TEST/DONE or actual-host assurance is claimed.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T17:26:03.290Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-050",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "9e3ed73db7da16b784d899f47066ad2e7218a21fc82a8a82c319ce496b8626f2",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "adversarial|ts|wave-observation-canonical",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtrii4gr_15p6_b3f90fcff77d4565b4a63a128adc235d",
+      "ledgerCommitReceiptId": "lrc_mtrii4gr_15p6_8779764e9d974d0c87dad021033188db"
     }
   ]
 }
