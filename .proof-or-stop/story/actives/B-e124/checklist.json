@@ -7,9 +7,9 @@
       "relatedDocs": [
         "packages/lab/src/handlers/lab.ts"
       ],
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-07T03:07:46.155Z",
-      "endTime": null,
+      "endTime": "2026-09-07T03:09:13.466Z",
       "userSees": "lab create --help displays registered Lab help; all six nested Lab forms resolve like their flat equivalents.",
       "files": {
         "modify": [
@@ -39,6 +39,13 @@
             "type": "cli"
           }
         ]
+      },
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "3491d9ce8b7c7edf6817fda8b61d2742932dced2df0bea539868f5f68468e079",
+        "storyFilesHash": "629e5bcac8134813246d0454d9373a2421ab8263e9f3398afbbb26f335d1983b",
+        "headHash": "741d64e4d1e0e288571862e9ac56f90782567954",
+        "attestedAt": "2026-09-07T03:09:13.828Z",
+        "materialHash": "636d812547a9e1fb7edb37980cd12d39df2f2ed6173c7027032d863b6cedaaf2"
       }
     },
     {
@@ -48,8 +55,8 @@
       "relatedDocs": [
         "packages/main/src/core/validation-command-environment.ts"
       ],
-      "status": "pending",
-      "startTime": null,
+      "status": "in_progress",
+      "startTime": "2026-09-07T03:09:14.577Z",
       "endTime": null,
       "userSees": "Transport-only canonical environment changes preserve validation identity; semantic changes still invalidate it; the DONE-required smoke passes.",
       "files": {

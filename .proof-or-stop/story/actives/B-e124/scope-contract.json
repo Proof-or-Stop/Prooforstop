@@ -12,9 +12,28 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "The first Lab fix exposes a second failure in the same required cli-surface-smoke: config doctor and repair still normalize to retired unregistered lattice_config names. Repair these two mappings to their already registered canonical handlers to complete the advertised alias contract; do not change handler admission or configuration behavior.",
+      "timestamp": "2026-09-07T03:09:48.408Z",
+      "paths": [
+        "packages/main/src/cli/alias-normalizer.ts",
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/alias-normalizer.ts",
+        "packages/main/src/tasks/cli-surface-smoke.ts"
+      ],
+      "affectedPathCount": 2,
+      "phase": "DEV",
+      "headHash": "741d64e4d1e0e288571862e9ac56f90782567954",
+      "materialHash": "636d812547a9e1fb7edb37980cd12d39df2f2ed6173c7027032d863b6cedaaf2"
+    }
+  ],
   "createdAt": "2026-09-07T03:06:20.200Z",
-  "updatedAt": "2026-09-07T03:06:20.200Z",
+  "updatedAt": "2026-09-07T03:09:48.408Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
