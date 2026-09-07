@@ -2,20 +2,19 @@
   "storyId": "B-29bc",
   "expected": "The required inventory critic can review the current Finding set using real Git attribution, without bypassing topology checks.",
   "actual": {
-    "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js --purpose-only",
-    "exitCode": null,
-    "stdout": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\n",
-    "stderr": "[capture error] command exceeded 60000ms timeout; process group terminated"
+    "command": "node packages/main/dist/tasks/review-inventory-epoch-smoke.js",
+    "exitCode": 0,
+    "stdout": "B29BC_RECOVERY F-001 signed PASS requires both read fields: PASS\nB29BC_RECOVERY F-002 current purpose-bound critic findings enter the exact aggregate: PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\n"
   },
   "mode": {
     "runCommands": true,
     "writeEvidence": true
   },
-  "capturedAtIso": "2026-09-07T15:28:06.149Z",
+  "capturedAtIso": "2026-09-07T15:29:22.272Z",
   "claims": {
     "authorityDone": false,
     "productionDone": false
   },
-  "headHash": "246f5d58fc0d5456f02069aa1724bdc9a66c38b9",
+  "headHash": "2b23c7880f726d395e7c6013025437cccbad4446",
   "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8"
 }
