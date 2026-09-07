@@ -1,9 +1,9 @@
 {
   "storyId": "B-adc3",
-  "changes": "Scope writers and canonical reviewer contexts now share lossless projection and scope-specific bounds: 4096 exact paths per inventory list and 1 MiB of serialized UTF-8 projected scope. Both writers reject invalid final merged scope before persistence; generic prompt lists keep 512.",
-  "usage": "Use node bin/proof-or-stop.js scope_contract_set with the complete exact path inventory, then canonical review_run_start in the Story worktree. Oversized scope is rejected before replacing the saved contract.",
-  "expectedOutcome": "The real B-42f6 scope with 799 created paths remains complete and can enter canonical reviewer assembly and the normal remediation lifecycle.",
-  "actualTranscript": "ACTUAL_INTEGRATION_SCOPE_PASS: all 799 create paths and every other captured exact scope list preserved. The assembled reviewed runtime also produced genuine B-42f6 reviewer runs, finalized B-42f6:RI-001:RCP-001, and authorized normal DEV remediation once; integration evidence commit de4a70962a.",
+  "changes": "Scope writers and canonical reviewer contexts share a lossless projection with 4096 exact paths per scope inventory list and a 1 MiB serialized UTF-8 projected-scope budget. Both writers validate the final merged contract before persistence; generic lists retain 512. Regression coverage and process-fact enforcement protect these boundaries.",
+  "usage": "Use node bin/proof-or-stop.js scope_contract_set with the complete exact path inventory, then canonical review_run_start in the Story worktree. Oversized projected scope fails before replacing the saved contract.",
+  "expectedOutcome": "The real B-42f6 inventory with 799 created paths remains intact and can enter canonical reviewer assembly and normal remediation.",
+  "actualTranscript": "ACTUAL_INTEGRATION_SCOPE_PASS: all 799 create paths and every other captured exact scope list preserved. Actual B-42f6 canonical reviewers completed, B-42f6:RI-001:RCP-001 finalized, and normal DEV remediation was authorized; evidence commit de4a70962a. Complete validation passed 128/128; DONE-required root suite passed 65/65 with zero retries. Six actual Claude/Codex host verdicts satisfy canonical full-3x2 assurance.",
   "outcomeDiff": "No difference for the scoped exact-inventory recovery outcome.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
@@ -11,8 +11,8 @@
     "ran": [],
     "skipped": []
   },
-  "limitations": "Generic checklist arrays and protectedAnchors retain 512; required full prompts can exceed the existing advisory 256000-byte envelope cost budget while preserving all content. The 1 MiB hard limit applies to compact projected scope, not the entire stored artifact. B-42f6 final integration and publication remain owned by the parent task. Full validation and DONE-required evidence must still pass before closure.",
-  "pitfalls": "The first complete validation ran 127 passing commands but concurrent reviewer metadata writes caused graph no-project-writes failure and canonical evidence persistence refusal. A premature TEST attempt automatically began another validation and was stopped before completion. Complete and commit reviewer metadata, then freeze all Story CLI writes for the full rerun; retain the same timeout environment across closure.",
+  "limitations": "Generic checklist arrays and protectedAnchors retain 512. Required full prompts may exceed the existing advisory 256000-byte envelope cost budget while preserving all content. The 1 MiB hard limit applies to compact projected scope, not the complete stored artifact. B-42f6 final integration and publication remain owned by the parent task. Eleven external recommendations are preserved with independent assessments and audited dispositions; none was verified as a current scoped defect.",
+  "pitfalls": "The first full run passed 127 commands but concurrent reviewer metadata writes caused the graph no-project-writes check and canonical persistence to fail. A premature TEST attempt auto-started validation and was stopped. A later transition overlapped a host receipt and refused dirty metadata. Final execution completed reviews first, committed every record, froze all Story writes, and passed 128/128 plus 65/65. Keep the timeout environment consistent and consume current evidence instead of repeating unchanged suites.",
   "phaseStats": {
     "INIT": {
       "count": 1,
@@ -32,10 +32,14 @@
     },
     "REVIEW": {
       "count": 1,
-      "durationMs": 1362259
+      "durationMs": 2928357
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 810450
     }
   },
-  "totalDurationMs": 2693785,
+  "totalDurationMs": 5070333,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -48,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-07T09:14:56.337Z",
-  "updatedAt": "2026-09-07T09:14:56.337Z"
+  "updatedAt": "2026-09-07T09:54:32.885Z"
 }
