@@ -1,0 +1,67 @@
+{
+  "principles": [
+    "Keep the repair bounded and segment-aware",
+    "Preserve the existing fail-closed corpus",
+    "Exercise every witness independently",
+    "Retain honest role and commit provenance"
+  ],
+  "drivers": [
+    "Exact B-bcae startup failure",
+    "Verified unsafe shortcut in B-5190",
+    "Additional causal-prefix and mutant-oracle gaps found after B-6846"
+  ],
+  "options": [
+    {
+      "name": "A: Port the bounded candidate and close the observed gaps",
+      "pros": [
+        "Reuses test-first work already inspected",
+        "Directly covers every known safe and unsafe case",
+        "Keeps the production change local"
+      ],
+      "cons": [
+        "Requires careful extension of causal prefixes and mutant assertions"
+      ]
+    },
+    {
+      "name": "B: Exact B-bcae text allowlist",
+      "pros": [
+        "Very small code change"
+      ],
+      "cons": [
+        "Fails equivalent safe wording and hides the semantic boundary"
+      ]
+    },
+    {
+      "name": "C: Replace the classifier with broad text interpretation",
+      "pros": [
+        "Could model more language variants"
+      ],
+      "cons": [
+        "Expands scope, raises compatibility risk, and is unnecessary for the bounded witnesses"
+      ]
+    }
+  ],
+  "chosen": "A: Port the bounded candidate and close the observed gaps",
+  "rationale": "Option A preserves the proven test-first candidate while correcting the two concrete gaps identified by later review. It provides focused evidence without expanding the classifier into a new language subsystem.",
+  "preMortem": [
+    {
+      "scenario": "A causal synonym bypasses the later-link detector.",
+      "trigger": "Only the original consequence markers are recognized.",
+      "consequence": "A linked unsafe conclusion is admitted.",
+      "mitigation": "Add exact Accordingly, For that reason, and So fixtures to the all-role matrix."
+    },
+    {
+      "scenario": "The broad mutant appears killed after only one witness escapes.",
+      "trigger": "A single outer assert stops the matrix at its first failure.",
+      "consequence": "Other witnesses are never mutation-proven.",
+      "mitigation": "Invoke and assert the broad mutant separately for every role and every witness."
+    },
+    {
+      "scenario": "The support Story blocks its own reviewers again.",
+      "trigger": "Frozen requirement metadata combines controlled concepts outside an accepted fixture wrapper.",
+      "consequence": "No review run identifier can be issued.",
+      "mitigation": "Keep titles and ordinary metadata neutral; place exact unsafe strings only in complete negative-fixture wrappers."
+    }
+  ],
+  "timestamp": "2026-09-06T16:19:12.785Z"
+}

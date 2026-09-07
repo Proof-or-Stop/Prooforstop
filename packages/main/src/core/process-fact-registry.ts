@@ -1599,7 +1599,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/done-required-validation',
     consumerGate: 'story_advance DONE done-required-validation gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.done_required_validate,
-    rationale: 'Opt-in DONE-required command receipts are consumed by the local DONE oracle separately from ordinary TEST validation evidence, with coverage and identity rechecked against the active policy. done_prepare may skip execution only after that canonical evaluator passes, every path touched by every intervening commit is trusted story metadata, and HEAD remains stable across evaluation. Command/phase/CLI-idle/CLI-max timeout terminals are structured and retain cleanup before result emission.',
+    rationale: 'Opt-in DONE-required command receipts are consumed by the local DONE oracle separately from ordinary TEST validation evidence, with coverage and identity rechecked against the active policy. done_prepare may skip execution only after that canonical evaluator passes, every path touched by every intervening commit is trusted story metadata, and HEAD remains stable across evaluation. Command/phase/CLI-idle/CLI-max timeout terminals are structured and retain cleanup before result emission. The configured root suite consumes the retired vocabulary guard; its test-only envelope mutation loader admission requires exact call shape, whole-source fingerprint and producer provenance, with drift and rebinding rejection controls. Loader admission is not a validation PASS or a dynamic-code exemption.',
   },
   {
     name: 'artifact:declared-artifacts.json',

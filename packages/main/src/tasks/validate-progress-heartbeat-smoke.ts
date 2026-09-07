@@ -457,8 +457,13 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
 
 async function assertOuterWatchdogsKillDescendants(): Promise<void> {
   const cases = [
-    { name: 'idle', idleMs: '500', maxMs: String(NON_MAX_OUTER_TIMEOUT_MS), heartbeatMs: '2000' },
-    { name: 'max', idleMs: '2000', maxMs: '700', heartbeatMs: '50' },
+    { name: 'idle', idleMs: '500', maxMs: String(NON_MAX_OUTER_TIMEOUT_MS), heartbeatMs: '2000', startupDelayMs: 0 },
+    // This row tests cleanup of an EXISTING descendant, not CLI startup speed.
+    // A 700ms outer deadline could prevent the command from spawning it at all;
+    // waiting for the PID after that deadline cannot establish the premise.
+    // Deliberately slow startup, with headroom only in this fixture's max budget.
+    // The separate tight-max rows still pin production deadline enforcement.
+    { name: 'max', idleMs: '2000', maxMs: '10000', heartbeatMs: '50', startupDelayMs: 1000 },
   ] as const;
   for (const testCase of cases) {
     const fixture = setupStoryAdvanceFixture();
@@ -469,8 +474,10 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
       config.doneRequiredCommands = [{
         label: `${testCase.name}-descendant-tree-timeout`,
         command: process.execPath,
-        args: ['-e', `const {spawn}=require('child_process');const fs=require('fs');const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync(${JSON.stringify(pidFile)},String(c.pid));setInterval(()=>{},1000)`],
-        timeoutMs: 5_000,
+        args: ['-e', `const {spawn}=require('child_process');const fs=require('fs');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,${testCase.startupDelayMs});const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync(${JSON.stringify(pidFile)},String(c.pid));setInterval(()=>{},1000)`],
+        // Keep the max row's command timeout later than its outer max; otherwise the
+        // test would exercise a different cleanup layer after widening startup.
+        timeoutMs: testCase.name === 'max' ? 20_000 : 5_000,
       }];
       writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
       writeFileSync(join(fixture.root, '.gitignore'), `${readFileSync(join(fixture.root, '.gitignore'), 'utf8')}${testCase.name}-descendant.pid\n`, 'utf8');

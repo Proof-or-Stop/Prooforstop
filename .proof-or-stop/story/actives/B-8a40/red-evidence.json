@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-8a40",
+  "records": [
+    {
+      "id": "RED-20260906162355",
+      "trigger": "The exact B-bcae text is rejected before reviewer run issuance by the baseline classifier.",
+      "acceptanceTargetRef": "CHK-001:happy:0",
+      "baselineHeadHash": "afe6b5552a21ff318e8feb5386b4bdf47b102439",
+      "baselineMaterialHash": "c17ceef8ba208bb921b345e071a6f819d7e11f0c0b7a22adbf14721ba483e01e",
+      "observedFailure": "The baseline prompt-envelope classifier rejects the exact B-bcae text before issuing a reviewer run identifier.",
+      "failureReceiptHash": "05d67cb0e69dfad01ae6aa3f1645381ee54be609ebef410f0691d676df2ca737",
+      "expectedGreenCommand": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:0",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js"
+      },
+      "note": "Receipt reused from the immutable B-5190 red record at 0becd913c2; immutable RED/GREEN implementation lineage is 30f1f5e1da and 12363ef512.",
+      "createdAt": "2026-09-06T16:23:55.645Z"
+    }
+  ],
+  "createdAt": "2026-09-06T16:23:55.645Z",
+  "updatedAt": "2026-09-06T16:23:55.645Z"
+}
