@@ -277,6 +277,93 @@
       },
       "readDiagnostics": [],
       "_hash": "a878298f7a03fa225bf1b450337373d5c51f30149ff547996c43c3f631e82223"
+    },
+    {
+      "id": "B-e124:RP-012",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Final round concept review at fcb0704: reread current understanding, complete final material diff relative to previously reviewed 29c29c2, domain renderer and resolved F-001. Sole new production change imports and invokes describeInitCheckSignatureDomain in the existing tamper rejection diagnostic; hashing and rejection condition are unchanged. Search finds no remaining stale hardcoded diagnostic or retired mutation env selector in packages/main/src and scripts. Machine scope acknowledgement covers the bounded fix. Earlier integrated alias, canonical environment, fixture and shared receipt review remains applicable with no other material changes. Parsed final validation evidence reports pass/allPass and 128 executed commands. No concept deletion residue or undelivered promise found; zero new findings.",
+      "createdAt": "2026-09-07T04:29:35.615Z",
+      "reviewRound": "2026-09-07T04:28:31.987Z",
+      "reviewRunId": "B-e124:RR-013",
+      "envelopeId": "7b8e4d3c083a64008531513ba41216750a5111be178537dd97d066b0a33979da",
+      "writerSessionId": "sess-6642f4d5bc3cba69411ba57f6898ffa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d4fe869adcbe4dcd89235e5bfd491e42e6da96c536660dc8161c50ee5099bf13"
+    },
+    {
+      "id": "B-e124:RP-013",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Final-round quality review: compared all changed material against prior complete diff review; the only subsequent material change is machine.ts importing and calling describeInitCheckSignatureDomain for the tamper diagnostic. Verified renderer derives labels from the registered domain; hash comparison and rejection branch remain unchanged, directly repairing F-001 without assertion relaxation. Scope acknowledges this bounded repair. Prior alias, pinned-doc refresh, causal timestamp and smoke changes retain independent selector/timeout/semantic-environment negatives. Config has no diff against main. Parsed B-e124-validate-final.json: status pass, allPass true, 128 executions and no failed details at recorded head 3156b261; current metadata commits do not add implementation changes. git diff --check passed. No remaining quality finding or new undelivered promise.",
+      "createdAt": "2026-09-07T04:29:40.679Z",
+      "reviewRound": "2026-09-07T04:28:31.987Z",
+      "reviewRunId": "B-e124:RR-014",
+      "envelopeId": "f592145dbe6cbc30c8b7eb9d7c644f4379cd269be7fe9d0812c2304dc6809477",
+      "writerSessionId": "sess-216949376e26ff330b1c27809e5b25ff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/decision.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/lab/src/handlers/lab.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "93e97b330ab661e5465bd4a0c20386abef831899f31a9ba47906eaca84de9eee"
+    },
+    {
+      "id": "B-e124:RP-014",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 2 final coverage review passed: current checklist shows nine intents and nine refreshed successful tool-owned selector receipts at final b7ffdcb6d8 material; zero must gaps, zero waivers. Reviewed diagnostic-only repair and registered scope acknowledgement: signature calculation and rejection branch are unchanged, text uses domain renderer. Inspected M1/M2 regression assertions and actual final validation JSON: status pass, allPass true, 128 executions, including both previously failed red harnesses. F-001 is recorded resolved with targeted and full validation evidence. No source/scripts difference from receipt-producing b7ffdcb6d8 to current HEAD. Prior negative-case review still applies. This does not certify a post-repair root npm-test run or DONE-required completion, which remain Owner work; no executable topology coverage claimed for observe-only basis.",
+      "createdAt": "2026-09-07T04:30:03.520Z",
+      "reviewRound": "2026-09-07T04:28:31.987Z",
+      "reviewRunId": "B-e124:RR-015",
+      "envelopeId": "747901788d2e4c3873c49f5ded2e33d34e705003af46be8e75c6d7611e1c1b66",
+      "writerSessionId": "sess-d394ea9f60583f0e2964017d7ae3918c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/checklist.json",
+          ".proof-or-stop/story/actives/B-e124/scope-check.json",
+          ".proof-or-stop/story/actives/B-e124/scope-contract.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "84dd58c961d0a67692fd515cee2c5510b6cacda2b3e24a036229157735c77f74"
     }
   ]
 }

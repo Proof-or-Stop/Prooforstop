@@ -5,7 +5,7 @@
       "desc": "packages/main/src/core/machine.ts:1249 hardcodes background/title/description/checklist in the INIT_CHECK tamper diagnostic instead of rendering the registered signature domain. red-b8df9-chk002-verdict-shapes.mjs:203-205 M2 rejects this stale duplicate list, and red-b49d4-registration-derivation.mjs fails through the same baseline regression (registration-repro BLOCK D). Current /private/tmp/B-e124-validate.json and /private/tmp/B-e124-registration-repro.log preserve failing output. This remaining baseline defect blocks requested normal main-validation repair, but was not introduced by this diff. Owner should use bounded scope repair to derive the diagnostic from describeInitCheckSignatureDomain while preserving tamper rejection and negative tests; do not exempt validation.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-07T03:58:04.930Z",
@@ -35,7 +35,11 @@
         "packages/main/tests/red/red-b49d4-registration-derivation.mjs"
       ],
       "signatureTag": "missing|ts|packages-main-core",
-      "signatureTagSource": "auto"
+      "signatureTagSource": "auto",
+      "resolvedReason": "Fixed by registered implementer commit b7ffdcb6d8. The diagnostic renders describeInitCheckSignatureDomain. Build and all three targeted regressions passed. Full final project validate passed 128/128 commands, including real tamper rejection and both previously failing checks. Signature calculation and rejection condition unchanged.",
+      "resolvedAt": "2026-09-07T04:28:37.473Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     }
   ]
 }
