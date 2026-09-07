@@ -1,0 +1,74 @@
+{
+  "passes": [
+    {
+      "id": "B-e124:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed every material diff against all three checklist claims and scope, with surrounding receipt stamping, stale refresh eligibility, execution reuse and negative smoke assertions. Alias changes only map to existing canonical handlers. Docs/manual reexecution still requires an immutable pin and uses the same preflight, command, selector and demotion boundaries. Receipt timestamp now comes from causal execution. E2 execution-count adjustment matches the existing command/cwd/timeout cache; new mixed-selector test explicitly prevents shared execution from minting an absent-selector PASS, while timeout provenance assertions remain. Environment changes are test-only and retain retired-key sensitivity; path/config/mutation fixes restore active inputs without relaxing assertions. Registry and verifier updated. No new dead code, unsafe types or swallowed-error paths; no new undelivered docs promises. git diff --check passed. Nine mechanical intent records inspected, but root full-suite completion is not attested by this review.",
+      "createdAt": "2026-09-07T03:28:03.252Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-001",
+      "envelopeId": "3716d219c8b143e8c0d5c357b4c177d70c699751c36012fca09a8e6cbaaeb359",
+      "writerSessionId": "sess-216949376e26ff330b1c27809e5b25ff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/decision.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/lab/src/handlers/lab.ts",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6eb2d3a3bbff1742592bec6b2a76b8fca0654235dac35cad8b70f17603ec56dc"
+    },
+    {
+      "id": "B-e124:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed: nine required intents across CHK-001..003 have nine tool-owned mechanical receipts from three unique successful executions; zero must gaps and zero waivers. Read current complete checklist, integrated committed diff and bounded regression implementations. Evidence-producing 9a6411f and current HEAD have no packages/main or scripts diff. Lab smoke covers all six real nested/flat help routes and unknown rejection. Environment smoke preserves semantic and explicit-overlay negatives while correcting canonical transport names; frozen production list unchanged. Recovery smoke covers pinned docs recovery, pinless/nonzero failures, equal receipt timestamps, timeout separation and independent mixed-selector demotion; new expected shared execution count matches existing executor deduplication rather than weakening verdicts. Acceptance-basis mutation and timeout tests retain failing counterexamples. Reviewed resolved OQ-1 scope expansion. No independent full-suite rerun or build performed while Owner full suite runs; no full-suite success claim. Legacy plan.md absent; checklist and understanding supply plan inputs.",
+      "createdAt": "2026-09-07T03:28:35.077Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-002",
+      "envelopeId": "2fd8b2fc529e419bf3acc8aba4e3b8586907402a7fb9c2430a6ae79647c48393",
+      "writerSessionId": "sess-d394ea9f60583f0e2964017d7ae3918c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/checklist.json",
+          ".proof-or-stop/story/actives/B-e124/scope-check.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a1bf5fb254eff77b4c44802ce1ce1fb932dd28402dc8154b9690973b325dfafc"
+    },
+    {
+      "id": "B-e124:RP-003",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed all three checklist deliverables and committed material diff at f902d806c6. No new concept deletion or replacement is introduced: Lab aliases restore already advertised registered handlers, config aliases and test fixtures consume existing canonical names. Repository search finds no remaining retired mutation environment selector; frozen historical transport names remain intentional identity history and explicit command overlays remain semantic. Existing unrelated deprecated-wrapper fixture references are not concepts removed by this bounded repair. Pinned docs/manual recovery retains immutable command and selector checks; executedAt now derives from the shared causal receipt, and mixed-selector negative coverage preserves independent verdicts. Registry annotation is explicitly scope-acknowledged. No new documentation promise is undelivered. plan.md is absent; current understanding, checklist and decision supply sufficient bounded plan context. No blocker or findings in this lane; this PASS does not claim full-suite completion.",
+      "createdAt": "2026-09-07T03:29:10.235Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-003",
+      "envelopeId": "34830e44641ef1cf34127cb5923234786fd4f34b62309e454621840b405f74eb",
+      "writerSessionId": "sess-6642f4d5bc3cba69411ba57f6898ffa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/decision.json",
+          ".proof-or-stop/story/actives/B-e124/scope-contract.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0569d389457f2277024a20d88347c2e31bafff021ecc344d9dca0dc57c83f6fc"
+    }
+  ]
+}
