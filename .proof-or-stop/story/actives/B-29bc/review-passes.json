@@ -958,6 +958,44 @@
         "scanEscalationReason": null
       },
       "_hash": "cc7d9a35b47a800674b8293267b2c99e6e88a6ab60be9fc9e11699e285615c53"
+    },
+    {
+      "id": "B-29bc:RP-022",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Independent replacement coverage review: all 8 must intents across CHK-001 and CHK-002 have mechanical PASS receipts with matching selectors and current reviewed material/story hashes; 0 must gaps and 0 waivers. Inspected structured checklist/receipt projections, purpose handler and epoch mutations, topology compatibility sections and audit. Independently reran the bounded epoch smoke: exit 0, including F-001/F-002 semantic negative controls and exact-set disposition. Reused existing public-handler/compatibility execution receipts as inputs, not as my executions. Full canonical validation is not PASS; BUG-VALIDATE-START-READINESS remains owner-tracked and unresolved, with bounded foreign-append fixture readiness/cleanup repair required before TEST/DONE. This lane PASS covers intent/evidence coverage only; it is not TEST/DONE, host quorum, old CAS restoration or resolution of that bug. Topology decision was reviewed by title and relevant sections, not fully; checklist was inspected via structured projection, not claimed as a complete raw-file read.",
+      "createdAt": "2026-09-07T12:42:29.911Z",
+      "reviewRound": "2026-09-07T11:09:29.410Z",
+      "reviewRunId": "B-29bc:RR-025",
+      "envelopeId": "85df504ddfcbf02aac0895ccb234d41f433e9334165061d215d1e6831049c0cc",
+      "writerSessionId": "sess-7893c1f1d7ec288f2ec612f8f5cb8b03",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "fb8836ce5e74cb5c661a91e332bb2952e3fc3d9e12401744d6ec1da967f9dfa7"
     }
   ]
 }
