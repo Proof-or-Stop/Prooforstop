@@ -81,9 +81,9 @@
       "epochId": "B-42f6:RI-002",
       "storyId": "B-42f6",
       "reviewRound": "2026-09-07T10:06:11.989Z",
-      "state": "FINALIZED",
+      "state": "CANCELLED",
       "begunAt": "2026-09-07T10:07:15.519Z",
-      "updatedAt": "2026-09-07T10:12:48.818Z",
+      "updatedAt": "2026-09-07T10:30:08.186Z",
       "cutoff": {
         "headHash": "32d4c4d668418459cef74b6c1f549d177646a50c",
         "materialHash": "4e7064d179848f003b9b347d91e71fcca7141bd1778c00899c602553564569ed",
@@ -152,7 +152,135 @@
       ],
       "baselineFindingIds": [],
       "receiptId": "B-42f6:RI-002:RCP-001",
-      "_hash": "9aebda489ec9e79d40639e2c2ccdd3661f070664e5700e9dd00238b7e5a3097a"
+      "cancelledAt": "2026-09-07T10:30:08.186Z",
+      "cancelReason": "Full integrated validation produced genuine late evidence: the configured ledger integrity guard fails because its historical probe artifact is absent in a fresh checkout. Preserve failure and reopen inventory before remediation.",
+      "terminalRunSequenceBoundary": 12,
+      "_hash": "86ee3f1d92dd968d6472ae13dafe1dbed7d7c36311f1b57dd8f621c3c0826843"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-42f6:RI-003",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-07T10:30:09.287Z",
+      "updatedAt": "2026-09-07T10:37:57.863Z",
+      "cutoff": {
+        "headHash": "9573ca43425397c624f5d68da028873995d2241b",
+        "materialHash": "4e7064d179848f003b9b347d91e71fcca7141bd1778c00899c602553564569ed",
+        "storyFilesHash": "766321e5e38513aefc1f2cd6325d8b77df5b82ff8fa3d8197077d8a27826e578"
+      },
+      "scopeDigest": "ff124224fcedabe493fd756b94a5d938b692b6d34135aa2bf6173b06899cf443",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 12,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T10:30:09.287Z",
+          "completedAt": "2026-09-07T10:34:34.577Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-42f6:RR-014",
+              "terminal": "finding",
+              "hostIdentity": "3df31e13e3ded3cca72141031486e1f626b65d2527dc8b1e58aca9e32d4f67dd",
+              "promptIdentity": "270bff5345ce30be00df7d47ebe0f9f5a52bc571849c6f3c327ee9cb54a45973",
+              "evidenceIds": [
+                "B-42f6:F-007"
+              ],
+              "coverageDigest": "50c8fb90e75d2c33dc7ee0d0f6df945bd0dd46d2420952c3e56bbcc73ee31f3a"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-42f6:RR-013",
+              "terminal": "finding",
+              "hostIdentity": "3df31e13e3ded3cca72141031486e1f626b65d2527dc8b1e58aca9e32d4f67dd",
+              "promptIdentity": "215787d65ffb6f017a9401521070ea6970128f61518375631c4e5688bfc2edba",
+              "evidenceIds": [
+                "B-42f6:F-006"
+              ],
+              "coverageDigest": "bec8a2d20dd8ce59b9f9976b290bd5e1390b5eb0e9e4f4bfd32ff5e33cf76129"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-42f6:RR-015",
+              "terminal": "finding",
+              "hostIdentity": "3df31e13e3ded3cca72141031486e1f626b65d2527dc8b1e58aca9e32d4f67dd",
+              "promptIdentity": "37a14aec9af0488b3ad8439b12b94057c64a8e2f8dd17b21d3138239896bfb45",
+              "evidenceIds": [
+                "B-42f6:F-008"
+              ],
+              "coverageDigest": "7db18679bfea41f49d6d2810bbdd5254da07f916d46f2d2e093b30799a25cf17"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "missing-historical-ledger-probe"
+          ],
+          "verifiedFindingSetDigest": "45079285366653d102068b25745372cd2144f6e1e78b1edea9686c11f74a5d00",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "4a5e1110eef81aea1173456b269b7eef3f428591b273240963570e64f798b789",
+          "saturated": false,
+          "nextRunSequenceBoundary": 16
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-07T10:34:34.577Z",
+          "completedAt": "2026-09-07T10:37:32.139Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-42f6:RR-018",
+              "terminal": "finding",
+              "hostIdentity": "3df31e13e3ded3cca72141031486e1f626b65d2527dc8b1e58aca9e32d4f67dd",
+              "promptIdentity": "bdaebb107de87ae96d40e57fb5387b77903783bdebac3cef1e356cfe5e74b206",
+              "evidenceIds": [
+                "B-42f6:F-010"
+              ],
+              "coverageDigest": "0be775cd6be5c8139dd34575b81a85ce6c7ecf5357c2bda388b54d5020cc4fc4"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-42f6:RR-017",
+              "terminal": "finding",
+              "hostIdentity": "3df31e13e3ded3cca72141031486e1f626b65d2527dc8b1e58aca9e32d4f67dd",
+              "promptIdentity": "8564ab27ec7ed5f25500e769aa43adc478ac016b5b56b8ad2d727ea50c4206fa",
+              "evidenceIds": [
+                "B-42f6:F-009"
+              ],
+              "coverageDigest": "901959f198d02536ac371aea9bc989b8ffa5687af0a2f90a66fdbe11b59a45d3"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-42f6:RR-019",
+              "terminal": "finding",
+              "hostIdentity": "3df31e13e3ded3cca72141031486e1f626b65d2527dc8b1e58aca9e32d4f67dd",
+              "promptIdentity": "72805b99660d90c34e5ea41a1915d0a7ab1488f65827e4a03a217fb4d58d0824",
+              "evidenceIds": [
+                "B-42f6:F-011"
+              ],
+              "coverageDigest": "2a198e58daffa2bb3614925c5f6b971da9bd404fc77f179de842bbb37995c8e2"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "missing-historical-ledger-probe"
+          ],
+          "verifiedFindingSetDigest": "45079285366653d102068b25745372cd2144f6e1e78b1edea9686c11f74a5d00",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "fd048fe3e076c193cc79f985a7172dbd5f8c001c5a4c8f7970bf453d094d7d2e",
+          "saturated": true,
+          "nextRunSequenceBoundary": 20
+        }
+      ],
+      "baselineFindingIds": [],
+      "receiptId": "B-42f6:RI-003:RCP-001",
+      "consumedAt": "2026-09-07T10:37:57.863Z",
+      "consumedByReviewRound": "2026-09-07T10:06:11.989Z",
+      "_hash": "5b8b0e6d1bdde2268d3252f85ac0855ec4893148c8db4c9d4da5d44fe4fac648"
     }
   ],
   "receipts": [
@@ -207,7 +335,36 @@
       "authority": "inventory-completeness-only",
       "authorizesTest": false,
       "issuedAt": "2026-09-07T10:12:48.818Z",
-      "_hash": "500a1d3e2062a8545a34d8f4bec5f8c670841e1208b6f1de1d04177ca2a2c47c"
+      "invalidatedAt": "2026-09-07T10:30:08.186Z",
+      "invalidationReason": "Full integrated validation produced genuine late evidence: the configured ledger integrity guard fails because its historical probe artifact is absent in a fresh checkout. Preserve failure and reopen inventory before remediation.",
+      "_hash": "12ee009801cdbb047b54d7be886821d10cf568a6e5d8b451bc87470ccf63452f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-42f6:RI-003:RCP-001",
+      "epochId": "B-42f6:RI-003",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "cutoff": {
+        "headHash": "9573ca43425397c624f5d68da028873995d2241b",
+        "materialHash": "4e7064d179848f003b9b347d91e71fcca7141bd1778c00899c602553564569ed",
+        "storyFilesHash": "766321e5e38513aefc1f2cd6325d8b77df5b82ff8fa3d8197077d8a27826e578"
+      },
+      "scopeDigest": "ff124224fcedabe493fd756b94a5d938b692b6d34135aa2bf6173b06899cf443",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "45079285366653d102068b25745372cd2144f6e1e78b1edea9686c11f74a5d00",
+      "coverageDigest": "4852e0d7d867d6270cdfc2f08e89144d2b7613ae49ecd45a9f8d6673a99ce731",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T10:37:32.139Z",
+      "consumedAt": "2026-09-07T10:37:57.863Z",
+      "_hash": "8f21d2a76504fbc97dd1857c6f7725d2e641ca5d4396ca3f7a2cabf0c6636a94"
     }
   ],
   "criticReceipts": [
@@ -258,6 +415,96 @@
       "findingDispositions": [],
       "createdAt": "2026-09-07T10:12:31.717Z",
       "_hash": "b4b204065163ef6a830ddb71713d97c6e19bf85bbe9f152e36bd0454937d6a83"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-42f6:RI-003:CRIT-01",
+      "epochId": "B-42f6:RI-003",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "9573ca43425397c624f5d68da028873995d2241b",
+        "materialHash": "4e7064d179848f003b9b347d91e71fcca7141bd1778c00899c602553564569ed",
+        "storyFilesHash": "766321e5e38513aefc1f2cd6325d8b77df5b82ff8fa3d8197077d8a27826e578"
+      },
+      "aggregateFindingSetDigest": "45079285366653d102068b25745372cd2144f6e1e78b1edea9686c11f74a5d00",
+      "requiredLaneCoverageDigest": "dd70ba4c7fd64c54e8433ae8b6d04fdd4f08b0798d89a91187d4b109c2f83d80",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-42f6:RR-016",
+      "terminalEvidenceIds": [
+        "B-42f6:RP-010"
+      ],
+      "readEvidenceDigest": "4f7ebb7d690a3929e723bf8408b745f12806c4b6f7b3f5af2151cfa8625cded7",
+      "findingDispositions": [
+        {
+          "findingId": "B-42f6:F-006",
+          "disposition": "verified_family",
+          "familyKey": "missing-historical-ledger-probe",
+          "reason": "Configured full validation and independent reproduction fail on the unavailable historical probe; retain as canonical current-Story mandatory repair."
+        },
+        {
+          "findingId": "B-42f6:F-007",
+          "disposition": "duplicate",
+          "familyKey": "missing-historical-ledger-probe",
+          "canonicalFindingId": "B-42f6:F-006",
+          "reason": "Same missing probe at the same guard line; concept lane corroborates acceptance impact without an independent root cause."
+        },
+        {
+          "findingId": "B-42f6:F-008",
+          "disposition": "duplicate",
+          "familyKey": "missing-historical-ledger-probe",
+          "canonicalFindingId": "B-42f6:F-006",
+          "reason": "Same missing probe and full-suite failure; coverage lane corroborates gate impact without an independent root cause."
+        }
+      ],
+      "createdAt": "2026-09-07T10:33:58.737Z",
+      "_hash": "90ff8699fb1929105351497097661b99d8d4713aed102028ff2d6f855f436506"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-42f6:RI-003:CRIT-02",
+      "epochId": "B-42f6:RI-003",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "9573ca43425397c624f5d68da028873995d2241b",
+        "materialHash": "4e7064d179848f003b9b347d91e71fcca7141bd1778c00899c602553564569ed",
+        "storyFilesHash": "766321e5e38513aefc1f2cd6325d8b77df5b82ff8fa3d8197077d8a27826e578"
+      },
+      "aggregateFindingSetDigest": "45079285366653d102068b25745372cd2144f6e1e78b1edea9686c11f74a5d00",
+      "requiredLaneCoverageDigest": "6d3129ff52b0fce593277962c77e55198b14b675591aba942ba295617e2b9292",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-42f6:RR-020",
+      "terminalEvidenceIds": [
+        "B-42f6:RP-011"
+      ],
+      "readEvidenceDigest": "50b0faa33c8af7cd7c42efdff52bde563f5acf43137273e2e775d76e5c284e4c",
+      "findingDispositions": [
+        {
+          "findingId": "B-42f6:F-009",
+          "disposition": "verified_family",
+          "familyKey": "missing-historical-ledger-probe",
+          "reason": "Wave-local representative of unchanged canonical F006 defect: missing historical probe still blocks required validation; not a new family."
+        },
+        {
+          "findingId": "B-42f6:F-010",
+          "disposition": "duplicate",
+          "familyKey": "missing-historical-ledger-probe",
+          "canonicalFindingId": "B-42f6:F-009",
+          "reason": "Same established F006 family; F009 is the required current-wave representative, with identical missing probe and validation impact."
+        },
+        {
+          "findingId": "B-42f6:F-011",
+          "disposition": "duplicate",
+          "familyKey": "missing-historical-ledger-probe",
+          "canonicalFindingId": "B-42f6:F-009",
+          "reason": "Same established F006 family; F009 is the required current-wave representative, with identical missing probe and validation impact."
+        }
+      ],
+      "createdAt": "2026-09-07T10:37:06.769Z",
+      "_hash": "da4266ad6f33a94140d92e7ab90bc96fb388b8716dcff532ef13ae39359cea4e"
     }
   ]
 }

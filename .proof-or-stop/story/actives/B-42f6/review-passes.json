@@ -241,6 +241,66 @@
       },
       "readDiagnostics": [],
       "_hash": "db77430a26145df07ca16ed2b1f565d9aed7567e73a9fdb235f6fa0d614acafe"
+    },
+    {
+      "id": "B-42f6:RP-010",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Inventory completeness terminal only, not implementation PASS. Read current three verified rows F006,F007,F008. They describe one acceptance-blocking missing historical probe dependency; F006 is canonical and F007/F008 are corroborating duplicate contributions. Current-Story repair remains mandatory, full validation is FAIL and topology coverage is not asserted. All observed defect contributions are inventoried and preserved.",
+      "createdAt": "2026-09-07T10:33:28.012Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-016",
+      "envelopeId": "6e9a03d5d9f12d53fd07e7c6771b6de948410eebc45c7ae956d7a3a39363b7ca",
+      "writerSessionId": "sess-d068019ca31deebba9b38312e19a2290",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-42f6/background.md",
+          ".proof-or-stop/story/actives/B-42f6/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "7d63b09c0086433800b570d361c576d70674ec37019a3bfea0b8d9e2ff8e9409"
+    },
+    {
+      "id": "B-42f6:RP-011",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave2 inventory completeness only, not implementation PASS. Independently read six verified observations F006-F011. Canonical F006 remains the same unresolved missing historical ledger probe; later concept, quality and coverage contributions repeat its exact source, failure and acceptance impact, yielding no new family. Preserve mandatory current-Story repair and FAIL validation. No topology or implementation success claimed.",
+      "createdAt": "2026-09-07T10:36:48.852Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-020",
+      "envelopeId": "51e3d2fbad6340ffbbe478c3858ea7958a0c7325bbc1bf3764d359126555ab2e",
+      "writerSessionId": "sess-d068019ca31deebba9b38312e19a2290",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-42f6/background.md",
+          ".proof-or-stop/story/actives/B-42f6/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f6a4832ebdd2c4af5ea1c192610810853b873cc1f8ca5f701ec82871f2083b9c"
     }
   ]
 }

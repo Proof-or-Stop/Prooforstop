@@ -197,8 +197,229 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2wdgb_giu_41a2d24c916b43aba26dd088a80f7873",
       "ledgerCommitReceiptId": "lrc_mtr2wdgb_giu_531997c23a454a11b5306ab9b1fe1a95",
-      "dismissReason": "The comparison intentionally proves help equivalence modulo public alias spelling. Independent report and current code show no missing or wrong-handler false pass; the real unknown-action negative remains active. The precision limitation is acknowledged rather than claimed resolved. Preserve original suspected observation; no repair or formal deferral claim.",
-      "dismissedAt": "2026-09-07T10:11:04.875Z"
+      "dismissedAt": "2026-09-07T10:11:04.875Z",
+      "dismissReason": "The comparison intentionally proves help equivalence modulo public alias spelling. Independent report and current code show no missing or wrong-handler false pass; the real unknown-action negative remains active. The precision limitation is acknowledged rather than claimed resolved. Preserve original suspected observation; no repair or formal deferral claim."
+    },
+    {
+      "id": "B-42f6:F-006",
+      "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 configured validation depends on unavailable machine-local historical probe rp-mtifubae-dfbh4w. Frozen final suite /private/tmp/B-42f6-final-validate.json reports 131 pass/1 fail; this guard fails repro_probe_get with evidence-store: artifact ref not found: rp-mtifubae-dfbh4w (parseCliJson line79). Independent single-command reproduction in source-equivalent /private/tmp/prooforstop-main-publication-20260907, after adding clone-only main worktree identity anchor, yields identical failure. Guard is byte-identical remote c853ab5e63, but directly blocks this integration verification intent/full required validation; current-Story repair required rather than dismissal. Historical B-fe8f records preserve IDs/digests and original-host filesystem references, not complete recoverable objects. Repair must retain actual baseline/current runtime checks and real corrupted-relation-digest rejection using authenticated historical artifact recovery or canonical fresh temporary evidence fixtures; no fabricated historical artifact, hardcoded PASS, skipped guard or widened mirror bypass.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:30:58.022Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-013",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "ebfb6e7a784536be84da3c79f13cb4498c66139620f28a1234190dab85c2d923",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3obfr_10kl_eedfad85f43045b6967242b6a92bb3b2",
+      "ledgerCommitReceiptId": "lrc_mtr3obfr_10kl_3f6b345c41094ffa98bdd71fa35d5a98"
+    },
+    {
+      "id": "B-42f6:F-007",
+      "desc": "Corroborating concept contribution to canonical B-42f6:F-006, same defect family rather than an independent repair request: red-bfe8f-ledger-runtime-integrity.mjs:408 treats a machine-local historical probe artifact as a required portable validation input. The current configured full suite fails on missing rp-mtifubae-dfbh4w, so the integration promise that mandatory verification runs on the merged checkout remains unmet. Read the canonical F006 reproduction and current source probe lookup; preserve actual baseline/current execution and authenticated relation-negative checks when repairing. No PASS is recorded and no historical artifact may be fabricated.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T10:31:56.293Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-014",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-42f6/background.md",
+          ".proof-or-stop/story/actives/B-42f6/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d2a8d636d954fec84f89eb6ca55df4202337b08c4ca8b16ffec46d4161e01223",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|corroborating-concept-contribution",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3pked_14hc_1843a97b48e542bf8b5cee3e757f52a0",
+      "ledgerCommitReceiptId": "lrc_mtr3pkee_14hc_15ed9f97bc024690a9f2cbd37bc62e35"
+    },
+    {
+      "id": "B-42f6:F-008",
+      "desc": "Coverage contribution to B-42f6:F-006: packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 requires historical probe rp-mtifubae-dfbh4w in the actual repository runtime. Executed configured validation /private/tmp/B-42f6-final-validate.json reports status fail/allPass false across132commands and the exact artifact-ref-not-found assertion. Five passing pinned intents cannot establish the plan promise that required configured validation passes. Repair and reverify this acceptance blocker before final acceptance; this contribution records coverage/gate impact of the quality observation. Do not weaken the assertion or fabricate historical evidence to obtain green validation.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-07T10:32:27.521Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-015",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-42f6/checklist.json",
+          ".proof-or-stop/story/actives/B-42f6/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "8fe42feffa726ccb8678786cefea88ddceaf2dbd9f0b3a8657a39be2e6e997c7",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|coverage-contribution-42f6",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3q8ht_152c_dde4cf92c4584cba957dac25ff9e79d3",
+      "ledgerCommitReceiptId": "lrc_mtr3q8hu_152c_b7677735f1d44ccdb75a1a35472b741f"
+    },
+    {
+      "id": "B-42f6:F-009",
+      "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 wave-2 reconfirmation of existing canonical blocker B-42f6:F-006, duplicate observation only, no new defect family. Candidate source unchanged; line408 still calls repro_probe_get for fixed rp-mtifubae-dfbh4w. Existing frozen full132 artifact /private/tmp/B-42f6-final-validate.json and independent clean-clone single-check both fail with evidence-store: artifact ref not found: rp-mtifubae-dfbh4w. No source repair or new test execution occurred this wave. F-006 remains unresolved and directly blocks required validation; do not interpret this contribution as PASS, repair or deferral. Route this observation to canonical F-006 for current-Story repair.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:35:20.114Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-017",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2938ff3e327331c31c7caf04f17173f6389fe94e3c4af56181b06f6ffe7f0159",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|packages-main-tests",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3txo3_19t2_cb5edc81838643ab810fb3db8c3fd75d",
+      "ledgerCommitReceiptId": "lrc_mtr3txo3_19t2_46aa05c6e48742969c62df317234e5fa"
+    },
+    {
+      "id": "B-42f6:F-010",
+      "desc": "RI003 wave2 reaffirmation of canonical B-42f6:F-006, same missing-historical-ledger-probe family. Unchanged source still requires absent rp-mtifubae-dfbh4w at red-bfe8f-ledger-runtime-integrity.mjs:408. The observed full-suite failure prevents the promised verified integration. No new defect family or repair is claimed; canonical F006 remains the mandatory repair target and this lane records no implementation PASS.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T10:35:44.540Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-018",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-42f6/background.md",
+          ".proof-or-stop/story/actives/B-42f6/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "61cbe3730bf7a95511b084ebbc1e74b56b5f045e25d95c6fa7fad2b16b21a4c2",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|ri003-wave2-reaffirmation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3ugil_1cg4_5b7b3e55c4c049348511570c68955744",
+      "ledgerCommitReceiptId": "lrc_mtr3ugil_1cg4_b744d732fefa403582a8308a5653bd3b"
+    },
+    {
+      "id": "B-42f6:F-011",
+      "desc": "RI-003 wave2 duplicate contribution to canonical B-42f6:F-006 and prior coverage F-008; no new defect family. Fresh inspection confirms unchanged source at packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 and existing full132 validation failure for missing historical probe rp-mtifubae-dfbh4w. The plan requires configured validation success; the five passing pinned receipts cannot replace that missing acceptance evidence. No code diff since wave1 and no new execution is claimed. Keep the canonical blocker for repair and genuine verification; this terminal does not claim PASS or resolved status.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-07T10:35:47.918Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-019",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-42f6/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "345608e4cf97d11571eaf20bb644fae1dec6a4eae3cb10f24f9b9f462267d59d",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+      ],
+      "signatureTag": "missing|mjs|wave2-duplicate-contribution",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3uj4f_1cr4_6d8e3e0ba2a74750b21692f04d41241b",
+      "ledgerCommitReceiptId": "lrc_mtr3uj4f_1cr4_ef8d83fce881469d800848c8069820b4"
     }
   ]
 }
