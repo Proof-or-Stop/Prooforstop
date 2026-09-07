@@ -205,7 +205,7 @@ function isProductionScenarioExecution(
   requestedScenarioMode: boolean,
   selectedStoryId: string | undefined,
 ): boolean {
-  // Production authority comes from the explicit active-Story handoff, not
+  // Production-mode selection comes from the explicit active-Story handoff, not
   // from topology size. A legitimate Story may declare fewer assertions than
   // the historical 29-case fixture catalog (B-e256 currently does), and its
   // direct Wave 4 reads must still target that Story rather than the isolated
