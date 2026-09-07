@@ -1,0 +1,66 @@
+{
+  "storyId": "B-42f6",
+  "checkedAt": "2026-09-07T11:30:54.202Z",
+  "headHash": "d5f8cbced781fa73f0c6e91ae804d0ed9e28b2d8",
+  "materialHash": "770d3acdffcf523934037aa8ed31fa836f5feb9b5ee672a75484e36c6183535f",
+  "storyFilesHash": "e9a94826cc477646fd0ec3cdf8b17f396e9d4847878dc815e1adca1f3c999c20",
+  "reviewRound": "2026-09-07T10:54:55.420Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".proof-or-stop/story/actives/B-42f6/plan.md#Verify",
+      "promise": "The integrated candidate preserves both pinned parent histories and the completed repair history.",
+      "status": "met",
+      "verifiedBy": "Independent read-only Git ancestry assertions",
+      "evidence": "Executed git merge-base --is-ancestor for d5b00d0ff3, c853ab5e63 and e8fc28d56a against current HEAD; all exited zero. This verifies the candidate ancestry, not remote publication."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-42f6/plan.md#Verify",
+      "promise": "Playback and exported frames retain exact Proof-or-stop branding from the completed branding implementation.",
+      "status": "met",
+      "verifiedBy": "Independent byte comparison and rendering source inspection",
+      "evidence": "Current packages/graph/src/shells/web/playback.js is byte-identical to c8263eb450. PLAYBACK_BRAND feeds both initial and post-parse playback headings and drawChrome canvas fillText; video and GIF paths share prepared-frame rendering. This review did not perform a new visual export."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-42f6/plan.md#Execution",
+      "promise": "Merged package, lockfile and runtime versions remain aligned to 0.3.278 and the CLI routing is retained.",
+      "status": "met",
+      "verifiedBy": "Independent version assertions and registry/source checks",
+      "evidence": "Four root/core package and lockfile version assertions passed; runtime brand constant and captured CLI output identify 0.3.278. CLI surface and version assertions are present in the named executable checklist verification."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-42f6/plan.md#DoneWhen",
+      "promise": "Remote execution/provenance isolation and the local mixed-selector negative regression remain present.",
+      "status": "met",
+      "verifiedBy": "Committed diff and substantive assertion inspection",
+      "evidence": "verification-run-and-guard-smoke.ts asserts distinct selector execution identities and causal receipt hashes, preserved timeout provenance, shared output, missing-selector demotion and no fabricated receipt; mixed-selector assertions remain at lines 701-727. Checklist has actual command receipts for these regressions, including the explicit candidate-only host-token caveat."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md#DONE Predicate Parity Contract",
+      "promise": "Active readiness and DONE consume ordered shared predicates, including finish-decision presence and current reviewer validity, without rewriting evidence.",
+      "status": "met",
+      "verifiedBy": "Source and negative assertion inspection",
+      "evidence": "machine.ts implements evaluateDonePredicates and firstDonePredicateFailure; done-oracle.ts consumes all results and projects every failure while retaining stricter rows. red-done-shared-predicates.mjs covers missing finish, stale/dynamic review, rejected delivery, shared-row failures and input-state preservation."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md#DONE Predicate Parity Contract",
+      "promise": "Completed-snapshot presentation stays separate from active admission and finite adapter checks include mutation witnesses and process-fact mappings.",
+      "status": "met",
+      "verifiedBy": "Implementation and regression-source inspection",
+      "evidence": "The oracle restricts completed snapshot selection to actual DONE phase; tests cover TEST snapshot rejection, historical presentation and future predicate mutations. process-fact-registry.ts maps shared predicate codes, and verify-process-fact-contract.mjs checks finite adapter syntax. No historical reviewer re-attestation or arbitrary-program equivalence is claimed."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent delivery execution returned DELIVERY_ANCESTRY_BRAND_VERSION_PASS after exact parent/repair ancestry, complete playback byte comparison and aligned package/lockfile version assertions. The current live-smoke transcript captures exit0 for the same ancestry/branding contract, CLI 0.3.278 and the ledger runtime integrity guard, including corrupted relation and substituted-green rejection. Source assertions independently cover selector absence, provenance isolation, malformed/stale reviewer and delivery states. This review did not rerun heavy suites, create a new video export, or certify remote publication."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "The integrated candidate delivers the inspected local behavior and all six mapped promises, with substantive negative assertions and a current actual live transcript. No new unresolved implementation TODO was found in the scoped diff. Normal DONE/local-main integration, the separate DONE-required suite and remote publication remain owner responsibilities; this delivery artifact does not claim they already occurred."
+  },
+  "_hash": "298d25e3fe76c9fc42c6a889f6a848adf151352907ed2f17d3bf7464d46a9734"
+}
