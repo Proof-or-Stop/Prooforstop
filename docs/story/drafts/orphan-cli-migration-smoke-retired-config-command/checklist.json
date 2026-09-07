@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Reproduce and repair or deliberately retire the orphan migration smoke",
+      "context": "packages/main/src/tasks/proof-or-stop-cli-migration-smoke.ts:235 invokes lattice_config_doctor and line246 retains the label. Both unchanged main and B-e124 CLI reject that retired command. The smoke is absent from root/main scripts, validate.commands and full-suite-runner. Preserve negative coverage if registering a repaired smoke.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
