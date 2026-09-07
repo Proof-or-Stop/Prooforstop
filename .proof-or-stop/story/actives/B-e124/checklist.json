@@ -7,9 +7,39 @@
       "relatedDocs": [
         "packages/lab/src/handlers/lab.ts"
       ],
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-09-07T03:07:46.155Z",
+      "endTime": null,
+      "userSees": "lab create --help displays registered Lab help; all six nested Lab forms resolve like their flat equivalents.",
+      "files": {
+        "modify": [
+          "packages/main/src/cli/alias-normalizer.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/cli-surface-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "All six advertised lab subcommands resolve to their registered flat handlers, including real CLI lab create --help returning command help successfully.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Flat Lab commands remain available and nested aliases preserve forwarded arguments without altering handler behavior.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Unknown lab subcommands remain unmatched and fail as unknown commands rather than silently selecting a registered handler.",
+            "type": "cli"
+          }
+        ]
+      }
     },
     {
       "id": "CHK-002",
@@ -20,7 +50,35 @@
       ],
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "userSees": "Transport-only canonical environment changes preserve validation identity; semantic changes still invalidate it; the DONE-required smoke passes.",
+      "files": {
+        "modify": [],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/done-required-validation-smoke.ts"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Changing ambient canonical PROOF_OR_STOP transport identity keys leaves the effective validation environment digest unchanged.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Frozen historical transport key list and its pinned digest remain unchanged while retired LATTICE spellings are not active transport matches.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Semantic ambient values and explicit command.env overlays, including overlays of normally transport-only keys, remain digest-sensitive.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }

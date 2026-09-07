@@ -1,0 +1,72 @@
+{
+  "storyId": "B-e124",
+  "checkedAt": "2026-09-07T03:07:18.763Z",
+  "features": [
+    {
+      "feature": "Restore all six advertised nested Lab aliases including real CLI create help.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json; packages/lab/src/handlers/lab.ts"
+    },
+    {
+      "feature": "Preserve flat commands, arguments and handler admission; unknown subcommands fail.",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json; decision.json"
+    },
+    {
+      "feature": "Canonical ambient transport changes preserve validation identity and DONE-required smoke passes.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json; understanding.json"
+    },
+    {
+      "feature": "Frozen historical list and digest unchanged; retired spellings remain semantic.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json; packages/main/src/core/validation-command-environment.ts"
+    },
+    {
+      "feature": "Semantic ambient values and explicit command overlays remain digest-sensitive.",
+      "covered_by": "CHK-002",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json; decision.json"
+    },
+    {
+      "feature": "Unrelated runtime behavior, validation policy and baseline failures are not repaired by this scope.",
+      "covered_by": null,
+      "status": "excluded",
+      "excluded_by": "Understanding constrains changes to three declared files; decision excludes unrelated failures and requires honest reporting.",
+      "source": "understanding.json; decision.json; background.md"
+    }
+  ],
+  "readManifest": {
+    "filesReadFully": [
+      ".proof-or-stop/story/actives/B-e124/background.md",
+      ".proof-or-stop/story/actives/B-e124/checklist.json",
+      ".proof-or-stop/story/actives/B-e124/decision.json",
+      ".proof-or-stop/story/actives/B-e124/scope-contract.json",
+      ".proof-or-stop/story/actives/B-e124/understanding.json",
+      "packages/lab/src/handlers/lab.ts",
+      "packages/main/src/core/validation-command-environment.ts"
+    ],
+    "filesTriagedByName": [],
+    "scanEscalationReason": null
+  },
+  "summary": {
+    "total": 6,
+    "covered": 5,
+    "excluded": 1,
+    "gaps": 0,
+    "orphanSuspect": 0,
+    "drift": 0
+  },
+  "reviewRound": "",
+  "_hash": "5efdf50788d0d99976e2495e768476a25971ca2db63863f2dddf2e73613d06a9",
+  "openQuestions": []
+}
