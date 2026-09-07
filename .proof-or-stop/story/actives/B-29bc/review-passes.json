@@ -1525,6 +1525,49 @@
       },
       "readDiagnostics": [],
       "_hash": "2068a4a661a72477be8d23eb0a93fb2e441673763b7c814aac282be2f640ed60"
+    },
+    {
+      "id": "B-29bc:RP-036",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Inventory-completeness-only review of RI-007 wave 1 at material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b. Actual signature and prompt-envelope verification succeeded for RR-042 through RR-046; required terminals RR-042/RP-035, RR-043/F-005, RR-044/F-006 and RR-045/RP-034 have signed manifests and mechanical logs, matching material/story/scope bindings and no read diagnostics. RR-046 started after all four terminals. Pure production evaluation reports no missing lanes, duplicate identities or baseline mismatch and the exact raw set F-005,F-006. Read both complete current Finding observations and the earlier resolved F-001 through F-004; all signatures verify and original observations remain preserved. F-005 and F-006 name the same two test lines, same prior-_hash signing mistake and identical true/false/true runtime controls; F-006 is an acyclic inventory duplicate of live open verified F-005, whose current-Story repair remains owned by the Story owner. Tested exact dispositions through the production evaluator: both IDs covered, no invalid or unresolved disposition, one new verified family finding:B-29bc:F-005. Reviewed the unchanged committed source diff and acceptance evidence already inspected in this session; no additional inventory omission discovered. This terminal certifies only this inventory inspection. F-005/F-006 remain unrepaired current acceptance defects; this is not a product correctness, topology, independent-host assurance, TEST or DONE pass.",
+      "createdAt": "2026-09-07T17:19:52.613Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-046",
+      "envelopeId": "abb281a6373bfd7e0bf06fe2e043b9ec75f3290ca8bb8bf586de29cbb0b0f1ed",
+      "writerSessionId": "codex-b29-ri007-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "e62bb1bb5f9d00142a50688eab470a0c563ab86b7cae221a1b54c78077f4d924"
     }
   ]
 }
