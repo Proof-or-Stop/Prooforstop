@@ -2658,6 +2658,56 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqjgkj7_vgl_c80e99a184214682ab81a4fc69261cf6",
       "ledgerCommitReceiptId": "lrc_mtqjgkj7_vgl_985a25a6959c41ed8ba1b305fabb5f8a"
+    },
+    {
+      "id": "B-e256:F-055",
+      "desc": "windows-command-shim-argument-forwarding false pass: packages/main/src/core/runtime-environment-checks.ts:780-798 proves only that Node receives the canonical target in script position; it never requires the selected Windows .cmd shim to forward caller arguments with `%*`. A current compiled-runtime probe used a canonical package/target/version and a PATH-selected shim containing only `node \"<lexical canonical target>\"` (no `%*`); runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true and emitted `contract: global-core-realpath-pass`. Under cmd.exe that shim executes the target but discards `--version`, so it cannot deliver checklist.json CHK-001.userSees (`proof-or-stop --version prints the compiled version`) or the claimed working global command contract. packages/main/tests/global-core-realpath.test.mjs:175-179 includes `%*` only in the positive helper and has no missing-forwarding mutation. This is distinct from F-047 runtime binding, F-049 reachability, F-050 target-base binding, and F-052 quoting: runtime and target are literal, reachable, correctly quoted, and correctly normalized; only argv propagation is absent. Require the recognized cmd npm shim invocation to forward `%*` (and define any separately supported PowerShell `$args` shape rather than conflating shell grammars), then add a negative mutation proving a no-forwarding shim cannot emit the healthy marker. severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T01:07:28.463Z",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "reviewRunId": "B-e256:RR-161",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "b147bd5934cc98ebf84002ae0405d2b801fe999d1d80b17ea0d7aff86af4b8d4",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs",
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/proofstory.json",
+        ".proof-or-stop/story/actives/B-e256/summary.json"
+      ],
+      "signatureTag": "windows-command-shim-argument-forwarding-false-pass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqjjntd_7oi_09b5e6820a18407691c3cb6c761b1456",
+      "ledgerCommitReceiptId": "lrc_mtqjjnte_7oi_402684423a3945de9c1c80d4065db2c8"
     }
   ]
 }
