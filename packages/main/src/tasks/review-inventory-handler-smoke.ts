@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, mkdirSync, readFileSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -67,7 +67,7 @@ function waitForFile(path: string, timeoutMs = 5_000): void {
   }
 }
 
-function setup() {
+function setup(author = { name: 'lattice-implementer', email: 'lattice-implementer@noreply.local' }) {
   const root = mkdtempSync(join(tmpdir(), 'review-inventory-handler-'));
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
@@ -86,8 +86,8 @@ function setup() {
   }
   git(root, ['init']);
   git(root, ['checkout', '-b', 'main']);
-  git(root, ['config', 'user.name', 'lattice-implementer']);
-  git(root, ['config', 'user.email', 'lattice-implementer@noreply.local']);
+  git(root, ['config', 'user.name', author.name]);
+  git(root, ['config', 'user.email', author.email]);
   git(root, ['add', '.']);
   git(root, ['commit', '-m', 'initial']);
   resetConfigCache();
@@ -145,6 +145,64 @@ function seedProofStoryAcceptance(store: StoryStore): void {
   };
   store.writeProofStoryContract(storyId, contract);
 }
+
+// B-29bc: the same production CLI fixture supplies complete signed required
+// lanes before critic admission. Host names below describe disposable fixtures,
+// not independent-host assurance. Existing topology assertions remain below.
+function inventoryPurposeRecovery(): void {
+  const actor = 'proof-or-stop-review-topology-critic';
+  const env = (agent: string, session: string): NodeJS.ProcessEnv => ({
+    PROOF_OR_STOP_AGENT: agent, PROOF_OR_STOP_SESSION_ID: session,
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
+    PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: 'synthetic-b29bc-purpose',
+  });
+  const topology = setup();
+  const fixture = setup({ name: 'Harmonynet', email: '26995688+Harmonynet@users.noreply.github.com' });
+  try {
+    assert.match(cli(topology.root, 'dispatch', { storyId, agentType: actor }, env(actor, 'b29bc-topology-control')), /topology/);
+    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor }, env(actor, 'b29bc-default-refusal')), /implementation|author|provenance/i);
+    cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
+    const epoch = fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+    assert.equal(epoch.state, 'OPEN');
+    const readManifest = { filesReadFully: ['packages/main/src/subject.ts'], filesTriagedByName: [], scanEscalationReason: null };
+    const readEvents = [{ path: 'packages/main/src/subject.ts', mode: 'full', action: 'Read', tokenCount: null }];
+    for (const lane of epoch.requiredLanes) {
+      const laneEnv = env(lane, `b29bc-required-${lane}`);
+      cli(fixture.root, 'dispatch', { storyId, agentType: lane }, laneEnv);
+      const started = cli(fixture.root, 'review_run_start', { storyId, agent: lane }, laneEnv);
+      const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+      assert.ok(reviewRunId, started);
+      cli(fixture.root, 'review_pass_set', { storyId, agent: lane, reviewRunId, note: 'Disposable required lane inspected the frozen inventory subject.', readManifest, readEvents }, laneEnv);
+    }
+    const status = cli(fixture.root, 'review_inventory_status', { storyId }, env('main', 'b29bc-owner'));
+    assert.doesNotMatch(status, /REVIEW_INVENTORY_LANES_INCOMPLETE/);
+    assert.match(status, /REVIEW_INVENTORY_CRITIC_INCOMPLETE/);
+    console.log('B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved');
+    const purpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId };
+    const criticEnv = env(actor, 'b29bc-independent-critic');
+    let dispatch = '';
+    assert.doesNotThrow(() => { dispatch = cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, criticEnv); }, 'B-29bc explicit inventory dispatch must admit real non-role Git attribution');
+    assert.match(dispatch, /inventory-completeness/);
+    assert.match(dispatch, new RegExp(epoch.epochId));
+    const started = cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...purpose }, criticEnv);
+    const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
+    assert.ok(reviewRunId, started);
+    const run = fixture.store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === reviewRunId)!;
+    assert.equal((run as unknown as { reviewPurpose: string }).reviewPurpose, 'inventory-completeness');
+    const listed = JSON.parse(cli(fixture.root, 'review_run_list', { storyId, lane: actor, latest: true, json: true }, criticEnv));
+    assert.equal(listed.runs[0].signatureValid, true);
+    cli(fixture.root, 'review_pass_set', { storyId, agent: actor, reviewRunId, note: 'Independent disposable critic inspected every required lane and the empty exact finding set.', readManifest, readEvents }, criticEnv);
+    assert.match(cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId, reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /Completeness critic: complete/);
+    assert.equal(git(fixture.root, ['log', '--format=%an <%ae>', '--', 'packages/main/src/subject.ts']), 'Harmonynet <26995688+Harmonynet@users.noreply.github.com>');
+    console.log('B29BC_INVENTORY_PURPOSE PASS');
+  } finally {
+    rmSync(topology.root, { recursive: true, force: true });
+    rmSync(fixture.root, { recursive: true, force: true });
+  }
+}
+
+inventoryPurposeRecovery();
+if (process.argv.includes('--purpose-only')) process.exit(0);
 
 const first = setup();
 seedProofStoryAcceptance(first.store);
