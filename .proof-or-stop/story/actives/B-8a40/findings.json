@@ -3970,7 +3970,7 @@
       "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2188 introduces the active assertion text `the helper-only mutant fails only through the production authority oracle for ${roleId}`. The exact retired phrase is forbidden by bannedActiveRules in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:43 and the active-surface contract docs/requirements/decisions/authority-server-vocabulary-retirement.md. This is not preserved historical evidence or an intentional guard positive control: it is a newly introduced live smoke diagnostic. The current target-bound done-required-evidence.json records root `npm test` exit 1 at 2026-09-07T00:03:15.137Z (outputDigest 93450a9c651423583397d1d024ef06747d04d653727145788fc3a44c81fa1dfc), with this exact path/line/phrase in the guard failure; the Story source hash is unchanged at 712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd. This is the already disclosed retired-wording family, separate from the loader-admission failure at :2123. Current-Story repair is required because the introduced wording directly blocks DONE-required verification. Replace the diagnostic with precise neutral terminology inside the already-declared smoke file and rerun the vocabulary guard plus focused mutation smoke; do not weaken the banned rule, hide the phrase through construction, treat receipt FAIL as pass, or fabricate scanner approval.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-07T00:13:09.372Z",
@@ -4015,7 +4015,11 @@
       "signatureTag": "b8a40-retired-authority-assertion-wording",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqhlt32_1ut0_21a2c48a74034409a0fde3aa440ae06c",
-      "ledgerCommitReceiptId": "lrc_mtqhlt32_1ut0_73472d816f0c431fa4e2d0bd340b3655"
+      "ledgerCommitReceiptId": "lrc_mtqhlt32_1ut0_73472d816f0c431fa4e2d0bd340b3655",
+      "resolvedAt": "2026-09-07T07:38:14.449Z",
+      "resolvedReason": "Fixed in commit 1a222c4795117711818fb400dc6448e7e9322efe: the live assertion now says production triage oracle. The forbidden vocabulary rule remains enabled without obfuscation. The focused built smoke and retired vocabulary guard both exit 0; the root npm test run also reports PASS for test:retired-authority-vocabulary-guard. All 13 pinned intent receipts were refreshed by the CLI at that commit (metadata a43e60b); the 2026-09-07 live smoke transcript is present-fresh. The complete root suite and final lifecycle certification are still separate pending checks. Original observation retained; no deferral.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-080",
