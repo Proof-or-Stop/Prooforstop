@@ -1226,6 +1226,43 @@
       },
       "readDiagnostics": [],
       "_hash": "264f174e10899770f9f9ada1feca8dde0df861859b70ab94ac70f80a3a7644e1"
+    },
+    {
+      "id": "B-29bc:RP-029",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-006 independent story-level coverage: canonical checklist_get was reloaded and all 8 must intents have mechanical PASS receipts, exit 0 and exact matched pinned selectors, bound to current reviewed material acbb6c30 and story-files 5b32f214; 0 must gaps, 0 waivers. Reviewed baseline RED 2056751bf8 and GREEN feba6c0e0e, the exact selected critic approval change, human-authored role row, and recursive JSON snapshot delta: only critic records and derived totals changed; no other role approval was repinned. Independently executed node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-prompt-policy-manifest: exit 0, with structural/hash/content/add/remove, generated-audit, direct/legacy collector and baseline self-authorization negative controls passing. Examined unchanged exact-hash rejection implementation; the pin update does not authorize arbitrary body changes. Reviewed new audit section and retained original purpose-isolation/heartbeat RED-GREEN coverage via current receipts and source delta; no implementation source changed in this bounded baseline correction. Existing matrices were consumed as current CLI evidence, not claimed as my executions. Old RP-021 is not reused. This coverage PASS does not certify new DONE-required full suite, actual independent-host quorum, delivery, local merge or DONE. Full-read manifest is limited to files actually reread fully; checklist and baseline JSON were inspected through structured projections, audit through relevant sections and diff, topology decision through title/intro.",
+      "createdAt": "2026-09-07T15:54:38.364Z",
+      "reviewRound": "2026-09-07T15:50:32.710Z",
+      "reviewRunId": "B-29bc:RR-034",
+      "envelopeId": "f02565ef119db4c048725a686cad289bcabffe23b2613ce7031cf11045f0acf3",
+      "writerSessionId": "codex-b29bc-coverage-recovery-ri6",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "95e1a3d5710da6798ae205f10a6b66a475010eeef4b75c852e97334fe655a456"
     }
   ]
 }
