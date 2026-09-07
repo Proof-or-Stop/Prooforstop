@@ -38,10 +38,20 @@
     {
       "id": "BUG-CRITIC-PROMPT-BASELINE",
       "title": "DONE-required root suite rejects the B-29bc purpose-selected critic body because its current-body approval manifest and generated prompt baseline were not updated",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-09-07T15:34:41.432Z",
-      "fixedAt": null,
-      "checklistId": "CHK-002"
+      "fixedAt": "2026-09-07T15:50:52.708Z",
+      "checklistId": "CHK-002",
+      "evidence": {
+        "symptom": "DONE-required root npm test exited1 at the approved critic prompt manifest mismatch; fail-fast result8/65passed.",
+        "reproSteps": [
+          "Run official done_required_validate --storyId=B-29bc: receipt5a2846ff27",
+          "Run node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-prompt-policy-manifest before2056751bf8 correction: exit1 old9bcf versusnew22da."
+        ],
+        "rootCause": "The Story appended a trusted-purpose selection to the current critic body but omitted its independent approved-body pin and generated snapshots; the critic matrix also still described topology only.",
+        "fixEvidence": "Independent exactbody and post-edit review approved only critic22da body and purpose-aware matrix; feba6c0e0e updates onepin and three generatedsnapshots without changing immutabletemplates,other17records,fiverolemanifest ornegativecontrols. Both focused manifestprobe and completebaseline verifier exited0, including self-authorization,baseline/matrixdrift and realcollection mutations. Full DONErequired rerun remains separately required.",
+        "reproTest": "scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-prompt-policy-manifest"
+      }
     }
   ]
 }
