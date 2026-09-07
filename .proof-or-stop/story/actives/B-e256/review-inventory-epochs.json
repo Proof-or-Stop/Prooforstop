@@ -2225,9 +2225,9 @@
       "epochId": "B-e256:RI-015",
       "storyId": "B-e256",
       "reviewRound": "2026-09-07T00:35:44.550Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-07T01:34:14.159Z",
-      "updatedAt": "2026-09-07T07:26:27.049Z",
+      "updatedAt": "2026-09-07T07:40:45.128Z",
       "cutoff": {
         "headHash": "17896baaa73241932b55258be50ab19c25ea1920",
         "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
@@ -2360,6 +2360,67 @@
           "criticDigest": "a7e49eb0ced358fd13d44d012176a7d554166b61129eabaf071b9c07985caa5a",
           "saturated": false,
           "nextRunSequenceBoundary": 180
+        },
+        {
+          "wave": 3,
+          "startedAt": "2026-09-07T07:26:27.049Z",
+          "completedAt": "2026-09-07T07:40:44.392Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-183",
+              "terminal": "finding",
+              "hostIdentity": "3834542d4400b75d288b0670054a501736f23bc999614ef8131127b13740dafc",
+              "promptIdentity": "c4cffdebaad305ca5faab3072324748db405e7f54ecfb433235ff10d33c3d3e6",
+              "evidenceIds": [
+                "B-e256:F-062"
+              ],
+              "coverageDigest": "4c9277ac6315a2610d687e008933fcacd6dfd457ece361cc8fc9eb021c3fd376"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-182",
+              "terminal": "pass",
+              "hostIdentity": "3834542d4400b75d288b0670054a501736f23bc999614ef8131127b13740dafc",
+              "promptIdentity": "78c7067b8574bd16a8d9f2bc5e95b3df33957808267766d42a9986fb541fb315",
+              "evidenceIds": [
+                "B-e256:RP-125"
+              ],
+              "coverageDigest": "3bc50afa1d7f36f2db6de5d24f2a2a5e9b9a7810eea2840e5a5e15ba6ded7856"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-181",
+              "terminal": "pass",
+              "hostIdentity": "3834542d4400b75d288b0670054a501736f23bc999614ef8131127b13740dafc",
+              "promptIdentity": "fefecb0c064d2b86959fb4ae226ab9641320f286f9a33fd98bb3ebfbe83ceb9c",
+              "evidenceIds": [
+                "B-e256:RP-124"
+              ],
+              "coverageDigest": "ccf8422739484da3515f9755ee2b9cd83a3b027155e4da90d085158d5cc258cb"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "canonical-proof-or-stop-command-absence-masked-by-lattice-fallback",
+            "proofstory-acceptance-topology-and-pre-review-proof-missing",
+            "windows-command-shim-adjacent-token-concatenation-false-pass",
+            "windows-command-shim-argument-forwarding-false-pass",
+            "windows-command-shim-argument-injection-false-pass",
+            "windows-command-shim-caret-escaped-separator-false-pass",
+            "windows-command-shim-exit-status-not-preserved",
+            "windows-command-shim-node-runtime-unavailable-false-pass",
+            "windows-command-shim-output-redirection-false-pass",
+            "windows-command-shim-posix-single-quote-false-pass",
+            "windows-command-shim-unreachable-invocation-false-pass",
+            "windows-command-shim-unverified-target-base-binding",
+            "windows-non-batch-pathext-entrypoint-textual-false-pass",
+            "windows-powershell-npm-shim-selection-unverified"
+          ],
+          "verifiedFindingSetDigest": "e6f369f29f6405bfdc47329abfb6bd265ebb660f61c732620f2f18b78c7472ff",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "41aa6660e7a055d47cbd16312017af3bf9a6d9b99c943147e86698963920140b",
+          "saturated": false,
+          "nextRunSequenceBoundary": 184
         }
       ],
       "baselineFindingIds": [
@@ -2374,7 +2435,50 @@
         "B-e256:F-057",
         "B-e256:F-058"
       ],
-      "_hash": "29944ec2406fae78d9a99857abafe9185cc8a0b3acb7f59c59e65deb3ea7b304"
+      "cancelledAt": "2026-09-07T07:40:45.128Z",
+      "cancelReason": "Replan after the bounded inventory exposed the final adjacent-token false-pass; replace lexical target detection with runtime behavior proof and exact official launcher structure, remove legacy-name masking, and repair acceptance basis/topology.",
+      "terminalRunSequenceBoundary": 184,
+      "_hash": "8ea909237dc89fa6203e940249079edcf4b30d6a49b7ec55b99fd3bcda93412f"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e256:RI-016",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-07T07:40:46.524Z",
+      "updatedAt": "2026-09-07T07:40:46.524Z",
+      "cutoff": {
+        "headHash": "b8976ecc725be58bca03de4cf13fa8bc6f9ef233",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "scopeDigest": "da0b1ff512984dbc2f30520078cdfe889b1ffc7b369e1ab57df3e805dede7ffc",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 184,
+      "maxWaves": 2,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-e256:F-049",
+        "B-e256:F-050",
+        "B-e256:F-051",
+        "B-e256:F-052",
+        "B-e256:F-053",
+        "B-e256:F-054",
+        "B-e256:F-055",
+        "B-e256:F-056",
+        "B-e256:F-057",
+        "B-e256:F-058",
+        "B-e256:F-059",
+        "B-e256:F-060",
+        "B-e256:F-061",
+        "B-e256:F-062"
+      ],
+      "_hash": "9edd0bf08565e0c5e9e2ca632985f7a4a918951f30bceb0d0a9f50f71e01b411"
     }
   ],
   "receipts": [
@@ -4102,6 +4206,37 @@
       ],
       "createdAt": "2026-09-07T07:25:47.401Z",
       "_hash": "389bd6eca15715179aac1f75dfcfb669e3c9e9fdba1bc717b2001cf24cea9744"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-015:CRIT-03",
+      "epochId": "B-e256:RI-015",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "wave": 3,
+      "cutoff": {
+        "headHash": "17896baaa73241932b55258be50ab19c25ea1920",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "aggregateFindingSetDigest": "e6f369f29f6405bfdc47329abfb6bd265ebb660f61c732620f2f18b78c7472ff",
+      "requiredLaneCoverageDigest": "f822517724e9b6f1dedc61c737408990a3efd2ae573ff4d43743c0aa2b4d233f",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-184",
+      "terminalEvidenceIds": [
+        "B-e256:RP-126"
+      ],
+      "readEvidenceDigest": "a972be2d129f61056a6a3c2b626a770fc6c4ed36f46f5361f0fc71fb24dc6bca",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-062",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-adjacent-token-concatenation-false-pass",
+          "reason": "Verified as a distinct current-Story family. commandTokens separates a double-quoted canonical target from an immediately adjacent unquoted suffix, so shimSegmentInvokesTarget sees the canonical fragment as argv[0] and certifies it. cmd.exe instead concatenates adjacent quoted and unquoted fragments into one argument, making the actual Node script path cli.jsgarbage; the target never launches although doctor emits the healthy marker. This differs from F-052 quote-dialect handling, F-058 a separate injected argument after a valid target, F-059 redirection, and F-061 runtime unavailability. It is a high, directly applicable CHK-001/CHK-003 operator-truth blocker and requires repair_current."
+        }
+      ],
+      "createdAt": "2026-09-07T07:40:00.136Z",
+      "_hash": "4a1db0b9e0a2693bdbcc16d7f183ea269a005f316114b32bb364492c09d06574"
     }
   ]
 }
