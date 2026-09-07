@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "8c235237adb9b605d1c21eca20f683f17ea1dde031ed4b081f1742acd5923c1a",
+  "committedLedgerDigest": "9b5304ff3de108daa05659587953ffa9d3dde58b549ce8013470ba6fcb63f79e",
   "records": [
     {
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
@@ -370,6 +370,58 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T17:14:56.596Z"
+    },
+    {
+      "recordId": "lr_mtri5w02_t4r_6e6a60d0c2924d32a48902dc94a91e50",
+      "recordType": "finding",
+      "idempotencyKey": "b29bc-ri007-coverage-signature-first-mutation",
+      "payload": {
+        "id": "B-29bc:F-006",
+        "desc": "Coverage manifestation of registered B-29bc:F-005, same root cause and same bounded test repair, not a separate production defect. packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 re-sign spread copies that still contain the prior _hash. core/review-inventory-epoch.ts:190 hashes every supplied key, while :194-197 removes _hash before verification; :227 therefore returns critic receipt signature invalid before purpose/subject or disposition semantics. Independently executed the compiled signer/verifier in node --input-type=module with one structurally valid control: verify(control)=true; verify(spread mutation re-signed including old _hash)=false; verify(the same mutated payload after destructuring _hash)=true. A first underspecified diagnostic fixture lacked criticLane and threw; the corrected controlled witness above is the reproduction, not that setup error. Fresh epoch smoke itself exited zero, showing its PASS selector does not expose this witness defect. Checklist_get confirms eight must intents and eight current material-bound mechanical PASS receipts with no waivers; nevertheless CHK-001:adversarial:0 lacks the claimed signature-valid receipt-substitution proof, and the historical-disposition mutation in CHK-001:adversarial:1 is similarly non-diagnostic at the receipt consumer. The public handler still has real empty-disposition refusal and exact-set positive controls, and the F-001/F-002 recovery semantic tests use proper unsigned/signature controls; this finding does not erase those checks or claim a production bypass. Repair these exact mutant constructors, explicitly assert signature validity and the intended consumer diagnostic, rerun affected receipts through the CLI, and reconcile the audit statement that semantic substitutions are re-signed. Current-Story applicability: frozen adversarial verification and truthful evidence, with F-005 as the existing root-cause observation. Independently checked the heartbeat merged readiness/release/close changes and ran --readiness-only successfully; no full-suite/build, source mutation, topology credential or independent-host assurance is claimed.",
+        "severity": "medium",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-07T17:16:32.450Z",
+        "reviewRound": "2026-09-07T17:10:43.986Z",
+        "reviewRunId": "B-29bc:RR-044",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-29bc/background.md",
+            ".proof-or-stop/story/actives/B-29bc/plan.md",
+            "docs/audits/inventory-critic-purpose-isolation.md",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+        },
+        "readDiagnostics": [],
+        "_hash": "98cc46241e81ac3213fbed2b63afd375164888e69c1ee5664e6c3f6262fd66d8",
+        "files": [
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "docs/audits/inventory-critic-purpose-isolation.md"
+        ],
+        "signatureTag": "adversarial|ts|coverage-manifestation-registered",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "62ab221712bd6ac4da12fdffab40702edf5b6abccd6e69435ce2b50977798265",
+      "priorDigest": "8c235237adb9b605d1c21eca20f683f17ea1dde031ed4b081f1742acd5923c1a",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T17:16:32.450Z"
     }
   ],
   "receipts": [
@@ -794,6 +846,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "15ca9c1431928a4125a7767d940c58fe90948826c494c5bf384157f0eda75568",
         "signature": "GzKxdOlleAz526XIRkRhtdkheVB68AFIgfRyIDOkZUiuGB4G2FIC4FzHmgDEXhrHscNpuOiqqIqesTXJUUroDQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtri5w02_t4r_a6439732146242d795287ada8a89bf59",
+      "operation": "append_finding",
+      "idempotencyKey": "b29bc-ri007-coverage-signature-first-mutation",
+      "requestDigest": "27b7d770f287e881b903dddb796319876b1a4e491f0747f2dffb2cbbee7ad9bb",
+      "recordIds": [
+        "lr_mtri5w02_t4r_6e6a60d0c2924d32a48902dc94a91e50"
+      ],
+      "priorLedgerDigest": "8c235237adb9b605d1c21eca20f683f17ea1dde031ed4b081f1742acd5923c1a",
+      "committedLedgerDigest": "9b5304ff3de108daa05659587953ffa9d3dde58b549ce8013470ba6fcb63f79e",
+      "writerSessionId": "codex-b29-ri007-coverage",
+      "writerFenceToken": "ef82728d-86cf-436e-a279-9006e53c55f3",
+      "committedAt": "2026-09-07T17:16:32.450Z",
+      "replayed": false,
+      "exactRequestDigest": "1c4dae06edd5d425ec505d17a710890d79677b493be7fad717bd28f14dbd8127",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtri5w02_t4r_a6439732146242d795287ada8a89bf59",
+        "storyId": "B-29bc",
+        "idempotencyKey": "b29bc-ri007-coverage-signature-first-mutation",
+        "exactRequestDigest": "1c4dae06edd5d425ec505d17a710890d79677b493be7fad717bd28f14dbd8127",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtri5w02_t4r_6e6a60d0c2924d32a48902dc94a91e50"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "8c235237adb9b605d1c21eca20f683f17ea1dde031ed4b081f1742acd5923c1a",
+        "committedLedgerDigest": "9b5304ff3de108daa05659587953ffa9d3dde58b549ce8013470ba6fcb63f79e",
+        "replayed": false,
+        "committedAt": "2026-09-07T17:16:32.450Z",
+        "writerSessionId": "codex-b29-ri007-coverage",
+        "writerLeaseId": "codex-01a05441-inventory-recovery-owner",
+        "writerFenceToken": "ef82728d-86cf-436e-a279-9006e53c55f3",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "e6a2ae44de5f72d1c8623a466e1e7a27d5130e6438ea8798060481349a43f95b",
+        "signature": "bHJfmt8qbGavfG4pbEuVJVn3XJwN9QKKBrMoEizUwCp7/yieMYvZyWsrGweNMB+dqrc1rYgixLzjQgjGsJ0tCQ=="
       }
     }
   ]

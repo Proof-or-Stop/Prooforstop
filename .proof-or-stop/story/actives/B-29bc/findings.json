@@ -250,6 +250,50 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtri3u1g_24x2_397018a1ad4c4e2e9e2d7c3621ce7da6",
       "ledgerCommitReceiptId": "lrc_mtri3u1g_24x2_879d0550794841b382815d50946782d7"
+    },
+    {
+      "id": "B-29bc:F-006",
+      "desc": "Coverage manifestation of registered B-29bc:F-005, same root cause and same bounded test repair, not a separate production defect. packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 re-sign spread copies that still contain the prior _hash. core/review-inventory-epoch.ts:190 hashes every supplied key, while :194-197 removes _hash before verification; :227 therefore returns critic receipt signature invalid before purpose/subject or disposition semantics. Independently executed the compiled signer/verifier in node --input-type=module with one structurally valid control: verify(control)=true; verify(spread mutation re-signed including old _hash)=false; verify(the same mutated payload after destructuring _hash)=true. A first underspecified diagnostic fixture lacked criticLane and threw; the corrected controlled witness above is the reproduction, not that setup error. Fresh epoch smoke itself exited zero, showing its PASS selector does not expose this witness defect. Checklist_get confirms eight must intents and eight current material-bound mechanical PASS receipts with no waivers; nevertheless CHK-001:adversarial:0 lacks the claimed signature-valid receipt-substitution proof, and the historical-disposition mutation in CHK-001:adversarial:1 is similarly non-diagnostic at the receipt consumer. The public handler still has real empty-disposition refusal and exact-set positive controls, and the F-001/F-002 recovery semantic tests use proper unsigned/signature controls; this finding does not erase those checks or claim a production bypass. Repair these exact mutant constructors, explicitly assert signature validity and the intended consumer diagnostic, rerun affected receipts through the CLI, and reconcile the audit statement that semantic substitutions are re-signed. Current-Story applicability: frozen adversarial verification and truthful evidence, with F-005 as the existing root-cause observation. Independently checked the heartbeat merged readiness/release/close changes and ran --readiness-only successfully; no full-suite/build, source mutation, topology credential or independent-host assurance is claimed.",
+      "severity": "medium",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-07T17:16:32.450Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-044",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "98cc46241e81ac3213fbed2b63afd375164888e69c1ee5664e6c3f6262fd66d8",
+      "files": [
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "docs/audits/inventory-critic-purpose-isolation.md"
+      ],
+      "signatureTag": "adversarial|ts|coverage-manifestation-registered",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtri5w02_t4r_6e6a60d0c2924d32a48902dc94a91e50",
+      "ledgerCommitReceiptId": "lrc_mtri5w02_t4r_a6439732146242d795287ada8a89bf59"
     }
   ]
 }
