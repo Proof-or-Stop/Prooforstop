@@ -3,15 +3,15 @@
   "changes": "Restored all six nested Lab aliases and canonical config aliases. Corrected canonical transport-key smoke expectations without changing the frozen historical list. Repaired pinned docs refresh and shared causal execution timestamps. Updated compiled documentation paths, timeout fixture config naming, mutation environment wiring, and guard fixtures with independent-selector rejection coverage. Bounded finding repair b7ffdcb6d8 derives the INIT_CHECK tamper diagnostic from the registered signature domain.",
   "usage": "Run node bin/proof-or-stop.js lab create --help or config doctor --json. Run the six repaired smoke commands and npm test to verify the regression contracts.",
   "expectedOutcome": "Advertised CLI commands resolve; six baseline smokes pass while unknown commands, semantic environment drift, invalid selectors, failing verifiers, mutation defects and true hangs remain rejected.",
-  "actualTranscript": "Final complete project validate: 128/128 commands passed. Final CLI-owned DONE-required build and root npm test passed: 65/65 tests, retries=0. Nine verification intents refreshed through real pinned command execution. Three final independent review lanes and delivery review passed; F-001 resolved. Three additional actual local Codex-host review rounds found no findings. No Claude review or 3x2 quorum was claimed.",
-  "outcomeDiff": "All diagnosed validation failures are repaired. Formal DONE and local main merge remain pending the required independent-host assurance.",
+  "actualTranscript": "Complete project validation passed128/128 commands. CLI-owned DONE-required build and root npm test passed65/65 tests, retries0. Nine intents refreshed by real pinned executions. Final concept/quality/coverage and delivery reviews passed; F-001 resolved. Three genuine Claude reviews and three actual independent Codex app review rounds passed; six individual host verdicts produced canonical full-3x2 local review assurance.",
+  "outcomeDiff": "The requested registered main validation failures are repaired; no difference in the expected user-visible result.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "No validation policy relaxation or remote push. Acceptance topology remains unsupported/observe-only, not executable topology proof. Required Claude review is awaiting explicit user authorization: automatic approval review rejected sending the private patch/context to that external service. Local repair branch remains TEST and has not merged to main.",
+  "limitations": "Local-only delivery; no remote push or validation-policy relaxation. Acceptance topology basis is unsupported/observe-only, not executable topology proof. Claude found a pre-existing unregistered orphan smoke using lattice_config_doctor; it remains unrepaired and is tracked in docs/story/drafts/orphan-cli-migration-smoke-retired-config-command on main. This does not affect current configured validation.",
   "pitfalls": "The first root suite stopped on sandbox Git index write restrictions; the next stopped because the new worktree lacked graph build artifacts. After granting local test permissions and building graph, the complete root suite passed. Frozen historical transport names are not the active matching list. Shared execution reuse still requires separate selector verdicts. A later complete validation exposed two failures from one pre-existing hardcoded INIT_CHECK diagnostic; repaired without changing signature calculation or rejection. Inventory completeness-only receipt cannot authorize REVIEW-to-DEV: proper saturated inventory with independent lanes and critic was completed before repair.",
   "phaseStats": {
     "INIT": {
@@ -36,10 +36,10 @@
     },
     "TEST": {
       "count": 1,
-      "durationMs": 584891
+      "durationMs": 5011637
     }
   },
-  "totalDurationMs": 5982396,
+  "totalDurationMs": 10409142,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-07T04:31:11.151Z",
-  "updatedAt": "2026-09-07T04:42:33.020Z"
+  "updatedAt": "2026-09-07T05:56:19.766Z"
 }
