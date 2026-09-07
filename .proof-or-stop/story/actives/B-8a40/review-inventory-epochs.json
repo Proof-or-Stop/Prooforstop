@@ -2623,7 +2623,7 @@
       "reviewRound": "2026-09-07T07:37:25.032Z",
       "state": "OPEN",
       "begunAt": "2026-09-07T09:24:53.277Z",
-      "updatedAt": "2026-09-07T09:24:53.277Z",
+      "updatedAt": "2026-09-07T09:42:04.563Z",
       "cutoff": {
         "headHash": "19ab78a9fe90905d7f9f6af730baa9e1b35c207c",
         "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
@@ -2637,13 +2637,67 @@
       ],
       "initialRunSequenceBoundary": 161,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T09:24:53.277Z",
+          "completedAt": "2026-09-07T09:42:04.563Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-163",
+              "terminal": "pass",
+              "hostIdentity": "296ff7ad40275b819c50aabc142da8355e20f99f1bcb0607f938ca6aef8f0f89",
+              "promptIdentity": "49f0f0fde75fc80dff1fb97b21983dac1ae8a327eacfd30ab47630dee6d8e21c",
+              "evidenceIds": [
+                "B-8a40:RP-089"
+              ],
+              "coverageDigest": "9f79b225a39ace97f548401d3ed2ed6dbb7d777699118af763ec547cf3f9865a"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-164",
+              "terminal": "pass",
+              "hostIdentity": "296ff7ad40275b819c50aabc142da8355e20f99f1bcb0607f938ca6aef8f0f89",
+              "promptIdentity": "a6c4527b781421fdcb21f1e2f2218800ff9b395b62664dd890cf927eeb0dac21",
+              "evidenceIds": [
+                "B-8a40:RP-088"
+              ],
+              "coverageDigest": "1361d4ddccc0c09a53a05fd52b82fe65bbe7c03748682e9580ff95ecd17250a9"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-162",
+              "terminal": "finding",
+              "hostIdentity": "296ff7ad40275b819c50aabc142da8355e20f99f1bcb0607f938ca6aef8f0f89",
+              "promptIdentity": "83025fbe81a8e6e4fe23596cab017a67d498a281c9003cb44b854c84eaf0504a",
+              "evidenceIds": [
+                "B-8a40:F-092",
+                "B-8a40:F-093"
+              ],
+              "coverageDigest": "35c4027cfe150e04b8174dcd310c0a2c787b149bec8b70ee208391113cf19721"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "b8a40-mutant-tree-repo-root-residue",
+            "b8a40-redundant-affirmative-relation-range-guard",
+            "b8a40-unused-inventory-authority-action-constant",
+            "b8a40-validation-descendant-startup-premise",
+            "b8a40-validation-historical-probe-portability"
+          ],
+          "verifiedFindingSetDigest": "785e67c11299b31fd2a821597c06e9b47505e09c1da7ed50ad95d0438648f8cf",
+          "newVerifiedFindingCount": 5,
+          "criticDigest": "9d139e2080cf31cd434944177ccf38709093186656ff13389b5d0dd1374d2b53",
+          "saturated": false,
+          "nextRunSequenceBoundary": 165
+        }
+      ],
       "baselineFindingIds": [
         "B-8a40:F-089",
         "B-8a40:F-090",
         "B-8a40:F-091"
       ],
-      "_hash": "d3c07c51b1a9e5e0280dcf688b08e36806b8eff4f1342509b5610175ab69db60"
+      "_hash": "31d6e7f9c7eede262a2b4d611263a459f1df4e95f8a106ee6d89f366c3b1c8ca"
     }
   ],
   "receipts": [
@@ -4854,6 +4908,61 @@
       ],
       "createdAt": "2026-09-07T08:14:39.010Z",
       "_hash": "c3c8a58cf160340ab4fcf74d7c4b3b5df31f30c5e40ee2c13819346e4fc33eaf"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-016:CRIT-01",
+      "epochId": "B-8a40:RI-016",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "19ab78a9fe90905d7f9f6af730baa9e1b35c207c",
+        "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+        "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b"
+      },
+      "aggregateFindingSetDigest": "785e67c11299b31fd2a821597c06e9b47505e09c1da7ed50ad95d0438648f8cf",
+      "requiredLaneCoverageDigest": "2e896b749fdec16573b80892999ee2ac4737f78566417d7dd9583850b9648181",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-165",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-090"
+      ],
+      "readEvidenceDigest": "ae475f62d17c048ba4ddf07c5779552c65f756c385882725d790a334b15bf84c",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-089",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-mutant-tree-repo-root-residue",
+          "reason": "Separate carried OPEN baseline family: the focused mutation smoke creates an unignored repository-root tree and removes it in ordinary finally; abrupt termination can leave residue. No interruption witness or present acceptance blockage is claimed. Preserve the original medium observation and its traceable cleanup route; neither new failure is this producer."
+        },
+        {
+          "findingId": "B-8a40:F-090",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-unused-inventory-authority-action-constant",
+          "reason": "Separate carried OPEN baseline family: module-local TRIAGE_INVENTORY_AUTHORITY_ACTION is declared but unused. This is the unused declaration observation, not the relation-range Boolean observation despite their shared audit signature tag. Keep severity low and current observation unchanged."
+        },
+        {
+          "findingId": "B-8a40:F-091",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-redundant-affirmative-relation-range-guard",
+          "reason": "Separate carried OPEN baseline family: nested relationRange comparisons reduce to relationRange.end greater than conceptEnd; this is redundant control flow with no currently demonstrated behavior change. Distinct source mechanism and remediation from the unused constant. Keep severity low and preserve original observation."
+        },
+        {
+          "findingId": "B-8a40:F-092",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-validation-historical-probe-portability",
+          "reason": "New verified family: actual required command[127] fails at the live probe read with missing rp-mtifubae-dfbh4w, before baseline/current and relation-integrity controls. Full guard and candidate-store source establish an unavailable historical evidence dependency, not a classifier failure. Current TEST blocker requiring bounded portability repair; no old CAS fabrication, mirror widening, registration removal or waiver is authorized."
+        },
+        {
+          "findingId": "B-8a40:F-093",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-validation-descendant-startup-premise",
+          "reason": "New verified family: actual required command[11] failed waiting for max-descendant.pid after a 700 ms outer max. Bounded heartbeat source and diagnostic-only 1000 ms actual-child startup delay with before-evaluation-only log show the readiness premise can fail under real deadline enforcement. This is missing fixture coverage/current TEST blockage, not proof of leaked descendants or faulty production deadlines. Distinct from missing historical CAS and F089 residue; preserve real timeout/PID/ESRCH controls."
+        }
+      ],
+      "createdAt": "2026-09-07T09:39:00.880Z",
+      "_hash": "5fe6f2f6bbe6731c42808639c218618760b7a9fbf36ee2e6047b5b96bc5cba6b"
     }
   ]
 }
