@@ -46,6 +46,51 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
       "ledgerCommitReceiptId": "lrc_mtr39s73_llr_2d9bca3d053e401c9c949f91f340ccaf"
+    },
+    {
+      "id": "B-29bc:F-002",
+      "desc": "Current verified inventory-critic Findings are omitted from the aggregate and cannot receive a completeness disposition. WHY: packages/main/src/core/review-inventory-epoch.ts:397-406 collects current-wave rawFindings only while iterating epoch.requiredLanes. The independent critic is deliberately not one of those four lanes, so its new signature-valid Finding is excluded. Concrete production witness: finding_add persisted B-29bc:F-001 on current purpose-bound RR-005 with signed manifest and mechanical readLog; finding_list returns it open/verified. The immediately following review_inventory_critic_set for RI-001/RR-005 with exactly one verified_family disposition for F-001 exited 1 with REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: B-29bc:F-001. The rejecting predicate is core/review-inventory-epoch.ts:435 and handler/review-inventory.ts:521. Thus a critic following the canonical duty to find missed issues cannot include its own discovery in the exact-set receipt; submitting an empty set would erase it from inventory accounting. This is a distinct aggregate completeness defect, not a second copy of the missing-readLog issue. Applicability candidate: directly blocks the explicitly promised independent critic workflow and per-Finding completeness in CHK-001/002. The required-lane aggregation predicate may predate B-29bc; do not label it an introduced regression without base proof. Preserve the real recorded Finding, include eligible critic discoveries in the immutable current aggregate through authorized scoped remediation, and retain a production negative/positive regression. No receipt was issued, no empty-disposition fallback was attempted, and no topology or quorum claim is made.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-topology-critic",
+      "createdAt": "2026-09-07T10:21:10.917Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-005",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "cc43e6583f159a3c44470abfe661b91ce3daaccfcfd2f7b2533d39ee1575351d",
+      "files": [
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/review-inventory.ts"
+      ],
+      "signatureTag": "missing|ts|current-verified-inventory",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3bqf9_z2r_134dda58f32d4484a52e6e2d7d08ac90",
+      "ledgerCommitReceiptId": "lrc_mtr3bqf9_z2r_3300db2b32f34ba5b64d0afca89f0a73"
     }
   ]
 }

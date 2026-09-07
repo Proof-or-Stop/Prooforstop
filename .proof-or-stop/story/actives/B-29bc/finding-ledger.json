@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "0a6e2f6f0325bb4ec738ddd39a71f6bec84981c00c8d792ed4c0a51c50c500ad",
+  "committedLedgerDigest": "e8cbf056dda6684c39e99d3bdae07827e5a8911f93c0aa84f064d7fa86858256",
   "records": [
     {
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
@@ -58,6 +58,59 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T10:19:39.903Z"
+    },
+    {
+      "recordId": "lr_mtr3bqf9_z2r_134dda58f32d4484a52e6e2d7d08ac90",
+      "recordType": "finding",
+      "idempotencyKey": "codex-b29bc-ri001-critic-findings-omitted",
+      "payload": {
+        "id": "B-29bc:F-002",
+        "desc": "Current verified inventory-critic Findings are omitted from the aggregate and cannot receive a completeness disposition. WHY: packages/main/src/core/review-inventory-epoch.ts:397-406 collects current-wave rawFindings only while iterating epoch.requiredLanes. The independent critic is deliberately not one of those four lanes, so its new signature-valid Finding is excluded. Concrete production witness: finding_add persisted B-29bc:F-001 on current purpose-bound RR-005 with signed manifest and mechanical readLog; finding_list returns it open/verified. The immediately following review_inventory_critic_set for RI-001/RR-005 with exactly one verified_family disposition for F-001 exited 1 with REVIEW_INVENTORY_FINDING_DISPOSITION_INVALID: B-29bc:F-001. The rejecting predicate is core/review-inventory-epoch.ts:435 and handler/review-inventory.ts:521. Thus a critic following the canonical duty to find missed issues cannot include its own discovery in the exact-set receipt; submitting an empty set would erase it from inventory accounting. This is a distinct aggregate completeness defect, not a second copy of the missing-readLog issue. Applicability candidate: directly blocks the explicitly promised independent critic workflow and per-Finding completeness in CHK-001/002. The required-lane aggregation predicate may predate B-29bc; do not label it an introduced regression without base proof. Preserve the real recorded Finding, include eligible critic discoveries in the immutable current aggregate through authorized scoped remediation, and retain a production negative/positive regression. No receipt was issued, no empty-disposition fallback was attempted, and no topology or quorum claim is made.",
+        "severity": "high",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-topology-critic",
+        "createdAt": "2026-09-07T10:21:10.917Z",
+        "reviewRound": "2026-09-07T10:03:42.307Z",
+        "reviewRunId": "B-29bc:RR-005",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-29bc/background.md",
+            ".proof-or-stop/story/actives/B-29bc/plan.md",
+            ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+            ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+            "docs/audits/inventory-critic-purpose-isolation.md",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+        },
+        "readDiagnostics": [],
+        "_hash": "cc43e6583f159a3c44470abfe661b91ce3daaccfcfd2f7b2533d39ee1575351d",
+        "files": [
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/handlers/review-inventory.ts"
+        ],
+        "signatureTag": "missing|ts|current-verified-inventory",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "05cd90067447d2dfa81ac7689c753e1d64816bf2634a5912e709f4ef2ce9263f",
+      "priorDigest": "0a6e2f6f0325bb4ec738ddd39a71f6bec84981c00c8d792ed4c0a51c50c500ad",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T10:21:10.917Z"
     }
   ],
   "receipts": [
@@ -102,6 +155,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "5efc22608055669ea9a31674376468d62e79d7459ac763498a8b2b593efae661",
         "signature": "eCEIdpXyJuWIs6hka9W9NlMB5iXvg8NR56avlhy+VwGzDup6+/fsXLgd83eAUmq5lsQjwG9N81k5+nEBoVKFAg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr3bqf9_z2r_3300db2b32f34ba5b64d0afca89f0a73",
+      "operation": "append_finding",
+      "idempotencyKey": "codex-b29bc-ri001-critic-findings-omitted",
+      "requestDigest": "ffb2a1f3487ac52334322c24b654f0861d0cf38d5208d71cfc4622d5c38d38a7",
+      "recordIds": [
+        "lr_mtr3bqf9_z2r_134dda58f32d4484a52e6e2d7d08ac90"
+      ],
+      "priorLedgerDigest": "0a6e2f6f0325bb4ec738ddd39a71f6bec84981c00c8d792ed4c0a51c50c500ad",
+      "committedLedgerDigest": "e8cbf056dda6684c39e99d3bdae07827e5a8911f93c0aa84f064d7fa86858256",
+      "writerSessionId": "codex-b29bc-inventory-critic",
+      "writerFenceToken": "46d80f2b-5608-42e1-b451-ca9573c706d8",
+      "committedAt": "2026-09-07T10:21:10.917Z",
+      "replayed": false,
+      "exactRequestDigest": "f54bd5539b10c828544598e79d98990af3c46e106c6db862f5a0c34cf5a404f2",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr3bqf9_z2r_3300db2b32f34ba5b64d0afca89f0a73",
+        "storyId": "B-29bc",
+        "idempotencyKey": "codex-b29bc-ri001-critic-findings-omitted",
+        "exactRequestDigest": "f54bd5539b10c828544598e79d98990af3c46e106c6db862f5a0c34cf5a404f2",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr3bqf9_z2r_134dda58f32d4484a52e6e2d7d08ac90"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "0a6e2f6f0325bb4ec738ddd39a71f6bec84981c00c8d792ed4c0a51c50c500ad",
+        "committedLedgerDigest": "e8cbf056dda6684c39e99d3bdae07827e5a8911f93c0aa84f064d7fa86858256",
+        "replayed": false,
+        "committedAt": "2026-09-07T10:21:10.917Z",
+        "writerSessionId": "codex-b29bc-inventory-critic",
+        "writerLeaseId": "codex-01a05441-inventory-recovery-owner",
+        "writerFenceToken": "46d80f2b-5608-42e1-b451-ca9573c706d8",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "4f1bb82156bb8e3494efde834c4c201e367a3afb877ab3180d9c27b5c1a21934",
+        "signature": "MlPvuWOkyANQq8cj1ybyzXUIxMN/MQ1fYLbyR3ZdA6YI1vadooF6bEy+tXpFSrbuvkn+HM+O5W79sMc3+XUXCQ=="
       }
     }
   ]
