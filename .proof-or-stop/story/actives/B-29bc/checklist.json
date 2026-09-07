@@ -45,7 +45,7 @@
           "packages/main/src/tasks/prompt-registry-smoke.ts"
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-09-07T08:23:31.663Z",
       "endTime": "2026-09-07T09:24:02.406Z",
       "verificationIntent": {
@@ -395,6 +395,17 @@
         "attestedAt": "2026-09-07T09:59:17.263Z",
         "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d"
       }
+    }
+  ],
+  "auditLog": [
+    {
+      "timestamp": "2026-09-07T10:46:48.223Z",
+      "phase": "DEV",
+      "itemId": "CHK-001",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Repair verified acceptance blockers F-001 and F-002 after RI-002 authorized remediation; preserve original observations and add failing regression witnesses before production changes."
     }
   ]
 }

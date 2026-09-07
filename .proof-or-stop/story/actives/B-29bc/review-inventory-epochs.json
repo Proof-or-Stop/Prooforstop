@@ -35,9 +35,9 @@
       "epochId": "B-29bc:RI-002",
       "storyId": "B-29bc",
       "reviewRound": "2026-09-07T10:03:42.307Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-07T10:22:03.007Z",
-      "updatedAt": "2026-09-07T10:33:45.539Z",
+      "updatedAt": "2026-09-07T10:46:34.343Z",
       "cutoff": {
         "headHash": "9aa96505bbb4310fc9d3cff2fbdc15d3e0a22b3b",
         "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
@@ -112,16 +112,108 @@
           "criticDigest": "4c525944c616c18528b6910a7718384e8618961668ca380dbdf21d10ddb7a876",
           "saturated": false,
           "nextRunSequenceBoundary": 10
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-07T10:33:45.539Z",
+          "completedAt": "2026-09-07T10:45:40.192Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-29bc:RR-011",
+              "terminal": "finding",
+              "hostIdentity": "6142eae2f174c1939770dc1ed27d47842ed677c9fe951fd90d646641a41887fb",
+              "promptIdentity": "cc12d5a3bb0dd4cc9a8fe17ed05452f37dcea92f3ad98d3c60bbe39f6536d038",
+              "evidenceIds": [
+                "B-29bc:F-004"
+              ],
+              "coverageDigest": "8187cebe898f4c3ca7d4485e95e00f384b36443407e4790ca54ba64f3f409b0f"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-29bc:RR-013",
+              "terminal": "pass",
+              "hostIdentity": "5d6c2c464e4f8b3e5267d63362e7ebdc5159050c6d89323dfe92a191fc2a686a",
+              "promptIdentity": "346664441e5c78c1ff40decf630767032d6b3ce35fc64f5b296746ac8d6bfb65",
+              "evidenceIds": [
+                "B-29bc:RP-010"
+              ],
+              "coverageDigest": "60c59db1cf3ed9133edeffda856ec0854f23f028aa078a4cc8a7fae3ae8a98ae"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-29bc:RR-014",
+              "terminal": "pass",
+              "hostIdentity": "5d6c2c464e4f8b3e5267d63362e7ebdc5159050c6d89323dfe92a191fc2a686a",
+              "promptIdentity": "3888832a6673d88e8657879289ab91ae3451d0470bcf1c5a8a56fbadfc8869f3",
+              "evidenceIds": [
+                "B-29bc:RP-011"
+              ],
+              "coverageDigest": "5a838532c1cecfeb83a5baf0ea3b68afcf5fcbeac414f8c3cef4900fce855adb"
+            },
+            {
+              "lane": "proof-or-stop-review-docs",
+              "reviewRunId": "B-29bc:RR-012",
+              "terminal": "pass",
+              "hostIdentity": "5d6c2c464e4f8b3e5267d63362e7ebdc5159050c6d89323dfe92a191fc2a686a",
+              "promptIdentity": "659cd6f6e99188171726a26626764ffd3c0ffc7b2c970c67a93e0bb883bbf583",
+              "evidenceIds": [
+                "B-29bc:RP-009"
+              ],
+              "coverageDigest": "9bd3b1238b3cb734772f389799462fd620171b857f030de75045351dc2b29799"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "inventory-current-critic-finding-aggregate-omission",
+            "inventory-required-pass-missing-mechanical-readlog"
+          ],
+          "verifiedFindingSetDigest": "44e4e9d345204f798bf0050c596ecd59c55e91ddf6358e84076cbcdc47145591",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "65d459ad84b837939acede750ffd1ee695158a43f0fe914b0b576c110097ffc5",
+          "saturated": true,
+          "nextRunSequenceBoundary": 15
         }
       ],
       "baselineFindingIds": [
         "B-29bc:F-001",
         "B-29bc:F-002"
       ],
-      "_hash": "2d0330992415498d637f47b1c510df715613f28b85a71029a5d092635305fc5d"
+      "receiptId": "B-29bc:RI-002:RCP-001",
+      "consumedAt": "2026-09-07T10:46:34.343Z",
+      "consumedByReviewRound": "2026-09-07T10:03:42.307Z",
+      "_hash": "142f78f1570f59a55c13879a0bf6bda76c71b12bea045b3b612eef68791c9400"
     }
   ],
-  "receipts": [],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-29bc:RI-002:RCP-001",
+      "epochId": "B-29bc:RI-002",
+      "storyId": "B-29bc",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "cutoff": {
+        "headHash": "9aa96505bbb4310fc9d3cff2fbdc15d3e0a22b3b",
+        "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+        "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c"
+      },
+      "scopeDigest": "4e5fab9ccf62199f638f5f2964bb7e9fd1c74be45f8ed4585cdde8901bc9396a",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage",
+        "proof-or-stop-review-docs"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "44e4e9d345204f798bf0050c596ecd59c55e91ddf6358e84076cbcdc47145591",
+      "coverageDigest": "69cc3903a5a60bc05597478fdec548c4f280579c6f04b568dea1ba920640cafe",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T10:45:40.192Z",
+      "consumedAt": "2026-09-07T10:46:34.343Z",
+      "_hash": "5675a70d555d5870ef191731b9ad3a483a38e39bb7fb78658cd82d73ce199690"
+    }
+  ],
   "criticReceipts": [
     {
       "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
@@ -181,6 +273,52 @@
       ],
       "createdAt": "2026-09-07T10:32:34.286Z",
       "_hash": "544368f0564b6ea86f6eb757835c809885034bfc1f6464231e0dcfe6a13a6b7e"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-29bc:RI-002:CRIT-02",
+      "epochId": "B-29bc:RI-002",
+      "storyId": "B-29bc",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "9aa96505bbb4310fc9d3cff2fbdc15d3e0a22b3b",
+        "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+        "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c"
+      },
+      "aggregateFindingSetDigest": "44e4e9d345204f798bf0050c596ecd59c55e91ddf6358e84076cbcdc47145591",
+      "requiredLaneCoverageDigest": "768b55c8db0de4ca6977e78290bd8ca4e02fbe3b6936e1c938ea718afcbcb4cb",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-29bc:RR-015",
+      "reviewPurpose": "inventory-completeness",
+      "inventoryBinding": {
+        "storyId": "B-29bc",
+        "epochId": "B-29bc:RI-002",
+        "reviewRound": "2026-09-07T10:03:42.307Z",
+        "wave": 2,
+        "cutoff": {
+          "headHash": "9aa96505bbb4310fc9d3cff2fbdc15d3e0a22b3b",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c"
+        },
+        "scopeDigest": "4e5fab9ccf62199f638f5f2964bb7e9fd1c74be45f8ed4585cdde8901bc9396a",
+        "requiredLanesDigest": "ba00ad1fce574db2b6f0bac705e2a6fee4e2f5d2962ec5fd666626a447444141",
+        "runSequenceBoundary": 10
+      },
+      "terminalEvidenceIds": [
+        "B-29bc:RP-012"
+      ],
+      "readEvidenceDigest": "e3046add0104691820527e7edffc4707b65ff73e20225f7d33c68b72456bae2e",
+      "findingDispositions": [
+        {
+          "findingId": "B-29bc:F-004",
+          "disposition": "verified_family",
+          "familyKey": "inventory-required-pass-missing-mechanical-readlog",
+          "reason": "Independently verified F-004 signature and full observation against the unchanged audit promise, retained saturation contract and pass predicate: this is the same missing mechanical-readLog acceptance defect documented by F-001 and its F-003 manifestation. Signed RI-002 wave-1 checkpoint and CRIT-01 already preserve this exact family alongside the separate critic-aggregate family. Current-wave rawFindingIds contains only F-004; baseline F-001/F-002 and prior F-003 remain in signed prior-wave history, not valid current-wave duplicate targets. Assign F-004 as a verified member of the existing family without inventing a new cause or forcing a cross-wave duplicate edge. All four Findings remain open and unfixed, F-003/F-004 remain critical, and audit correction remains required. Zero new families means inventory saturation only, never repair, implementation approval, topology or independent-host assurance."
+        }
+      ],
+      "createdAt": "2026-09-07T10:45:08.225Z",
+      "_hash": "8a95d6422c8c77eabf524a5c55d6194641f71e24567107a56db0ab6d917dbb47"
     }
   ]
 }
