@@ -19,7 +19,68 @@
       "cancelledAt": "2026-09-07T11:39:03.396Z",
       "cancelReason": "BUG-CERT-001 reproduced missing release-ledger domain classification; normal DEV repair and fresh review are required before certification.",
       "_hash": "4fd74daefe657f7b09620df741b535bc87c4f3f13fcd9866603e23cf82442541"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-42f6:CW-002",
+      "storyId": "B-42f6",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-07T12:22:10.890Z",
+      "updatedAt": "2026-09-07T12:22:10.890Z",
+      "frozen": {
+        "headHash": "ad9d02c86638309d139d6aeebb9a04b2118621f3",
+        "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+        "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+        "causalInputHashes": {
+          "certification:source": "47b49ab0f5ebbe3798cc104b73cb957ff8bdce658adf5986e33a986ec0495fe6",
+          "certification:test": "00f678430bba7ee45844768786fd51c1b642ba747636c61aa229262b0a0d0a9f",
+          "certification:build-input": "3cb8188f36f6a23474bf3638751258b0284c219a3dc27e25c5a5369bdeb74bd9",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "edef87fc895ea6c7a4077bcf79c97bd5b991f3b3139b6325d8802b5e4e275a64",
+          "certification:review-subject": "d8f4eeecb9c36252ff3254abbe47ede43ac65a627630609d6ad53306872aa1a4"
+        },
+        "expectedMainSha": "e8fc28d56ad84ed1a342e51d9c61d6a96ee5e106",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-42f6:RIE-005",
+        "receiptId": "B-42f6:RIE-005:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-42f6:PRECERT-001",
+      "_hash": "511e773ed858a50ed8f026cb6a95537ad6dd81b4e10af7919a27688c8daf3064"
     }
   ],
-  "receipts": []
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-42f6:PRECERT-001",
+      "windowId": "B-42f6:CW-002",
+      "storyId": "B-42f6",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "ad9d02c86638309d139d6aeebb9a04b2118621f3",
+        "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+        "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+        "causalInputHashes": {
+          "certification:source": "47b49ab0f5ebbe3798cc104b73cb957ff8bdce658adf5986e33a986ec0495fe6",
+          "certification:test": "00f678430bba7ee45844768786fd51c1b642ba747636c61aa229262b0a0d0a9f",
+          "certification:build-input": "3cb8188f36f6a23474bf3638751258b0284c219a3dc27e25c5a5369bdeb74bd9",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "edef87fc895ea6c7a4077bcf79c97bd5b991f3b3139b6325d8802b5e4e275a64",
+          "certification:review-subject": "d8f4eeecb9c36252ff3254abbe47ede43ac65a627630609d6ad53306872aa1a4"
+        },
+        "expectedMainSha": "e8fc28d56ad84ed1a342e51d9c61d6a96ee5e106",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-42f6:RIE-005",
+      "inventoryReceiptId": "B-42f6:RIE-005:RCP-001",
+      "createdAt": "2026-09-07T12:22:10.890Z",
+      "_hash": "5766d71a6b06430040061a14af5aa5240c0f31f14364190162608571b85d3c9a"
+    }
+  ]
 }
