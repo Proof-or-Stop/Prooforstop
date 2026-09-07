@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-42f6",
+  "diagnosticOnly": false,
+  "hardeningLevel": "high_assurance",
+  "triggerReasons": [
+    {
+      "code": "high_assurance_risk",
+      "message": "High-risk or gate/security wording selects high-assurance intent hardening.",
+      "requires": "high-assurance"
+    },
+    {
+      "code": "collision_required_high_assurance",
+      "message": "High-assurance work requires an independent intent-collision result.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:88c349b1d6e46373fe7fa9f7f9d426313951a6982fd9ef7e67aca283900e92c3",
+  "acceptanceBindings": [
+    {
+      "id": "ACC-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:happy:1",
+        "CHK-001:edge:0",
+        "CHK-001:edge:1",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "note": "Local integration proofs bind history/branding and executable regression behavior. Remote publication is verified after local DONE using the actual remote ref; local assurance is not a remote publication claim."
+    }
+  ],
+  "diagnosticGaps": [],
+  "createdAt": "2026-09-07T08:00:36.246Z",
+  "updatedAt": "2026-09-07T08:00:36.246Z"
+}

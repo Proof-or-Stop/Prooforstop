@@ -1,12 +1,12 @@
 {
   "storyId": "B-42f6",
-  "generatedAt": "2026-09-07T07:56:01.665Z",
+  "generatedAt": "2026-09-07T08:00:41.114Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
-    "hasPlan": false,
+    "hasPlan": true,
     "checklistItems": 1,
-    "reviewRounds": 1,
+    "reviewRounds": 3,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -81,7 +81,7 @@
       },
       "metrics": {
         "planArtifactsPresent": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -184,7 +184,7 @@
     },
     "planning": {
       "effective": {
-        "value": false,
+        "value": true,
         "unit": "bool",
         "confidence": "high",
         "sources": [
@@ -194,7 +194,7 @@
       },
       "metrics": {
         "hasPlanArtifact": {
-          "value": false,
+          "value": true,
           "unit": "bool",
           "confidence": "high",
           "sources": [
@@ -202,7 +202,7 @@
           ]
         },
         "planCoverageRatio": {
-          "value": 0,
+          "value": 1,
           "unit": "ratio",
           "confidence": "high",
           "sources": [
@@ -211,13 +211,12 @@
           ]
         },
         "itemsWithVerifyRatio": {
-          "value": null,
+          "value": 1,
           "unit": "ratio",
-          "confidence": "unknown",
+          "confidence": "high",
           "sources": [
             "plan.md"
-          ],
-          "note": "no plan.md"
+          ]
         },
         "devToPlanBounceCount": {
           "value": 0,
@@ -228,7 +227,7 @@
           ]
         },
         "blockedTaskCount": {
-          "value": 3,
+          "value": 4,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -277,7 +276,7 @@
           "note": "express channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
-          "value": 1,
+          "value": 2,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -309,7 +308,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 1,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [
