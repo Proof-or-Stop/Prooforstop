@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "proofstory.contract.v1",
+  "storyId": "B-5a52",
+  "diagnosticOnly": false,
+  "hardeningLevel": "standard",
+  "triggerReasons": [
+    {
+      "code": "collision_required_standard",
+      "message": "Ambiguity, user impact, behavior change, or multi-deliverable intent makes intent collision diagnostically required.",
+      "requires": "intent-collision"
+    },
+    {
+      "code": "scope_ambiguity",
+      "message": "Broad or absolute scope wording should have scope clarification before future enforcement.",
+      "requires": "scope-clarification"
+    }
+  ],
+  "originalIntentRequestHash": "sha256:2790cad2c80d38bfb7746c9e292dc483159848cc21229e58d26dd2dad995ab81",
+  "acceptanceBindings": [
+    {
+      "id": "AC-001",
+      "checklistRefs": [
+        "CHK-001"
+      ],
+      "verificationIntentRefs": [
+        "CHK-001:happy:0",
+        "CHK-001:edge:0",
+        "CHK-001:adversarial:0"
+      ],
+      "milestoneIds": [],
+      "acceptanceClaim": "The playback title and exported frame title visibly identify Proof-or-stop while preserving story identity."
+    }
+  ],
+  "diagnosticGaps": [],
+  "createdAt": "2026-09-07T02:20:19.583Z",
+  "updatedAt": "2026-09-07T02:20:41.468Z"
+}

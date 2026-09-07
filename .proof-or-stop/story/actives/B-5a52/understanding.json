@@ -1,0 +1,17 @@
+{
+  "task": "Identify the product on playback and exported video surfaces",
+  "outcome": "The playback header reads Proof-or-stop · B-fe8f · timeline playback; every exported frame shows Proof-or-stop and the story timeline title without overlap.",
+  "facts": [
+    "Playback uses a DOM heading assigned at creation and after timeline parsing.",
+    "MP4 and GIF share drawChrome for frame headings."
+  ],
+  "constraints": [
+    "Keep story identity, controls, timing and graph layout intact.",
+    "Use the requested spelling Proof-or-stop."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/graph/src/shells/web/playback.js"
+  ],
+  "timestamp": "2026-09-07T02:17:42.529Z"
+}

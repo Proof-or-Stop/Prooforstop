@@ -14,9 +14,68 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-09-07T02:20:46.985Z",
+      "endTime": null,
+      "userSees": "Proof-or-stop in the playback/export header and every exported frame, alongside the story identity.",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Opening timeline playback and completing its initialization both show the exact product name Proof-or-stop alongside the current story identifier and playback context.",
+            "type": "browser"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Representative light and dark export frames at the supported MP4 and GIF dimensions display Proof-or-stop clearly while retaining the story identifier and timeline context without title overlap or clipping.",
+            "type": "browser"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Advancing playback and rendering a later export frame retain the branding; heading refreshes must not replace it with an unbranded title, and existing story metadata remains legible.",
+            "type": "browser"
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "browser_test",
+          "result": "pass",
+          "note": "CUA browser on localhost:8738 running this worktree build showed Proof-or-stop · B-fe8f · timeline playback after opening and completing initialization; screenshot inspected at 1280x720. Actual MP4 export completed.",
+          "mechanical": false,
+          "nonMechanicalReason": "Verification was performed through the CUA browser tool; this host browser session has no executable-plus-argv replay command for CLI-owned execution. This is a manual browser attestation, not mechanical coverage.",
+          "headHash": "3eed62c551f82a53fd46d04669025b459a6ae28d",
+          "materialHash": "b8dc76196d41682ee188e0b7747d03c55376e2d7d597cc9d16f9ebf8ceeda330",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-09-07T02:23:57.868Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "browser_test",
+          "result": "pass",
+          "note": "Actual browser exports inspected: light MP4 1920x1080 at /Users/qipan/Downloads/B-fe8f-timeline-2026-09-07-02-22-30.mp4 (12s frame /private/tmp/proof-or-stop-brand-frame.png), dark GIF 1440x810 at /Users/qipan/Downloads/B-fe8f-timeline-2026-09-07-02-23-41.gif (18s frame /private/tmp/proof-or-stop-brand-dark.png). Both show Proof-or-stop · Story Graph and B-fe8f timeline separated without overlap or clipping.",
+          "mechanical": false,
+          "nonMechanicalReason": "Actual CUA browser export and visual frame inspection cannot be replayed by an executable-plus-argv command through this CLI. Manual visual attestation only; no mechanical coverage claimed.",
+          "headHash": "3eed62c551f82a53fd46d04669025b459a6ae28d",
+          "materialHash": "b8dc76196d41682ee188e0b7747d03c55376e2d7d597cc9d16f9ebf8ceeda330",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-09-07T02:24:40.939Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "browser_test",
+          "result": "pass",
+          "note": "CUA observed branded heading at transition 1 and transition 2 after initialization, playback progress, export reset and reopen. Later exported frames at MP4 12s and GIF 18s retain brand and B-fe8f timeline context.",
+          "mechanical": false,
+          "nonMechanicalReason": "CUA browser interactions and visual frame inspections were performed by the agent; no executable-plus-argv replay is available for this host session. Manual browser attestation, not mechanical coverage.",
+          "headHash": "3eed62c551f82a53fd46d04669025b459a6ae28d",
+          "materialHash": "b8dc76196d41682ee188e0b7747d03c55376e2d7d597cc9d16f9ebf8ceeda330",
+          "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "timestamp": "2026-09-07T02:24:42.176Z"
+        }
+      ]
     }
   ]
 }
