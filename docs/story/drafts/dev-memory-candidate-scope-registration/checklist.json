@@ -1,0 +1,12 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Classify generated Story memory candidates consistently without granting evidence authority",
+      "context": "Reproduce in a disposable enforce-scope Story: dev_memory_finish writes story/actives/<id>/dev-memory-candidates.jsonl; scope_contract_check fails out_of_scope with no lifecycle/runtime registry entry. Register the exact producer path through the central registry and add positive/negative gate tests. Preserve non-authoritative gateEvidence=false semantics; do not blanket-ignore adjacent unknown files.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
