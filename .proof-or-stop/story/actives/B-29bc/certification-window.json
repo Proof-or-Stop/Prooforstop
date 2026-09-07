@@ -33,6 +33,38 @@
       "cancelledAt": "2026-09-07T12:06:06.750Z",
       "cancelReason": "Canonical validation failed and main now contains independently completed B-8a40 regression repairs; cancel old expected-main window before local integration.",
       "_hash": "479e03cbd3f0b05e949614e38726a3bb3ece620bc7243071e1537044122785c2"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-29bc:CW-002",
+      "storyId": "B-29bc",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-07T13:36:08.017Z",
+      "updatedAt": "2026-09-07T13:36:08.017Z",
+      "frozen": {
+        "headHash": "5694b96fee9379866f373399d739f27cfe21d038",
+        "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
+        "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+        "causalInputHashes": {
+          "certification:source": "9ee1b2827c7b70f21f9b568b37e9483bfbdad497c2432715329fb8398e8f4ee1",
+          "certification:test": "6ec50589b50e094ba4594c132fa9daffc764c3e2c328929ff4c4c92233cdf3c9",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "24e0ca551be4aec5152765235b457898e8a7c64c37e97347403212cc9d70cddd",
+          "certification:integration": "4bd49b125acbfdd8cf74a56e1dd00e1abb33ba7fcf4e605d4d3979a59ee63a71",
+          "certification:review-subject": "a3efe3af05362d3cdcbb5e27fe88db8917be3cbd446924c03442a728f89b0b18"
+        },
+        "expectedMainSha": "874e0818625ac0a0afee2cd67371997d6ff09524",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-29bc:RI-005",
+        "receiptId": "B-29bc:RI-005:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-29bc:PRECERT-002",
+      "_hash": "729344215efff9c7458a9c498218a3c7a73f142ca51ee48101739b9c0f11664e"
     }
   ],
   "receipts": [
@@ -63,6 +95,34 @@
       "inventoryReceiptId": "B-29bc:RI-003:RCP-001",
       "createdAt": "2026-09-07T11:21:57.956Z",
       "_hash": "84cbb898c09396b497f6ee2b73d8feda7a5916cbf4fc9855f0d4683f1dde1e7c"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-29bc:PRECERT-002",
+      "windowId": "B-29bc:CW-002",
+      "storyId": "B-29bc",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "5694b96fee9379866f373399d739f27cfe21d038",
+        "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
+        "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+        "causalInputHashes": {
+          "certification:source": "9ee1b2827c7b70f21f9b568b37e9483bfbdad497c2432715329fb8398e8f4ee1",
+          "certification:test": "6ec50589b50e094ba4594c132fa9daffc764c3e2c328929ff4c4c92233cdf3c9",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "24e0ca551be4aec5152765235b457898e8a7c64c37e97347403212cc9d70cddd",
+          "certification:integration": "4bd49b125acbfdd8cf74a56e1dd00e1abb33ba7fcf4e605d4d3979a59ee63a71",
+          "certification:review-subject": "a3efe3af05362d3cdcbb5e27fe88db8917be3cbd446924c03442a728f89b0b18"
+        },
+        "expectedMainSha": "874e0818625ac0a0afee2cd67371997d6ff09524",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-29bc:RI-005",
+      "inventoryReceiptId": "B-29bc:RI-005:RCP-001",
+      "createdAt": "2026-09-07T13:36:08.017Z",
+      "_hash": "45617161a325416b5f0c758661a8f912b8a765c5c8dc985a731cbda6cb1ec90b"
     }
   ]
 }
