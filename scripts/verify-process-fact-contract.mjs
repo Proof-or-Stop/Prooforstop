@@ -689,7 +689,7 @@ function read(relPath) {
   assert(existsSync(absPath), `${relPath} should exist`);
   if (!existsSync(absPath)) return '';
   let text = readFileSync(absPath, 'utf8');
-  const mutation = process.env.LATTICE_PROCESS_FACT_CONTRACT_MUTATION;
+  const mutation = process.env.PROOF_OR_STOP_PROCESS_FACT_CONTRACT_MUTATION;
   const roleId = canonicalRoleId(basename(relPath));
   if (mutation === 'drop-acceptance-basis-prompt' && roleId === 'proof-or-stop-implementer') {
     // B-cc10: accept either brand so the mutation actually drops the live prompt line.

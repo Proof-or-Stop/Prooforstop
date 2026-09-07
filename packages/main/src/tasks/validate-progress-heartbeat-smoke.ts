@@ -161,7 +161,7 @@ writeFileSync(finished, 'finished ' + Date.now() + '\\n', 'utf8');
 function setupTimeoutFixture(): { root: string } {
   const root = mkdtempSync(join(tmpdir(), 'lattice-validate-heartbeat-timeout-'));
   write(root, '.gitignore', '.proof-or-stop/locks/\n');
-  write(root, 'lattice.config.json', JSON.stringify({
+  write(root, 'proof-or-stop.config.json', JSON.stringify({
     scanRoot: '.',
     rootDir: '.',
     validate: {

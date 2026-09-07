@@ -1658,7 +1658,9 @@ function staleReexecCandidate(
 ): StaleReexecCandidate | undefined {
   const resolved = resolveIntentForRef(item, intentRef);
   const pin = resolved?.intent.verification;
-  if (!resolved || !pin || !isExecutableIntentType(resolved.intent.type)) return undefined;
+  // Docs/manual intents can opt into mechanical verification through a pin.
+  // Use the same pin boundary as the refresh caller and evidence writer.
+  if (!resolved || !pin) return undefined;
 
   const kind = intentTypeToEvidenceKind(resolved.intent.type);
   const priorOverride = evidence?.receipt?.timeoutOverride;

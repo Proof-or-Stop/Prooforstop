@@ -1,48 +1,62 @@
 {
   "storyId": "B-e124",
-  "checkedAt": "2026-09-07T03:07:18.763Z",
+  "checkedAt": "2026-09-07T03:13:38.445Z",
   "features": [
     {
-      "feature": "Restore all six advertised nested Lab aliases including real CLI create help.",
+      "feature": "Six advertised Lab aliases preserve flat handler and argument behavior with unknown subcommands rejected.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist.json; packages/lab/src/handlers/lab.ts"
+      "source": "checklist.json"
     },
     {
-      "feature": "Preserve flat commands, arguments and handler admission; unknown subcommands fail.",
+      "feature": "Config doctor and repair map to registered canonical handlers without changing admission.",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist.json; decision.json"
+      "source": "scope-contract.json acknowledgements"
     },
     {
-      "feature": "Canonical ambient transport changes preserve validation identity and DONE-required smoke passes.",
+      "feature": "Canonical transport neutrality preserves frozen digest and semantic ambient and overlay sensitivity.",
       "covered_by": "CHK-002",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist.json; understanding.json"
+      "source": "checklist.json"
     },
     {
-      "feature": "Frozen historical list and digest unchanged; retired spellings remain semantic.",
-      "covered_by": "CHK-002",
+      "feature": "Compiled English smoke resolves repository root and timeout smoke reads canonical config while real hangs remain rejected.",
+      "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist.json; packages/main/src/core/validation-command-environment.ts"
+      "source": "checklist.json"
     },
     {
-      "feature": "Semantic ambient values and explicit command overlays remain digest-sensitive.",
-      "covered_by": "CHK-002",
+      "feature": "Acceptance-basis mutations remain rejected using canonical environment selector.",
+      "covered_by": "CHK-003",
       "status": "covered",
       "excluded_by": null,
-      "source": "checklist.json; decision.json"
+      "source": "checklist.json; scope-contract.json"
     },
     {
-      "feature": "Unrelated runtime behavior, validation policy and baseline failures are not repaired by this scope.",
+      "feature": "Pinned passing docs verifier refresh restores mechanical coverage while substituted commands remain rejected; obsolete guard fixture CLI spelling is corrected rather than weakening guard.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json; scope-contract.json"
+    },
+    {
+      "feature": "Six named baseline smokes pass without weakening validation configuration or lifecycle policies.",
+      "covered_by": "CHK-003",
+      "status": "covered",
+      "excluded_by": null,
+      "source": "checklist.json; scope-contract.json"
+    },
+    {
+      "feature": "Repairs outside the named baseline defects and declared paths remain excluded.",
       "covered_by": null,
       "status": "excluded",
-      "excluded_by": "Understanding constrains changes to three declared files; decision excludes unrelated failures and requires honest reporting.",
-      "source": "understanding.json; decision.json; background.md"
+      "excluded_by": "Bounded CHK-003 expansion does not authorize unrelated repository-wide work.",
+      "source": "scope-contract.json"
     }
   ],
   "readManifest": {
@@ -59,14 +73,26 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 6,
-    "covered": 5,
+    "total": 8,
+    "covered": 7,
     "excluded": 1,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
   "reviewRound": "",
-  "_hash": "5efdf50788d0d99976e2495e768476a25971ca2db63863f2dddf2e73613d06a9",
-  "openQuestions": []
+  "_hash": "acc44d9e53a1e3fa9a9df68382f9bdfa67b990755992421623e18ae79fb3f1d9",
+  "openQuestions": [
+    {
+      "id": "OQ-1",
+      "q": "Confirm the later acknowledged CHK-003 six-smoke repair boundary supersedes the original two-regression understanding and decision exclusion for these specifically named failures, without expanding to unrelated defects or weakening validation policy.",
+      "evidence": "understanding.json still describes only two regressions and three touchpoints; decision.json excludes unrelated baseline failures; checklist CHK-003 and scope acknowledgements now explicitly include four additional smokes and production docs-verifier recovery.",
+      "sourcePointers": [
+        ".proof-or-stop/story/actives/B-e124/understanding.json",
+        ".proof-or-stop/story/actives/B-e124/decision.json",
+        ".proof-or-stop/story/actives/B-e124/checklist.json",
+        ".proof-or-stop/story/actives/B-e124/scope-contract.json"
+      ]
+    }
+  ]
 }

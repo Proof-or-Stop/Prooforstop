@@ -1,12 +1,12 @@
 {
   "storyId": "B-e124",
-  "generatedAt": "2026-09-07T03:07:31.490Z",
+  "generatedAt": "2026-09-07T03:13:43.154Z",
   "sourceSnapshot": {
     "hasUnderstanding": true,
     "hasDecision": true,
     "hasPlan": false,
-    "checklistItems": 2,
-    "reviewRounds": 2,
+    "checklistItems": 3,
+    "reviewRounds": 3,
     "findings": 0,
     "bugs": 0,
     "testRuns": 0,
@@ -108,7 +108,7 @@
           ]
         },
         "replanCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -116,7 +116,7 @@
           ]
         },
         "postDevChecklistChurn": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "medium",
           "sources": [
@@ -220,7 +220,7 @@
           "note": "no plan.md"
         },
         "devToPlanBounceCount": {
-          "value": 0,
+          "value": 1,
           "unit": "count",
           "confidence": "high",
           "sources": [
@@ -246,7 +246,7 @@
           "checklist.json",
           "index.json"
         ],
-        "note": "express channel — main agent allowed to write code itself"
+        "note": "fast channel — main agent allowed to write code itself"
       },
       "metrics": {
         "normalChannelUsesSubagent": {
@@ -257,7 +257,7 @@
             "checklist.json",
             "index.json"
           ],
-          "note": "express channel — main agent allowed to write code itself"
+          "note": "fast channel — main agent allowed to write code itself"
         },
         "reviewerIndependence": {
           "value": false,
@@ -274,7 +274,7 @@
           "sources": [
             "checklist.json"
           ],
-          "note": "express channel — main agent allowed to write code itself — no violation possible"
+          "note": "fast channel — main agent allowed to write code itself — no violation possible"
         },
         "parallelBatchCount": {
           "value": 2,
@@ -309,7 +309,7 @@
       },
       "metrics": {
         "storyReviewRounds": {
-          "value": 2,
+          "value": 3,
           "unit": "count",
           "confidence": "medium",
           "sources": [

@@ -1,21 +1,28 @@
 {
-  "task": "Repair two reproduced main regressions that blocked B-5a52 validation.",
-  "outcome": "lab create --help displays lab_create command help instead of Unknown command: lab; cli-surface-smoke and done-required-validation-smoke complete successfully while semantic environment changes still alter verification identity.",
+  "task": "Repair the six reproduced baseline smoke failures on main before resuming branding closeout.",
+  "outcome": "The six previously failing smoke commands print their success markers; lab create --help and config doctor --json work; invalid pinned commands, failing verifiers, semantic environment drift, acceptance-basis mutations and command hangs still fail closed.",
   "facts": [
-    "Both checks failed on main before and after a fresh main build.",
-    "Commit c2d51f9780 introduced six advertised Lab aliases; current alias-normalizer lacks them.",
-    "Production derives active PROOF_OR_STOP names from a frozen historical list; the smoke still iterates retired names."
+    "CLI and environment smokes now pass in worktree.",
+    "English smoke now passes after correcting compiled directory depth.",
+    "Timeout fixture used retired config filename; mutation hook still read retired env selector.",
+    "Pinned docs are rejected by staleReexecCandidate despite the outer refresh allowing them.",
+    "Guard fixture invokes deleted proofOrStop.js instead of the active proof-or-stop.js entrypoint."
   ],
   "constraints": [
-    "Do not modify frozen list or pinned digest.",
-    "Preserve CLI lifecycle admission and semantic environment sensitivity.",
-    "Keep unrelated runtime changes and validation configuration intact."
+    "No validation policy changes or baseline-test exemption.",
+    "Preserve negative assertions and existing production admission.",
+    "Keep unrelated runtime files untouched."
   ],
   "unknowns": [],
   "touchpoints": [
     "packages/main/src/cli/alias-normalizer.ts",
     "packages/main/src/tasks/cli-surface-smoke.ts",
-    "packages/main/src/tasks/done-required-validation-smoke.ts"
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "scripts/verify-process-fact-contract.mjs"
   ],
-  "timestamp": "2026-09-07T03:05:10.672Z"
+  "timestamp": "2026-09-07T03:13:21.588Z"
 }
