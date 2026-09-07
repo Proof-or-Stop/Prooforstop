@@ -33,6 +33,38 @@
       "cancelledAt": "2026-09-07T00:05:46.529Z",
       "cancelReason": "DONE-required npm test failed with two directly introduced safety-scanner violations in the scoped mutation smoke; cancel before bounded repair.",
       "_hash": "541772b695212216ce7f8fbe8f7930219880a2d9132b71f2e118d36695f1328b"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-8a40:CW-002",
+      "storyId": "B-8a40",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-07T08:44:15.549Z",
+      "updatedAt": "2026-09-07T08:44:15.549Z",
+      "frozen": {
+        "headHash": "1874513a22a66419fbca8eb536a6160633b567b8",
+        "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+        "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b",
+        "causalInputHashes": {
+          "certification:source": "f6beef370a346b826a28e2988ba82fee928963f482a3521209f4daa99922ebe4",
+          "certification:test": "6845152648e98c04bacb23ef91f3dda956c5c14843f6621268c8dad0eb54f846",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "706228a3167bc165d2b4af3832e8ae76344eef894f4b955b219a439859198492",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "b51de58e2013be7e42abc8b66aa8396b7626c0b0",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-8a40:RIE-016",
+        "receiptId": "B-8a40:RIE-016:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-8a40:PRECERT-002",
+      "_hash": "f9259b00e774e9ac88b04efe48899bffc5a527c307233e6c1228aa1ef5885726"
     }
   ],
   "receipts": [
@@ -63,6 +95,34 @@
       "inventoryReceiptId": "B-8a40:RI-012:RCP-001",
       "createdAt": "2026-09-07T00:00:54.441Z",
       "_hash": "f1e7431c16b515e527c68a4d210671f90a97e5f10fafda92e98b90d52ef158df"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-8a40:PRECERT-002",
+      "windowId": "B-8a40:CW-002",
+      "storyId": "B-8a40",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "1874513a22a66419fbca8eb536a6160633b567b8",
+        "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+        "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b",
+        "causalInputHashes": {
+          "certification:source": "f6beef370a346b826a28e2988ba82fee928963f482a3521209f4daa99922ebe4",
+          "certification:test": "6845152648e98c04bacb23ef91f3dda956c5c14843f6621268c8dad0eb54f846",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "706228a3167bc165d2b4af3832e8ae76344eef894f4b955b219a439859198492",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "b51de58e2013be7e42abc8b66aa8396b7626c0b0",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-8a40:RIE-016",
+      "inventoryReceiptId": "B-8a40:RIE-016:RCP-001",
+      "createdAt": "2026-09-07T08:44:15.549Z",
+      "_hash": "14dc68432c201830044927719a068f1302da6760a0d3b236fb639dab4a3b5a62"
     }
   ]
 }
