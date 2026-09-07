@@ -4758,7 +4758,7 @@
       "desc": "Current required-validation witness failure, same observed family as BUG-VALIDATION-DESCENDANT-PREMISE; not proof of a production descendant-cleanup defect. packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:458-494 starts the max descendant case with a 700 ms outer CLI maximum, then after the CLI has returned a structured timeout requires the child-written max-descendant.pid marker and ESRCH evidence. The current formal run demonstrably failed before that descendant assertion could execute. Independently parsed test_list.latest.output at timestamp 2026-09-07T09:21:27.902Z, head d4f74f03ca4148b5f7d06d43ce56744365db93c7, material fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd / storyFiles 6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b: required configured validate.commands[11] node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js returned code 1 after 153119 ms, output exactly timed out waiting for fixture file: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-validate-heartbeat-CjaRVH/max-descendant.pid. The complete routine result has two required failures, not a PASS. Source inspection of lines 48-52, 103-109, 232-281 and 458-503 shows the marker is written inside the configured node -e process, the max bound includes CLI startup, and the 30-second wait for the marker occurs only after runCli resolves. Once startup is prevented by the deadline, extra post-return waiting cannot establish the missing witness premise. The evidence proves this required fixture failed and descendant coverage was not reached; it does not prove a descendant leaked, prove production deadlines are wrong, or establish the precise timing cause. The owner reports a separate unchanged standalone pass and a bounded startup-delay diagnostic is pending; I have not executed a duplicate smoke or treated that owner report as closure. Severity medium because this is a fail-closed witness/validation reliability blocker, with no current data-loss or security effect demonstrated. It remains in current Story work until precise diagnosis and fresh target-bound repair or lawful negative evidence establish a valid witness; isolated retry success cannot erase the recorded formal FAIL. Any bounded fixture remediation must establish descendant readiness without removing the PID/ESRCH assertion, weakening real max/idle deadlines, or extending production execution permission. The fully read heartbeat decision explicitly keeps timeout layers independent and requires actual descendant cleanup evidence for paths that spawn children. All 13 focused classifier intents retain current mechanical PASS receipts with no waivers, but those and separate DONE-required 65/65 PASS do not satisfy this failing configured command. No new source regression is asserted, and F089-F091 remain unchanged.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-07T09:31:48.558Z",
@@ -4811,7 +4811,11 @@
       "signatureTag": "b8a40-validation-descendant-startup-premise",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtr1k8nk_7kt_c680a300e9b0478cbd11d296c1a81241",
-      "ledgerCommitReceiptId": "lrc_mtr1k8nl_7kt_630dbc5b6a7c4e86a8f0fd23e111562e"
+      "ledgerCommitReceiptId": "lrc_mtr1k8nl_7kt_630dbc5b6a7c4e86a8f0fd23e111562e",
+      "resolvedAt": "2026-09-07T10:17:26.576Z",
+      "resolvedReason": "Commit9b8ca8879f repairs only the max-descendant test premise: explicit1000ms startup delay, max-row fixture10000ms, max-row command20000ms, original idle-row command5000ms retained. Production deadlines, actual timeout-layer, PID/ESRCH descendant cleanup, no post-terminal heartbeat and other tight-max checks are unchanged. Pre-fix source plus1000ms target preload reproducibly exited1 before PID creation at max700. Fixed max row under that extra preload exited0 with before/after startup trace at max10000; final exact-source plain heartbeat smoke also exited0. Full formal validation remains to be rerun.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-094",
