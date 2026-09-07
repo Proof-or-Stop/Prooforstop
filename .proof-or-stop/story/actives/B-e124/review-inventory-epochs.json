@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "proofbound.review_inventory_epochs.v1",
+  "epochs": [
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e124:RIE-001",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-07T03:30:01.471Z",
+      "updatedAt": "2026-09-07T03:30:01.471Z",
+      "cutoff": {
+        "headHash": "895d15cc53b692742d6530f90da2eb5e1e956a71",
+        "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+        "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738"
+      },
+      "scopeDigest": "4af90e3293d31d8ae0c271776161b160a0e9ddc1cb52745614da4a58f86cc67c",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-e124:RIE-001:RCP-001",
+      "_hash": "3fae4734fdced2ec71d1a31956134d6671258e9734bf38cefbc6301c22c5cc16"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-e124:RIE-001:RCP-001",
+      "epochId": "B-e124:RIE-001",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "cutoff": {
+        "headHash": "895d15cc53b692742d6530f90da2eb5e1e956a71",
+        "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+        "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738"
+      },
+      "scopeDigest": "4af90e3293d31d8ae0c271776161b160a0e9ddc1cb52745614da4a58f86cc67c",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T03:30:01.471Z",
+      "_hash": "59a3d696b46cc4f3fcbb03eee4b69ae5adaffbec9552d8419b0711a51c487f13"
+    }
+  ],
+  "criticReceipts": []
+}
