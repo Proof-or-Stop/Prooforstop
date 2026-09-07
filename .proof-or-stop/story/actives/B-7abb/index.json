@@ -1,0 +1,28 @@
+{
+  "storyId": "B-7abb",
+  "name": "review-plan-implementation-reference-recovery",
+  "title": "Recover reviewer launch for bounded approved-plan implementation references",
+  "description": "Repair BUG-REVIEW-CONTEXT-001 from B-03b7 without changing its frozen metadata. Preserve refusal of Task Context instructions that amend authority. Admit only structurally bounded implementation references, prove the original description reaches signed reviewer run creation in a disposable repository, and preserve rejection before signing for hostile controls.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "high",
+  "keywords": [
+    "reviewer-launch",
+    "implementation-reference",
+    "frozen-context"
+  ],
+  "createdAt": "2026-09-07T07:18:00.796Z",
+  "startedAt": "2026-09-07T07:18:00.796Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-07T07:18:01.837Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "codex-01a05441-recovery-owner",
+      "agent": "main"
+    }
+  ]
+}

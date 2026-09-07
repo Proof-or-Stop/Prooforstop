@@ -1,0 +1,58 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Restore bounded plan-reference reviewer launch while preserving authority rejection",
+      "context": "Reproduce B-03b7 BUG-REVIEW-CONTEXT-001 using its unchanged description before repair. Prove full and conditional envelope admission plus signed review_run_start behavior in an isolated disposable project; reject amendment clauses, hostile joins, and malformed dependency tails before signing.",
+      "relatedDocs": [
+        "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
+      ],
+      "userSees": "Reviewers can start on the original approved implementation description without editing frozen Story metadata.",
+      "excludes": [
+        "General priority-proximity and negation grammar repairs",
+        "Story metadata freeze or lifecycle bypass",
+        "Changes to applicability, routing or defect policy"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "create": [],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Verify compatibility and document the bounded recovery evidence",
+      "context": "Run existing prompt, process-fact and adapter contracts, retain exact RED/GREEN provenance and rejected attack controls, and document how B-03b7 consumes the local main repair without treating old hashes as fresh.",
+      "relatedDocs": [
+        "AGENTS.md"
+      ],
+      "userSees": "A verifiable local recovery commit and an English execution log distinguish the repaired launch path from remaining B-03b7 lifecycle work.",
+      "excludes": [
+        "Remote publication",
+        "Unrelated framework cleanup"
+      ],
+      "files": {
+        "modify": [],
+        "create": [
+          "docs/audits/review-plan-implementation-reference-recovery.md"
+        ],
+        "test": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
