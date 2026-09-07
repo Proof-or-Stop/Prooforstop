@@ -464,16 +464,20 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
 // the digest to 5da99a65.... Name the story and item here,
 // never a commit hash: a branch rewrite orphans the hash and a later
 // `git show` of it reports a bad object (B-41c8 F-012).
-testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is unchanged and carries no absolute-cwd warning', () => {
+testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolute-cwd warning', () => {
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
   assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
   const commands = configuredValidationCommands(repoRoot);
   assert.ok(commands.length > 0);
   assert.deepEqual(commands.filter((entry) => entry.cwd !== undefined).map((entry) => entry.label), [], 'this repository declares no cwd on any command');
   const real = buildValidationCommandInventory({ commands });
-  // B-fe8f + current main merge: the Finding ledger/runtime integrity command
-  // joins main's 128 commands without dropping either side, producing the
-  // 129-entry union and moving the digest to 6dfd3360....
+  // Absent cwd posix-normalizes to "." (see the spellings case above), so declaring "." explicitly on
+  // every entry must reach the same digest: the real inventory is not bound to any checkout location.
+  const explicitDot = buildValidationCommandInventory({ commands: commands.map((entry) => ({ ...entry, cwd: '.' })) });
+  assert.equal(real.commandSetDigest, explicitDot.commandSetDigest, 'the real commandSetDigest must equal the digest of the same commands with an explicit "." cwd');
+  // B-e256 CHK-002/F-044 contributes the stable-id global CLI executable-bit
+  // regression row. The merge also retains current main's B-fe8f Finding-ledger
+  // guard and B-1482 narrowing-repin command: the complete union is 133 entries.
   // origin/main merge 3 (B-1482): moved again to 511e1906... because origin added one
   // more validate.commands entry; the union is now 128. Verified before repinning that
   // NO origin-only entry was dropped. Earlier notes retained below.
@@ -482,7 +486,7 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   // repinning that NO origin-only entry was dropped this time (the check that caught the
   // previous merge losing two). Earlier note retained below.
   // origin/main merge 1: moved to f23779fb... because validate.commands really did change,
-  // as the maintenance note above requires me to state. Our main carried 124 entries and
+  // because validate.commands really changed. Our main carried 124 entries and
   // origin 122, diverging BOTH ways: ours had cli-surface-smoke,
   // command-ownership-contract, verify-orphan-surface and `npm --prefix packages/graph
   // run check`; origin had validation-tier-planner-smoke and single-owner-extraction-smoke.
@@ -494,10 +498,23 @@ testCase('F-023: the REAL inventory declares no cwd, so its commandSetDigest is 
   // the same configuredValidationCommands -> buildValidationCommandInventory path.
   // B-212f CHK-001/CHK-003 register original parity, shared predicate proof and
   // post-DONE snapshot smoke. Their 131-entry main inventory and B-fe8f's
-  // 129-entry inventory form a 132-entry union without losing either side.
-  assert.equal(real.commandSetDigest, '896916d2feea86b5eec749f9af05cad1a1df00a1b955b84e1b55556031a4bea5', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
+  // 129-entry inventory form a 132-entry union without losing either side;
+  // B-e256 then adds its global launcher row for the 133-entry merged inventory.
+  assert.equal(real.commandSetDigest, '6f6a4fa01f9ae975a04c754c17d1ca31df1066ba6c4967b4ed2f35f7a5452e24', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
+  assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');
+  // Non-vacuity: ONE absolute cwd on the same command set moves the digest and is named in a warning.
+  const absoluteCwd = resolve(repoRoot);
+  const oneAbsolute = buildValidationCommandInventory({
+    commands: commands.map((entry, index) => (index === 0 ? { ...entry, cwd: absoluteCwd } : entry)),
+  });
+  assert.notEqual(oneAbsolute.commandSetDigest, real.commandSetDigest, 'an absolute cwd on one command must change the commandSetDigest');
+  assert.ok(
+    oneAbsolute.warnings.some((text) => /absolute/i.test(text) && text.includes(absoluteCwd)),
+    `the inventory must warn about the absolute declared cwd, got warnings: ${JSON.stringify(oneAbsolute.warnings)}`,
+  );
+  assert.equal(oneAbsolute.entries[0].tuple.cwdRelative, absoluteCwd);
 });
 
 // ---------------------------------------------------------------------------
@@ -4364,10 +4381,11 @@ testCase('the REAL package.json chain and the REAL RESOURCE_POLICY both register
 //      reported PASS. Neither of those two reads validate.commands at all.
 //
 //      So this case reads the REAL configured command set through the production
-//      reader and drives the REAL pin resolver, rather than inspecting JSON text.
-//      Deleting the config entry must fail HERE.
+//      reader and drives both the REAL pin resolver and validation_plan renderer,
+//      rather than inspecting JSON text. It also proves B-e256's global-CLI RED
+//      command is visible by stable id/label in actual planner output.
 // ---------------------------------------------------------------------------
-testCase('the REAL validate.commands universe registers this suite so its own recorded evidence pin resolves', () => {
+testCase('the real validation_plan output exposes red-global-cli-exec-bit by stable id and label', () => {
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
   assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
 
@@ -4396,6 +4414,24 @@ testCase('the REAL validate.commands universe registers this suite so its own re
     'resolved',
     `the recorded pin must resolve against the real universe, got ${JSON.stringify(resolution)}`,
   );
+
+  const redPinnedCommand = 'node packages/main/tests/red/red-global-cli-exec-bit.mjs';
+  const redPin = parseLegacyValidationCommandString(redPinnedCommand);
+  assert.ok(redPin, 'the B-e256 RED command must parse under the canonical pin rule');
+  const redMatches = commands.filter((entry) => entry.command === redPin!.command
+    && entry.args.length === redPin!.args.length
+    && entry.args.every((arg, index) => arg === redPin!.args[index]));
+  assert.equal(redMatches.length, 1, `the B-e256 RED command must appear exactly once in the real planner universe, found ${redMatches.length}`);
+  assert.equal(redMatches[0].id, 'red-global-cli-exec-bit');
+  assert.equal(redMatches[0].label, 'B-e256 global CLI rebuild and promotion regression');
+
+  // Execute the production handler over the real configured command row. A
+  // config-only membership assertion is insufficient: the operator-visible
+  // planner rendering itself must preserve the stable identity.
+  const { ctx } = planCliRoot({ commands: redMatches });
+  const rendered = planCli(ctx)({ storyId: PLAN_CLI_STORY_ID, tier: 'full', explain: true });
+  assert.match(rendered, /^inclusion reasons by unit \(1\):$/m);
+  assert.match(rendered, /^ {2}red-global-cli-exec-bit \[B-e256 global CLI rebuild and promotion regression\]$/m);
 });
 
 testCase('every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed', () => {

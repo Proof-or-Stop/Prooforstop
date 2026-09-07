@@ -1,5 +1,5 @@
-import { execFileSync } from 'node:child_process';
-import { accessSync, constants, existsSync, readFileSync, readdirSync, realpathSync, statSync } from 'node:fs';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { accessSync, constants, existsSync, lstatSync, readFileSync, readdirSync, readlinkSync, realpathSync, statSync } from 'node:fs';
 import { basename, delimiter, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadConfig, PROJECT_CONFIG_FILENAMES } from './config.js';
@@ -16,6 +16,8 @@ import {
   PROOF_OR_STOP_ROOT_PACKAGE_NAME,
 } from './proof-or-stop-brand.js';
 import { readBrandEnv } from './brand-env.js';
+import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
+import { findBrandExport } from './version-bump.js';
 
 export type RuntimeFactStatus = 'pass' | 'warn' | 'fail';
 export type RuntimeMode = 'global-cli' | 'project-local-package' | 'packaged-runtime' | 'compatibility-launcher' | 'diagnostic-only';
@@ -61,7 +63,87 @@ export type RuntimeEnvironmentReport = {
 export interface RuntimeEnvironmentOptions {
   commandResolver?: (projectRoot: string) => string | null;
   globalNpmRootResolver?: (projectRoot: string) => string | null;
+  // B-e256 cross-host review B-e256-xhr-r13 MAJOR: test seam for a STRUCTURED
+  // `npm root -g` probe. Unlike `globalNpmRootResolver` above (a plain string
+  // that cannot distinguish "genuinely nothing installed" from "the probe
+  // itself failed"), this carries a `failureReason` so npm being missing, a
+  // non-zero exit, a timeout, or unparsable output is reported as unverifiable
+  // drift instead of collapsing into the informational "not installed" pass.
+  // Takes priority over `globalNpmRootResolver` when both are supplied.
+  // Production always uses the default (a real `npm root -g` probe with the
+  // failure captured).
+  globalNpmRootProbeResolver?: (projectRoot: string) => GlobalNpmRootProbeResult;
   corePackageRoot?: string;
+  // B-e256-xhr-r6: test seam for the access(2) X_OK probe behind the
+  // global-core-realpath executable fact (owner/group cases cannot be built
+  // hermetically by an unprivileged test). Production always uses the default.
+  executableAccessProbe?: (path: string) => boolean;
+  // Test seam for host-specific command rendering and executable semantics.
+  // Production always uses process.platform.
+  platform?: NodeJS.Platform;
+  // Test seam for failures while inspecting the declared global bin target.
+  // Production uses statSync; tests can inject EACCES/EPERM without depending
+  // on the uid or host filesystem permissions.
+  binTargetStatProbe?: (path: string) => { mode: number; isFile(): boolean };
+  // Test seam for resolving the declared bin target after stat. Production
+  // uses realpathSync and preserves the errno when resolution fails.
+  binTargetRealpathProbe?: (path: string) => GlobalCoreRealpathProbeResult;
+  // Test seam for reading the Windows npm command shim selected from PATH.
+  commandShimReadProbe?: (path: string) => string;
+  // Test seam for the bounded Windows launchability witness. Production runs
+  // the exact canonical `proof-or-stop.cmd --version` command from the
+  // already-validated npm shim directory; simulated win32 tests inject the
+  // result because a POSIX host cannot execute cmd.exe semantics.
+  windowsCommandRuntimeProbe?: (commandPath: string, expectedVersion: string) => WindowsCommandRuntimeProbeResult;
+  // B-e256 cross-host review B-e256-xhr-r12 MAJOR: test seam for the realpath(3)
+  // resolution of the global core package. A candidate that lstat/exists as
+  // `resolved` can still fail realpath (EACCES/EPERM/EIO on the target, or the
+  // checkout disappearing between the presence probe and the resolution), and an
+  // unprivileged hermetic fixture cannot build that divergence: every
+  // construction that makes realpath(3) fail makes the presence probe fail
+  // first, so it would be classified before this code is reached. Production
+  // always uses the default (realpathSync plus errno capture).
+  globalCoreRealpathProbe?: (path: string) => GlobalCoreRealpathProbeResult;
+  // B-e256 cross-host review B-e256-xhr-r13 MAJOR: test seam for the compiled
+  // runtime's OWN reported version, read from the authoritative build artifact
+  // (`dist/core/proof-or-stop-brand.js`) instead of the package.json manifest a
+  // stale/skipped rebuild never touches. Production always uses the default
+  // (reads that compiled file).
+  compiledCoreVersionProbe?: (globalRealpath: string) => CompiledCoreVersionProbeResult;
+}
+
+export interface GlobalCoreRealpathProbeResult {
+  realpath: string | null;
+  errorCode: string | null;
+}
+
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: `npm root -g` itself can fail
+// (npm missing from PATH, a non-zero exit, a timeout, or unparsable output).
+// `root` is only ever non-null on a genuinely successful probe; any failure
+// carries a human-readable `failureReason` instead of collapsing into
+// `root: null`, which downstream was otherwise indistinguishable from "npm
+// succeeded and there is genuinely nothing installed" - the false-pass class
+// this MAJOR finding closes.
+export interface GlobalNpmRootProbeResult {
+  root: string | null;
+  failureReason: string | null;
+}
+
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: the compiled runtime's actual
+// reported version, read from the authoritative build artifact instead of the
+// package.json manifest (which stays whatever it was hand-edited to even when
+// `dist/` was never rebuilt - exactly the failure mode this story targets).
+export interface CompiledCoreVersionProbeResult {
+  version: string | null;
+  failureReason: string | null;
+}
+
+export interface WindowsCommandRuntimeProbeResult {
+  exitCode: number | null;
+  stdout: string;
+  stderr: string;
+  errorCode: string | null;
+  failureReason: string | null;
 }
 
 interface RuntimeCheckContext {
@@ -73,6 +155,15 @@ interface RuntimeCheckContext {
   cliEntrypoint: string | null;
   activeCliEntrypoint: string | null;
   globalNpmRoot: string | null;
+  globalNpmRootProbe: GlobalNpmRootProbeResult;
+  executableAccessProbe: (path: string) => boolean;
+  platform: NodeJS.Platform;
+  binTargetStatProbe: (path: string) => { mode: number; isFile(): boolean };
+  binTargetRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
+  commandShimReadProbe: (path: string) => string;
+  windowsCommandRuntimeProbe: (commandPath: string, expectedVersion: string) => WindowsCommandRuntimeProbeResult;
+  globalCoreRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult;
+  compiledCoreVersionProbe: (globalRealpath: string) => CompiledCoreVersionProbeResult;
 }
 
 export const STALE_GLOBAL_RUNTIME_REASON_CODE = 'stale_global_runtime_in_worktree' as const;
@@ -137,10 +228,25 @@ const LOCAL_HOST_RE = /^(?:https?:\/\/)?(?:localhost|127\.0\.0\.1|\[?::1\]?)(?::
 const HEALTH_SEMANTICS_RE = /\b(health\s*check|healthcheck|health\s*command|doctor|ping|readiness|liveness)\b|health check|health command/i;
 const RUNTIME_MODE_AUTHORITY: RuntimeModeAuthority = 'local-runtime-diagnostic-only';
 
+// B-e256 cross-host review B-e256-xhr-r11 MAJOR: presence is THREE-valued.
+// `existsSync` follows symlinks, so a global `npm link` whose target checkout
+// was deleted (exactly the failure this story targets) reads as `absent` and
+// the global-core-realpath row silently passes with installed=false. A link
+// entry that is present but does not resolve is its own state.
+// B-e256 cross-host review B-e256-xhr-r12 MAJOR: presence is FOUR-valued. The
+// probe itself can fail (EACCES on the scope directory, EPERM, EIO, ...); that
+// observes NOTHING about whether a package is installed, so collapsing it into
+// `absent` turned an unverifiable - possibly broken - global installation into a
+// green "not installed" informational pass. Only ENOENT/ENOTDIR mean the path
+// genuinely holds no package.
+type CorePackagePresence = 'resolved' | 'dangling' | 'unreadable' | 'absent';
+
 interface CorePackageCandidate {
   path: string;
   packageName: typeof CANONICAL_CORE_PACKAGE_NAME | typeof DEPRECATED_CORE_PACKAGE_NAME;
-  exists: boolean;
+  presence: CorePackagePresence;
+  // errno of the failed probe when `presence === 'unreadable'`; null otherwise.
+  errorCode: string | null;
 }
 
 export function runRuntimeEnvironmentChecks(
@@ -150,8 +256,23 @@ export function runRuntimeEnvironmentChecks(
   const resolvedRoot = resolve(projectRoot);
   const corePackageRoot = options.corePackageRoot ? resolve(options.corePackageRoot) : currentCorePackageRoot();
   const cliEntrypoint = (options.commandResolver ?? resolveCliCommandPath)(resolvedRoot);
-  const globalNpmRoot = (options.globalNpmRootResolver ?? resolveGlobalNpmRoot)(resolvedRoot);
+  // B-e256 cross-host review B-e256-xhr-r13 MAJOR: `globalNpmRootProbeResolver`
+  // (structured) takes priority. A plain legacy `globalNpmRootResolver` cannot
+  // express a probe failure, but its `null` also is not a genuine success: the
+  // real `npm root -g` probe never resolves to nothing on success (it always
+  // names SOME directory, even one with nothing installed under it - real
+  // absence is `probeCorePackagePresence` finding ENOENT/ENOTDIR under a
+  // known-good root, not the root itself missing), so a legacy resolver
+  // returning `null` is wrapped as an (unspecified-reason) failure rather than
+  // silently treated as "genuinely absent".
+  const globalNpmRootProbe: GlobalNpmRootProbeResult = options.globalNpmRootProbeResolver
+    ? options.globalNpmRootProbeResolver(resolvedRoot)
+    : options.globalNpmRootResolver
+      ? wrapLegacyGlobalNpmRootResolver(options.globalNpmRootResolver(resolvedRoot))
+      : probeGlobalNpmRoot(resolvedRoot);
+  const globalNpmRoot = globalNpmRootProbe.root;
   const isSelfProject = detectSelfProject(resolvedRoot);
+  const platform = options.platform ?? process.platform;
   const context: RuntimeCheckContext = {
     projectRoot: resolvedRoot,
     isSelfProject,
@@ -161,6 +282,15 @@ export function runRuntimeEnvironmentChecks(
     cliEntrypoint,
     activeCliEntrypoint: resolveActiveCliEntrypoint(resolvedRoot, corePackageRoot, cliEntrypoint),
     globalNpmRoot,
+    globalNpmRootProbe,
+    executableAccessProbe: options.executableAccessProbe ?? defaultExecutableAccessProbe,
+    platform,
+    binTargetStatProbe: options.binTargetStatProbe ?? statSync,
+    binTargetRealpathProbe: options.binTargetRealpathProbe ?? defaultGlobalCoreRealpathProbe,
+    commandShimReadProbe: options.commandShimReadProbe ?? ((path) => readFileSync(path, 'utf8')),
+    windowsCommandRuntimeProbe: options.windowsCommandRuntimeProbe ?? defaultWindowsCommandRuntimeProbe,
+    globalCoreRealpathProbe: options.globalCoreRealpathProbe ?? defaultGlobalCoreRealpathProbe,
+    compiledCoreVersionProbe: options.compiledCoreVersionProbe ?? defaultCompiledCoreVersionProbe,
   };
 
   const results = RUNTIME_FACT_REGISTRY.map((entry) => runRegistryCheck(entry, context));
@@ -197,6 +327,21 @@ export function renderRuntimeEnvironmentReport(report: RuntimeEnvironmentReport)
     const result = report[entry.outputKey];
     const detail = compactFactDetail(result);
     lines.push(`  ${statusIcon(result.status)} ${entry.id} [${result.severity}] ${detail}`);
+    const actual = result.actual && typeof result.actual === 'object'
+      ? result.actual as Record<string, unknown>
+      : null;
+    if (
+      entry.id === 'global-core-realpath'
+      && result.status === 'pass'
+      && actual?.installed === true
+      && typeof actual.realpath === 'string'
+      && typeof actual.version === 'string'
+      && typeof actual.binMode === 'string'
+      && actual.executable === true
+      && actual.verification === 'ok'
+    ) {
+      lines.push('    contract: global-core-realpath-pass');
+    }
     if (result.warnings && result.warnings.length > 0) {
       for (const warning of result.warnings.slice(0, 4)) {
         lines.push(`    - ${warning}`);
@@ -492,17 +637,20 @@ function findMainWorktreeRoot(cwd: string, budget?: IdentityProbeBudget): string
 
 function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'details' | 'warnings'> {
   const commandPath = context.cliEntrypoint;
+  const expectedCore = context.isSelfProject ? context.canonicalSelfCoreRoot : null;
+  const expectedCli = expectedCore ? join(expectedCore, 'dist', 'cli.js') : null;
   if (!commandPath) {
     return {
       status: statusForDrift(severity),
       actual: null,
-      expected: context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : 'proof-or-stop executable on PATH',
+      expected: context.isSelfProject ? expectedCli ?? 'canonical main CLI (git worktree discovery failed)' : 'proof-or-stop executable on PATH',
       warnings: ['PATH lookup for `proof-or-stop` did not resolve a CLI executable'],
     };
   }
   const commandRealpath = safeRealpath(commandPath);
-  const expectedCli = context.isSelfProject ? join(expectedSelfCoreRoot(context), 'dist', 'cli.js') : null;
-  const matchesExpected = !expectedCli || (commandRealpath ? samePath(commandRealpath, expectedCli) : false);
+  const matchesExpected = context.isSelfProject
+    ? !!expectedCli && !!commandRealpath && samePath(commandRealpath, expectedCli)
+    : true;
   const status = matchesExpected ? 'pass' : statusForDrift(severity);
   return {
     status,
@@ -510,30 +658,804 @@ function checkCliEntrypoint(context: RuntimeCheckContext, severity: RuntimeFactS
       path: commandPath,
       realpath: commandRealpath,
     },
-    expected: expectedCli,
-    ...(status === 'pass' ? {} : { warnings: [`CLI entrypoint resolves to ${commandRealpath ?? commandPath}, expected ${expectedCli}`] }),
+    expected: expectedCli ?? (context.isSelfProject ? 'canonical main CLI (git worktree discovery failed)' : null),
+    ...(status === 'pass' ? {} : { warnings: [expectedCli
+      ? `CLI entrypoint resolves to ${commandRealpath ?? commandPath}, expected ${expectedCli}`
+      : `CLI entrypoint resolves to ${commandRealpath ?? commandPath}, but the canonical main worktree could not be discovered`] }),
   };
 }
 
-function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'warnings'> {
+// B-e256 CHK-003: the global-core-realpath row must surface enough facts to
+// repoint a drifted `proof-or-stop` executable without guessing, and it must
+// only REPORT — doctor never mutates the host's global install.
+//   (1) realpath inside a `.worktrees/` checkout (or any non-canonical path)
+//       -> drift + an exact host-shell repoint (`cd --` on POSIX, encoded
+//       PowerShell `Set-Location -LiteralPath` on Windows)
+//   (2) package.json bin target not executable -> `chmod +x <abs path>` ONLY when
+//       the execute bits are actually clear; a target that IS marked executable
+//       yet fails X_OK is an ownership/ACL/noexec denial that chmod cannot
+//       repair, so it gets the rebuild-and-relink action (B-e256-xhr-r11 MAJOR).
+//       Windows uses npm-generated command shims and never prescribes chmod.
+//   (3) no global install -> informational (pass) row naming how to link one
+//   (3b) the global package entry EXISTS but is a broken link (its checkout was
+//       removed) -> drift naming the broken target + the relink; never a pass
+//       with installed=false (B-e256-xhr-r11 MAJOR)
+//   (4) canonical realpath + executable bin -> pass with realpath/version/mode
+//   (5) installed but unverifiable (package.json unreadable / no `bin` /
+//       no proof-or-stop bin entry) -> drift naming the exact reason + path;
+//       never a pass with executable=unverified (B-e256-xhr-r6 MAJOR)
+//   (3c) the presence probe itself FAILED with something other than
+//       ENOENT/ENOTDIR (EACCES / EPERM / EIO ...) -> drift naming the errno;
+//       never "not installed", because nothing was observed (B-e256-xhr-r12)
+//   (3d) a RESOLVED candidate whose realpath cannot be resolved -> drift naming
+//       the errno; never "not installed" either (B-e256-xhr-r12 MAJOR)
+//   (6) a missing or non-canonical version on a readable package.json -> drift
+//       with rebuild-and-relink; the version is a verified fact, not a
+//       display-only decoration (B-e256-xhr-r12 MAJOR)
+type GlobalCoreExecutableVerification =
+  | 'ok'
+  | 'package-json-unreadable'
+  | 'bin-field-missing'
+  | 'bin-entry-missing'
+  | 'bin-target-stat-failed'
+  | 'bin-target-realpath-failed'
+  | 'bin-target-realpath-escape'
+  | 'command-entrypoint-missing'
+  | 'command-entrypoint-realpath-failed'
+  | 'command-entrypoint-target-mismatch'
+  | 'windows-command-shim-missing'
+  | 'windows-command-shim-unreadable'
+  | 'windows-command-shim-target-mismatch'
+  | 'windows-command-runtime-probe-failed';
+
+interface GlobalCoreExecutableFacts {
+  binTarget: string | null;
+  binTargetRealpath: string | null;
+  binMode: string | null;
+  binTargetExists: boolean | null;
+  verificationErrorCode: string | null;
+  commandShim: string | null;
+  commandEntrypointRealpath?: string | null;
+  // B-e256-xhr-r11 MAJOR: whether ANY 0o111 bit is set on the target. This is
+  // NOT the executable verdict (that is the X_OK probe); it is what decides
+  // whether `chmod +x` is a plausible repair at all.
+  executeBitsSet: boolean;
+  // null = unverifiable; `verification` names why, and checkGlobalCoreRealpath
+  // treats every non-'ok' reason on an INSTALLED package as drift.
+  executable: boolean | null;
+  verification: GlobalCoreExecutableVerification;
+}
+
+function describeGlobalCoreVerification(verification: Exclude<GlobalCoreExecutableVerification, 'ok'>): string {
+  if (verification === 'package-json-unreadable') return 'package.json is missing or malformed';
+  if (verification === 'bin-field-missing') return 'package.json declares no `bin` field';
+  if (verification === 'bin-target-stat-failed') return 'the declared bin target could not be inspected';
+  if (verification === 'bin-target-realpath-failed') return 'the declared bin target realpath could not be resolved';
+  if (verification === 'bin-target-realpath-escape') return 'the declared bin target resolves outside the package dist tree';
+  if (verification === 'command-entrypoint-missing') return 'no proof-or-stop command was found on PATH';
+  if (verification === 'command-entrypoint-realpath-failed') return 'the proof-or-stop command selected from PATH could not be resolved';
+  if (verification === 'command-entrypoint-target-mismatch') return 'the proof-or-stop command selected from PATH does not resolve to this package bin target';
+  if (verification === 'windows-command-shim-missing') return 'the proof-or-stop command selected from PATH is missing';
+  if (verification === 'windows-command-shim-unreadable') return 'the proof-or-stop command shim selected from PATH could not be read';
+  if (verification === 'windows-command-shim-target-mismatch') return 'the proof-or-stop command shim does not invoke this package bin target';
+  if (verification === 'windows-command-runtime-probe-failed') return 'the validated proof-or-stop command did not successfully report the expected compiled version';
+  return `package.json \`bin\` has no ${CANONICAL_ROOT_PACKAGE_NAME} entry`;
+}
+
+// B-e256-xhr-r6 MAJOR: the executable fact is whether the CURRENT process may
+// execute the target (access(2) X_OK), not whether any 0o111 bit is set. A
+// root-owned 0100 file is "executable" by mode yet fails with EACCES for an
+// unprivileged operator. Windows does not call this probe; it verifies the npm
+// command shim that is actually selected from PATH.
+function defaultExecutableAccessProbe(path: string): boolean {
+  try {
+    accessSync(path, constants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+interface OfficialNpmWindowsShimSet {
+  base: string;
+  cmd: string;
+  ps1: string;
+  sh: string;
+}
+
+// npm's cmd-shim@8 writer emits one launcher contract through three shell
+// surfaces. Certifying arbitrary batch/PowerShell text from a home-grown lexer
+// is unsound: reachability, variable binding, caret escaping, quote
+// concatenation, redirection, argv forwarding and exit propagation are all
+// language semantics. Instead, doctor supports the bounded, deterministic
+// cmd-shim@8 shape used by npm for this package's `#!/usr/bin/env node` bin and
+// validates every peer byte-for-byte. Any other generator/template is reported
+// as unverifiable until it has its own explicit contract.
+function officialNpmWindowsShimSet(commandBase: string, installedPackageRoot: string, binRel: string): OfficialNpmWindowsShimSet | null {
+  const lexicalTarget = resolve(installedPackageRoot, binRel);
+  const relativeTarget = relative(dirname(commandBase), lexicalTarget);
+  if (!relativeTarget || isAbsolute(relativeTarget)) return null;
+  const shTarget = relativeTarget.replace(/\\/g, '/');
+  const cmdTarget = shTarget.replace(/\//g, '\\');
+  const cmd = '@ECHO off\r\n'
+    + 'GOTO start\r\n'
+    + ':find_dp0\r\n'
+    + 'SET dp0=%~dp0\r\n'
+    + 'EXIT /b\r\n'
+    + ':start\r\n'
+    + 'SETLOCAL\r\n'
+    + 'CALL :find_dp0\r\n'
+    + '\r\n'
+    + 'IF EXIST "%dp0%\\node.exe" (\r\n'
+    + '  SET "_prog=%dp0%\\node.exe"\r\n'
+    + ') ELSE (\r\n'
+    + '  SET "_prog=node"\r\n'
+    + '  SET PATHEXT=%PATHEXT:;.JS;=;%\r\n'
+    + ')\r\n'
+    + '\r\n'
+    + `endLocal & goto #_undefined_# 2>NUL || title %COMSPEC% & "%_prog%"  "%dp0%\\${cmdTarget}" %*\r\n`;
+  const sh = '#!/bin/sh\n'
+    + 'basedir=$(dirname "$(echo "$0" | sed -e \'s,\\\\,/,g\')")\n'
+    + '\n'
+    + 'case `uname` in\n'
+    + '    *CYGWIN*|*MINGW*|*MSYS*)\n'
+    + '        if command -v cygpath > /dev/null 2>&1; then\n'
+    + '            basedir=`cygpath -w "$basedir"`\n'
+    + '        fi\n'
+    + '    ;;\n'
+    + 'esac\n'
+    + '\n'
+    + 'if [ -x "$basedir/node" ]; then\n'
+    + `  exec "$basedir/node"  "$basedir/${shTarget}" "$@"\n`
+    + 'else \n'
+    + `  exec node  "$basedir/${shTarget}" "$@"\n`
+    + 'fi\n';
+  const ps1 = '#!/usr/bin/env pwsh\n'
+    + '$basedir=Split-Path $MyInvocation.MyCommand.Definition -Parent\n'
+    + '\n'
+    + '$exe=""\n'
+    + 'if ($PSVersionTable.PSVersion -lt "6.0" -or $IsWindows) {\n'
+    + '  # Fix case when both the Windows and Linux builds of Node\n'
+    + '  # are installed in the same directory\n'
+    + '  $exe=".exe"\n'
+    + '}\n'
+    + '$ret=0\n'
+    + 'if (Test-Path "$basedir/node$exe") {\n'
+    + '  # Support pipeline input\n'
+    + '  if ($MyInvocation.ExpectingInput) {\n'
+    + `    $input | & "$basedir/node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  } else {\n'
+    + `    & "$basedir/node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  }\n'
+    + '  $ret=$LASTEXITCODE\n'
+    + '} else {\n'
+    + '  # Support pipeline input\n'
+    + '  if ($MyInvocation.ExpectingInput) {\n'
+    + `    $input | & "node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  } else {\n'
+    + `    & "node$exe"  "$basedir/${shTarget}" $args\n`
+    + '  }\n'
+    + '  $ret=$LASTEXITCODE\n'
+    + '}\n'
+    + 'exit $ret\n';
+  return { base: commandBase, cmd, ps1, sh };
+}
+
+function windowsCommandBase(cliEntrypoint: string): string | null {
+  const name = basename(cliEntrypoint).toLowerCase();
+  if (name === CANONICAL_ROOT_PACKAGE_NAME) return cliEntrypoint;
+  if (name === `${CANONICAL_ROOT_PACKAGE_NAME}.cmd`) return cliEntrypoint.slice(0, -4);
+  if (name === `${CANONICAL_ROOT_PACKAGE_NAME}.ps1`) return cliEntrypoint.slice(0, -4);
+  return null;
+}
+
+function defaultWindowsCommandRuntimeProbe(commandPath: string, expectedVersion: string): WindowsCommandRuntimeProbeResult {
+  if (process.platform !== 'win32') {
+    return { exitCode: null, stdout: '', stderr: '', errorCode: 'ENOTSUP', failureReason: 'cmd.exe runtime semantics are unavailable on this host' };
+  }
+  const result = spawnSync(process.env.ComSpec ?? 'cmd.exe', ['/d', '/s', '/c', `${basename(commandPath)} --version`], {
+    cwd: dirname(commandPath),
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+    timeout: 10_000,
+    env: process.env,
+  });
+  const stdout = result.stdout ?? '';
+  const stderr = result.stderr ?? '';
+  const errorCode = result.error ? errnoCode(result.error) : null;
+  const expected = `Proof-or-Stop ${expectedVersion}`;
+  const ok = !result.error && result.status === 0 && stdout.trim() === expected;
+  return {
+    exitCode: result.status,
+    stdout,
+    stderr,
+    errorCode,
+    failureReason: ok ? null : result.error?.message ?? `expected exit 0 and stdout ${JSON.stringify(expected)}, got exit ${String(result.status)} and stdout ${JSON.stringify(stdout.trim())}`,
+  };
+}
+
+function validateWindowsCommandShim(
+  cliEntrypoint: string | null,
+  installedPackageRoot: string,
+  binRel: string,
+  expectedVersion: string,
+  commandShimReadProbe: (path: string) => string,
+  windowsCommandRuntimeProbe: (commandPath: string, expectedVersion: string) => WindowsCommandRuntimeProbeResult,
+): { commandShim: string | null; executable: boolean; verification: GlobalCoreExecutableVerification; errorCode: string | null } {
+  if (!cliEntrypoint) {
+    return { commandShim: null, executable: false, verification: 'windows-command-shim-missing', errorCode: 'ENOENT' };
+  }
+  const base = windowsCommandBase(cliEntrypoint);
+  const expected = base ? officialNpmWindowsShimSet(base, installedPackageRoot, binRel) : null;
+  if (!base || !expected) {
+    return { commandShim: cliEntrypoint, executable: false, verification: 'windows-command-shim-target-mismatch', errorCode: null };
+  }
+  const peers = [
+    { path: base, expected: expected.sh },
+    { path: `${base}.cmd`, expected: expected.cmd },
+    { path: `${base}.ps1`, expected: expected.ps1 },
+  ];
+  for (const peer of peers) {
+    let content: string;
+    try {
+      content = commandShimReadProbe(peer.path);
+    } catch (error) {
+      const errorCode = errnoCode(error);
+      return {
+        commandShim: cliEntrypoint,
+        executable: false,
+        verification: errorCode === 'ENOENT' || errorCode === 'ENOTDIR' ? 'windows-command-shim-missing' : 'windows-command-shim-unreadable',
+        errorCode,
+      };
+    }
+    if (content !== peer.expected) {
+      return { commandShim: cliEntrypoint, executable: false, verification: 'windows-command-shim-target-mismatch', errorCode: null };
+    }
+  }
+  const runtimeProbe = windowsCommandRuntimeProbe(`${base}.cmd`, expectedVersion);
+  const runtimeProbePassed = runtimeProbe.failureReason === null
+    && runtimeProbe.errorCode === null
+    && runtimeProbe.exitCode === 0
+    && runtimeProbe.stdout.trim() === `Proof-or-Stop ${expectedVersion}`;
+  if (!runtimeProbePassed) {
+    return {
+      commandShim: cliEntrypoint,
+      executable: false,
+      verification: 'windows-command-runtime-probe-failed',
+      errorCode: runtimeProbe.errorCode,
+    };
+  }
+  return { commandShim: cliEntrypoint, executable: true, verification: 'ok', errorCode: null };
+}
+
+function powershellLiteral(value: string): string {
+  return `'${value.replace(/'/g, "''")}'`;
+}
+
+function windowsPowerShellCommand(script: string): string {
+  // cmd.exe expands %NAME% even inside double quotes. An encoded UTF-16LE
+  // PowerShell payload contains only base64 characters, while the decoded
+  // script uses -LiteralPath/single-quoted arguments. This keeps spaces,
+  // apostrophes and literal percent-delimited path components byte-exact.
+  const encoded = Buffer.from(script, 'utf16le').toString('base64');
+  return `powershell.exe -NoLogo -NoProfile -NonInteractive -EncodedCommand ${encoded}`;
+}
+
+function globalCoreRelinkCommand(canonicalCoreRoot: string, platform: NodeJS.Platform): string {
+  return platform === 'win32'
+    ? windowsPowerShellCommand(`Set-Location -LiteralPath ${powershellLiteral(canonicalCoreRoot)}; & npm.cmd link`)
+    : `cd -- ${shellQuote(canonicalCoreRoot)} && npm link`;
+}
+
+function globalCoreRebuildCommand(packageRoot: string, platform: NodeJS.Platform): string {
+  return platform === 'win32'
+    ? windowsPowerShellCommand(`& npm.cmd --prefix ${powershellLiteral(packageRoot)} run build`)
+    : `npm --prefix ${shellQuote(packageRoot)} run build`;
+}
+
+function globalCoreInspectCommand(path: string, platform: NodeJS.Platform, endOfOptions: boolean): string {
+  if (platform === 'win32') {
+    return windowsPowerShellCommand(`Get-Item -Force -LiteralPath ${powershellLiteral(path)} | Format-List -Property FullName,Attributes,LinkType,Target`);
+  }
+  return `ls -ld${endOfOptions ? ' --' : ''} ${shellQuote(path)}`;
+}
+
+function pathSegments(path: string): string[] {
+  return resolve(path).split(/[\\/]+/).filter(Boolean);
+}
+
+function isWorktreeCheckoutPath(path: string): boolean {
+  return pathSegments(path).includes('.worktrees');
+}
+
+function formatFileMode(mode: number): string {
+  return `0${(mode & 0o777).toString(8)}`;
+}
+
+function inspectGlobalCoreExecutable(
+  packageRoot: string,
+  installedPackageRoot: string,
+  cliEntrypoint: string | null,
+  platform: NodeJS.Platform,
+  executableAccessProbe: (path: string) => boolean,
+  binTargetStatProbe: (path: string) => { mode: number; isFile(): boolean },
+  binTargetRealpathProbe: (path: string) => GlobalCoreRealpathProbeResult,
+  commandShimReadProbe: (path: string) => string,
+  windowsCommandRuntimeProbe: (commandPath: string, expectedVersion: string) => WindowsCommandRuntimeProbeResult,
+): GlobalCoreExecutableFacts {
+  const unverifiable = (verification: Exclude<GlobalCoreExecutableVerification, 'ok'>): GlobalCoreExecutableFacts =>
+    ({ binTarget: null, binTargetRealpath: null, binMode: null, binTargetExists: false, verificationErrorCode: null, commandShim: null, executeBitsSet: false, executable: null, verification });
+  const pkg = readPackageJson(packageRoot);
+  if (!pkg || typeof pkg !== 'object') return unverifiable('package-json-unreadable');
+  const bin = pkg.bin;
+  if (bin === undefined || bin === null) return unverifiable('bin-field-missing');
+  const binRel = typeof bin === 'string'
+    ? bin
+    : typeof bin === 'object' && typeof bin[CANONICAL_ROOT_PACKAGE_NAME] === 'string'
+      ? bin[CANONICAL_ROOT_PACKAGE_NAME]
+      : null;
+  if (!binRel) return unverifiable('bin-entry-missing');
+  const binTarget = resolve(packageRoot, binRel);
+  let stat;
+  try {
+    stat = binTargetStatProbe(binTarget);
+  } catch (error) {
+    const errorCode = errnoCode(error);
+    if (errorCode === 'ENOENT' || errorCode === 'ENOTDIR') {
+      return { binTarget, binTargetRealpath: null, binMode: null, binTargetExists: false, verificationErrorCode: null, commandShim: null, executeBitsSet: false, executable: false, verification: 'ok' };
+    }
+    return { binTarget, binTargetRealpath: null, binMode: null, binTargetExists: null, verificationErrorCode: errorCode, commandShim: null, executeBitsSet: false, executable: null, verification: 'bin-target-stat-failed' };
+  }
+  const executeBitsSet = (stat.mode & 0o111) !== 0;
+  if (!stat.isFile()) return { binTarget, binTargetRealpath: null, binMode: formatFileMode(stat.mode), binTargetExists: false, verificationErrorCode: null, commandShim: null, executeBitsSet, executable: false, verification: 'ok' };
+  const targetRealpathProbe = binTargetRealpathProbe(binTarget);
+  if (!targetRealpathProbe.realpath) {
+    return { binTarget, binTargetRealpath: null, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: targetRealpathProbe.errorCode ?? 'UNKNOWN', commandShim: null, executeBitsSet, executable: null, verification: 'bin-target-realpath-failed' };
+  }
+  const binTargetRealpath = targetRealpathProbe.realpath;
+  if (!pathContains(join(packageRoot, 'dist'), binTargetRealpath)) {
+    return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, commandShim: null, executeBitsSet, executable: false, verification: 'bin-target-realpath-escape' };
+  }
+  if (platform === 'win32') {
+    const shim = validateWindowsCommandShim(
+      cliEntrypoint,
+      installedPackageRoot,
+      binRel,
+      readExpectedCoreVersion(packageRoot),
+      commandShimReadProbe,
+      windowsCommandRuntimeProbe,
+    );
+    return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: shim.errorCode, commandShim: shim.commandShim, executeBitsSet, executable: shim.executable, verification: shim.verification };
+  }
+  const commandRealpathProbe = defaultGlobalCoreRealpathProbe(cliEntrypoint!);
+  if (!commandRealpathProbe.realpath) {
+    return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: commandRealpathProbe.errorCode, commandShim: null, commandEntrypointRealpath: null, executeBitsSet, executable: null, verification: 'command-entrypoint-realpath-failed' };
+  }
+  const commandEntrypointRealpath = commandRealpathProbe.realpath;
+  if (!samePath(commandEntrypointRealpath, binTargetRealpath)) {
+    return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, commandShim: null, commandEntrypointRealpath, executeBitsSet, executable: false, verification: 'command-entrypoint-target-mismatch' };
+  }
+  // `binMode` is display-only; the POSIX executable verdict is access(2) X_OK,
+  // after the PATH command has resolved to this exact declared target.
+  const executable = executableAccessProbe(binTarget);
+  return { binTarget, binTargetRealpath, binMode: formatFileMode(stat.mode), binTargetExists: true, verificationErrorCode: null, commandShim: null, commandEntrypointRealpath, executeBitsSet, executable, verification: 'ok' };
+}
+
+function checkGlobalCoreRealpath(context: RuntimeCheckContext, severity: RuntimeFactSeverity): Pick<RuntimeFactCheckResult, 'status' | 'actual' | 'expected' | 'details' | 'warnings'> {
   const globalRoot = context.globalNpmRoot;
   const globalPackage = globalRoot ? resolveCorePackageCandidate(globalRoot) : null;
   const globalPackagePath = globalPackage?.path ?? null;
-  const globalRealpath = globalPackage && globalPackage.exists ? safeRealpath(globalPackage.path) : null;
-  const expected = context.isSelfProject ? expectedSelfCoreRoot(context) : resolveCanonicalCoreRoot(context.corePackageRoot);
-  if (!globalPackage || !globalPackagePath || !globalRealpath) {
+  const realpathProbe: GlobalCoreRealpathProbeResult = globalPackage && globalPackage.presence === 'resolved'
+    ? context.globalCoreRealpathProbe(globalPackage.path)
+    : { realpath: null, errorCode: null };
+  const globalRealpath = realpathProbe.realpath;
+  const expected = context.isSelfProject ? context.canonicalSelfCoreRoot : resolveCanonicalCoreRoot(context.corePackageRoot);
+  const expectedVersion = readExpectedCoreVersion(expected ?? context.corePackageRoot);
+  const canonicalDiscoveryFailed = expected === null;
+  const diagnoseCanonical = 'git worktree list --porcelain';
+  const relink = expected ? globalCoreRelinkCommand(expected, context.platform) : diagnoseCanonical;
+  if (globalRoot === null && context.globalNpmRootProbe.failureReason) {
+    // (3a) B-e256 cross-host review B-e256-xhr-r13 MAJOR: the `npm root -g`
+    // PROBE failed (npm missing, non-zero exit, timeout, unparsable output).
+    // Nothing was observed about the global installation, so it must never be
+    // reported as the informational "not installed" pass below - that collapse
+    // is exactly the false-pass this finding names. Only a probe that actually
+    // SUCCEEDED and named no package there is genuinely "not installed".
+    const diagnose = 'npm root -g';
     return {
       status: statusForDrift(severity),
-      actual: { npmRoot: globalRoot, packageName: globalPackage?.packageName ?? CANONICAL_CORE_PACKAGE_NAME, packagePath: globalPackagePath, realpath: null },
+      actual: {
+        installed: null,
+        presence: 'npm-root-probe-failed',
+        npmRoot: null,
+        packageName: CANONICAL_CORE_PACKAGE_NAME,
+        packagePath: null,
+        linkTarget: null,
+        realpath: null,
+        version: null,
+        expectedVersion,
+        errorCode: null,
+        compiledVersion: null,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        verification: null,
+        worktreeCheckout: false,
+        remediation: diagnose,
+      },
       expected,
-      warnings: [`global ${CANONICAL_CORE_PACKAGE_NAME} could not be resolved from \`npm root -g\``],
+      warnings: [
+        `the \`npm root -g\` probe failed: ${context.globalNpmRootProbe.failureReason}; the global ${CANONICAL_CORE_PACKAGE_NAME} installation could not be inspected - it is not known to be absent`,
+        `diagnose: ${diagnose}`,
+      ],
     };
   }
-  const status = samePath(globalRealpath, expected) ? 'pass' : statusForDrift(severity);
-  const warnings = status === 'pass' ? [] : [`global ${describeCorePackageCandidate(globalPackage)} resolves to ${globalRealpath}, expected ${expected}`];
+  if (globalPackage && globalPackagePath && globalPackage.presence === 'dangling') {
+    // (3b) The scoped package entry is still there, so the global install is
+    // NOT absent: it is broken and every `proof-or-stop` invocation through it
+    // fails. Reporting this as "not installed" would hide the exact failure
+    // this story targets (a linked worktree that was removed).
+    const linkTarget = safeReadlinkTarget(globalPackagePath);
+    const brokenTarget = linkTarget ?? '<unreadable link target>';
+    const warnings = [
+      `global ${describeCorePackageCandidate(globalPackage)} at ${globalPackagePath} is a broken link -> ${brokenTarget}; the linked checkout no longer exists, so the global installation cannot resolve`,
+    ];
+    if (linkTarget && isWorktreeCheckoutPath(linkTarget)) {
+      warnings.push(`the broken link points inside a \`.worktrees/\` checkout; that worktree was removed or rebuilt`);
+    }
+    warnings.push(`repoint: ${relink}`);
+    return {
+      status: statusForDrift(severity),
+      actual: {
+        installed: true,
+        presence: 'dangling',
+        npmRoot: globalRoot,
+        packageName: globalPackage.packageName,
+        packagePath: globalPackagePath,
+        linkTarget,
+        realpath: null,
+        version: null,
+        expectedVersion,
+        errorCode: null,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        verification: null,
+        worktreeCheckout: linkTarget ? isWorktreeCheckoutPath(linkTarget) : false,
+        remediation: relink,
+      },
+      expected,
+      warnings,
+    };
+  }
+  if (globalPackage && globalPackagePath && globalPackage.presence === 'unreadable') {
+    // (3c) B-e256-xhr-r12 MAJOR: the presence PROBE failed (EACCES / EPERM /
+    // EIO / ...). Nothing was observed, so nothing may be claimed: rendering
+    // this as "not installed" turns an unverifiable - possibly broken - global
+    // installation into a green informational pass. `installed` is null
+    // (unknown), never false.
+    const code = globalPackage.errorCode ?? 'UNKNOWN';
+    return {
+      status: statusForDrift(severity),
+      actual: {
+        installed: null,
+        presence: 'unreadable',
+        errorCode: code,
+        npmRoot: globalRoot,
+        packageName: globalPackage.packageName,
+        packagePath: globalPackagePath,
+        linkTarget: null,
+        realpath: null,
+        version: null,
+        expectedVersion,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        verification: null,
+        worktreeCheckout: false,
+        remediation: relink,
+      },
+      expected,
+      warnings: [
+        `global ${describeCorePackageCandidate(globalPackage)} at ${globalPackagePath} could not be probed [${code}]: the filesystem refused the lookup, so this installation is UNVERIFIABLE - it is not known to be absent`,
+        `inspect then repoint: ${globalCoreInspectCommand(globalPackagePath, context.platform, false)} && ${relink}`,
+      ],
+    };
+  }
+  if (globalPackage && globalPackagePath && globalPackage.presence === 'resolved' && !globalRealpath) {
+    // (3d) B-e256-xhr-r12 MAJOR: the candidate WAS classified as an installed
+    // package, then realpath resolution failed. Falling through to (3) reported
+    // that broken install as "not installed" and passed.
+    const code = realpathProbe.errorCode ?? 'UNKNOWN';
+    return {
+      status: statusForDrift(severity),
+      actual: {
+        installed: true,
+        presence: 'resolved',
+        errorCode: code,
+        npmRoot: globalRoot,
+        packageName: globalPackage.packageName,
+        packagePath: globalPackagePath,
+        linkTarget: null,
+        realpath: null,
+        version: null,
+        expectedVersion,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        verification: null,
+        worktreeCheckout: false,
+        remediation: relink,
+      },
+      expected,
+      warnings: [
+        `global ${describeCorePackageCandidate(globalPackage)} at ${globalPackagePath} is installed but its realpath could not be resolved [${code}], so it is UNVERIFIABLE - it is not known to be absent`,
+        `inspect then repoint: ${globalCoreInspectCommand(globalPackagePath, context.platform, false)} && ${relink}`,
+      ],
+    };
+  }
+  if (!globalPackage || !globalPackagePath || !globalRealpath) {
+    // (3) Informational: nothing to verify, but tell the operator exactly how to link one.
+    return {
+      status: 'pass',
+      actual: {
+        installed: false,
+        presence: 'absent',
+        npmRoot: globalRoot,
+        packageName: globalPackage?.packageName ?? CANONICAL_CORE_PACKAGE_NAME,
+        packagePath: globalPackagePath,
+        linkTarget: null,
+        realpath: null,
+        version: null,
+        expectedVersion,
+        errorCode: null,
+        binTarget: null,
+        binMode: null,
+        executable: null,
+        verification: null,
+        worktreeCheckout: false,
+        remediation: relink,
+      },
+      expected,
+      details: [
+        `global ${CANONICAL_CORE_PACKAGE_NAME} is not installed (informational; \`npm root -g\` has no ${CANONICAL_CORE_PACKAGE_NAME}); link one with: ${relink}`,
+      ],
+    };
+  }
+  if (!context.cliEntrypoint) {
+    // The package being present under `npm root -g` does not prove that an
+    // invokable proof-or-stop command exists. Keep this distinct from package
+    // absence and do not emit the resolved-install PASS contract marker.
+    return {
+      status: statusForDrift(severity),
+      actual: {
+        installed: true,
+        presence: 'resolved',
+        availableOnPath: false,
+        npmRoot: globalRoot,
+        packageName: globalPackage.packageName,
+        packagePath: globalPackagePath,
+        linkTarget: null,
+        realpath: globalRealpath,
+        version: null,
+        expectedVersion,
+        errorCode: null,
+        binTarget: null,
+        binTargetRealpath: null,
+        binMode: null,
+        executable: null,
+        verification: 'command-entrypoint-missing',
+        verificationErrorCode: null,
+        commandShim: null,
+        worktreeCheckout: isWorktreeCheckoutPath(globalRealpath),
+        remediation: relink,
+      },
+      expected,
+      warnings: [
+        `global ${describeCorePackageCandidate(globalPackage)} is installed at ${globalRealpath}, but no proof-or-stop command was found on PATH`,
+        `link the installed package command: ${relink}`,
+      ],
+    };
+  }
+  const globalPackageJson = readPackageJson(globalRealpath);
+  const declaredVersion = globalPackageJson?.version;
+  const version = typeof declaredVersion === 'string' && declaredVersion.trim().length > 0 ? declaredVersion.trim() : null;
+  const executableFacts = inspectGlobalCoreExecutable(
+    globalRealpath,
+    globalPackagePath,
+    context.cliEntrypoint,
+    context.platform,
+    context.executableAccessProbe,
+    context.binTargetStatProbe,
+    context.binTargetRealpathProbe,
+    context.commandShimReadProbe,
+    context.windowsCommandRuntimeProbe,
+  );
+  const worktreeCheckout = isWorktreeCheckoutPath(globalRealpath);
+  const pathMatches = expected !== null && samePath(globalRealpath, expected);
+  const warnings: string[] = [];
+  const remediations: string[] = [];
+  // The same command can be the fix for two independent facts (a missing
+  // version and a missing bin target both want rebuild-and-relink); the
+  // operator must never be handed `x && y && x`.
+  const addRemediation = (command: string): void => { if (!remediations.includes(command)) remediations.push(command); };
+  if (canonicalDiscoveryFailed) {
+    warnings.push(`the canonical main worktree could not be discovered; the current Story worktree cannot be treated as the stable global target`);
+    warnings.push(`diagnose repository topology: ${diagnoseCanonical}`);
+    addRemediation(diagnoseCanonical);
+  } else if (!pathMatches) {
+    // (1) Drift: keep the historical explanatory line, then the exact repoint command.
+    warnings.push(`global ${describeCorePackageCandidate(globalPackage)} resolves to ${globalRealpath}, expected ${expected}`);
+    if (worktreeCheckout) {
+      warnings.push(`global realpath is inside a \`.worktrees/\` checkout; it will break when that worktree is removed or rebuilt`);
+    }
+    warnings.push(`repoint: ${relink}`);
+    addRemediation(relink);
+  }
+  if (worktreeCheckout && !warnings.some((warning) => warning.includes('inside a `.worktrees/` checkout'))) {
+    warnings.push(`global realpath is inside a \`.worktrees/\` checkout; it will break when that worktree is removed or rebuilt`);
+  }
+  if (executableFacts.verification === 'bin-target-stat-failed' && executableFacts.binTarget) {
+    const inspect = globalCoreInspectCommand(executableFacts.binTarget, context.platform, true);
+    warnings.push(`global bin target ${executableFacts.binTarget} could not be inspected [${executableFacts.verificationErrorCode ?? 'UNKNOWN'}]; its existence, mode, and executable state are unknown`);
+    if (pathMatches) {
+      warnings.push(`inspect filesystem access: ${inspect}`);
+      addRemediation(inspect);
+    } else {
+      warnings.push(`reported for the obsolete target only; the repoint above is the fix`);
+    }
+  } else if (executableFacts.verification !== 'ok') {
+    // (5) Installed but unverifiable is drift, never a silent pass: name the
+    // exact reason and the package path. A canonical checkout gets a rebuild
+    // in front of the relink; a drifted realpath already carries the relink.
+    const reason = describeGlobalCoreVerification(executableFacts.verification);
+    const targetDetail = executableFacts.binTarget
+      ? `; declared target ${executableFacts.binTarget}${executableFacts.binTargetRealpath ? ` resolves to ${executableFacts.binTargetRealpath}` : ''}${executableFacts.commandShim ? `; command shim ${executableFacts.commandShim}` : ''}`
+      : '';
+    const errorDetail = executableFacts.verificationErrorCode ? ` [${executableFacts.verificationErrorCode}]` : '';
+    warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} cannot be verified [${executableFacts.verification}]: ${reason}${errorDetail} (${join(globalRealpath, 'package.json')})${targetDetail}`);
+    if (pathMatches) {
+      const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
+      warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+      addRemediation(rebuild);
+      addRemediation(relink);
+    } else {
+      warnings.push(`reported for the obsolete target only; the repoint above is the fix`);
+    }
+  } else if (executableFacts.executable === false && executableFacts.binTarget) {
+    // (2) The bin symlink resolves here but the target cannot be executed.
+    // B-e256-xhr-r7: a DRIFTED realpath reports the old target's facts but
+    // never appends chmod/rebuild for that obsolete checkout; the relink
+    // pushed in (1) stays the sole actionable remediation, so the combined
+    // command never keeps mutating a path the repoint already abandons.
+    if (!executableFacts.binTargetExists) {
+      if (pathMatches) {
+        const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
+        warnings.push(`global bin target ${executableFacts.binTarget} does not exist; rebuild: ${rebuild}`);
+        addRemediation(rebuild);
+      } else {
+        warnings.push(`global bin target ${executableFacts.binTarget} does not exist (reported for the obsolete target only; the repoint above is the fix)`);
+      }
+    } else if (pathMatches && executableFacts.executeBitsSet) {
+      // B-e256-xhr-r11 MAJOR: X_OK denied although the execute bits ARE set.
+      // `chmod +x` is a no-op here (it would set bits that are already set) and
+      // naming it as "the fix" leaves the operator with a global CLI that stays
+      // unusable. The denial comes from something chmod cannot reach.
+      const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
+      warnings.push(`global bin target ${executableFacts.binTarget} is marked executable (mode ${executableFacts.binMode}) but the current user still cannot execute it; \`chmod +x\` cannot repair this - the likely causes are file ownership or an ACL denying execute to this user, or a filesystem mounted noexec`);
+      warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+      addRemediation(rebuild);
+      addRemediation(relink);
+    } else if (pathMatches && context.platform === 'win32') {
+      // Defensive only: failed Windows shim validation is handled by the
+      // verification branch above. If a future/injected probe reaches this
+      // branch, chmod is still never a valid Windows repair.
+      const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
+      warnings.push(`global npm command-shim target ${executableFacts.binTarget} could not be launched; Windows has no POSIX execute-bit repair`);
+      warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+      addRemediation(rebuild);
+      addRemediation(relink);
+    } else if (pathMatches) {
+      const chmod = `chmod +x ${shellQuote(executableFacts.binTarget)}`;
+      warnings.push(`global bin target ${executableFacts.binTarget} is not executable by the current user (mode ${executableFacts.binMode}); fix: ${chmod}`);
+      addRemediation(chmod);
+    } else {
+      warnings.push(`global bin target ${executableFacts.binTarget} is not executable by the current user (mode ${executableFacts.binMode}; reported for the obsolete target only; the repoint above is the fix)`);
+    }
+  }
+  // (6) B-e256-xhr-r12 MAJOR: the version is a VERIFIED fact, not decoration.
+  // It is only checked when package.json was readable at all: when it was not,
+  // (5) above already reports that exact reason and the absent version is its
+  // consequence, not an independent finding.
+  //
+  // This does NOT duplicate the separate `package-version` runtime fact. That
+  // one is a cross-copy CONSISTENCY fact over the local workspace: it collects
+  // runtime / root / packages-main / global versions, FILTERS missing ones out,
+  // passes when <= 1 distinct value survives, and for an external project it
+  // ignores the global version entirely. So it is structurally blind to exactly
+  // the two cases below - a global install with no version at all, and any
+  // global version drift outside a self project - while this check is the
+  // per-install fact: the global core must carry the canonical version and its
+  // remediation is that install's rebuild/repoint, not a workspace-wide notice.
+  if (globalPackageJson && (version === null || version !== expectedVersion)) {
+    const observed = version === null
+      ? `declares no version in ${join(globalRealpath, 'package.json')}`
+      : `reports version ${version}`;
+    if (pathMatches) {
+      const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
+      warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} ${observed}; expected ${expectedVersion}`);
+      warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+      addRemediation(rebuild);
+      addRemediation(relink);
+    } else {
+      // Same obsolete-target discipline as (2)/(5): the repoint pushed in (1)
+      // stays the sole actionable remediation for a path we are abandoning.
+      warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} ${observed}; expected ${expectedVersion} (reported for the obsolete target only; the repoint above is the fix)`);
+    }
+  }
+  // (7) B-e256 cross-host review B-e256-xhr-r13 MAJOR: the version compared
+  // above is read from package.json, which a rebuild that silently fails or is
+  // skipped never touches - on the canonical path it is even the SAME file as
+  // `expected`'s manifest, so (6) can only ever catch a missing declaration,
+  // never a genuinely stale compiled runtime. This compares what the runtime
+  // ACTUALLY compiles to (`dist/core/proof-or-stop-brand.js`'s
+  // PROOF_OR_STOP_CLI_VERSION), independent of the manifest. A probe that
+  // cannot even be read/parsed is unverifiable drift, never a pass - it is
+  // exactly the "package.json says new, dist/ still serves old" case this
+  // story targets.
+  let compiledVersion: string | null = null;
+  if (globalPackageJson) {
+    const compiledVersionProbe = context.compiledCoreVersionProbe(globalRealpath);
+    compiledVersion = compiledVersionProbe.version;
+    if (compiledVersionProbe.failureReason) {
+      warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} compiled runtime version could not be verified: ${compiledVersionProbe.failureReason}`);
+      if (pathMatches) {
+        const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
+        warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+        addRemediation(rebuild);
+        addRemediation(relink);
+      } else {
+        warnings.push(`reported for the obsolete target only; the repoint above is the fix`);
+      }
+    } else if (compiledVersion !== expectedVersion) {
+      if (pathMatches) {
+        const rebuild = globalCoreRebuildCommand(globalRealpath, context.platform);
+        warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} compiled runtime reports version ${compiledVersion}; expected ${expectedVersion} (dist appears stale)`);
+        warnings.push(`rebuild and relink: ${rebuild} && ${relink}`);
+        addRemediation(rebuild);
+        addRemediation(relink);
+      } else {
+        warnings.push(`global ${describeCorePackageCandidate(globalPackage)} at ${globalRealpath} compiled runtime reports version ${compiledVersion}; expected ${expectedVersion} (reported for the obsolete target only; the repoint above is the fix)`);
+      }
+    }
+  }
+  const status = warnings.length === 0 ? 'pass' : statusForDrift(severity);
   return {
     status,
-    actual: { npmRoot: globalRoot, packageName: globalPackage?.packageName, packagePath: globalPackagePath, realpath: globalRealpath },
+    actual: {
+      installed: true,
+      presence: 'resolved',
+      errorCode: null,
+      npmRoot: globalRoot,
+      packageName: globalPackage.packageName,
+      packagePath: globalPackagePath,
+      linkTarget: null,
+      realpath: globalRealpath,
+      version,
+      expectedVersion,
+      compiledVersion,
+      binTarget: executableFacts.binTarget,
+      binTargetRealpath: executableFacts.binTargetRealpath,
+      binMode: executableFacts.binMode,
+      binTargetExists: executableFacts.binTargetExists,
+      executable: executableFacts.executable,
+      verification: executableFacts.verification,
+      verificationErrorCode: executableFacts.verificationErrorCode,
+      commandShim: executableFacts.commandShim,
+      commandEntrypointRealpath: executableFacts.commandEntrypointRealpath ?? null,
+      worktreeCheckout,
+      remediation: remediations.length > 0 ? remediations.join(' && ') : null,
+    },
     expected,
     ...(warnings.length > 0 ? { warnings } : {}),
   };
@@ -972,10 +1894,12 @@ function runAuthoritativeIdentityCommand(args: string[], cwd: string, budget: Id
 }
 
 function resolveCliCommandPath(projectRoot: string): string | null {
-  return resolveCommandOnPath('proof-or-stop', projectRoot) ?? resolveCommandOnPath('lattice', projectRoot);
+  // This health fact promises the canonical user-visible command. A healthy
+  // legacy `lattice` launcher cannot stand in for an absent `proof-or-stop`.
+  return resolveCommandOnPath('proof-or-stop', projectRoot);
 }
 
-function resolveCommandOnPath(command: 'proof-or-stop' | 'lattice', projectRoot: string): string | null {
+function resolveCommandOnPath(command: 'proof-or-stop', projectRoot: string): string | null {
   const pathEnv = process.platform === 'win32'
     ? process.env.Path ?? process.env.PATH ?? ''
     : process.env.PATH ?? '';
@@ -990,17 +1914,20 @@ function resolveCommandOnPath(command: 'proof-or-stop' | 'lattice', projectRoot:
   return null;
 }
 
-function commandPathNames(command: 'proof-or-stop' | 'lattice'): string[] {
+function commandPathNames(command: 'proof-or-stop'): string[] {
   if (process.platform !== 'win32') return [command];
   const extensions = (process.env.PATHEXT ?? '.COM;.EXE;.BAT;.CMD')
     .split(';')
     .map((extension) => extension.trim())
     .filter(Boolean);
-  return [...new Set([
-    command,
-    ...extensions.map((extension) => `${command}${extension.toLowerCase()}`),
-    ...extensions.map((extension) => `${command}${extension.toUpperCase()}`),
-  ])];
+  // CreateProcess/cmd resolve an unqualified command through PATHEXT order;
+  // an extensionless sibling is not preferred over an executable extension.
+  // Include case variants beside each extension solely so a win32 simulation
+  // on a case-sensitive test host models Windows' case-insensitive lookup.
+  return [...new Set(extensions.flatMap((extension) => {
+    const suffix = extension.startsWith('.') ? extension : `.${extension}`;
+    return [`${command}${suffix}`, `${command}${suffix.toLowerCase()}`, `${command}${suffix.toUpperCase()}`];
+  }))];
 }
 
 function isRunnablePath(path: string): boolean {
@@ -1013,8 +1940,88 @@ function isRunnablePath(path: string): boolean {
   }
 }
 
-function resolveGlobalNpmRoot(projectRoot: string): string | null {
-  return runCommand('npm', ['root', '-g'], projectRoot);
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: a legacy plain-string resolver
+// has no vocabulary for "the probe failed", so its `null` is wrapped as an
+// unspecified-reason failure rather than being trusted as "genuinely absent".
+function wrapLegacyGlobalNpmRootResolver(root: string | null): GlobalNpmRootProbeResult {
+  return root !== null
+    ? { root, failureReason: null }
+    : { root: null, failureReason: 'the configured globalNpmRootResolver reported no root (probe outcome unspecified)' };
+}
+
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: the generic `runCommand`
+// collapses EVERY failure (missing binary, non-zero exit, timeout, empty
+// output) into a bare `null`, which is exactly the signal
+// `checkGlobalCoreRealpath` used to treat as "nothing installed". This probe
+// captures WHICH failure happened so that check can tell "npm root -g really
+// found nothing" apart from "the probe itself could not run" and report the
+// latter as unverifiable drift instead of a silent pass.
+function probeGlobalNpmRoot(projectRoot: string, timeoutMs = 2_000): GlobalNpmRootProbeResult {
+  let stdout: string;
+  try {
+    stdout = execFileSync('npm', ['root', '-g'], {
+      cwd: projectRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+      timeout: timeoutMs,
+      env: process.env,
+    });
+  } catch (error) {
+    const err = error as NodeJS.ErrnoException & { signal?: NodeJS.Signals | null; status?: number | null; killed?: boolean };
+    if (err.code === 'ENOENT') return { root: null, failureReason: 'npm was not found on PATH (ENOENT)' };
+    if (err.killed || err.signal === 'SIGTERM') return { root: null, failureReason: `npm root -g did not respond within ${timeoutMs}ms and was killed` };
+    const status = typeof err.status === 'number' ? err.status : null;
+    return {
+      root: null,
+      failureReason: status !== null ? `npm root -g exited with code ${status}` : `npm root -g failed [${errnoCode(error)}]`,
+    };
+  }
+  const trimmed = stdout.trim();
+  if (trimmed.length === 0) return { root: null, failureReason: 'npm root -g produced no output' };
+  if (/\r|\n/.test(trimmed) || !isAbsolute(trimmed)) {
+    return { root: null, failureReason: `npm root -g produced invalid path output: ${JSON.stringify(trimmed)}` };
+  }
+  return { root: trimmed, failureReason: null };
+}
+
+// B-e256 cross-host review B-e256-xhr-r13 MAJOR: the ACTUAL version the
+// compiled runtime reports, read from the build artifact tsc emits from
+// proof-or-stop-brand.ts, never from package.json (a rebuild that silently
+// fails or is skipped leaves the manifest bumped while dist/ still serves the
+// old code, and comparing package.json to package.json can never observe
+// that). Reuses version-bump.ts's `findBrandExport` (the SAME declaration
+// shape and ambiguity guard as its BRAND_EXPORT_RE, applied here to the
+// compiled JS instead of the TS source: tsc only strips `as const`, so the
+// declaration shape survives compilation unchanged) rather than a second,
+// unguarded regex match: a comment-stripped view is required so a comment
+// containing an export-shaped line can never be picked over the real
+// declaration, and a raw-vs-stripped count mismatch (that exact case) must be
+// refused as ambiguous rather than silently resolved. A file read/spawn is
+// deliberately NOT used here (the alternative this finding names is running
+// the global executable's own `--version`); inspecting this artifact gets the
+// same authoritative fact without the cost and hang risk of spawning the
+// global CLI from inside a doctor check.
+//
+// B-e256 F-004: an artifact that cannot be read (missing/unbuilt dist) and one
+// that CAN be read but is unparsable or ambiguous (no declaration, more than
+// one declaration, or an export-shaped line hiding in a comment) are BOTH
+// reported as unverifiable drift via `failureReason`, never as a pass and
+// never as a silently wrong version — findBrandExport throws rather than
+// picking a match in every one of those unparsable/ambiguous cases.
+function defaultCompiledCoreVersionProbe(globalRealpath: string): CompiledCoreVersionProbeResult {
+  const brandFile = join(globalRealpath, 'dist', 'core', 'proof-or-stop-brand.js');
+  let content: string;
+  try {
+    content = readFileSync(brandFile, 'utf-8');
+  } catch (error) {
+    return { version: null, failureReason: `compiled runtime file ${brandFile} could not be read [${errnoCode(error)}]` };
+  }
+  try {
+    return { version: findBrandExport(content, brandFile).version, failureReason: null };
+  } catch (error) {
+    const reason = error instanceof Error ? error.message : String(error);
+    return { version: null, failureReason: `compiled runtime file ${brandFile} does not declare an unambiguous PROOF_OR_STOP_CLI_VERSION: ${reason}` };
+  }
 }
 
 function resolveActiveCliEntrypoint(projectRoot: string, corePackageRoot: string, fallbackEntrypoint: string | null): string | null {
@@ -1059,18 +2066,73 @@ function packagePathFromName(root: string, packageName: string): string {
   return join(root, scope, name);
 }
 
+// B-e256-xhr-r11: lstat sees the link ENTRY (existsSync follows it), so a
+// package directory that is a symlink to a removed checkout is reported as
+// `dangling` instead of `absent`.
+function probeCorePackagePresence(path: string): { presence: CorePackagePresence; errorCode: string | null } {
+  let entry;
+  try {
+    entry = lstatSync(path);
+  } catch (error) {
+    const code = errnoCode(error);
+    // B-e256-xhr-r12 MAJOR: ENOENT / ENOTDIR are the only two errors that mean
+    // "nothing is installed here" (no entry, or a non-directory in the path).
+    // EACCES, EPERM, EIO, ELOOP and friends mean the probe could not look, and
+    // must never be reported as an absent install.
+    if (code === 'ENOENT' || code === 'ENOTDIR') return { presence: 'absent', errorCode: code };
+    return { presence: 'unreadable', errorCode: code };
+  }
+  if (!entry.isSymbolicLink()) return { presence: 'resolved', errorCode: null };
+  return { presence: existsSync(path) ? 'resolved' : 'dangling', errorCode: null };
+}
+
+function errnoCode(error: unknown): string {
+  const code = (error as NodeJS.ErrnoException | null)?.code;
+  return typeof code === 'string' && code.length > 0 ? code : 'UNKNOWN';
+}
+
+// B-e256-xhr-r12 MAJOR: realpath failure on an installed package is drift, so
+// the errno has to survive the probe (plain `safeRealpath` collapses it to null).
+function defaultGlobalCoreRealpathProbe(path: string): GlobalCoreRealpathProbeResult {
+  try {
+    return { realpath: realpathSync(path), errorCode: null };
+  } catch (error) {
+    // PROBE: an unresolvable realpath is reported as drift with its errno.
+    return { realpath: null, errorCode: errnoCode(error) };
+  }
+}
+
+// B-e256-xhr-r11: the raw link target of a broken link, so the warning can name
+// what the global installation still points at. Relative targets are resolved
+// against the link's own directory.
+function safeReadlinkTarget(path: string): string | null {
+  try {
+    const raw = readlinkSync(path);
+    return isAbsolute(raw) ? raw : resolve(dirname(path), raw);
+  } catch {
+    return null;
+  }
+}
+
 function resolveCorePackageCandidate(root: string): CorePackageCandidate {
   const canonicalPath = packagePathFromName(root, CANONICAL_CORE_PACKAGE_NAME);
-  if (existsSync(canonicalPath)) {
-    return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: true };
-  }
   // B-cc10 CHK-005: fall back to the deprecated scope so an already-installed global
   // @proof-or-stop/core is still FOUND (and reported) instead of looking absent.
   const deprecatedPath = packagePathFromName(root, DEPRECATED_CORE_PACKAGE_NAME);
-  if (existsSync(deprecatedPath)) {
-    return { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, exists: true };
-  }
-  return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, exists: false };
+  const candidates: CorePackageCandidate[] = [
+    { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, ...probeCorePackagePresence(canonicalPath) },
+    { path: deprecatedPath, packageName: DEPRECATED_CORE_PACKAGE_NAME, ...probeCorePackagePresence(deprecatedPath) },
+  ];
+  // A usable install always wins; a broken link is only reported when nothing
+  // resolves; an unprobeable entry outranks `absent` because "we could not look"
+  // must never be downgraded to "there is nothing there" (B-e256-xhr-r12).
+  const resolved = candidates.find((candidate) => candidate.presence === 'resolved');
+  if (resolved) return resolved;
+  const dangling = candidates.find((candidate) => candidate.presence === 'dangling');
+  if (dangling) return dangling;
+  const unreadable = candidates.find((candidate) => candidate.presence === 'unreadable');
+  if (unreadable) return unreadable;
+  return { path: canonicalPath, packageName: CANONICAL_CORE_PACKAGE_NAME, presence: 'absent', errorCode: null };
 }
 
 function describeCorePackageCandidate(candidate: CorePackageCandidate): string {
@@ -1101,12 +2163,12 @@ function findMainWorktreeCoreRoot(anchorDir: string): string | null {
 function resolveCanonicalSelfCoreRoot(projectRoot: string): string | null {
   const canonical = findMainWorktreeCoreRoot(projectRoot);
   if (canonical) return canonical;
+  // A Story worktree is explicitly disposable. When the topology probe fails,
+  // falling back to its local packages/main path would certify that disposable
+  // checkout as canonical and produce a false healthy global-runtime marker.
+  if (isWorktreeCheckoutPath(projectRoot)) return null;
   const localCore = join(projectRoot, 'packages', 'main');
   return existsSync(localCore) ? safeRealpath(localCore) ?? resolve(localCore) : null;
-}
-
-function expectedSelfCoreRoot(context: RuntimeCheckContext): string {
-  return context.canonicalSelfCoreRoot ?? join(context.projectRoot, 'packages', 'main');
 }
 
 // A worktree-built CLI evaluating a NON-self project must accept the global
@@ -1116,12 +2178,14 @@ function expectedSelfCoreRoot(context: RuntimeCheckContext): string {
 // story worktree (B-fa65). Canonicalize via `git worktree list` anchored at the
 // core root itself; a different clone has a different repository, so its
 // canonical path still differs from the global realpath and genuine drift
-// keeps warning. When git yields no main worktree the fallback is the
-// realpath-normalized core root — deliberately NOT the raw pre-fix path,
-// because the comparison target (globalRealpath) is itself realpath-resolved,
-// so symlink normalization must match on both sides (F-002).
-function resolveCanonicalCoreRoot(coreRoot: string): string {
-  return findMainWorktreeCoreRoot(coreRoot) ?? safeRealpath(coreRoot) ?? resolve(coreRoot);
+// keeps warning. A non-worktree checkout may safely fall back to its normalized
+// core root, but a disposable Story worktree must remain unknown when topology
+// discovery fails rather than certifying itself as canonical.
+function resolveCanonicalCoreRoot(coreRoot: string): string | null {
+  const canonical = findMainWorktreeCoreRoot(coreRoot);
+  if (canonical) return canonical;
+  const normalized = safeRealpath(coreRoot) ?? resolve(coreRoot);
+  return isWorktreeCheckoutPath(normalized) ? null : normalized;
 }
 
 function readPackageJson(dir: string): any | null {
@@ -1132,6 +2196,19 @@ function readPackageJson(dir: string): any | null {
     // PROBE: missing or malformed package.json is reported as an unavailable package summary.
     return null;
   }
+}
+
+// B-e256-xhr-r12 MAJOR: the expectation for the global package's version is the
+// CANONICAL core package this check already resolves as `expected` (the same
+// root `expectedSelfCoreRoot` / `resolveCanonicalCoreRoot` produce). When that
+// package.json cannot be read the expectation falls back to the running build's
+// own PROOF_OR_STOP_CLI_VERSION instead of becoming null, because an
+// unresolvable expectation would silently switch the comparison off - the exact
+// silent-pass class this fix closes. That constant is not a second source of
+// truth: it is the value those package.json files are bumped to in lockstep.
+function readExpectedCoreVersion(canonicalCoreRoot: string): string {
+  const declared = readPackageJson(canonicalCoreRoot)?.version;
+  return typeof declared === 'string' && declared.trim().length > 0 ? declared.trim() : PROOF_OR_STOP_CLI_VERSION;
 }
 
 function packageSummary(pkg: any | null, dir: string): { path: string; name: unknown; version: unknown } | null {
@@ -1244,7 +2321,34 @@ function compactFactDetail(result: RuntimeFactCheckResult): string {
   }
   if (result.outputKey === 'globalCoreRealpath') {
     const actual = result.actual as any;
-    return String(actual?.realpath ?? 'missing');
+    if (actual?.presence === 'npm-root-probe-failed') {
+      // B-e256 cross-host review B-e256-xhr-r13 MAJOR: the `npm root -g`
+      // probe itself failing observed nothing, so it must never render as
+      // "not installed" either.
+      const hint = typeof actual?.remediation === 'string' ? ` (${actual.remediation})` : '';
+      return `unverifiable (npm root -g probe failed; not known to be absent)${hint}`;
+    }
+    if (actual?.presence === 'dangling') {
+      // B-e256-xhr-r11: a broken link must never render as "not installed".
+      const hint = typeof actual?.remediation === 'string' ? ` (repoint: ${actual.remediation})` : '';
+      return `broken link ${actual?.packagePath ?? 'unknown'} -> ${actual?.linkTarget ?? 'unreadable link target'}${hint}`;
+    }
+    if (actual?.presence === 'unreadable' || (actual?.presence === 'resolved' && !actual?.realpath)) {
+      // B-e256-xhr-r12: a probe that could not look, or an installed package
+      // whose realpath will not resolve, must never render as "not installed".
+      const hint = typeof actual?.remediation === 'string' ? ` (repoint: ${actual.remediation})` : '';
+      const reason = actual?.presence === 'unreadable' ? 'probe refused' : 'realpath unresolved';
+      return `unverifiable ${actual?.packagePath ?? 'unknown'} [${actual?.errorCode ?? 'UNKNOWN'}] (${reason}; not known to be absent)${hint}`;
+    }
+    if (!actual?.realpath) {
+      const hint = typeof actual?.remediation === 'string' ? ` (informational; link one with: ${actual.remediation})` : '';
+      return `not installed${hint}`;
+    }
+    const mode = actual?.binMode ?? (actual?.binTarget ? 'missing' : 'unverified');
+    const executable = actual?.executable === null || actual?.executable === undefined ? 'unverified' : actual.executable ? 'yes' : 'no';
+    const unverifiable = typeof actual?.verification === 'string' && actual.verification !== 'ok' ? ` unverifiable=${actual.verification}` : '';
+    const verificationError = actual?.verificationErrorCode ? ` error=${actual.verificationErrorCode}` : '';
+    return `${actual.realpath} version=${actual?.compiledVersion ?? 'unknown'} mode=${mode} executable=${executable}${unverifiable}${verificationError}`;
   }
   if (result.outputKey === 'projectLocalBin') {
     const actual = result.actual as any;

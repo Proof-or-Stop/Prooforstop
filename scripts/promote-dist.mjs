@@ -10,9 +10,52 @@
 //
 // This module imports ONLY node: built-ins, so it adds no third-party dependency to
 // its callers' fresh-checkout footprint.
-import { renameSync, rmSync } from 'node:fs';
+import { chmodSync, lstatSync, readFileSync, realpathSync, renameSync, rmSync } from 'node:fs';
+import { dirname, isAbsolute, join, relative, sep } from 'node:path';
 
-export function promoteDist(dist, staging, trash) {
+function assertParentChainInsideTree(tree, target, realTree) {
+  const parentRelative = relative(tree, dirname(target));
+  let cursor = tree;
+  for (const component of parentRelative.split(sep).filter(Boolean)) {
+    cursor = join(cursor, component);
+    let entry;
+    try {
+      entry = lstatSync(cursor);
+    } catch (error) {
+      if (error && error.code === 'ENOENT') return; // genuinely absent parent: the final target is absent too
+      throw error;
+    }
+    if (!entry.isDirectory() && !entry.isSymbolicLink()) {
+      const error = new Error(`bin target parent is not a directory`);
+      error.code = 'EINVAL';
+      throw error;
+    }
+    let realParent;
+    try {
+      realParent = realpathSync(cursor);
+    } catch (error) {
+      // lstat proved the component exists. ENOENT here therefore means a
+      // dangling/vanished symlink in the parent chain, not a genuinely absent
+      // final bin target, and must not reach the caller's benign ENOENT branch.
+      if (error && error.code === 'ENOENT') error.code = 'EINVAL';
+      throw error;
+    }
+    const underRealTree = relative(realTree, realParent);
+    if (underRealTree === '..' || underRealTree.startsWith(`..${sep}`) || isAbsolute(underRealTree)) {
+      const error = new Error(`bin target parent resolves outside the promoted tree`);
+      error.code = 'EINVAL';
+      throw error;
+    }
+  }
+}
+
+export function promoteDist(dist, staging, trash, options = {}) {
+  // B-e256: the freshly built staging tree came straight out of tsc, which emits every file 0644;
+  // restore the executable bit on package.json `bin` targets ON STAGING, BEFORE the old dist is
+  // evicted. A non-ENOENT stat/chmod failure (EACCES, EROFS, I/O error) throws here and aborts the
+  // promotion while the previous, working dist is still in place — it is never evicted for a tree
+  // whose bin target cannot be made executable. (An absent target / package without `bin` is a no-op.)
+  restoreBinExecutableBits(staging, dist, options);
   // Evict the old dist. ENOENT is the SOLE benign case (a first build has no prior
   // dist to evict); every other error (EACCES, EXDEV, …) surfaces. `evicted` records
   // whether trash now holds the old dist, so the restore path only runs when there is
@@ -49,4 +92,94 @@ export function promoteDist(dist, staging, trash) {
   // build lock and could delete a concurrent live builder's dist.staging (a NEW race), so it was
   // reverted. Fully closing the mid-promotion crash window needs the same immutable-versioned-dir +
   // atomic-current-pointer redesign tracked for the C2(b) microsecond gap; it is NOT implemented here.
+}
+
+// B-e256 (probe rp-mtk46lj8-90q9av): restore the executable bit on package.json `bin` targets.
+// RED symptom: after a rebuild that actually re-emits, `proof-or-stop --version` died with
+// "permission denied" because packages/main/dist/cli.js was 0644. tsc emits every file 0644,
+// and `npm link` / global install chmods the bin target only ONCE at install time — nothing
+// in the build pipeline restored the bit after promoteDist swapped in the fresh dist, so the
+// global symlink (/opt/homebrew/bin/proof-or-stop -> .../dist/cli.js) broke on every re-emit.
+//
+// `tree` is the directory whose files are chmodded; `dist` is the path that tree occupies (or
+// will occupy) once promoted, and defaults to `tree` itself. promoteDist passes the STAGING tree
+// with its final `dist` path so the bits are restored before the old dist is evicted; tests and
+// post-hoc repairs call `restoreBinExecutableBits(dist)` on a promoted tree. package.json is read
+// from `dirname(dist)` (the package root), each `bin` value is package-relative, and its location
+// under `tree` is `join(tree, relative(dist, join(packageRoot, bin)))`. A bin value that resolves
+// OUTSIDE dist is not re-emitted by tsc and is skipped.
+//
+// ORs 0o111 into the mode of each bin target and returns the list of restored bin paths
+// (package-relative). Non-fatal ONLY for the benign shapes: a missing/unparseable package.json or
+// a package without `bin` returns [] and changes nothing (promoteDist behaviour stays byte-identical
+// to before for such packages), and an ABSENT bin target (ENOENT: first build, partial fixture) is
+// skipped per target. Every OTHER stat/chmod failure (EACCES, EROFS, EPERM, I/O error) is
+// PROPAGATED: silently ignoring it (Codex cross-host finding on B-e256) let a promotion report
+// success with a non-executable global bin, and because mode bits are not part of the
+// content-bound build binding, later builds took the fast path and never repaired it.
+// Only node: built-ins (fresh-checkout footprint rule).
+export function restoreBinExecutableBits(tree, dist = tree, options = {}) {
+  const packageRoot = dirname(dist);
+  const readPackageManifest = options.readPackageManifest ?? ((path) => readFileSync(path, 'utf8'));
+  let manifestText;
+  try {
+    manifestText = readPackageManifest(join(packageRoot, 'package.json'));
+  } catch (error) {
+    // A genuinely missing manifest preserves the historical no-op contract.
+    // Every other read failure observed an unknown manifest state and must stop
+    // promotion before the working dist is evicted.
+    if (error && error.code === 'ENOENT') return [];
+    error.message = `restoreBinExecutableBits: cannot read ${join(packageRoot, 'package.json')}: ${error.message}`;
+    throw error;
+  }
+  let bin;
+  try {
+    bin = JSON.parse(manifestText).bin ?? {};
+  } catch (error) {
+    // Syntactically malformed JSON is an explicitly retained compatibility
+    // no-op. Read failures are handled separately above and never reach here.
+    if (!(error instanceof SyntaxError)) throw error;
+    return [];
+  }
+  // npm accepts both `bin: { name: "path" }` and the `bin: "path"` shorthand; only the paths matter.
+  const targets = typeof bin === 'string' ? [bin] : typeof bin === 'object' && bin !== null ? Object.values(bin) : [];
+  const restored = [];
+  let realTree;
+  for (const rel of targets) {
+    if (typeof rel !== 'string') continue;
+    const underDist = relative(dist, join(packageRoot, rel));
+    if (underDist === '' || underDist === '..' || underDist.startsWith(`..${sep}`) || isAbsolute(underDist)) continue; // not inside the promoted tree
+    const target = join(tree, underDist);
+    try {
+      realTree ??= realpathSync(tree);
+      // Resolve every existing parent before looking at the final path. If an
+      // intermediate symlink has escaped and the outside filename is absent,
+      // lstat(target) reports ENOENT; without this precheck that escape was
+      // incorrectly classified as a benign missing bin target.
+      assertParentChainInsideTree(tree, target, realTree);
+      // lstat rejects a symlink at the final path. realpath containment is a
+      // separate, necessary check: an intermediate directory component can be
+      // a symlink whose final referent still looks like a regular file.
+      const targetStat = lstatSync(target);
+      if (!targetStat.isFile()) {
+        const error = new Error(`bin target is not a regular file`);
+        error.code = 'EINVAL';
+        throw error;
+      }
+      const realTarget = realpathSync(target);
+      const underRealTree = relative(realTree, realTarget);
+      if (underRealTree === '' || underRealTree === '..' || underRealTree.startsWith(`..${sep}`) || isAbsolute(underRealTree)) {
+        const error = new Error(`bin target resolves outside the promoted tree`);
+        error.code = 'EINVAL';
+        throw error;
+      }
+      chmodSync(target, targetStat.mode | 0o111);
+      restored.push(rel);
+    } catch (error) {
+      if (error && error.code === 'ENOENT') continue; // absent bin target: nothing to restore
+      error.message = `restoreBinExecutableBits: cannot restore the executable bit on bin target ${rel} at ${target}: ${error.message}`;
+      throw error;
+    }
+  }
+  return restored;
 }

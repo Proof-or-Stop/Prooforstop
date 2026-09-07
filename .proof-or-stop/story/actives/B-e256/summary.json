@@ -1,0 +1,56 @@
+{
+  "storyId": "B-e256",
+  "changes": "The global Proof-or-Stop launcher is rebuilt and verified as executable on POSIX, the npm Windows shim remains the supported Windows path, doctor now reports real launcher state, validation and pre-review proof bind to the active Story, and review-assurance guidance now allocates fresh missing rounds after duplicate or invalid submissions.",
+  "usage": "Run proof-or-stop --version and proof-or-stop doctor from any project; on Windows invoke the installed proof-or-stop.cmd shim. Run review_escalation_status to obtain exact reviewer-host commands when strengthened assurance is required.",
+  "expectedOutcome": "A globally installed Proof-or-Stop command launches without EACCES, reports its version and healthy doctor diagnostics, preserves the Windows npm shim contract, and gives convergent review-assurance commands.",
+  "actualTranscript": "Two complete project validations passed 132/132; the live pre-review proof exited 0 with admissible authority; independent concept, quality, and test-coverage lanes signed PASS; executable-bit, global-core-realpath, Windows shim, and 19-case assurance regression checks passed.",
+  "outcomeDiff": "No material difference: observed behavior matches the expected launcher and assurance outcomes.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Windows behavior is verified hermetically through the npm .cmd shim contract rather than on a native Windows host; remote publication is intentionally not performed.",
+  "pitfalls": "The Story stalled on stale rollout and pre-review receipts after material changes, requiring ordered regeneration and two full validations. A duplicate degraded-r1 command exposed BUG-001; the fix now allocates r2/r3/r4 and skips all occupied run IDs. Preserve the order: rollout, acceptance basis, live proof, pre_review_check, reviewers, delivery, assurance, DONE.",
+  "phaseStats": {
+    "INIT": {
+      "count": 2,
+      "durationMs": 7311981
+    },
+    "INIT_CHECK": {
+      "count": 2,
+      "durationMs": 168056
+    },
+    "PLAN": {
+      "count": 14,
+      "durationMs": 5894126
+    },
+    "DEV": {
+      "count": 39,
+      "durationMs": 103325067
+    },
+    "REVIEW": {
+      "count": 27,
+      "durationMs": 298625149
+    },
+    "TEST": {
+      "count": 12,
+      "durationMs": 18406122
+    }
+  },
+  "totalDurationMs": 433731072,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 1,
+    "fixed": 1,
+    "open": 0
+  },
+  "createdAt": "2026-09-03T01:57:56.411Z",
+  "updatedAt": "2026-09-07T13:44:01.320Z"
+}

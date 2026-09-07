@@ -1,16 +1,16 @@
 {
   "schemaVersion": "lattice.scope_freeze_check.v1",
   "storyId": "B-e256",
-  "checkedAt": "2026-09-02T15:11:08.135Z",
+  "checkedAt": "2026-09-06T16:15:08.256Z",
   "mode": "custom",
   "status": "pass",
-  "scopeBoundaryHash": "af4c132db9bc890f0fc841e19c1d760a544aafd4689da594e84fd805399b5e44",
+  "scopeBoundaryHash": "700f2c5020fc27cb0e6bde01e319f7d3a6e96e3a18a9a88c48ad61b7974e5f7e",
   "executionBoundaryHash": "3487e9148b7bbf49ae16bdba4026b525d11f087aae7600cf76f955a0cd0ee015",
-  "freshnessHash": "8a9a3b2499b28a812de02d65bed43a78fadc066ae47fe0931f650c6fd3dbc2c6",
+  "freshnessHash": "3adbdf91cacce03688095a02fa041153bbf86c4fb98ee32002456f82b301c879",
   "effectiveExcludedKeywords": [
     "Any change to Codex adapter entrypoint authority rules",
-    "Changing how npm link / global install is performed or automating the reinstall",
-    "Rewriting the build lock or dist promotion crash-safety design (B-1734)"
+    "Changing how npm link or global install is performed, or automating the reinstall",
+    "Rewriting the build lock or weakening the dist promotion crash-safety design from B-1734"
   ],
   "keywordHits": [
     {
@@ -20,19 +20,19 @@
       "excluded": true
     },
     {
-      "keyword": "Changing how npm link / global install is performed or automating the reinstall",
+      "keyword": "Changing how npm link or global install is performed, or automating the reinstall",
       "source": "scopeBoundary.excluded",
-      "text": "Changing how npm link / global install is performed or automating the reinstall",
+      "text": "Changing how npm link or global install is performed, or automating the reinstall",
       "excluded": true
     },
     {
-      "keyword": "Rewriting the build lock or dist promotion crash-safety design (B-1734)",
+      "keyword": "Rewriting the build lock or weakening the dist promotion crash-safety design from B-1734",
       "source": "scopeBoundary.excluded",
-      "text": "Rewriting the build lock or dist promotion crash-safety design (B-1734)",
+      "text": "Rewriting the build lock or weakening the dist promotion crash-safety design from B-1734",
       "excluded": true
     }
   ],
   "repeatDiscardOverlaps": [],
   "issues": [],
-  "_hash": "6e755ffe939a34d95e42fee0d2a3735db2371de2ae391f3e07910114dcff75cd"
+  "_hash": "11cdceb5060a6a6004ee0b6b800de31517be856970d0219bdce9c86bf6e99e75"
 }
