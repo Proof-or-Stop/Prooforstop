@@ -21,7 +21,7 @@
   "allowedPaths": [
     ".proof-or-stop/story/actives",
     "docs/audits/inventory-critic-purpose-isolation.md",
-    "packages/main/src/cli/main-tools.ts",
+    "packages/main/src/cli/command-catalog.ts",
     "packages/main/src/core/agent-dispatch-registry.ts",
     "packages/main/src/core/process-fact-registry.ts",
     "packages/main/src/core/prompt-role-contract-registry.ts",
@@ -51,9 +51,9 @@
     ".worktrees/B-7abb",
     "docs/requirements/decisions/dynamic-finding-system-execution-plan.md"
   ],
-  "confirmedBy": "story_create",
-  "confirmationNote": "Use official Story lifecycle in a separate local repair worktree; do not mutate frozen consumers.",
-  "createdAt": "2026-09-07T08:12:38.878Z",
-  "updatedAt": "2026-09-07T08:12:38.878Z",
-  "_hash": "2df64bdfe8b688ceb28e871a8d6ef0e51da8c51ea9f0772130b76fdd6c111a2c"
+  "confirmedBy": "main",
+  "confirmationNote": "Correct schema implementation path to command-catalog.ts before INIT review freeze; preserve all command, scope and consumer exclusions.",
+  "createdAt": "2026-09-07T08:14:06.693Z",
+  "updatedAt": "2026-09-07T08:14:06.693Z",
+  "_hash": "4ed7f5d82d4c98f024f5a79df6bcc64ef60232fbf9be7b260a54d720ad6d3c08"
 }

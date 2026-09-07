@@ -1,0 +1,80 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-29bc",
+  "checkedAt": "2026-09-07T08:14:45.045Z",
+  "mode": "custom",
+  "status": "pass",
+  "scopeBoundaryHash": "78776d1964faaeff0447ec74463412ba58468ef37f7d1170f68b42409c1ded5d",
+  "executionBoundaryHash": "4ed7f5d82d4c98f024f5a79df6bcc64ef60232fbf9be7b260a54d720ad6d3c08",
+  "freshnessHash": "6e5df599945ac72dbc35c029c401d67af72830f00ae4cf0e79b417ce7891fefa",
+  "effectiveExcludedKeywords": [
+    "B-03b7 implementation changes",
+    "B-7abb classifier changes",
+    "Dynamic Finding policy amendments",
+    "Git author rewriting or fake actor attribution",
+    "Remote publication",
+    "Removing or bypassing mandatory lifecycle checks",
+    "Topology business-author independence changes",
+    "Unrelated framework cleanup"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "B-03b7 implementation changes",
+      "source": "scopeBoundary.excluded",
+      "text": "B-03b7 implementation changes",
+      "excluded": true
+    },
+    {
+      "keyword": "B-7abb classifier changes",
+      "source": "scopeBoundary.excluded",
+      "text": "B-7abb classifier changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Dynamic Finding policy amendments",
+      "source": "scopeBoundary.excluded",
+      "text": "Dynamic Finding policy amendments",
+      "excluded": true
+    },
+    {
+      "keyword": "Git author rewriting or fake actor attribution",
+      "source": "scopeBoundary.excluded",
+      "text": "Git author rewriting or fake actor attribution",
+      "excluded": true
+    },
+    {
+      "keyword": "Remote publication",
+      "source": "checklist.excludes",
+      "text": "Remote publication",
+      "itemId": "CHK-002",
+      "excluded": true
+    },
+    {
+      "keyword": "Remote publication",
+      "source": "scopeBoundary.excluded",
+      "text": "Remote publication",
+      "excluded": true
+    },
+    {
+      "keyword": "Removing or bypassing mandatory lifecycle checks",
+      "source": "scopeBoundary.excluded",
+      "text": "Removing or bypassing mandatory lifecycle checks",
+      "excluded": true
+    },
+    {
+      "keyword": "Topology business-author independence changes",
+      "source": "scopeBoundary.excluded",
+      "text": "Topology business-author independence changes",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated framework cleanup",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated framework cleanup",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [],
+  "issues": [],
+  "_hash": "85839165a6337e8adfd81bb715f851ab61027d434ad94a2dfe4d169a65865198"
+}

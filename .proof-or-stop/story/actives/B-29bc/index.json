@@ -4,7 +4,7 @@
   "title": "Separate inventory completeness dispatch from topology business-author admission",
   "description": "Repair B-7abb BUG-CRITIC-PROVENANCE-001 by giving inventory completeness review an explicitly bounded dispatch purpose. Preserve real Harmonynet Git attribution, independent signed review evidence, current inventory bindings, and the unchanged topology business-independence contract. No fallback after a topology refusal, no fabricated implementer author, and no authority promotion from inventory completeness to topology or lifecycle completion.",
   "type": "bug",
-  "phase": "INIT",
+  "phase": "INIT_CHECK",
   "priority": "high",
   "keywords": [
     "inventory-critic-purpose",
@@ -22,6 +22,20 @@
       "user": "Harmonynet",
       "sessionId": "codex-01a05441-inventory-recovery-owner",
       "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-07T08:15:49.646Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "codex-01a05441-inventory-recovery-owner",
+      "agent": "main"
     }
-  ]
+  ],
+  "worktree": {
+    "path": ".worktrees/B-29bc",
+    "branch": "story/B-29bc",
+    "createdAt": "2026-09-07T08:15:40.684Z"
+  }
 }
