@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "18aa727790888700f2a1caa788067bd177d68ca85164cf83558d53a688f2b84c",
+  "committedLedgerDigest": "eb56f16a98f65eacc6550ed9b4f16a78b003e559cff5604eb8f7b726baa31f46",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -1783,6 +1783,63 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T00:45:43.366Z"
+    },
+    {
+      "recordId": "lr_mtqj3y3n_r6_a47a35c0e44b439e90096f317904290b",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:e83bd8ff-f0ef-4394-b3f7-62962dd006ac",
+      "payload": {
+        "id": "B-e256:F-052",
+        "desc": "windows-command-shim-posix-single-quote false pass: packages/main/src/core/runtime-environment-checks.ts:765-769 tokenizes both double-quoted and single-quoted strings, then lines 780-798 use those tokens to certify a PATH-selected Windows .cmd shim. cmd.exe does not treat single quotes as quoting. Current compiled-runtime probes using a canonical package/target/version returned global-core-realpath status=pass, verification=ok, executable=true and emitted `contract: global-core-realpath-pass` for both `'node' \"<canonical-target>\" %*` and `node '<canonical-target>' %*`; on cmd.exe the first command name includes apostrophes and is not the standard Node runtime, while the second passes apostrophes as literal target characters rather than invoking the canonical file. The focused global-core-realpath suite remains green and contains no single-quote shim mutation. This is distinct from F-047 runtime-variable binding, F-049 unreachable control flow, and F-050 target-base-variable binding: it is cross-shell tokenization/quoting semantics. Parse .cmd using cmd.exe quoting rules or reject single-quoted runtime/target tokens, and add both negative mutations so neither can emit the healthy marker. severity: high",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-07T00:55:15.298Z",
+        "reviewRound": "2026-09-07T00:35:44.550Z",
+        "reviewRunId": "B-e256:RR-158",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-e256/background.md",
+            ".proof-or-stop/story/actives/B-e256/checklist.json",
+            ".proof-or-stop/story/actives/B-e256/plan.md",
+            ".proof-or-stop/story/actives/B-e256/proofstory.json",
+            ".proof-or-stop/story/actives/B-e256/summary.json"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-e256/findings.json",
+            "packages/main/src/core/runtime-environment-checks.ts",
+            "packages/main/tests/global-core-realpath.test.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "04ed70747814c710760747e70701dc1160a6d0cd313ff6efd562c97f4b708db9",
+        "files": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json"
+        ],
+        "signatureTag": "windows-command-shim-posix-single-quote-false-pass",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "f7818279cbcf848b0bd5b918b4870be814f2e79c20857f9a271c8a8f9d10adca",
+      "priorDigest": "18aa727790888700f2a1caa788067bd177d68ca85164cf83558d53a688f2b84c",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T00:55:15.299Z"
     }
   ],
   "receipts": [
@@ -4089,6 +4146,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "11674fd9aac3ded5b1bb6e980e16fe8a056706558caaf1d2208c0f38eeae459b",
         "signature": "WJY8QE1vPFngvKNLfbTZ9UnkqdK/zIrC5uXD8yMVYYVzH4jlkMhh5w520XcnzyFHPynAc/MkynkDVmgFx9uzDg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqj3y3o_r6_8d8c7bc3dacd47e2b35a3411310233d6",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:e83bd8ff-f0ef-4394-b3f7-62962dd006ac",
+      "requestDigest": "1c92541ba5ce6fbfec0a78ca9ac355199728cd3d7e932fb5f04fccddc7830278",
+      "recordIds": [
+        "lr_mtqj3y3n_r6_a47a35c0e44b439e90096f317904290b"
+      ],
+      "priorLedgerDigest": "18aa727790888700f2a1caa788067bd177d68ca85164cf83558d53a688f2b84c",
+      "committedLedgerDigest": "eb56f16a98f65eacc6550ed9b4f16a78b003e559cff5604eb8f7b726baa31f46",
+      "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+      "writerFenceToken": "b54a3f50-216a-4fe7-b4fe-fd38637801fb",
+      "committedAt": "2026-09-07T00:55:15.299Z",
+      "replayed": false,
+      "exactRequestDigest": "ac8419ad702d05cdd3683cc98530a76e9208210058fcc27a1f8e633273a63c94",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqj3y3o_r6_8d8c7bc3dacd47e2b35a3411310233d6",
+        "storyId": "B-e256",
+        "idempotencyKey": "finding_add:e83bd8ff-f0ef-4394-b3f7-62962dd006ac",
+        "exactRequestDigest": "ac8419ad702d05cdd3683cc98530a76e9208210058fcc27a1f8e633273a63c94",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqj3y3n_r6_a47a35c0e44b439e90096f317904290b"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "18aa727790888700f2a1caa788067bd177d68ca85164cf83558d53a688f2b84c",
+        "committedLedgerDigest": "eb56f16a98f65eacc6550ed9b4f16a78b003e559cff5604eb8f7b726baa31f46",
+        "replayed": false,
+        "committedAt": "2026-09-07T00:55:15.299Z",
+        "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "b54a3f50-216a-4fe7-b4fe-fd38637801fb",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "1e29ea95e5f65cc73fcce19d0ebe879e62853883fc209bc59ec01d78a7b00682",
+        "signature": "FHYg1kzLM7wnECeQiO2zOKpbkwrLE/SbCHq3l0hCi843E9SY2qKPiGX2Xj3GhYxppT0lNxxMrM/apI1rccqyCA=="
       }
     }
   ]
