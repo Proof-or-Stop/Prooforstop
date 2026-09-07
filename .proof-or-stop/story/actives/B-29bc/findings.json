@@ -91,6 +91,52 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3bqf9_z2r_134dda58f32d4484a52e6e2d7d08ac90",
       "ledgerCommitReceiptId": "lrc_mtr3bqf9_z2r_3300db2b32f34ba5b64d0afca89f0a73"
+    },
+    {
+      "id": "B-29bc:F-003",
+      "desc": "doc-promise-undelivered: The new implementation audit asserts a terminal-read refusal which the current implementation does not enforce. docs/audits/inventory-critic-purpose-isolation.md:26-27 says terminal records still require signed reading evidence; lines 86-87 specifically assert missing/tampered terminal reads remain refusals. The controlling retained contract at docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md:129-140 explicitly requires BOTH readManifest and readLog. However packages/main/src/core/review-inventory-epoch.ts:309 admits run passes using verifyReviewPass alone, unlike the adjacent finding predicate which requires both fields; lines 317-318 include null missing read logs in the coverage digest. The current-round canonical run context and official finding_list preserve verified open B-29bc:F-001, whose real RP-001/RP-002/RP-004 and RR-005 witness confirms admission without mechanical logs. Fresh RI-002 terminal logs do not repair that predicate or make the broad audit assertion true. This is the documentary-contract manifestation of F-001, not a separately invented runtime root cause; preserve the original Finding and link this observation during owner disposition. Critical severity follows this lane's mandatory closing rule for newly added promised-but-undelivered behavior. Applicability candidate: CHK-002's accurate English recovery audit and CHK-001's preserved terminal-read guarantee. Correct the scoped consumer/producer behavior and its negative control through authorized DEV, or accurately qualify the audit to the actual proved boundary without waiving the controlling acceptance contract. B-29bc:F-002 also remains verified/open; this record neither repairs nor dismisses either original. The integrated two-item diff otherwise introduces a purpose-specific carrier/signature binding rather than deleting a concept en masse; preserved legacy topology defaults and compatibility aliases are intentional. No actual host assurance or topology certificate is inferred from fixture successes.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T10:28:46.062Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-006",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "b62a5f8a6548d8a83c08a313f8c79fa3af0ba6a15a52907ee4fba5f0446f8938",
+      "files": [
+        "docs/audits/inventory-critic-purpose-isolation.md",
+        "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "packages/main/src/core/review-inventory-epoch.ts",
+        "packages/main/src/handlers/finding.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-implementation",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr3lhm8_ebo_bd9e5dd0228e4ae1b26305f8875a0347",
+      "ledgerCommitReceiptId": "lrc_mtr3lhm8_ebo_6786804b131c49799f130a389cf95d3b"
     }
   ]
 }
