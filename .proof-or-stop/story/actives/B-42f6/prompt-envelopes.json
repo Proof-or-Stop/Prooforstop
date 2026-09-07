@@ -1754,6 +1754,151 @@
       "fullContextBytes": 120278,
       "incrementalContextBytes": 22950,
       "escalatedToFull": false
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-quality",
+      "storyId": "B-42f6",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-42f6:RR-021",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "lane": "proof-or-stop-review-quality",
+      "dispatchPromptDigest": "b09d0bb3b5a7bb952e124c80d036996ecf9cfed1b2c9d2c96bb463ecbcbe0a85",
+      "hostRenderIdentityDigest": "571816810e58bc250da489855f5d9ca4fc6cc64035048ad1ef97c7c238f39e00",
+      "createdAt": "2026-09-07T10:56:32.556Z",
+      "headHash": "cef73dfde77f26a794bcab9181cf5d2b329cb7b8",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "db1ded0feb790b52d503493df206bfa48daef517bbc0db97fdd27e369b1dd9c4",
+      "roleRenderDigest": "7549f3d81837aa403fe7fdb6f6bf19668d07e50ebcecb893592758a276cfcb21",
+      "contextMode": "full",
+      "contextDigest": "cd24257cda1afecaf23a7e51f31c61a4e91b44d118bd8125d5ee78fe6e5e1ee2",
+      "materialHash": "770d3acdffcf523934037aa8ed31fa836f5feb9b5ee672a75484e36c6183535f",
+      "storyFilesHash": "e9a94826cc477646fd0ec3cdf8b17f396e9d4847878dc815e1adca1f3c999c20",
+      "policyHash": "53de2614bf41593278d92c693202883cb4bc8c914f25eaad899d8cb0023da9ed",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "762db09cd80ffd37b17bb97987cb906caa8f5074c4d35b2c25a094e1b7608fdf",
+      "knownExecutionEnvironmentDigest": "b2a618bd210256e971014f5a7a68c7235ac51cac82f585d7646100015c82f97e",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "313772706ce1f41cb44a637e42feca63b62eef4368f9f2af05261af2dde654e7",
+      "commandPolicyDigest": "944708010e82c1b75abb0801def1c3b2e20965c66eae008e984ed976849e069c",
+      "assembledPromptDigest": "16683d44a947ccd144437bd6268998283a21d798c6522cf14b5539b85eab515a",
+      "bytes": 123765,
+      "lines": 193,
+      "estimatedTokens": 30942,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "bd34120fdc321dcee67e8d20199ac35ff7f79a1bb2df2b3db4e19313e1228acb",
+      "priorPassRef": "B-42f6:RP-008",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "20ff24debefeb22c2632eab5c05556db1cd933bd8c572664366491a93903648a",
+      "impactedFilesDigest": "abc56b13a341acc696248ae271b3c4c4e9a06521a10f8a45b95e4f2572a7e2e7",
+      "taskSemanticDigest": "83fbcaa4193bfde216142d323657f383e77c068ec469f4c89e1b35520c4a05a0",
+      "findingProjection": [
+        {
+          "id": "B-42f6:F-001",
+          "createdAt": "2026-09-07T10:08:59.758Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/graph/src/shells/web/playback.js\", \"line\": 42, \"reason\": \"PLAYBACK_BRAND is \\\"Proof-or-stop\\\" (lowercase s), which does not match the canonical product name PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' declared in packages/main/src/core/proof-or-stop-brand.ts:20 and mandated by docs/requirements/decisions/brand-rename-mapping.md:93 ('Prose / product name | Proof-or-Stop'). This casing is unique in packages/** (grep for 'Proof-or-stop' returns only this line) and is user-visible in three places: the exported MP4/GIF chrome heading (line 1844), the playback modal heading (line 2381) and the post-load heading (line 2821). It does not trip a gate: verify-proof-or-stop-residue.mjs detects retired brand names (lattice/Proofbound spellings), not casing variants of the canonical name, so the residue scan of packages/graph/src passes. Cosmetic branding inconsistency in a rendered export surface, not a correctness or gate defect.\", \"severity\": \"low\"} Independent assessment: Exact user-requested Proof-or-stop casing and preservation from c8263eb450 control over generic casing guidance. No current requirement defect verified. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-002",
+          "createdAt": "2026-09-07T10:09:03.370Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 143, \"reason\": \"The new loop's normalizeNestedSpaceAlias assertion (lines 144-145) duplicates the pre-existing assertion at lines 132-137, which already covers the empty prefix with the identical expectation. The genuinely new coverage in this block is the actual runCli help-equivalence check (146-148) and the unknown-action CLI rejection (150-152); the alias re-assertion adds no discrimination. Redundant test coverage only, no false-pass risk.\", \"severity\": \"low\"} Independent assessment: Redundant assertion is real but adds no false-pass risk; adjacent real CLI checks add coverage. Informational cleanup observation, not verified acceptance defect. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-003",
+          "createdAt": "2026-09-07T10:09:06.975Z",
+          "status": "dismissed",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/handlers/scope-contract.ts\", \"line\": 446, \"reason\": \"Third writer `scope_contract_acknowledge` persists via store.writeScopeContract without the new validateFullTaskScopeContext(projectScopeInventory(...)) guard that scope_contract_set (line 197) and scope_contract_init_from_plan (line 354) now apply. It only appends acknowledgements and merges originalPathInputs, so it cannot itself push a path list past 4096 entries; but the projected scope is byte-budgeted in aggregate and the acknowledge path is the one writer that can grow a contract unboundedly (unbounded acknowledgements array, and canonicalAckPaths.originals merged into originalPathInputs). originalPathInputs and acknowledgements are not part of projectScopeInventory's output, so the serialized-byte budget is not currently reachable through this path \\u2014 the gap is that the writer-side invariant is enforced at two of three writers by construction rather than at a single choke point. Per the project's Handler encoding convention (every consuming point revalidates), a future field promoted into the projection, or a future acknowledge-time scope widening, would bypass the boundary silently. Non-blocking for this candidate: not reachable today, no gate evidence is falsified.\", \"severity\": \"medium\"} Independent assessment: Acknowledgement writes only nonprojected fields today. Hypothetical future projection changes are not a verified current bypass. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-004",
+          "createdAt": "2026-09-07T10:09:10.634Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/core/scope-inventory-budget.ts\", \"line\": 10, \"reason\": \"SCOPE_INVENTORY_LISTS deliberately omits protectedAnchors, which validateFullTaskScopeContext keeps at the generic FULL_TASK_CONTEXT_LIMITS.pathsPerList (512) via the defaulted requireBoundedStringArray at prompt-contracts.ts:893. This asymmetry is intentional and tested (the 513-anchor negative case asserts /512/), and it is defensible \\u2014 anchors are not exact path authority. The observation is that the two limits now diverge silently with no comment at the SCOPE_INVENTORY_LISTS definition explaining that protectedAnchors is excluded on purpose; the only place the intent is recorded is the file-header doc comment. A future editor adding a new exact-authority list to FullTaskScopeContext gets the 512 default rather than 4096, or conversely widens anchors by accident. Documentation/robustness observation only.\", \"severity\": \"low\"} Independent assessment: Generic512 anchor limit is intentional and negatively tested. Comment recommendation does not demonstrate a current failure. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-005",
+          "createdAt": "2026-09-07T10:09:14.267Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 146, \"reason\": \"The new nested-Lab help assertion normalizes with `.replaceAll('lab <sub>', 'lab_<sub>')` on the nested output before comparing to the flat output. That substitution is broad enough to also rewrite any incidental occurrence of the display alias inside help prose, so the equality check proves 'same help body modulo every alias spelling' rather than 'same help body with only the invocation line differing'. It cannot produce a false PASS for a missing or wrong handler (a divergent body still fails), so this is a precision limitation of the assertion, not an unsound test. Retained local CLI negative coverage (unknownLab: nonzero status + /Unknown command: lab/ on stderr) is correct and does spawn a real process.\", \"severity\": \"low\"} Independent assessment: Alias-normalized help comparison has the stated precision limit but no wrong-handler pass is demonstrated. No current acceptance defect verified. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-006",
+          "createdAt": "2026-09-07T10:30:58.022Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 configured validation depends on unavailable machine-local historical probe rp-mtifubae-dfbh4w. Frozen final suite /private/tmp/B-42f6-final-validate.json reports 131 pass/1 fail; this guard fails repro_probe_get with evidence-store: artifact ref not found: rp-mtifubae-dfbh4w (parseCliJson line79). Independent single-command reproduction in source-equivalent /private/tmp/prooforstop-main-publication-20260907, after adding clone-only main worktree identity anchor, yields identical failure. Guard is byte-identical remote c853ab5e63, but directly blocks this integration verification intent/full required validation; current-Story repair required rather than dismissal. Historical B-fe8f records preserve IDs/digests and original-host filesystem references, not complete recoverable objects. Repair must retain actual baseline/current runtime checks and real corrupted-relation-digest rejection using authenticated historical artifact recovery or canonical fresh temporary evidence fixtures; no fabricated historical artifact, hardcoded PASS, skipped guard or widened mirror bypass."
+        },
+        {
+          "id": "B-42f6:F-007",
+          "createdAt": "2026-09-07T10:31:56.293Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Corroborating concept contribution to canonical B-42f6:F-006, same defect family rather than an independent repair request: red-bfe8f-ledger-runtime-integrity.mjs:408 treats a machine-local historical probe artifact as a required portable validation input. The current configured full suite fails on missing rp-mtifubae-dfbh4w, so the integration promise that mandatory verification runs on the merged checkout remains unmet. Read the canonical F006 reproduction and current source probe lookup; preserve actual baseline/current execution and authenticated relation-negative checks when repairing. No PASS is recorded and no historical artifact may be fabricated."
+        },
+        {
+          "id": "B-42f6:F-008",
+          "createdAt": "2026-09-07T10:32:27.521Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Coverage contribution to B-42f6:F-006: packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 requires historical probe rp-mtifubae-dfbh4w in the actual repository runtime. Executed configured validation /private/tmp/B-42f6-final-validate.json reports status fail/allPass false across132commands and the exact artifact-ref-not-found assertion. Five passing pinned intents cannot establish the plan promise that required configured validation passes. Repair and reverify this acceptance blocker before final acceptance; this contribution records coverage/gate impact of the quality observation. Do not weaken the assertion or fabricate historical evidence to obtain green validation."
+        },
+        {
+          "id": "B-42f6:F-009",
+          "createdAt": "2026-09-07T10:35:20.114Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 wave-2 reconfirmation of existing canonical blocker B-42f6:F-006, duplicate observation only, no new defect family. Candidate source unchanged; line408 still calls repro_probe_get for fixed rp-mtifubae-dfbh4w. Existing frozen full132 artifact /private/tmp/B-42f6-final-validate.json and independent clean-clone single-check both fail with evidence-store: artifact ref not found: rp-mtifubae-dfbh4w. No source repair or new test execution occurred this wave. F-006 remains unresolved and directly blocks required validation; do not interpret this contribution as PASS, repair or deferral. Route this observation to canonical F-006 for current-Story repair."
+        },
+        {
+          "id": "B-42f6:F-010",
+          "createdAt": "2026-09-07T10:35:44.540Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI003 wave2 reaffirmation of canonical B-42f6:F-006, same missing-historical-ledger-probe family. Unchanged source still requires absent rp-mtifubae-dfbh4w at red-bfe8f-ledger-runtime-integrity.mjs:408. The observed full-suite failure prevents the promised verified integration. No new defect family or repair is claimed; canonical F006 remains the mandatory repair target and this lane records no implementation PASS."
+        },
+        {
+          "id": "B-42f6:F-011",
+          "createdAt": "2026-09-07T10:35:47.918Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI-003 wave2 duplicate contribution to canonical B-42f6:F-006 and prior coverage F-008; no new defect family. Fresh inspection confirms unchanged source at packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 and existing full132 validation failure for missing historical probe rp-mtifubae-dfbh4w. The plan requires configured validation success; the five passing pinned receipts cannot replace that missing acceptance evidence. No code diff since wave1 and no new execution is claimed. Keep the canonical blocker for repair and genuine verification; this terminal does not claim PASS or resolved status."
+        }
+      ],
+      "findingProjectionDigest": "e6074ce7866cec9352e7434dae02fce873d3b1f6ff6e890ba091c88354a01655",
+      "reviewBasisDigest": "149d16fd7bfd06399592cab0515db4c97c3fbfcaa44f7cf6ef16cb312d9a9e49",
+      "incrementalContextDigest": "c3b4959969bc269180235e0a0c98b4df4cfcebe15e1a236680bdcfe90844220e",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 123765,
+      "incrementalContextBytes": 22283,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
     }
   ]
 }
