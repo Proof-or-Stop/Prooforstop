@@ -536,9 +536,9 @@
       "epochId": "B-29bc:RI-007",
       "storyId": "B-29bc",
       "reviewRound": "2026-09-07T17:10:43.986Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-07T17:11:19.330Z",
-      "updatedAt": "2026-09-07T17:23:29.164Z",
+      "updatedAt": "2026-09-07T17:31:59.628Z",
       "cutoff": {
         "headHash": "a36b3b36af5d127e0cfade64868c27ed9ce9957f",
         "materialHash": "43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b",
@@ -612,10 +612,72 @@
           "criticDigest": "db627b0de29546e6857a7f99613863f192bbe21cf1154d9a0744dfc9ce99819a",
           "saturated": false,
           "nextRunSequenceBoundary": 47
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-07T17:23:29.164Z",
+          "completedAt": "2026-09-07T17:31:26.776Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-29bc:RR-048",
+              "terminal": "finding",
+              "hostIdentity": "e2f27b534f970f06ecfbec1f665549217e11909770cccfd2bf2e695e82b32401",
+              "promptIdentity": "20423be8c1f278c708d6f88b49e182b4914761de11d3e13e8f1bbcf573ac3a9b",
+              "evidenceIds": [
+                "B-29bc:F-007"
+              ],
+              "coverageDigest": "d729e81a32c98b8186b4028c2f8011e9d305e9edf4a5656f2eef6e7f471d981d"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-29bc:RR-050",
+              "terminal": "finding",
+              "hostIdentity": "e2f27b534f970f06ecfbec1f665549217e11909770cccfd2bf2e695e82b32401",
+              "promptIdentity": "1e1c38520dfc3921122736b0afddb29e4e93b9e42fdefabaa0515d737f19c0c3",
+              "evidenceIds": [
+                "B-29bc:F-009"
+              ],
+              "coverageDigest": "da400515445c546c47631f975a0231c292eeef7616a9426220186be363679304"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-29bc:RR-049",
+              "terminal": "finding",
+              "hostIdentity": "e2f27b534f970f06ecfbec1f665549217e11909770cccfd2bf2e695e82b32401",
+              "promptIdentity": "5cdc81cf18a7f0e6cee95931a91f6decdd5dcec5a0b9824e68f50feb6b80b977",
+              "evidenceIds": [
+                "B-29bc:F-008"
+              ],
+              "coverageDigest": "034ab9b951e4380a49cb1df5170bb5b22ec65b7c9250e88c44bbf5fff41e6cdd"
+            },
+            {
+              "lane": "proof-or-stop-review-docs",
+              "reviewRunId": "B-29bc:RR-051",
+              "terminal": "pass",
+              "hostIdentity": "e2f27b534f970f06ecfbec1f665549217e11909770cccfd2bf2e695e82b32401",
+              "promptIdentity": "0e7b39958d0d61b628d434a0cb5073a4af0c0dd02ca0a1a83ef84d4c8516ea61",
+              "evidenceIds": [
+                "B-29bc:RP-038"
+              ],
+              "coverageDigest": "668f51d74f053c4af7b2bbdf02aec804ad91dced9397e593f21e1769b794e0c1"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-29bc:F-005"
+          ],
+          "verifiedFindingSetDigest": "17c5c79fae750f6cca3c750908ecc6f211fbf4a31bffd8642a86db9fcf109cb8",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "5ef1ccdbf45df4c0abac259aab397518fcebaf18f4b544b9aed275f317647143",
+          "saturated": true,
+          "nextRunSequenceBoundary": 52
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "b796a1057fdfdabb3032a4f3ec6c01253e17d7bfdc7ff6a374bb99c20f31e539"
+      "receiptId": "B-29bc:RI-007:RCP-001",
+      "consumedAt": "2026-09-07T17:31:59.628Z",
+      "consumedByReviewRound": "2026-09-07T17:10:43.986Z",
+      "_hash": "d89c7e8c8c24e77f400186d2aed9657bfe54aaa80b72035ee5b2dd30b49b8fd9"
     }
   ],
   "receipts": [
@@ -758,6 +820,34 @@
       "issuedAt": "2026-09-07T16:04:01.088Z",
       "consumedAt": "2026-09-07T16:04:46.225Z",
       "_hash": "be393cabc9596bd833d6091344794d9be282e8138bf31fd7b91acda136d6bb78"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-29bc:RI-007:RCP-001",
+      "epochId": "B-29bc:RI-007",
+      "storyId": "B-29bc",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "cutoff": {
+        "headHash": "a36b3b36af5d127e0cfade64868c27ed9ce9957f",
+        "materialHash": "43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b",
+        "storyFilesHash": "6ba1ae8bec78df00939425d6b2bc024c4b19a1a393a285fed1a2e808970704a0"
+      },
+      "scopeDigest": "f934311220950689bb89291f27ff4b0d8e250d50237243316dfb047aff9eafd2",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage",
+        "proof-or-stop-review-docs"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "17c5c79fae750f6cca3c750908ecc6f211fbf4a31bffd8642a86db9fcf109cb8",
+      "coverageDigest": "2397e0a1c959304610324f73248dfc61aa3127c33306929c90c858b522a2a106",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T17:31:26.776Z",
+      "consumedAt": "2026-09-07T17:31:59.628Z",
+      "_hash": "ab39b0fa0ee2851afbaf0b4e78fbd0488ab5582268a39a936ecee45201e0f6ce"
     }
   ],
   "criticReceipts": [
@@ -1074,6 +1164,66 @@
       ],
       "createdAt": "2026-09-07T17:22:36.868Z",
       "_hash": "dc7e4ba423cca46c916ab0ab2dad8cb78a24ff0bd28d0a50b9b1d2139504bfdc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-29bc:RI-007:CRIT-02",
+      "epochId": "B-29bc:RI-007",
+      "storyId": "B-29bc",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "a36b3b36af5d127e0cfade64868c27ed9ce9957f",
+        "materialHash": "43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b",
+        "storyFilesHash": "6ba1ae8bec78df00939425d6b2bc024c4b19a1a393a285fed1a2e808970704a0"
+      },
+      "aggregateFindingSetDigest": "17c5c79fae750f6cca3c750908ecc6f211fbf4a31bffd8642a86db9fcf109cb8",
+      "requiredLaneCoverageDigest": "71033825a6534bf1098b4e94d2a59cb6571b0e7129881f7c4daa147c346eb989",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-29bc:RR-052",
+      "reviewPurpose": "inventory-completeness",
+      "inventoryBinding": {
+        "storyId": "B-29bc",
+        "epochId": "B-29bc:RI-007",
+        "reviewRound": "2026-09-07T17:10:43.986Z",
+        "wave": 2,
+        "cutoff": {
+          "headHash": "a36b3b36af5d127e0cfade64868c27ed9ce9957f",
+          "materialHash": "43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b",
+          "storyFilesHash": "6ba1ae8bec78df00939425d6b2bc024c4b19a1a393a285fed1a2e808970704a0"
+        },
+        "scopeDigest": "f934311220950689bb89291f27ff4b0d8e250d50237243316dfb047aff9eafd2",
+        "requiredLanesDigest": "ba00ad1fce574db2b6f0bac705e2a6fee4e2f5d2962ec5fd666626a447444141",
+        "runSequenceBoundary": 47
+      },
+      "terminalEvidenceIds": [
+        "B-29bc:RP-039"
+      ],
+      "readEvidenceDigest": "afc7eefa138d58a9feb961702cc5b89316d072549b88d69523551a57383a8df7",
+      "findingDispositions": [
+        {
+          "findingId": "B-29bc:F-007",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-29bc:F-005",
+          "reason": "F-007 is the current-wave documentary carrier of the original verified F-005 test-signing defect, already certified as family finding:B-29bc:F-005 in wave1. Its same lines516/529 and signer/verifier mismatch cause the audit semantic-coverage overclaim and require the same owner-tracked test-plus-audit repair. Preserve its critical severity and all prior observations; this family assignment is neither a new root nor repair/resolution."
+        },
+        {
+          "findingId": "B-29bc:F-008",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-29bc:F-005",
+          "canonicalFindingId": "B-29bc:F-007",
+          "reason": "Signed current coverage observation repeats the original F-005 cause, exact two constructors and same bounded repair. It directly references current verified_family carrier F-007 with matching existing F-005 family key as required by the runtime same-wave duplicate predicate. No cycle, status rewrite or loss of original F-005/F-006 history."
+        },
+        {
+          "findingId": "B-29bc:F-009",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-29bc:F-005",
+          "canonicalFindingId": "B-29bc:F-007",
+          "reason": "Signed current quality observation repeats original F-005 with unchanged source and same true/false/true signer witness. Current carrier F-007 represents that existing family; direct matching-key linkage is acyclic and does not reduce severity or resolve any observation. The exact three-ID disposition set passed the production evaluator with no invalid/unresolved IDs and zero new families before terminal publication."
+        }
+      ],
+      "createdAt": "2026-09-07T17:30:57.356Z",
+      "_hash": "9665b652cffdaa1b1d0c956e8e1aa765d5616101064d63faec15ed4017575494"
     }
   ]
 }
