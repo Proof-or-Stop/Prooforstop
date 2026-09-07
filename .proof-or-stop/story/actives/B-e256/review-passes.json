@@ -6363,6 +6363,42 @@
         "scanEscalationReason": null
       },
       "_hash": "f3769c232808c6e4b755ef86a4872a4bee2a4a764c410fb819148068e61bed64"
+    },
+    {
+      "id": "B-e256:RP-144",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed: 18/18 intents have evidence (16/16 required mechanically covered; 2 should intents have non-mechanical transcripts), 0 must gaps, 0 waivers, and current routine validation is PASS with 133/133 commands. Post-main merge coverage is biting: BUG-001 review-assurance-floor smoke passes 19 checks; conflict-resolved validate-progress-heartbeat and validation-tier-planner smokes both pass, with the latter pinning the 133-entry union; global CLI executable-bit RED regression and cross-platform realpath/Windows npm-shim fixture both pass. Wave 4 pre-review, acceptance-basis, and acceptance-rollout smokes pass, including 58 rollout assertions and six mutation classes. No blocker.",
+      "createdAt": "2026-09-07T15:27:17.780Z",
+      "reviewRound": "2026-09-07T14:39:23.674Z",
+      "reviewRunId": "B-e256:RR-207",
+      "envelopeId": "81ca973aa9aaf7b45a2ab98a0e72dc49c57494069b3d1e0dc82afa30c874ac5c",
+      "writerSessionId": "sess-6b6f22c800196565f2babfb8de931f4e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/bug.json",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/test-evidence.json"
+        ],
+        "filesTriagedByName": [
+          "package.json",
+          "packages/main/package.json",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-acceptance-rollout-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": "Escalated from Story-declared test files to BUG-001 and both post-main conflict-resolved smoke files because the final reviewer task explicitly required verifying closure and merge preservation; inspected merge remerge diff and executed all named smokes."
+      },
+      "_hash": "71819742f9ba8121e09d38fe3de7cb314d75b6140cd04db6f7932b4a1f6f890e"
     }
   ]
 }
