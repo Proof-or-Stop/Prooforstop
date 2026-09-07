@@ -1673,6 +1673,49 @@
       },
       "readDiagnostics": [],
       "_hash": "851bb29f66ba35d4a5e004189eea37ff140a6949ad0dc4cd563aa152486273b2"
+    },
+    {
+      "id": "B-29bc:RP-039",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-007 wave-2 inventory-completeness inspection only. Fresh production checks verified the signed OPEN wave, RR-052 purpose/subject and envelope, and all four required run/terminal signatures, envelopes, readManifest/readLog and empty read diagnostics: RR-048/F-007, RR-049/F-008, RR-050/F-009, RR-051/RP-038. All retain frozen material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and scope; critic started after every required terminal. Full current terminal observations confirm the same receipt-mutant old-_hash cause at test lines516/529, including its documentary manifestation; no new cause or omitted current finding was discovered. Production evaluation returns exact current raw F-007,F-008,F-009. The prior wave preserves original F-005/F-006 and family finding:B-29bc:F-005, so they must not be inserted as extra current-wave raw dispositions. I separately tested the exact runtime-supported set before this terminal: F-007 verified_family with the existing finding:B-29bc:F-005 key, F-008/F-009 direct duplicates of current carrier F-007 with that same key. Result: no invalid or unresolved dispositions, no missing lanes, no duplicate identities, no baseline mismatch and zero new families. F-007 is only the current carrier for original F-005, not a new root; its critical severity and all original findings/statuses remain unchanged. Earlier bounded source/decision/context reads are reused only on the unchanged material binding. F-005 through F-009 remain open current-Story acceptance repairs; this inspection does not certify correct tests, resolve findings, authorize topology, independent-host assurance, TEST or DONE. RP-036 diagnostic mistake and correction RP-037 remain historical and are not the terminal of this receipt.",
+      "createdAt": "2026-09-07T17:30:33.300Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-052",
+      "envelopeId": "7033d0003ffa5e9993d0e5cf3e21b2fe349f3990f0cbe3b7f320302b6de31f9f",
+      "writerSessionId": "codex-b29-ri007-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/Proof-or-Stop.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-29bc/findings.json",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          ".proof-or-stop/story/actives/B-29bc/review-runs.json",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "686978ffe19c881b3e2c0e8ecb141ebe1e8f30f442aa77e2a32f01e62bc3df91"
+      },
+      "readDiagnostics": [],
+      "_hash": "a88b22a94de3b799f5340ee5ee9fa52dc1e8b7156f4cded3892a6dc3ee7e32ba"
     }
   ]
 }
