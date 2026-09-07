@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "daed2a24b5e25e321cbd7c3b14ae90a59b9fb93deb5e83b7caedf7c571e2b666",
+  "committedLedgerDigest": "e490cea8da0ad1989588025393c65bf8e545006ce1d311b2e9be7ebbbd0b0236",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2936,6 +2936,60 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T07:57:00.474Z"
+    },
+    {
+      "recordId": "lr_mtqy6wop_h9x_6a75e7120a0944799aea828780647b56",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:77855620-9875-4bd5-b143-5eb000958665",
+      "payload": {
+        "id": "B-8a40:F-087",
+        "desc": "quality-cleanup: packages/main/src/core/prompt-envelope.ts:233-235 in hasAffirmativeConceptRelation is a nested two-branch guard that is provably equivalent to the single test relationRange.end > conceptEnd, so both relationRange.start comparisons are dead and the code misrepresents its own decision rule. Mechanical evidence by exhaustive case analysis of the three variables at this HEAD, writing r0 for relationRange.start, r1 for relationRange.end, cs for conceptStart and ce for conceptEnd. The outer condition is (r1 > ce OR r0 > cs) and the inner condition is (r0 < cs OR r1 > ce) continue. Case 1, r1 > ce: outer true, inner true, continue. Case 2, r1 <= ce and r0 > cs: outer true, inner is false OR false, so no continue. Case 3, r1 <= ce and r0 <= cs: outer is false OR false, the inner test is skipped, so no continue. The relation is therefore skipped exactly when r1 > ce, for every value of r0. Failure scenario: this is the replacement for the maxBridgeLength horizon that an earlier resolved finding removed from this same function, and it sits on the affirmative-relation path that decides assertsCurrentVerdict and residualSchemaAmendment, that is the fail-closed REVIEW authority classifier. A future editor tightening or loosening the window will read the two r0 comparisons as live containment constraints and reason about a rule the code does not implement; conversely anyone deleting what looks like an obviously redundant outer branch changes nothing, which hides that the containment intent expressed by the comment on lines 229-231 is only enforced by the separate leftRange/rightRange subset test on lines 231-232. Suggested fix: replace lines 233-235 with the single statement that skips when relationRange.end > conceptEnd, or, if containment really is intended, implement it explicitly as r0 >= cs AND r1 <= ce and add a fixture that distinguishes the two. Severity low: no observable behaviour changes today, and I verified no current behaviour claim depends on r0; the cost is maintainability of the classifier core. Read boundary for this finding: prompt-envelope.ts lines 150-285 read directly plus the complete git diff main...HEAD hunk that replaces this guard; I did not execute the function.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T07:57:27.671Z",
+        "reviewRound": "2026-09-07T07:37:25.032Z",
+        "reviewRunId": "B-8a40:RR-151",
+        "readManifest": {
+          "filesReadFully": [
+            ".gitignore",
+            "packages/main/tsconfig.json"
+          ],
+          "filesTriagedByName": [
+            "package.json",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "packages/main/src/tasks/run-all-smokes.ts",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "bfd36a8bdba5ef5cf736872e8a5917d8658e737d8804ee2170f4fb7e0e8dcdb5",
+        "files": [
+          "packages/main/src/core/prompt-envelope.ts"
+        ],
+        "signatureTag": "b8a40-classifier-dead-code",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "43a60aa1ea858602101392a4e06430c3ef806dedd36faac3d4bb7ee4ebe5d755",
+      "priorDigest": "daed2a24b5e25e321cbd7c3b14ae90a59b9fb93deb5e83b7caedf7c571e2b666",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T07:57:27.673Z"
     }
   ],
   "receipts": [
@@ -7203,6 +7257,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "592f139323a48f78153f5722fd381106ce27a88928916018b8774c323731969d",
         "signature": "JEemX3NZlMbYJJIDOtWBaCqIv7N/WuVMDn5v69SvPrgDYmnNH2aK2H4BDMj6ZqNtWgabSyicECFP8an4CjGFCw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqy6woq_h9x_35dc7b0ca044457990d576a8fe6af695",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:77855620-9875-4bd5-b143-5eb000958665",
+      "requestDigest": "e1bcba15e2db3b3cfb61c52464a16cb993f6e0a0f7a218d9372cee4c12146548",
+      "recordIds": [
+        "lr_mtqy6wop_h9x_6a75e7120a0944799aea828780647b56"
+      ],
+      "priorLedgerDigest": "daed2a24b5e25e321cbd7c3b14ae90a59b9fb93deb5e83b7caedf7c571e2b666",
+      "committedLedgerDigest": "e490cea8da0ad1989588025393c65bf8e545006ce1d311b2e9be7ebbbd0b0236",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "writerFenceToken": "22875028-1d38-4a12-8e78-89274d83613e",
+      "committedAt": "2026-09-07T07:57:27.673Z",
+      "replayed": false,
+      "exactRequestDigest": "88d85798ffec5d53117b387581f68b72fda6e815c2dd693991ca6f04fea29f07",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqy6woq_h9x_35dc7b0ca044457990d576a8fe6af695",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding_add:77855620-9875-4bd5-b143-5eb000958665",
+        "exactRequestDigest": "88d85798ffec5d53117b387581f68b72fda6e815c2dd693991ca6f04fea29f07",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqy6wop_h9x_6a75e7120a0944799aea828780647b56"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "daed2a24b5e25e321cbd7c3b14ae90a59b9fb93deb5e83b7caedf7c571e2b666",
+        "committedLedgerDigest": "e490cea8da0ad1989588025393c65bf8e545006ce1d311b2e9be7ebbbd0b0236",
+        "replayed": false,
+        "committedAt": "2026-09-07T07:57:27.673Z",
+        "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "22875028-1d38-4a12-8e78-89274d83613e",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "bad1e5ea868f1d620dd5ff4cfe9e86c76506b44c9edb7da2dec84c7950c11da4",
+        "signature": "cBx/2it5TH+7nfDu2XMwDmZQu1vWzamvh3OfSI4zqjxzODQA2FVi41lqxMrWDLG8+4UeGN9vTcT/j/EnHhxJAA=="
       }
     }
   ]
