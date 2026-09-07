@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "proofbound.certification_windows.v1",
+  "windows": [
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-42f6:CW-001",
+      "storyId": "B-42f6",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-07T11:31:39.397Z",
+      "updatedAt": "2026-09-07T11:31:39.397Z",
+      "blockerCode": "pre_cert_causal_freshness_required",
+      "blockerDetail": "CausalEvidence requires fresh affected-node evidence: dependency input-hash identity is missing or contains unknown keys; strict refusal applies",
+      "inventory": {
+        "epochId": "B-42f6:RI-004",
+        "receiptId": "B-42f6:RI-004:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "_hash": "fad3ecf824c04710abd0d495972486c2ba11af9a3a8a61e9543753132413b839"
+    }
+  ],
+  "receipts": []
+}
