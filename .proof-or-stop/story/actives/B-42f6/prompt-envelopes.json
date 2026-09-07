@@ -2189,6 +2189,256 @@
       "incrementalContextBytes": 22224,
       "escalatedToFull": true,
       "escalationReason": "SAFETY_REQUIRES_FULL"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-topology-critic",
+      "storyId": "B-42f6",
+      "dispatchKind": "story-dispatch",
+      "dispatchPromptDigest": "dff123c86d73d29b3bba7a2a97a04fa39329655af04d268e55659b8d6e45d96d",
+      "createdAt": "2026-09-07T11:00:03.768Z",
+      "headHash": "a42351dd7e2fcd1d4331275ce685d03e11c18753",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "76db5cf02d1e02e5963fb50373e32536affac18e927d916f26d11ac0928f066c",
+      "roleRenderDigest": "48b3cee1e50a8ec8a2755e93ea80bea882cdc40106d5974a915d5979dc5f189b",
+      "contextMode": "full",
+      "contextDigest": "4d7234fdc18fc2dfccbe08091f6d4b510fc96ff6135064e24cb7aac6eab6c6d8",
+      "materialHash": "770d3acdffcf523934037aa8ed31fa836f5feb9b5ee672a75484e36c6183535f",
+      "storyFilesHash": "e9a94826cc477646fd0ec3cdf8b17f396e9d4847878dc815e1adca1f3c999c20",
+      "policyHash": "53de2614bf41593278d92c693202883cb4bc8c914f25eaad899d8cb0023da9ed",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "34c172456c78ed56b5d1da75fb2238e7ae886f0c27ec50a0a2b77e933bdb33f2",
+      "knownExecutionEnvironmentDigest": "b2a618bd210256e971014f5a7a68c7235ac51cac82f585d7646100015c82f97e",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "b5a5d366f23b29f3e3d42053e075fa2f32551cddcc237cd3f6ccad6fbfe71630",
+      "commandPolicyDigest": "722b924abcff385e3f5dc79d2826fc75661c348e98569212653d9d985fc13242",
+      "assembledPromptDigest": "32edbd7bf66151030d60565c307bb549f82edf8920f4bf611a09f63738bcc858",
+      "bytes": 120278,
+      "lines": 128,
+      "estimatedTokens": 30070,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "19c74c4e0befa948014318f9ea759247b44cce7cef3071044affcb44a78429cb"
+    },
+    {
+      "schemaVersion": "proof-or-stop.prompt-envelope.v1",
+      "roleId": "proof-or-stop-review-topology-critic",
+      "storyId": "B-42f6",
+      "dispatchKind": "review-run",
+      "reviewRunId": "B-42f6:RR-024",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "lane": "proof-or-stop-review-topology-critic",
+      "dispatchPromptDigest": "dff123c86d73d29b3bba7a2a97a04fa39329655af04d268e55659b8d6e45d96d",
+      "hostRenderIdentityDigest": "50d6651baf3726c91757c9bc61e1af9da2903ca1d99c5277b452a5ab85e79a04",
+      "createdAt": "2026-09-07T11:00:05.136Z",
+      "headHash": "a42351dd7e2fcd1d4331275ce685d03e11c18753",
+      "runtimeContractVersion": "proof-or-stop.agent-runtime.v1",
+      "runtimeSemanticDigest": "2f676a20dc688c79bc8cac988335058bafc2cdaa495ad0c6b312afc7e521c832",
+      "runtimeRenderDigest": "05604a7e04aec892be6d065194ce00e2214ab166773efee5d3b8da65a067a2ed",
+      "roleContractVersion": "proof-or-stop.role-contract.v1",
+      "roleSemanticDigest": "76db5cf02d1e02e5963fb50373e32536affac18e927d916f26d11ac0928f066c",
+      "roleRenderDigest": "48b3cee1e50a8ec8a2755e93ea80bea882cdc40106d5974a915d5979dc5f189b",
+      "contextMode": "full",
+      "contextDigest": "4d7234fdc18fc2dfccbe08091f6d4b510fc96ff6135064e24cb7aac6eab6c6d8",
+      "materialHash": "770d3acdffcf523934037aa8ed31fa836f5feb9b5ee672a75484e36c6183535f",
+      "storyFilesHash": "e9a94826cc477646fd0ec3cdf8b17f396e9d4847878dc815e1adca1f3c999c20",
+      "policyHash": "53de2614bf41593278d92c693202883cb4bc8c914f25eaad899d8cb0023da9ed",
+      "eligibilityDecision": "full",
+      "eligibilityDigest": "3d5c1ff66d9543c7f46e1b54c804e6a4b1296256a8857439705d7c564b2bb148",
+      "knownExecutionEnvironmentDigest": "b2a618bd210256e971014f5a7a68c7235ac51cac82f585d7646100015c82f97e",
+      "assemblerVersion": "proof-or-stop.full-context-assembler.v1",
+      "dispatchProtocolVersion": "proof-or-stop.prompt-dispatch.v1",
+      "launcherSpecDigest": "0714f732b6925105b7675f48e7f366d0dca9df80dfb99aed570a7a1a237c8075",
+      "commandPolicyDigest": "722b924abcff385e3f5dc79d2826fc75661c348e98569212653d9d985fc13242",
+      "assembledPromptDigest": "32edbd7bf66151030d60565c307bb549f82edf8920f4bf611a09f63738bcc858",
+      "bytes": 120278,
+      "lines": 128,
+      "estimatedTokens": 30070,
+      "tokenEstimatorVersion": "bytes-chars-heuristic.v1.utf8-bytes",
+      "envelopeId": "0d2a6018e3ea44e59f4870c6d6e8eb39b778d5428b89f96ba7e310af483676e4",
+      "priorPassRef": "B-42f6:RP-011",
+      "freshnessClassification": "RELATED_STORY_MATERIAL_DRIFT",
+      "impactPolicyVersion": "proofbound.impact-classification.v1",
+      "eligibilityReasonCodes": [
+        "FULL_FRESHNESS_RELATED_STORY_MATERIAL_DRIFT",
+        "FULL_PRIVATE_IMPLEMENTATION_V1"
+      ],
+      "changedFilesDigest": "20ff24debefeb22c2632eab5c05556db1cd933bd8c572664366491a93903648a",
+      "impactedFilesDigest": "abc56b13a341acc696248ae271b3c4c4e9a06521a10f8a45b95e4f2572a7e2e7",
+      "taskSemanticDigest": "83fbcaa4193bfde216142d323657f383e77c068ec469f4c89e1b35520c4a05a0",
+      "findingProjection": [
+        {
+          "id": "B-42f6:F-001",
+          "createdAt": "2026-09-07T10:08:59.758Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/graph/src/shells/web/playback.js\", \"line\": 42, \"reason\": \"PLAYBACK_BRAND is \\\"Proof-or-stop\\\" (lowercase s), which does not match the canonical product name PROOF_OR_STOP_PRODUCT_NAME = 'Proof-or-Stop' declared in packages/main/src/core/proof-or-stop-brand.ts:20 and mandated by docs/requirements/decisions/brand-rename-mapping.md:93 ('Prose / product name | Proof-or-Stop'). This casing is unique in packages/** (grep for 'Proof-or-stop' returns only this line) and is user-visible in three places: the exported MP4/GIF chrome heading (line 1844), the playback modal heading (line 2381) and the post-load heading (line 2821). It does not trip a gate: verify-proof-or-stop-residue.mjs detects retired brand names (lattice/Proofbound spellings), not casing variants of the canonical name, so the residue scan of packages/graph/src passes. Cosmetic branding inconsistency in a rendered export surface, not a correctness or gate defect.\", \"severity\": \"low\"} Independent assessment: Exact user-requested Proof-or-stop casing and preservation from c8263eb450 control over generic casing guidance. No current requirement defect verified. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-002",
+          "createdAt": "2026-09-07T10:09:03.370Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported Claude round 1 observation; source /private/tmp/B-42f6-cross-host/claude-round-1.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 143, \"reason\": \"The new loop's normalizeNestedSpaceAlias assertion (lines 144-145) duplicates the pre-existing assertion at lines 132-137, which already covers the empty prefix with the identical expectation. The genuinely new coverage in this block is the actual runCli help-equivalence check (146-148) and the unknown-action CLI rejection (150-152); the alias re-assertion adds no discrimination. Redundant test coverage only, no false-pass risk.\", \"severity\": \"low\"} Independent assessment: Redundant assertion is real but adds no false-pass risk; adjacent real CLI checks add coverage. Informational cleanup observation, not verified acceptance defect. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-003",
+          "createdAt": "2026-09-07T10:09:06.975Z",
+          "status": "dismissed",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/handlers/scope-contract.ts\", \"line\": 446, \"reason\": \"Third writer `scope_contract_acknowledge` persists via store.writeScopeContract without the new validateFullTaskScopeContext(projectScopeInventory(...)) guard that scope_contract_set (line 197) and scope_contract_init_from_plan (line 354) now apply. It only appends acknowledgements and merges originalPathInputs, so it cannot itself push a path list past 4096 entries; but the projected scope is byte-budgeted in aggregate and the acknowledge path is the one writer that can grow a contract unboundedly (unbounded acknowledgements array, and canonicalAckPaths.originals merged into originalPathInputs). originalPathInputs and acknowledgements are not part of projectScopeInventory's output, so the serialized-byte budget is not currently reachable through this path \\u2014 the gap is that the writer-side invariant is enforced at two of three writers by construction rather than at a single choke point. Per the project's Handler encoding convention (every consuming point revalidates), a future field promoted into the projection, or a future acknowledge-time scope widening, would bypass the boundary silently. Non-blocking for this candidate: not reachable today, no gate evidence is falsified.\", \"severity\": \"medium\"} Independent assessment: Acknowledgement writes only nonprojected fields today. Hypothetical future projection changes are not a verified current bypass. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-004",
+          "createdAt": "2026-09-07T10:09:10.634Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/core/scope-inventory-budget.ts\", \"line\": 10, \"reason\": \"SCOPE_INVENTORY_LISTS deliberately omits protectedAnchors, which validateFullTaskScopeContext keeps at the generic FULL_TASK_CONTEXT_LIMITS.pathsPerList (512) via the defaulted requireBoundedStringArray at prompt-contracts.ts:893. This asymmetry is intentional and tested (the 513-anchor negative case asserts /512/), and it is defensible \\u2014 anchors are not exact path authority. The observation is that the two limits now diverge silently with no comment at the SCOPE_INVENTORY_LISTS definition explaining that protectedAnchors is excluded on purpose; the only place the intent is recorded is the file-header doc comment. A future editor adding a new exact-authority list to FullTaskScopeContext gets the 512 default rather than 4096, or conversely widens anchors by accident. Documentation/robustness observation only.\", \"severity\": \"low\"} Independent assessment: Generic512 anchor limit is intentional and negatively tested. Comment recommendation does not demonstrate a current failure. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-005",
+          "createdAt": "2026-09-07T10:09:14.267Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/tasks/cli-surface-smoke.ts\", \"line\": 146, \"reason\": \"The new nested-Lab help assertion normalizes with `.replaceAll('lab <sub>', 'lab_<sub>')` on the nested output before comparing to the flat output. That substitution is broad enough to also rewrite any incidental occurrence of the display alias inside help prose, so the equality check proves 'same help body modulo every alias spelling' rather than 'same help body with only the invocation line differing'. It cannot produce a false PASS for a missing or wrong handler (a divergent body still fails), so this is a precision limitation of the assertion, not an unsound test. Retained local CLI negative coverage (unknownLab: nonzero status + /Unknown command: lab/ on stderr) is correct and does spawn a real process.\", \"severity\": \"low\"} Independent assessment: Alias-normalized help comparison has the stated precision limit but no wrong-handler pass is demonstrated. No current acceptance defect verified. No repair, deferral or signed applicability verdict asserted."
+        },
+        {
+          "id": "B-42f6:F-006",
+          "createdAt": "2026-09-07T10:30:58.022Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 configured validation depends on unavailable machine-local historical probe rp-mtifubae-dfbh4w. Frozen final suite /private/tmp/B-42f6-final-validate.json reports 131 pass/1 fail; this guard fails repro_probe_get with evidence-store: artifact ref not found: rp-mtifubae-dfbh4w (parseCliJson line79). Independent single-command reproduction in source-equivalent /private/tmp/prooforstop-main-publication-20260907, after adding clone-only main worktree identity anchor, yields identical failure. Guard is byte-identical remote c853ab5e63, but directly blocks this integration verification intent/full required validation; current-Story repair required rather than dismissal. Historical B-fe8f records preserve IDs/digests and original-host filesystem references, not complete recoverable objects. Repair must retain actual baseline/current runtime checks and real corrupted-relation-digest rejection using authenticated historical artifact recovery or canonical fresh temporary evidence fixtures; no fabricated historical artifact, hardcoded PASS, skipped guard or widened mirror bypass."
+        },
+        {
+          "id": "B-42f6:F-007",
+          "createdAt": "2026-09-07T10:31:56.293Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Corroborating concept contribution to canonical B-42f6:F-006, same defect family rather than an independent repair request: red-bfe8f-ledger-runtime-integrity.mjs:408 treats a machine-local historical probe artifact as a required portable validation input. The current configured full suite fails on missing rp-mtifubae-dfbh4w, so the integration promise that mandatory verification runs on the merged checkout remains unmet. Read the canonical F006 reproduction and current source probe lookup; preserve actual baseline/current execution and authenticated relation-negative checks when repairing. No PASS is recorded and no historical artifact may be fabricated."
+        },
+        {
+          "id": "B-42f6:F-008",
+          "createdAt": "2026-09-07T10:32:27.521Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "Coverage contribution to B-42f6:F-006: packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 requires historical probe rp-mtifubae-dfbh4w in the actual repository runtime. Executed configured validation /private/tmp/B-42f6-final-validate.json reports status fail/allPass false across132commands and the exact artifact-ref-not-found assertion. Five passing pinned intents cannot establish the plan promise that required configured validation passes. Repair and reverify this acceptance blocker before final acceptance; this contribution records coverage/gate impact of the quality observation. Do not weaken the assertion or fabricate historical evidence to obtain green validation."
+        },
+        {
+          "id": "B-42f6:F-009",
+          "createdAt": "2026-09-07T10:35:20.114Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 wave-2 reconfirmation of existing canonical blocker B-42f6:F-006, duplicate observation only, no new defect family. Candidate source unchanged; line408 still calls repro_probe_get for fixed rp-mtifubae-dfbh4w. Existing frozen full132 artifact /private/tmp/B-42f6-final-validate.json and independent clean-clone single-check both fail with evidence-store: artifact ref not found: rp-mtifubae-dfbh4w. No source repair or new test execution occurred this wave. F-006 remains unresolved and directly blocks required validation; do not interpret this contribution as PASS, repair or deferral. Route this observation to canonical F-006 for current-Story repair."
+        },
+        {
+          "id": "B-42f6:F-010",
+          "createdAt": "2026-09-07T10:35:44.540Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI003 wave2 reaffirmation of canonical B-42f6:F-006, same missing-historical-ledger-probe family. Unchanged source still requires absent rp-mtifubae-dfbh4w at red-bfe8f-ledger-runtime-integrity.mjs:408. The observed full-suite failure prevents the promised verified integration. No new defect family or repair is claimed; canonical F006 remains the mandatory repair target and this lane records no implementation PASS."
+        },
+        {
+          "id": "B-42f6:F-011",
+          "createdAt": "2026-09-07T10:35:47.918Z",
+          "status": "resolved",
+          "severity": "high",
+          "category": "missing",
+          "desc": "RI-003 wave2 duplicate contribution to canonical B-42f6:F-006 and prior coverage F-008; no new defect family. Fresh inspection confirms unchanged source at packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 and existing full132 validation failure for missing historical probe rp-mtifubae-dfbh4w. The plan requires configured validation success; the five passing pinned receipts cannot replace that missing acceptance evidence. No code diff since wave1 and no new execution is claimed. Keep the canonical blocker for repair and genuine verification; this terminal does not claim PASS or resolved status."
+        },
+        {
+          "id": "B-42f6:F-012",
+          "createdAt": "2026-09-07T10:57:49.147Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported original Claude final round 1, observation 1. Original source: /private/tmp/B-42f6-cross-host/claude-final-1.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:438 severity=low. Original text verbatim: The fix removes the only spawn-based exercise of the red_green_relation_evaluate and repro_probe_get CLI surfaces from this guard: the former runProof('red_green_relation_evaluate', ...) and runProof('repro_probe_get', ...) calls are replaced by direct library imports from packages/main/dist/core/repro-intake.js. The library-level contract is still genuinely exercised (see reasoning), and the CLI commands remain registered in command-catalog.ts and covered by packages/main/src/tasks/repro-first-candidate-smoke.ts sections 6 and 10 — but I confirmed at repro-first-candidate-smoke.ts:191 that this smoke also calls evaluateRedGreenRelation directly rather than spawning the CLI. Net effect: argument parsing, JSON payload decoding and non-zero-exit behavior of these two CLI commands now have no spawn-level assertion in either file. This is a coverage reduction, not a false pass, and it is an inherent consequence of the portability repair (the CLI path requires the non-distributed Story evidence store). Worth an explicit note or a follow-up so the CLI seam is not silently unguarded.\nIndependent current assessment at df2133a1c8: The final df2133a1c8 source restores actual spawned repro_probe_get and red_green_relation_evaluate calls against a fresh Git/config fixture, plus actual nonzero CLI digest rejection. The originally identified coverage reduction has been addressed in code; this import does not assert a remaining verified defect. No deferral, repair receipt, or external host authority is fabricated by this observation import."
+        },
+        {
+          "id": "B-42f6:F-013",
+          "createdAt": "2026-09-07T10:57:55.229Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported original Claude final round 1, observation 2. Original source: /private/tmp/B-42f6-cross-host/claude-final-1.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:469 severity=low. Original text verbatim: executionStatus is derived as historicalBaselineFails ? 'confirmed_failing' : 'confirmed_passing', but line 453 already hard-asserts historicalBaselineFails === true and aborts otherwise, so the false branch is unreachable. This is honest (it cannot manufacture a pass) and arguably defensive, but the ternary reads as if the fixture tolerates a non-failing baseline when it does not. Consider using the executed value directly or dropping the dead branch so the guard's actual precondition is not obscured.\nIndependent current assessment at df2133a1c8: The preceding hard assertion prevents the alternate executionStatus branch. This is defensive syntax redundancy, not a demonstrated invalid acceptance or false evidence result. No current defect reproduced. No deferral, repair receipt, or external host authority is fabricated by this observation import."
+        },
+        {
+          "id": "B-42f6:F-014",
+          "createdAt": "2026-09-07T10:57:58.856Z",
+          "status": "dismissed",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "Imported original Claude final round 2, observation 1. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:477 severity=medium. Original text verbatim: The fixture calls reviewProbe on the probe it just created, then evaluateRedGreenRelation's findAcceptedProbeReview (repro-intake.ts:38-49) searches for any repro-review with matching probeId/probeDigest/verdict='red-reviewed'/reviewedFailureClass='target-bug' — which is exactly the artifact the fixture just wrote. So the 'reviewed repro is accepted' reason in the evaluated relation is self-certified, not independently reviewed. The inline notes string is honest about this ('not an independent historical review'), and the guard's own comment at line 456 scopes the artifacts as disposable fixtures, so the claim is not overstated in the code. Actionable improvement: the assertion at line 547-548 derives assertionUnchanged from a reasons regex /command specs match/ that is only emitted when pass===true (repro-intake.ts:324-326), so assertionUnchanged is a restatement of relationEvaluation.pass rather than an independent property. Two of the four inputs to renderRelationEvaluationStatus are therefore not independent, which weakens the legacy-selector negative control slightly. Non-blocking: the two genuinely executed inputs (historicalBaselineFails, currentGreenPasses) are real, and the simulated-regression assertions at 565-588 still prove the renderer is not hard-coded.\nIndependent current assessment at df2133a1c8: The fixture explicitly declares evidence-candidate scope and disclaims independent historical review. Real baseline/current child executions use the same anchored argv and distinct explicit checkout cwd. The residual reasons/pass dependency is redundant, but new CLI command-mismatch rejection and renderer false-input checks exercise failure paths. No false independent historical review is claimed and no current acceptance defect established. No deferral, repair receipt, or external host authority is fabricated by this observation import."
+        },
+        {
+          "id": "B-42f6:F-015",
+          "createdAt": "2026-09-07T10:58:02.544Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "Imported original Claude final round 2, observation 2. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:493 severity=medium. Original text verbatim: The relation is constructed with baselineCommandSpec and currentCommandSpec built from the same anchoredArgs array (line 460 vs 488, the latter a spread copy), so the deepEqual at 493-494 and the evaluator's command comparison (repro-intake.ts:311-316, which compares only .command, not args or cwd) are guaranteed to pass by construction. This means the relation proves 'the fixture built two equal specs', not 'the real baseline and current invocations used the same contract'. The genuine red→green evidence is the separately executed pair at lines 448-454, which is real and cwd-anchored. Actionable: the relation artifact adds integrity/digest coverage but contributes no independent transition proof; a negative case where baselineCommandSpec.command differs (asserting pass===false with a command-mismatch reason) would make the evaluator's fail-closed branch actually exercised rather than assumed.\nIndependent current assessment at df2133a1c8: The final source adds a genuine mismatched executable relation evaluated through the CLI and requires false plus command mismatch reason. The executed baseline/current imports share anchored argv with explicit checkout cwd. The earlier missing negative is now addressed; the fixture is not claimed as independent historical transition authority. No deferral, repair receipt, or external host authority is fabricated by this observation import."
+        },
+        {
+          "id": "B-42f6:F-016",
+          "createdAt": "2026-09-07T10:58:06.270Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported original Claude final round 2, observation 3. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:501 severity=low. Original text verbatim: The digest-mutation rejection is genuine and correctly targeted: verifyArtifactDigest (artifact-store.ts:415-425) recomputes the digest over kind/schema/producer/scope/subjectBinding/payload and requires both recomputed===expected AND artifact.artifactDigest===expected, so a one-bit flip of the expected digest cannot pass. The assert.throws is pinned to /relation digest mismatch/, matching repro-intake.ts:292 exactly, so it cannot be satisfied by an unrelated throw (e.g. a missing ref, which throws 'artifact ref not found'). This is stronger than the prior candidate's version, which inferred rejection from a nonzero CLI status plus a loose /digest|integrity|mismatch/i match on combined stdout+stderr and, in mirror mode, from a hard-coded fake result object. Actionable residual: currentCorruptedRelationRejected is set to true on the line after the assert.throws (line 504) inside the try block, so the flag is redundant with the assertion; if the assert throws, the finally block runs and the later assert at 549 is never reached. The flag therefore cannot ever be observed false, making assertion 549 dead. Harmless but misleading as a 'negative control' input.\nIndependent current assessment at df2133a1c8: The final source derives currentCorruptedRelationRejected from actual CLI nonzero status and exact relation digest mismatch output, while preserving the core assert.throws. The original bare true assignment is removed. No deferral, repair receipt, or external host authority is fabricated by this observation import."
+        },
+        {
+          "id": "B-42f6:F-017",
+          "createdAt": "2026-09-07T10:58:09.961Z",
+          "status": "resolved",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported original Claude final round 2, observation 4. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:438 severity=low. Original text verbatim: The dynamic import of packages/main/dist/core/repro-intake.js is at top level of the module body, outside the try/finally that owns relationScratch, and is not existence-guarded. In a checkout where dist is not built, this throws ERR_MODULE_NOT_FOUND before any of the guard's characterization assertions run, converting a 'ledger contracts absent' RED signal into an opaque module-resolution crash — the same failure class this guard exists to characterize. Note the guard already reaches into dist at line 449 for the GREEN import, so a dist dependency is not new; but that one is executed as a child process whose failure is assertable with a clear message. Actionable: the prior candidate's dependency was on a non-Git-distributed probe artifact; this candidate correctly removes that, but substitutes a build-order dependency. Since the guard is registered in proof-or-stop.config.json validate.commands (asserted at 388-398), it runs after build in the normal path, so this is a robustness rather than correctness issue.\nIndependent current assessment at df2133a1c8: The final df2133a1c8 commit moves the dynamic import inside try/finally so import failure cleans relationScratch. Built dist remains the configured normal prerequisite, and no successful result is claimed for an unbuilt checkout. No deferral, repair receipt, or external host authority is fabricated by this observation import."
+        },
+        {
+          "id": "B-42f6:F-018",
+          "createdAt": "2026-09-07T10:58:13.762Z",
+          "status": "resolved",
+          "severity": "medium",
+          "category": "missing",
+          "desc": "Imported original Claude final round 2, observation 5. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:409 severity=medium. Original text verbatim: historicalProbe is now unconditionally sourced from the in-file registrationMirrorBinding constant on BOTH paths, whereas previously the non-mirror path executed a real repro_probe_get CLI read. The four historical assertions at 410-414 consequently compare the constant against constants declared in the same file (PROBE_DIGEST at line 36, BASELINE_HEAD at 42), so they are tautological except insofar as they cross-check against `original.failureReceiptHash` and `official.baselineHeadHash`, which on the non-mirror path DO come from a real red_evidence_get CLI read (line 402). Those two cross-checks (413, 414) are the real content and they remain intact. The digest-integrity pin on the whole binding object (REGISTRATION_MIRROR_BINDING_DIGEST, line 190, asserted at 383-387) only fires in mirror mode, so on the normal path the constant block is unpinned. Actionable: extending that binding-digest assertion to both paths would restore tamper-evidence for the constants that the surviving cross-checks depend on. This is the honest cost of removing the non-distributed probe dependency, and the comment at 406-408 states the tradeoff plainly rather than concealing it.\nIndependent current assessment at df2133a1c8: The binding SHA256 assertion now executes unconditionally before the mirror branch. Normal red_evidence_get cross-checks remain. The identified normal-path missing binding pin is addressed. No deferral, repair receipt, or external host authority is fabricated by this observation import."
+        },
+        {
+          "id": "B-42f6:F-019",
+          "createdAt": "2026-09-07T10:58:17.428Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported original Claude pinned round 2, observation 1. Original source: /private/tmp/B-42f6-cross-host/claude-pinned-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:519 severity=low. Original text verbatim: The mismatch negative control spreads relation.payload into createRedGreenRelation, so it passes candidateId as an extra property. CreateRedGreenRelationInput (repro-intake.ts:241-248) does not declare candidateId, and createRedGreenRelation ignores it — it re-derives candidateId from the probe it reads (repro-intake.ts:257). So the extra key is inert and the call is well-formed: probeId, both commandSpecs, both patterns and description all come through, with currentCommandSpec.command overridden. Because .mjs is untyped, the excess property is not a compile error either. Non-blocking observation, not a defect: worth noting only because a reader may assume the spread sets candidateId when it does not.\nIndependent current assessment at df2133a1c8: Confirmed createRedGreenRelation derives candidateId from the probe and constructs an explicit payload; the excess input key is unused. Required fields and overridden command remain correct. This is a legibility observation explicitly reported as not a defect, with no current behavioral failure established. No deferral, repair receipt, or external host authority is fabricated by this observation import."
+        },
+        {
+          "id": "B-42f6:F-020",
+          "createdAt": "2026-09-07T10:58:21.148Z",
+          "status": "dismissed",
+          "severity": "low",
+          "category": "missing",
+          "desc": "Imported original Claude pinned round 2, observation 2. Original source: /private/tmp/B-42f6-cross-host/claude-pinned-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:571 severity=low. Original text verbatim: assertionUnchanged is still derived from a /command specs match/ regex over relationEvaluation.reasons, and repro-intake.ts:324-326 emits that reason string only when pass===true. So assertionUnchanged remains a restatement of relationEvaluation.pass rather than an independent property, as reported in the prior round. This candidate materially reduces the concern's weight — the new CLI mismatch negative at 519-528 now proves the evaluator's command-mismatch branch actually fires and yields pass===false with a 'command mismatch' reason — so the fail-closed path is no longer assumed. The residual redundancy in the renderer input persists but no longer masks an unexercised branch.\nIndependent current assessment at df2133a1c8: Confirmed the reason regex duplicates a successful evaluator condition. The independent CLI mismatched-command negative and renderer false-input assertions now exercise fail-closed behavior. Residual redundant assertion is not a reproduced acceptance defect and does not constitute independent historical review evidence. No deferral, repair receipt, or external host authority is fabricated by this observation import."
+        }
+      ],
+      "findingProjectionDigest": "45588235bf2f07f99c10cd5848890967644771406f07cb795bb3a8ba8a5580cb",
+      "reviewBasisDigest": "aa9197f44b6bd58200fd1c67ca6574770061858f1168ddb22bfbd66548e9024b",
+      "incrementalContextDigest": "484bc7f1fb1485c88a3745ed8c3f4a966b279a4939ba18c499fceb9cfa3f6d9c",
+      "selectionReason": "SAFETY_REQUIRES_FULL",
+      "fullContextBytes": 120278,
+      "incrementalContextBytes": 19048,
+      "escalatedToFull": true,
+      "escalationReason": "SAFETY_REQUIRES_FULL"
     }
   ]
 }

@@ -483,7 +483,7 @@
       "desc": "Imported original Claude final round 1, observation 2. Original source: /private/tmp/B-42f6-cross-host/claude-final-1.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:469 severity=low. Original text verbatim: executionStatus is derived as historicalBaselineFails ? 'confirmed_failing' : 'confirmed_passing', but line 453 already hard-asserts historicalBaselineFails === true and aborts otherwise, so the false branch is unreachable. This is honest (it cannot manufacture a pass) and arguably defensive, but the ternary reads as if the fixture tolerates a non-failing baseline when it does not. Consider using the executed value directly or dropping the dead branch so the guard's actual precondition is not obscured.\nIndependent current assessment at df2133a1c8: The preceding hard assertion prevents the alternate executionStatus branch. This is defensive syntax redundancy, not a demonstrated invalid acceptance or false evidence result. No current defect reproduced. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
       "agent": "proof-or-stop-review-quality",
@@ -512,14 +512,16 @@
       "signatureTag": "missing|mjs|imported-original-claude",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr4mza6_msa_8dd3b20743024e3097f0f971218d4c58",
-      "ledgerCommitReceiptId": "lrc_mtr4mza6_msa_3efbe1da878c4832a672a2a1fca515c8"
+      "ledgerCommitReceiptId": "lrc_mtr4mza6_msa_3efbe1da878c4832a672a2a1fca515c8",
+      "dismissedAt": "2026-09-07T10:59:27.403Z",
+      "dismissReason": "The ternary records the executed historical outcome after an explicit failing-baseline assertion. Its unreachable alternate branch cannot accept an invalid baseline; this is defensive style, not a current defect. Audited compatibility dismissal preserves the original observation and claims no repair or deferral."
     },
     {
       "id": "B-42f6:F-014",
       "desc": "Imported original Claude final round 2, observation 1. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:477 severity=medium. Original text verbatim: The fixture calls reviewProbe on the probe it just created, then evaluateRedGreenRelation's findAcceptedProbeReview (repro-intake.ts:38-49) searches for any repro-review with matching probeId/probeDigest/verdict='red-reviewed'/reviewedFailureClass='target-bug' — which is exactly the artifact the fixture just wrote. So the 'reviewed repro is accepted' reason in the evaluated relation is self-certified, not independently reviewed. The inline notes string is honest about this ('not an independent historical review'), and the guard's own comment at line 456 scopes the artifacts as disposable fixtures, so the claim is not overstated in the code. Actionable improvement: the assertion at line 547-548 derives assertionUnchanged from a reasons regex /command specs match/ that is only emitted when pass===true (repro-intake.ts:324-326), so assertionUnchanged is a restatement of relationEvaluation.pass rather than an independent property. Two of the four inputs to renderRelationEvaluationStatus are therefore not independent, which weakens the legacy-selector negative control slightly. Non-blocking: the two genuinely executed inputs (historicalBaselineFails, currentGreenPasses) are real, and the simulated-regression assertions at 565-588 still prove the renderer is not hard-coded.\nIndependent current assessment at df2133a1c8: The fixture explicitly declares evidence-candidate scope and disclaims independent historical review. Real baseline/current child executions use the same anchored argv and distinct explicit checkout cwd. The residual reasons/pass dependency is redundant, but new CLI command-mismatch rejection and renderer false-input checks exercise failure paths. No false independent historical review is claimed and no current acceptance defect established. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
       "agent": "proof-or-stop-review-quality",
@@ -548,7 +550,9 @@
       "signatureTag": "missing|mjs|imported-original-claude",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr4n22x_ncl_5ec194b36d7b4767a7ac6e29a959b91a",
-      "ledgerCommitReceiptId": "lrc_mtr4n22x_ncl_b7c84c7518c54ff0a00fc026d6fac72f"
+      "ledgerCommitReceiptId": "lrc_mtr4n22x_ncl_b7c84c7518c54ff0a00fc026d6fac72f",
+      "dismissedAt": "2026-09-07T10:59:28.017Z",
+      "dismissReason": "Fixture review is explicitly labeled automated evidence-candidate classification, not independent historical review. Actual historical/current executions and full command equality are separately asserted; the added real CLI mismatch negative exercises rejection. No false provenance claim or current failure remains. Preserve original observation without claiming formal deferral."
     },
     {
       "id": "B-42f6:F-015",
@@ -711,7 +715,7 @@
       "desc": "Imported original Claude pinned round 2, observation 1. Original source: /private/tmp/B-42f6-cross-host/claude-pinned-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:519 severity=low. Original text verbatim: The mismatch negative control spreads relation.payload into createRedGreenRelation, so it passes candidateId as an extra property. CreateRedGreenRelationInput (repro-intake.ts:241-248) does not declare candidateId, and createRedGreenRelation ignores it — it re-derives candidateId from the probe it reads (repro-intake.ts:257). So the extra key is inert and the call is well-formed: probeId, both commandSpecs, both patterns and description all come through, with currentCommandSpec.command overridden. Because .mjs is untyped, the excess property is not a compile error either. Non-blocking observation, not a defect: worth noting only because a reader may assume the spread sets candidateId when it does not.\nIndependent current assessment at df2133a1c8: Confirmed createRedGreenRelation derives candidateId from the probe and constructs an explicit payload; the excess input key is unused. Required fields and overridden command remain correct. This is a legibility observation explicitly reported as not a defect, with no current behavioral failure established. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
       "agent": "proof-or-stop-review-quality",
@@ -740,14 +744,16 @@
       "signatureTag": "missing|mjs|imported-original-claude",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr4nget_ozw_5ab0de4485e44357a353a05a9b2fcff3",
-      "ledgerCommitReceiptId": "lrc_mtr4nget_ozw_517387c5188a4d859c9ca2fbd032eec6"
+      "ledgerCommitReceiptId": "lrc_mtr4nget_ozw_517387c5188a4d859c9ca2fbd032eec6",
+      "dismissedAt": "2026-09-07T10:59:28.621Z",
+      "dismissReason": "The extra candidateId property from the relation payload is inert: production re-derives it from the probe, and fixture output binding is checked. No behavior change or current defect is established. Preserve the original nondefect observation; compatibility dismissal is not repair proof."
     },
     {
       "id": "B-42f6:F-020",
       "desc": "Imported original Claude pinned round 2, observation 2. Original source: /private/tmp/B-42f6-cross-host/claude-pinned-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:571 severity=low. Original text verbatim: assertionUnchanged is still derived from a /command specs match/ regex over relationEvaluation.reasons, and repro-intake.ts:324-326 emits that reason string only when pass===true. So assertionUnchanged remains a restatement of relationEvaluation.pass rather than an independent property, as reported in the prior round. This candidate materially reduces the concern's weight — the new CLI mismatch negative at 519-528 now proves the evaluator's command-mismatch branch actually fires and yields pass===false with a 'command mismatch' reason — so the fail-closed path is no longer assumed. The residual redundancy in the renderer input persists but no longer masks an unexercised branch.\nIndependent current assessment at df2133a1c8: Confirmed the reason regex duplicates a successful evaluator condition. The independent CLI mismatched-command negative and renderer false-input assertions now exercise fail-closed behavior. Residual redundant assertion is not a reproduced acceptance defect and does not constitute independent historical review evidence. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "dismissed",
       "evidenceState": "suspected",
       "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
       "agent": "proof-or-stop-review-quality",
@@ -776,7 +782,9 @@
       "signatureTag": "missing|mjs|imported-original-claude",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr4nja5_pbr_09b1b9e7fff84b7fbe47da79a674078d",
-      "ledgerCommitReceiptId": "lrc_mtr4nja5_pbr_7579b7a6babc401fb84f12175a639da4"
+      "ledgerCommitReceiptId": "lrc_mtr4nja5_pbr_7579b7a6babc401fb84f12175a639da4",
+      "dismissReason": "The reason flag is derived from evaluation and intentionally redundant, while full command equality and the actual CLI command-mismatch rejection independently exercise the property. This does not conceal an untested failing branch. Preserve original observation without representing redundancy as fixed.",
+      "dismissedAt": "2026-09-07T10:59:29.247Z"
     }
   ]
 }

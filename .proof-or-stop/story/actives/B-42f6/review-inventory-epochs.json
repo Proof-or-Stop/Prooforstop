@@ -287,9 +287,9 @@
       "epochId": "B-42f6:RI-004",
       "storyId": "B-42f6",
       "reviewRound": "2026-09-07T10:54:55.420Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-07T10:55:36.452Z",
-      "updatedAt": "2026-09-07T10:55:36.452Z",
+      "updatedAt": "2026-09-07T11:00:48.711Z",
       "cutoff": {
         "headHash": "cef73dfde77f26a794bcab9181cf5d2b329cb7b8",
         "materialHash": "770d3acdffcf523934037aa8ed31fa836f5feb9b5ee672a75484e36c6183535f",
@@ -303,9 +303,66 @@
       ],
       "initialRunSequenceBoundary": 20,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T10:55:36.452Z",
+          "completedAt": "2026-09-07T11:00:48.711Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-42f6:RR-023",
+              "terminal": "pass",
+              "hostIdentity": "92d90e324fdf0e2441cdc1b3db044d04b7839ebfe19960c7f68f6487093b060c",
+              "promptIdentity": "c81039ee26375d27cbb0a30ad84a562c3bef95f37e76412c12843c657888b0b2",
+              "evidenceIds": [
+                "B-42f6:RP-012"
+              ],
+              "coverageDigest": "53ff17d8721178a8a34ea579f2ed3d83027395b841aeea2ef6d48cf73be9cfd6"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-42f6:RR-021",
+              "terminal": "finding",
+              "hostIdentity": "91b10b3ae6cf95856cd53695ef914549facfcbeabfe82be49fcc03d0ee84e87a",
+              "promptIdentity": "bd34120fdc321dcee67e8d20199ac35ff7f79a1bb2df2b3db4e19313e1228acb",
+              "evidenceIds": [
+                "B-42f6:F-012",
+                "B-42f6:F-013",
+                "B-42f6:F-014",
+                "B-42f6:F-015",
+                "B-42f6:F-016",
+                "B-42f6:F-017",
+                "B-42f6:F-018",
+                "B-42f6:F-019",
+                "B-42f6:F-020",
+                "B-42f6:RP-014"
+              ],
+              "coverageDigest": "3102c3df31f4cc24ad8e45cc387e3b5d4e1c10ee1f332e88033a6eee5fd0cc25"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-42f6:RR-022",
+              "terminal": "pass",
+              "hostIdentity": "92d90e324fdf0e2441cdc1b3db044d04b7839ebfe19960c7f68f6487093b060c",
+              "promptIdentity": "d8f0c9f04acc53fa287401df5a59228a78ae7deaf8738f228d46e73bf9b74155",
+              "evidenceIds": [
+                "B-42f6:RP-013"
+              ],
+              "coverageDigest": "bb87cb7fa91f960c864b0a9308f5a401592d583a114e309313652e9d246578b4"
+            }
+          ],
+          "verifiedFindingFamilies": [],
+          "verifiedFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "e3c3e9f8ee0dd6412fd4d01e192569918f668373f9f0eaae9a507aafe34d6131",
+          "saturated": true,
+          "nextRunSequenceBoundary": 24
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "2c97ae680fe27abfcde4276703f1e5485c10f7665352e718b0c78ae6f858db13"
+      "receiptId": "B-42f6:RI-004:RCP-001",
+      "_hash": "dc5ed6f470bb3c6dfad37908b8cbd53b9eb858277fc9ab3cc861172c9e7f5798"
     }
   ],
   "receipts": [
@@ -390,6 +447,32 @@
       "issuedAt": "2026-09-07T10:37:32.139Z",
       "consumedAt": "2026-09-07T10:37:57.863Z",
       "_hash": "8f21d2a76504fbc97dd1857c6f7725d2e641ca5d4396ca3f7a2cabf0c6636a94"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-42f6:RI-004:RCP-001",
+      "epochId": "B-42f6:RI-004",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "cutoff": {
+        "headHash": "cef73dfde77f26a794bcab9181cf5d2b329cb7b8",
+        "materialHash": "770d3acdffcf523934037aa8ed31fa836f5feb9b5ee672a75484e36c6183535f",
+        "storyFilesHash": "e9a94826cc477646fd0ec3cdf8b17f396e9d4847878dc815e1adca1f3c999c20"
+      },
+      "scopeDigest": "875d084cd95836193feca4535bf838c8c00017031a446aad7bd4fa9a8ed2c893",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 1,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "9ab9cca892a03202a9347f656dc8b91dbadeb1a49f06e7c3c0aac3c7c3bc50e1",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T11:00:48.711Z",
+      "_hash": "1543c554bf9be35bdb24137c1864ccfc7ac4eecd91b9a8b84f5184a2622e0f78"
     }
   ],
   "criticReceipts": [
@@ -530,6 +613,30 @@
       ],
       "createdAt": "2026-09-07T10:37:06.769Z",
       "_hash": "da4266ad6f33a94140d92e7ab90bc96fb388b8716dcff532ef13ae39359cea4e"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-42f6:RI-004:CRIT-01",
+      "epochId": "B-42f6:RI-004",
+      "storyId": "B-42f6",
+      "reviewRound": "2026-09-07T10:54:55.420Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "cef73dfde77f26a794bcab9181cf5d2b329cb7b8",
+        "materialHash": "770d3acdffcf523934037aa8ed31fa836f5feb9b5ee672a75484e36c6183535f",
+        "storyFilesHash": "e9a94826cc477646fd0ec3cdf8b17f396e9d4847878dc815e1adca1f3c999c20"
+      },
+      "aggregateFindingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "requiredLaneCoverageDigest": "69b417fb670293bcc10354032ef8f649bb2cfdfe63489ec1576b20115d2f6ccf",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-42f6:RR-024",
+      "terminalEvidenceIds": [
+        "B-42f6:RP-015"
+      ],
+      "readEvidenceDigest": "e77514d50b12d73ea0aa7194b7843e87857fc23877cd2c9dc4d660d9e456ad82",
+      "findingDispositions": [],
+      "createdAt": "2026-09-07T11:00:33.420Z",
+      "_hash": "9e8303e953feeee944dd6db68569971741ad548d8a830b4b33c0cd8f1e1b4484"
     }
   ]
 }
