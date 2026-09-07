@@ -284,7 +284,7 @@
       "desc": "Coverage contribution to B-42f6:F-006: packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 requires historical probe rp-mtifubae-dfbh4w in the actual repository runtime. Executed configured validation /private/tmp/B-42f6-final-validate.json reports status fail/allPass false across132commands and the exact artifact-ref-not-found assertion. Five passing pinned intents cannot establish the plan promise that required configured validation passes. Repair and reverify this acceptance blocker before final acceptance; this contribution records coverage/gate impact of the quality observation. Do not weaken the assertion or fabricate historical evidence to obtain green validation.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-07T10:32:27.521Z",
@@ -315,7 +315,10 @@
       "signatureTag": "missing|mjs|coverage-contribution-42f6",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3q8ht_152c_dde4cf92c4584cba957dac25ff9e79d3",
-      "ledgerCommitReceiptId": "lrc_mtr3q8hu_152c_b7677735f1d44ccdb75a1a35472b741f"
+      "ledgerCommitReceiptId": "lrc_mtr3q8hu_152c_b7677735f1d44ccdb75a1a35472b741f",
+      "resolvedAt": "2026-09-07T10:55:21.631Z",
+      "resolvedReason": "Fixed by commits 780cc42ed6, a1d58dd487 and df2133a1c8 in the existing ledger integrity guard. Historical Story identity assertions remain; actual fixed historical missing-module and current GREEN imports feed fresh production candidate fixtures. Real CLI probe reads and good/bad relation evaluation are exercised; changed commands fail closed. Original historical artifacts are not recreated. Focused final guard, registration 26 GREEN and process-fact contract passed; /private/tmp/B-42f6-integration/ledger-cli-final-guard.log and ledger-cli-registration.log preserve results. Full132 on final code is still required.",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-42f6:F-009",
