@@ -1,0 +1,39 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Preserve both main histories and behaviors in one verified merge",
+      "context": "Resolve eleven observed content conflicts using original commit intent; retain remote-only changes, exact playback branding, and local receipt repair behavior with negative tests.",
+      "relatedDocs": [
+        "AGENTS.md",
+        ".proof-or-stop/Proof-or-Stop.md"
+      ],
+      "userSees": "Both parent histories remain reachable and Proof-or-stop playback/export branding remains visible after normal publication.",
+      "excludes": [
+        "Force-pushing or rewriting remote history",
+        "Unrelated feature implementation",
+        "Deleting unrelated runtime logs"
+      ],
+      "files": {
+        "modify": [
+          "package-lock.json",
+          "package.json",
+          "packages/main/package-lock.json",
+          "packages/main/package.json",
+          "packages/main/src/core/machine.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/tasks/done-required-validation-smoke.ts",
+          "packages/main/src/tasks/english-early-check-smoke.ts",
+          "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+        ],
+        "create": [],
+        "test": []
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}
