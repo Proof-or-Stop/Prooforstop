@@ -4026,7 +4026,7 @@
       "desc": "The committed B-8a40 mutation harness introduces a nonliteral dynamic module load without the existing guard admission contract, so the actual DONE-required test cannot pass. Independent reproduction at the unchanged round-5 material with `node packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js` exited 1 and reported packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2123: unapproved non-literal dynamic module load: import() `${pathToFileURL(mutantPath).href}?run=${Date.now()}`; canonical AST fingerprint 55ccba2baaaea566f2b25fedb2b2187d258d45e2d08b54515004c2627f5c65ce. `git diff main...HEAD -- packages/main/src/tasks/prompt-full-context-envelope-smoke.ts` confirms this complete importEnvelopeMutant helper is introduced by this Story. The same run separately reports line 2188 vocabulary violation, already recorded as F-079. The guard's scanConcealedCompatibilityLoads and isKnownBenignNonLiteralLoaderCall require a finite approved anchor/argument plus canonical source fingerprint (and applicable provenance pins); tests at lines 5616-5626 explicitly reject even unrelated nonliteral module loads. The focused envelope smoke and its 13 pinned receipts do not establish compatibility with that separate required guard. This is an applicable current-Story verification/DONE blocker, not an unrelated repository issue; medium reflects the demonstrated validation failure, not an assertion of exploitable runtime harm. Repair must preserve both independently biting complete all-role mutant matrices and the guard's fail-closed load checks. The vocabulary diagnostic can be corrected inside the scoped smoke file. No transparent two-file admission for this runtime-generated loader is established: retaining the isolated generated-module design requires an explicitly authorized narrow guard extension with exact source/argument/provenance binding and negative controls. Replacing it with eval, Function, concealed subprocess-generated loader text, or weakening/exempting the scanner is not a valid repair. A genuinely static redesign would require fresh isolation/cache/cleanup and mutant-bite evidence, not an import-spelling workaround. This review supplies evidence and repair constraints, not scope or policy approval.",
       "severity": "medium",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-07T00:14:22.535Z",
@@ -4067,7 +4067,11 @@
       "signatureTag": "b8a40-mutant-loader-guard-admission",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqhndje_11os_c52ba8f513194910b339d59ade233cbc",
-      "ledgerCommitReceiptId": "lrc_mtqhndjf_11os_b485972d732c4ce6a14c22e8456e09d1"
+      "ledgerCommitReceiptId": "lrc_mtqhndjf_11os_b485972d732c4ce6a14c22e8456e09d1",
+      "resolvedAt": "2026-09-07T07:38:16.494Z",
+      "resolvedReason": "Fixed in commit 1a222c4795117711818fb400dc6448e7e9322efe: the test-owned producer accepts only two fixed mutation labels, with no path or injected-code parameter. The scanner admits exactly importEnvelopeMutant/pathToFileURL(mutantPath).href bound to whole-source fingerprint 3c932df7aa37d3f489dacf3bb8696e2c895dfeee625033d595a5aa9275d26633 and a module-level producer signature pin. Drift, anchor/argument changes, rebinding, aliasing, mutable binding, type/parameter widening, default parameters and shadowed producer/URL-helper controls reject. Both all-role full-matrix mutants still execute; focused smoke and guard pass, as do process/runtime contract checks. Required companion scope acknowledgements are CLI-recorded and reviewer-visible. All 13 pinned receipts refreshed at this commit; original failures retained. This is repair, not a deferral, broad dynamic-code exemption or claim that final DONE certification has passed.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-081",
