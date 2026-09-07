@@ -31,9 +31,186 @@
         "create": [],
         "test": []
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "done",
+      "startTime": "2026-09-07T08:01:06.606Z",
+      "endTime": "2026-09-07T11:45:17.262Z",
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Read-only Git checks prove both d5b00d0ff3 and c853ab5e63 are ancestors of integrated HEAD and playback.js remains byte-identical to branding commit c8263eb450, including initial/post-parse Proof-or-stop headings and exported frame branding.",
+            "type": "cli",
+            "verification": {
+              "command": "node -e 'const cp=require(\"node:child_process\"),fs=require(\"node:fs\"),assert=require(\"node:assert/strict\");for(const ref of [\"d5b00d0ff3\",\"c853ab5e63\"])cp.execFileSync(\"git\",[\"merge-base\",\"--is-ancestor\",ref,\"HEAD\"]);const p=\"packages/graph/src/shells/web/playback.js\";assert.deepEqual(fs.readFileSync(p),cp.execFileSync(\"git\",[\"show\",\"c8263eb450:\"+p]));assert.match(fs.readFileSync(p,\"utf8\"),/Proof-or-stop/);console.log(\"MERGE_HISTORY_BRANDING_PASS\");'",
+              "selector": "MERGE_HISTORY_BRANDING_PASS"
+            }
+          },
+          {
+            "desc": "Merged CLI retains Lab and config routing and aligned package/lockfile/runtime versions; existing cli-surface-smoke and version-bump-smoke pass against the built merge.",
+            "type": "cli",
+            "verification": {
+              "command": "node -e 'const cp=require(\"node:child_process\"),fs=require(\"node:fs\"),a=require(\"node:assert/strict\");for(const t of [\"cli-surface-smoke\",\"version-bump-smoke\"])process.stdout.write(cp.execFileSync(process.execPath,[\"packages/main/dist/tasks/\"+t+\".js\"],{encoding:\"utf8\"}));for(const p of [\"package.json\",\"package-lock.json\",\"packages/main/package.json\",\"packages/main/package-lock.json\"]){const j=JSON.parse(fs.readFileSync(p,\"utf8\"));a.equal(j.version,\"0.3.278\");if(j.packages)a.equal(j.packages[\"\"].version,\"0.3.278\");}a.match(fs.readFileSync(\"packages/main/src/core/proof-or-stop-brand.ts\",\"utf8\"),/PROOF_OR_STOP_CLI_VERSION = .0\\.3\\.278./);console.log(\"MERGED_CLI_VERSION_PASS\");'",
+              "selector": "MERGED_CLI_VERSION_PASS"
+            }
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing english-early-check-smoke passes against compiled merged code, resolves repository guidance correctly and retains early rejection of non-English authoring artifacts.",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+              "selector": "english-early-check smoke passed"
+            }
+          },
+          {
+            "desc": "Existing done-required-validation-smoke passes with canonical ambient transport neutrality, semantic and explicit-overlay sensitivity, and unchanged historical key-list digest.",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+              "selector": "done-required-validation smoke passed"
+            }
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Existing verification-run-and-guard-smoke passes while retaining remote context/provenance separation, pinned docs recovery, true execution timestamps and local mixed-selector negative assertions; mismatched commands, absent selectors and failing verifiers never mint passing mechanical evidence.",
+            "type": "cli",
+            "verification": {
+              "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+              "selector": "verification-run-and-guard-smoke: PASS"
+            }
+          }
+        ]
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "command": "node -e 'const cp=require(\"node:child_process\"),fs=require(\"node:fs\"),assert=require(\"node:assert/strict\");for(const ref of [\"d5b00d0ff3\",\"c853ab5e63\"])cp.execFileSync(\"git\",[\"merge-base\",\"--is-ancestor\",ref,\"HEAD\"]);const p=\"packages/graph/src/shells/web/playback.js\";assert.deepEqual(fs.readFileSync(p),cp.execFileSync(\"git\",[\"show\",\"c8263eb450:\"+p]));assert.match(fs.readFileSync(p,\"utf8\"),/Proof-or-stop/);console.log(\"MERGE_HISTORY_BRANDING_PASS\");'",
+          "result": "pass",
+          "note": "Tool executes both fixed parent ancestry checks and compares the entire current playback file byte-for-byte with the completed branding commit. This includes both UI headings and the shared export frame renderer.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "a17061953ba9ecef90bac4f90756ce4b48c38510df87af648659f6d42bdaa394",
+            "outputTail": "MERGE_HISTORY_BRANDING_PASS\n",
+            "selectorMatched": true,
+            "selector": "MERGE_HISTORY_BRANDING_PASS",
+            "executedAt": "2026-09-07T11:42:59.919Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:267b1133d4f0496142b3dd69f56cb7a4b884f72c89941d61be04cea56e3a64d1",
+            "causalReceiptHash": "24e589b00dc40c36c98fea265f9d168527cb6e4f00cad41b9b809d95fe430b40",
+            "commandReruns": 0
+          },
+          "headHash": "e88726c0ad0ff059e27fee2919c685b38f30a556",
+          "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+          "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+          "timestamp": "2026-09-07T11:44:04.813Z"
+        },
+        {
+          "intentRef": "CHK-001:happy:1",
+          "kind": "manual_transcript",
+          "command": "node -e 'const cp=require(\"node:child_process\"),fs=require(\"node:fs\"),a=require(\"node:assert/strict\");for(const t of [\"cli-surface-smoke\",\"version-bump-smoke\"])process.stdout.write(cp.execFileSync(process.execPath,[\"packages/main/dist/tasks/\"+t+\".js\"],{encoding:\"utf8\"}));for(const p of [\"package.json\",\"package-lock.json\",\"packages/main/package.json\",\"packages/main/package-lock.json\"]){const j=JSON.parse(fs.readFileSync(p,\"utf8\"));a.equal(j.version,\"0.3.278\");if(j.packages)a.equal(j.packages[\"\"].version,\"0.3.278\");}a.match(fs.readFileSync(\"packages/main/src/core/proof-or-stop-brand.ts\",\"utf8\"),/PROOF_OR_STOP_CLI_VERSION = .0\\.3\\.278./);console.log(\"MERGED_CLI_VERSION_PASS\");'",
+          "result": "pass",
+          "note": "Runs actual CLI routing and version-bump regression plus exact merged package/lock/runtime version alignment assertions.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "f708807687cb2e6088624c9f78b0411f85b3bcf8faae54a5b38af6676042f7b0",
+            "outputTail": "cli surface smoke passed\nversion-bump smoke passed: 88 assertions\nMERGED_CLI_VERSION_PASS\n",
+            "selectorMatched": true,
+            "selector": "MERGED_CLI_VERSION_PASS",
+            "executedAt": "2026-09-07T11:43:12.391Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:bec1a52e4e8a3841c7ad0b652f9575be0b8e1567f0db4063cdca2fa0b5c7ec18",
+            "causalReceiptHash": "6061bd9bceb0a3e568f7ef9ab63ebfddf175981a9853f913dcbccee0ba4e272f",
+            "commandReruns": 0
+          },
+          "headHash": "e88726c0ad0ff059e27fee2919c685b38f30a556",
+          "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+          "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+          "timestamp": "2026-09-07T11:44:04.814Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/english-early-check-smoke.js",
+          "result": "pass",
+          "note": "Compiled early-authoring checks resolve repository guidance and reject non-English authored artifacts as intended.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6ee7f3bf34f5cc2495df380c8222ad2c09cce45144857707a4403ce2166e8c65",
+            "outputTail": "ok: story_create refuses CJK background before persistence\nok: story_create refuses CJK checklist title/context before persistence\nok: story_create refuses CJK relatedDocs before persistence\nok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement\nok: English story_create succeeds with em dash punctuation\nok: background_set refuses CJK before writing\nok: early authoring check and english-artifact gate agree on containsCJK\nok: agent docs preserve the recursive English-authoring boundary\nenglish-early-check smoke passed\n",
+            "selectorMatched": true,
+            "selector": "english-early-check smoke passed",
+            "executedAt": "2026-09-07T11:43:20.942Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:c968513fcccbacf9e6c5d387bb70f503d34dea9d65fc29455ddd7a12b35719e8",
+            "causalReceiptHash": "bfeeee4ecd8edd64bebca81ee8614f68b0fc2d8f61f14f221fdef1612a27b53e",
+            "commandReruns": 0
+          },
+          "headHash": "e88726c0ad0ff059e27fee2919c685b38f30a556",
+          "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+          "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+          "timestamp": "2026-09-07T11:44:04.814Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:1",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/done-required-validation-smoke.js",
+          "result": "pass",
+          "note": "Remote stronger POSIX/Windows ambient transport and historical spelling negative controls pass with immutable historical digest.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "6dd10f3968ede29c836a9c05f2d4817c125b1735ab601017a5959b3fb21e415d",
+            "outputTail": "done-required-validation smoke passed\n",
+            "selectorMatched": true,
+            "selector": "done-required-validation smoke passed",
+            "executedAt": "2026-09-07T11:43:34.345Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:721ea24d222777949d2d4b111577e5c32b8b2d7e56cc95c5f752bea2148e68c9",
+            "causalReceiptHash": "e9ed8dfd1d0a0840aa436e8875c3f5452cb7626648145f1767690d9c4ff42183",
+            "commandReruns": 0
+          },
+          "headHash": "e88726c0ad0ff059e27fee2919c685b38f30a556",
+          "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+          "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+          "timestamp": "2026-09-07T11:44:04.814Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "command": "node packages/main/dist/tasks/verification-run-and-guard-smoke.js",
+          "result": "pass",
+          "note": "Exercises merged stricter execution/provenance identities, signed timestamps, pinned docs recovery and the retained local mixed-selector negative check. Existing shim-name assertion is not actual host-token verification.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "34b35ad924bdb36480eafb7e0059c89b9987f3e65506e9e1f1f2082a01d62c61",
+            "outputTail": "NOTE (Codex): PENDING-REAL-TOKEN — asserted the shim FIRES exit-2 on deny for the documented candidate tokens (shell|local_shell|exec_command); Codex's REAL emitted shell tool_name is NOT confirmed in this environment, so Codex coverage is CANDIDATE-only, not confirmed. Claude Bash is fully asserted.\nverification-run-and-guard-smoke: PASS\n",
+            "selectorMatched": true,
+            "selector": "verification-run-and-guard-smoke: PASS",
+            "executedAt": "2026-09-07T11:44:04.296Z",
+            "timeoutMs": 180000,
+            "executionKey": "ce:v1:48a0a202969250077c587b2546fe749f2483e8ca6820ff6e4d6ec0bb4408c1d2",
+            "causalReceiptHash": "6d120c34efe31517e6b5bb95375366f776e07920380de0a24e8eec1210e15bba",
+            "commandReruns": 0
+          },
+          "headHash": "e88726c0ad0ff059e27fee2919c685b38f30a556",
+          "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+          "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+          "timestamp": "2026-09-07T11:44:04.814Z"
+        }
+      ],
+      "userSeesSnapshot": {
+        "normalizedClaimDigest": "c117a9ee5c283f5c0bf2f201b1135430b829b4d063b30e11f55497ea39972e1b",
+        "storyFilesHash": "163120eab89541c5f8e7e44924707073f5f5141a75ebed578aa1196697d43a88",
+        "headHash": "32885044bdc6a0c9fd3339a805813af0315b05f0",
+        "attestedAt": "2026-09-07T08:11:36.553Z",
+        "materialHash": "1539c58809a9587adfcf689aff66c589c2c2cab2cdff600b1c04559311100cb6"
+      }
     }
   ]
 }

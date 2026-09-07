@@ -1,0 +1,43 @@
+{
+  "storyId": "B-e40f",
+  "name": "quorum-submit-case-harness-20260906",
+  "title": "Make quorum-submit smoke selection complete, isolated, and safely parallel",
+  "description": "Correct and refactor the TypeScript quorum-submit integration suite in one Story: make selection exact and fail-closed, register every existing check without loss, classify pure checks, quorum_prune scenarios, and Git/CLI/lock/concurrency/signature/large-file integration cases into three or four isolated shards, reuse immutable fixture templates, and add truthful resource declarations plus bounded process parallelism. Preserve the compiled black-box contract, the four existing DYN-5 case identities and receipt semantics, and production quorum behavior; exclude Rust and unrelated validation-runner redesign. Before editing shared config or documentation and again before final same-host benchmarks, merge the latest local main after checking B-aa5f state and resolve only the file interaction without absorbing its receipt or freshness semantics.",
+  "type": "bug",
+  "phase": "INIT_CHECK",
+  "priority": "high",
+  "riskSignals": [
+    {
+      "category": "Production/Emergency",
+      "matched": "production"
+    }
+  ],
+  "createdAt": "2026-09-06T12:01:35.270Z",
+  "startedAt": "2026-09-06T12:01:35.270Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-06T12:01:36.064Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-a81742b94284d4257aec7f52024c185b",
+      "agent": "main"
+    },
+    {
+      "phase": "INIT_CHECK",
+      "action": "advance",
+      "timestamp": "2026-09-06T12:14:12.260Z",
+      "branch": "main",
+      "user": "Harmonynet",
+      "sessionId": "sess-a81742b94284d4257aec7f52024c185b",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e40f",
+    "branch": "story/B-e40f",
+    "createdAt": "2026-09-06T12:14:03.452Z"
+  }
+}

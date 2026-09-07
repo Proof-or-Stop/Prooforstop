@@ -156,21 +156,21 @@ export function snapshotPromptEnvelopes(
   return Object.freeze(envelopes.map(envelope => {
     const cloned: PromptEnvelope = {
       ...envelope,
-      eligibilityReasonCodes: envelope.eligibilityReasonCodes
-        ? [...envelope.eligibilityReasonCodes]
-        : undefined,
-      findingProjection: envelope.findingProjection
-        ? envelope.findingProjection.map(projection => ({ ...projection }))
-        : undefined,
     };
+    // Absence is part of canonical envelope integrity: do not manufacture own
+    // undefined keys. Preserve explicit malformed values for the verifier to
+    // reject; a snapshot is isolation, never normalization or re-signing.
     return Object.freeze({
       ...cloned,
-      eligibilityReasonCodes: cloned.eligibilityReasonCodes
-        ? Object.freeze(cloned.eligibilityReasonCodes)
-        : undefined,
-      findingProjection: cloned.findingProjection
-        ? Object.freeze(cloned.findingProjection.map(projection => Object.freeze({ ...projection })))
-        : undefined,
+      ...(Array.isArray(cloned.eligibilityReasonCodes)
+        ? { eligibilityReasonCodes: Object.freeze([...cloned.eligibilityReasonCodes]) }
+        : {}),
+      ...(Array.isArray(cloned.findingProjection)
+        ? { findingProjection: Object.freeze(cloned.findingProjection.map(projection =>
+          projection !== null && typeof projection === 'object' && !Array.isArray(projection)
+            ? Object.freeze({ ...projection })
+            : projection)) }
+        : {}),
     }) as unknown as PromptEnvelope;
   }));
 }

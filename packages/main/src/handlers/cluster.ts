@@ -14,29 +14,34 @@ import type { HandlerContext } from './context.js';
 import type { Finding } from '../core/types.js';
 import type { ClusterRecord } from '../core/cluster-types.js';
 import { clusterFindings, forceMergeCluster } from '../core/cluster-compute.js';
+import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 
 export function createClusterHandlers(ctx: HandlerContext) {
   const { store } = ctx;
+  const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   return {
     finding_cluster(args: { storyId: string; merge?: string[] | string; split?: string }): string {
       if (args.merge && args.split) {
         throw new Error('finding_cluster cannot pass both merge and split');
       }
 
-      const findingsData = store.readFindings(args.storyId);
-      const findings = findingsData.findings;
-
       if (args.split) {
-        return handleSplit(args.storyId, args.split, findings, store);
+        return authoritativeMutation(args.storyId, `cluster-split:${args.split}`, (data) => ({
+          result: handleSplit(args.storyId, args.split!, data.findings, store),
+        }));
       }
       if (args.merge) {
         // F-013: support CLI comma-separated (--merge=F-001,F-002); array form is passed through directly.
         const mergeIds = Array.isArray(args.merge)
           ? args.merge
           : args.merge.split(',').map(s => s.trim()).filter(Boolean);
-        return handleMerge(args.storyId, mergeIds, findings, store);
+        return authoritativeMutation(args.storyId, `cluster-merge:${mergeIds.slice().sort().join(',')}`, (data) => ({
+          result: handleMerge(args.storyId, mergeIds, data.findings, store),
+        }));
       }
-      return handleDefault(args.storyId, findings, store);
+      return authoritativeMutation(args.storyId, 'cluster-default', (data) => ({
+        result: handleDefault(args.storyId, data.findings, store),
+      }));
     },
 
     /**
@@ -84,7 +89,6 @@ function handleDefault(
     else delete f.clusterId;
   }
 
-  store.writeFindings(storyId, { findings });
   store.writeClusters(storyId, { clusters });
 
   return renderSummary(findings.length, clusters);
@@ -122,7 +126,6 @@ function handleMerge(
   for (const f of findings) {
     if (mergeSet.has(f.id)) f.clusterId = newCluster.clusterId;
   }
-  store.writeFindings(storyId, { findings });
   store.writeClusters(storyId, { clusters: updated });
 
   return `Force-merged ${mergeIds.length} findings into ${newCluster.clusterId} (${newCluster.severity}, files: ${newCluster.files.join(', ') || 'none'})`;
@@ -144,7 +147,6 @@ function handleSplit(
     if (memberSet.has(f.id)) delete f.clusterId;
   }
   const remaining = clustersData.clusters.filter(c => c.clusterId !== clusterId);
-  store.writeFindings(storyId, { findings });
   store.writeClusters(storyId, { clusters: remaining });
   return `Split cluster ${clusterId}: ${memberSet.size} findings back to singleton`;
 }

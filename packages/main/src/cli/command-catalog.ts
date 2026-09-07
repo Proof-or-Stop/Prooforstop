@@ -174,6 +174,12 @@ const proofStoryContractEnvelopeSchema = z.object({
 
 const proofStoryGateModeSchema = z.enum(['observe', 'warn', 'enforce']);
 
+const runtimeEvidenceCommandSchema = z.object({
+  executable: z.string().min(1).describe('Absolute executable path; runtime resolves the realpath and always uses shell=false.'),
+  args: z.array(z.string()).optional().describe('Exact ordered argv passed to the executable.'),
+  cwd: z.string().optional().describe('Project-relative working directory; traversal and realpath escape are refused.'),
+});
+
 const reviewerReadManifestSchema = z.object({
   filesReadFully: z.array(z.string()).describe('Relative files the reviewer read in full. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
   filesTriagedByName: z.array(z.string()).describe('Relative files the reviewer only triaged by filename/title. Decisions-doc entries are mechanically compared to readLog; non-decision entries remain signed manifest evidence.'),
@@ -2194,6 +2200,7 @@ Behavior:
     ]).describe('Category (legacy category is normalized to missing).'),
     agent: z.string().optional().describe('Caller identity (optional, defaults from PROOF_OR_STOP_AGENT environment variable).'),
     reviewRunId: z.string().optional().describe('Current proof-or-stop-review-* reviewer run ID (call review_run_start first; main finding may omit this).'),
+    idempotencyKey: z.string().min(1).optional().describe('Caller retry key. Reusing it with identical bytes returns the original ledger record/display ID; conflicting bytes fail closed. Omitted calls receive a fresh UUID key.'),
     files: z.array(z.string()).optional().describe('Related file paths (for reviewer finding clustering and traceability).'),
     // B-3fad CHK-001: evidence state axis. Omitted value defaults to verified for REVIEW-stage reviewer findings, preserving current gate behavior.
     // suspected requires uncertaintyReason; disproven requires disprovenEvidence.summary (runtime applies the same standard validation).
@@ -2218,6 +2225,34 @@ Behavior:
     cluster: z.boolean().optional().describe('B-9d95 CHK-005: return cluster view { clusters, ungrouped } instead of flat findings.'),
     ...BRIEF_OUTPUT_FLAGS,
     ...JSON_OUTPUT_FLAGS,
+  }},
+  { name: 'finding_ledger_query', description: 'Read a complete signed ledger/CAS/idempotency/runtime/migration scorecard projection without exposing protected storage paths', schema: {
+    storyId: z.string().describe('Story ID.'),
+  }},
+  { name: 'finding_runtime_evidence_run', description: 'Run a structured build/execution command and append a content-addressed RuntimeEvidenceReceipt', schema: {
+    storyId: z.string().describe('Story ID.'),
+    idempotencyKey: z.string().min(1).describe('Exactly-once runtime receipt append key.'),
+    buildCommand: runtimeEvidenceCommandSchema.describe('Structured build command.'),
+    executionCommand: runtimeEvidenceCommandSchema.describe('Structured execution command.'),
+    artifactPaths: z.array(z.string().min(1)).min(1).describe('Project-relative artifacts whose bytes and realpaths must remain stable.'),
+    environmentAllowlist: z.array(z.string().min(1)).optional().describe('Environment variable names allowed into the complete child environment and redacted receipt projection.'),
+    excludedEnvironmentVariables: z.array(z.string().min(1)).optional().describe('Environment names explicitly excluded from execution and raw-value storage.'),
+    compilerVersion: z.string().min(1).describe('Compiler/toolchain version bound into the receipt.'),
+    timeoutMs: z.number().int().min(1).max(300000).optional().describe('Per-command timeout in milliseconds (default 60000).'),
+    buildInProgress: z.boolean().optional().describe('Legacy conservative hint. The handler also observes the canonical proper-lockfile build mutex and refuses even when this field is false or omitted.'),
+    storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
+  }},
+  { name: 'finding_runtime_evidence_verify', description: 'Verify a persisted RuntimeEvidenceReceipt against current blobs, source, artifacts, commands, environment, toolchain and trust', schema: {
+    storyId: z.string().describe('Story ID.'),
+    runtimeReceiptId: z.string().min(1).describe('RuntimeEvidenceReceipt ID returned by finding_runtime_evidence_run.'),
+    buildCommand: runtimeEvidenceCommandSchema.describe('Expected current structured build command.'),
+    executionCommand: runtimeEvidenceCommandSchema.describe('Expected current structured execution command.'),
+    environmentAllowlist: z.array(z.string().min(1)).optional().describe('Expected current environment allowlist.'),
+    excludedEnvironmentVariables: z.array(z.string().min(1)).optional().describe('Expected current excluded environment names.'),
+    compilerVersion: z.string().min(1).describe('Expected current compiler/toolchain version.'),
+    publicKey: z.string().optional().describe('Compatibility assertion only. It cannot select trust; when present it must equal the current registered runtime-evidence key.'),
+    keyStatus: z.enum(['fresh', 'unknown', 'revoked', 'expired']).optional().describe('Compatibility assertion only. It cannot promote a key to fresh; trusted key status is derived by the verifier.'),
+    storageCapability: z.string().optional().describe('Declared storage adapter capability; unsupported values fail closed.'),
   }},
   { name: 'finding_resolve', description: 'Mark finding as resolved', schema: {
     storyId: z.string().describe('Story ID'),

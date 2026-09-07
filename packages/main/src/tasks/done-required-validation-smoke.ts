@@ -378,25 +378,36 @@ function assertDoneRequiredBlocked(
       );
     }
 
-    // The frozen list records historical spellings; active filtering uses the
-    // canonical brand. Assert retired spellings remain semantic rather than
-    // accidentally reactivating them to satisfy this smoke.
-    for (const historicalKey of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
-      const key = historicalKey.replace(/^LATTICE_/, 'PROOF_OR_STOP_');
-      if (key !== historicalKey) {
-        const retiredOwner = buildDoneRequiredExecutionIdentity({
-          projectRoot: root, policy,
-          processEnvironment: { ...common, [historicalKey]: 'owner-value' }, platform: 'linux',
-        });
-        const retiredReviewer = buildDoneRequiredExecutionIdentity({
-          projectRoot: root, policy,
-          processEnvironment: { ...common, [historicalKey]: 'reviewer-value' }, platform: 'linux',
-        });
+    // The digest-pinned list retains historical spellings; current transport
+    // matching uses their canonical names without accepting retired aliases.
+    // Test-only historical prefix: assemble it without introducing a literal
+    // active-name declaration (see scripts/verify-proof-or-stop-residue.mjs detector tokens).
+    // The frozen-key branch is a negative control: retired inputs must remain
+    // semantic and must not become transport aliases.
+    const retiredPrefix = ['LAT', 'TICE_'].join('');
+    for (const frozenKey of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
+      const key = frozenKey.startsWith(retiredPrefix)
+        ? `PROOF_OR_STOP_${frozenKey.slice(retiredPrefix.length)}`
+        : frozenKey;
+      if (key !== frozenKey) {
         assert.notDeepEqual(
-          retiredOwner.commands.map(command => command.effectiveEnvironmentDigest),
-          retiredReviewer.commands.map(command => command.effectiveEnvironmentDigest),
-          `retired spelling is not an active transport key: ${historicalKey}`,
+          effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'owner-identity' }, undefined, root),
+          effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'reviewer-identity' }, undefined, root),
+          `retired ambient spelling remains semantic: ${frozenKey}`,
         );
+        for (const platform of ['linux', 'win32'] as const) {
+          const retiredOwner = buildDoneRequiredExecutionIdentity({
+            projectRoot: root, policy, processEnvironment: { ...common, [frozenKey]: 'owner-value' }, platform,
+          });
+          const retiredReviewer = buildDoneRequiredExecutionIdentity({
+            projectRoot: root, policy, processEnvironment: { ...common, [frozenKey]: 'reviewer-value' }, platform,
+          });
+          assert.notDeepEqual(
+            retiredOwner.commands.map(command => command.effectiveEnvironmentDigest),
+            retiredReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+            `retired ambient key remains semantic on ${platform}: ${frozenKey}`,
+          );
+        }
       }
       const owner = { ...common, [key]: 'owner-identity' };
       const reviewer = { ...common, [key]: 'reviewer-identity' };

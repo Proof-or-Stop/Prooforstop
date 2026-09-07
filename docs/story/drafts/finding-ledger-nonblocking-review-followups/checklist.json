@@ -1,0 +1,36 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Bind assessment freshness and cross-story filing at the official semantic consumers",
+      "context": "Claude R2-01/R2-02, session cbc9df39-80c3-475b-a3d4-1d0e1e35c257 on e0a79946/5657b83. handlers/finding-ledger.ts:1038-1043 compares caller-declared dates/maxAge; :1073-1090 does not equate source finding story and containing ledger. Plan sections9.1/9.2/9.3 and component table3080 assign assessment/route interpretation downstream. Static suspected observations, not a current schema-neutral persistence failure. Route to the official Applicability/Identity Story when it exists; require reproduction and policy-bound GREEN there.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-002",
+      "title": "Evaluate compatibility clustering recovery and durable writer adapter coverage",
+      "context": "Codex concept review on ad0c1b79: handlers/cluster.ts:92,129,150 writes auxiliary grouping before ledger append; failure keeps readFindings on prior signed state and default clustering can rebuild clusterId, so no proven lifecycle truth distortion. Claude R1-01: all current production callers pass authoritativeMutation, optional fallback is prospective regression risk. Follow-up owns measurement and failure-injection proof before any change; no broad multi-file ACID rewrite is authorized.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Measure ledger reader cost before proposing caching",
+      "context": "Claude R1-03 is explicitly unmeasured. core/store.ts scans receipts and hashes prefixes when reading ledger-backed findings. Record baseline runtime, ledger size, calls and real gate/user latency before classifying severity. Existing correctness and per-selector receipt integrity must not be weakened to optimize it.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Clarify the legacy RED selector without weakening its negative control",
+      "context": "Claude R3-01: packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:41-46,143-148 retains currentFails=true inside an explicitly labelled legacyPinnedNegativeControl carrier. Tests461-486 prove the token is absent when GREEN fails or corrupted relation is accepted. Current pin is discriminating; future narrowing requires the official verification_pin_narrow contract, not an arbitrary replacement. B-fe8f summary should clarify currentFails denotes the compatibility negative control, not current implementation failure.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

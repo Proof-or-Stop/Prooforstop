@@ -1,0 +1,20 @@
+{
+  "storyId": "B-42f6",
+  "expected": "Both parent histories remain reachable and Proof-or-stop playback/export branding remains visible after normal publication.",
+  "actual": {
+    "command": "node --input-type=module -e 'import cp from \"node:child_process\";import fs from \"node:fs\";import a from \"node:assert/strict\";import {deriveCertificationDomainInputHashes} from \"./packages/main/dist/handlers/certification-window.js\";const p=\"packages/graph/src/shells/web/playback.js\";a.deepEqual(fs.readFileSync(p),cp.execFileSync(\"git\",[\"show\",\"c8263eb450:\"+p]));for(const r of [\"d5b00d0ff3\",\"c853ab5e63\",\"e8fc28d56a\"])cp.execFileSync(\"git\",[\"merge-base\",\"--is-ancestor\",r,\"HEAD\"]);const hashes=deriveCertificationDomainInputHashes(process.cwd());a.equal(Object.keys(hashes).length,6);for(const h of Object.values(hashes))a.match(h,/^[0-9a-f]{64}$/);console.log(\"Proof-or-stop playback and exported-frame branding preserved; both main histories preserved; all six actual certification input domains derived.\");process.stdout.write(cp.execFileSync(process.execPath,[\"bin/proof-or-stop.js\",\"--version\"],{encoding:\"utf8\"}));'",
+    "exitCode": 0,
+    "stdout": "Proof-or-stop playback and exported-frame branding preserved; both main histories preserved; all six actual certification input domains derived.\nProof-or-Stop 0.3.278\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-07T12:16:33.636Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "b0ce0dc1111228bad5f02c3affbdc1261f155979",
+  "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a"
+}

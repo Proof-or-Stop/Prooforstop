@@ -1,0 +1,91 @@
+{
+  "schema": "proof-or-stop.done-required-evidence",
+  "version": 1,
+  "storyId": "B-42f6",
+  "status": "PASS",
+  "startedAt": "2026-09-07T12:22:30.593Z",
+  "endedAt": "2026-09-07T12:30:51.788Z",
+  "durationMs": 501195,
+  "headHash": "5bd9dc41d10b430d26f5bdafb8206d8d64ca4191",
+  "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+  "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+  "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
+  "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
+  "receipts": [
+    {
+      "label": "packages/main build",
+      "command": "npm",
+      "args": [
+        "--prefix",
+        "packages/main",
+        "run",
+        "build"
+      ],
+      "commandSpec": {
+        "schema": "proof-or-stop.command-spec.v2",
+        "digest": "a76398c632d34d84bee8e7f8311b0d8455e09520b58209a489f04c0f7317d9da",
+        "command": "npm",
+        "args": [
+          "--prefix",
+          "packages/main",
+          "run",
+          "build"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 290000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 877,
+      "outputDigest": "8fd5c32973e90ca8c6632abdf2688555f76fc19f15c670d7c05044008c4a4606",
+      "outputTail": "\n> @proof-or-stop/core@0.3.278 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
+      "startedAt": "2026-09-07T12:22:30.594Z",
+      "endedAt": "2026-09-07T12:22:31.472Z",
+      "effectiveEnvironmentDigest": "2cae1ad08e4f305e61c271a8c6d9297ef8e2b87fc433144905e63d20a194cd38",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "5bd9dc41d10b430d26f5bdafb8206d8d64ca4191",
+      "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+      "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f"
+    },
+    {
+      "label": "root full test suite",
+      "command": "npm",
+      "args": [
+        "test"
+      ],
+      "commandSpec": {
+        "schema": "proof-or-stop.command-spec.v2",
+        "digest": "6799a93ad997f9caf9d5c45a723d844aa642b9ed152a8a5ed54a2b8a09358df2",
+        "command": "npm",
+        "args": [
+          "test"
+        ],
+        "cwd": ".",
+        "resolvedCwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6",
+        "shell": false,
+        "env": {},
+        "timeoutMs": 7200000
+      },
+      "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 499516,
+      "outputDigest": "37cca942e76c932e538299832574392bfabb207248ca2ab8c7c7952a57f659b0",
+      "outputTail": "\n> proof-or-stop@0.3.278 pretest\n> node scripts/ensure-dist.mjs\n\n\n> proof-or-stop@0.3.278 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nPASS test:brief-output 34.7s\nPASS test:experiments 15.9s\nPASS test:full-suite-runner-smoke 33.8s\nPASS test:full-suite-resource-sentinel 0.2s\nPASS test:main-write-lock-coverage 0.3s\nPASS test:production-test-seam-guard 1.6s\nPASS test:proof-or-stop-residue 0.4s\nPASS test:residue-inject-repro 1.4s\nPASS test:retired-authority-vocabulary-guard 50.6s\nPASS test:proofstory-acceptance-rollout 147.2s\nPASS test:proof-or-stop-prompt-baseline 10.0s\nPASS test:codex-heartbeat-timeout 2.9s\nPASS test:audit-scan-bin-token 0.2s\nPASS test:review-convergence-smoke 0.2s\nPASS test:review-loop-smoke 0.7s\nPASS test:delivery-context-pack-smoke 7.3s\nPASS test:review-assurance-floor-smoke 7.8s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 1.1s\nPASS test:withdrawn-disposition-smoke 1.7s\nPASS test:global-core-realpath 0.6s\nPASS test:brand-path-resolver-smoke 0.5s\nPASS test:config-filename-migration-smoke 1.2s\nPASS test:core-package-rename 5.8s\nPASS test:state-dir-migration 0.8s\nPASS test:identity-state-migrate-atomicity 0.2s\nPASS test:migration-contract 0.8s\nPASS test:review-assurance-floor-storyfileshash-smoke 0.4s\nPASS test:docs-drift-smoke 0.2s\nPASS test:docs-drift-wrapper-root 0.8s\nPASS test:graph-story-flag-smoke 6.6s\nPASS test:gitroot-cwd-contract 0.2s\nPASS test:process-fact-contract 5.5s\nPASS test:closeout-trust 36.3s\nPASS test:verifier-causal-preflight 1.2s\nPASS test:runtime-fact-contract 2.4s\nPASS test:evidence-quality 0.2s\nPASS test:anti-stall 0.1s\nPASS test:storydir-inside-gitroot-smoke 0.8s\nPASS test:gitroot-cwd-routing 1.5s\nPASS test:bare-gate-gitroot-cwd 0.4s\nPASS test:project-gitroot-cwd 0.4s\nPASS test:done-oracle-wrapper-root 1.8s\nPASS test:done-premerge-mainsha-recheck 7.7s\nPASS test:done-escalation-drift-advisory 1.5s\nPASS test:review-escalation-freshness-root 4.3s\nPASS test:dispatch-checklist-doctor-wrapper-root 0.8s\nPASS test:graceful-sites-gitroot-cwd 0.8s\nPASS test:experience-hint-worktree-cache 1.0s\nPASS test:done-merge-experience-refresh 2.3s\nPASS test:proofstory-intent-hardening-smoke 111.0s\nPASS test:experience-coverage-gap 1.2s\nPASS test:nested-worktree-bootstrap 15.7s\nPASS test:e2e 2.4s\nPASS test:experience-arm-gate 0.3s\nPASS test:experience-arm-isolation-e2e 9.9s\nPASS test:convergence-breaker 0.4s\nPASS test:topology-signing-source-guard 0.2s\nPASS test:signing-guard-mutation-proof 0.3s\nPASS test:validation-tier-planner 6.8s\nPASS test:single-owner-extraction 10.3s\nPASS test:validation-protocol 44.8s\nPASS test:flow-stability-smoke 104.5s\nPASS test:narrowing-repin 28.8s\nPASS test:review-incremental-context-smoke 98.3s\nPASS test:milestone-status 36.4s\nfull-suite: 65/65 passed in 497.7s; retries=0; jobs=2\n",
+      "startedAt": "2026-09-07T12:22:31.802Z",
+      "endedAt": "2026-09-07T12:30:51.415Z",
+      "effectiveEnvironmentDigest": "2cae1ad08e4f305e61c271a8c6d9297ef8e2b87fc433144905e63d20a194cd38",
+      "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
+      "shellExecutableDigest": null,
+      "headHash": "5bd9dc41d10b430d26f5bdafb8206d8d64ca4191",
+      "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+      "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f"
+    }
+  ],
+  "reasons": []
+}

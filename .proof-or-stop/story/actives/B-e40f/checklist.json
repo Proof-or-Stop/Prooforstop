@@ -1,0 +1,314 @@
+{
+  "items": [
+    {
+      "id": "CHK-001",
+      "title": "Make targeted quorum smoke execution fail closed and independent",
+      "context": "Probe rp-mtprb2px-5y3pae proves that an unmatched --grep reports PASS with zero checks, while isolated execution of a stateful check fails because its prerequisites live in earlier checks. Replace ambiguous zero-work narrowing with stable exact selection and explicit prerequisite setup. Persistent RED command before implementation: node packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs --case=selector-contract. The identical command and selector must become GREEN.",
+      "status": "pending",
+      "startTime": null,
+      "endTime": null,
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/testing-infra.md",
+        "docs/requirements/decisions/repro-first-story-intake-experiment.md"
+      ],
+      "userSees": "A targeted case runs exactly its intended assertions or exits non-zero with a precise selection error; zero-work success and predecessor-dependent success are impossible.",
+      "excludes": [
+        "Production quorum command behavior changes",
+        "Rust or another runner language"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts",
+          "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs"
+        ],
+        "test": [
+          "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "be40f-selector-exact-independent",
+            "desc": "Before production changes, the committed selector-contract command fails on a formerly order-dependent case in a fresh process; afterward the identical command runs the exact case with explicit prerequisites and exits zero.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "be40f-selector-no-match-fails-closed",
+            "desc": "The selector-contract command first fails because an unknown or empty selector exits zero with zero checks; GREEN requires both forms to exit non-zero without an aggregate PASS, while a non-empty --grep compatibility selection may still select one or more named cases.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "be40f-selector-order-independent",
+            "desc": "The same selector-contract command runs selected cases in isolated processes and reverse order without missing shared variables, undeclared prerequisite state, or order-sensitive verdict changes.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      }
+    },
+    {
+      "id": "CHK-002",
+      "title": "Make the full quorum smoke case inventory mechanically lossless",
+      "context": "The default command currently has 73 check call sites while the DYN-5 registry exposes only four special quorum scenarios. Establish unique stable identities and a bidirectional implementation-to-inventory guard so splitting cannot silently drop, duplicate, replace, or invent coverage. Preserve the four existing DYN-5 case IDs, runner markers, sentinel behavior, and receipt semantics. Persistent RED command before implementation: node packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs --case=inventory-bijection. The identical command and selector must become GREEN.",
+      "relatedDocs": [
+        "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md",
+        "docs/requirements/decisions/dynamic-validation-operations.md",
+        "docs/requirements/decisions/testing-completeness.md"
+      ],
+      "userSees": "Maintainers can list and select every migrated check by stable ID, and any missing, duplicate, extra, or unresolved identity fails closed.",
+      "excludes": [
+        "Changing unrelated smoke inventories",
+        "Treating the four existing DYN-5 sentinels as full 73-case coverage"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/story-aware-validation-domain-cases.json",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "create": [
+          "packages/main/src/tasks/quorum-submit-smoke-cases.json"
+        ],
+        "test": [
+          "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "be40f-inventory-bijection",
+            "desc": "Before production changes, the committed inventory-bijection command fails because no canonical complete internal inventory exists; afterward the identical command proves one unique stable identity for every baseline case and exact bidirectional resolution.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "be40f-inventory-rejects-drift",
+            "desc": "The same command injects duplicate, missing, extra, and unresolved rows and requires each mutation to fail with the affected stable identity.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "be40f-inventory-mutation-bites",
+            "desc": "The same command replaces one identity while preserving the numeric case count and still fails the bijection guard, proving the guard is not count-only.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-003",
+      "title": "Classify and partition pure, quorum_prune, and integration cases without losing aggregate coverage",
+      "context": "The suite mixes cheap deterministic checks, 21 quorum_prune scenarios, and other real Git, CLI, lock, concurrent-write, environment, signature, and large-file integration cases. Classify every case by observed resource and isolation needs, then form three or four isolated DYN-5-compatible shards rather than treating every non-prune case as pure. Preserve a fail-closed default aggregate over the canonical inventory with a real end-to-end sentinel in every required domain. Persistent RED command before implementation: node packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs --case=partition-contract. The identical command and selector must become GREEN.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "Pure, quorum_prune, and remaining integration coverage run in correctly isolated three-to-four shard partitions, while the default command executes the complete canonical case set exactly once.",
+      "excludes": [
+        "Production pruning-policy changes",
+        "Splitting unrelated smoke files"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs"
+        ],
+        "create": [
+          "packages/main/src/tasks/quorum-submit-smoke-pure-cases.ts",
+          "packages/main/src/tasks/quorum-submit-smoke-prune-cases.ts",
+          "packages/main/src/tasks/quorum-submit-smoke-integration-cases.ts"
+        ],
+        "test": [
+          "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "be40f-partition-union-parity",
+            "desc": "Before production changes, the committed partition-contract command fails because no resource-classified 3-to-4-shard partition exists; afterward the identical command proves disjoint union equality with the canonical inventory and one real sentinel per required domain.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "be40f-partitions-standalone",
+            "desc": "The same command proves every shard starts from a clean isolated process, needs no other shard, retains every quorum_prune identity, and classifies Git, CLI, lock, concurrency, environment, signature, and large-file cases as integration rather than pure.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "be40f-partition-failure-propagates",
+            "desc": "The same command deletes a shard, duplicates or misroutes a case, injects static PASS, and injects a child failure; each mutation makes the aggregate negative and leaves zero temp, process, ticket, or quarantine residue.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-004",
+      "title": "Reuse fixture templates without allowing state to leak between cases",
+      "context": "The suite repeatedly initializes temporary Git repositories and recreates equivalent commits. Build immutable templates by compatible fixture profile and give every case a unique derived fixture with deterministic cleanup; never share mutable refs, events, caches, locks, or Story files. Persistent RED command before implementation: node packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs --case=fixture-template-contract. The identical command and selector must become GREEN.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-fixture-spec.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "Fixture-backed cases begin from equivalent clean Git state with less repeated setup and no cross-case or order-dependent contamination.",
+      "excludes": [
+        "Persistent caches outside the test process",
+        "Shared mutable Story or evidence state between cases"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/quorum-submit-smoke-case-catalog.ts"
+        ],
+        "create": [
+          "packages/main/src/tasks/quorum-submit-smoke-fixture.ts"
+        ],
+        "test": [
+          "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "be40f-fixture-template-equivalence",
+            "desc": "Before production changes, the committed fixture-template-contract command fails because every compatible fixture rebuilds Git history; afterward the identical command proves template-derived fixtures preserve required refs, commits, config, Story state, and handler behavior while an operation counter proves setup reuse.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "be40f-fixture-clone-isolation",
+            "desc": "The same command mutates files, refs, events, config, caches, and locks in one derived fixture and proves a sibling plus the immutable template remain pristine.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "be40f-fixture-corruption-fails",
+            "desc": "The same command presents missing, altered, symlinked, and profile-mismatched templates; each is rejected or rebuilt from authoritative inputs and never silently accepted.",
+            "type": "logic",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    },
+    {
+      "id": "CHK-005",
+      "title": "Declare truthful resources and run independent quorum partitions concurrently",
+      "context": "The quorum validation row has no resources and therefore receives a plan-wide exclusive barrier. Only after runtime write tracing and fixture isolation prove the claims, declare the real repository reads and unique temporary writes and execute compatible shards through a bounded process pool without changing the general scheduler. Persistent correctness RED command before implementation: node packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs --case=resource-parallel-contract. The identical command and selector must become GREEN. Performance acceptance is frozen: on one idle host and one Node/toolchain version, after one build, run the baseline aggregate and the GREEN --jobs=1 and --jobs=2 variants three times each in alternating order; compare medians over complete identical case-ID sets. GREEN requires jobs=2 median wall time at least 20 percent below the recorded pre-change baseline and at least 15 percent below GREEN jobs=1, with identical verdicts, failure propagation, and zero residue. If either threshold is missed, do not claim or complete the performance optimization.",
+      "relatedDocs": [
+        "docs/requirements/decisions/test-runner-consolidation-plan.md",
+        "docs/requirements/decisions/story-aware-dynamic-validation-execution-plan.md",
+        "docs/requirements/decisions/testing-infra.md"
+      ],
+      "userSees": "Compatible quorum work overlaps safely, failures and timeouts remain fail closed, and a three-sample same-host median demonstrates a material speedup or the Story stops without an optimization claim.",
+      "excludes": [
+        "General validation scheduler redesign",
+        "Unbounded worker counts",
+        "Unmeasured performance claims"
+      ],
+      "files": {
+        "modify": [
+          "packages/main/src/tasks/quorum-submit-smoke.ts",
+          "packages/main/src/tasks/story-aware-validation-domain-case-runner.mjs",
+          "proof-or-stop.config.json",
+          "packages/main/tests/validate-resource-claims.test.mjs",
+          "docs/requirements/decisions/test-runner-consolidation-plan.md",
+          "docs/requirements/decisions/story-aware-dynamic-validation-current-main-characterization.md"
+        ],
+        "create": [
+          "packages/main/src/tasks/quorum-submit-smoke-worker.ts"
+        ],
+        "test": [
+          "packages/main/tests/red/red-B-e40f-quorum-submit-harness.mjs",
+          "packages/main/tests/validate-resource-claims.test.mjs"
+        ]
+      },
+      "verificationIntent": {
+        "happy": [
+          {
+            "id": "be40f-workers-overlap",
+            "desc": "Before production changes, the committed resource-parallel-contract command fails because the quorum row is an undeclared barrier and no bounded shard overlap exists; afterward the identical command proves two compatible workers overlap, join, and report every selected identity exactly once.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          },
+          {
+            "id": "be40f-full-runtime-measured",
+            "desc": "On the same idle host, Node version, built material, and identical case-ID set, three alternating runs each of baseline, GREEN jobs=1, and GREEN jobs=2 record medians; jobs=2 must improve at least 20 percent over baseline and 15 percent over GREEN jobs=1 or CHK-005 remains incomplete.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "id": "be40f-jobs-one-parity",
+            "desc": "The same correctness command proves jobs=1 and jobs=2 have identical case IDs and verdicts, while zero, negative, non-numeric, and excessive worker values follow one documented bounded policy.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "id": "be40f-worker-failure-resource-floor",
+            "desc": "The same correctness command injects worker failure and timeout and requires a negative aggregate with no child or fixture residue; runtime tracing proves the real resource claim avoids the undeclared barrier while forged unsafe claims are caught.",
+            "type": "cli",
+            "requiredIn": "strict",
+            "priority": "must"
+          }
+        ]
+      },
+      "status": "pending",
+      "startTime": null,
+      "endTime": null
+    }
+  ]
+}

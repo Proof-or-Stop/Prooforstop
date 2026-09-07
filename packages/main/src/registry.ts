@@ -135,6 +135,8 @@ import { createCandidateSpecRoutingHandlers } from './handlers/candidate-spec-ro
 import { createBaselineHandlers } from './handlers/baseline.js';
 import { createBaselineSuiteHandlers } from './handlers/baseline-suite.js';
 import { createRedEvidenceHandlers } from './handlers/red-evidence.js';
+import { createFindingLedgerHandlers } from './handlers/finding-ledger.js';
+import { createFindingRuntimeEvidenceHandlers } from './handlers/finding-runtime-evidence.js';
 import { createIdentityStateMigrateHandlers } from './handlers/identity-state-migrate.js';
 import { nextStoryId } from './handlers/context.js';
 import { readBrandEnv } from './core/brand-env.js';
@@ -217,6 +219,9 @@ export function createMainRegistry(ctx: HandlerContext): Registry {
   registry.registerBatch(createReviewInventoryHandlers(ctx));
   registry.registerBatch(createReviewLoopHandlers(ctx));
   registry.registerBatch(createFindingHandlers(ctx));
+  const findingLedgerHandlers = createFindingLedgerHandlers(ctx);
+  registry.register('finding_ledger_query', findingLedgerHandlers.finding_ledger_query);
+  registry.registerBatch(createFindingRuntimeEvidenceHandlers(ctx));
   registry.registerBatch(createEvaluateHandlers(ctx));
   registry.registerBatch(createWorkflowHandlers(ctx));
   registry.registerBatch(createScopeCheckHandlers(ctx));

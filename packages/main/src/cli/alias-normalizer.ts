@@ -30,6 +30,12 @@ export const STRIPPABLE_BIN_TOKENS: readonly string[] = [
 ];
 
 export const NESTED_SPACE_ALIASES: Record<string, string> = {
+  'lab create': 'lab_create',
+  'lab run': 'lab_run',
+  'lab eval': 'lab_eval',
+  'lab compare': 'lab_compare',
+  'lab promote': 'lab_promote',
+  'lab help': 'lab_help',
   'host list': 'host_list',
   'host probe': 'host_probe',
   'host status': 'host_status',
@@ -77,12 +83,6 @@ export const NESTED_SPACE_ALIASES: Record<string, string> = {
   'codex verify': 'verify_codex',
   'codex doctor': 'codex_doctor',
   'rollout check': 'rollout_check',
-  'lab create': 'lab_create',
-  'lab run': 'lab_run',
-  'lab eval': 'lab_eval',
-  'lab compare': 'lab_compare',
-  'lab promote': 'lab_promote',
-  'lab help': 'lab_help',
   'baseline run': 'baseline_run',
   'baseline suite': 'baseline_suite',
   'baseline suite report': 'baseline_suite_report',

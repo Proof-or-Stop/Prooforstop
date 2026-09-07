@@ -1569,6 +1569,14 @@ export interface DisprovenEvidence {
 /** Finding: a finding raised by a proof-or-stop reviewer (replaces testIntent) */
 export interface Finding {
   id: string;            // format B-xxx:F-001
+  /**
+   * Collision-resistant immutable persistence identity. Legacy Findings omit
+   * this field and remain byte-preserved; their binding is appended to the
+   * separate Finding ledger on first mediated read/backfill.
+   */
+  recordId?: string;
+  /** CHK-002 durable commit acknowledgement; not the signed CHK-003 receipt. */
+  ledgerCommitReceiptId?: string;
   desc: string;
   severity: 'critical' | 'high' | 'medium' | 'low';
   category: 'happy' | 'edge' | 'adversarial' | 'missing';
@@ -1677,6 +1685,160 @@ export interface GapLogProvenanceBinding {
 export interface FindingData {
   findings: Finding[];
 }
+
+/**
+ * Minimal CHK-002 transaction result exposed to existing Finding callers.
+ * The signed FindingLedgerReceipt contract is deliberately deferred to CHK-003.
+ */
+export interface FindingLedgerCommitRef {
+  recordIds: string[];
+  receiptId: string;
+  priorLedgerDigest: string;
+  committedLedgerDigest: string;
+  replayed: boolean;
+}
+
+/**
+ * Signed acknowledgement for one durable Finding-ledger transaction.
+ *
+ * This is deliberately a persistence fact, not a Finding/route/assessment
+ * verdict. Consumers must still verify the exact referenced records and their
+ * own predicate before assigning semantic authority.
+ */
+export type FindingLedgerOperation =
+  | 'append_finding'
+  | 'append_finding_projection'
+  | 'append_finding_lifecycle_transition'
+  | 'append_legacy_identity_binding'
+  | 'append_detector_signal'
+  | 'append_candidate_route'
+  | 'append_candidate'
+  | 'append_assessment_proposal'
+  | 'append_assessment'
+  | 'append_mandatory_repair'
+  | 'append_deferral_expiry_policy'
+  | 'append_deferral'
+  | 'append_route_receipt'
+  | 'append_progress_baseline_set'
+  | 'append_material_drift_reattestation'
+  | 'append_runtime_receipt'
+  | 'append_canonical_defect_supersession'
+  | 'append_canonical_defect'
+  | 'append_supersession'
+  | 'apply_manifest';
+
+/**
+ * Immutable terminal-state fact for a Finding. The original `finding` record
+ * never changes; resolve/dismiss append one of these records and readers fold
+ * the ledger in order to obtain the current projection.
+ */
+export interface FindingLifecycleTransition {
+  schemaVersion: 1;
+  transitionId: string;
+  findingId: string;
+  findingRecordId: string;
+  fromStatus: 'open';
+  toStatus: 'resolved' | 'dismissed';
+  at: string;
+  reason?: string;
+  resolutionType?: Finding['resolutionType'];
+  resolveEvidenceStrength?: Finding['resolveEvidenceStrength'];
+  dismissReasonType?: Finding['dismissReasonType'];
+  dismissEvidenceStrength?: Finding['dismissEvidenceStrength'];
+}
+
+export interface FindingLedgerCasBinding {
+  recordType: string;
+  expectedRecordId: string;
+  expectedRecordHash: string;
+  observedChainHeadId: string;
+  observedChainHeadHash: string;
+  predicateDigest: string;
+}
+
+export interface FindingLedgerReceipt {
+  schemaVersion: 1;
+  ledgerSchemaEpoch: number;
+  minimumWriterCapability: string;
+  receiptId: string;
+  storyId: string;
+  idempotencyKey: string;
+  /** Canonical digest of every semantic append input; required for safe replay. */
+  exactRequestDigest?: string;
+  operation: FindingLedgerOperation;
+  recordIds: string[];
+  casBindings: FindingLedgerCasBinding[];
+  priorLedgerDigest: string;
+  committedLedgerDigest: string;
+  replayed: boolean;
+  committedAt: string;
+  writerSessionId: string;
+  writerLeaseId: string;
+  writerFenceToken: string;
+  keyId: string;
+  algorithm: string;
+  trustRootDigest: string;
+  keyFreshnessPolicyDigest: string;
+  receiptHash: string;
+  signature: string;
+}
+
+// Story 3B runtime receipts are persistence/freshness facts only. This shared
+// type surface is their canonical schema; the executable runtime module imports
+// and re-exports these types without defining a second copy.
+export type RuntimeEvidenceContentType =
+  | 'command'
+  | 'stdout'
+  | 'stderr'
+  | 'environment'
+  | 'artifact_manifest';
+
+export interface EvidenceBlobRef {
+  blobId: string;
+  contentDigest: string;
+  contentType: RuntimeEvidenceContentType;
+  redactionPolicyDigest: string;
+}
+
+export interface RuntimeEvidenceReceipt {
+  schemaVersion: 1;
+  receiptId: string;
+  storyId: string;
+  headHash: string;
+  sourceMaterialHash: string;
+  buildPolicyDigest: string;
+  buildCommandDigest: string;
+  executionCommandDigest: string;
+  buildCommand: EvidenceBlobRef;
+  executionCommand: EvidenceBlobRef;
+  stdout: EvidenceBlobRef;
+  stderr: EvidenceBlobRef;
+  environment: EvidenceBlobRef & { allowlistPolicyDigest: string; excludedVariableNames: string[] };
+  artifactManifest: EvidenceBlobRef;
+  artifacts: Array<{ path: string; digest: string; sourceHead: string; realpathPolicyDigest: string }>;
+  startedAt: string;
+  completedAt: string;
+  exitCode: number;
+  stdoutDigest: string;
+  stderrDigest: string;
+  environmentDigest: string;
+  toolchain: { compilerVersion: string; runtimeVersion: string; toolchainDigest: string };
+  commandCanonicalizationPolicyDigest: string;
+  producer: string;
+  keyId: string;
+  algorithm: string;
+  trustRootDigest: string;
+  keyFreshnessPolicyDigest: string;
+  receiptHash: string;
+  signature: string;
+}
+
+export type {
+  RuntimeEvidenceRefusalCode,
+  RuntimeEvidenceVerification,
+  RuntimeReceiptSigner,
+  RuntimeReceiptTrust,
+} from './runtime-evidence-receipt.js';
 
 export interface ReviewerReadManifest {
   filesReadFully: string[];

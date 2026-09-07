@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-42f6",
+  "executionKey": "ce:v1:c968513fcccbacf9e6c5d387bb70f503d34dea9d65fc29455ddd7a12b35719e8",
+  "identityDigest": "c968513fcccbacf9e6c5d387bb70f503d34dea9d65fc29455ddd7a12b35719e8",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-42f6",
+    "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/dist/tasks/english-early-check-smoke.js"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6/.proof-or-stop/story/actives/B-42f6/causal-evidence/receipts",
+          "probe": "access_w:/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6/.proof-or-stop/story/actives/B-42f6/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:1858074f37cf3aaa587057d713ac27c68cc2e2eba1b2ae8b57c2bb6e4855ab52",
+          "path": "/Users/qipan/work/repo/Prooforstop/.git/worktrees/B-42f6/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "e88726c0ad0ff059e27fee2919c685b38f30a556",
+          "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+          "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6",
+          "expected": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-42f6",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+    "effectiveEnvironment": {
+      "CODEX_CI": "1",
+      "CODEX_PERMISSION_PROFILE": ":workspace",
+      "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+      "COLORTERM": "",
+      "DISABLE_AUTOUPDATER": "1",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/qipan",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "qipan",
+      "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S": "9230e2bd8b24b7ac7a0ba6774c64bf0d78ecdabbdd91d0ed627b02a587bae2df",
+      "NO_COLOR": "1",
+      "PAGER": "cat",
+      "PATH": "/Users/qipan/.local/bin:/Users/qipan/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/VMware Fusion.app/Contents/Public:/Users/qipan/.codex/tmp/arg0/codex-arg0fV9bD4:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/qipan/.grok/bin:/Users/qipan/.kimi-code/bin:/Users/qipan/flutter/bin:/Users/qipan/.local/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/bin/maxit-v11.400/bin:/Users/qipan/.opencode/bin:/Users/qipan/bin/depot_tools:/opt/homebrew/sbin:/Users/qipan/.bun/bin:/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/Users/qipan/Library/pnpm:/Users/qipan/.cabal/bin:/Users/qipan/.ghcup/bin:/opt/homebrew/opt/mysql-client/bin:/Users/qipan/bin/FlameGraph:/Users/qipan/bin:/opt/homebrew/opt/rabbitmq/sbin:/opt/homebrew/bin:/Users/qipan/.cargo/bin:/Users/qipan/.orbstack/bin:/Users/qipan/.lmstudio/bin:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Users/qipan/.orbstack/bin",
+      "PROOF_OR_STOP_MAX_TIMEOUT_MS": "3600000",
+      "PWD": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-42f6",
+      "SHELL": "/bin/zsh",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/",
+      "USER": "qipan",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0x19:0x34"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.278",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "6ee7f3bf34f5cc2495df380c8222ad2c09cce45144857707a4403ce2166e8c65",
+  "outputTail": "ok: story_create refuses CJK background before persistence\nok: story_create refuses CJK checklist title/context before persistence\nok: story_create refuses CJK relatedDocs before persistence\nok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement\nok: English story_create succeeds with em dash punctuation\nok: background_set refuses CJK before writing\nok: early authoring check and english-artifact gate agree on containsCJK\nok: agent docs preserve the recursive English-authoring boundary\nenglish-early-check smoke passed\n",
+  "outputProbe": "ok: story_create refuses CJK background before persistence\nok: story_create refuses CJK checklist title/context before persistence\nok: story_create refuses CJK relatedDocs before persistence\nok: checklist_update rejects CJK relatedDocs side-effect-free and accepts English replacement\nok: English story_create succeeds with em dash punctuation\nok: background_set refuses CJK before writing\nok: early authoring check and english-artifact gate agree on containsCJK\nok: agent docs preserve the recursive English-authoring boundary\nenglish-early-check smoke passed\n",
+  "outputLength": 561,
+  "executedAt": "2026-09-07T11:43:20.942Z",
+  "durationMs": 7081,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "dl4jUF6gj1VXYvBGXZmdS0RbNdUFEDoIrNEeZ/6U+MM=",
+  "signature": "qNtuY8v/t3irRv0gjOUc2fa4K2fCKV/IAjpN0pwl0dav20ETp+vc5bWBXr1jq+ipZaFFSL9+zfqdL6uYuJYUAQ==",
+  "receiptHash": "bfeeee4ecd8edd64bebca81ee8614f68b0fc2d8f61f14f221fdef1612a27b53e"
+}

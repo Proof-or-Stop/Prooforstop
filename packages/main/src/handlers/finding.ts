@@ -3,6 +3,7 @@
  */
 
 import { existsSync, readdirSync, writeFileSync } from 'fs';
+import { randomUUID } from 'node:crypto';
 import { join } from 'path';
 import type { HandlerContext } from './context.js';
 import { assertCwdInWorktree } from './context.js';
@@ -10,6 +11,7 @@ import type {
   DisprovenEvidence,
   Finding,
   FindingEvidenceState,
+  FindingLifecycleTransition,
   ReviewerReadDiagnostic,
   ReviewerReadLogEvent,
   ReviewerReadLogEvidence,
@@ -30,7 +32,7 @@ import { loadConfig } from '../core/config.js';
 import { autoCommitStoryMetadata } from '../core/auto-commit-metadata.js';
 import { BRAND_ENV_PREFIX } from '../core/brand-env.js';
 import { buildMemoryFreshnessPack, renderMemoryFreshnessPackSummary } from '../core/playbook-runtime-memory.js';
-import { withReentrantMainWriteLock } from '../core/main-write-lock.js';
+import { mainWriteLockPath, withReentrantMainWriteLock } from '../core/main-write-lock.js';
 import { resolveMainRepoRoot } from '../core/partial-done-recovery.js';
 import {
   hasActiveOrProposedTag,
@@ -40,7 +42,15 @@ import {
 } from '../core/learning-store.js';
 import { deriveSignatureCandidate } from '../core/signature-candidate.js';
 import type { SignatureTagSource } from '../core/experience-layer-types.js';
-import { withMkdirLock } from '../core/mkdir-lock.js';
+import { captureMkdirLockFence, withMkdirLock, type MkdirLockFence } from '../core/mkdir-lock.js';
+import {
+  appendFindingLedger,
+  bindLegacyFindingLedgerReceipts,
+  canonicalHash,
+  createAuthoritativeFindingMutation,
+  exactLedgerRecordHash,
+  findingLedgerSignerFromWorkspace,
+} from './finding-ledger.js';
 import {
   assertReviewInventoryEvidenceWritable,
   currentOpenReviewInventory,
@@ -117,18 +127,181 @@ function holdReviewPassLockForDeterministicStress(): void {
  * while already holding the lock), and a non-reentrant acquire would self-
  * deadlock. The reentrant wrapper makes the nested call a pass-through.
  */
-function withMetaFindingLock<T>(ctx: HandlerContext, storyId: string, fn: () => T): T {
+function withMetaFindingLock<T>(ctx: HandlerContext, storyId: string, fn: (fence: MkdirLockFence) => T): T {
   if (!storyId.startsWith('B-META-')) {
     const lockDir = ctx.store.storyFilePath(storyId, 'findings.lock');
-    return withMkdirLock(lockDir, fn, { label: 'findings metadata' });
+    return withMkdirLock(lockDir, () => fn(captureMkdirLockFence(lockDir)), {
+      label: 'findings metadata',
+      requireHolderToken: true,
+    });
   }
   const mainRepoRoot = resolveMainRepoRoot(ctx.root);
   // A B-META finding write is a sub-second critical section — serialize-and-wait
   // on contention so a concurrent write completes rather than fail-fasting.
-  return withReentrantMainWriteLock(mainRepoRoot, fn, {
+  return withReentrantMainWriteLock(mainRepoRoot, () => {
+    const lockDir = mainWriteLockPath(mainRepoRoot);
+    return fn(captureMkdirLockFence(lockDir));
+  }, {
     label: `finding write (${storyId})`,
     onContention: 'wait',
   });
+}
+
+interface FindingLifecycleInput {
+  toStatus: 'resolved' | 'dismissed';
+  reason?: string;
+  resolutionType?: Finding['resolutionType'];
+  resolveEvidenceStrength?: Finding['resolveEvidenceStrength'];
+  dismissReasonType?: Finding['dismissReasonType'];
+  dismissEvidenceStrength?: Finding['dismissEvidenceStrength'];
+}
+
+/** Append the canonical terminal Finding fact while the findings fence is held. */
+function appendFindingLifecycleTransition(
+  ctx: HandlerContext,
+  storyId: string,
+  finding: Finding,
+  fence: MkdirLockFence,
+  input: FindingLifecycleInput,
+): FindingLifecycleTransition {
+  const identity = getSessionIdentity();
+  const signer = findingLedgerSignerFromWorkspace(ctx.root);
+  bindLegacyFindingLedgerReceipts({
+    storyId,
+    store: ctx.store,
+    writerSessionId: identity.sessionId,
+    writerLeaseId: readOwnerLease(ctx.store.storyDirPath(storyId))?.sessionId ?? identity.sessionId,
+    writerFenceToken: fence.writerFenceToken,
+    fence,
+    signer,
+  });
+  let ledger = ctx.store.readFindingLedger<import('../core/finding-ledger.js').JsonValue>(storyId);
+  let source = ledger.records.find((record) => (
+    record.recordType === 'finding'
+    && record.payload && typeof record.payload === 'object'
+    && (record.payload as Record<string, unknown>).id === finding.id
+    && (!finding.recordId || record.recordId === finding.recordId)
+  ));
+  if (!source) {
+    const legacyHash = canonicalHash(finding);
+    appendFindingLedger({
+      storyId,
+      store: ctx.store,
+      operation: 'append_legacy_identity_binding',
+      idempotencyKey: `legacy-finding-binding:${finding.id}:${legacyHash}`,
+      records: [{
+        recordType: 'legacy_identity_binding',
+        payload: {
+          schemaVersion: 1,
+          bindingType: 'legacy-finding',
+          findingId: finding.id,
+          findingHash: legacyHash,
+        },
+        uniqueBindingKey: `legacy-finding:${finding.id}`,
+      }],
+      writerSessionId: getSessionIdentity().sessionId,
+      writerLeaseId: readOwnerLease(ctx.store.storyDirPath(storyId))?.sessionId ?? getSessionIdentity().sessionId,
+      writerFenceToken: fence.writerFenceToken,
+      fence,
+      signer,
+    });
+    ledger = ctx.store.readFindingLedger<import('../core/finding-ledger.js').JsonValue>(storyId);
+    source = ledger.records.find((record) => (
+      record.recordType === 'legacy_identity_binding'
+      && record.payload && typeof record.payload === 'object'
+      && (record.payload as Record<string, unknown>).bindingType === 'legacy-finding'
+      && (record.payload as Record<string, unknown>).findingId === finding.id
+      && (record.payload as Record<string, unknown>).findingHash === legacyHash
+    ));
+    if (!source) throw new Error(`legacy binding publication failed for ${finding.id}`);
+    finding.recordId = source.recordId;
+  }
+  const existing = ledger.records.find((record) => (
+    record.recordType === 'finding_lifecycle_transition'
+    && record.payload && typeof record.payload === 'object'
+    && (record.payload as Record<string, unknown>).findingRecordId === source.recordId
+  ));
+  if (existing) {
+    const prior = existing.payload as unknown as FindingLifecycleTransition;
+    if (prior.toStatus !== input.toStatus) {
+      throw new Error(`Finding ${finding.id} already has terminal status ${prior.toStatus}`);
+    }
+    // Reuse the exact immutable payload so the deterministic idempotency key
+    // mechanically replays the original transition instead of creating a
+    // second terminal fact or conflicting on a new timestamp.
+    input = {
+      toStatus: prior.toStatus,
+      reason: prior.reason,
+      resolutionType: prior.resolutionType,
+      resolveEvidenceStrength: prior.resolveEvidenceStrength,
+      dismissReasonType: prior.dismissReasonType,
+      dismissEvidenceStrength: prior.dismissEvidenceStrength,
+    };
+  }
+  const head = ledger.records.at(-1);
+  const headId = head?.recordId ?? 'ledger:empty';
+  const headHash = head ? canonicalHash(head) : canonicalHash([]);
+  const predicateDigest = canonicalHash({
+    schemaVersion: 1,
+    predicate: 'finding-open-without-terminal-transition',
+    findingId: finding.id,
+    findingRecordId: source.recordId,
+  });
+  const transition: FindingLifecycleTransition = existing
+    ? existing.payload as unknown as FindingLifecycleTransition
+    : {
+        schemaVersion: 1,
+        transitionId: `finding-transition-${randomUUID()}`,
+        findingId: finding.id,
+        findingRecordId: source.recordId,
+        fromStatus: 'open',
+        toStatus: input.toStatus,
+        at: new Date().toISOString(),
+        ...(input.reason ? { reason: input.reason } : {}),
+        ...(input.resolutionType ? { resolutionType: input.resolutionType } : {}),
+        ...(input.resolveEvidenceStrength ? { resolveEvidenceStrength: input.resolveEvidenceStrength } : {}),
+        ...(input.dismissReasonType ? { dismissReasonType: input.dismissReasonType } : {}),
+        ...(input.dismissEvidenceStrength ? { dismissEvidenceStrength: input.dismissEvidenceStrength } : {}),
+      };
+  const replayReceipt = existing
+    ? ledger.receipts.find((receipt) => receipt.recordIds.includes(existing.recordId)) as (
+        typeof ledger.receipts[number] & { findingLedgerReceipt?: { casBindings?: import('../core/types.js').FindingLedgerCasBinding[] } }
+      ) | undefined
+    : undefined;
+  const casBindings = replayReceipt?.findingLedgerReceipt?.casBindings ?? [{
+    recordType: source.recordType,
+    expectedRecordId: source.recordId,
+    expectedRecordHash: exactLedgerRecordHash(source),
+    observedChainHeadId: headId,
+    observedChainHeadHash: headHash,
+    predicateDigest,
+  }];
+  appendFindingLedger({
+    storyId,
+    store: ctx.store,
+    operation: 'append_finding_lifecycle_transition',
+    idempotencyKey: `finding-lifecycle:${source.recordId}:${input.toStatus}`,
+    records: [{
+      recordType: 'finding_lifecycle_transition',
+      payload: transition as unknown as import('../core/finding-ledger.js').JsonValue,
+      uniqueBindingKey: `finding-lifecycle:${source.recordId}`,
+    }],
+    writerSessionId: getSessionIdentity().sessionId,
+    writerLeaseId: readOwnerLease(ctx.store.storyDirPath(storyId))?.sessionId ?? getSessionIdentity().sessionId,
+    writerFenceToken: fence.writerFenceToken,
+    fence,
+    signer,
+    casBindings,
+    verifyPredicate: ({ ledger: current }) => ({
+      accepted: !current.records.some((record) => (
+        record.recordType === 'finding_lifecycle_transition'
+        && record.payload && typeof record.payload === 'object'
+        && (record.payload as Record<string, unknown>).findingRecordId === source.recordId
+      )),
+      predicateDigest,
+    }),
+  });
+  return transition;
 }
 
 function normalizeFindingForList(finding: Finding): Finding {
@@ -536,6 +709,7 @@ function recordReviewPass(
 
 export function createFindingHandlers(ctx: HandlerContext) {
   const { store } = ctx;
+  const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   return {
     finding_add(args: {
       storyId: string;
@@ -552,6 +726,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       readManifest?: unknown;
       readEvents?: unknown;
       readLog?: unknown;
+      idempotencyKey?: string;
     }): string {
       assertCwdInWorktree(store, args.storyId);
 
@@ -614,11 +789,40 @@ export function createFindingHandlers(ctx: HandlerContext) {
 
       // The readFindings → push → writeFindings critical section uses the
       // unified main lock for B-META and a per-story lock for normal stories.
-      const writeFinding = () => withMetaFindingLock(ctx, args.storyId, () => {
+      const idempotencyKey = args.idempotencyKey?.trim() || `finding_add:${randomUUID()}`;
+      let ledgerCommit: { recordId: string; receiptId: string; replayed: boolean } | undefined;
+      const writeFinding = () => withMetaFindingLock(ctx, args.storyId, (fence) => {
+        const ledgerIdentity = getSessionIdentity();
+        const ledgerSigner = findingLedgerSignerFromWorkspace(ctx.root);
+        bindLegacyFindingLedgerReceipts({
+          storyId: args.storyId,
+          store,
+          writerSessionId: ledgerIdentity.sessionId,
+          writerLeaseId: readOwnerLease(store.storyDirPath(args.storyId))?.sessionId ?? ledgerIdentity.sessionId,
+          writerFenceToken: fence.writerFenceToken,
+          fence,
+          signer: ledgerSigner,
+        });
         const data = store.readFindings(args.storyId);
-        const nextNum = data.findings.length + 1;
-        const fid = `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
-        const timestamp = new Date().toISOString();
+        const ledgerBefore = store.readFindingLedger<Finding>(args.storyId);
+        const replayReceipt = ledgerBefore.receipts.find((receipt) => receipt.idempotencyKey === idempotencyKey);
+        const replayRecord = replayReceipt
+          ? ledgerBefore.records.find((record) => replayReceipt.recordIds.includes(record.recordId))
+          : undefined;
+        const replayFinding = replayRecord?.recordType === 'finding' ? replayRecord.payload : undefined;
+        const historicalDisplayIds = [
+          ...data.findings.map((candidate) => candidate.id),
+          ...ledgerBefore.records
+            .filter((record) => record.recordType === 'finding')
+            .map((record) => (record.payload as Finding).id),
+        ];
+        const nextNum = historicalDisplayIds.reduce((max, candidate) => {
+          const escapedStoryId = args.storyId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+          const match = new RegExp(`^${escapedStoryId}:F-(\\d+)$`).exec(candidate);
+          return match ? Math.max(max, Number(match[1])) : max;
+        }, 0) + 1;
+        const fid = replayFinding?.id ?? `${args.storyId}:F-${String(nextNum).padStart(3, '0')}`;
+        const timestamp = replayFinding?.createdAt ?? new Date().toISOString();
         const readManifest = readEvidence?.readManifest;
         const readLog = readEvidence?.readLog;
         const readDiagnostics = readEvidence?.readDiagnostics;
@@ -656,8 +860,35 @@ export function createFindingHandlers(ctx: HandlerContext) {
           // attached AFTER _hash and are never passed into the hashed input).
           ...(signatureTag ? { signatureTag, signatureTagSource } : {}),
         };
-        data.findings.push(finding);
+        const receipt = appendFindingLedger({
+          storyId: args.storyId,
+          store,
+          operation: 'append_finding',
+          idempotencyKey,
+          records: [{ recordType: 'finding', payload: finding as unknown as import('../core/finding-ledger.js').JsonValue }],
+          writerSessionId: getSessionIdentity().sessionId,
+          writerLeaseId: readOwnerLease(store.storyDirPath(args.storyId))?.sessionId ?? getSessionIdentity().sessionId,
+          writerFenceToken: fence.writerFenceToken,
+          fence,
+          signer: ledgerSigner,
+        });
+        const committedLedger = store.readFindingLedger<Finding>(args.storyId);
+        const record = committedLedger.records.find((candidate) => receipt.recordIds.includes(candidate.recordId));
+        if (!record) throw new Error('finding_add: committed ledger transaction returned no Finding record');
+        const committedFinding: Finding = {
+          ...(record.payload as Finding),
+          recordId: record.recordId,
+          ledgerCommitReceiptId: receipt.receiptId,
+        };
+        const mirrorIndex = data.findings.findIndex((candidate) => candidate.id === committedFinding.id);
+        if (mirrorIndex < 0) data.findings.push(committedFinding);
+        else data.findings[mirrorIndex] = committedFinding;
         store.writeFindings(args.storyId, data);
+        ledgerCommit = {
+          recordId: record.recordId,
+          receiptId: receipt.receiptId,
+          replayed: !!replayReceipt,
+        };
         return fid;
       });
       const id = reviewerLane
@@ -669,6 +900,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
             return writeFinding();
           })
         : writeFinding();
+      if (!ledgerCommit) throw new Error('finding_add: ledger transaction completed without commit metadata');
 
       // B-4f46 CHK-003: if a signatureTag was provided and is not yet an active/proposed
       // tag, auto-record it as status=proposed in the signature-registry (audit-only;
@@ -692,8 +924,9 @@ export function createFindingHandlers(ctx: HandlerContext) {
         }
       }
 
-      try {
-        store.appendProcessEvent(args.storyId, {
+      if (!ledgerCommit.replayed) {
+        try {
+          store.appendProcessEvent(args.storyId, {
           type: 'reviewer_finding',
           storyId: args.storyId,
           command: 'finding_add',
@@ -709,9 +942,10 @@ export function createFindingHandlers(ctx: HandlerContext) {
           hardWarning: missingAttribution
             ? `finding_add called without agent/${BRAND_ENV_PREFIX}AGENT; recorded as main and REVIEW/TEST gates may reject it`
             : undefined,
-        });
-      } catch (e) {
-        console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+          });
+        } catch (e) {
+          console.warn(`[process-events] append failed for ${args.storyId}:`, (e as Error).message);
+        }
       }
 
       // B-abd8: auto-recompute process metrics
@@ -736,7 +970,8 @@ export function createFindingHandlers(ctx: HandlerContext) {
       const readDiagnosticsHint = readEvidence?.readDiagnostics && readEvidence.readDiagnostics.length > 0
         ? `\n→ reviewer read diagnostics recorded: ${formatReadDiagnostics(readEvidence.readDiagnostics)}`
         : '';
-      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${warning}${advisoryHint}${readDiagnosticsHint}${signatureTagHint}${commitHint}`;
+      const ledgerHint = `\nLedger record=${ledgerCommit.recordId} receipt=${ledgerCommit.receiptId} replayed=${ledgerCommit.replayed}`;
+      return `Finding ${id} created by ${agent}: [${args.severity}/${category}] (evidenceState=${evidence.evidenceState}) ${args.desc}${ledgerHint}${warning}${advisoryHint}${readDiagnosticsHint}${signatureTagHint}${commitHint}`;
     },
 
     review_pass_set(args: {
@@ -770,7 +1005,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
 
     finding_list(args: { storyId: string; cluster?: boolean; full?: boolean; brief?: boolean; json?: boolean; format?: 'text' | 'json' }) {
       assertCwdInWorktree(store, args.storyId);
-      const synced = syncClusterResolves(args.storyId, store, ctx.root, ctx.log);
+      const synced = syncClusterResolves(args.storyId, store, ctx.root, ctx.log, authoritativeMutation);
       if (synced.resolved > 0) {
         ctx.log?.(`cluster-sync: auto-resolved ${synced.resolved} finding(s) before finding_list`);
       }
@@ -844,18 +1079,23 @@ export function createFindingHandlers(ctx: HandlerContext) {
       // B-META mutations use the unified main lock; normal Story mutations use
       // the same per-story findings lock as finding_add.
       let resolvedFindingDesc = '';
-      withMetaFindingLock(ctx, args.storyId, () => {
+      withMetaFindingLock(ctx, args.storyId, (fence) => {
         const data = store.readFindings(args.storyId);
         const f = data.findings.find(f => f.id === args.findingId);
         if (!f) throw new Error(`Finding ${args.findingId} not found`);
         resolvedFindingDesc = f.desc ?? '';
-        f.status = 'resolved';
         const resolution = args.resolution?.trim();
-        if (resolution) f.resolvedReason = resolution;
-        f.resolvedAt = new Date().toISOString();
-        // B-4f46 CHK-002: persist audit-only outcome enums (NOT part of the finding signature; no gate reads them).
-        if (resolutionType) f.resolutionType = resolutionType;
-        if (resolveEvidenceStrength) f.resolveEvidenceStrength = resolveEvidenceStrength;
+        const transition = appendFindingLifecycleTransition(ctx, args.storyId, f, fence, {
+          toStatus: 'resolved',
+          reason: resolution,
+          resolutionType,
+          resolveEvidenceStrength,
+        });
+        f.status = transition.toStatus;
+        f.resolvedAt = transition.at;
+        if (transition.reason) f.resolvedReason = transition.reason;
+        if (transition.resolutionType) f.resolutionType = transition.resolutionType;
+        if (transition.resolveEvidenceStrength) f.resolveEvidenceStrength = transition.resolveEvidenceStrength;
         store.writeFindings(args.storyId, data);
       });
 
@@ -905,7 +1145,7 @@ export function createFindingHandlers(ctx: HandlerContext) {
       // B-f60c CHK-003: a B-META finding mutation is serialized under the main
       // write lock; a normal story runs unchanged (pass-through). `alreadyResolved`
       // carries the "already resolved, no-op dismiss" branch out of the lock.
-      const alreadyResolved = withMetaFindingLock(ctx, args.storyId, () => {
+      const alreadyResolved = withMetaFindingLock(ctx, args.storyId, (fence) => {
         const data = store.readFindings(args.storyId);
         const f = data.findings.find(f => f.id === args.findingId);
         if (!f) throw new Error(`Finding ${args.findingId} not found`);
@@ -917,12 +1157,17 @@ export function createFindingHandlers(ctx: HandlerContext) {
         if (f.severity === 'critical') {
           throw new Error(`critical findings cannot be dismissed, must be fixed in any round. Finding: ${args.findingId}`);
         }
-        f.status = 'dismissed';
-        f.dismissReason = args.reason.trim();
-        f.dismissedAt = new Date().toISOString();
-        // B-4f46 CHK-002: persist audit-only outcome enums (NOT part of the finding signature; no gate reads them).
-        if (dismissReasonType) f.dismissReasonType = dismissReasonType;
-        if (dismissEvidenceStrength) f.dismissEvidenceStrength = dismissEvidenceStrength;
+        const transition = appendFindingLifecycleTransition(ctx, args.storyId, f, fence, {
+          toStatus: 'dismissed',
+          reason: args.reason.trim(),
+          dismissReasonType,
+          dismissEvidenceStrength,
+        });
+        f.status = transition.toStatus;
+        f.dismissReason = transition.reason;
+        f.dismissedAt = transition.at;
+        if (transition.dismissReasonType) f.dismissReasonType = transition.dismissReasonType;
+        if (transition.dismissEvidenceStrength) f.dismissEvidenceStrength = transition.dismissEvidenceStrength;
         store.writeFindings(args.storyId, data);
         return false;
       });

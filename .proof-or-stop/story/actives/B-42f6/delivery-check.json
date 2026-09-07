@@ -1,0 +1,73 @@
+{
+  "storyId": "B-42f6",
+  "checkedAt": "2026-09-07T12:21:48.713Z",
+  "headHash": "0a398c0991af04e836b6238fdb6953f98f77485b",
+  "materialHash": "0e3e1ef382b77728dcbffb99f16d5ef477b5987a0dd2d28928169095d61bb79a",
+  "storyFilesHash": "785eab5a309220cb85730bcf86a98e9634e51b487a6322a5096cf448b804906f",
+  "reviewRound": "2026-09-07T11:48:29.914Z",
+  "agentId": "proof-or-stop-review-delivery",
+  "docsPromises": [
+    {
+      "docPath": ".proof-or-stop/story/actives/B-42f6/plan.md",
+      "promise": "The integrated local candidate retains both original main histories and the bounded scope-inventory repair.",
+      "status": "met",
+      "verifiedBy": "Independent current source inspection and bounded real-machine checks",
+      "evidence": "Fresh git merge-base --is-ancestor assertions passed for d5b00d0ff3, c853ab5e63 and e8fc28d56a against current HEAD. This establishes candidate ancestry; local DONE and remote publication remain pending."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-42f6/plan.md",
+      "promise": "Playback and exported-frame content retain the user-requested exact Proof-or-stop branding.",
+      "status": "met",
+      "verifiedBy": "Independent current source inspection and bounded real-machine checks",
+      "evidence": "Fresh Buffer byte equality passed between current packages/graph/src/shells/web/playback.js and committed c8263eb450. Inspected PLAYBACK_BRAND, drawChrome canvas heading and both playback UI heading paths; video and GIF use the shared rendering path. This preserves the previously exercised export implementation and does not claim a newly generated visual export."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-42f6/plan.md",
+      "promise": "Integrated package and CLI behavior retains version 0.3.278.",
+      "status": "met",
+      "verifiedBy": "Independent current source inspection and bounded real-machine checks",
+      "evidence": "Fresh assertions verified version 0.3.278 in both root and main package manifests and lockfiles. Current canonical live transcript reports Proof-or-Stop 0.3.278 with exit zero."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-42f6/plan.md",
+      "promise": "The integration preserves strengthened receipt provenance and independent mixed-selector rejection.",
+      "status": "met",
+      "verifiedBy": "Independent current source inspection and bounded real-machine checks",
+      "evidence": "Inspected verification-run-and-guard-smoke.ts raw context/provenance assertions and mixed-selector case: one execution can satisfy one selector while the absent selector remains nonmechanical without a receipt. This source is unchanged by the final four-file certification repair; no new guard-suite execution is claimed."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "DONE readiness and diagnostics share strict predicate evaluation and retain each failure.",
+      "status": "met",
+      "verifiedBy": "Independent current source inspection and bounded real-machine checks",
+      "evidence": "Inspected shared evaluateDonePredicates, firstDonePredicateFailure and projectDonePredicateRows integration, plus substantive multiple-failure and mutation assertions in red-done-shared-predicates.mjs. The final certification repair does not alter these paths."
+    },
+    {
+      "docPath": "docs/requirements/decisions/done-prepare-automation-execution-plan.md",
+      "promise": "Historical completed snapshots do not authorize an active Story, and registry verification has a finite stated boundary.",
+      "status": "met",
+      "verifiedBy": "Independent current source inspection and bounded real-machine checks",
+      "evidence": "Inspected actual-DONE-only completedSnapshot selection, active TEST strict behavior, opaque rejected-delivery treatment, literal registry blocker mappings and finite verifier assertions. This is scoped implementation coverage, not a universal TypeScript-equivalence claim."
+    },
+    {
+      "docPath": ".proof-or-stop/story/actives/B-42f6/plan.md",
+      "promise": "The two exact tracked release ledgers participate in certification through real Git content while unknown neighboring paths fail closed.",
+      "status": "met",
+      "verifiedBy": "Independent current source inspection and bounded real-machine checks",
+      "evidence": "Reviewed all four files of e88726c0ad. Fresh compiled-runtime assertions uniquely map artifact-releases.jsonl and capability-releases.jsonl to review-subject, reject other-releases.jsonl, and derive all six 64-hex domain hashes from the real candidate. Inspected actual-Git added/modified/deleted ledger smoke assertions, tombstones, content-dependent hashes, unchanged independent direct domains, review-subject/integration/test invalidation and anchored near-miss rejection. No gate bypass or authoritative gate-evidence reclassification is introduced."
+    }
+  ],
+  "realMachineTests": [
+    {
+      "featureId": "CHK-001",
+      "transcript": "Independent current local Node assertions completed with exit 0 and selector CURRENT_DELIVERY_ANCESTRY_BRAND_VERSION_AND_SIX_DOMAINS_PASS: exact whole-playback parity to c8263eb450, d5b00d0ff3/c853ab5e63/e8fc28d56a ancestry, all four package versions 0.3.278, six actual certification hashes, both exact ledger mappings and unknown-ledger rejection. Read the current CLI-owned evidence/live-smoke-transcript.json captured 2026-09-07T12:16:33.636Z: exit 0, same branding/ancestry/six-domain checks and CLI version. Independently reviewed substantive ledger add/modify/delete/content-drift and near-miss negative assertions. No fresh visual export, full-suite execution, root DONE-required completion, remote push or production delivery is asserted by this review."
+    }
+  ],
+  "closingSelfCheck": {
+    "hasRealMachineTest": true,
+    "hasEdgeCaseCoverage": true,
+    "hasUnresolvedTodos": false,
+    "summary": "Current candidate delivery behavior and bounded certification repair are independently verified through source and actual read-only runtime assertions. The final four-file change preserves playback bytes and integrated histories while handling exact tracked ledgers with content-bound, fail-closed certification semantics. No scoped implementation TODO remains. Root DONE-required checks, normal DONE/local-main merge and authorized remote publication remain separate pending actions; this delivery artifact certifies tested candidate readiness, not their completion."
+  },
+  "_hash": "a5c014ab14e8d66546b7f2fb2974a4e1b04128a84b6bd0cbd8e071e27eaa1d88"
+}

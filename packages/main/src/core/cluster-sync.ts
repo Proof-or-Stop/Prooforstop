@@ -34,6 +34,15 @@ export interface ClusterSyncResult {
   matchedCommits: Array<{ sha: string; clusterId: string }>;
 }
 
+export type ClusterFindingMutation = <T>(
+  storyId: string,
+  mutationId: string,
+  mutate: (data: import('./types.js').FindingData) => {
+    result: T;
+    changedFindingIds?: readonly string[];
+  },
+) => T;
+
 /**
  * Regex template: Resolves: CL-001 / Resolve: CL-002 / resolves: CL-003 (case + singular/plural insensitive).
  *
@@ -188,6 +197,7 @@ export function syncClusterResolves(
   store: StoryStore,
   projectRoot: string,
   log?: (msg: string) => void,
+  authoritativeMutation?: ClusterFindingMutation,
 ): ClusterSyncResult {
   const clustersData = store.readClusters(storyId);
   // B-2856: resolve the gitRoot for this story so `git log main..HEAD` runs from
@@ -204,10 +214,28 @@ export function syncClusterResolves(
   if (commits.length === 0) {
     return { resolved: 0, warnings: [], matchedCommits: [] };
   }
-  const findingsData = store.readFindings(storyId);
-  const result = applyCommitResolves(findingsData.findings, clustersData.clusters, commits);
-  if (result.resolved > 0) {
-    store.writeFindings(storyId, findingsData);
+  const mutate = (findingsData: import('./types.js').FindingData) => {
+    const before = new Map(findingsData.findings.map((finding) => [finding.id, finding.status]));
+    const result = applyCommitResolves(findingsData.findings, clustersData.clusters, commits);
+    return {
+      result,
+      changedFindingIds: findingsData.findings
+        .filter((finding) => before.get(finding.id) !== finding.status)
+        .map((finding) => finding.id),
+    };
+  };
+  let result: ClusterSyncResult;
+  if (authoritativeMutation) {
+    result = authoritativeMutation(
+      storyId,
+      `cluster-sync:${commits.map((commit) => commit.sha).join(',')}`,
+      mutate,
+    );
+  } else {
+    const findingsData = store.readFindings(storyId);
+    const outcome = mutate(findingsData);
+    if (outcome.changedFindingIds.length > 0) store.writeFindings(storyId, findingsData);
+    result = outcome.result;
   }
   // F-007: each warning is actively routed via the log callback into validate's main output
   if (log) {
