@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "d74527b37d93b234016abb235cf418f2221958893962c1d5b51e1a05e5c7c467",
+  "committedLedgerDigest": "c4d3078807c69ccfcb1c86f1605717120d34b788f931bc5534b2fcd462dc7935",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -3567,6 +3567,75 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T09:45:46.298Z"
+    },
+    {
+      "recordId": "lr_mtr22wth_17ea_f679583f621240cc8b3978717f5511d7",
+      "recordType": "finding",
+      "idempotencyKey": "b8a40-ri016-wave2-coverage-descendant-premise-rr166",
+      "payload": {
+        "id": "B-8a40:F-095",
+        "desc": "RI-016 wave-2 independent re-observation of OPEN verified B-8a40:F-093 (hash 359a6ee0efcd906e3cb06dfd09478c635eb8bfc5866f7729fa9211ffa06797d8), same family b8a40-validation-descendant-startup-premise / BUG-VALIDATION-DESCENDANT-PREMISE, not a new family, severity escalation, supersession or repair. The unchanged fixture at packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:458-494 starts its max case with a 700 ms CLI maximum and requires child-created max-descendant.pid only after the timed-out CLI returns; a missing startup witness prevents its ESRCH cleanup assertion from running. Fresh actual test_list.latest.output still records complete routine FAIL at 2026-09-07T09:21:27.902Z on material fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd / storyFiles 6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b: configured command[11] code 1 / 153119 ms, timed out waiting for fixture file .../proof-or-stop-validate-heartbeat-CjaRVH/max-descendant.pid. This remains a current required TEST/DONE blocker, not a claim that production timeout or descendant cleanup malfunctioned. This wave I directly read the complete temporary diagnostic preload /tmp/b8a40-heartbeat-premise.lbYY0b/delay-max-child.mjs and complete one-line actual-child-starts.jsonl. The preload selects only actual node -e argv naming max-descendant.pid and spawn, logs before evaluation, waits 1000 ms with Atomics.wait, then would log after-delay-before-evaluation. The actual log contains only before-evaluation pid79812 ppid79533 configuredMaxMs700 at1788773468121; no after-delay event. These inspected bytes corroborate the bounded startup-preemption mechanism without changing production spawn/timeouts/cleanup. I did not execute this diagnostic or independently consume its parent terminal event; the owner reports its exit 1/missing marker and a separate unchanged standalone PASS, so neither report is treated as repair or replacement formal evidence. This is supporting evidence within existing F093, not proof of the precise timing history of the earlier full-run failure. Bounded remediation should make the fixture startup premise robust while keeping an actual finite max timeout and descendant PID/ESRCH assertions; no production deadline relaxation, dropped assertions, arbitrary retry-to-green or expanded repository cleanup. The whole-Story source/config/required inputs were verified unchanged since wave-1 freeze 67f9bd6; all 13 focused must intents still have matching current mechanical PASS receipts and no waivers. Those and separate DONE-required 65/65 PASS remain distinct from failed routine validation. Existing F089-F093 original records remain OPEN and unchanged. No additional verified coverage family was found; no overall PASS, quorum, source/build mutation, duplicate heavy test or owner action was taken.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-07T09:46:19.683Z",
+        "reviewRound": "2026-09-07T07:37:25.032Z",
+        "reviewRunId": "B-8a40:RR-166",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+            "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-8a40/test-evidence.json",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/core/review-escalation.ts",
+            "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "proof-or-stop.config.json",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 4,
+            "tokenCount": null
+          },
+          "digest": "d33601fea8d758db734e1982479f59c61a2043662a5b89f1a3ffb8a06bc7c1c3"
+        },
+        "readDiagnostics": [],
+        "_hash": "944d90376edbb44fb05aeddb1905e10482974d1efc681bddeebdacaebc1809cf",
+        "files": [
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "signatureTag": "b8a40-validation-descendant-startup-premise",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "7ecea3cea07be61591de6cf438e6cce3599ad4624352b93d304cf4f38b0f8f32",
+      "priorDigest": "d74527b37d93b234016abb235cf418f2221958893962c1d5b51e1a05e5c7c467",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T09:46:19.685Z"
     }
   ],
   "receipts": [
@@ -8386,6 +8455,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "ae68347545f82e23dab6aa6dfc85278aca1a9df210952a8b017883783bfd7346",
         "signature": "L7dE7q0pig46ih5Y0TkB+9HFATtNmlqsWcOibShESK2AQOLERZo5nOqVbhZlFNFHSg0WIVK/PRWC0Zlpz6khCw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr22wth_17ea_26499cc5fb4e4d15a4e33f77b74e51dd",
+      "operation": "append_finding",
+      "idempotencyKey": "b8a40-ri016-wave2-coverage-descendant-premise-rr166",
+      "requestDigest": "9699886e864277db64d04a58bf15c589d17e4b53f5d17bcdaf45d91bc39469b1",
+      "recordIds": [
+        "lr_mtr22wth_17ea_f679583f621240cc8b3978717f5511d7"
+      ],
+      "priorLedgerDigest": "d74527b37d93b234016abb235cf418f2221958893962c1d5b51e1a05e5c7c467",
+      "committedLedgerDigest": "c4d3078807c69ccfcb1c86f1605717120d34b788f931bc5534b2fcd462dc7935",
+      "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+      "writerFenceToken": "53414281-2b1a-468a-9f82-322233337bad",
+      "committedAt": "2026-09-07T09:46:19.685Z",
+      "replayed": false,
+      "exactRequestDigest": "f9f22fcdb888ea58e0ec2da3af78014acdc363973196cb1e837b9e42fc4b9732",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr22wth_17ea_26499cc5fb4e4d15a4e33f77b74e51dd",
+        "storyId": "B-8a40",
+        "idempotencyKey": "b8a40-ri016-wave2-coverage-descendant-premise-rr166",
+        "exactRequestDigest": "f9f22fcdb888ea58e0ec2da3af78014acdc363973196cb1e837b9e42fc4b9732",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr22wth_17ea_f679583f621240cc8b3978717f5511d7"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "d74527b37d93b234016abb235cf418f2221958893962c1d5b51e1a05e5c7c467",
+        "committedLedgerDigest": "c4d3078807c69ccfcb1c86f1605717120d34b788f931bc5534b2fcd462dc7935",
+        "replayed": false,
+        "committedAt": "2026-09-07T09:46:19.685Z",
+        "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "53414281-2b1a-468a-9f82-322233337bad",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "2c0e9c2b8ff0a4bd43d0c3dfc9490b0f2fc9fee4952e7a4b8a53f99b633f8c5f",
+        "signature": "RS1idkN2iGdRe5Qgf7iA0SrUGiRb4d8rhgXsYEM4sn6L5ezN85E25AJcWeEE+e31KB0uJB8RcOnBqwdTwykgCw=="
       }
     }
   ]

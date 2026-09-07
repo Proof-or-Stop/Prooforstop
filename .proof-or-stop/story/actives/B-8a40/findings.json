@@ -4870,6 +4870,67 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0",
       "ledgerCommitReceiptId": "lrc_mtr22723_vgf_870539642bbe4599bf25b3b7098bad8d"
+    },
+    {
+      "id": "B-8a40:F-095",
+      "desc": "RI-016 wave-2 independent re-observation of OPEN verified B-8a40:F-093 (hash 359a6ee0efcd906e3cb06dfd09478c635eb8bfc5866f7729fa9211ffa06797d8), same family b8a40-validation-descendant-startup-premise / BUG-VALIDATION-DESCENDANT-PREMISE, not a new family, severity escalation, supersession or repair. The unchanged fixture at packages/main/src/tasks/validate-progress-heartbeat-smoke.ts:458-494 starts its max case with a 700 ms CLI maximum and requires child-created max-descendant.pid only after the timed-out CLI returns; a missing startup witness prevents its ESRCH cleanup assertion from running. Fresh actual test_list.latest.output still records complete routine FAIL at 2026-09-07T09:21:27.902Z on material fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd / storyFiles 6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b: configured command[11] code 1 / 153119 ms, timed out waiting for fixture file .../proof-or-stop-validate-heartbeat-CjaRVH/max-descendant.pid. This remains a current required TEST/DONE blocker, not a claim that production timeout or descendant cleanup malfunctioned. This wave I directly read the complete temporary diagnostic preload /tmp/b8a40-heartbeat-premise.lbYY0b/delay-max-child.mjs and complete one-line actual-child-starts.jsonl. The preload selects only actual node -e argv naming max-descendant.pid and spawn, logs before evaluation, waits 1000 ms with Atomics.wait, then would log after-delay-before-evaluation. The actual log contains only before-evaluation pid79812 ppid79533 configuredMaxMs700 at1788773468121; no after-delay event. These inspected bytes corroborate the bounded startup-preemption mechanism without changing production spawn/timeouts/cleanup. I did not execute this diagnostic or independently consume its parent terminal event; the owner reports its exit 1/missing marker and a separate unchanged standalone PASS, so neither report is treated as repair or replacement formal evidence. This is supporting evidence within existing F093, not proof of the precise timing history of the earlier full-run failure. Bounded remediation should make the fixture startup premise robust while keeping an actual finite max timeout and descendant PID/ESRCH assertions; no production deadline relaxation, dropped assertions, arbitrary retry-to-green or expanded repository cleanup. The whole-Story source/config/required inputs were verified unchanged since wave-1 freeze 67f9bd6; all 13 focused must intents still have matching current mechanical PASS receipts and no waivers. Those and separate DONE-required 65/65 PASS remain distinct from failed routine validation. Existing F089-F093 original records remain OPEN and unchanged. No additional verified coverage family was found; no overall PASS, quorum, source/build mutation, duplicate heavy test or owner action was taken.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-07T09:46:19.683Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-166",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/test-evidence.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "d33601fea8d758db734e1982479f59c61a2043662a5b89f1a3ffb8a06bc7c1c3"
+      },
+      "readDiagnostics": [],
+      "_hash": "944d90376edbb44fb05aeddb1905e10482974d1efc681bddeebdacaebc1809cf",
+      "files": [
+        "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "b8a40-validation-descendant-startup-premise",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtr22wth_17ea_f679583f621240cc8b3978717f5511d7",
+      "ledgerCommitReceiptId": "lrc_mtr22wth_17ea_26499cc5fb4e4d15a4e33f77b74e51dd"
     }
   ]
 }
