@@ -84,8 +84,8 @@ function parseCliJson(result, label) {
   return JSON.parse(stdout.slice(start, end + 1));
 }
 
-function runProof(command, payload) {
-  return run(process.execPath, [join(repoRoot, 'bin', 'proof-or-stop.js'), command, JSON.stringify(payload)]);
+function runProof(command, payload, cwd = repoRoot) {
+  return run(process.execPath, [join(repoRoot, 'bin', 'proof-or-stop.js'), command, JSON.stringify(payload)], { cwd });
 }
 
 // B-49d4's supported newcomer proof executes byte-identical committed guards
@@ -379,12 +379,12 @@ assert.doesNotMatch(verificationReceiptBody, /artifactManifest|sourceMaterialHas
 // Official append-only RED evidence: V2 corrects only the malformed command in
 // V1, while V1's reviewed receipt digest remains preserved. The pair binds the
 // immutable baseline and the accepted relation/review artifacts.
+assert.equal(
+  sha256(JSON.stringify(registrationMirrorBinding)),
+  REGISTRATION_MIRROR_BINDING_DIGEST,
+  'B-fe8f historical evidence binding changed without explicit maintenance',
+);
 if (supportedRegistrationMirror) {
-  assert.equal(
-    sha256(JSON.stringify(registrationMirrorBinding)),
-    REGISTRATION_MIRROR_BINDING_DIGEST,
-    'B-fe8f static registration-mirror evidence binding changed without explicit maintenance',
-  );
   const configured = JSON.parse(source('proof-or-stop.config.json'));
   assert.equal(
     (configured.validate?.commands ?? []).some((entry) => (
@@ -457,6 +457,9 @@ try {
   // Both normal and registration-mirror runs execute these production APIs.
   const fixtureRoot = join(relationScratch, 'fresh-candidate');
   mkdirSync(fixtureRoot);
+  const fixtureGit = run('git', ['init', '-q', '-b', 'main'], { cwd: fixtureRoot });
+  assert.equal(fixtureGit.status, 0, `fixture Git initialization failed: ${fixtureGit.stderr}`);
+  writeFileSync(join(fixtureRoot, 'proof-or-stop.config.json'), JSON.stringify({ scanRoot: '.' }));
   const commandSpec = { command: process.execPath, args: anchoredArgs, cwd: '.' };
   probe = createProbe(fixtureRoot, {
     candidateId: 'bfe8f-portable-relation-fixture',
@@ -474,6 +477,9 @@ try {
   });
   assert.notEqual(probe.artifactId, PROBE_ID, 'fresh fixture reused a historical probe identity');
   assert.equal(probe.evidenceScope, 'evidence-candidate');
+  const cliProbe = parseCliJson(runProof('repro_probe_get', { probeId: probe.artifactId }, fixtureRoot), 'fresh repro_probe_get');
+  assert.equal(cliProbe.artifactDigest, probe.artifactDigest, 'CLI read changed the fresh probe digest');
+  assert.deepEqual(cliProbe.payload, probe.payload, 'CLI read changed the fresh probe payload');
   reviewProbe(fixtureRoot, {
     probeId: probe.artifactId,
     probeDigest: probe.artifactDigest,
@@ -495,13 +501,31 @@ try {
   const evaluated = evaluateRedGreenRelation(fixtureRoot, {
     relationId: relation.artifactId, relationDigest: relation.artifactDigest,
   });
-  relationEvaluation = { ...evaluated.payload, candidateId: evaluated.subjectBinding.candidateId };
+  relationEvaluation = parseCliJson(runProof('red_green_relation_evaluate', {
+    relationId: relation.artifactId, relationDigest: relation.artifactDigest,
+  }, fixtureRoot), 'fresh red_green_relation_evaluate');
+  assert.equal(relationEvaluation.pass, evaluated.payload.pass, 'CLI and core relation verdicts disagree');
   const digest = relation.artifactDigest;
   const badDigest = `${digest.slice(0, -1)}${digest.endsWith('0') ? '1' : '0'}`;
   assert.throws(() => evaluateRedGreenRelation(fixtureRoot, {
     relationId: relation.artifactId, relationDigest: badDigest,
   }), /relation digest mismatch/, 'production evaluator accepted a mutated relation digest');
-  currentCorruptedRelationRejected = true;
+  const badCliRelation = runProof('red_green_relation_evaluate', {
+    relationId: relation.artifactId, relationDigest: badDigest,
+  }, fixtureRoot);
+  currentCorruptedRelationRejected = badCliRelation.status !== 0
+    && /relation digest mismatch/.test(`${badCliRelation.stdout}\n${badCliRelation.stderr}`);
+  assert.equal(currentCorruptedRelationRejected, true, 'CLI accepted a corrupted relation digest');
+  const mismatch = createRedGreenRelation(fixtureRoot, {
+    ...relation.payload,
+    currentCommandSpec: { ...commandSpec, command: 'different-executable-negative-control' },
+  });
+  const mismatchEvaluation = parseCliJson(runProof('red_green_relation_evaluate', {
+    relationId: mismatch.artifactId, relationDigest: mismatch.artifactDigest,
+  }, fixtureRoot), 'mismatched command relation evaluation');
+  assert.equal(mismatchEvaluation.pass, false, 'CLI accepted a changed command');
+  assert.ok(mismatchEvaluation.reasons.some((reason) => /command mismatch/.test(reason)),
+    'changed command was rejected for an unrelated reason');
 
 } finally {
   process.chdir(ambientCwd);
