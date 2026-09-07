@@ -2342,6 +2342,55 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqiiwv0_1r2j_fec2987735854f32b1cc54a65ae76224",
       "ledgerCommitReceiptId": "lrc_mtqiiwv0_1r2j_b0a3ba9e7b844bb38bfb034b9a5d13e0"
+    },
+    {
+      "id": "B-e256:F-049",
+      "desc": "windows-command-shim-unreachable-invocation false pass: packages/main/src/core/runtime-environment-checks.ts:826-830 accepts a Windows command shim when any non-comment line contains a syntactically valid Node invocation of the canonical target, but it does not account for earlier unconditional control flow. A current compiled-runtime probe used a canonical package/target/version and a PATH-selected .cmd shim containing `goto :eof` before a literal `node <canonical-target> %*`; cmd.exe exits the batch file at `goto :eof`, so the target is unreachable, yet runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true and emitted `contract: global-core-realpath-pass`. The focused global-core-realpath suite remains green and contains no goto/exit/dead-branch mutation. This is distinct from F-047: the runtime token is literal Node and correctly positioned, but the invocation is dead code. Reject unreachable invocations or validate only a recognized executable npm-shim control-flow form, and add a regression proving an unconditional goto/exit or false short-circuit before the target cannot emit the healthy marker. severity: high",
+      "severity": "high",
+      "category": "adversarial",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T00:43:31.343Z",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "reviewRunId": "B-e256:RR-153",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "f7e02a5d5437e521b9ce1f7baa86bf4a8a13b8f977ce0ed0ee3df6845b478162",
+      "files": [
+        "packages/main/src/core/runtime-environment-checks.ts",
+        "packages/main/tests/global-core-realpath.test.mjs",
+        ".proof-or-stop/story/actives/B-e256/checklist.json",
+        ".proof-or-stop/story/actives/B-e256/proofstory.json",
+        ".proof-or-stop/story/actives/B-e256/summary.json"
+      ],
+      "signatureTag": "windows-command-shim-unreachable-invocation-false-pass",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqiouxc_227h_a2b5f2a031d448dba7967b42f7c20486",
+      "ledgerCommitReceiptId": "lrc_mtqiouxd_227h_f4963468b10648c0b39afb92d73d1cba"
     }
   ]
 }
