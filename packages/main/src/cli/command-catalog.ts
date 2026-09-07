@@ -690,6 +690,8 @@ Behavior:
     lane: z.enum(REVIEW_RUN_LANE_INPUTS).optional().describe('Explicit canonical reviewer lane; historical lattice aliases remain readable, provide only one.'),
     reviewedIntentRefs: z.array(z.string()).optional().describe('Scope-protected story: verification intent refs reviewed in this run; included in scope binding, optional.'),
     reviewerEscalationReason: z.string().trim().min(1).optional().describe('Reviewer-authored reason to mint a new full-context ReviewRun when the bounded incremental basis is incomplete.'),
+    reviewPurpose: z.enum(['topology', 'inventory-completeness']).optional().describe('Critic only. Omitted preserves topology admission; inventory requires a current signed OPEN epoch.'),
+    inventoryEpochId: z.string().min(1).optional().describe('Exact current epoch for explicit inventory-completeness purpose, never topology authority.'),
   }},
   { name: 'review_run_list', description: 'Read compact signed reviewer-run metadata for recovery and inspection; never writes evidence or prompt bytes', schema: {
     storyId: z.string().min(1).describe('Story ID.'),
@@ -2624,6 +2626,8 @@ Behavior:
     findingId: z.string().optional().describe('Finding ID (F-xxx or B-xxx:F-xxx). Supply only for a registered finding-target role; mutually exclusive with itemId/clusterId.'),
     clusterId: z.string().optional().describe('Cluster ID (CL-xxx). Supply only for a registered cluster-target role; mutually exclusive with itemId/findingId.'),
     agentType: z.enum(AGENT_DISPATCH_ACCEPTED_TYPES as [string, ...string[]]).optional().describe('Registered subagent type or compatibility alias. Omit only for the deliberate proof-or-stop-implementer default; runtime enforces phase and target cardinality from the same registry.'),
+    reviewPurpose: z.enum(['topology', 'inventory-completeness']).optional().describe('Critic only. Explicit inventory purpose does not establish topology implementation provenance. No fallback from a topology refusal.'),
+    inventoryEpochId: z.string().min(1).optional().describe('Exact current signed OPEN inventory epoch; wave and cutoff are derived by the handler.'),
   }},
 
   // Background CLI trio (B-45ed CHK-007: background.md set/append/get).

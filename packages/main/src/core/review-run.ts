@@ -11,7 +11,7 @@ import {
 } from './evidence-freshness.js';
 import { verifyFinding, verifyReviewPass } from './finding-verify.js';
 import { REVIEW_RETENTION_PROTOCOL_METADATA_PATHS } from './lifecycle-registry.js';
-import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, StoryInfo } from './types.js';
+import type { Finding, ReviewPass, ReviewRun, ReviewRunWorkspaceBinding, ReviewInventoryPurposeBinding, StoryInfo } from './types.js';
 import { canonicalJson } from './digest.js';
 import type { StoryStore } from './store.js';
 import { buildScopeDiffPack } from './scope-diff-pack.js';
@@ -52,7 +52,7 @@ import {
   resolvePromptRoleBody,
 } from './prompt-role-contract-registry.js';
 import { reviewIncrementalContext } from './review-incremental-context.js';
-import { assertReviewInventoryCutoff } from './review-inventory-epoch.js';
+import { assertReviewInventoryCutoff, currentOpenReviewInventory, inventoryPurposeMatchesEpoch } from './review-inventory-epoch.js';
 
 export const REVIEW_RUN_SALT = 'lattice-review-run-integrity-v1';
 
@@ -526,6 +526,8 @@ export function signReviewRun(
   storyFilesHash?: string,
   envelopeId?: string,
   reviewerEscalationReason?: string,
+  reviewPurpose?: ReviewRun['reviewPurpose'],
+  inventoryBinding?: ReviewInventoryPurposeBinding,
 ): string {
   const parts = [
     storyId,
@@ -543,6 +545,9 @@ export function signReviewRun(
   if (workspaceBindingHash) parts.push(workspaceBindingHash);
   if (envelopeId) parts.push(envelopeId);
   if (reviewerEscalationReason) parts.push(reviewerEscalationReason);
+  if (reviewPurpose !== undefined || inventoryBinding !== undefined) {
+    parts.push('critic-review-purpose.v1', JSON.stringify({ reviewPurpose, inventoryBinding }));
+  }
   parts.push(REVIEW_RUN_SALT);
   return createHash('sha256').update(parts.join(':')).digest('hex');
 }
@@ -586,6 +591,9 @@ export function ensureCurrentReviewRound(
 }
 
 export function verifyReviewRun(run: ReviewRun): boolean {
+  if (run.reviewPurpose !== undefined && run.reviewPurpose !== 'topology' && run.reviewPurpose !== 'inventory-completeness') return false;
+  if ((run.reviewPurpose === 'inventory-completeness') !== (run.inventoryBinding !== undefined)) return false;
+  if (run.reviewPurpose !== undefined && canonicalAgentRoleId(run.lane) !== 'proof-or-stop-review-topology-critic') return false;
   if (
     !run._hash || !run.storyId || !run.reviewRunId || !run.agent || !run.lane
     || !run.reviewRound || !run.startedAt || !run.headHash || !run.materialHash
@@ -607,6 +615,8 @@ export function verifyReviewRun(run: ReviewRun): boolean {
     run.storyFilesHash,
     run.envelopeId,
     run.reviewerEscalationReason,
+    run.reviewPurpose,
+    run.inventoryBinding,
   );
   return run._hash === expected
     && (!run.workspaceBinding || verifyReviewRunWorkspaceBinding(run.workspaceBinding, run))
@@ -634,16 +644,23 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   reviewRound: string;
   projectRoot: string;
   rolloutMode?: 'legacy-full-context' | 'full-envelope';
+  reviewPurpose?: ReviewRun['reviewPurpose'];
+  inventoryBinding?: ReviewInventoryPurposeBinding;
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
   const canonicalLane = canonicalAgentRoleId(args.lane);
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
     candidate.type === 'dispatch'
-    && candidate.targetKind === (canonicalLane === 'proof-or-stop-review-topology-critic' ? 'topology-critic-review' : 'story-review')
+    && candidate.targetKind === (args.reviewPurpose === 'inventory-completeness' ? 'inventory-critic-review' : canonicalLane === 'proof-or-stop-review-topology-critic' ? 'topology-critic-review' : 'story-review')
     && typeof candidate.agentType === 'string'
     && agentRoleIdsEqual(candidate.agentType, canonicalLane)
     && candidate.reviewRound === args.reviewRound);
   if (!event) {
     return { ok: false, reason: `no trusted story-review dispatch binding for ${args.lane} in the current REVIEW round` };
+  }
+  if (args.reviewPurpose === 'inventory-completeness' && (event.reviewPurpose !== args.reviewPurpose
+    || !args.inventoryBinding || JSON.stringify(event.inventoryBinding) !== JSON.stringify(args.inventoryBinding)
+    || !String(event.dispatchPrompt).includes(`Trusted inventory subject: ${JSON.stringify(args.inventoryBinding)}`))) {
+    return { ok: false, reason: 'inventory dispatch purpose/subject binding is missing or tampered' };
   }
   const hostRenderHost = event.hostRenderHost;
   if (hostRenderHost !== 'claude' && hostRenderHost !== 'codex') {
@@ -734,11 +751,13 @@ function verifyLegacyReviewRunPromptBinding(
       reviewRound: run.reviewRound,
       projectRoot: metadataRoot,
       rolloutMode: 'legacy-full-context',
+      reviewPurpose: run.reviewPurpose,
+      inventoryBinding: run.inventoryBinding,
     });
     // Pre-B-235e legacy runs did not persist dispatch bindings. Preserve only
     // that bounded history/binding-race case; once a binding exists, every
     // body/host/round digest is mandatory and drift is rejected.
-    if (!dispatch.ok && !dispatch.reason.startsWith('no trusted story-review dispatch binding')) {
+    if (!dispatch.ok && (run.reviewPurpose === 'inventory-completeness' || !dispatch.reason.startsWith('no trusted story-review dispatch binding'))) {
       return dispatch;
     }
     return { ok: true };
@@ -800,6 +819,8 @@ export function verifyReviewRunPromptEnvelope(
     lane: run.lane,
     reviewRound: run.reviewRound,
     projectRoot: metadataRoot,
+    reviewPurpose: run.reviewPurpose,
+    inventoryBinding: run.inventoryBinding,
   });
   if (!dispatchBinding.ok) return dispatchBinding;
   const assemblyValid = envelope.contextMode === 'incremental'
@@ -1317,6 +1338,12 @@ export function assertCurrentReviewRunForEvidence(
   }
   if (!verifyReviewRun(run)) {
     throw new Error(`review evidence for ${agent} bound reviewRunId ${reviewRunId} has invalid signature. ${startRunHint(story.storyId, agent)}`);
+  }
+  if (run.reviewPurpose === 'inventory-completeness') {
+    const epoch = currentOpenReviewInventory(store, story.storyId);
+    if (!epoch || !inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)) {
+      throw new Error('review evidence inventory purpose requires the same current OPEN epoch/wave/cutoff');
+    }
   }
   const envelopeMode = resolvePromptEnvelopeRolloutMode(
     run.lane,

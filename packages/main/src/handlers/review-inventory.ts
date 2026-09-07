@@ -24,6 +24,8 @@ import {
   persistFinalizedReviewInventoryUnlocked,
   renderFinalizedReviewInventory,
   withReviewInventoryMutationLock,
+  reviewInventoryPurposeBinding,
+  inventoryPurposeMatchesEpoch,
 } from '../core/review-inventory-epoch.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { canonicalAgentRoleId } from '../core/agent-role-identity.js';
@@ -196,6 +198,22 @@ export function assertReviewInventoryContextFreshLocked(ctx: HandlerContext, sto
   if (refreshed.state !== 'OPEN') throw new Error(renderProjectedStatus(ctx, refreshed));
 }
 
+/** Caller holds the inventory lock through dispatch/run publication. */
+export function requireInventoryCriticSubjectLocked(ctx: HandlerContext, storyId: string, epochId: string) {
+  const story = ctx.store.readStory(storyId);
+  if (story.phase !== 'REVIEW' || !story.currentReviewRound) throw new Error('inventory purpose requires current REVIEW');
+  assertReviewInventoryContextFreshLocked(ctx, storyId);
+  const epoch = currentOpenReviewInventory(ctx.store, storyId);
+  if (!epoch || epoch.epochId !== epochId || !verifyReviewInventoryEpoch(epoch)
+    || ctx.store.readReviewInventoryEpochs(storyId).epochs.at(-1)?.epochId !== epochId
+    || epoch.reviewRound !== story.currentReviewRound) throw new Error('inventory purpose requires the signed current OPEN epoch');
+  const evaluation = evaluateCurrentWave(ctx, epoch, []);
+  if (evaluation.missingLanes.length || evaluation.duplicateIdentities.length || evaluation.baselineMismatchIds.length) {
+    throw new Error('inventory purpose requires complete current required-lane terminal evidence');
+  }
+  return reviewInventoryPurposeBinding(epoch);
+}
+
 /** Recompute and persist invalidation while the caller owns the shared lock. */
 export function refreshReviewInventoryContextLocked(ctx: HandlerContext, storyId: string): ReviewInventoryEpoch | null {
   const epoch = currentOpenReviewInventory(ctx.store, storyId);
@@ -249,7 +267,7 @@ export function renderReviewInventoryStatus(epoch: ReviewInventoryEpoch, project
       }));
       next = projection.criticReviewRunId
         ? `proof-or-stop review_inventory_critic_set '${JSON.stringify({ storyId: epoch.storyId, epochId: epoch.epochId, reviewRunId: projection.criticReviewRunId, agent: 'proof-or-stop-review-topology-critic', findingDispositions: conservativeDispositions })}'`
-        : `proof-or-stop dispatch '{"storyId":"${epoch.storyId}","agentType":"proof-or-stop-review-topology-critic"}'`;
+        : `proof-or-stop dispatch '${JSON.stringify({ storyId: epoch.storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId })}'`;
     } else if (live?.newFamilies.length) {
       next = `proof-or-stop review_inventory_wave_advance --storyId=${epoch.storyId}`;
     } else {
@@ -333,6 +351,7 @@ function currentCriticReviewRunId(ctx: HandlerContext, epoch: ReviewInventoryEpo
   )).filter(Number.isFinite));
   const latest = ctx.store.readReviewRuns(epoch.storyId).runs
     .filter(run => verifyReviewRun(run) && canonicalAgentRoleId(run.lane) === 'proof-or-stop-review-topology-critic'
+      && run.reviewPurpose === 'inventory-completeness' && inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)
       && run.reviewRound === epoch.reviewRound && run.materialHash === epoch.cutoff.materialHash
       && (run.storyFilesHash ?? '') === (epoch.cutoff.storyFilesHash ?? '')
       && Date.parse(run.startedAt) > latestLaneEvidenceAt)
@@ -504,6 +523,9 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
         const run = assertCurrentReviewRunForEvidence(
           ctx.store, story, ctx.root, 'proof-or-stop-review-topology-critic', args.reviewRunId,
         );
+        if (run.reviewPurpose !== 'inventory-completeness' || !inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)) {
+          throw new Error('REVIEW_INVENTORY_CRITIC_PURPOSE_REQUIRED: dispatch and run explicit inventory-completeness review');
+        }
         const passes = ctx.store.readReviewPasses(args.storyId).passes
           .filter(row => row.reviewRunId === run.reviewRunId && verifyReviewPass(args.storyId, row));
         const findings = ctx.store.readFindings(args.storyId).findings
@@ -526,6 +548,8 @@ export function createReviewInventoryHandlers(ctx: HandlerContext) {
           requiredLaneCoverageDigest: reviewInventoryLaneCoverageDigest(evaluation),
           criticLane: 'proof-or-stop-review-topology-critic',
           reviewRunId: run.reviewRunId,
+          reviewPurpose: 'inventory-completeness',
+          inventoryBinding: run.inventoryBinding,
           terminalEvidenceIds,
           readEvidenceDigest: reviewInventoryDigest(readEvidence),
           findingDispositions,

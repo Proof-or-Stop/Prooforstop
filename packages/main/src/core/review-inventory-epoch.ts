@@ -4,6 +4,7 @@ import type {
   ChecklistData,
   Finding,
   ReviewInventoryEpoch,
+  ReviewInventoryPurposeBinding,
   ReviewInventoryCriticReceipt,
   ReviewInventoryEpochData,
   ReviewInventoryFindingDisposition,
@@ -54,6 +55,23 @@ function canonical(value: unknown): string {
 
 export function reviewInventoryDigest(value: unknown): string {
   return createHash('sha256').update(canonical(value)).digest('hex');
+}
+
+/** Stable subject of one signed epoch wave, independent of critic receipt writes. */
+export function reviewInventoryPurposeBinding(epoch: ReviewInventoryEpoch): ReviewInventoryPurposeBinding {
+  const boundary = epoch.waves.at(-1)?.nextRunSequenceBoundary ?? epoch.initialRunSequenceBoundary;
+  if (!Number.isSafeInteger(boundary) || boundary! < 0) throw new Error('inventory purpose requires signed run-sequence boundary');
+  return {
+    storyId: epoch.storyId, epochId: epoch.epochId, reviewRound: epoch.reviewRound,
+    wave: epoch.waves.length + 1, cutoff: { ...epoch.cutoff }, scopeDigest: epoch.scopeDigest,
+    requiredLanesDigest: reviewInventoryDigest(epoch.requiredLanes),
+    runSequenceBoundary: boundary!,
+  };
+}
+
+export function inventoryPurposeMatchesEpoch(binding: ReviewInventoryPurposeBinding | undefined, epoch: ReviewInventoryEpoch): boolean {
+  try { return Boolean(binding) && canonical(binding) === canonical(reviewInventoryPurposeBinding(epoch)); }
+  catch { return false; }
 }
 
 export function emptyReviewInventoryEpochData(): ReviewInventoryEpochData {
@@ -231,6 +249,12 @@ export function validateReviewInventoryCriticReceipt(args: {
     return { ok: false, reason: 'critic required-lane coverage digest mismatch' };
   }
   const run = args.runs.find(row => row.reviewRunId === receipt.reviewRunId);
+  if (receipt.reviewPurpose !== 'inventory-completeness'
+    || !inventoryPurposeMatchesEpoch(receipt.inventoryBinding, epoch)
+    || run?.reviewPurpose !== 'inventory-completeness'
+    || !inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)) {
+    return { ok: false, reason: 'critic inventory purpose/subject binding missing or mismatched' };
+  }
   if (!run || !verifyReviewRun(run) || run.lane !== receipt.criticLane
     || run.reviewRound !== epoch.reviewRound || run.materialHash !== epoch.cutoff.materialHash
     || (run.storyFilesHash ?? '') !== (epoch.cutoff.storyFilesHash ?? '')) {

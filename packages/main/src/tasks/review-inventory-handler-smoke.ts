@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
+import { currentImplementationBusinessCommit, deriveRoleProvenance } from '../core/topology-critic-receipt.js';
 import { resetConfigCache } from '../core/config.js';
 import { digestCandidateRoutingValue, verifyCandidateSpecSet, type CandidateSpecSetArtifact } from '../core/candidate-spec-routing.js';
 import {
@@ -17,6 +18,9 @@ import {
 import { signFinding } from '../core/finding-verify.js';
 import type { Finding, ProofStoryContractData, StoryInfo } from '../core/types.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
+import { createReviewRunHandlers } from '../handlers/review-run.js';
+import { verifyCurrentReviewerDispatchBinding } from '../core/review-run.js';
+import { reviewInventoryPurposeBinding } from '../core/review-inventory-epoch.js';
 import {
   computeCanonicalDependencyClosure,
   postRemediationReviewSelection,
@@ -149,7 +153,7 @@ function seedProofStoryAcceptance(store: StoryStore): void {
 // B-29bc: the same production CLI fixture supplies complete signed required
 // lanes before critic admission. Host names below describe disposable fixtures,
 // not independent-host assurance. Existing topology assertions remain below.
-function inventoryPurposeRecovery(): void {
+async function inventoryPurposeRecovery(): Promise<void> {
   const actor = 'proof-or-stop-review-topology-critic';
   const env = (agent: string, session: string): NodeJS.ProcessEnv => ({
     PROOF_OR_STOP_AGENT: agent, PROOF_OR_STOP_SESSION_ID: session,
@@ -180,28 +184,168 @@ function inventoryPurposeRecovery(): void {
     console.log('B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved');
     const purpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId };
     const criticEnv = env(actor, 'b29bc-independent-critic');
+    const beforeSchema = JSON.stringify(fixture.store.readReviewRuns(storyId));
+    for (const invalid of [
+      { reviewPurpose: 'invented', inventoryEpochId: epoch.epochId },
+      { reviewPurpose: 'inventory-completeness' },
+      { inventoryEpochId: epoch.epochId },
+      { reviewPurpose: 'topology', inventoryEpochId: epoch.epochId },
+      { reviewPurpose: null, inventoryEpochId: epoch.epochId },
+      { ...purpose, inventoryEpochId: `${epoch.epochId}-wrong` },
+    ]) {
+      assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...invalid }, criticEnv), /purpose|epoch|invalid|expected/i);
+      assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...invalid }, criticEnv), /purpose|epoch|invalid|expected/i);
+    }
+    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-quality', ...purpose }, env('proof-or-stop-review-quality', 'wrong-role')), /purpose|critic/i);
+    assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...purpose }, env(actor, 'missing-dispatch')), /dispatch/i);
+    assert.equal(JSON.stringify(fixture.store.readReviewRuns(storyId)), beforeSchema, 'invalid purpose/schema and missing dispatch cannot publish a run');
     let dispatch = '';
     assert.doesNotThrow(() => { dispatch = cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, criticEnv); }, 'B-29bc explicit inventory dispatch must admit real non-role Git attribution');
     assert.match(dispatch, /inventory-completeness/);
     assert.match(dispatch, new RegExp(epoch.epochId));
+    const signedEpochData = fixture.store.readReviewInventoryEpochs(storyId);
+    fixture.store.writeReviewInventoryEpochs(storyId, { ...signedEpochData, epochs: signedEpochData.epochs.map(row => ({ ...row, _hash: 'forged' })) });
+    for (const command of ['dispatch', 'review_run_start']) {
+      assert.throws(() => cli(fixture.root, command, { storyId, ...(command === 'dispatch' ? { agentType: actor } : { agent: actor }), ...purpose }, criticEnv), /signature/i);
+    }
+    assert.equal(fixture.store.readReviewInventoryEpochs(storyId).criticReceipts.length, 0, 'forged epoch cannot issue critic authority');
+    fixture.store.writeReviewInventoryEpochs(storyId, signedEpochData);
+    // Exercise the unchanged topology provenance consumer with a real default
+    // dispatch positive control, then the actual inventory dispatch carrier.
+    // This is provenance admission, not issuance of a complete topology receipt.
+    const topologyEvent = topology.store.readProcessEvents(storyId).filter(row => row.type === 'dispatch').at(-1)!;
+    const context = { storyId, basisStatus: 'complete' as const, basisDigest: 'fixture-basis', topologyDigest: 'fixture-topology', scopeCheckDigest: 'fixture-scope',
+      storyFilesHash: String(topologyEvent.storyFilesHash), closureFilesHash: 'fixture-closure', exclusions: [], findingRefs: [] };
+    const implementation = { agentId: 'proof-or-stop-implementer' as const, sessionId: 'fixture-implementation', dispatchId: 'fixture-implementation-dispatch', storyId,
+      headHash: String(topologyEvent.headHash), storyFilesHash: context.storyFilesHash, businessIdentity: 'fixture-implementation',
+      ...currentImplementationBusinessCommit(topology.root), businessCommitAuthorSource: 'git-log:commit-author' as const };
+    const provenanceArgs = { gitCwd: topology.root, expectedRole: actor as 'proof-or-stop-review-topology-critic', actor, sessionId: String(topologyEvent.sessionId), sessionSource: 'host-adapter' as const, context, implementation };
+    assert.equal(deriveRoleProvenance({ ...provenanceArgs, events: [topologyEvent] }).businessCommit, implementation.businessCommit);
+    const inventoryEvent = fixture.store.readProcessEvents(storyId).filter(row => row.type === 'dispatch').at(-1)!;
+    assert.equal(inventoryEvent.targetKind, 'inventory-critic-review');
+    assert.equal(inventoryEvent.businessCommit, undefined);
+    const dispatchInput = { storyId, lane: actor, reviewRound, projectRoot: fixture.root,
+      reviewPurpose: 'inventory-completeness' as const, inventoryBinding: reviewInventoryPurposeBinding(epoch) };
+    assert.equal(verifyCurrentReviewerDispatchBinding({ ...dispatchInput, store: fixture.store }).ok, true);
+    for (const mutation of [
+      { reviewPurpose: undefined }, { inventoryBinding: undefined }, { dispatchBindingDigest: 'tampered' },
+      { dispatchPromptDigest: 'tampered' }, { hostRenderIdentityDigest: 'tampered' },
+      { inventoryBinding: { ...dispatchInput.inventoryBinding, storyId: 'B-other' } },
+      { inventoryBinding: { ...dispatchInput.inventoryBinding, wave: 99 } },
+      { inventoryBinding: { ...dispatchInput.inventoryBinding, cutoff: { ...epoch.cutoff, headHash: 'tampered' } } },
+    ]) {
+      const readOnlyMutationStore = { readProcessEvents: () => [{ ...inventoryEvent, ...mutation }] } as unknown as StoryStore;
+      assert.equal(verifyCurrentReviewerDispatchBinding({ ...dispatchInput, store: readOnlyMutationStore }).ok, false,
+        `actual dispatch carrier mutation refused: ${JSON.stringify(mutation)}`);
+    }
+    for (const variant of [inventoryEvent, { ...inventoryEvent, reviewPurpose: undefined, inventoryBinding: undefined },
+      { ...inventoryEvent, reviewPurpose: 'topology', agentType: 'lattice-review-topology-critic' }]) {
+      assert.throws(() => deriveRoleProvenance({ ...provenanceArgs, sessionId: String(variant.sessionId), events: [variant] }), /no current registered dispatch provenance/);
+    }
+    console.log('B29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS');
     const started = cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...purpose }, criticEnv);
     const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
     assert.ok(reviewRunId, started);
     const run = fixture.store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === reviewRunId)!;
     assert.equal((run as unknown as { reviewPurpose: string }).reviewPurpose, 'inventory-completeness');
-    const listed = JSON.parse(cli(fixture.root, 'review_run_list', { storyId, lane: actor, latest: true, json: true }, criticEnv));
-    assert.equal(listed.runs[0].signatureValid, true);
+    const listed = JSON.parse(cli(fixture.root, 'review_run_list', { storyId, json: true }, criticEnv));
+    assert.equal(listed.runs.find((row: { reviewRunId: string }) => row.reviewRunId === reviewRunId)?.signatureValid, true);
+    const runReader = createReviewRunHandlers({ root: fixture.root, scanRoot: join(fixture.root, 'packages/main'), store: fixture.store });
+    const canonicalList = JSON.parse(runReader.review_run_list({ storyId, lane: actor, latest: true, json: true }));
+    const aliasList = JSON.parse(cli(fixture.root, 'review_run_list', { storyId, lane: 'lattice-review-topology-critic', latest: true, json: true }, criticEnv));
+    assert.deepEqual(aliasList.runs, canonicalList.runs, 'registered alias and canonical reader select the same signed latest run');
+    assert.equal(aliasList.runs.length, 1);
+    assert.throws(() => cli(fixture.root, 'review_run_list', { storyId, lane: 'unknown-lane', json: true }, criticEnv), /invalid|expected/i);
+    const beforeTerminal = JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId));
+    assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId, reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /terminal|read|evidence/i);
+    assert.equal(JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId)), beforeTerminal, 'missing terminal evidence cannot publish a critic receipt');
     cli(fixture.root, 'review_pass_set', { storyId, agent: actor, reviewRunId, note: 'Independent disposable critic inspected every required lane and the empty exact finding set.', readManifest, readEvents }, criticEnv);
     assert.match(cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId, reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /Completeness critic: complete/);
     assert.equal(git(fixture.root, ['log', '--format=%an <%ae>', '--', 'packages/main/src/subject.ts']), 'Harmonynet <26995688+Harmonynet@users.noreply.github.com>');
     console.log('B29BC_INVENTORY_PURPOSE PASS');
+    const alias = 'lattice-review-topology-critic';
+    const aliasEnv = env(alias, 'b29bc-alias-critic');
+    assert.match(cli(fixture.root, 'dispatch', { storyId, agentType: alias, ...purpose }, aliasEnv), /inventory-completeness/);
+    assert.match(cli(fixture.root, 'review_run_start', { storyId, agent: alias, ...purpose }, aliasEnv), /Review run/);
+    // A second ordinary identity is read from Git rather than matched by name.
+    git(fixture.root, ['config', 'user.name', 'Ordinary Contributor']);
+    git(fixture.root, ['config', 'user.email', 'ordinary@example.test']);
+    assert.match(cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, env(actor, 'b29bc-second-identity')), /inventory-completeness/);
+    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, reviewPurpose: 'topology' }, criticEnv), /implementation|author|provenance/i);
+    console.log('B29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS');
+    const ready = join(fixture.root, 'inventory-purpose-publication-ready');
+    const raceEnv = { ...env(actor, 'b29bc-second-identity'), NODE_ENV: 'test', LATTICE_INTERNAL_REVIEW_RUN_HOLD_MS: '1000', LATTICE_INTERNAL_REVIEW_RUN_READY_FILE: ready };
+    const publication = cliAsync(fixture.root, 'review_run_start', { storyId, agent: actor, ...purpose }, raceEnv);
+    waitForFile(ready);
+    const cancellation = cliAsync(fixture.root, 'review_inventory_cancel', { storyId, reason: 'Disposable locked inventory-purpose publication interleaving.' }, env('main', 'b29bc-owner'));
+    assert.equal((await publication).ok, true, 'run commits against the still OPEN epoch while holding the inventory lock');
+    assert.equal((await cancellation).ok, true, 'cancellation serializes after publication');
+    unlinkSync(ready); // Disposable synchronization marker is not source material.
+    assert.equal(fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1)?.state, 'CANCELLED');
+    const afterCancel = JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId));
+    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, criticEnv), /OPEN|epoch|cancel/i);
+    assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...purpose }, criticEnv), /OPEN|epoch|cancel/i);
+    assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: epoch.epochId, reviewRunId, agent: actor, findingDispositions: [] }, criticEnv), /OPEN|epoch|sealed/i);
+    assert.equal(JSON.stringify(fixture.store.readReviewInventoryEpochs(storyId)), afterCancel, 'cancelled replay cannot issue authority');
+    cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
+    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...purpose }, criticEnv), /OPEN|epoch|current/i);
+    cli(fixture.root, 'review_inventory_cancel', { storyId, reason: 'Finish disposable legacy-mode phase before full-envelope control.' }, env('main', 'b29bc-owner'));
+    const configPath = join(fixture.root, 'proof-or-stop.config.json');
+    const config = { scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements', promptEnvelope: {} as Record<string, unknown> };
+    config.promptEnvelope = { version: 'proof-or-stop.prompt-envelope-rollout.v1', roles: { [actor]: 'full-envelope' } };
+    writeFileSync(configPath, JSON.stringify(config));
+    git(fixture.root, ['add', 'proof-or-stop.config.json']);
+    git(fixture.root, ['commit', '-m', 'Synthetic full-envelope inventory mode with ordinary contributor identity']);
+    cli(fixture.root, 'review_inventory_begin', { storyId }, env('main', 'b29bc-owner'));
+    const fullEpoch = fixture.store.readReviewInventoryEpochs(storyId).epochs.at(-1)!;
+    for (const lane of fullEpoch.requiredLanes) {
+      const laneEnv = env(lane, `b29bc-full-required-${lane}`);
+      cli(fixture.root, 'dispatch', { storyId, agentType: lane }, laneEnv);
+      const fullStarted = cli(fixture.root, 'review_run_start', { storyId, agent: lane }, laneEnv);
+      const fullId = fullStarted.match(/Review run (\S+) started/)?.[1];
+      assert.ok(fullId, fullStarted);
+      cli(fixture.root, 'review_pass_set', { storyId, agent: lane, reviewRunId: fullId, note: 'Disposable second epoch required lane read evidence.', readManifest, readEvents }, laneEnv);
+    }
+    const fullPurpose = { reviewPurpose: 'inventory-completeness', inventoryEpochId: fullEpoch.epochId };
+    const fullEnv = env(actor, 'b29bc-full-critic');
+    assert.match(cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...fullPurpose }, fullEnv), /inventory-completeness/);
+    const fullStarted = cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...fullPurpose }, fullEnv);
+    const fullId = fullStarted.match(/Review run (\S+) started/)?.[1];
+    assert.ok(fullId, fullStarted);
+    assert.ok(fixture.store.readReviewRuns(storyId).runs.find(row => row.reviewRunId === fullId)?.envelopeId, 'full-envelope purpose is carried by an actual durable envelope');
+    cli(fixture.root, 'review_pass_set', { storyId, agent: actor, reviewRunId: fullId, note: 'Full-envelope disposable critic read every frozen source.', readManifest, readEvents }, fullEnv);
+    assert.match(cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: fullEpoch.epochId, reviewRunId: fullId, agent: actor, findingDispositions: [] }, fullEnv), /Completeness critic: complete/);
+    assert.equal(git(fixture.root, ['log', '-1', '--format=%an <%ae>']), 'Ordinary Contributor <ordinary@example.test>');
+    console.log('B29BC_PURPOSE_FULL_ENVELOPE PASS');
+    const fullData = fixture.store.readReviewInventoryEpochs(storyId);
+    assert.match(cli(fixture.root, 'review_inventory_finalize', { storyId }, env('main', 'b29bc-owner')), /FINALIZED/);
+    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|FINALIZED/i);
+    assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|sealed/i);
+    assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: fullEpoch.epochId, reviewRunId: fullId, agent: actor, findingDispositions: [] }, fullEnv), /OPEN|epoch|sealed/i);
+    fixture.store.writeReviewInventoryEpochs(storyId, fullData);
+    const fullChecklist = fixture.store.readChecklist(storyId);
+    fixture.store.writeChecklist(storyId, { ...fullChecklist, items: fullChecklist.items.map(row => ({ ...row, context: `${row.context} Changed accepted scope.` })) });
+    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...fullPurpose }, fullEnv), /INVALIDATED|SCOPE|changed/i);
+    assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|scope/i);
+    // Independent fixture mutation cells reset to the exact previously signed
+    // bytes. This is not an application recovery operation or epoch reopening.
+    fixture.store.writeChecklist(storyId, fullChecklist);
+    fixture.store.writeReviewInventoryEpochs(storyId, fullData);
+    writeFileSync(join(fixture.root, 'packages/main/src/subject.ts'), 'export const subject = 2;\n');
+    assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...fullPurpose }, fullEnv), /uncommitted|dirty/i);
+    git(fixture.root, ['add', 'packages/main/src/subject.ts']);
+    git(fixture.root, ['commit', '-m', 'Synthetic committed source-cutoff drift']);
+    assert.throws(() => cli(fixture.root, 'dispatch', { storyId, agentType: actor, ...fullPurpose }, fullEnv), /INVALIDATED|MATERIAL|changed/i);
+    assert.throws(() => cli(fixture.root, 'review_run_start', { storyId, agent: actor, ...fullPurpose }, fullEnv), /OPEN|epoch|sealed|material/i);
+    assert.throws(() => cli(fixture.root, 'review_inventory_critic_set', { storyId, epochId: fullEpoch.epochId, reviewRunId: fullId, agent: actor, findingDispositions: [] }, fullEnv), /OPEN|epoch|sealed/i);
+    console.log('B29BC_PURPOSE_LOCKED_FRESHNESS PASS');
   } finally {
     rmSync(topology.root, { recursive: true, force: true });
     rmSync(fixture.root, { recursive: true, force: true });
   }
 }
 
-inventoryPurposeRecovery();
+await inventoryPurposeRecovery();
 if (process.argv.includes('--purpose-only')) process.exit(0);
 
 const first = setup();
@@ -316,10 +460,10 @@ assert.throws(
   'real wave_advance rejects a complete lane set without critic authority',
 );
 assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), beforeCriticAdvance, 'critic-incomplete rejection is side-effect free');
-cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
+cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
   LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
 });
-const criticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic' }, {
+const criticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
   LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
 });
 const criticReviewRunId = criticStarted.match(/Review run (\S+) started/)?.[1];
@@ -412,10 +556,10 @@ for (const lane of epoch.requiredLanes) {
     readManifest, readEvents,
   }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
 }
-cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
+cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
   LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
 });
-const secondCriticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic' }, {
+const secondCriticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
   LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
 });
 const secondCriticReviewRunId = secondCriticStarted.match(/Review run (\S+) started/)?.[1];

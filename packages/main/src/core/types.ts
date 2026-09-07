@@ -1949,6 +1949,9 @@ export interface ReviewRun {
   assembledPrompt?: string;
   /** Reviewer-authored reason that forced this otherwise eligible run to full context. */
   reviewerEscalationReason?: string;
+  /** Explicit critic purpose; absent retains historical/default topology semantics. */
+  reviewPurpose?: 'topology' | 'inventory-completeness';
+  inventoryBinding?: ReviewInventoryPurposeBinding;
   /**
    * B-6bfd CHK-005: scope/diff/hunk binding for scope-protected stories. Present
    * only when the story has a scope contract at review_run_start time; absent for
@@ -2073,6 +2076,17 @@ export interface ReviewInventoryReceipt {
   _hash: string;
 }
 
+export interface ReviewInventoryPurposeBinding {
+  storyId: string;
+  epochId: string;
+  reviewRound: string;
+  wave: number;
+  cutoff: { headHash: string; materialHash: string; storyFilesHash?: string };
+  scopeDigest: string;
+  requiredLanesDigest: string;
+  runSequenceBoundary: number;
+}
+
 export interface ReviewInventoryCriticReceipt {
   schemaVersion: 'proofbound.review_inventory_critic_receipt.v1';
   criticReceiptId: string;
@@ -2085,6 +2099,8 @@ export interface ReviewInventoryCriticReceipt {
   requiredLaneCoverageDigest: string;
   criticLane: 'proof-or-stop-review-topology-critic' | 'lattice-review-topology-critic';
   reviewRunId: string;
+  reviewPurpose?: 'inventory-completeness';
+  inventoryBinding?: ReviewInventoryPurposeBinding;
   terminalEvidenceIds: string[];
   readEvidenceDigest: string;
   findingDispositions: ReviewInventoryFindingDisposition[];

@@ -200,7 +200,7 @@ const requiredProcessFactSemantics = {
   certification_window_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
   review_inventory_begin: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'gate-evidence'],
   review_inventory_status: ['artifact', 'signed-artifact', 'blocker-state', 'freshness-policy', 'gate-evidence'],
-  review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence'],
+  review_inventory_critic_set: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'review-pass', 'gate-evidence', 'normalization-policy'],
   review_inventory_wave_advance: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'blocker-state', 'gate-evidence'],
   review_inventory_finalize: ['artifact', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding', 'reviewer-lane', 'no-blocker-evidence', 'gate-evidence'],
   review_inventory_cancel: ['artifact', 'signed-artifact', 'blocker-state', 'gate-evidence'],
@@ -1469,6 +1469,22 @@ function assertProofStoryProgressiveBoundary() {
   const verificationText = read('packages/main/src/core/verification.ts');
   const milestoneStatusText = read('packages/main/src/core/milestone-status.ts');
   const checklistHandlerText = read('packages/main/src/handlers/checklist.ts');
+  // B-29bc: explicit inventory purpose is a producer/consumer contract, not
+  // a prose exemption from topology business-author admission.
+  const inventoryDispatchText = read('packages/main/src/handlers/story-dispatch.ts');
+  const inventoryRunHandlerText = read('packages/main/src/handlers/review-run.ts');
+  const purposeRunText = read('packages/main/src/core/review-run.ts');
+  const purposeEpochText = read('packages/main/src/core/review-inventory-epoch.ts');
+  const purposeInventoryHandlerText = read('packages/main/src/handlers/review-inventory.ts');
+  for (const [label, source] of [['dispatch', inventoryDispatchText], ['run', inventoryRunHandlerText]]) {
+    assert(source.includes('requireInventoryCriticSubjectLocked') && source.includes('inventory-completeness'), `${label}: inventory purpose must bind the current signed epoch under the inventory lock`);
+  }
+  assert(inventoryDispatchText.includes("targetKind: 'inventory-critic-review'") && inventoryDispatchText.includes('topologyDispatchBusinessAuthor'),
+    'inventory dispatch must use a distinct carrier while default topology retains Git business-author admission');
+  assert(purposeRunText.includes("'critic-review-purpose.v1'") && purposeRunText.includes('run.inventoryBinding')
+    && purposeEpochText.includes('inventoryPurposeMatchesEpoch(run.inventoryBinding, epoch)')
+    && purposeInventoryHandlerText.includes('REVIEW_INVENTORY_CRITIC_PURPOSE_REQUIRED'),
+    'signed run and inventory receipt consumers must enforce purpose and exact epoch subject');
   const configText = read('packages/main/src/core/config.ts');
   const activityPolicyText = read('packages/main/src/cli/activity-policy.ts');
   const commandPolicyEntries = new Map(parseCommandPolicyEntries().map(entry => [entry.name, entry]));

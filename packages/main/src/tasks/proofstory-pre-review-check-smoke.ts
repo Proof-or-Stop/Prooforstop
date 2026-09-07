@@ -7,6 +7,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { StoryStore } from '../core/store.js';
+import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import { resetConfigCache } from '../core/config.js';
 import {
   createProofStoryHandlers,
@@ -1362,7 +1363,7 @@ try {
     cli(root, 'dispatch', { storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-implementer' }, false, 'proof-or-stop-implementer', 'sess-pre-review-impl');
     git(root, ['config', 'user.name', 'Independent Topology Critic']); git(root, ['config', 'user.email', 'critic@noreply.local']);
     cli(root, 'dispatch', { storyId, agentType: 'lattice-review-topology-critic' }, false, 'proof-or-stop-review-topology-critic', 'sess-pre-review-critic');
-    const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && event.agentType === 'lattice-review-topology-critic').at(-1);
+    const criticDispatch = store.readProcessEvents(storyId).filter(event => event.type === 'dispatch' && agentRoleIdsEqual(typeof event.agentType === 'string' ? event.agentType : undefined, 'proof-or-stop-review-topology-critic')).at(-1);
     assert.ok(criticDispatch, 'topology critic dispatch is durably recorded before receipt issuance');
     assert.equal(criticDispatch.sessionId, adapterSessionId(root, 'sess-pre-review-critic', 'proof-or-stop-review-topology-critic'), 'critic receipt and dispatch use the same host-adapter session identity');
     assert.equal(criticDispatch.storyFilesHash, currentStoryFilesHash(root, 'HEAD', root), 'critic dispatch is bound to the current Story-owned files');
