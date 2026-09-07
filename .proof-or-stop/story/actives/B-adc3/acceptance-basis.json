@@ -1,0 +1,247 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-adc3",
+    "phaseBasis": "plan",
+    "status": "unsupported",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "proof-or-stop acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for handler_dispatch_inventory"
+        ],
+        "provenanceRefs": [
+          "registered:handler_dispatch_inventory:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-contracts.ts",
+            "scope:file:packages/main/src/core/prompt-envelope.ts",
+            "scope:file:packages/main/src/core/scope-inventory-budget.ts",
+            "scope:file:packages/main/src/handlers/scope-contract.ts",
+            "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "scope:file:packages/main/src/tasks/scope-contract-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:b3991a00b435dc7ba4ab603fb40a998a9383a7b9a39bfc175b966e69710b7045"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for process_fact_registry"
+        ],
+        "provenanceRefs": [
+          "registered:process_fact_registry:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-contracts.ts",
+            "scope:file:packages/main/src/core/prompt-envelope.ts",
+            "scope:file:packages/main/src/core/scope-inventory-budget.ts",
+            "scope:file:packages/main/src/handlers/scope-contract.ts",
+            "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "scope:file:packages/main/src/tasks/scope-contract-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:fbc9aec43c62984d1ce6113e7c8de67134513006539742e429106c843b9b1401"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for runtime_trace"
+        ],
+        "provenanceRefs": [
+          "registered:runtime_trace:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-contracts.ts",
+            "scope:file:packages/main/src/core/prompt-envelope.ts",
+            "scope:file:packages/main/src/core/scope-inventory-budget.ts",
+            "scope:file:packages/main/src/handlers/scope-contract.ts",
+            "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "scope:file:packages/main/src/tasks/scope-contract-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:b7bed3961be94b061b9bf965f6c2cded3ca6554dad23423a66be1fae6db2002f"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for scope_contract"
+        ],
+        "provenanceRefs": [
+          "registered:scope_contract:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-contracts.ts",
+            "scope:file:packages/main/src/core/prompt-envelope.ts",
+            "scope:file:packages/main/src/core/scope-inventory-budget.ts",
+            "scope:file:packages/main/src/handlers/scope-contract.ts",
+            "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "scope:file:packages/main/src/tasks/scope-contract-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:57f60314482f7908cbf42683fefdd7584918f4e2f570ff7ba1e069c00cc42621"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for static_call_graph"
+        ],
+        "provenanceRefs": [
+          "registered:static_call_graph:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:file:packages/main/src/core/process-fact-registry.ts",
+            "scope:file:packages/main/src/core/prompt-contracts.ts",
+            "scope:file:packages/main/src/core/prompt-envelope.ts",
+            "scope:file:packages/main/src/core/scope-inventory-budget.ts",
+            "scope:file:packages/main/src/handlers/scope-contract.ts",
+            "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "scope:file:packages/main/src/tasks/scope-contract-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:d9cd1dd41dd814731d0af27b0c650c967324584c09c9b815e592acd745440759"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:file:packages/main/src/core/process-fact-registry.ts",
+      "scope:file:packages/main/src/core/prompt-contracts.ts",
+      "scope:file:packages/main/src/core/prompt-envelope.ts",
+      "scope:file:packages/main/src/core/scope-inventory-budget.ts",
+      "scope:file:packages/main/src/handlers/scope-contract.ts",
+      "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+      "scope:file:packages/main/src/tasks/scope-contract-smoke.ts",
+      "scope:file:scripts/verify-process-fact-contract.mjs"
+    ],
+    "sourceInventoryRefs": [],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+      "snapshot-seal:snapshot_missing:config:proof-or-stop.config.json",
+      "unsupported discovery profile for handler_dispatch_inventory",
+      "unsupported discovery profile for process_fact_registry",
+      "unsupported discovery profile for runtime_trace",
+      "unsupported discovery profile for scope_contract",
+      "unsupported discovery profile for static_call_graph"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryDirectoryCount": 0,
+      "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sourceSnapshotCount": 0,
+      "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "inventory_unsealable",
+          "targetKind": "inventory",
+          "canonicalRef": "configured-source-root"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "config",
+          "canonicalRef": "proof-or-stop.config.json"
+        }
+      ],
+      "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
+    },
+    "binding": {
+      "headHash": "a7e104090f9d8fc0f1d9a065ad6a1efc272f6fb4",
+      "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8",
+      "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f",
+      "scopeCheckDigest": "sha256:23e9d1bbe5d145489436c5e91021a3d4844b2756d2c0d1021abc71e3a7267603",
+      "scopeContractDigest": "sha256:1bdc1744d70f852653bfc409bf60cadea28b78a26d7bf6b73d7725880e4a58bc",
+      "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "receiptRef": "receipt:coverage-basis:B-adc3:plan:42211136b091599f",
+    "basisDigest": "sha256:4569391c018c3c6658f6d62213c7355b1b947af5cb1b7ac49fddb41fad0d7535"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-adc3:plan:42211136b091599f",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:fc6efb8f40aa4137710e0ee71d8a2fcea3538e9f7e516c82f2691113b34d657f",
+    "signerPublicKey": "KwFmo5bRLWrhI7wKjbpDmQnv+QelTsY549l9lL1TyaY=",
+    "storyId": "B-adc3",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:4569391c018c3c6658f6d62213c7355b1b947af5cb1b7ac49fddb41fad0d7535",
+    "topologyDigest": "sha256:4f846842455b4b9aab3aa61942f3d52c2787847b1eba83e5f5c9c65fb0943d2b",
+    "scopeCheckDigest": "sha256:23e9d1bbe5d145489436c5e91021a3d4844b2756d2c0d1021abc71e3a7267603",
+    "scopeContractDigest": "sha256:1bdc1744d70f852653bfc409bf60cadea28b78a26d7bf6b73d7725880e4a58bc",
+    "headHash": "a7e104090f9d8fc0f1d9a065ad6a1efc272f6fb4",
+    "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8",
+    "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f",
+    "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
+    "workspaceIdentityDigest": "sha256:fe2f7ee3336f0fc3feb7843e321bcee28bca9188f203e0333ee6db519540b120",
+    "signature": "Dvqfi5THGcbjJFXdb8p4diwEOQvC7QRGP2dsZGhmJ3rWhDcxBfMvcxWE9RGP2Dfcd7QKITcWKZHrPRta0z4VBg=="
+  }
+}

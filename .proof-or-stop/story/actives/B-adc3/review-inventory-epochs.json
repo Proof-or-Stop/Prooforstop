@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "proofbound.review_inventory_epochs.v1",
+  "epochs": [
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-adc3:RI-001",
+      "storyId": "B-adc3",
+      "reviewRound": "2026-09-07T08:52:14.078Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-07T08:53:02.939Z",
+      "updatedAt": "2026-09-07T08:53:02.939Z",
+      "cutoff": {
+        "headHash": "a7e104090f9d8fc0f1d9a065ad6a1efc272f6fb4",
+        "materialHash": "62fb27d53d71cc4ed331f83e6ac476a706e083b98cfedd3b3ed63728e67bc3f8",
+        "storyFilesHash": "92eb2dac1599f1769baae39fcf5d350a4f522de7a8bc3112dfedfae0ed05c52f"
+      },
+      "scopeDigest": "c89d872b8bff02b7cffd9eb82f6fcf854e831e8b54d4016995acd1d4376e509c",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 0,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [],
+      "_hash": "116972e273e5ce56b09df7999c255415a9130f15109e79345d7392ea13f045c6"
+    }
+  ],
+  "receipts": [],
+  "criticReceipts": []
+}
