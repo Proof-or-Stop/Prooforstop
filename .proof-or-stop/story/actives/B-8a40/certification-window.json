@@ -66,6 +66,38 @@
       "cancelledAt": "2026-09-07T09:24:51.533Z",
       "cancelReason": "The completed canonical 132-command validate at 2165dc9618 records FAIL: missing historical probe in the registered ledger guard and missing max-descendant PID premise in the heartbeat smoke. Preserve genuine prior DONE-required PASS but cancel this certification window for bounded diagnosed remediation; no TEST/DONE authority or bypass is claimed.",
       "_hash": "01565657d99e2bf6d194cffce6aec466b1297543d81e0c9c3c54c4b8bcec744c"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-8a40:CW-003",
+      "storyId": "B-8a40",
+      "state": "ADMITTED",
+      "createdAt": "2026-09-07T10:27:24.977Z",
+      "updatedAt": "2026-09-07T10:27:24.977Z",
+      "frozen": {
+        "headHash": "1398ef0889ebb88d1ba92a4e168e9252230569dd",
+        "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+        "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+        "causalInputHashes": {
+          "certification:source": "f6beef370a346b826a28e2988ba82fee928963f482a3521209f4daa99922ebe4",
+          "certification:test": "9be65156e8abde330be2c503e9f0b088cfa282a48bc67ed367069d5441c4dbfa",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "706228a3167bc165d2b4af3832e8ae76344eef894f4b955b219a439859198492",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "48b620fafab862ec7fbf7381da8cce8418d046cc",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventory": {
+        "epochId": "B-8a40:RIE-018",
+        "receiptId": "B-8a40:RIE-018:RCP-001",
+        "authority": "inventory-completeness-only",
+        "authorizesTest": false
+      },
+      "receiptId": "B-8a40:PRECERT-003",
+      "_hash": "35f96fc430233a829cdcff81c546e511c93a7c07aac31b4a1335c65ba8972bae"
     }
   ],
   "receipts": [
@@ -124,6 +156,34 @@
       "inventoryReceiptId": "B-8a40:RIE-016:RCP-001",
       "createdAt": "2026-09-07T08:44:15.549Z",
       "_hash": "14dc68432c201830044927719a068f1302da6760a0d3b236fb639dab4a3b5a62"
+    },
+    {
+      "schemaVersion": "proofbound.precert_receipt.v1",
+      "receiptId": "B-8a40:PRECERT-003",
+      "windowId": "B-8a40:CW-003",
+      "storyId": "B-8a40",
+      "authority": "pre-cert",
+      "authorizesHeavyCertification": true,
+      "frozen": {
+        "headHash": "1398ef0889ebb88d1ba92a4e168e9252230569dd",
+        "materialHash": "9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25",
+        "storyFilesHash": "80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0",
+        "causalInputHashes": {
+          "certification:source": "f6beef370a346b826a28e2988ba82fee928963f482a3521209f4daa99922ebe4",
+          "certification:test": "9be65156e8abde330be2c503e9f0b088cfa282a48bc67ed367069d5441c4dbfa",
+          "certification:build-input": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:manifest-semantic": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+          "certification:integration": "706228a3167bc165d2b4af3832e8ae76344eef894f4b955b219a439859198492",
+          "certification:review-subject": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        "expectedMainSha": "48b620fafab862ec7fbf7381da8cce8418d046cc",
+        "verifierIdentity": "proof-or-stop:done_required_validate",
+        "testIdentity": "npm test"
+      },
+      "inventoryEpochId": "B-8a40:RIE-018",
+      "inventoryReceiptId": "B-8a40:RIE-018:RCP-001",
+      "createdAt": "2026-09-07T10:27:24.977Z",
+      "_hash": "6d49278858463d7aa3645420efa8cc3bb906eb76b5ef813fb115cc8575eb0dc7"
     }
   ]
 }
