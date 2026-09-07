@@ -1750,6 +1750,40 @@
       },
       "readDiagnostics": [],
       "_hash": "e07d89b81d1765eacc15bef847392ccadf0ab28f4935b32c32efb37d9fc8b1ec"
+    },
+    {
+      "id": "B-29bc:RP-041",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Current integrated coverage review passed: 8 required verification intents, 0 must coverage gaps, 0 waivers, and no new finding. Fresh checklist_get confirms all 8 mechanical PASS rows from refresh commit 8cafbfb bind current material dcea02d0bc26f8e845cd0150d25f26a34c738244da5009ba9783b5a417dd6f69 and Story files 2b2588053b17cd03955352e58e2db3cbbef6495d64e1d63a32f2576364351720, with exitCode=0 and selectorMatched=true. Inspected execution timestamps/selectors and current command coverage: public purpose/epoch matrix at 17:35:23.729Z, complete affected compatibility campaign at 17:40:37.865Z, and audit/boundary check at 17:40:39.970Z. Prior independent source inspection established public malformed/default/alias/topology separation, inventory-lock publication/cancel interleaving, signed readManifest plus readLog producer/consumer protection, exact Finding aggregation, and earlier-run Finding retention. Current source/docs/background/plan diff from inspected correction d66977d67f is empty. RED e13ea60b84 adds signature-validity and branch-specific assertions; GREEN 6f45dfd032 removes only prior _hash from both receipt signing inputs. Fresh source inspection confirms each repaired receipt mutant first passes verifyReviewInventoryCriticReceipt, then asserts the intended purpose/subject or missing-dispositions rejection, with original positive and negative controls retained. This repairs F-005/F-006/F-008 coverage rather than hiding signature-first rejection. Fresh finding_list shows F-001 through F-009 resolved as fixed; audit d66977d67f explicitly retracts the historical semantic-coverage overclaim and bounds RED/GREEN evidence. The full affected ProofStory campaign retains signed topology, Wave 4 production consumer, mutation, mode and rollback coverage previously inspected; disposable fixture identities are not actual independent-host assurance. Fresh full inventory-decision read is supplied as a real mechanical read event; unchanged previously read Story/audit context is reused after the bounded diff check. No redundant tests/builds, new inventory, source or owner mutations performed. This PASS is the test-coverage lane only; current full validation, independent-host policy and DONE remain separate prerequisites.",
+      "createdAt": "2026-09-07T17:49:49.489Z",
+      "reviewRound": "2026-09-07T17:46:50.623Z",
+      "reviewRunId": "B-29bc:RR-054",
+      "envelopeId": "a0b13a5186d0953e92dd2570965333bc020e76687282ef141b5e8d7798569d4a",
+      "writerSessionId": "codex-b29-ri007-coverage",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "6d6b24de41e3fd53e284d9102d3e219c424450e349a14df936efb35826ec4ef4"
     }
   ]
 }
