@@ -1,0 +1,369 @@
+{
+  "passes": [
+    {
+      "id": "B-e124:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed every material diff against all three checklist claims and scope, with surrounding receipt stamping, stale refresh eligibility, execution reuse and negative smoke assertions. Alias changes only map to existing canonical handlers. Docs/manual reexecution still requires an immutable pin and uses the same preflight, command, selector and demotion boundaries. Receipt timestamp now comes from causal execution. E2 execution-count adjustment matches the existing command/cwd/timeout cache; new mixed-selector test explicitly prevents shared execution from minting an absent-selector PASS, while timeout provenance assertions remain. Environment changes are test-only and retain retired-key sensitivity; path/config/mutation fixes restore active inputs without relaxing assertions. Registry and verifier updated. No new dead code, unsafe types or swallowed-error paths; no new undelivered docs promises. git diff --check passed. Nine mechanical intent records inspected, but root full-suite completion is not attested by this review.",
+      "createdAt": "2026-09-07T03:28:03.252Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-001",
+      "envelopeId": "3716d219c8b143e8c0d5c357b4c177d70c699751c36012fca09a8e6cbaaeb359",
+      "writerSessionId": "sess-216949376e26ff330b1c27809e5b25ff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/decision.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/lab/src/handlers/lab.ts",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "6eb2d3a3bbff1742592bec6b2a76b8fca0654235dac35cad8b70f17603ec56dc"
+    },
+    {
+      "id": "B-e124:RP-002",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Coverage review passed: nine required intents across CHK-001..003 have nine tool-owned mechanical receipts from three unique successful executions; zero must gaps and zero waivers. Read current complete checklist, integrated committed diff and bounded regression implementations. Evidence-producing 9a6411f and current HEAD have no packages/main or scripts diff. Lab smoke covers all six real nested/flat help routes and unknown rejection. Environment smoke preserves semantic and explicit-overlay negatives while correcting canonical transport names; frozen production list unchanged. Recovery smoke covers pinned docs recovery, pinless/nonzero failures, equal receipt timestamps, timeout separation and independent mixed-selector demotion; new expected shared execution count matches existing executor deduplication rather than weakening verdicts. Acceptance-basis mutation and timeout tests retain failing counterexamples. Reviewed resolved OQ-1 scope expansion. No independent full-suite rerun or build performed while Owner full suite runs; no full-suite success claim. Legacy plan.md absent; checklist and understanding supply plan inputs.",
+      "createdAt": "2026-09-07T03:28:35.077Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-002",
+      "envelopeId": "2fd8b2fc529e419bf3acc8aba4e3b8586907402a7fb9c2430a6ae79647c48393",
+      "writerSessionId": "sess-d394ea9f60583f0e2964017d7ae3918c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/checklist.json",
+          ".proof-or-stop/story/actives/B-e124/scope-check.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a1bf5fb254eff77b4c44802ce1ce1fb932dd28402dc8154b9690973b325dfafc"
+    },
+    {
+      "id": "B-e124:RP-003",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed all three checklist deliverables and committed material diff at f902d806c6. No new concept deletion or replacement is introduced: Lab aliases restore already advertised registered handlers, config aliases and test fixtures consume existing canonical names. Repository search finds no remaining retired mutation environment selector; frozen historical transport names remain intentional identity history and explicit command overlays remain semantic. Existing unrelated deprecated-wrapper fixture references are not concepts removed by this bounded repair. Pinned docs/manual recovery retains immutable command and selector checks; executedAt now derives from the shared causal receipt, and mixed-selector negative coverage preserves independent verdicts. Registry annotation is explicitly scope-acknowledged. No new documentation promise is undelivered. plan.md is absent; current understanding, checklist and decision supply sufficient bounded plan context. No blocker or findings in this lane; this PASS does not claim full-suite completion.",
+      "createdAt": "2026-09-07T03:29:10.235Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-003",
+      "envelopeId": "34830e44641ef1cf34127cb5923234786fd4f34b62309e454621840b405f74eb",
+      "writerSessionId": "sess-6642f4d5bc3cba69411ba57f6898ffa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/decision.json",
+          ".proof-or-stop/story/actives/B-e124/scope-contract.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "0569d389457f2277024a20d88347c2e31bafff021ecc344d9dca0dc57c83f6fc"
+    },
+    {
+      "id": "B-e124:RP-004",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Fresh RI-001 wave 1 concept review: git diff f902d806c6..29c29c2 contains Story metadata only, so prior complete material concept review remains applicable. Rechecked machine.ts INIT_CHECK mismatch diagnostic and M2 red verdict-shapes assertion: diagnostic restates four fields instead of rendering the signature domain. Quality lane is independently recording this newly exposed validation blocker; no concept introduced or deleted by the current committed repair caused it. This lane records no additional findings and does not claim the full validation suite passed or the diagnostic defect repaired. Current bounded concept changes retain canonical matching, frozen historical transport identity, and independent selector evidence; scope acknowledgements remain unchanged.",
+      "createdAt": "2026-09-07T03:57:35.776Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-004",
+      "envelopeId": "11e2a6ca139b01098d9e62f2e84837b43ef86ba17c338950d598ea35cba94dee",
+      "writerSessionId": "sess-6642f4d5bc3cba69411ba57f6898ffa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/decision.json",
+          ".proof-or-stop/story/actives/B-e124/scope-contract.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/main/src/cli/alias-normalizer.ts",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8af60b8c5178390e34afee6136cc530eeea3079f8e3abcb8ca49b69576def1c5"
+    },
+    {
+      "id": "B-e124:RP-005",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Current inventory reattestation: reread all checklist intents and receipts; nine intents retain nine mechanical receipts, zero waiver and zero intent coverage gaps. No implementation changes since f902d806c6 in packages/main or scripts. Earlier bounded negative-case review remains applicable. Separately inspected actual full-validation log: status fail, 128 executions, two failed commands red-b49d4-registration-derivation and red-b8df9-chk002-verdict-shapes; registration reproduction confirms nested verdict-shapes failure. This lane pass asserts coverage of existing nine intents only and neither overrides those validation failures nor certifies the proposed diagnostic repair. Quality lane is independently registering the underlying defect. Fresh repair and regression evidence remain required before whole-Story completion.",
+      "createdAt": "2026-09-07T03:58:01.898Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-006",
+      "envelopeId": "bb35602dc3fca36c6bad13399aa03777804fa3222e2378651a510bebb092f4b1",
+      "writerSessionId": "sess-d394ea9f60583f0e2964017d7ae3918c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/checklist.json",
+          ".proof-or-stop/story/actives/B-e124/scope-check.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "ad9f982a5b7ac2b0dd734d1a65e5657d47e5c04e616eac3dade2c1df5596a0fa"
+    },
+    {
+      "id": "B-e124:RP-006",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-001 wave 1 INVENTORY COMPLETENESS ONLY: required concept and coverage terminal passes RP-004 and RP-005 plus quality verified finding F-001 provide complete current lane results. Reviewed frozen epoch, material diff and implementer-authored business commit c7aca06d7f; this independent reviewer did not implement those changes. Independently verified F-001 source diagnostic and M2 expectation: one signature-domain diagnostic family causes both reported validation failures. Retain it open for bounded repair; no dismissal or completion claim. Acceptance basis remains unsupported and cannot receive topology PASS. This terminal review attests inventory completeness only, not acceptance topology, full validation, or TEST authority.",
+      "createdAt": "2026-09-07T03:58:47.572Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-007",
+      "envelopeId": "3574675cf48705bf124585667027ad26ecb41f388031c2d54fc2bc28d0a83c53",
+      "writerSessionId": "sess-6642f4d5bc3cba69411ba57f6898ffa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-e124/scope-contract.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "890fe5f3ac8362bd1a897edc627ef9396a8ac8476d2eb23ab19164e8a435c583"
+    },
+    {
+      "id": "B-e124:RP-007",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Inventory completeness only: freshly reread current understanding and full registered F-001, after inspecting frozen epoch, required-lane terminal reads and implementer-authored c7aca06d7f. One verified signature-domain diagnostic family explains the M2 failure and dependent registration failure. No new family found, and F-001 remains open for bounded repair. Unsupported acceptance basis and full validation failures are not overridden; no topology or TEST PASS is claimed.",
+      "createdAt": "2026-09-07T04:00:00.038Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-008",
+      "envelopeId": "42da97fe3fb2832bbc6945589b5affbe5010ee69e9c5ceb314858606473a9040",
+      "writerSessionId": "sess-6642f4d5bc3cba69411ba57f6898ffa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6d34ba98698b42516583fc3c2c6d670f55f35aad95fb34ee07b1901f86955046"
+    },
+    {
+      "id": "B-e124:RP-008",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Wave 2 fresh concept review: HEAD remains 29c29c2 with no committed changes, reread current understanding and diagnostic source, and rescan confirms retired mutation selector absent from repaired verifier. Existing canonical names and historical identity semantics remain intact. F-001 signature-domain diagnostic is still unrepaired and open; no additional concept family found. This lane does not attest full validation success or override F-001.",
+      "createdAt": "2026-09-07T04:01:00.513Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-009",
+      "envelopeId": "2d5352a3708e3f17b66fa9a97951c272e91480ddabe437eb26e64b6c2a7b7d4f",
+      "writerSessionId": "sess-6642f4d5bc3cba69411ba57f6898ffa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "fe057d55a14de3387d48cee82f323ebbb12e2d065ea9c5ed6ffbf45451fd9ee3"
+    },
+    {
+      "id": "B-e124:RP-009",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Wave 2 incremental terminal: zero additional findings after unchanged-material review. Existing verified B-e124:F-001 remains OPEN and requires bounded repair; its machine.ts:1249 diagnostic observation and red M2/dependent registration output remain applicable. This terminal does not claim overall no blockers or resolve F-001. No new material or claims appeared in the canonical incremental basis; prior complete quality review and fully read verdict-shapes test remain the review basis.",
+      "createdAt": "2026-09-07T04:01:25.276Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-010",
+      "envelopeId": "487630226b7a74237f658066c5afbc145621bb26dd1fd9f6738cf4e0c1b75189",
+      "writerSessionId": "sess-216949376e26ff330b1c27809e5b25ff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d8a106393cb93620e883969bd43e6ef6e401487e70672b16289e35566a64a9ea"
+    },
+    {
+      "id": "B-e124:RP-010",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Wave 2 coverage inventory terminal: fresh checklist_get confirms nine required intents and nine matching successful mechanical selector receipts, zero waivers and zero new coverage findings. Fresh diff against f902d806c6 confirms unchanged implementation and checklist. Read current structured F-001: open verified diagnostic defect still requires Owner repair and fresh targeted evidence; this terminal neither resolves nor dismisses it. Previously inspected failed full-validation and registration reproduction remain controlling against any overall success claim. Existing lane coverage assessment is unchanged, while whole Story remains incomplete pending F-001 and full validation.",
+      "createdAt": "2026-09-07T04:01:35.667Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-011",
+      "envelopeId": "495693dfe812600c43bd9d87f64ad443c03712aa702f5c3bf90935067fd0f0a1",
+      "writerSessionId": "sess-d394ea9f60583f0e2964017d7ae3918c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/checklist.json",
+          ".proof-or-stop/story/actives/B-e124/scope-check.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "a1e1ddbdd139a7c2a02f82d8de9ee40d6ff359fc9882f9a280f166108080c7c7"
+    },
+    {
+      "id": "B-e124:RP-011",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Wave 2 inventory completeness only. Freshly reread current understanding, terminal passes RP-008 concept, RP-009 quality and RP-010 coverage, and aggregate full finding set. All required lanes independently report zero additional findings while existing verified F-001 remains open. No material change or second defect family appears. F-001 retains the signature-domain diagnostic family and needs bounded repair; no suppression, false-green validation, acceptance topology PASS or TEST authority is asserted. The unsupported acceptance basis remains unsupported.",
+      "createdAt": "2026-09-07T04:02:20.405Z",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "reviewRunId": "B-e124:RR-012",
+      "envelopeId": "a938e77a3a5dc06c1aed5729f46ffb50ed41f2568ef9beed66cf470137ebc751",
+      "writerSessionId": "sess-6642f4d5bc3cba69411ba57f6898ffa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "a878298f7a03fa225bf1b450337373d5c51f30149ff547996c43c3f631e82223"
+    },
+    {
+      "id": "B-e124:RP-012",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Final round concept review at fcb0704: reread current understanding, complete final material diff relative to previously reviewed 29c29c2, domain renderer and resolved F-001. Sole new production change imports and invokes describeInitCheckSignatureDomain in the existing tamper rejection diagnostic; hashing and rejection condition are unchanged. Search finds no remaining stale hardcoded diagnostic or retired mutation env selector in packages/main/src and scripts. Machine scope acknowledgement covers the bounded fix. Earlier integrated alias, canonical environment, fixture and shared receipt review remains applicable with no other material changes. Parsed final validation evidence reports pass/allPass and 128 executed commands. No concept deletion residue or undelivered promise found; zero new findings.",
+      "createdAt": "2026-09-07T04:29:35.615Z",
+      "reviewRound": "2026-09-07T04:28:31.987Z",
+      "reviewRunId": "B-e124:RR-013",
+      "envelopeId": "7b8e4d3c083a64008531513ba41216750a5111be178537dd97d066b0a33979da",
+      "writerSessionId": "sess-6642f4d5bc3cba69411ba57f6898ffa8",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/understanding.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "d4fe869adcbe4dcd89235e5bfd491e42e6da96c536660dc8161c50ee5099bf13"
+    },
+    {
+      "id": "B-e124:RP-013",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Final-round quality review: compared all changed material against prior complete diff review; the only subsequent material change is machine.ts importing and calling describeInitCheckSignatureDomain for the tamper diagnostic. Verified renderer derives labels from the registered domain; hash comparison and rejection branch remain unchanged, directly repairing F-001 without assertion relaxation. Scope acknowledges this bounded repair. Prior alias, pinned-doc refresh, causal timestamp and smoke changes retain independent selector/timeout/semantic-environment negatives. Config has no diff against main. Parsed B-e124-validate-final.json: status pass, allPass true, 128 executions and no failed details at recorded head 3156b261; current metadata commits do not add implementation changes. git diff --check passed. No remaining quality finding or new undelivered promise.",
+      "createdAt": "2026-09-07T04:29:40.679Z",
+      "reviewRound": "2026-09-07T04:28:31.987Z",
+      "reviewRunId": "B-e124:RR-014",
+      "envelopeId": "f592145dbe6cbc30c8b7eb9d7c644f4379cd269be7fe9d0812c2304dc6809477",
+      "writerSessionId": "sess-216949376e26ff330b1c27809e5b25ff",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/decision.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/lab/src/handlers/lab.ts",
+          "packages/main/src/core/validation-command-environment.ts",
+          "packages/main/tests/red/red-b8df9-chk002-verdict-shapes.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "93e97b330ab661e5465bd4a0c20386abef831899f31a9ba47906eaca84de9eee"
+    },
+    {
+      "id": "B-e124:RP-014",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Round 2 final coverage review passed: current checklist shows nine intents and nine refreshed successful tool-owned selector receipts at final b7ffdcb6d8 material; zero must gaps, zero waivers. Reviewed diagnostic-only repair and registered scope acknowledgement: signature calculation and rejection branch are unchanged, text uses domain renderer. Inspected M1/M2 regression assertions and actual final validation JSON: status pass, allPass true, 128 executions, including both previously failed red harnesses. F-001 is recorded resolved with targeted and full validation evidence. No source/scripts difference from receipt-producing b7ffdcb6d8 to current HEAD. Prior negative-case review still applies. This does not certify a post-repair root npm-test run or DONE-required completion, which remain Owner work; no executable topology coverage claimed for observe-only basis.",
+      "createdAt": "2026-09-07T04:30:03.520Z",
+      "reviewRound": "2026-09-07T04:28:31.987Z",
+      "reviewRunId": "B-e124:RR-015",
+      "envelopeId": "747901788d2e4c3873c49f5ded2e33d34e705003af46be8e75c6d7611e1c1b66",
+      "writerSessionId": "sess-d394ea9f60583f0e2964017d7ae3918c",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e124/background.md",
+          ".proof-or-stop/story/actives/B-e124/checklist.json",
+          ".proof-or-stop/story/actives/B-e124/scope-check.json",
+          ".proof-or-stop/story/actives/B-e124/scope-contract.json",
+          ".proof-or-stop/story/actives/B-e124/understanding.json",
+          "packages/main/src/core/validation-command-environment.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "84dd58c961d0a67692fd515cee2c5510b6cacda2b3e24a036229157735c77f74"
+    }
+  ]
+}

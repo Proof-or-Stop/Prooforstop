@@ -1,0 +1,124 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-e124",
+  "executionKey": "ce:v1:f39986cc9d03bc028192a9a3cf1bad75578d33cb0968229496993e0430cbf93b",
+  "identityDigest": "f39986cc9d03bc028192a9a3cf1bad75578d33cb0968229496993e0430cbf93b",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-e124",
+    "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/dist/tasks/cli-surface-smoke.js"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "c1b20b79cda018bb3742f0aed730770a99d5a5ac69d8722db003f106e2607959",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124/.proof-or-stop/story/actives/B-e124/causal-evidence/receipts",
+          "probe": "access_w:/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124/.proof-or-stop/story/actives/B-e124/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:12767c0ab0274cbf19c6e2585a04225ba5ab1a2a636e8f20dcc322e264d60f6c",
+          "path": "/Users/qipan/work/repo/Prooforstop/.git/worktrees/B-e124/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "b7ffdcb6d8978099284a8e34eeafebb487b410c9",
+          "materialHash": "c1b20b79cda018bb3742f0aed730770a99d5a5ac69d8722db003f106e2607959",
+          "storyFilesHash": "60c6fd1b33375c5124878bd22b43aa3b77f6e8bcef9a63b4b834d65ef1748dfd"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124",
+          "expected": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-e124",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "60c6fd1b33375c5124878bd22b43aa3b77f6e8bcef9a63b4b834d65ef1748dfd",
+    "effectiveEnvironment": {
+      "CODEX_CI": "1",
+      "CODEX_PERMISSION_PROFILE": ":workspace",
+      "CODEX_SANDBOX_NETWORK_DISABLED": "1",
+      "COLORTERM": "",
+      "DISABLE_AUTOUPDATER": "1",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/qipan",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "qipan",
+      "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S": "9230e2bd8b24b7ac7a0ba6774c64bf0d78ecdabbdd91d0ed627b02a587bae2df",
+      "NO_COLOR": "1",
+      "PAGER": "cat",
+      "PATH": "/Users/qipan/.local/bin:/Users/qipan/.local/bin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Library/TeX/texbin:/Applications/Wireshark.app/Contents/MacOS:/Applications/VMware Fusion.app/Contents/Public:/Users/qipan/.codex/tmp/arg0/codex-arg0fV9bD4:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/qipan/.grok/bin:/Users/qipan/.kimi-code/bin:/Users/qipan/flutter/bin:/Users/qipan/.local/bin:/Users/qipan/.antigravity/antigravity/bin:/Users/qipan/bin/maxit-v11.400/bin:/Users/qipan/.opencode/bin:/Users/qipan/bin/depot_tools:/opt/homebrew/sbin:/Users/qipan/.bun/bin:/opt/homebrew/Caskroom/miniconda/base/bin:/opt/homebrew/Caskroom/miniconda/base/condabin:/Users/qipan/Library/pnpm:/Users/qipan/.cabal/bin:/Users/qipan/.ghcup/bin:/opt/homebrew/opt/mysql-client/bin:/Users/qipan/bin/FlameGraph:/Users/qipan/bin:/opt/homebrew/opt/rabbitmq/sbin:/opt/homebrew/bin:/Users/qipan/.cargo/bin:/Users/qipan/.orbstack/bin:/Users/qipan/.lmstudio/bin:/Users/qipan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources:/Users/qipan/.orbstack/bin",
+      "PWD": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-e124",
+      "SHELL": "/bin/zsh",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/vm/kp0hgmj153xg72rbz0jdl3cr0000gn/T/",
+      "USER": "qipan",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0x19:0x34"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.275",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "8eec03ad6ac7bc657a770f256c76631d00cdf2ae9100e0e84981943c9066f73b",
+  "outputTail": "cli surface smoke passed\n",
+  "outputProbe": "cli surface smoke passed\n",
+  "outputLength": 25,
+  "executedAt": "2026-09-07T04:06:50.845Z",
+  "durationMs": 10303,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "dl4jUF6gj1VXYvBGXZmdS0RbNdUFEDoIrNEeZ/6U+MM=",
+  "signature": "b3vuAiNrQybAMci8SiZXwwpdJssOqWPH/Ah+cqxjcnqfLSda9gSE51PBCSqWmMU5A5OxIZSpNnJq91acXSshAQ==",
+  "receiptHash": "c27b6ea8de79b5e1735ef992750192cdc6a9806b66d5cb80ea5d9be0e88ceecd"
+}

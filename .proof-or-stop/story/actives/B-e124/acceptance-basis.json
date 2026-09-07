@@ -1,0 +1,265 @@
+{
+  "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+  "basis": {
+    "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+    "storyId": "B-e124",
+    "phaseBasis": "plan",
+    "status": "unsupported",
+    "generatedBy": {
+      "verifier": "acceptance-coverage-basis-verifier",
+      "command": "proof-or-stop acceptance_basis_generate",
+      "algorithmVersion": "v1"
+    },
+    "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+    "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+    "discoveryMethods": [
+      "scope_contract",
+      "process_fact_registry",
+      "handler_dispatch_inventory",
+      "static_call_graph",
+      "runtime_trace"
+    ],
+    "adapterResults": [
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "handler-dispatch-inventory:plan:v1",
+        "method": "handler_dispatch_inventory",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for handler_dispatch_inventory"
+        ],
+        "provenanceRefs": [
+          "registered:handler_dispatch_inventory:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:packages/main/src/cli/alias-normalizer.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/cli-surface-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+            "scope:file:packages/main/src/tasks/english-early-check-smoke.ts",
+            "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+            "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:8500f68f944054c9ca8476c746f01cb3e08d857fc21ca0d61ba53cce89b7303e"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "process-fact-registry:plan:v1",
+        "method": "process_fact_registry",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for process_fact_registry"
+        ],
+        "provenanceRefs": [
+          "registered:process_fact_registry:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:packages/main/src/cli/alias-normalizer.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/cli-surface-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+            "scope:file:packages/main/src/tasks/english-early-check-smoke.ts",
+            "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+            "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:acf82eae87828a850ff8a152fd73ff05d74b9e38be424cc5c77881cb676e7141"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "runtime-trace:plan:v1",
+        "method": "runtime_trace",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for runtime_trace"
+        ],
+        "provenanceRefs": [
+          "registered:runtime_trace:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:packages/main/src/cli/alias-normalizer.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/cli-surface-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+            "scope:file:packages/main/src/tasks/english-early-check-smoke.ts",
+            "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+            "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:1790ddb584d7b4931a6ad6fb83b7ebf997069df3c019f226d160c862ee3534bd"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "scope-contract:plan:v1",
+        "method": "scope_contract",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for scope_contract"
+        ],
+        "provenanceRefs": [
+          "registered:scope_contract:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:packages/main/src/cli/alias-normalizer.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/cli-surface-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+            "scope:file:packages/main/src/tasks/english-early-check-smoke.ts",
+            "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+            "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:07b4ccfe1eabe5d7e13f54fffc25d377cd7938b2aad5159a69bb1645356613ef"
+      },
+      {
+        "schemaVersion": "proofstory.coverage_adapter_result.v1",
+        "adapterId": "static-call-graph:plan:v1",
+        "method": "static_call_graph",
+        "pathRefs": [],
+        "coverageClaim": "unsupported",
+        "blindSpots": [
+          "unsupported discovery profile for static_call_graph"
+        ],
+        "provenanceRefs": [
+          "registered:static_call_graph:v1"
+        ],
+        "asymmetryPolicy": {
+          "kind": "unsupported",
+          "policyRef": "policy:unsupported:v1",
+          "scopeRefs": [
+            "scope:checklist:CHK-001",
+            "scope:checklist:CHK-002",
+            "scope:checklist:CHK-003",
+            "scope:file:packages/main/src/cli/alias-normalizer.ts",
+            "scope:file:packages/main/src/handlers/checklist.ts",
+            "scope:file:packages/main/src/tasks/cli-surface-smoke.ts",
+            "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+            "scope:file:packages/main/src/tasks/english-early-check-smoke.ts",
+            "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+            "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+            "scope:file:scripts/verify-process-fact-contract.mjs"
+          ]
+        },
+        "resultDigest": "sha256:4e8dfc5aefbf2a6079bfeafbb18657c4341750656b0a30fa2b4b64ef59b6e09b"
+      }
+    ],
+    "scopeRefs": [
+      "scope:checklist:CHK-001",
+      "scope:checklist:CHK-002",
+      "scope:checklist:CHK-003",
+      "scope:file:packages/main/src/cli/alias-normalizer.ts",
+      "scope:file:packages/main/src/handlers/checklist.ts",
+      "scope:file:packages/main/src/tasks/cli-surface-smoke.ts",
+      "scope:file:packages/main/src/tasks/done-required-validation-smoke.ts",
+      "scope:file:packages/main/src/tasks/english-early-check-smoke.ts",
+      "scope:file:packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+      "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+      "scope:file:packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+      "scope:file:scripts/verify-process-fact-contract.mjs"
+    ],
+    "sourceInventoryRefs": [],
+    "plannedPathRecords": [],
+    "plannedActualReconciliations": [],
+    "enumeratedPathRefs": [],
+    "excludedPathRefs": [],
+    "blindSpots": [
+      "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+      "snapshot-seal:snapshot_missing:config:proof-or-stop.config.json",
+      "unsupported discovery profile for handler_dispatch_inventory",
+      "unsupported discovery profile for process_fact_registry",
+      "unsupported discovery profile for runtime_trace",
+      "unsupported discovery profile for scope_contract",
+      "unsupported discovery profile for static_call_graph"
+    ],
+    "snapshotSeal": {
+      "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+      "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "inventoryDirectoryCount": 0,
+      "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sourceSnapshotCount": 0,
+      "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "status": "partial",
+      "issues": [
+        {
+          "code": "inventory_unsealable",
+          "targetKind": "inventory",
+          "canonicalRef": "configured-source-root"
+        },
+        {
+          "code": "snapshot_missing",
+          "targetKind": "config",
+          "canonicalRef": "proof-or-stop.config.json"
+        }
+      ],
+      "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
+    },
+    "binding": {
+      "headHash": "afde0e683d249c3e8b8f893c6627bc6eb49d1703",
+      "materialHash": "c1b20b79cda018bb3742f0aed730770a99d5a5ac69d8722db003f106e2607959",
+      "storyFilesHash": "60c6fd1b33375c5124878bd22b43aa3b77f6e8bcef9a63b4b834d65ef1748dfd",
+      "scopeCheckDigest": "sha256:ce6a63f1d6c965f39ad1cae336fb2807126c990f11ffaefd3121f51739e92dbb",
+      "scopeContractDigest": "sha256:2e07ac07572d90dd1654ae3ad65895df952c68f95f38b09eea1bfbb60a28c1f9",
+      "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "receiptRef": "receipt:coverage-basis:B-e124:plan:479b59074bdc616f",
+    "basisDigest": "sha256:d8f5c198faeacd1f754206d69c161fb5fc2420b1c8eae4341b5e2c707c940527"
+  },
+  "receipt": {
+    "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+    "receiptRef": "receipt:coverage-basis:B-e124:plan:479b59074bdc616f",
+    "issuer": "acceptance-coverage-basis-verifier",
+    "issuerKeyId": "sha256:fc6efb8f40aa4137710e0ee71d8a2fcea3538e9f7e516c82f2691113b34d657f",
+    "signerPublicKey": "KwFmo5bRLWrhI7wKjbpDmQnv+QelTsY549l9lL1TyaY=",
+    "storyId": "B-e124",
+    "phaseBasis": "plan",
+    "basisDigest": "sha256:d8f5c198faeacd1f754206d69c161fb5fc2420b1c8eae4341b5e2c707c940527",
+    "topologyDigest": "sha256:d023537e454c04e03a653bcd7bddd0ab3a3140d799b8e59bbb68c294ef68c8b5",
+    "scopeCheckDigest": "sha256:ce6a63f1d6c965f39ad1cae336fb2807126c990f11ffaefd3121f51739e92dbb",
+    "scopeContractDigest": "sha256:2e07ac07572d90dd1654ae3ad65895df952c68f95f38b09eea1bfbb60a28c1f9",
+    "headHash": "afde0e683d249c3e8b8f893c6627bc6eb49d1703",
+    "materialHash": "c1b20b79cda018bb3742f0aed730770a99d5a5ac69d8722db003f106e2607959",
+    "storyFilesHash": "60c6fd1b33375c5124878bd22b43aa3b77f6e8bcef9a63b4b834d65ef1748dfd",
+    "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
+    "workspaceIdentityDigest": "sha256:1df92b13396d39ee660bcb9a223d0cb52d7e698199f1caebe1cc4eac6ca6c326",
+    "signature": "cqsF8CdB8jsb9TqFIfVt7Uf4mdOhsFjTobdgBizuw2cDOHox4Xz2K3nI9/ekizB3uw6+RGw2nmvvHpu3gYM3Cg=="
+  }
+}

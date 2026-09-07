@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-e124",
+  "sourceText": "能不能先解决main上的失败？main上失败的是什么？",
+  "normalizedOutcome": "First repair the two confirmed main baseline failures: nested Lab CLI routing and obsolete transport smoke assertions; classify other failures separately.",
+  "acceptanceClaim": "All advertised nested Lab commands route to registered handlers and both focused baseline smokes pass without weakening validation environment semantics.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:7a26c67977f9f0db23875f62a426b569cf7df83f703d13f3f2d2817eb7941c4f",
+  "createdAt": "2026-09-07T03:06:41.360Z",
+  "updatedAt": "2026-09-07T03:06:41.360Z"
+}

@@ -390,7 +390,7 @@ async function partC(): Promise<void> {
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin the immutable verifier',
     });
 
-    const addBlob = (o: Record<string, unknown>) => `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify(o)}`;
+    const addBlob = (o: Record<string, unknown>) => `node bin/proof-or-stop.js verification_evidence_add ${JSON.stringify(o)}`;
 
     // C1: DENY — mismatched --command (JSON-blob form). selector matches; only command differs.
     const denyCmd = guardVerdict(env, {
@@ -400,7 +400,7 @@ async function partC(): Promise<void> {
 
     // C2: DENY — mismatched --selector (--k=v form). No --command; only the selector differs.
     const denySel = guardVerdict(env, {
-      commandString: `node bin/proofOrStop.js verification_evidence_add --storyId=${env.storyId} --itemId=CHK-001 --intentRef=INT-PIN --selector=WRONG_SELECTOR --note=x`,
+      commandString: `node bin/proof-or-stop.js verification_evidence_add --storyId=${env.storyId} --itemId=CHK-001 --intentRef=INT-PIN --selector=WRONG_SELECTOR --note=x`,
     });
     assert.equal(denySel.verdict, 'deny', 'C2: mismatched --selector (--k=v) is DENIED');
 
@@ -412,7 +412,7 @@ async function partC(): Promise<void> {
 
     // C4: ALLOW — verification_run derives its command from the pin (nothing to mismatch).
     const allowRun = guardVerdict(env, {
-      commandString: `node bin/proofOrStop.js verification_run --storyId=${env.storyId} --intentRef=INT-PIN`,
+      commandString: `node bin/proof-or-stop.js verification_run --storyId=${env.storyId} --intentRef=INT-PIN`,
     });
     assert.equal(allowRun.verdict, 'allow', 'C4: verification_run is ALLOWED');
 
@@ -488,8 +488,8 @@ async function partD(): Promise<string> {
       command: PASS_CMD, selector: SELECTOR, result: 'pass', note: 'pin for the hook e2e',
     });
 
-    const mismatchCmd = `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: DIFFERENT_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e mismatch' })}`;
-    const matchCmd = `node bin/proofOrStop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: PASS_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e match' })}`;
+    const mismatchCmd = `node bin/proof-or-stop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: DIFFERENT_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e mismatch' })}`;
+    const matchCmd = `node bin/proof-or-stop.js verification_evidence_add ${JSON.stringify({ storyId: env.storyId, itemId: 'CHK-001', intentRef: 'INT-PIN', command: PASS_CMD, selector: SELECTOR, kind: 'integration_test', result: 'pass', note: 'e2e match' })}`;
 
     // D1: Claude Bash matcher — FULLY asserted (the real emitted tool_name is `Bash`).
     assert.equal(runHook(CLAUDE_HOOK, env.root, 'Bash', mismatchCmd), 2, 'D1: Claude Bash hook exits 2 (deny) on a mismatched evidence write');
@@ -599,8 +599,8 @@ async function partE(): Promise<void> {
       } finally { cleanup(env); }
     }
 
-    // E2: selector and effective-timeout differences are execution semantics,
-    // not presentation metadata. Five distinct keys must produce five runs.
+    // E2: command/cwd/effective-timeout determine child execution reuse.
+    // Selectors and audited override reasons remain independent per row.
     {
       const env = makeEnv('B-refresh-dedupe-distinct', [
         intent('INT-SELECTOR-A', 'cli'),
@@ -633,7 +633,11 @@ async function partE(): Promise<void> {
         commitRefreshDrift(env, 'distinct-keys');
 
         await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
-        assert.equal(executionCount(counter), 5, 'E2: different selector/effective-timeout/provenance keys never dedupe');
+        assert.equal(executionCount(counter), 3, 'E2: default, 5000ms, and 7000ms timeouts require distinct executions');
+        assert.equal(findEvidence(env, 'INT-SELECTOR-A')?.receipt?.selector, 'SELECTOR_A',
+          'E2: first selector retains its own verdict');
+        assert.equal(findEvidence(env, 'INT-SELECTOR-B')?.receipt?.selector, 'SELECTOR_B',
+          'E2: second selector retains its own verdict');
         assert.equal(findEvidence(env, 'INT-TIMEOUT-A')?.receipt?.timeoutOverride?.timeoutMs, 5000,
           'E2: first timeout provenance survives refresh');
         assert.equal(findEvidence(env, 'INT-TIMEOUT-B')?.receipt?.timeoutOverride?.timeoutMs, 7000,
@@ -643,6 +647,36 @@ async function partE(): Promise<void> {
           findEvidence(env, 'INT-PROVENANCE-C')?.receipt?.timeoutOverride?.reason,
           'E2: same timeout with different audited provenance is not collapsed',
         );
+      } finally { cleanup(env); }
+    }
+
+    // Independent selector verdicts must not turn shared execution into a false PASS.
+    {
+      const env = makeEnv('B-refresh-mixed-selectors', [
+        intent('INT-MIX-A', 'cli'),
+        intent('INT-MIX-B', 'cli'),
+      ]);
+      try {
+        const counter = join(externalRoot, 'mixed-counter.txt');
+        const output = join(externalRoot, 'mixed-output.txt');
+        writeFileSync(counter, '');
+        writeFileSync(output, 'MIX_A MIX_B\n');
+        const command = externalVerifierCommand(counter, output);
+        await seedPinnedReceipt(env, { intentRef: 'INT-MIX-A', command, selector: 'MIX_A' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-MIX-B', command, selector: 'MIX_B' });
+        writeFileSync(counter, '');
+        writeFileSync(output, 'MIX_A\n');
+        commitRefreshDrift(env, 'mixed-selectors');
+
+        await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        assert.equal(executionCount(counter), 1, 'E2 mixed: selectors share one child execution');
+        const a = findEvidence(env, 'INT-MIX-A');
+        const b = findEvidence(env, 'INT-MIX-B');
+        assert.equal(a?.mechanical, true, 'E2 mixed: matching selector retains mechanical evidence');
+        assert.equal(a?.receipt?.selector, 'MIX_A', 'E2 mixed: passing receipt binds the matching selector');
+        assert.equal(a?.receipt?.selectorMatched, true, 'E2 mixed: matching selector has a true verdict');
+        assert.equal(b?.mechanical, false, 'E2 mixed: absent selector is demoted independently');
+        assert.equal(b?.receipt, undefined, 'E2 mixed: shared execution never fabricates the absent selector PASS');
       } finally { cleanup(env); }
     }
 

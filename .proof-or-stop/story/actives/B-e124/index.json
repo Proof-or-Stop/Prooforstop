@@ -1,14 +1,14 @@
 {
   "storyId": "B-e124",
   "name": "repair-main-lab-alias-and-transport-smoke",
-  "title": "Restore nested Lab commands and align transport smoke coverage with canonical environment names",
+  "title": "Repair six main baseline validation failures after CLI and evidence migration",
   "description": "On main 1a7fb6292c, cli-surface-smoke fails because lab create is not normalized, and done-required-validation-smoke iterates frozen retired names rather than active canonical transport keys. Reproduced both before and after rebuilding main. Restore the advertised Lab command forms and correct test coverage without weakening validation semantics.",
   "type": "bug",
-  "phase": "INIT_CHECK",
+  "phase": "DONE",
   "priority": "medium",
   "createdAt": "2026-09-07T03:02:50.624Z",
   "startedAt": "2026-09-07T03:02:50.624Z",
-  "endedAt": null,
+  "endedAt": "2026-09-07T06:17:02.550Z",
   "events": [
     {
       "phase": "INIT",
@@ -27,11 +27,106 @@
       "user": "Pan Qi",
       "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
       "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T03:04:47.868Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T03:07:31.099Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T03:12:31.152Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T03:13:42.754Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "PLAN",
+      "action": "advance",
+      "timestamp": "2026-09-07T03:19:18.875Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T03:19:25.307Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-07T03:26:46.455Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DEV",
+      "action": "advance",
+      "timestamp": "2026-09-07T04:03:23.718Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "REVIEW",
+      "action": "advance",
+      "timestamp": "2026-09-07T04:28:31.987Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-07T04:32:48.129Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    },
+    {
+      "phase": "DONE",
+      "action": "advance",
+      "timestamp": "2026-09-07T06:17:02.550Z",
+      "branch": "story/B-e124",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
     }
   ],
-  "worktree": {
-    "path": ".worktrees/B-e124",
-    "branch": "story/B-e124",
-    "createdAt": "2026-09-07T03:03:52.436Z"
-  }
+  "currentReviewRound": "2026-09-07T04:28:31.987Z"
 }

@@ -1,0 +1,308 @@
+{
+  "schemaVersion": "proofbound.review_inventory_epochs.v1",
+  "epochs": [
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e124:RIE-001",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "state": "CANCELLED",
+      "begunAt": "2026-09-07T03:30:01.471Z",
+      "updatedAt": "2026-09-07T03:56:12.226Z",
+      "cutoff": {
+        "headHash": "895d15cc53b692742d6530f90da2eb5e1e956a71",
+        "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+        "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738"
+      },
+      "scopeDigest": "4af90e3293d31d8ae0c271776161b160a0e9ddc1cb52745614da4a58f86cc67c",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-e124:RIE-001:RCP-001",
+      "cancelledAt": "2026-09-07T03:56:12.226Z",
+      "cancelReason": "Routine validation found a pre-existing signature-domain diagnostic defect; invalidate completeness-only PRE_CERT receipt to prepare bounded remediation.",
+      "terminalRunSequenceBoundary": 3,
+      "_hash": "c8e3cb18a278301d835e04ff9dabb32ff0403144965249e77cfa4243f6b8584d"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e124:RI-001",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-07T03:56:13.336Z",
+      "updatedAt": "2026-09-07T04:03:24.249Z",
+      "cutoff": {
+        "headHash": "29c29c28ff23082310a6c08ccf882ae48d9c8a96",
+        "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+        "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738"
+      },
+      "scopeDigest": "4af90e3293d31d8ae0c271776161b160a0e9ddc1cb52745614da4a58f86cc67c",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 3,
+      "maxWaves": 3,
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T03:56:13.336Z",
+          "completedAt": "2026-09-07T04:00:26.114Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e124:RR-004",
+              "terminal": "pass",
+              "hostIdentity": "2b0aee4d0ebdfc14ac32570014a165187e2d977c7c6c1db4480355466d9eec29",
+              "promptIdentity": "11e2a6ca139b01098d9e62f2e84837b43ef86ba17c338950d598ea35cba94dee",
+              "evidenceIds": [
+                "B-e124:RP-004"
+              ],
+              "coverageDigest": "d3476d866247be6fc1fb153394ad35a54556c0b89f89a31c9c47572139c06842"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e124:RR-005",
+              "terminal": "finding",
+              "hostIdentity": "2b0aee4d0ebdfc14ac32570014a165187e2d977c7c6c1db4480355466d9eec29",
+              "promptIdentity": "9a3d14c15becf7f913e47b10a6184bc2b04d7fa3e82f2761e436e744e1af4135",
+              "evidenceIds": [
+                "B-e124:F-001"
+              ],
+              "coverageDigest": "0a45f2867ed588e1bec551236053f384dd41e5b771d859f29a26cea21a673adb"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e124:RR-006",
+              "terminal": "pass",
+              "hostIdentity": "2b0aee4d0ebdfc14ac32570014a165187e2d977c7c6c1db4480355466d9eec29",
+              "promptIdentity": "bb35602dc3fca36c6bad13399aa03777804fa3222e2378651a510bebb092f4b1",
+              "evidenceIds": [
+                "B-e124:RP-005"
+              ],
+              "coverageDigest": "5e294aed2fe5c85e64e7c824601521012182853f6c3fae738b79c7f2a6290d22"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "init-check-signature-domain-diagnostic"
+          ],
+          "verifiedFindingSetDigest": "1820cefe914eea6ab8017ef138169b7a90787ef54f02ddd3ebcd69a313b4dd95",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "849c3d5cc004442435fc3287887d0ccbec2222cf841a0412d725d43b8b6a601d",
+          "saturated": false,
+          "nextRunSequenceBoundary": 8
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-07T04:00:26.114Z",
+          "completedAt": "2026-09-07T04:03:02.628Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e124:RR-009",
+              "terminal": "pass",
+              "hostIdentity": "2b0aee4d0ebdfc14ac32570014a165187e2d977c7c6c1db4480355466d9eec29",
+              "promptIdentity": "2d5352a3708e3f17b66fa9a97951c272e91480ddabe437eb26e64b6c2a7b7d4f",
+              "evidenceIds": [
+                "B-e124:RP-008"
+              ],
+              "coverageDigest": "ba539ac299aaeed1986c53387cf31bde52141e7c8bd29d04b1f565562be1a0a5"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e124:RR-010",
+              "terminal": "pass",
+              "hostIdentity": "2b0aee4d0ebdfc14ac32570014a165187e2d977c7c6c1db4480355466d9eec29",
+              "promptIdentity": "487630226b7a74237f658066c5afbc145621bb26dd1fd9f6738cf4e0c1b75189",
+              "evidenceIds": [
+                "B-e124:RP-009"
+              ],
+              "coverageDigest": "733e731a5fb0f3802b38013170229c0aab81d94bceb5cf3ae7079d4c533e1fb7"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e124:RR-011",
+              "terminal": "pass",
+              "hostIdentity": "2b0aee4d0ebdfc14ac32570014a165187e2d977c7c6c1db4480355466d9eec29",
+              "promptIdentity": "495693dfe812600c43bd9d87f64ad443c03712aa702f5c3bf90935067fd0f0a1",
+              "evidenceIds": [
+                "B-e124:RP-010"
+              ],
+              "coverageDigest": "79c06c6676f78b4e702f543288bb5940fcb35e635101b5964dd6af992a4c578a"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "init-check-signature-domain-diagnostic"
+          ],
+          "verifiedFindingSetDigest": "1820cefe914eea6ab8017ef138169b7a90787ef54f02ddd3ebcd69a313b4dd95",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "a27c5e822d4763ead16e4b4ee49ac97ef44787fc546911e73ca488abb2f087d8",
+          "saturated": true,
+          "nextRunSequenceBoundary": 12
+        }
+      ],
+      "baselineFindingIds": [],
+      "receiptId": "B-e124:RI-001:RCP-001",
+      "consumedAt": "2026-09-07T04:03:24.249Z",
+      "consumedByReviewRound": "2026-09-07T03:26:46.455Z",
+      "_hash": "f15279f58a96a80942303beb6c5cc419ae3f7817c922039b3aa01ed714d5cd50"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e124:RIE-003",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T04:28:31.987Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-07T04:30:50.424Z",
+      "updatedAt": "2026-09-07T04:32:05.881Z",
+      "cutoff": {
+        "headHash": "dbe3bd2b4a2da209fda7a6afa738be42be7c6f78",
+        "materialHash": "c1b20b79cda018bb3742f0aed730770a99d5a5ac69d8722db003f106e2607959",
+        "storyFilesHash": "60c6fd1b33375c5124878bd22b43aa3b77f6e8bcef9a63b4b834d65ef1748dfd"
+      },
+      "scopeDigest": "c05ad0dbcedbe4fdd9c07724bed7e64bf5d8283c60dca08b0448f70f11755a02",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-e124:RIE-003:RCP-001",
+      "consumedAt": "2026-09-07T04:32:05.881Z",
+      "consumedByReviewRound": "2026-09-07T04:28:31.987Z",
+      "_hash": "b80e9d997c32b119cd7cc4d6ff67bee5a02dfde7ca977b45929fbd6416918a8e"
+    }
+  ],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-e124:RIE-001:RCP-001",
+      "epochId": "B-e124:RIE-001",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "cutoff": {
+        "headHash": "895d15cc53b692742d6530f90da2eb5e1e956a71",
+        "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+        "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738"
+      },
+      "scopeDigest": "4af90e3293d31d8ae0c271776161b160a0e9ddc1cb52745614da4a58f86cc67c",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T03:30:01.471Z",
+      "invalidatedAt": "2026-09-07T03:56:12.226Z",
+      "invalidationReason": "Routine validation found a pre-existing signature-domain diagnostic defect; invalidate completeness-only PRE_CERT receipt to prepare bounded remediation.",
+      "_hash": "730f235ce459cc148e668e44c1e25adf610f959dde54687f07323e7901b13443"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-e124:RI-001:RCP-001",
+      "epochId": "B-e124:RI-001",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "cutoff": {
+        "headHash": "29c29c28ff23082310a6c08ccf882ae48d9c8a96",
+        "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+        "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738"
+      },
+      "scopeDigest": "4af90e3293d31d8ae0c271776161b160a0e9ddc1cb52745614da4a58f86cc67c",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "1820cefe914eea6ab8017ef138169b7a90787ef54f02ddd3ebcd69a313b4dd95",
+      "coverageDigest": "b24a76767fac313f77c38219707787ba7aad901cd5d98840ca95be936b96d68a",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T04:03:02.628Z",
+      "consumedAt": "2026-09-07T04:03:24.249Z",
+      "_hash": "2bc3f0b3b2723dc1b56f1df68ccf5d1105cb389aa0be3ae9d36d9ba85ed56a20"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-e124:RIE-003:RCP-001",
+      "epochId": "B-e124:RIE-003",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T04:28:31.987Z",
+      "cutoff": {
+        "headHash": "dbe3bd2b4a2da209fda7a6afa738be42be7c6f78",
+        "materialHash": "c1b20b79cda018bb3742f0aed730770a99d5a5ac69d8722db003f106e2607959",
+        "storyFilesHash": "60c6fd1b33375c5124878bd22b43aa3b77f6e8bcef9a63b4b834d65ef1748dfd"
+      },
+      "scopeDigest": "c05ad0dbcedbe4fdd9c07724bed7e64bf5d8283c60dca08b0448f70f11755a02",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T04:30:50.424Z",
+      "consumedAt": "2026-09-07T04:32:05.881Z",
+      "_hash": "5904c98e5f20eafd0666a963b7b5a1d5d695a2263423df4201b0bac101e383f3"
+    }
+  ],
+  "criticReceipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e124:RI-001:CRIT-01",
+      "epochId": "B-e124:RI-001",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "29c29c28ff23082310a6c08ccf882ae48d9c8a96",
+        "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+        "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738"
+      },
+      "aggregateFindingSetDigest": "1820cefe914eea6ab8017ef138169b7a90787ef54f02ddd3ebcd69a313b4dd95",
+      "requiredLaneCoverageDigest": "d1cb7348c68157f0fe2f52d76f324aae30a06ab97535441efb9f78cf58002fb4",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e124:RR-008",
+      "terminalEvidenceIds": [
+        "B-e124:RP-007"
+      ],
+      "readEvidenceDigest": "60e26b090a55f6c1bf26087225c422aec5b1cbedfb7a44d785cdc1d9f1376f58",
+      "findingDispositions": [
+        {
+          "findingId": "B-e124:F-001",
+          "disposition": "verified_family",
+          "familyKey": "init-check-signature-domain-diagnostic",
+          "reason": "Independent source and test inspection verifies stale hardcoded signature components; both failing tests share that diagnostic family. Retain open for bounded repair. Completeness evidence does not certify TEST, topology or full suite success."
+        }
+      ],
+      "createdAt": "2026-09-07T04:00:03.501Z",
+      "_hash": "21cec4604053029554f3f294e59f1c0add0f032946f986fb884629876908b2a2"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e124:RI-001:CRIT-02",
+      "epochId": "B-e124:RI-001",
+      "storyId": "B-e124",
+      "reviewRound": "2026-09-07T03:26:46.455Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "29c29c28ff23082310a6c08ccf882ae48d9c8a96",
+        "materialHash": "bcc829eb420dfabd2eecd0fdc58700cc402c6af5b69831548100e3edf30c4932",
+        "storyFilesHash": "845889ee359a95d06c35de8d137c90a49c130d76286c0242cf72023991c81738"
+      },
+      "aggregateFindingSetDigest": "1820cefe914eea6ab8017ef138169b7a90787ef54f02ddd3ebcd69a313b4dd95",
+      "requiredLaneCoverageDigest": "9abacb9a044ad8804c3ce084540264d7ac4d55d743e5aea497810f1ea75b092d",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e124:RR-012",
+      "terminalEvidenceIds": [
+        "B-e124:RP-011"
+      ],
+      "readEvidenceDigest": "8edf4e4cb2986dc714ffd5c69977682e128a9d0e8599a15188570aaf04936322",
+      "findingDispositions": [],
+      "createdAt": "2026-09-07T04:02:48.035Z",
+      "_hash": "2a50f15056785b24a89ae402c3485e2b4b966f9b03244968151c544ea26d7d9a"
+    }
+  ]
+}

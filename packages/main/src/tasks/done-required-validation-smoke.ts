@@ -378,7 +378,26 @@ function assertDoneRequiredBlocked(
       );
     }
 
-    for (const key of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
+    // The frozen list records historical spellings; active filtering uses the
+    // canonical brand. Assert retired spellings remain semantic rather than
+    // accidentally reactivating them to satisfy this smoke.
+    for (const historicalKey of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
+      const key = historicalKey.replace(/^LATTICE_/, 'PROOF_OR_STOP_');
+      if (key !== historicalKey) {
+        const retiredOwner = buildDoneRequiredExecutionIdentity({
+          projectRoot: root, policy,
+          processEnvironment: { ...common, [historicalKey]: 'owner-value' }, platform: 'linux',
+        });
+        const retiredReviewer = buildDoneRequiredExecutionIdentity({
+          projectRoot: root, policy,
+          processEnvironment: { ...common, [historicalKey]: 'reviewer-value' }, platform: 'linux',
+        });
+        assert.notDeepEqual(
+          retiredOwner.commands.map(command => command.effectiveEnvironmentDigest),
+          retiredReviewer.commands.map(command => command.effectiveEnvironmentDigest),
+          `retired spelling is not an active transport key: ${historicalKey}`,
+        );
+      }
       const owner = { ...common, [key]: 'owner-identity' };
       const reviewer = { ...common, [key]: 'reviewer-identity' };
       const posixOwner = buildDoneRequiredExecutionIdentity({
