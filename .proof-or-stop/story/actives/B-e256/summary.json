@@ -1,18 +1,18 @@
 {
   "storyId": "B-e256",
-  "changes": "The dist promotion pipeline restores executable bits for every declared package bin before eviction, rejects symlink and parent-chain escapes, and keeps both wrapper integrations covered. Global runtime checks bind the PATH-selected command to the canonical package target, honor PATHEXT order, and validate a Windows shim only when the canonical target occupies the actual Node script argument; echo, node --version, node -e, unreadable, mismatched, or non-invoking decoys fail closed. AC-001 binds the benign missing-bin must intent, and validation_plan exposes the regression by stable id and label.",
-  "usage": "Run npm --prefix packages/main run build; then invoke proof-or-stop normally from PATH. For direct regression evidence run node packages/main/tests/red/red-global-cli-exec-bit.mjs and node packages/main/tests/global-core-realpath.test.mjs. Use proof-or-stop validation_plan --explain to inspect the registered red-global-cli-exec-bit validation entry.",
-  "expectedOutcome": "After any supported dist rebuild, the globally linked proof-or-stop command remains executable and resolves to the canonical package target. Invalid POSIX paths, unsafe promotion targets, and Windows shims that merely mention but do not execute the target remain non-pass; validation_plan exposes the regression by stable identity.",
-  "actualTranscript": "Current-material validation executed all 132 configured commands and returned allPass=true. Focused verification also passed: global-core-realpath rejects node --version and node -e target decoys; red-global-cli-exec-bit reports live mode 0755 and all hermetic promotion cases GREEN; runtime fact contract verified; ProofStory review completeness reports pass with zero gaps; validation-tier-planner-smoke PASS; git diff --check exit 0.",
-  "outcomeDiff": "No observed difference: focused and full validation match the expected user-visible and fail-closed outcomes.",
+  "changes": "The global Proof-or-Stop launcher is rebuilt and verified as executable on POSIX, the npm Windows shim remains the supported Windows path, doctor now reports real launcher state, validation and pre-review proof bind to the active Story, and review-assurance guidance now allocates fresh missing rounds after duplicate or invalid submissions.",
+  "usage": "Run proof-or-stop --version and proof-or-stop doctor from any project; on Windows invoke the installed proof-or-stop.cmd shim. Run review_escalation_status to obtain exact reviewer-host commands when strengthened assurance is required.",
+  "expectedOutcome": "A globally installed Proof-or-Stop command launches without EACCES, reports its version and healthy doctor diagnostics, preserves the Windows npm shim contract, and gives convergent review-assurance commands.",
+  "actualTranscript": "Two complete project validations passed 132/132; the live pre-review proof exited 0 with admissible authority; independent concept, quality, and test-coverage lanes signed PASS; executable-bit, global-core-realpath, Windows shim, and 19-case assurance regression checks passed.",
+  "outcomeDiff": "No material difference: observed behavior matches the expected launcher and assurance outcomes.",
   "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
     "skipped": []
   },
-  "limitations": "The current machine supplies direct POSIX execution evidence; Windows behavior is covered by hermetic PATHEXT and command-shim fixtures, including actual Node option semantics, rather than a native Windows host transcript.",
-  "pitfalls": "Repeated review exposed that string containment is not execution semantics: echo, node --version, and node -e can mention the canonical target without executing it. The safe repair validates the Node script argv position. ProofStory was PLAN-frozen, so its missing must-intent binding was repaired through proofstory_contract_set after a controlled DEV-to-PLAN transition, never by editing JSON.",
+  "limitations": "Windows behavior is verified hermetically through the npm .cmd shim contract rather than on a native Windows host; remote publication is intentionally not performed.",
+  "pitfalls": "The Story stalled on stale rollout and pre-review receipts after material changes, requiring ordered regeneration and two full validations. A duplicate degraded-r1 command exposed BUG-001; the fix now allocates r2/r3/r4 and skips all occupied run IDs. Preserve the order: rollout, acceptance basis, live proof, pre_review_check, reviewers, delivery, assurance, DONE.",
   "phaseStats": {
     "INIT": {
       "count": 2,
@@ -23,23 +23,23 @@
       "durationMs": 168056
     },
     "PLAN": {
-      "count": 10,
-      "durationMs": 3224251
+      "count": 14,
+      "durationMs": 5894126
     },
     "DEV": {
-      "count": 32,
-      "durationMs": 89819701
+      "count": 39,
+      "durationMs": 103325067
     },
     "REVIEW": {
-      "count": 23,
-      "durationMs": 268841790
+      "count": 27,
+      "durationMs": 298625149
     },
     "TEST": {
-      "count": 9,
-      "durationMs": 17052748
+      "count": 12,
+      "durationMs": 18406122
     }
   },
-  "totalDurationMs": 386419098,
+  "totalDurationMs": 433731072,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -47,10 +47,10 @@
     "cumulativePassedCases": 0
   },
   "bugStats": {
-    "found": 0,
-    "fixed": 0,
+    "found": 1,
+    "fixed": 1,
     "open": 0
   },
   "createdAt": "2026-09-03T01:57:56.411Z",
-  "updatedAt": "2026-09-07T00:35:29.345Z"
+  "updatedAt": "2026-09-07T13:44:01.320Z"
 }
