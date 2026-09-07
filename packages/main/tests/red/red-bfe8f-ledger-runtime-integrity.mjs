@@ -435,10 +435,10 @@ let currentGreenPasses = false;
 let probe;
 let relationEvaluation;
 let currentCorruptedRelationRejected = false;
-const { createProbe, reviewProbe, createRedGreenRelation, evaluateRedGreenRelation } = await import(
-  pathToFileURL(join(repoRoot, 'packages/main/dist/core/repro-intake.js')).href
-);
 try {
+  const { createProbe, reviewProbe, createRedGreenRelation, evaluateRedGreenRelation } = await import(
+    pathToFileURL(join(repoRoot, 'packages/main/dist/core/repro-intake.js')).href
+  );
   const clone = run('git', ['clone', '-q', '--shared', '--no-checkout', repoRoot, historicalCheckout]);
   assert.equal(clone.status, 0, `historical RED clone failed: ${clone.stderr || clone.stdout}`);
   const checkout = run('git', ['checkout', '-q', '--detach', BASELINE_HEAD], { cwd: historicalCheckout });
