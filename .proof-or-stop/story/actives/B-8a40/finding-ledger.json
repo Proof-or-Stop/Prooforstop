@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "9eadabbc3cd9087474af5b6c89fa96f7d8f2a76578efb075c8bd9fabeb32eb27",
+  "committedLedgerDigest": "73109c9c08946eacbab5981e235e3b019051699a7e66daf434a90adbbda1c166",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -3732,6 +3732,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T10:17:22.386Z"
+    },
+    {
+      "recordId": "lr_mtr36vqh_8ni_fa7bdf487a9143a3982d3fe5c4552cdf",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-143d31d9-1a19-4858-8c54-63c005bee5e6",
+        "findingId": "B-8a40:F-094",
+        "findingRecordId": "lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-07T10:17:24.519Z",
+        "reason": "Commit9b8ca8879f repairs the registered guard portability defect, not the missing historical CAS. It preserves real tracked historical RED references and immutable baseline; executes the same import at the explicit historical/current roots; rejects an unbuilt existing source as a false missing-contract baseline; and performs fresh private candidate CLI create/read/review/relation checks with actual missing-ID, unreviewed-relation and one-bit-digest negative controls. Fixture-only provenance is explicit; the registration-mirror predicate is unchanged. Direct final guard exit0; Finding ledger runtime caller exit0; registration guard exit0; registration derivation26/26 exit0. The last added baseline-source assertion was separately rerun in the final guard. This is focused repair evidence, not fresh formal132 validation PASS.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "64f5f2d04102a199432ba33f54afbefd0437eeafb7ef0cabf584025aaa8bed64",
+      "priorDigest": "9eadabbc3cd9087474af5b6c89fa96f7d8f2a76578efb075c8bd9fabeb32eb27",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T10:17:24.521Z"
     }
   ],
   "receipts": [
@@ -8689,6 +8712,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "939d9570b3bceac4cc743538bea340d82df26949b7833df0b338c8bb865b026e",
         "signature": "cAnooP16ZEN5QEnw0f5q9YmvPuqUQmuJ9QhqboD/jd54FpWagVhMpsWy4u1BB7Oi6S7C2KKdbDnRxQKF6RCIBw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr36vqh_8ni_93fab0360363466b89038697ce8bd28f",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0:resolved",
+      "requestDigest": "f882a34c5970342b0554a39831b52aa9ecddcb864602f39495616f158042892a",
+      "recordIds": [
+        "lr_mtr36vqh_8ni_fa7bdf487a9143a3982d3fe5c4552cdf"
+      ],
+      "priorLedgerDigest": "9eadabbc3cd9087474af5b6c89fa96f7d8f2a76578efb075c8bd9fabeb32eb27",
+      "committedLedgerDigest": "73109c9c08946eacbab5981e235e3b019051699a7e66daf434a90adbbda1c166",
+      "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+      "writerFenceToken": "6f46dd9c-be86-42f0-a96e-e4c439235f69",
+      "committedAt": "2026-09-07T10:17:24.521Z",
+      "replayed": false,
+      "exactRequestDigest": "6fdd3881c7151e6b15ab262d7399d17f44506655cfe815787c3902614d261109",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr36vqh_8ni_93fab0360363466b89038697ce8bd28f",
+        "storyId": "B-8a40",
+        "idempotencyKey": "finding-lifecycle:lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0:resolved",
+        "exactRequestDigest": "6fdd3881c7151e6b15ab262d7399d17f44506655cfe815787c3902614d261109",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtr36vqh_8ni_fa7bdf487a9143a3982d3fe5c4552cdf"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0",
+            "expectedRecordHash": "47552a6f823a6615aac21dbe390af1a48705ac5811d673edf969d8cff4130dc5",
+            "observedChainHeadId": "lr_mtr36u36_7r3_07fb563109bc45d9aecd87db0a586ef1",
+            "observedChainHeadHash": "9564fcfa0d128fd2189c3a0556cffb3e2b238c2fc3d1faf66dc1d3fd3736b4a8",
+            "predicateDigest": "aac12267ebcd2a6657b5f57399f8a714a1395c9feb9e06750f0574735f73ad7e"
+          }
+        ],
+        "priorLedgerDigest": "9eadabbc3cd9087474af5b6c89fa96f7d8f2a76578efb075c8bd9fabeb32eb27",
+        "committedLedgerDigest": "73109c9c08946eacbab5981e235e3b019051699a7e66daf434a90adbbda1c166",
+        "replayed": false,
+        "committedAt": "2026-09-07T10:17:24.521Z",
+        "writerSessionId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "6f46dd9c-be86-42f0-a96e-e4c439235f69",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "755adb128eb83df8a5b59ca315f6b52c378a4cfb0c4c32ed61dfd649cb3110a7",
+        "signature": "Qe5Y87ZdBQRfXd1OvbF5EOujlzWYEjgAqkUaKA/hoh1YInZljEzxqJFQuWUFjgKo1ubRIY2XB8egww20t2i8Dw=="
       }
     }
   ]
