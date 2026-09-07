@@ -1948,9 +1948,9 @@
       "epochId": "B-e256:RI-012",
       "storyId": "B-e256",
       "reviewRound": "2026-09-07T00:35:44.550Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-07T01:00:38.721Z",
-      "updatedAt": "2026-09-07T01:00:38.721Z",
+      "updatedAt": "2026-09-07T01:14:31.037Z",
       "cutoff": {
         "headHash": "543da956a07e7e3e6761c4dc6b625cbded3e1e54",
         "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
@@ -1964,14 +1964,105 @@
       ],
       "initialRunSequenceBoundary": 160,
       "maxWaves": 1,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T01:00:38.721Z",
+          "completedAt": "2026-09-07T01:14:23.576Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-e256:RR-161",
+              "terminal": "finding",
+              "hostIdentity": "d521e44159933d7bb6f1555feae5f3bdc5b71c047e5f8f7f2c8ca618d327e679",
+              "promptIdentity": "38d2297ef66aac4633e0f9f4efb36648b21a52037ac170985d28b0658fd88bb8",
+              "evidenceIds": [
+                "B-e256:F-055"
+              ],
+              "coverageDigest": "b3502526c580b66ad4139a3e35d8ad7da074656367a191c10dce44ff7df53f77"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-e256:RR-162",
+              "terminal": "finding",
+              "hostIdentity": "d521e44159933d7bb6f1555feae5f3bdc5b71c047e5f8f7f2c8ca618d327e679",
+              "promptIdentity": "fbf42924ac5941326c88e23a43caaaf64fa2038dadd5376fed44a63366fcd003",
+              "evidenceIds": [
+                "B-e256:F-053"
+              ],
+              "coverageDigest": "78914e58f46deaf7d68e55eb46e2534b2c095edac576a6debcb7b3350490e959"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-e256:RR-163",
+              "terminal": "finding",
+              "hostIdentity": "d521e44159933d7bb6f1555feae5f3bdc5b71c047e5f8f7f2c8ca618d327e679",
+              "promptIdentity": "8242250606cb7c846db5e7a73e24ef4b040222eaef0873d74921c412a5e5e6c4",
+              "evidenceIds": [
+                "B-e256:F-054"
+              ],
+              "coverageDigest": "87932682c3927fbabb04aa20c62e83fc994797ca67afa89e69700d085cd3b2e9"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "proofstory-acceptance-topology-and-pre-review-proof-missing",
+            "windows-command-shim-argument-forwarding-false-pass",
+            "windows-command-shim-caret-escaped-separator-false-pass",
+            "windows-command-shim-posix-single-quote-false-pass",
+            "windows-command-shim-unreachable-invocation-false-pass",
+            "windows-command-shim-unverified-target-base-binding",
+            "windows-powershell-npm-shim-selection-unverified"
+          ],
+          "verifiedFindingSetDigest": "95e8c85ba101a36438b37ba7b3f5d5899350f9538fbb95743bea2c915560fd91",
+          "newVerifiedFindingCount": 7,
+          "criticDigest": "309965071c488001bf94189ddccd3e96115615acc5b95ae6990491bf9d3e318d",
+          "saturated": false,
+          "nextRunSequenceBoundary": 164
+        }
+      ],
       "baselineFindingIds": [
         "B-e256:F-049",
         "B-e256:F-050",
         "B-e256:F-051",
         "B-e256:F-052"
       ],
-      "_hash": "7bfacc14667da07dfcc81af101f0b47e9a9eca772d926705a500e652afd64825"
+      "cancelledAt": "2026-09-07T01:14:31.037Z",
+      "cancelReason": "Replan the Windows shim verification boundary after repeated high false-pass families proved the generic string parser unbounded; replace it with a bounded official npm shim contract and repair current Story acceptance topology evidence.",
+      "terminalRunSequenceBoundary": 164,
+      "_hash": "df6988477a10f662a350bbff2e80211732015474795747e22abd5fa98aaab4b1"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-e256:RI-013",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-07T01:14:36.072Z",
+      "updatedAt": "2026-09-07T01:14:36.072Z",
+      "cutoff": {
+        "headHash": "ca9327dbc926bbad72374a629446799625f5b98f",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "scopeDigest": "da0b1ff512984dbc2f30520078cdfe889b1ffc7b369e1ab57df3e805dede7ffc",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "initialRunSequenceBoundary": 164,
+      "maxWaves": 1,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-e256:F-049",
+        "B-e256:F-050",
+        "B-e256:F-051",
+        "B-e256:F-052",
+        "B-e256:F-053",
+        "B-e256:F-054",
+        "B-e256:F-055"
+      ],
+      "_hash": "98e71298fe805d93850c7eb261012c249574b781755ffb64a61c888f1774b7f9"
     }
   ],
   "receipts": [
@@ -3340,6 +3431,73 @@
       ],
       "createdAt": "2026-09-07T00:59:35.855Z",
       "_hash": "bed875662cecea2268f21ae8c2540a7c2d7eeae10f412a236f5c3c9db30a89a9"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-e256:RI-012:CRIT-01",
+      "epochId": "B-e256:RI-012",
+      "storyId": "B-e256",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "543da956a07e7e3e6761c4dc6b625cbded3e1e54",
+        "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
+        "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46"
+      },
+      "aggregateFindingSetDigest": "95e8c85ba101a36438b37ba7b3f5d5899350f9538fbb95743bea2c915560fd91",
+      "requiredLaneCoverageDigest": "b3d77850b2e51a43347c4423c90b746cbcabb6fd26f7d49ea2ae791b15ca04e1",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-e256:RR-164",
+      "terminalEvidenceIds": [
+        "B-e256:RP-113"
+      ],
+      "readEvidenceDigest": "ac071b784c60010f52ade49d18c552b9c7ced1108aff1752d6fc07115859256e",
+      "findingDispositions": [
+        {
+          "findingId": "B-e256:F-049",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-unreachable-invocation-false-pass",
+          "reason": "Verified distinct high-severity current-Story family: validateWindowsCommandShim accepts a later target-looking line without proving cmd.exe control-flow reachability, so an unreachable invocation can yield a healthy marker. This directly invalidates the acceptance and gate truth and requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-050",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-unverified-target-base-binding",
+          "reason": "Verified distinct high-severity current-Story family: normalizedShimTargetToken strips %~dp0/%dp0%/$basedir textually without proving that the variable is bound to the shim directory, allowing a decoy target to be normalized as canonical. This directly compromises target identity and requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-051",
+          "disposition": "verified_family",
+          "familyKey": "proofstory-acceptance-topology-and-pre-review-proof-missing",
+          "reason": "Verified distinct high-severity current-Story evidence family: AC-001 lacks an admissible acceptance topology and current pre-review production-path/control/mutation proof. The mechanical topology and pre-review checks are inconclusive/failing, so REVIEW/TEST/DONE truth is blocked and repair_current is required."
+        },
+        {
+          "findingId": "B-e256:F-052",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-posix-single-quote-false-pass",
+          "reason": "Verified distinct high-severity current-Story family: the cmd parser treats POSIX single quotes as quoting syntax even though cmd.exe does not, so a malformed or decoy command line can be accepted as a canonical invocation. This is an acceptance false-green and requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-053",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-caret-escaped-separator-false-pass",
+          "reason": "Verified distinct high-severity current-Story family: commandSegments splits caret-escaped ^& or ^| as executable separators, inventing a reachable command that cmd.exe would not execute. The resulting healthy marker is false and the acceptance blocker requires repair_current."
+        },
+        {
+          "findingId": "B-e256:F-054",
+          "disposition": "verified_family",
+          "familyKey": "windows-powershell-npm-shim-selection-unverified",
+          "reason": "Verified distinct high-severity current-Story family: official npm cmd-shim output includes a .ps1 peer, but discovery and validation cover only PATHEXT-resolved .cmd/.bat/.exe shapes. A valid .cmd can hide a broken invoked PowerShell peer, contradicting the platform-visible promise and requiring repair_current."
+        },
+        {
+          "findingId": "B-e256:F-055",
+          "disposition": "verified_family",
+          "familyKey": "windows-command-shim-argument-forwarding-false-pass",
+          "reason": "Verified distinct high-severity current-Story family: shimSegmentInvokesTarget verifies the canonical script token but not required %* forwarding. A shim that drops --version or all user arguments can still report healthy, directly falsifying executable usability and requiring repair_current."
+        }
+      ],
+      "createdAt": "2026-09-07T01:14:02.101Z",
+      "_hash": "260aebaa2c7befa408d0ddaefc5e79224f24f7ba0a611d97a6985a2f94f7d6f8"
     }
   ]
 }
