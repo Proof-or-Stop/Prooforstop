@@ -354,7 +354,7 @@
       "desc": "RI-007 wave-2 coverage re-observation of canonical B-29bc:F-005, also recorded as coverage manifestation F-006. This is the same root cause and same two test sites, proposed duplicate of F-005 for inventory disposition, not a new defect family or implementation scope. Fresh finding_list plus verifyFinding confirms F-005 and F-006 remain open, verified and signature-valid. Current review_run_start binds unchanged material 43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b and storyFilesHash 6ba1ae8bec78df00939425d6b2bc024c4b19a1a393a285fed1a2e808970704a0. Bounded git diff from RR-044 head a36b3b36af across source, docs, background, plan and checklist is empty; earlier integrated review context therefore remains applicable. Fresh source read at packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 confirms spread copies retaining old _hash are still passed into signReviewInventoryCriticReceipt. The already inspected production signer hashes that key but verifier removes it, so the intended signed receipt-substitution and omitted-disposition negative controls fail signature-first. Reuse the independently recorded F-006 true/false/true signer witness; no new execution is claimed in this wave. Eight must intents retain their recorded evidence, but the known semantic receipt-coverage defect remains, including CHK-001:adversarial:0 and the specified receipt-consumer witness of adversarial:1. No new coverage family identified on this unchanged subject; this is not a no-gap PASS, repair, deferral, topology or lifecycle credential. F-005 remains the canonical owner-tracked current-Story repair, with original F-006 preserved. Fresh full reading of the inventory decision supplied the actual read event; source and Story context are reused only after the bounded unchanged-diff check. No tests, build, full rescan, source or owner writes performed.",
       "severity": "medium",
       "category": "adversarial",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-test-coverage",
       "createdAt": "2026-09-07T17:25:33.852Z",
@@ -387,7 +387,11 @@
       "signatureTag": "adversarial|ts|wave-coverage-observation",
       "signatureTagSource": "auto",
       "recordId": "lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4",
-      "ledgerCommitReceiptId": "lrc_mtrihhr1_100r_91b42962e4ac40d195ab559a8f048be4"
+      "ledgerCommitReceiptId": "lrc_mtrihhr1_100r_91b42962e4ac40d195ab559a8f048be4",
+      "resolvedAt": "2026-09-07T17:47:19.857Z",
+      "resolvedReason": "Fixed as one current-Story test-evidence root cause. RED e13ea60b84 added explicit signature-validity prerequisites and intended semantic rejection assertions; the rebuilt epoch smoke exited 1 with 'semantic mutation must retain a valid signature' (false !== true). GREEN 6f45dfd032 excludes only the old _hash from each receipt signing input; the rebuilt epoch smoke exits 0 and retains all prior controls plus a restored positive receipt. Audit d66977d67f retracts the historical semantic-coverage overclaim and records precise RED/GREEN limits. Independent coverage inspection confirmed the two-file repair addresses F-005 through F-009. No production algorithm, lifecycle gate or scope policy changed. Original findings, severities and history remain preserved. Official post-repair refresh 8cafbfb confirms all eight pinned records are mechanical PASS, exitCode=0 and selectorMatched=true.",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-29bc:F-009",

@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "616fcc33a4b841b5df719ff09c657574b433452ec6ac002087d84b181282c8eb",
+  "committedLedgerDigest": "a2b58896ade374dd17345d24f9cab3680336d9bfdc141238dbf60d43fc1848f0",
   "records": [
     {
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
@@ -647,6 +647,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T17:47:18.645Z"
+    },
+    {
+      "recordId": "lr_mtrj9hgy_fvn_0ea1cb47c384438f9a47740c5823f390",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-4193c16d-5f57-4c9d-9531-73bb0a4d749a",
+        "findingId": "B-29bc:F-008",
+        "findingRecordId": "lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-07T17:47:19.857Z",
+        "reason": "Fixed as one current-Story test-evidence root cause. RED e13ea60b84 added explicit signature-validity prerequisites and intended semantic rejection assertions; the rebuilt epoch smoke exited 1 with 'semantic mutation must retain a valid signature' (false !== true). GREEN 6f45dfd032 excludes only the old _hash from each receipt signing input; the rebuilt epoch smoke exits 0 and retains all prior controls plus a restored positive receipt. Audit d66977d67f retracts the historical semantic-coverage overclaim and records precise RED/GREEN limits. Independent coverage inspection confirmed the two-file repair addresses F-005 through F-009. No production algorithm, lifecycle gate or scope policy changed. Original findings, severities and history remain preserved. Official post-repair refresh 8cafbfb confirms all eight pinned records are mechanical PASS, exitCode=0 and selectorMatched=true.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "ae24d470d04155406e5ae33a28f0d9055ea484531ea1e9a2ff5024a40776248a",
+      "priorDigest": "616fcc33a4b841b5df719ff09c657574b433452ec6ac002087d84b181282c8eb",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T17:47:19.858Z"
     }
   ],
   "receipts": [
@@ -1399,6 +1422,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "21911c0410d30473ee1661d1aee6d4ee416a60376062a4433d48502619c4db5a",
         "signature": "Dm9uj87Yt3kdWQBkDzerxLWCbYSlO2s8ky2Ie0/rWObsYMZrt6RYKrjQRdrfHrkOMauSDuTAvXk8jm3o55acBQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtrj9hgy_fvn_77901945542e424eb2d5ffb1ec08d9fd",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4:resolved",
+      "requestDigest": "b829659588ad4c8defc11f566c4eae355c533b40665e5e00d5a535fb131fc2e1",
+      "recordIds": [
+        "lr_mtrj9hgy_fvn_0ea1cb47c384438f9a47740c5823f390"
+      ],
+      "priorLedgerDigest": "616fcc33a4b841b5df719ff09c657574b433452ec6ac002087d84b181282c8eb",
+      "committedLedgerDigest": "a2b58896ade374dd17345d24f9cab3680336d9bfdc141238dbf60d43fc1848f0",
+      "writerSessionId": "codex-01a05441-inventory-recovery-owner",
+      "writerFenceToken": "11aeff4c-25b6-4f41-85cf-7700abab77e0",
+      "committedAt": "2026-09-07T17:47:19.858Z",
+      "replayed": false,
+      "exactRequestDigest": "aa19dc214d4def74e6780ab95df26562526e6ac15a02450a890cee6b8c9de7fb",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtrj9hgy_fvn_77901945542e424eb2d5ffb1ec08d9fd",
+        "storyId": "B-29bc",
+        "idempotencyKey": "finding-lifecycle:lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4:resolved",
+        "exactRequestDigest": "aa19dc214d4def74e6780ab95df26562526e6ac15a02450a890cee6b8c9de7fb",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtrj9hgy_fvn_0ea1cb47c384438f9a47740c5823f390"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtrihhr0_100r_42b8e2435aec43fc87ce9c2723bfdbd4",
+            "expectedRecordHash": "83bfb52127b8b67bedf576f19681ec8803272a25df6662bdeb523e7e2bc5a373",
+            "observedChainHeadId": "lr_mtrj9gj9_f35_e6041b91e58d4d1e8338ee649b273b64",
+            "observedChainHeadHash": "e47f6009ae00ead1fcdca99d1f0d86b6869d62d2e522be076829c15cdc0e8033",
+            "predicateDigest": "6f3c140da951661e7dad622bde42dcec80b55c49fab268e2aaf4dc8ceb29d79f"
+          }
+        ],
+        "priorLedgerDigest": "616fcc33a4b841b5df719ff09c657574b433452ec6ac002087d84b181282c8eb",
+        "committedLedgerDigest": "a2b58896ade374dd17345d24f9cab3680336d9bfdc141238dbf60d43fc1848f0",
+        "replayed": false,
+        "committedAt": "2026-09-07T17:47:19.858Z",
+        "writerSessionId": "codex-01a05441-inventory-recovery-owner",
+        "writerLeaseId": "codex-01a05441-inventory-recovery-owner",
+        "writerFenceToken": "11aeff4c-25b6-4f41-85cf-7700abab77e0",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "f7b3633c1ac8a8ecb5a0733e152f33d15ed7f9a3b2d5542327060db717f0a43d",
+        "signature": "fOfSlpOHXZLVicblIRY9/JldgJdTL1cKTLohsKhJIcN9wtyIHSjI6OpxveF64pV5TzmYMFoDTUWNoDQiUqPCCg=="
       }
     }
   ]
