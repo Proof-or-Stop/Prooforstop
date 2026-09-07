@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "911ea1e22164456a61ba8d998c46f0a51a20fb0b355da07a8ac4ce5fc3b00a1f",
+  "committedLedgerDigest": "37dc6602b3e9ec23a8af81c562d6aed3aae9805c8f6d330f11c3d60a9bdb9bfc",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -1551,6 +1551,61 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T00:38:46.502Z"
+    },
+    {
+      "recordId": "lr_mtqiiwv0_1r2j_fec2987735854f32b1cc54a65ae76224",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:a22bdecc-a741-4985-8b75-96cf7f0ea7a6",
+      "payload": {
+        "id": "B-e256:F-048",
+        "desc": "acceptance-basis-scope-binding-stale-after-repair: .proof-or-stop/story/actives/B-e256/acceptance-basis.json:250,267 still signs scopeCheckDigest sha256:4e750b5b..., but the current verifier reports `AT_SCOPE_BINDING_MISSING ... scope-check digest mismatch` after the later scope_check_save commit e521893d7f. The sequence is mechanically visible: e365326331 added CHK-001:edge:0 to AC-001 and generated the basis, then e521893d7f refreshed the independent scope check without regenerating that basis. Current `acceptance_topology_check` is therefore inconclusive with AT_SCOPE_BINDING_MISSING even though `acceptance_rollout_report_read` and `acceptance_rollout_check` report PASS/current/full-3x2. F-046's semantic repair itself is correct—the only acceptance-binding semantic change is adding CHK-001:edge:0 and the acceptanceClaim is unchanged—but its verifier-owned topology evidence is not current to the final scope artifact. Regenerate/rebind the acceptance basis after the final scope check and refresh dependent pre-review/rollout evidence so the PASS chain cannot coexist with a scope-mismatched topology basis. severity: high",
+        "severity": "high",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-07T00:38:53.914Z",
+        "reviewRound": "2026-09-07T00:35:44.550Z",
+        "reviewRunId": "B-e256:RR-150",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+            ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json",
+            ".proof-or-stop/story/actives/B-e256/background.md",
+            ".proof-or-stop/story/actives/B-e256/checklist.json",
+            ".proof-or-stop/story/actives/B-e256/delivery-check.json",
+            ".proof-or-stop/story/actives/B-e256/plan.md",
+            ".proof-or-stop/story/actives/B-e256/pre-review-check.json",
+            ".proof-or-stop/story/actives/B-e256/proofstory.json",
+            ".proof-or-stop/story/actives/B-e256/scope-check.json",
+            ".proof-or-stop/story/actives/B-e256/summary.json",
+            ".proof-or-stop/story/actives/B-e256/understanding.json",
+            "packages/main/src/core/runtime-environment-checks.ts",
+            "packages/main/tests/global-core-realpath.test.mjs"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-e256/findings.json",
+            "packages/main/src/core/proofstory.ts",
+            "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+            "scripts/promote-dist.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "_hash": "40d7f94dbdd531298894489b2eff9aafeaf77e92d1b8caf940df6d35fadccfb1",
+        "files": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-e256/scope-check.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json"
+        ],
+        "signatureTag": "proofstory-acceptance-basis-scope-binding-stale-after-repair",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "9c2970c3835c78ac7f3316e4492ca1fe860e94e8515289b58fd327ee34d753ee",
+      "priorDigest": "911ea1e22164456a61ba8d998c46f0a51a20fb0b355da07a8ac4ce5fc3b00a1f",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T00:38:53.916Z"
     }
   ],
   "receipts": [
@@ -3685,6 +3740,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "e0050967e06a462602b245339ec72aebb24361f5b9253ab2deeb0b36383361b1",
         "signature": "Dh7ggTibkY+fZoV5bV57XrXnBPclKJkJ0D2SNqvKf72OmbinCuqogspiqZZELt3nwPGMJqdAtAvuo7GkMOyLCg=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqiiwv0_1r2j_b0a3ba9e7b844bb38bfb034b9a5d13e0",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:a22bdecc-a741-4985-8b75-96cf7f0ea7a6",
+      "requestDigest": "107536c8dacb21181c102432dc0a2f43870b5df4b3fdaa5a3775d568bd84f132",
+      "recordIds": [
+        "lr_mtqiiwv0_1r2j_fec2987735854f32b1cc54a65ae76224"
+      ],
+      "priorLedgerDigest": "911ea1e22164456a61ba8d998c46f0a51a20fb0b355da07a8ac4ce5fc3b00a1f",
+      "committedLedgerDigest": "37dc6602b3e9ec23a8af81c562d6aed3aae9805c8f6d330f11c3d60a9bdb9bfc",
+      "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+      "writerFenceToken": "a30d8408-6310-46e8-92ed-695d885124d4",
+      "committedAt": "2026-09-07T00:38:53.916Z",
+      "replayed": false,
+      "exactRequestDigest": "e40d2732a5bc3a1cf5d641b35ad9b3084a204805a2ebd1a95846840d82afad90",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqiiwv0_1r2j_b0a3ba9e7b844bb38bfb034b9a5d13e0",
+        "storyId": "B-e256",
+        "idempotencyKey": "finding_add:a22bdecc-a741-4985-8b75-96cf7f0ea7a6",
+        "exactRequestDigest": "e40d2732a5bc3a1cf5d641b35ad9b3084a204805a2ebd1a95846840d82afad90",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqiiwv0_1r2j_fec2987735854f32b1cc54a65ae76224"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "911ea1e22164456a61ba8d998c46f0a51a20fb0b355da07a8ac4ce5fc3b00a1f",
+        "committedLedgerDigest": "37dc6602b3e9ec23a8af81c562d6aed3aae9805c8f6d330f11c3d60a9bdb9bfc",
+        "replayed": false,
+        "committedAt": "2026-09-07T00:38:53.916Z",
+        "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "a30d8408-6310-46e8-92ed-695d885124d4",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "54cf2af00e70bec42123dbae3f1bce1c992e654e03c7b70734827d6e49771c62",
+        "signature": "A+pcjGzH5+H4AXZ5bF01La/pCi7mWUuhoEHJBIrbw07SBzPMiwGyGGNMFcsG9OJrqOslmlMglqvlwHIDm6dcBw=="
       }
     }
   ]
