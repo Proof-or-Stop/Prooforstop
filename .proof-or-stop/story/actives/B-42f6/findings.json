@@ -243,7 +243,7 @@
       "desc": "Corroborating concept contribution to canonical B-42f6:F-006, same defect family rather than an independent repair request: red-bfe8f-ledger-runtime-integrity.mjs:408 treats a machine-local historical probe artifact as a required portable validation input. The current configured full suite fails on missing rp-mtifubae-dfbh4w, so the integration promise that mandatory verification runs on the merged checkout remains unmet. Read the canonical F006 reproduction and current source probe lookup; preserve actual baseline/current execution and authenticated relation-negative checks when repairing. No PASS is recorded and no historical artifact may be fabricated.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-07T10:31:56.293Z",
@@ -274,7 +274,10 @@
       "signatureTag": "missing|mjs|corroborating-concept-contribution",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3pked_14hc_1843a97b48e542bf8b5cee3e757f52a0",
-      "ledgerCommitReceiptId": "lrc_mtr3pkee_14hc_15ed9f97bc024690a9f2cbd37bc62e35"
+      "ledgerCommitReceiptId": "lrc_mtr3pkee_14hc_15ed9f97bc024690a9f2cbd37bc62e35",
+      "resolvedAt": "2026-09-07T10:55:20.311Z",
+      "resolvedReason": "Fixed by commits 780cc42ed6, a1d58dd487 and df2133a1c8 in the existing ledger integrity guard. Historical Story identity assertions remain; actual fixed historical missing-module and current GREEN imports feed fresh production candidate fixtures. Real CLI probe reads and good/bad relation evaluation are exercised; changed commands fail closed. Original historical artifacts are not recreated. Focused final guard, registration 26 GREEN and process-fact contract passed; /private/tmp/B-42f6-integration/ledger-cli-final-guard.log and ledger-cli-registration.log preserve results. Full132 on final code is still required.",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-42f6:F-008",
