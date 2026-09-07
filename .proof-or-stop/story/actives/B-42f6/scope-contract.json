@@ -886,9 +886,26 @@
   "protectedFiles": [],
   "explicitExcludes": [],
   "scopeChangeReason": "OQ-1: enumerate exact inherited paths from the pinned merge-tree of local d5b00d0ff3 and remote c853ab5e63; the user authorized remote integration. This is inheritance accounting, not permission for unrelated manual edits. Manual resolutions remain bounded to the eleven observed conflict files and must be checked against both parents.",
-  "acknowledgements": [],
+  "acknowledgements": [
+    {
+      "actor": "main-agent",
+      "reason": "The automatic merge combined identical six Lab alias entries added at two different locations by the parents, producing duplicate object keys and a TypeScript error. The authorized integration requires deleting only the second duplicate block; the resulting alias-normalizer is identical to origin/main, preserves public routing, and introduces no behavior beyond either parent.",
+      "timestamp": "2026-09-07T08:06:44.694Z",
+      "paths": [
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/cli/alias-normalizer.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "4e06b2035e34fe6b736b6bb88ba269ae40904f4a",
+      "materialHash": "1539c58809a9587adfcf689aff66c589c2c2cab2cdff600b1c04559311100cb6"
+    }
+  ],
   "createdAt": "2026-09-07T07:56:00.637Z",
-  "updatedAt": "2026-09-07T07:59:07.723Z",
+  "updatedAt": "2026-09-07T08:06:44.695Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
