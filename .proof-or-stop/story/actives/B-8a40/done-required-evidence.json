@@ -2,13 +2,13 @@
   "schema": "proof-or-stop.done-required-evidence",
   "version": 1,
   "storyId": "B-8a40",
-  "status": "FAIL",
-  "startedAt": "2026-09-07T00:01:14.307Z",
-  "endedAt": "2026-09-07T00:03:15.477Z",
-  "durationMs": 121170,
-  "headHash": "3b992a9499bb11acd2a55229682dd4f13cb31c1f",
-  "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
-  "storyFilesHash": "712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd",
+  "status": "PASS",
+  "startedAt": "2026-09-07T08:44:33.289Z",
+  "endedAt": "2026-09-07T08:57:22.525Z",
+  "durationMs": 769236,
+  "headHash": "c9a2a90dc929a6d5f762ec2d8c670fbaea62e120",
+  "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+  "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b",
   "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
   "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
   "receipts": [
@@ -40,17 +40,17 @@
       "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 1051,
+      "durationMs": 1088,
       "outputDigest": "8fd5c32973e90ca8c6632abdf2688555f76fc19f15c670d7c05044008c4a4606",
       "outputTail": "\n> @proof-or-stop/core@0.3.278 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
-      "startedAt": "2026-09-07T00:01:14.308Z",
-      "endedAt": "2026-09-07T00:01:15.359Z",
+      "startedAt": "2026-09-07T08:44:33.289Z",
+      "endedAt": "2026-09-07T08:44:34.378Z",
       "effectiveEnvironmentDigest": "2928ed2007016552500046d94c897013332cf27c1481195199c314f7fc68bf35",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "3b992a9499bb11acd2a55229682dd4f13cb31c1f",
-      "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
-      "storyFilesHash": "712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd"
+      "headHash": "c9a2a90dc929a6d5f762ec2d8c670fbaea62e120",
+      "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+      "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b"
     },
     {
       "label": "root full test suite",
@@ -72,22 +72,20 @@
         "timeoutMs": 7200000
       },
       "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40",
-      "status": "FAIL",
-      "exitCode": 1,
-      "durationMs": 119388,
-      "outputDigest": "93450a9c651423583397d1d024ef06747d04d653727145788fc3a44c81fa1dfc",
-      "outputTail": "pe-smoke.ts:2123: unapproved non-literal dynamic module load: import() `${pathToFileURL(mutantPath).href}?run=${Date.now()}`; typescript-printer-remove-comments-sha256-v1=55ccba2baaaea566f2b25fedb2b2187d258d45e2d08b54515004c2627f5c65ce\npackages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2188: production authority: `the helper-only mutant fails only through the production authority oracle for ${roleId}`);\n    at file:///Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-8a40/packages/main/dist/tasks/retired-authority-vocabulary-guard-smoke.js:5560:11\n    at ModuleJob.run (node:internal/modules/esm/module_job:569:25)\n    at async node:internal/modules/esm/loader:650:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)\n\nNode.js v26.8.1\n\n\n--- test:flow-stability-smoke INTERRUPTED ---\n\n\n--- test:proofstory-intent-hardening-smoke INTERRUPTED ---\n\n\n--- test:milestone-status INTERRUPTED ---\n\n\n--- test:review-incremental-context-smoke INTERRUPTED ---\n\n\n--- test:graph-story-flag-smoke INTERRUPTED ---\n\n> proof-or-stop@0.3.278 test:graph-story-flag-smoke\n> node packages/main/dist/tasks/graph-story-flag-smoke.js\n\n  graph\n  root: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-full-suite-member-XjVm45/graph-story-flag-unFfdK (explicit --root)\n  http://localhost:18731/story/B-9f2c\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-full-suite-member-XjVm45/graph-story-flag-unFfdK (explicit --root)\n  http://localhost:18732/\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n  graph\n  root: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-full-suite-member-XjVm45/graph-story-flag-unFfdK (explicit --root)\n  http://localhost:18733/story/B-9f2c%23frag%3Fq%3D1%20x\n\n  Serving until interrupted (Ctrl-C). The CLI watchdog stops any\n  command after 15 minutes; raise PROOF_OR_STOP_MAX_TIMEOUT_MS for\n  a longer session.\n\n\n--- test:gitroot-cwd-contract INTERRUPTED ---\n\n\n--- test:process-fact-contract INTERRUPTED ---\n\n\n--- test:closeout-trust INTERRUPTED ---\n\n\n--- test:verifier-causal-preflight INTERRUPTED ---\n\n\n--- test:runtime-fact-contract INTERRUPTED ---\n\n\n--- test:evidence-quality INTERRUPTED ---\n\n\n--- test:anti-stall INTERRUPTED ---\n\n\n--- test:storydir-inside-gitroot-smoke INTERRUPTED ---\n\n\n--- test:gitroot-cwd-routing INTERRUPTED ---\n\n\n--- test:bare-gate-gitroot-cwd INTERRUPTED ---\n\n\n--- test:project-gitroot-cwd INTERRUPTED ---\n\n\n--- test:done-oracle-wrapper-root INTERRUPTED ---\n\n\n--- test:done-premerge-mainsha-recheck INTERRUPTED ---\n\n\n--- test:done-escalation-drift-advisory INTERRUPTED ---\n\n\n--- test:review-escalation-freshness-root INTERRUPTED ---\n\n\n--- test:dispatch-checklist-doctor-wrapper-root INTERRUPTED ---\n\n\n--- test:graceful-sites-gitroot-cwd INTERRUPTED ---\n\n\n--- test:experience-hint-worktree-cache INTERRUPTED ---\n\n\n--- test:done-merge-experience-refresh INTERRUPTED ---\n\n\n--- test:experience-coverage-gap INTERRUPTED ---\n\n\n--- test:nested-worktree-bootstrap INTERRUPTED ---\n\n\n--- test:e2e INTERRUPTED ---\n\n\n--- test:experience-arm-gate INTERRUPTED ---\n\n\n--- test:experience-arm-isolation-e2e INTERRUPTED ---\n\n\n--- test:convergence-breaker INTERRUPTED ---\n\n\n--- test:proofstory-acceptance-rollout INTERRUPTED ---\n\n> proof-or-stop@0.3.278 test:proofstory-acceptance-rollout\n> node packages/main/dist/tasks/proofstory-acceptance-rollout-smoke.js\n\n\n\n--- test:topology-signing-source-guard INTERRUPTED ---\n\n\n--- test:signing-guard-mutation-proof INTERRUPTED ---\n\n\n--- test:validation-tier-planner INTERRUPTED ---\n\n\n--- test:single-owner-extraction INTERRUPTED ---\n\n\n--- test:validation-protocol INTERRUPTED ---\n\n\n--- test:narrowing-repin INTERRUPTED ---\n\nfull-suite: 27/65 passed in 116.4s; retries=0; jobs=3\n",
-      "startedAt": "2026-09-07T00:01:15.678Z",
-      "endedAt": "2026-09-07T00:03:15.137Z",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 767090,
+      "outputDigest": "b01d5cfa25302ba38aaa8d58aa370122c0b363b475c95652cdf1013d05816219",
+      "outputTail": "\n> proof-or-stop@0.3.278 pretest\n> node scripts/ensure-dist.mjs\n\n\n> proof-or-stop@0.3.278 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nPASS test:experiments 16.3s\nPASS test:full-suite-runner-smoke 34.6s\nPASS test:full-suite-resource-sentinel 0.3s\nPASS test:main-write-lock-coverage 0.4s\nPASS test:production-test-seam-guard 1.8s\nPASS test:proof-or-stop-residue 0.9s\nPASS test:residue-inject-repro 2.2s\nPASS test:brief-output 63.7s\nPASS test:proof-or-stop-prompt-baseline 17.2s\nPASS test:codex-heartbeat-timeout 3.4s\nPASS test:audit-scan-bin-token 0.2s\nPASS test:review-convergence-smoke 0.2s\nPASS test:review-loop-smoke 1.2s\nPASS test:delivery-context-pack-smoke 15.4s\nPASS test:review-assurance-floor-smoke 16.9s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 2.3s\nPASS test:withdrawn-disposition-smoke 3.1s\nPASS test:global-core-realpath 0.9s\nPASS test:brand-path-resolver-smoke 0.8s\nPASS test:config-filename-migration-smoke 1.9s\nPASS test:retired-authority-vocabulary-guard 77.9s\nPASS test:state-dir-migration 1.3s\nPASS test:core-package-rename 8.5s\nPASS test:identity-state-migrate-atomicity 0.3s\nPASS test:review-assurance-floor-storyfileshash-smoke 0.5s\nPASS test:docs-drift-smoke 0.2s\nPASS test:migration-contract 1.1s\nPASS test:docs-drift-wrapper-root 1.3s\nPASS test:gitroot-cwd-contract 0.3s\nPASS test:process-fact-contract 7.6s\nPASS test:graph-story-flag-smoke 10.6s\nPASS test:verifier-causal-preflight 2.6s\nPASS test:runtime-fact-contract 4.3s\nPASS test:evidence-quality 0.2s\nPASS test:anti-stall 0.2s\nPASS test:storydir-inside-gitroot-smoke 1.5s\nPASS test:gitroot-cwd-routing 3.6s\nPASS test:bare-gate-gitroot-cwd 0.8s\nPASS test:project-gitroot-cwd 0.8s\nPASS test:done-oracle-wrapper-root 3.8s\nPASS test:done-premerge-mainsha-recheck 14.6s\nPASS test:done-escalation-drift-advisory 2.8s\nPASS test:review-escalation-freshness-root 8.7s\nPASS test:dispatch-checklist-doctor-wrapper-root 1.5s\nPASS test:graceful-sites-gitroot-cwd 1.4s\nPASS test:experience-hint-worktree-cache 1.9s\nPASS test:done-merge-experience-refresh 4.0s\nPASS test:experience-coverage-gap 1.9s\nPASS test:closeout-trust 73.8s\nPASS test:e2e 4.8s\nPASS test:experience-arm-gate 0.5s\nPASS test:nested-worktree-bootstrap 25.2s\nPASS test:convergence-breaker 0.6s\nPASS test:topology-signing-source-guard 0.4s\nPASS test:signing-guard-mutation-proof 0.4s\nPASS test:validation-tier-planner 13.3s\nPASS test:experience-arm-isolation-e2e 17.3s\nPASS test:proofstory-acceptance-rollout 247.3s\nPASS test:single-owner-extraction 16.4s\nPASS test:narrowing-repin 49.6s\nPASS test:validation-protocol 75.9s\nPASS test:proofstory-intent-hardening-smoke 149.9s\nPASS test:flow-stability-smoke 176.3s\nPASS test:review-incremental-context-smoke 143.6s\nPASS test:milestone-status 46.4s\nfull-suite: 65/65 passed in 764.0s; retries=0; jobs=3\n",
+      "startedAt": "2026-09-07T08:44:34.722Z",
+      "endedAt": "2026-09-07T08:57:22.031Z",
       "effectiveEnvironmentDigest": "2928ed2007016552500046d94c897013332cf27c1481195199c314f7fc68bf35",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "3b992a9499bb11acd2a55229682dd4f13cb31c1f",
-      "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
-      "storyFilesHash": "712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd"
+      "headHash": "c9a2a90dc929a6d5f762ec2d8c670fbaea62e120",
+      "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+      "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b"
     }
   ],
-  "reasons": [
-    "command-failed: FAIL root full test suite: npm test exitCode=1"
-  ]
+  "reasons": []
 }
