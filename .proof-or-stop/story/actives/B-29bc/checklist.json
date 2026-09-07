@@ -229,9 +229,9 @@
           "packages/main/src/tasks/prompt-registry-smoke.ts"
         ]
       },
-      "status": "in_progress",
+      "status": "done",
       "startTime": "2026-09-07T09:24:33.472Z",
-      "endTime": "2026-09-07T09:59:16.748Z",
+      "endTime": "2026-09-07T11:03:51.873Z",
       "verificationIntent": {
         "happy": [
           {
@@ -424,6 +424,15 @@
       "from": "done",
       "to": "in_progress",
       "reason": "Close the bounded documentary contradiction tracked by F-003/F-004 using committed audit b2e7b6f495 and fresh formal evidence 74997ad."
+    },
+    {
+      "timestamp": "2026-09-07T11:03:51.873Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "in_progress",
+      "to": "done",
+      "reason": "Audit correction b2e7b6f495 records actual RED/GREEN and limitations; formal batch 74997ad passed all compatibility and audit/boundary intents. Finding closure remains a REVIEW-only operation."
     }
   ]
 }
