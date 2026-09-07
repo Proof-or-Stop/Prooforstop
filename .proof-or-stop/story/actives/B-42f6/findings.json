@@ -205,7 +205,7 @@
       "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 configured validation depends on unavailable machine-local historical probe rp-mtifubae-dfbh4w. Frozen final suite /private/tmp/B-42f6-final-validate.json reports 131 pass/1 fail; this guard fails repro_probe_get with evidence-store: artifact ref not found: rp-mtifubae-dfbh4w (parseCliJson line79). Independent single-command reproduction in source-equivalent /private/tmp/prooforstop-main-publication-20260907, after adding clone-only main worktree identity anchor, yields identical failure. Guard is byte-identical remote c853ab5e63, but directly blocks this integration verification intent/full required validation; current-Story repair required rather than dismissal. Historical B-fe8f records preserve IDs/digests and original-host filesystem references, not complete recoverable objects. Repair must retain actual baseline/current runtime checks and real corrupted-relation-digest rejection using authenticated historical artifact recovery or canonical fresh temporary evidence fixtures; no fabricated historical artifact, hardcoded PASS, skipped guard or widened mirror bypass.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-07T10:30:58.022Z",
@@ -233,7 +233,10 @@
       "signatureTag": "missing|mjs|packages-main-tests",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3obfr_10kl_eedfad85f43045b6967242b6a92bb3b2",
-      "ledgerCommitReceiptId": "lrc_mtr3obfr_10kl_3f6b345c41094ffa98bdd71fa35d5a98"
+      "ledgerCommitReceiptId": "lrc_mtr3obfr_10kl_3f6b345c41094ffa98bdd71fa35d5a98",
+      "resolvedAt": "2026-09-07T10:55:19.057Z",
+      "resolvedReason": "Fixed by commits 780cc42ed6, a1d58dd487 and df2133a1c8 in the existing ledger integrity guard. Historical Story identity assertions remain; actual fixed historical missing-module and current GREEN imports feed fresh production candidate fixtures. Real CLI probe reads and good/bad relation evaluation are exercised; changed commands fail closed. Original historical artifacts are not recreated. Focused final guard, registration 26 GREEN and process-fact contract passed; /private/tmp/B-42f6-integration/ledger-cli-final-guard.log and ledger-cli-registration.log preserve results. Full132 on final code is still required.",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-42f6:F-007",
