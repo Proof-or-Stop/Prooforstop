@@ -238,9 +238,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-e256:CW-008",
       "storyId": "B-e256",
-      "state": "ADMITTED",
+      "state": "INVALIDATED",
       "createdAt": "2026-09-03T13:42:00.018Z",
-      "updatedAt": "2026-09-03T13:42:00.018Z",
+      "updatedAt": "2026-09-07T15:40:12.148Z",
       "frozen": {
         "headHash": "a682147e7af686e87d1c91619b73eb57dcbd3630",
         "materialHash": "3636a2b2d71087a8791e4be3728bad68b70023a9871b5da9c8296c8838c6736a",
@@ -256,7 +256,31 @@
         "authorizesTest": false
       },
       "receiptId": "B-e256:PRECERT-007",
-      "_hash": "28e41940b5074d31867bf8babbbf71b332380518c6f1ed6e16e1d0781beef498"
+      "blockerCode": "pre_cert_window_invalidated",
+      "blockerDetail": "dependency input-hash identity is missing or contains unknown keys; strict refusal applies",
+      "invalidation": {
+        "detectedAt": "2026-09-07T15:40:12.148Z",
+        "oldHeadHash": "a682147e7af686e87d1c91619b73eb57dcbd3630",
+        "currentHeadHash": "e17009708ff610bbe6c9619bf13635861e01440b",
+        "oldMaterialHash": "3636a2b2d71087a8791e4be3728bad68b70023a9871b5da9c8296c8838c6736a",
+        "currentMaterialHash": "177ee6ef8ab14b28b3fd5b808ddf616abcdce398c1fdc0314d1beb8c541fe174",
+        "oldStoryFilesHash": "e43156b14f14117b9ae93a9fc41832a6d32560e894516eacf8da3790f904d5b1",
+        "currentStoryFilesHash": "e23df0eba9e1ccd80342be6a2119019fc525fe2a062b0ccbe439bc79a2eff411",
+        "blockerCode": "pre_cert_window_invalidated"
+      },
+      "_hash": "18eab5d9f3e95bf87173c632c41b663e8be1508ccf64d25d5b07c2a16550ad4e"
+    },
+    {
+      "schemaVersion": "proofbound.certification_window.v1",
+      "windowId": "B-e256:CW-009",
+      "storyId": "B-e256",
+      "state": "BLOCKED",
+      "createdAt": "2026-09-07T15:40:45.292Z",
+      "updatedAt": "2026-09-07T15:40:45.292Z",
+      "blockerCode": "pre_cert_inventory_not_finalized",
+      "blockerDetail": "No FINALIZED unconsumed Review Inventory receipt is present.",
+      "inventory": {},
+      "_hash": "8ea6ef482dd67d00740ac63db6d309059008722a04bed42e9057cf6e19e7aa37"
     }
   ],
   "receipts": [
