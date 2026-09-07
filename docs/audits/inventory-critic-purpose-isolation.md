@@ -246,3 +246,27 @@ validation PASS, independent-host quorum, TEST or DONE. Those remain separate
 CLI-owned closeout evidence. RI-004 excluded the incomplete old coverage PASS
 RP-021 and used independent replacement RP-022 with its actual read log; no old
 reading events or historical candidate objects were reconstructed as fresh proof.
+
+## DONE-required prompt approval recovery (2026-09-07)
+
+`BUG-CRITIC-PROMPT-BASELINE` is a current-Story acceptance blocker. The actual
+DONE-required run recorded in `5a2846ff27` passed the main build, then the root
+suite exited 1 after 8 of 65 members passed; fail-fast interrupted the remaining
+members. The failing prompt-baseline check expected critic selected-body digest
+`9bcf9f362cd9a7b203a8c863edc00613ae7595306482a89184a436971c771b99`
+but collected
+`22da73c85400f6cf0a073593b998d665e71dd4d74da9432a1717a1260b82cb88`.
+The smaller command
+`node scripts/verify-proof-or-stop-prompt-baseline.mjs --probe-prompt-policy-manifest`
+independently exited 1 with that same approved-control mismatch before repair.
+
+The cause is the Story's appended trusted-purpose selection in the assembled
+critic prompt. Its immutable source template and legacy reconstruction are not
+the changed approval subject. The existing baseline generator refuses to refresh
+unapproved content, so running its writer alone cannot repair this omission.
+The critic's human-authored role-matrix row also still described topology only.
+The bounded repair therefore requires independent review of the current critic
+body and row, an exact current-body approval update, and regeneration of the
+three declared snapshot outputs. No other role approval, immutable template pin,
+role count, topology guard or semantic rejection test may be relaxed. This RED
+record does not claim that repair, renewed review or DONE has already passed.
