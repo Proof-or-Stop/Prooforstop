@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "8012ad9e812c1fbb8f03288699b2550d95b5bba2f0ec292a6d15fa2c6ea84d7d",
+  "committedLedgerDigest": "f4332f3720b2276b023885884cb075b6ea061f033b1c556b290701385cd5c614",
   "records": [
     {
       "recordId": "lr_mtr2w29b_f4z_0883889f61354e2a94969fedc573b768",
@@ -141,6 +141,52 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T10:09:06.976Z"
+    },
+    {
+      "recordId": "lr_mtr2wanf_g6a_16febbca93e34c24937cbb09dbed4622",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:40b5c0aa-eb50-4c12-b7c8-33f676e1c52b",
+      "payload": {
+        "id": "B-42f6:F-004",
+        "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/core/scope-inventory-budget.ts\", \"line\": 10, \"reason\": \"SCOPE_INVENTORY_LISTS deliberately omits protectedAnchors, which validateFullTaskScopeContext keeps at the generic FULL_TASK_CONTEXT_LIMITS.pathsPerList (512) via the defaulted requireBoundedStringArray at prompt-contracts.ts:893. This asymmetry is intentional and tested (the 513-anchor negative case asserts /512/), and it is defensible \\u2014 anchors are not exact path authority. The observation is that the two limits now diverge silently with no comment at the SCOPE_INVENTORY_LISTS definition explaining that protectedAnchors is excluded on purpose; the only place the intent is recorded is the file-header doc comment. A future editor adding a new exact-authority list to FullTaskScopeContext gets the 512 default rather than 4096, or conversely widens anchors by accident. Documentation/robustness observation only.\", \"severity\": \"low\"} Independent assessment: Generic512 anchor limit is intentional and negatively tested. Comment recommendation does not demonstrate a current failure. No repair, deferral or signed applicability verdict asserted.",
+        "severity": "low",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "suspected",
+        "uncertaintyReason": "Generic512 anchor limit is intentional and negatively tested. Comment recommendation does not demonstrate a current failure.",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-07T10:09:10.634Z",
+        "reviewRound": "2026-09-07T10:06:11.989Z",
+        "reviewRunId": "B-42f6:RR-011",
+        "readManifest": {
+          "filesReadFully": [
+            "packages/main/src/core/scope-inventory-budget.ts"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "3c80144c853de679b8fda403774dfd754f7f85e78f76fbd95e93ff420fbf5d74",
+        "files": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "signatureTag": "missing|ts|imported-claude-round",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "1d05fb7476b859b2ee878b1ee8c9f5696722a3221b375ce52faa89a9cb747acf",
+      "priorDigest": "8012ad9e812c1fbb8f03288699b2550d95b5bba2f0ec292a6d15fa2c6ea84d7d",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T10:09:10.635Z"
     }
   ],
   "receipts": [
@@ -271,6 +317,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "80171bb50a33e9bd45bc81101c870557601d8da811fd1d52915be2f61744d35c",
         "signature": "O2wul+295kqMGluWybamlD+QtYKIzzqaaiJcy1twcvnQM76pOKz3eQ31LS/j7ibt46ZWN84A6KFLIptkpyGxCQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr2wanf_g6a_3559145486d64eb393a3e1a4751a725a",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:40b5c0aa-eb50-4c12-b7c8-33f676e1c52b",
+      "requestDigest": "06e5e121b3109263a62052d37440d25b9466572593c8734d52e1f64752def261",
+      "recordIds": [
+        "lr_mtr2wanf_g6a_16febbca93e34c24937cbb09dbed4622"
+      ],
+      "priorLedgerDigest": "8012ad9e812c1fbb8f03288699b2550d95b5bba2f0ec292a6d15fa2c6ea84d7d",
+      "committedLedgerDigest": "f4332f3720b2276b023885884cb075b6ea061f033b1c556b290701385cd5c614",
+      "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+      "writerFenceToken": "21cd87b7-3675-49b4-99c6-a4a7cc7bfbec",
+      "committedAt": "2026-09-07T10:09:10.635Z",
+      "replayed": false,
+      "exactRequestDigest": "c0b683a14a52ca5cd0ddf6079c09305bd7b5f9a209010f3c004c99fcccd7bb19",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr2wanf_g6a_3559145486d64eb393a3e1a4751a725a",
+        "storyId": "B-42f6",
+        "idempotencyKey": "finding_add:40b5c0aa-eb50-4c12-b7c8-33f676e1c52b",
+        "exactRequestDigest": "c0b683a14a52ca5cd0ddf6079c09305bd7b5f9a209010f3c004c99fcccd7bb19",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr2wanf_g6a_16febbca93e34c24937cbb09dbed4622"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "8012ad9e812c1fbb8f03288699b2550d95b5bba2f0ec292a6d15fa2c6ea84d7d",
+        "committedLedgerDigest": "f4332f3720b2276b023885884cb075b6ea061f033b1c556b290701385cd5c614",
+        "replayed": false,
+        "committedAt": "2026-09-07T10:09:10.635Z",
+        "writerSessionId": "sess-8ad6cbcc47b68c72246e19c233192d3a",
+        "writerLeaseId": "sess-111f787341add2cdbadb7c69b7d6e96a",
+        "writerFenceToken": "21cd87b7-3675-49b4-99c6-a4a7cc7bfbec",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "59cfb0539d9dce05c3518aefc990451e5a610d02bdd3e3e4a61e7068d2a6b74a",
+        "signature": "I/4RN3LsjC1XTbFJFHWX+SJKJ4tI4DL6b4xJk24PyvKaKlzj/XLGixg4kcm96ETz2gnrvFbRqsbb+Palkks0DA=="
       }
     }
   ]

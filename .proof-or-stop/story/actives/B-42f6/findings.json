@@ -113,6 +113,44 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtr2w7ts_fts_e455cbfe8b7345348199fdd56ab4adde",
       "ledgerCommitReceiptId": "lrc_mtr2w7ts_fts_105edad49df6408cb656d24f2f74a1fa"
+    },
+    {
+      "id": "B-42f6:F-004",
+      "desc": "Imported Claude round 2 observation; source /private/tmp/B-42f6-cross-host/claude-round-2.verdict.json. Original verbatim: {\"path\": \"packages/main/src/core/scope-inventory-budget.ts\", \"line\": 10, \"reason\": \"SCOPE_INVENTORY_LISTS deliberately omits protectedAnchors, which validateFullTaskScopeContext keeps at the generic FULL_TASK_CONTEXT_LIMITS.pathsPerList (512) via the defaulted requireBoundedStringArray at prompt-contracts.ts:893. This asymmetry is intentional and tested (the 513-anchor negative case asserts /512/), and it is defensible \\u2014 anchors are not exact path authority. The observation is that the two limits now diverge silently with no comment at the SCOPE_INVENTORY_LISTS definition explaining that protectedAnchors is excluded on purpose; the only place the intent is recorded is the file-header doc comment. A future editor adding a new exact-authority list to FullTaskScopeContext gets the 512 default rather than 4096, or conversely widens anchors by accident. Documentation/robustness observation only.\", \"severity\": \"low\"} Independent assessment: Generic512 anchor limit is intentional and negatively tested. Comment recommendation does not demonstrate a current failure. No repair, deferral or signed applicability verdict asserted.",
+      "severity": "low",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "suspected",
+      "uncertaintyReason": "Generic512 anchor limit is intentional and negatively tested. Comment recommendation does not demonstrate a current failure.",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-07T10:09:10.634Z",
+      "reviewRound": "2026-09-07T10:06:11.989Z",
+      "reviewRunId": "B-42f6:RR-011",
+      "readManifest": {
+        "filesReadFully": [
+          "packages/main/src/core/scope-inventory-budget.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3c80144c853de679b8fda403774dfd754f7f85e78f76fbd95e93ff420fbf5d74",
+      "files": [
+        "packages/main/src/core/scope-inventory-budget.ts"
+      ],
+      "signatureTag": "missing|ts|imported-claude-round",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtr2wanf_g6a_16febbca93e34c24937cbb09dbed4622",
+      "ledgerCommitReceiptId": "lrc_mtr2wanf_g6a_3559145486d64eb393a3e1a4751a725a"
     }
   ]
 }
