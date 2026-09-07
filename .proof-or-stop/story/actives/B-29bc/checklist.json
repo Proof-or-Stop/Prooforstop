@@ -106,7 +106,35 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Run the affected inventory handler/epoch, dispatch registry, reviewer-run, prompt registry and pre-review topology compatibility suites plus the process-fact verifier. Check the purpose schema, signed producer fields, canonical role prompt and consumer checks as one contract; retain existing assertions and report actual commands, exit codes and selectors rather than treating prompt prose as evidence.",
+            "type": "cli",
+            "priority": "must"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Review the English audit log against actual source and RED/GREEN commits and outputs. It states the recovered inventory-only workflow, preserved topology admission, real Git attribution, finite scope, synthetic-fixture limitations and local consumer freshness steps. It preserves original assertion outcomes, distinguishes recovery from B-7abb/B-03b7 completion, and does not present disposable host identity as independent-host assurance.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Present an inventory-purpose dispatch, run, terminal pass/finding or completeness receipt to each affected topology certification consumer, including purpose-field removal, mutation and alias replay. None may supply topology implementation provenance, waive missing topology evidence or authorize TEST/DONE. Conversely, an unbound default-topology run cannot silently satisfy the new explicit inventory-purpose binding; any retained historical compatibility is read-only and grants no stronger credential.",
+            "type": "cli",
+            "priority": "must"
+          },
+          {
+            "desc": "Verify the committed diff and recovery instructions preserve the existing topology business-author/provenance checks, mandatory lifecycle predicates and consumer Story metadata. No username allowlist, fake implementer dispatch, author rewrite, configuration downgrade or topology-refusal-to-inventory retry may establish admission. Local integration into B-7abb must use canonical freshness and inventory status before remediation; no old signature or hash is manually declared current.",
+            "type": "docs",
+            "priority": "must"
+          }
+        ]
+      }
     }
   ]
 }
