@@ -3964,6 +3964,58 @@
       "resolvedReason": "Duplicate re-attestation of B-8a40:F-070. Commit 689f1817de removes the divergent cross-source dismissal scanner and uses the ordered controlled state machine across requirement leaves. Committed same/cross-leaf local-reset parity and evidence-only aside tests pass for every role; independent mechanical intent statements do not erase the requirement antecedent. Verification: npm run build --prefix packages/main and node packages/main/dist/tasks/prompt-full-context-envelope-smoke.js exited 0 with prompt full-context envelope smoke PASS; all 13 pinned verification receipts refreshed by the CLI at 689f1817de. Original observations remain retained; resolution is not deferral.",
       "resolutionType": "duplicate",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-8a40:F-079",
+      "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2188 introduces the active assertion text `the helper-only mutant fails only through the production authority oracle for ${roleId}`. The exact retired phrase is forbidden by bannedActiveRules in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:43 and the active-surface contract docs/requirements/decisions/authority-server-vocabulary-retirement.md. This is not preserved historical evidence or an intentional guard positive control: it is a newly introduced live smoke diagnostic. The current target-bound done-required-evidence.json records root `npm test` exit 1 at 2026-09-07T00:03:15.137Z (outputDigest 93450a9c651423583397d1d024ef06747d04d653727145788fc3a44c81fa1dfc), with this exact path/line/phrase in the guard failure; the Story source hash is unchanged at 712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd. This is the already disclosed retired-wording family, separate from the loader-admission failure at :2123. Current-Story repair is required because the introduced wording directly blocks DONE-required verification. Replace the diagnostic with precise neutral terminology inside the already-declared smoke file and rerun the vocabulary guard plus focused mutation smoke; do not weaken the banned rule, hide the phrase through construction, treat receipt FAIL as pass, or fabricate scanner approval.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T00:13:09.372Z",
+      "reviewRound": "2026-09-06T23:51:29.750Z",
+      "reviewRunId": "B-8a40:RR-143",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "05e5d7fff9d4b01aa023a7c28d4b2a3c20d912f9081d146b1ea420fecbfd05c1"
+      },
+      "readDiagnostics": [],
+      "_hash": "5736ea1faf895db66b69c4be2a3fa8067e5c42db5ca2973409e82314e5b978b4",
+      "files": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "b8a40-retired-authority-assertion-wording",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqhlt32_1ut0_21a2c48a74034409a0fde3aa440ae06c",
+      "ledgerCommitReceiptId": "lrc_mtqhlt32_1ut0_73472d816f0c431fa4e2d0bd340b3655"
     }
   ]
 }

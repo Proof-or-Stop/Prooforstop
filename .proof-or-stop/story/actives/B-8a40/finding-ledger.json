@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "7d30d637a3ba4340ca8b81d4506fbbdc4893fd9c3ae5d71e51414111eb8c5c6c",
+  "committedLedgerDigest": "bd400f5aa5e43690fff9a9561518a96ac7badcbf5f1989ef69b9fb168fa16090",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -2343,6 +2343,66 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-06T23:52:23.836Z"
+    },
+    {
+      "recordId": "lr_mtqhlt32_1ut0_21a2c48a74034409a0fde3aa440ae06c",
+      "recordType": "finding",
+      "idempotencyKey": "b8a40-ri013-concept-retired-wording-20260907",
+      "payload": {
+        "id": "B-8a40:F-079",
+        "desc": "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2188 introduces the active assertion text `the helper-only mutant fails only through the production authority oracle for ${roleId}`. The exact retired phrase is forbidden by bannedActiveRules in packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:43 and the active-surface contract docs/requirements/decisions/authority-server-vocabulary-retirement.md. This is not preserved historical evidence or an intentional guard positive control: it is a newly introduced live smoke diagnostic. The current target-bound done-required-evidence.json records root `npm test` exit 1 at 2026-09-07T00:03:15.137Z (outputDigest 93450a9c651423583397d1d024ef06747d04d653727145788fc3a44c81fa1dfc), with this exact path/line/phrase in the guard failure; the Story source hash is unchanged at 712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd. This is the already disclosed retired-wording family, separate from the loader-admission failure at :2123. Current-Story repair is required because the introduced wording directly blocks DONE-required verification. Replace the diagnostic with precise neutral terminology inside the already-declared smoke file and rerun the vocabulary guard plus focused mutation smoke; do not weaken the banned rule, hide the phrase through construction, treat receipt FAIL as pass, or fabricate scanner approval.",
+        "severity": "high",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-07T00:13:09.372Z",
+        "reviewRound": "2026-09-06T23:51:29.750Z",
+        "reviewRunId": "B-8a40:RR-143",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/decision.json",
+            ".proof-or-stop/story/actives/B-8a40/done-required-evidence.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+            ".proof-or-stop/story/actives/B-8a40/understanding.json",
+            "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+          ],
+          "filesTriagedByName": [
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+          ],
+          "summary": {
+            "readCount": 2,
+            "tokenCount": null
+          },
+          "digest": "05e5d7fff9d4b01aa023a7c28d4b2a3c20d912f9081d146b1ea420fecbfd05c1"
+        },
+        "readDiagnostics": [],
+        "_hash": "5736ea1faf895db66b69c4be2a3fa8067e5c42db5ca2973409e82314e5b978b4",
+        "files": [
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+        ],
+        "signatureTag": "b8a40-retired-authority-assertion-wording",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "58e7a57bfb68babf42a33b0a4123f64145b73ffa34cccc830e48b87efb774f02",
+      "priorDigest": "7d30d637a3ba4340ca8b81d4506fbbdc4893fd9c3ae5d71e51414111eb8c5c6c",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T00:13:09.374Z"
     }
   ],
   "receipts": [
@@ -5954,6 +6014,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "7c6329d6ddb58b0b8c751118b7273b2e46d53a940248bf84277f9b4155c83451",
         "signature": "Cx2G+dhN65tHvRtG4Uk9qq2taOsbx/9UK0gcaV3CizfFP71PqZrooNzGWDkTFsrpsCLNU0EnQECXayh2hCRiBA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqhlt32_1ut0_73472d816f0c431fa4e2d0bd340b3655",
+      "operation": "append_finding",
+      "idempotencyKey": "b8a40-ri013-concept-retired-wording-20260907",
+      "requestDigest": "e46811a19654e825d6e99080e6db1e4e8d7ff0e4882bd5183d406633b4171db7",
+      "recordIds": [
+        "lr_mtqhlt32_1ut0_21a2c48a74034409a0fde3aa440ae06c"
+      ],
+      "priorLedgerDigest": "7d30d637a3ba4340ca8b81d4506fbbdc4893fd9c3ae5d71e51414111eb8c5c6c",
+      "committedLedgerDigest": "bd400f5aa5e43690fff9a9561518a96ac7badcbf5f1989ef69b9fb168fa16090",
+      "writerSessionId": "sess-2104ff88f324968df5c1671aab07abbf",
+      "writerFenceToken": "c95bbe0c-d714-4610-af8c-d116851b329b",
+      "committedAt": "2026-09-07T00:13:09.374Z",
+      "replayed": false,
+      "exactRequestDigest": "2893d71e59cda013c9151c5395ff940e5b95a57052ddf17d5c8cd9aaa4343a9f",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqhlt32_1ut0_73472d816f0c431fa4e2d0bd340b3655",
+        "storyId": "B-8a40",
+        "idempotencyKey": "b8a40-ri013-concept-retired-wording-20260907",
+        "exactRequestDigest": "2893d71e59cda013c9151c5395ff940e5b95a57052ddf17d5c8cd9aaa4343a9f",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqhlt32_1ut0_21a2c48a74034409a0fde3aa440ae06c"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "7d30d637a3ba4340ca8b81d4506fbbdc4893fd9c3ae5d71e51414111eb8c5c6c",
+        "committedLedgerDigest": "bd400f5aa5e43690fff9a9561518a96ac7badcbf5f1989ef69b9fb168fa16090",
+        "replayed": false,
+        "committedAt": "2026-09-07T00:13:09.374Z",
+        "writerSessionId": "sess-2104ff88f324968df5c1671aab07abbf",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "c95bbe0c-d714-4610-af8c-d116851b329b",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "06cf85e9c17c3f47b235fcd2e81f946bf732627b0923d8652f0f030b60346ccd",
+        "signature": "4FWb1++4b8bicg1i7vsqAFKkdU4ogwCexMswl2ZqTERkXXkjDBWy8XCLX4jh97N31dZtOkUIdVyB9Ef4LMs4Bg=="
       }
     }
   ]
