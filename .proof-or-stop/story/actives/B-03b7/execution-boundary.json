@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "lattice.execution_boundary.v1",
+  "storyId": "B-03b7",
+  "allowedCommands": [
+    "claude *",
+    "git add *",
+    "git commit *",
+    "git diff *",
+    "git log *",
+    "git merge *",
+    "git show *",
+    "git status *",
+    "node *",
+    "node bin/proof-or-stop.js *",
+    "npm *",
+    "npx *",
+    "pnpm *",
+    "proof-or-stop *",
+    "rg *",
+    "sed *"
+  ],
+  "allowedTools": [
+    "apply_patch",
+    "Claude CLI",
+    "exec_command",
+    "independent canonical reviewer agents"
+  ],
+  "allowedPaths": [
+    ".proof-or-stop/story/actives/B-03b7",
+    "docs/CLI.md",
+    "packages/main/package.json",
+    "packages/main/prompts",
+    "packages/main/src/cli",
+    "packages/main/src/core",
+    "packages/main/src/handlers",
+    "packages/main/src/registry.ts",
+    "packages/main/src/tasks",
+    "packages/main/tests",
+    "proof-or-stop.config.json",
+    "scripts"
+  ],
+  "excludedCommands": [
+    "git clean -fd*",
+    "git push *",
+    "git reset --hard *",
+    "npm publish *"
+  ],
+  "excludedTools": [],
+  "excludedPaths": [
+    "docs/story/drafts/plan-artifacts-have-no-correction-channel",
+    "docs/story/drafts/split-single-owner-audit-engine-from-wave-cases",
+    "docs/story/drafts/store-consistency-preexisting-session-and-story-query",
+    "docs/story/drafts/triage-authority-guard-false-positive"
+  ],
+  "confirmedBy": "main",
+  "confirmationNote": "INIT paths are implementation categories, not permission for unrelated edits. PLAN will freeze exact material files. Inspect only relevant accepted-plan sections and predecessor interfaces. Preserve all unrelated dirty drafts. Implementation starts only in DEV; state and evidence writes only through CLI. Local DONE and merge only; B-e6d9 implementation waits for B-03b7 DONE.",
+  "createdAt": "2026-09-06T20:37:47.800Z",
+  "updatedAt": "2026-09-06T20:37:47.800Z",
+  "_hash": "03c0282df19070b4e25a0d8244d58fb6719e420aac85b72fb84ef0fcd86d8ee1"
+}

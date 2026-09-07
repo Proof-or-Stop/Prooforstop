@@ -782,7 +782,9 @@ const typeProgramInstrumentation = {
 // AST candidate, so that previously prefilter-skipped file now reaches full
 // dynamic analysis too. Every other file B-1482 touches under the scanned
 // directories was already counted, so the ceiling moved by exactly two.
-const DYNAMIC_BINDING_BUILD_CEILING = 811;
+// B-fe8f adds five further candidate-bearing Finding Ledger and Runtime
+// Evidence Integrity sources, so the merged inventory moves from 811 to 816.
+const DYNAMIC_BINDING_BUILD_CEILING = 816;
 const MAX_DYNAMIC_BINDING_BUILD_CEILING = 850;
 
 function assertDynamicBindingBuildBudget(actualBuilds: number, ceiling: number): void {
@@ -1613,6 +1615,12 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
   ['packages/main/src/tasks/experience-layer-digest-extract-smoke.ts', {
     calls: [{ anchor: 'run', argument: "join(MAIN_DIR, 'dist', 'handlers', 'decision-doc-promotion.js')" }],
   }],
+  // B-8a40: execute the two fixed mutants of the real built envelope module in
+  // a fresh test-owned directory. No caller-supplied path or code is admitted.
+  // Shape, whole-source fingerprint and producer provenance must all match.
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', {
+    calls: [{ anchor: 'importEnvelopeMutant', argument: 'pathToFileURL(mutantPath).href' }],
+  }],
   ['bin/bootstrap-runner.js', {
     calls: [
       // B-1734: the MAIN_DIST/UTILS_DIST dist imports moved out of runLocalBootstrap into the
@@ -1679,6 +1687,10 @@ const knownBenignNonLiteralLoaderCalls = new Map<string, {
 ]);
 
 const BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS = new Map<string, string>([
+  // B-8a40 current-Story admission: this is a single test-only call site, not a
+  // general loader exemption. Executable drift revokes it; the provenance
+  // controls below also reject rebinding/widening even under a refreshed hash.
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', '3c932df7aa37d3f489dacf3bb8696e2c895dfeee625033d595a5aa9275d26633'],
   // B-cdf6: both local bin wrappers must resolve a sibling dist path at runtime, so the
   // import specifier cannot be a literal — that is inherent to a bootstrap wrapper, not a
   // new risk class. Re-pinned this story because bootstrap-runner learned to resolve BOTH
@@ -1802,6 +1814,15 @@ const APPROVED_LOADER_ARGUMENT_PROVENANCE = new Map<string, {
     producer: 'resolveGraphPackage',
     producerParameters: ['projectRoot'],
     producerParameterTypes: ['string'],
+    urlHelper: 'pathToFileURL',
+  }],
+  ['packages/main/src/tasks/prompt-full-context-envelope-smoke.ts', {
+    anchor: 'importEnvelopeMutant',
+    argument: 'pathToFileURL(mutantPath).href',
+    rootIdentifier: 'mutantPath',
+    producer: 'writeEnvelopeMutant',
+    producerParameters: ['label'],
+    producerParameterTypes: ["'no-safe-narrowing' | 'broad-deletion'"],
     urlHelper: 'pathToFileURL',
   }],
 ]);
@@ -4686,7 +4707,7 @@ function assertNormalizedSpecifierPositiveControls(): void {
 function assertDynamicCodeGenerationPositiveControls(): void {
   assert.equal(
     DYNAMIC_CODE_GENERATION_FINGERPRINT_EXEMPTIONS.size + BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS.size,
-    11,
+    12,
     // origin/main merge: was 9. BOTH exemption maps had a slot whose occupant differed
     // between the two parents -- origin pinned packages/main/src/cli.ts, our main pinned
     // packages/main/src/handlers/graph.ts -- and the merged tree carries both features,
@@ -4695,10 +4716,10 @@ function assertDynamicCodeGenerationPositiveControls(): void {
     // approval in knownBenignNonLiteralLoaderCalls that cannot hold without a
     // fingerprint, and cli.ts additionally needs the dynamic-code pin because
     // @proof-or-stop/lab is unresolvable here (no npm workspaces), making lab.* members
-    // report as unresolved-nested-member. The inventory is genuinely eleven; this count
-    // is corrected to match it rather than the exemption surface being widened -- still
-    // zero patterns, still one exact whole source per entry.
-    'bin/bootstrap-runner.js, packages/main/src/handlers/graph.ts and packages/main/src/cli.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making eleven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
+    // report as unresolved-nested-member. B-8a40 adds one test-only benign-loader
+    // pin, with separate producer provenance controls: twelve exact source entries,
+    // still zero patterns and no dynamic-code exemption for the mutation smoke.
+    'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
   );
   const cases = [
     ['direct eval', "eval(\"import('../packages/main/src/core/legacy-delivery-claims-compat.js')\")"],
@@ -5343,7 +5364,59 @@ function assertLoaderArgumentProvenance(): void {
       `the exact approved loader call site must remain allowed: ${file}`,
     );
 
-    const mutants: Array<[string, string]> = [
+    if (file === 'packages/main/src/tasks/prompt-full-context-envelope-smoke.ts') {
+      assert.ok(
+        scanConcealedCompatibilityLoads(file, `${original}\nvoid 0;\n`)
+          .some(violation => violation.label === 'unapproved non-literal dynamic module load'),
+        'any executable drift revokes the envelope mutation loader fingerprint',
+      );
+      for (const [label, mutated, expectedDiagnostic] of [
+        ['different loader anchor', original.replace('async function importEnvelopeMutant(', 'async function otherEnvelopeLoader('), 'approved loader argument provenance drift'],
+        ['different loader argument', original.replace('pathToFileURL(mutantPath).href', 'pathToFileURL(process.env.B8A40_MUTANT_PATH!).href'), 'unapproved non-literal dynamic module load'],
+      ]) {
+        assert.notEqual(mutated, original, `${label} must change the envelope loader`);
+        assert.ok(
+          scanConcealedCompatibilityLoads(file, mutated, canonicalAstFingerprint(file, mutated))
+            .some(violation => violation.label === expectedDiagnostic),
+          `${label} must fail even after a fingerprint refresh`,
+        );
+      }
+    }
+
+    const mutants: Array<[string, string]> = file === 'packages/main/src/tasks/prompt-full-context-envelope-smoke.ts' ? [
+      ['mutant path rebound to external input', original.replace(
+        'const mutantPath = writeEnvelopeMutant(label);',
+        'const mutantPath = process.env.B8A40_MUTANT_PATH!;',
+      )],
+      ['indirect mutant producer alias', original.replace(
+        'const mutantPath = writeEnvelopeMutant(label);',
+        'const indirectProducer = writeEnvelopeMutant; const mutantPath = indirectProducer(label);',
+      )],
+      ['mutable mutant path binding', original.replace(
+        'const mutantPath = writeEnvelopeMutant(label);',
+        'let mutantPath = writeEnvelopeMutant(label);',
+      )],
+      ['mutant producer type widened', original.replace(
+        "function writeEnvelopeMutant(label: 'no-safe-narrowing' | 'broad-deletion'): string {",
+        'function writeEnvelopeMutant(label: string): string {',
+      )],
+      ['mutant producer override parameter', original.replace(
+        "function writeEnvelopeMutant(label: 'no-safe-narrowing' | 'broad-deletion'): string {",
+        "function writeEnvelopeMutant(label: 'no-safe-narrowing' | 'broad-deletion', pathOverride?: string): string {",
+      )],
+      ['mutant producer default parameter', original.replace(
+        "function writeEnvelopeMutant(label: 'no-safe-narrowing' | 'broad-deletion'): string {",
+        "function writeEnvelopeMutant(label: 'no-safe-narrowing' | 'broad-deletion' = 'no-safe-narrowing'): string {",
+      )],
+      ['mutant producer nested shadow', original.replace(
+        'const mutantPath = writeEnvelopeMutant(label);',
+        "function writeEnvelopeMutant(label: 'no-safe-narrowing' | 'broad-deletion'): string { return process.env.B8A40_MUTANT_PATH!; }\n  const mutantPath = writeEnvelopeMutant(label);",
+      )],
+      ['mutant URL helper shadow', original.replace(
+        'const mutantPath = writeEnvelopeMutant(label);',
+        'function pathToFileURL(path: string) { return { href: process.env.B8A40_MUTANT_URL! }; }\n  const mutantPath = writeEnvelopeMutant(label);',
+      )],
+    ] : [
       // Rebound to a caller-influenced value: anchor and argument text unchanged, but
       // `location` no longer comes from the pinned producer at all.
       ['caller-influenced rebinding', original.replace(

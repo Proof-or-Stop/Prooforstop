@@ -447,6 +447,23 @@ testCase('F-023: the COMPLETE runtime tuple still carries the resolved absolute 
   assert.notEqual(relativeUnit.id, absoluteUnit.id, 'the portable side hashes the declared literal, so the two declarations differ');
 });
 
+// PIN MAINTENANCE: the digest below is the commandSetDigest of the REAL
+// proof-or-stop.config.json validate.commands inventory, so it moves whenever
+// validate.commands changes (an entry added, removed, relabelled or
+// re-argued). That is expected; re-pin it to the value the current inventory
+// produces through this same code path (configuredValidationCommands ->
+// buildValidationCommandInventory) and say in the commit what moved it. The
+// case still guards what it was written for: no declared cwd and no
+// absolute-cwd warning. History: B-a745 pinned eba363ed...; B-41c8 CHK-004
+// (the item that registered single-owner-extraction-smoke in validate.commands)
+// added that entry, moving it to 791165cf... (B-41c8 F-006). B-dc2e CHK-001
+// (the item that registered validation-protocol-smoke in validate.commands)
+// added that entry, moving it to 056e47fd.... B-fe8f CHK-001 registered the
+// Finding ledger/runtime integrity RED guard, while B-1482 CHK-003 registered
+// test:narrowing-repin. The combined inventory retains both entries and moves
+// the digest to 5da99a65.... Name the story and item here,
+// never a commit hash: a branch rewrite orphans the hash and a later
+// `git show` of it reports a bad object (B-41c8 F-012).
 testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolute-cwd warning', () => {
   const repoRoot = (gitOutput(['rev-parse', '--show-toplevel']) ?? '').trim();
   assert.ok(repoRoot, 'this guard reads the real repository inventory; a missing repository is a failure, not a skip');
@@ -458,6 +475,9 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // every entry must reach the same digest: the real inventory is not bound to any checkout location.
   const explicitDot = buildValidationCommandInventory({ commands: commands.map((entry) => ({ ...entry, cwd: '.' })) });
   assert.equal(real.commandSetDigest, explicitDot.commandSetDigest, 'the real commandSetDigest must equal the digest of the same commands with an explicit "." cwd');
+  // B-e256 CHK-002/F-044 contributes the stable-id global CLI executable-bit
+  // regression row. The merge also retains current main's B-fe8f Finding-ledger
+  // guard and B-1482 narrowing-repin command: the complete union is 133 entries.
   // origin/main merge 3 (B-1482): moved again to 511e1906... because origin added one
   // more validate.commands entry; the union is now 128. Verified before repinning that
   // NO origin-only entry was dropped. Earlier notes retained below.
@@ -477,12 +497,10 @@ testCase('F-023: the REAL inventory stays pinned and cwd-neutral, with no absolu
   // both, giving the 126-entry union, and repinned to what that union produces through
   // the same configuredValidationCommands -> buildValidationCommandInventory path.
   // B-212f CHK-001/CHK-003 register original parity, shared predicate proof and
-  // post-DONE snapshot smoke: the complete inventory grows from 128 to 131.
-  // B-e256 CHK-002 registers the global CLI executable-bit regression smoke;
-  // keep the exact digest pin in addition to the structural cwd-neutrality proof above.
-  // B-e256 F-044 gives that row a stable id/label so validation_plan output
-  // names it mechanically instead of exposing only a configured array index.
-  assert.equal(real.commandSetDigest, 'aa98863a809d4e19e5380bc7ffaaab0c4ac8f522961a5fa7b00e6ddc0a06ea3a', 'the real commandSetDigest must not move unless validate.commands changes; update the adjacent history and expected digest together');
+  // post-DONE snapshot smoke. Their 131-entry main inventory and B-fe8f's
+  // 129-entry inventory form a 132-entry union without losing either side;
+  // B-e256 then adds its global launcher row for the 133-entry merged inventory.
+  assert.equal(real.commandSetDigest, '6f6a4fa01f9ae975a04c754c17d1ca31df1066ba6c4967b4ed2f35f7a5452e24', 'the real commandSetDigest must not move unless validate.commands changes (see PIN MAINTENANCE above)');
   assert.equal(real.warnings.some((text) => /absolute/i.test(text)), false);
   assert.equal(explicitDot.warnings.some((text) => /absolute/i.test(text)), false);
   for (const entry of real.entries) assert.equal(entry.tuple.cwdRelative, '.');

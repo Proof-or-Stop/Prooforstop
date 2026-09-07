@@ -1,0 +1,42 @@
+{
+  "bugs": [
+    {
+      "id": "BUG-CERT-001",
+      "title": "PRE_CERT refuses B-fe8f DONE: sibling lockfiles match two causal domains and retained legacy migration records match none; production domain hash derivation returns undefined before test launch.",
+      "status": "fixed",
+      "foundAt": "2026-09-06T15:33:02.513Z",
+      "fixedAt": "2026-09-06T16:02:14.276Z",
+      "checklistId": "CHK-006",
+      "evidence": {
+        "symptom": "DONE-required launch refused with pre_cert_causal_freshness_required: missing or ambiguous domain input hashes.",
+        "reproSteps": [
+          "Official refused launch is preserved at /tmp/bfe8f-done-required-final.kTKPKj/stderr.log; certification_window_begin produced BLOCKED CW003.",
+          "Production resolver showed eight historical deletion/rename old-side entries without a domain and two sibling lockfiles with build-input plus integration.",
+          "RED0fafd2dac95b9d2fb6a694173756679515f4790b: node packages/main/dist/tasks/certification-window-smoke.js exited1; log /tmp/bfe8f-cert-path.dPFrjS/red-bug-cert-001.log."
+        ],
+        "rootCause": "Broad sibling integration rules overlapped build-input paths; the strict classifier could not hash bounded historical migration tombstones. Exactly-one and unknown-path refusal correctly prevented certification.",
+        "fixEvidence": "GREEN9754c4b3174ca1e36b3748539f417ebaab93dac5 uses one shared build-input definition to make integration rules disjoint and classifies only exact deleted/renamed-oldside historical metadata paths as hashed review-subject inputs. No input is dropped; live and unknown old paths remain refused. Same complete focused smoke exited0 with all original controls and3newgroups; /tmp/bfe8f-cert-path.dPFrjS/green.log. Actual B-fe8f derived6domain hashes over56entries, including all8tombstones; real-production-derivation.log. Required retired-authority guard exited0; official refresh then re-earned71/71 mechanical current PASS receipts. Initial red.log was a separate unsupported-path test-fixture diagnosis, not the claimed target RED. Certification re-admission and heavy lifecycle validation remain separate subsequent checks.",
+        "reproTest": "packages/main/src/tasks/certification-window-smoke.ts#BUG-CERT-001"
+      }
+    },
+    {
+      "id": "BUG-CERT-002",
+      "title": "DONE-required brand residue guard rejects the direct retired-directory decision introduced by BUG-CERT-001 at certification-window.ts:189; preserve historical tombstone-only semantics without bypassing the guard.",
+      "status": "fixed",
+      "foundAt": "2026-09-06T16:21:50.729Z",
+      "fixedAt": "2026-09-06T17:01:14.944Z",
+      "checklistId": "CHK-006",
+      "evidence": {
+        "symptom": "Current DONE-required root npm test failed because the residue guard rejected certification-window.ts:189 as a deprecated brand-literal path decision; main build passed and the full suite stopped after 5/65 members passed.",
+        "reproSteps": [
+          "GIT_OPTIONAL_LOCKS=0 node bin/proof-or-stop.js done_required_validate --storyId=B-fe8f --json (FAIL, root npm test exit1, 52681ms).",
+          "GIT_OPTIONAL_LOCKS=0 npm run test:proof-or-stop-residue (exit1, sole forbidden decision at certification-window.ts:189).",
+          "At RED55c9f4e9ee60768a06c52f968dd716873b222b79, build and run the full certification-window-smoke; it exits1 with six unknown build-like namespace admissions."
+        ],
+        "rootCause": "BUG-CERT-001 introduced a direct retired-namespace blacklist comparison that violated the active brand guard. Removing the blacklist alone would expose the overbroad basename-only build classifier to live retired or unknown paths. Canonical-only brand-path helpers cannot substitute for an exact historical-tombstone exception.",
+        "fixEvidence": "GREEN2bee7e31e2561365f507f1780fa72f07cbd51fd1 explicitly admits current root/package/entrypoint/integration build paths, composes disjoint integration exclusions from that anchored definition, and admits only the exact eight historical migration tombstone shapes before ordinary exact-one classification. No scanner, exemption, alias authority or original assertion was weakened. Same complete certification smoke exit0; build, residue, residue-inject, retired-authority guard and diff-check exit0. Real committed B-fe8f derives all six domain hashes over56changed entries. Raw logs /tmp/bfe8f-cert002.ONPs6H/. These focused results do not claim a fresh full-suite or DONE PASS.",
+        "reproTest": "packages/main/src/tasks/certification-window-smoke.ts#BUG-CERT-002; scripts/verify-proof-or-stop-residue.mjs"
+      }
+    }
+  ]
+}

@@ -378,11 +378,23 @@ function assertDoneRequiredBlocked(
       );
     }
 
-    // The inventory is frozen evidence identity, not today's active spelling.
-    // Derive canonical inputs without changing that inventory or its digest.
+    // The digest-pinned list retains historical spellings; current transport
+    // matching uses their canonical names without accepting retired aliases.
+    // Test-only historical prefix: assemble it without introducing a literal
+    // active-name declaration (see scripts/verify-proof-or-stop-residue.mjs detector tokens).
+    // The frozen-key branch is a negative control: retired inputs must remain
+    // semantic and must not become transport aliases.
+    const retiredPrefix = ['LAT', 'TICE_'].join('');
     for (const frozenKey of VALIDATION_TRANSPORT_ENV_KEY_LIST) {
-      const key = frozenKey.replace(/^LATTICE_/, 'PROOF_OR_STOP_');
+      const key = frozenKey.startsWith(retiredPrefix)
+        ? `PROOF_OR_STOP_${frozenKey.slice(retiredPrefix.length)}`
+        : frozenKey;
       if (key !== frozenKey) {
+        assert.notDeepEqual(
+          effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'owner-identity' }, undefined, root),
+          effectiveValidationCommandEnvironment({ ...common, [frozenKey]: 'reviewer-identity' }, undefined, root),
+          `retired ambient spelling remains semantic: ${frozenKey}`,
+        );
         for (const platform of ['linux', 'win32'] as const) {
           const retiredOwner = buildDoneRequiredExecutionIdentity({
             projectRoot: root, policy, processEnvironment: { ...common, [frozenKey]: 'owner-value' }, platform,

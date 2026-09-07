@@ -2282,6 +2282,20 @@
         ]
       },
       {
+        "command": "node",
+        "args": [
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "timeoutMs": 180000,
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
         "label": "B-a745 CHK-006: the Story 1 fixture suite (stable validation command identity, canonical legacy pin resolver, Story input contract, tier planner widening matrix, read-only validation_plan CLI). Registration here is SEPARATE from the test:serial-reference chain and from full-suite-runner RESOURCE_POLICY: validate.commands is the planner's command universe, so a suite absent from it makes every evidence pin naming it resolve to pinned_command_missing",
         "command": "node",
         "args": [

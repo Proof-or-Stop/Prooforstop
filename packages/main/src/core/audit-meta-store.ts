@@ -73,6 +73,15 @@ export interface UpsertResult {
   findingId: string;
 }
 
+export type FindingMutationAdapter = <T>(
+  storyId: string,
+  mutationId: string,
+  mutate: (data: import('./types.js').FindingData) => {
+    result: T;
+    changedFindingIds?: readonly string[];
+  },
+) => T;
+
 /**
  * driftHash = first 10 chars of sha1(sectionPath + '|' + symbol + '|' + driftType).
  * Strict triple input, stable across processes. desc/severity are not part of the signature (allows minor description tweaks without creating a new finding).
@@ -165,44 +174,58 @@ export function upsertDrift(
   round: number,
   drift: DriftInput,
   storyId: string = META_STORY_ID,
+  authoritativeMutation?: FindingMutationAdapter,
 ): UpsertResult {
   const hash = driftHash(drift.sectionPath, drift.symbol, drift.driftType);
-  const data = store.readFindings(storyId);
-  const now = new Date().toISOString();
   const roundStr = String(round);
-
-  const existing = data.findings.find(f => f.driftHash === hash);
-  if (existing) {
-    existing.lastSeenAt = now;
-    existing.reviewRound = roundStr;
-    // drift returns: previously auto-resolved ones reopen
-    if (existing.status === 'resolved') {
-      existing.status = 'open';
+  const mutate = (data: import('./types.js').FindingData) => {
+    const existing = data.findings.find(f => f.driftHash === hash);
+    if (existing) {
+      const changed = existing.reviewRound !== roundStr;
+      if (changed) {
+        existing.lastSeenAt = new Date().toISOString();
+        existing.reviewRound = roundStr;
+        // drift returns: previously auto-resolved ones reopen
+        if (existing.status === 'resolved') existing.status = 'open';
+      }
+      return {
+        result: { state: 'still-drifting', driftHash: hash, findingId: existing.id } as UpsertResult,
+        changedFindingIds: changed ? [existing.id] : [],
+      };
     }
-    store.writeFindings(storyId, data);
-    return { state: 'still-drifting', driftHash: hash, findingId: existing.id };
-  }
-
-  // New finding: go through finding_add signature path
-  const nextNum = data.findings.length + 1;
-  const id = `${storyId}:F-${String(nextNum).padStart(3, '0')}`;
-  const finding: Finding = {
-    id,
-    desc: drift.desc,
-    severity: drift.severity,
-    category: 'missing', // audit drift is essentially "promise vs actual" missing, classified as missing
-    status: 'open',
-    agent: 'proof-or-stop-audit',
-    createdAt: now,
-    reviewRound: roundStr,
-    _hash: signFinding(storyId, id, drift.desc, drift.severity, now, roundStr),
-    driftHash: hash,
-    lastSeenAt: now,
-    firstSeenRound: round,
+    const now = new Date().toISOString();
+    const nextNum = data.findings.reduce((max, finding) => {
+      const match = /:F-(\d+)$/.exec(finding.id);
+      return match ? Math.max(max, Number(match[1])) : max;
+    }, 0) + 1;
+    const id = `${storyId}:F-${String(nextNum).padStart(3, '0')}`;
+    const finding: Finding = {
+      id,
+      desc: drift.desc,
+      severity: drift.severity,
+      category: 'missing',
+      status: 'open',
+      agent: 'proof-or-stop-audit',
+      createdAt: now,
+      reviewRound: roundStr,
+      _hash: signFinding(storyId, id, drift.desc, drift.severity, now, roundStr),
+      driftHash: hash,
+      lastSeenAt: now,
+      firstSeenRound: round,
+    };
+    data.findings.push(finding);
+    return {
+      result: { state: 'new', driftHash: hash, findingId: id } as UpsertResult,
+      changedFindingIds: [id],
+    };
   };
-  data.findings.push(finding);
-  store.writeFindings(storyId, data);
-  return { state: 'new', driftHash: hash, findingId: id };
+  if (authoritativeMutation) {
+    return authoritativeMutation(storyId, `audit-drift:${round}:${hash}`, mutate);
+  }
+  const data = store.readFindings(storyId);
+  const outcome = mutate(data);
+  if (outcome.changedFindingIds?.length) store.writeFindings(storyId, data);
+  return outcome.result;
 }
 
 /**
@@ -217,29 +240,33 @@ export function autoResolveMissing(
   round: number,
   seenHashes: Set<string>,
   storyId: string = META_STORY_ID,
+  authoritativeMutation?: FindingMutationAdapter,
 ): string[] {
-  const data = store.readFindings(storyId);
-  const now = new Date().toISOString();
-  const resolved: string[] = [];
   const roundStr = String(round);
-
-  for (const f of data.findings) {
-    if (!f.driftHash) continue; // Not an audit finding
-    if (f.status !== 'open') continue;
-    if (seenHashes.has(f.driftHash)) continue; // Still present this round
-    // Explicitly check reviewRound field existence: missing/null/undefined treated as legacy data,
-    // conservatively don't resolve to avoid false positives (F-021). Skip if roundStr equals this round (just created/updated this round).
-    if (f.reviewRound == null) continue;
-    if (f.reviewRound === roundStr) continue;
-    f.status = 'resolved';
-    f.resolvedReason = `drift cleared at round ${round}`;
-    f.resolvedAt = now;
-    resolved.push(f.id);
+  const mutate = (data: import('./types.js').FindingData) => {
+    const now = new Date().toISOString();
+    const resolved: string[] = [];
+    for (const f of data.findings) {
+      if (!f.driftHash || f.status !== 'open' || seenHashes.has(f.driftHash)) continue;
+      if (f.reviewRound == null || f.reviewRound === roundStr) continue;
+      f.status = 'resolved';
+      f.resolvedReason = `drift cleared at round ${round}`;
+      f.resolvedAt = now;
+      resolved.push(f.id);
+    }
+    return { result: resolved, changedFindingIds: resolved };
+  };
+  if (authoritativeMutation) {
+    return authoritativeMutation(
+      storyId,
+      `audit-auto-resolve:${round}:${createHash('sha256').update([...seenHashes].sort().join('\0')).digest('hex')}`,
+      mutate,
+    );
   }
-  if (resolved.length > 0) {
-    store.writeFindings(storyId, data);
-  }
-  return resolved;
+  const data = store.readFindings(storyId);
+  const outcome = mutate(data);
+  if (outcome.changedFindingIds.length) store.writeFindings(storyId, data);
+  return outcome.result;
 }
 
 /**
@@ -456,12 +483,11 @@ export function appendGapFinding(
   store: StoryStore,
   gap: GapFindingInput,
   storyId: string = META_STORY_ID,
-  options: { projectRoot?: string } = {},
+  options: { projectRoot?: string; authoritativeMutation?: FindingMutationAdapter } = {},
 ): GapFindingResult {
   if (storyId !== META_STORY_ID) {
     throw new Error(`gap_log provenance requires canonical storyId ${META_STORY_ID}; received ${storyId}`);
   }
-  const data = store.readFindings(storyId);
   const gitCwd = options.projectRoot
     ? resolveGitCwd({
       store,
@@ -470,9 +496,6 @@ export function appendGapFinding(
       projectRoot: options.projectRoot,
     })
     : undefined;
-  if (options.projectRoot && gitCwd) assertGapLogHistoryExtendable(options.projectRoot, gitCwd, data);
-  const preArtifactDigest = digestGapLogArtifact(data);
-
   // B-f60c CHK-003: idempotency — a gap with an identical fingerprint that is
   // still an OPEN finding is treated as the same canonical gap; re-logging it
   // returns the existing finding instead of appending a duplicate. A
@@ -487,52 +510,81 @@ export function appendGapFinding(
     observedOutput: gap.observedOutput,
     analysisNote: gap.analysisNote,
   });
-  const existing = data.findings.find(
-    f => f.gapFingerprint === fingerprint && f.status === 'open',
-  );
-  if (existing) {
-    const provenance = options.projectRoot
-      ? verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, options.projectRoot, gitCwd)
-      : null;
-    return {
-      findingId: existing.id,
-      evidenceState: existing.evidenceState ?? gap.evidenceState,
-      deduped: true,
-      contentDigest: provenance?.observedDigest,
-      bindingStatus: provenance?.trusted ? 'valid' : 'legacy-unbound',
-    };
-  }
+  let appendedFinding: Finding | undefined;
+  let preArtifactDigest = '';
+  const mutate = (data: import('./types.js').FindingData) => {
+    if (options.projectRoot && gitCwd) assertGapLogHistoryExtendable(options.projectRoot, gitCwd, data);
+    preArtifactDigest = digestGapLogArtifact(data);
+    const existing = data.findings.find(
+      f => f.gapFingerprint === fingerprint && f.status === 'open',
+    );
+    if (existing) {
+      const provenance = options.projectRoot
+        ? verifyGapLogArtifactBinding(data, GAP_LOG_ARTIFACT_PATH, options.projectRoot, gitCwd)
+        : null;
+      return {
+        result: {
+          findingId: existing.id,
+          evidenceState: existing.evidenceState ?? gap.evidenceState,
+          deduped: true,
+          contentDigest: provenance?.observedDigest,
+          bindingStatus: provenance?.trusted ? 'valid' : 'legacy-unbound',
+        } as GapFindingResult,
+        changedFindingIds: [],
+      };
+    }
 
-  const now = new Date().toISOString();
-  const nextNum = data.findings.length + 1;
-  const id = `${storyId}:F-${String(nextNum).padStart(3, '0')}`;
-  const finding: Finding = {
-    id,
-    desc: gap.desc,
-    severity: gap.severity,
-    category: gap.category,
-    status: 'open',
-    evidenceState: gap.evidenceState,
-    ...(gap.uncertaintyReason ? { uncertaintyReason: gap.uncertaintyReason } : {}),
-    ...(gap.disprovenEvidence ? { disprovenEvidence: gap.disprovenEvidence } : {}),
-    agent: gap.agent || 'proof-or-stop-gap-log',
-    createdAt: now,
-    reviewRound: '',
-    gapFingerprint: fingerprint,
-    ...(gap.files && gap.files.length > 0 ? { files: gap.files } : {}),
+    const now = new Date().toISOString();
+    const nextNum = data.findings.reduce((max, finding) => {
+      const match = /:F-(\d+)$/.exec(finding.id);
+      return match ? Math.max(max, Number(match[1])) : max;
+    }, 0) + 1;
+    const id = `${storyId}:F-${String(nextNum).padStart(3, '0')}`;
+    appendedFinding = {
+      id,
+      desc: gap.desc,
+      severity: gap.severity,
+      category: gap.category,
+      status: 'open',
+      evidenceState: gap.evidenceState,
+      ...(gap.uncertaintyReason ? { uncertaintyReason: gap.uncertaintyReason } : {}),
+      ...(gap.disprovenEvidence ? { disprovenEvidence: gap.disprovenEvidence } : {}),
+      agent: gap.agent || 'proof-or-stop-gap-log',
+      createdAt: now,
+      reviewRound: '',
+      gapFingerprint: fingerprint,
+      ...(gap.files && gap.files.length > 0 ? { files: gap.files } : {}),
+    };
+    appendedFinding._hash = signFinding(storyId, id, gap.desc, gap.severity, now, '');
+    data.findings.push(appendedFinding);
+    return {
+      result: {
+        findingId: id,
+        evidenceState: gap.evidenceState,
+        deduped: false,
+        bindingStatus: 'legacy-unbound',
+      } as GapFindingResult,
+      changedFindingIds: [id],
+    };
   };
-  data.findings.push(finding);
-  finding._hash = signFinding(storyId, id, gap.desc, gap.severity, now, '');
-  store.writeFindings(storyId, data);
-  const postArtifactDigest = digestGapLogArtifact(data);
-  const receipt = options.projectRoot
-    ? appendGapLogReceipt({ root: options.projectRoot, gitCwd: gitCwd!, finding, preArtifactDigest, postArtifactDigest })
-    : null;
-  return {
-    findingId: id,
-    evidenceState: gap.evidenceState,
-    deduped: false,
-    contentDigest: receipt?.postArtifactDigest,
-    bindingStatus: receipt ? 'valid' : 'legacy-unbound',
-  };
+
+  let result: GapFindingResult;
+  if (options.authoritativeMutation) {
+    result = options.authoritativeMutation(storyId, `gap-log:${fingerprint}`, mutate);
+  } else {
+    const data = store.readFindings(storyId);
+    const outcome = mutate(data);
+    if (outcome.changedFindingIds.length) store.writeFindings(storyId, data);
+    result = outcome.result;
+  }
+  if (!appendedFinding || !options.projectRoot) return result;
+  const postArtifactDigest = digestGapLogArtifact(store.readFindings(storyId));
+  const receipt = appendGapLogReceipt({
+    root: options.projectRoot,
+    gitCwd: gitCwd!,
+    finding: appendedFinding,
+    preArtifactDigest,
+    postArtifactDigest,
+  });
+  return { ...result, contentDigest: receipt.postArtifactDigest, bindingStatus: 'valid' };
 }

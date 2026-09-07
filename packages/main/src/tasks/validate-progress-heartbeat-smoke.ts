@@ -382,10 +382,11 @@ function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILIN
 // A platform-neutral hanging DONE-required command whose descendant publishes
 // its pid as soon as Node spawns it. The descendant inherits the command's
 // process group, which is exactly what each validation timeout must terminate.
-function descendantTreeCommand(label: string, pidFile: string, timeoutMs: number) {
+function descendantTreeCommand(label: string, pidFile: string, timeoutMs: number, startupDelayMs = 0) {
   const script = [
     'const { spawn } = require("node:child_process");',
     'const { writeFileSync } = require("node:fs");',
+    `Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ${startupDelayMs});`,
     'const descendant = spawn(process.execPath, ["-e", "setTimeout(() => {}, 600000)"], { stdio: "ignore" });',
     'writeFileSync(process.argv[1], `${descendant.pid}\\n`);',
     'descendant.on("exit", () => process.exit(0));',
@@ -403,6 +404,8 @@ interface DescendantKillRow {
   layer: 'command' | 'idle' | 'max';
   /** Budget of the layer under test; doubled only after a vacuous attempt. */
   baseBudgetMs: number;
+  /** Optional pre-spawn delay proving that cleanup does not rely on immediate command startup. */
+  startupDelayMs?: number;
   /** Command timeoutMs + watchdog env so the layer under test is the FIRST deadline able to fire. */
   plan(budgetMs: number): { commandTimeoutMs: number; env: Record<string, string> };
   killMessage: string;
@@ -438,7 +441,7 @@ async function proveTimeoutLayerKillsDescendant(
     const budgetMs = row.baseBudgetMs * 2 ** attempt;
     const { commandTimeoutMs, env } = row.plan(budgetMs);
     const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
-    config.doneRequiredCommands = [descendantTreeCommand(label, pidFile, commandTimeoutMs)];
+    config.doneRequiredCommands = [descendantTreeCommand(label, pidFile, commandTimeoutMs, row.startupDelayMs)];
     writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
     rmSync(pidFile, { force: true });
     commitAll(fixture.root, `configure ${label} budget ${budgetMs}`);
@@ -675,13 +678,16 @@ async function assertOuterWatchdogsKillDescendants(): Promise<void> {
     },
     {
       layer: 'max',
-      baseBudgetMs: 700,
-      // Max counts from CLI start; idle stays above it and the fast heartbeat
-      // keeps idle quiet, so max is the only deadline that can fire first.
+      baseBudgetMs: 10_000,
+      startupDelayMs: 1_000,
+      // This row proves cleanup of an existing descendant, not CLI startup speed.
+      // Give fixture/CLI startup explicit headroom and deliberately delay the
+      // configured command before it spawns; the separate tight-max rows still
+      // pin production deadline enforcement.
       plan: (budgetMs) => ({
-        commandTimeoutMs: budgetMs * 10,
+        commandTimeoutMs: budgetMs * 2,
         env: {
-          PROOF_OR_STOP_IDLE_TIMEOUT_MS: String(Math.max(2_000, budgetMs * 2)),
+          PROOF_OR_STOP_IDLE_TIMEOUT_MS: String(Math.max(20_000, budgetMs * 2)),
           PROOF_OR_STOP_MAX_TIMEOUT_MS: String(budgetMs),
           PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
         },

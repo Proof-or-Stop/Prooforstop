@@ -823,7 +823,7 @@ interface EnforceAndStampResult {
   pin?: { lane: VerificationLane; index: number; verification: VerificationIntentPin };
   causalReceipt?: CausalEvidenceReceipt;
   causalPreflight?: {
-    input: { command: string; cwd: string; timeoutMs?: number };
+    input: { command: string; cwd: string; timeoutMs?: number; executionSemanticsKey?: string };
     facts: CausalPreflightFacts;
   };
 }
@@ -999,8 +999,8 @@ async function enforceAndStampEvidence(
     metadataRoot: string;
     receiptStore: CausalEvidenceReceiptStore;
     batch?: CausalEvidenceBatch;
-    /** Internal stale-refresh contract, derived from the authoritative pin. */
-    refreshExecutionKey?: string;
+    /** Refresh-only identity that prevents distinct selector/provenance groups from sharing a causal CAS key. */
+    executionSemanticsKey?: string;
   },
 ): Promise<EnforceAndStampResult> {
   const resolved = resolveIntentForRef(item, input.intentRef);
@@ -1135,7 +1135,12 @@ async function enforceAndStampEvidence(
   // make a refusal auditable.
   const hashes = evidenceHashes(deps.cwd, deps.metadataRoot);
   const timeoutMs = timeoutOverride?.timeoutMs;
-  const preflightInput = { command: pinCommand, cwd: deps.cwd, timeoutMs };
+  const preflightInput = {
+    command: pinCommand,
+    cwd: deps.cwd,
+    timeoutMs,
+    ...(deps.executionSemanticsKey ? { executionSemanticsKey: deps.executionSemanticsKey } : {}),
+  };
   const initialPreflightFacts = deps.preflightFacts(preflightInput);
   const preflightFactsUnchanged = () =>
     causalCanonical(deps.preflightFacts(preflightInput)) === causalCanonical(initialPreflightFacts);
@@ -1149,7 +1154,9 @@ async function enforceAndStampEvidence(
       materialHash: hashes.materialHash ?? null,
       timeoutMs: timeoutMs ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS,
       preflightFacts: initialPreflightFacts,
-      ...(deps.refreshExecutionKey !== undefined ? { refreshExecutionKey: deps.refreshExecutionKey } : {}),
+      ...(deps.executionSemanticsKey
+        ? { verificationExecutionSemanticsKey: deps.executionSemanticsKey }
+        : {}),
     },
     storyFilesHash: hashes.storyFilesHash,
     effectiveEnvironment: effectiveCausalEnvironment(undefined, deps.cwd),
@@ -1588,6 +1595,9 @@ type ReexecStamp = {
 type StaleReexecCandidate = {
   item: ChecklistItem;
   input: EvidenceWriteInput;
+  /** Process identity without selector/intent presentation semantics. */
+  rawExecutionKey: string;
+  /** Evidence identity including selector/type/kind semantics. */
   executionKey: string;
   rowKey: string;
 };
@@ -1661,8 +1671,9 @@ function staleReexecCandidate(
 ): StaleReexecCandidate | undefined {
   const resolved = resolveIntentForRef(item, intentRef);
   const pin = resolved?.intent.verification;
-  // An explicit immutable pin makes docs/manual executable too, exactly as in
-  // enforceAndStampEvidence and the outer refresh loop.
+  // A deliberately pinned docs/manual intent is executable evidence too. The
+  // pin, rather than the descriptive intent type, is the authority boundary;
+  // unpinned attestations still take the metadata-only/demotion path.
   if (!resolved || !pin) return undefined;
 
   const kind = intentTypeToEvidenceKind(resolved.intent.type);
@@ -1686,27 +1697,33 @@ function staleReexecCandidate(
   const effectiveTimeoutMs = validatedOverride?.timeoutMs
     ?? configuredTimeoutMs
     ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+  const timeoutProvenance = priorOverride
+    ? {
+        source: 'carried-receipt-override',
+        timeoutMs: validatedOverride?.timeoutMs,
+        reason: validatedOverride?.reason,
+        priorDefaultTimeoutMs: priorOverride.defaultTimeoutMs,
+      }
+    : {
+        source: configuredTimeoutMs === undefined ? 'executor-default' : 'configured-command-timeout',
+        configuredTimeoutMs: configuredTimeoutMs ?? null,
+      };
+  const normalizedCommand = parseAllowlistedCommand(pin.command);
+  const rawExecutionKey = JSON.stringify({
+    version: 1,
+    command: normalizedCommand,
+    cwd: refreshGitCwd,
+    effectiveTimeoutMs,
+    timeoutProvenance,
+  });
   const executionKey = JSON.stringify({
     version: 1,
-    command: pin.command,
+    rawExecutionKey,
     selector: pin.selector,
     intentType: resolved.intent.type,
     evidenceKind: kind,
-    cwd: refreshGitCwd,
-    effectiveTimeoutMs,
-    timeoutProvenance: priorOverride
-      ? {
-          source: 'carried-receipt-override',
-          timeoutMs: validatedOverride?.timeoutMs,
-          reason: validatedOverride?.reason,
-          priorDefaultTimeoutMs: priorOverride.defaultTimeoutMs,
-        }
-      : {
-          source: configuredTimeoutMs === undefined ? 'executor-default' : 'configured-command-timeout',
-          configuredTimeoutMs: configuredTimeoutMs ?? null,
-        },
   });
-  return { item, input, executionKey, rowKey: `${item.id}::${intentRef}` };
+  return { item, input, rawExecutionKey, executionKey, rowKey: `${item.id}::${intentRef}` };
 }
 
 /**
@@ -3090,60 +3107,73 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // shared receipt. Only a real mechanical pass records stamps for the group;
       // every failure leaves every grouped row absent so all take the demotion path.
       const reexecByKey = new Map<string, ReexecStamp>();
-      // Refresh has a stricter grouping contract than ordinary causal selector
-      // fan-out: selectors and audited timeout provenance are execution inputs.
-      // Bind the same authoritative key at the physical cache and signed CAS.
-      const commandResults = new Map<string, Promise<SingleCommandExecutionResult>>();
-      const runCommand = (refreshExecutionKey: string): SingleCommandRunner => (command, cwd, timeoutMs) => {
-        const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
-        const key = JSON.stringify({ refreshExecutionKey, command, cwd, timeoutMs: effectiveTimeoutMs });
-        const existing = commandResults.get(key);
-        if (existing) return existing;
-        const result = runSingleAllowlistedCommand(
-          command, root, { cwd, ...(effectiveTimeoutMs !== undefined ? { timeoutMs: effectiveTimeoutMs } : {}) },
-        );
-        commandResults.set(key, result);
-        return result;
-      };
+      const rawProcessResults = new Map<string, Promise<SingleCommandExecutionResult>>();
+      const rawExecutionContext = causalCanonical({
+        schemaVersion: 1,
+        storyId: args.storyId,
+        materialHash: computed.materialHash ?? null,
+        storyFilesHash: computed.storyFilesHash ?? null,
+        effectiveEnvironment: effectiveCausalEnvironment(undefined, computed.refreshGitCwd),
+        runtimeVersion: process.version,
+        toolVersion: resolveCausalToolVersion(root) ?? null,
+      });
       if (!args.dryRun) {
+        const groups = new Map<string, { representative: StaleReexecCandidate; rowKeys: string[] }>();
         for (const entry of computed.stale) {
           const item = computed.cl.items.find(i => i.id === entry.itemId);
           if (!item) continue;
-          const resolved = resolveIntentForRef(item, entry.intentRef);
-          const pin = resolved?.intent.verification;
-          // A docs/manual intent may deliberately carry an immutable mechanical
-          // verifier. Refresh every pinned intent; enforceAndStampEvidence keeps
-          // unpinned attestations non-mechanical and applies the same command +
-          // selector contract used by verification_evidence_add.
-          if (!resolved || !pin) continue;
-          const kind = intentTypeToEvidenceKind(resolved.intent.type);
           // Origin (B-022e) factored the per-row re-exec inputs into
           // staleReexecCandidate(); our refresh body consumes candidate.item /
           // candidate.input, so derive it here rather than duplicating the logic.
-          const candidate = staleReexecCandidate(
-            root,
-            computed.refreshGitCwd,
-            item,
-            entry.intentRef,
-            entry.evidence,
-          );
+          let candidate: StaleReexecCandidate | undefined;
+          try {
+            candidate = staleReexecCandidate(
+              root,
+              computed.refreshGitCwd,
+              item,
+              entry.intentRef,
+              entry.evidence,
+            );
+          } catch {
+            // Invalid timeout provenance or pin shape cannot join a group and
+            // therefore remains on the fail-closed demotion path.
+            continue;
+          }
           if (!candidate) continue;
-          // B-cdf6 (B-META F-012): CARRY FORWARD the budget the stale receipt was
-          // originally earned under. Without this, a receipt legitimately earned under a
-          // raised ceiling would be re-run under the 270s default, get KILLED, and be
-          // silently DEMOTED on every refresh — turning the override into a one-shot that
-          // decays. The reason is carried from the prior TOOL-OWNED receipt (never from a
-          // caller), so the re-earned receipt keeps the same attributable justification;
-          // an invalid/above-cap carried value is still refused by the shared boundary,
-          // and the row then falls through to the demote path as before.
-          const priorOverride = entry.evidence?.receipt?.timeoutOverride;
+          const group = groups.get(candidate.executionKey);
+          if (group) group.rowKeys.push(candidate.rowKey);
+          else groups.set(candidate.executionKey, { representative: candidate, rowKeys: [candidate.rowKey] });
+        }
+
+        for (const group of groups.values()) {
+          const candidate = group.representative;
           try {
             const stamp = await enforceAndStampEvidence(
               candidate.item,
               candidate.input,
               {
-                runCommand: runCommand(candidate.executionKey),
-                refreshExecutionKey: candidate.executionKey,
+                runCommand: (command, cwd, timeoutMs) => {
+                  const effectiveTimeoutMs = timeoutMs
+                    ?? resolvePinnedCommandTimeoutMs(root, command)
+                    ?? DEFAULT_VALIDATE_COMMAND_TIMEOUT_MS;
+                  const cacheKey = causalCanonical({
+                    schemaVersion: 1,
+                    rawExecutionKey: candidate.rawExecutionKey,
+                    command: parseAllowlistedCommand(command),
+                    cwd,
+                    effectiveTimeoutMs,
+                    context: rawExecutionContext,
+                  });
+                  const existing = rawProcessResults.get(cacheKey);
+                  if (existing) return existing;
+                  const execution = runSingleAllowlistedCommand(
+                    command,
+                    root,
+                    { cwd, timeoutMs: effectiveTimeoutMs },
+                  ).then((result) => Object.freeze({ ...result }));
+                  rawProcessResults.set(cacheKey, execution);
+                  return execution;
+                },
                 preflightFacts: causalPreflightFactsFor(args.storyId, computed.refreshGitCwd),
                 cwd: computed.refreshGitCwd,
                 storyId: args.storyId,
@@ -3151,11 +3181,12 @@ export function createChecklistHandlers(ctx: HandlerContext) {
                 metadataRoot: root,
                 receiptStore: store,
                 batch: createCausalEvidenceBatch(),
+                executionSemanticsKey: candidate.executionKey,
               },
             );
             if (stamp.evidencePatch.mechanical === true && stamp.evidencePatch.receipt) {
               if (!stamp.causalReceipt || !stamp.causalPreflight) continue;
-              reexecByKey.set(`${entry.itemId}::${entry.intentRef}`, {
+              const sharedStamp: ReexecStamp = {
                 ...(stamp.evidencePatch.command ? { command: stamp.evidencePatch.command } : {}),
                 ...(stamp.evidencePatch.result ? { result: stamp.evidencePatch.result } : {}),
                 mechanical: true,
@@ -3163,7 +3194,10 @@ export function createChecklistHandlers(ctx: HandlerContext) {
                 executionKey: candidate.executionKey,
                 causalReceipt: stamp.causalReceipt,
                 causalPreflight: stamp.causalPreflight,
-              });
+              };
+              for (const rowKey of group.rowKeys) {
+                reexecByKey.set(rowKey, structuredClone(sharedStamp));
+              }
             }
             // A non-mechanical / receiptless stamp is not a real pass → leave for demote.
           } catch {

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-fe8f",
+  "records": [
+    {
+      "id": "RED-BFE8F-LEDGER-FOUNDATION",
+      "trigger": "The accepted Story 3 plan requires a schema-neutral exactly-once finding ledger and runtime receipt foundation that the current package does not yet expose.",
+      "acceptanceTargetRef": "M1",
+      "baselineHeadHash": "0cb578583b5139977338d1cf8f7aeed0cc7685ba",
+      "baselineMaterialHash": "4113052daf5b46c9f15b3129526531cf63e75ccb4c3b95b55c97a0df4c522f70",
+      "observedFailure": "Importing packages/main/dist/core/finding-ledger.js exits 1 with ERR_MODULE_NOT_FOUND; independent review rr-mtifws9p-6knju0 confirmed this is the intended pre-fix contract gap, not evidence that existing lock helpers currently race.",
+      "failingCommand": "node -e \"import(./packages/main/dist/core/finding-ledger.js)\"",
+      "failureReceiptHash": "2debba0742404113a7b685e2b218f51057a8c37cfe2ad36c23bbec1404c9516c",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node -e \"import(./packages/main/dist/core/finding-ledger.js)\"",
+      "greenRelation": {
+        "targetRef": "M1",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node -e \"import(./packages/main/dist/core/finding-ledger.js)\""
+      },
+      "note": "Candidate B-fe8f-ledger-runtime-foundation; repro probe rp-mtifubae-dfbh4w; independent red review rr-mtifws9p-6knju0; accepted relation evaluation rgre-mtifx3sy-cdxd7d. Scope deliberately excludes any claim that current withMetaFindingLock/writeJsonFile already reproduces historical F-029 races.",
+      "createdAt": "2026-09-01T09:05:33.632Z"
+    },
+    {
+      "id": "RED-BFE8F-LEDGER-FOUNDATION-V2",
+      "trigger": "The accepted Story 3 plan requires a schema-neutral exactly-once finding ledger and runtime receipt foundation that the current package does not yet expose.",
+      "acceptanceTargetRef": "M1",
+      "baselineHeadHash": "0cb578583b5139977338d1cf8f7aeed0cc7685ba",
+      "baselineMaterialHash": "4113052daf5b46c9f15b3129526531cf63e75ccb4c3b95b55c97a0df4c522f70",
+      "observedFailure": "The executable command exits 1 with ERR_MODULE_NOT_FOUND for packages/main/dist/core/finding-ledger.js; independent review rr-mtifws9p-6knju0 confirmed the missing accepted Story 3 foundation and rejected any fabricated current-lock race claim.",
+      "failingCommand": "node -e \"import(process.argv[1])\" ./packages/main/dist/core/finding-ledger.js",
+      "expectedGreenCommand": "npm --prefix packages/main run build && node -e \"import(process.argv[1])\" ./packages/main/dist/core/finding-ledger.js",
+      "greenRelation": {
+        "targetRef": "M1",
+        "relation": "same_acceptance",
+        "command": "npm --prefix packages/main run build && node -e \"import(process.argv[1])\" ./packages/main/dist/core/finding-ledger.js"
+      },
+      "note": "Executable correction supersedes only the malformed shell command field in RED-BFE8F-LEDGER-FOUNDATION; append-only history is retained. Repro probe rp-mtifubae-dfbh4w, review rr-mtifws9p-6knju0, relation rgr-mtifujpd-ijl3w5, evaluation rgre-mtifx3sy-cdxd7d.",
+      "createdAt": "2026-09-01T09:11:21.544Z"
+    }
+  ],
+  "createdAt": "2026-09-01T09:05:33.632Z",
+  "updatedAt": "2026-09-01T09:11:21.544Z"
+}

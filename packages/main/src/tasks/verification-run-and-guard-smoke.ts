@@ -535,9 +535,15 @@ async function partD(): Promise<string> {
 // E. stale refresh exact-semantics dedupe — real child-process execution count.
 // ════════════════════════════════════════════════════════════════════════════
 
-function externalVerifierCommand(counterPath: string, outputPath: string): string {
+function externalVerifierCommand(counterPath: string, outputPath: string, gitIndexRefreshRoot?: string): string {
   const script = [
     `require('fs').appendFileSync(${JSON.stringify(counterPath)}, 'x')`,
+    ...(gitIndexRefreshRoot ? [
+      `require('fs').utimesSync(${JSON.stringify(join(gitIndexRefreshRoot, 'packages/main/src/base.ts'))}, new Date(), new Date())`,
+      // This disposable fixture deliberately changes its own index stat cache,
+      // even when the outer validation disables optional writes to the real index.
+      `require('child_process').execFileSync('git',['status','--short'],{cwd:${JSON.stringify(gitIndexRefreshRoot)},env:{...process.env,GIT_OPTIONAL_LOCKS:'1'}})`,
+    ] : []),
     `process.stdout.write(require('fs').readFileSync(${JSON.stringify(outputPath)}, 'utf8'))`,
   ].join(';');
   return `node -e ${JSON.stringify(script)}`;
@@ -593,14 +599,22 @@ async function partE(): Promise<void> {
         const output = join(externalRoot, 'same-output.txt');
         writeFileSync(counter, '');
         writeFileSync(output, 'SHARED_OK\n');
-        const command = externalVerifierCommand(counter, output);
+        // The real B-fe8f verifier runs git probes that refresh the index stat
+        // cache. Force that otherwise-benign identity drift here: a per-row
+        // stamper produces a second causal identity and later fails canonical
+        // import, while representative-once grouping has one immutable stamp.
+        const command = externalVerifierCommand(counter, output, env.root);
         await seedPinnedReceipt(env, { intentRef: 'INT-SHARED-A', command, selector: 'SHARED_OK' });
         await seedPinnedReceipt(env, { intentRef: 'INT-SHARED-B', command, selector: 'SHARED_OK' });
         writeFileSync(counter, '');
         commitRefreshDrift(env, 'same-key');
+        const indexPath = resolve(env.root, git(env.root, ['rev-parse', '--git-path', 'index']));
+        const indexBefore = createHash('sha256').update(readFileSync(indexPath)).digest('hex');
 
         await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
+        const indexAfter = createHash('sha256').update(readFileSync(indexPath)).digest('hex');
         assert.equal(executionCount(counter), 1, 'E1: one exact execution key runs once for two stale rows');
+        assert.notEqual(indexAfter, indexBefore, 'E1: verifier refreshed git index identity during the shared execution');
         const a = findEvidence(env, 'INT-SHARED-A');
         const b = findEvidence(env, 'INT-SHARED-B');
         assert.equal(a?.mechanical, true, 'E1: first shared row remains mechanical');
@@ -612,12 +626,14 @@ async function partE(): Promise<void> {
       } finally { cleanup(env); }
     }
 
-    // E2: selector and effective-timeout differences are execution semantics,
-    // not presentation metadata. Five distinct keys must produce five runs.
+    // E2: selector verdicts have distinct evidence identities but share one raw
+    // process execution. Timeout and audited provenance remain raw-execution
+    // boundaries. A nonmatching selector fails closed without poisoning peers.
     {
       const env = makeEnv('B-refresh-dedupe-distinct', [
         intent('INT-SELECTOR-A', 'cli'),
         intent('INT-SELECTOR-B', 'cli'),
+        intent('INT-SELECTOR-MISS', 'cli'),
         intent('INT-TIMEOUT-A', 'cli'),
         intent('INT-TIMEOUT-B', 'cli'),
         intent('INT-PROVENANCE-C', 'cli'),
@@ -626,10 +642,11 @@ async function partE(): Promise<void> {
         const counter = join(externalRoot, 'distinct-counter.txt');
         const output = join(externalRoot, 'distinct-output.txt');
         writeFileSync(counter, '');
-        writeFileSync(output, 'SELECTOR_A SELECTOR_B\n');
-        const command = externalVerifierCommand(counter, output);
+        writeFileSync(output, 'SELECTOR_A SELECTOR_B SELECTOR_GONE\n');
+        const command = externalVerifierCommand(counter, output, env.root);
         await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-A', command, selector: 'SELECTOR_A' });
         await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-B', command, selector: 'SELECTOR_B' });
+        await seedPinnedReceipt(env, { intentRef: 'INT-SELECTOR-MISS', command, selector: 'SELECTOR_GONE' });
         await seedPinnedReceipt(env, {
           intentRef: 'INT-TIMEOUT-A', command, selector: 'SELECTOR_A', commandTimeoutMs: 5000,
           commandTimeoutReason: 'The dedupe smoke needs an attributable first timeout provenance.',
@@ -643,10 +660,32 @@ async function partE(): Promise<void> {
           commandTimeoutReason: 'The dedupe smoke needs distinct provenance at the same timeout value.',
         });
         writeFileSync(counter, '');
+        writeFileSync(output, 'SELECTOR_A SELECTOR_B\n');
         commitRefreshDrift(env, 'distinct-keys');
+        const indexPath = resolve(env.root, git(env.root, ['rev-parse', '--git-path', 'index']));
+        const indexBefore = createHash('sha256').update(readFileSync(indexPath)).digest('hex');
 
         await env.handlers.verification_evidence_refresh_stale({ storyId: env.storyId });
-        assert.equal(executionCount(counter), 5, 'E2: different selector/effective-timeout/provenance keys never dedupe');
+        const indexAfter = createHash('sha256').update(readFileSync(indexPath)).digest('hex');
+        assert.equal(executionCount(counter), 4,
+          'E2: three default-timeout selectors share one raw run; timeout/provenance boundaries remain distinct');
+        assert.notEqual(indexAfter, indexBefore, 'E2: raw verifier refreshed git index without cross-receipt identity mismatch');
+        const selectorA = findEvidence(env, 'INT-SELECTOR-A');
+        const selectorB = findEvidence(env, 'INT-SELECTOR-B');
+        assert.equal(selectorA?.receipt?.selector, 'SELECTOR_A', 'E2: first selector owns its evidence verdict');
+        assert.equal(selectorB?.receipt?.selector, 'SELECTOR_B', 'E2: second selector owns its evidence verdict');
+        assert.equal(selectorA?.receipt?.selectorMatched, true, 'E2: first selector independently matched');
+        assert.equal(selectorB?.receipt?.selectorMatched, true, 'E2: second selector independently matched');
+        assert.notEqual(selectorA?.receipt?.executionKey, selectorB?.receipt?.executionKey,
+          'E2: selector-specific evidence identities remain distinct over one raw run');
+        assert.notEqual(selectorA?.receipt?.causalReceiptHash, selectorB?.receipt?.causalReceiptHash,
+          'E2: selector-specific causal receipts remain independently bound');
+        assert.equal(selectorA?.receipt?.outputDigest, selectorB?.receipt?.outputDigest,
+          'E2: selector verdicts bind the same immutable raw output');
+        assert.equal(findEvidence(env, 'INT-SELECTOR-MISS')?.mechanical, false,
+          'E2: nonmatching selector is independently demoted');
+        assert.equal(findEvidence(env, 'INT-SELECTOR-MISS')?.receipt, undefined,
+          'E2: nonmatching selector receives no mechanical receipt');
         assert.equal(findEvidence(env, 'INT-TIMEOUT-A')?.receipt?.timeoutOverride?.timeoutMs, 5000,
           'E2: first timeout provenance survives refresh');
         assert.equal(findEvidence(env, 'INT-TIMEOUT-B')?.receipt?.timeoutOverride?.timeoutMs, 7000,

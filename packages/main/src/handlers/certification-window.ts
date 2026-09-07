@@ -21,7 +21,7 @@ import {
 //    because the digest below re-sorts the joined `path\0blobId` strings with a bare
 //    .sort() (byte order), matching currentStoryFilesHash. Keep that re-sort.
 //  - it takes an extra 4th param and drops per-path dedupe; neither is reachable here.
-import { resolveStoryChangedFiles } from '../core/story-aware-validation.js';
+import { resolveStoryChangedFiles, type StoryChangedFile } from '../core/story-aware-validation.js';
 import {
   CAUSAL_DEPENDENCY_DOMAINS,
   causalDigest,
@@ -135,6 +135,14 @@ const CERTIFICATION_DOMAIN_DEPENDENCIES: Readonly<Record<CausalDependencyDomain,
   'review-subject': [],
 };
 
+// A build-like basename alone does not establish a current build surface. Admit
+// repo-root inputs and the existing package/entrypoint/integration roots only;
+// unknown namespaces stay unclassified, including live historical metadata.
+// This shared definition also excludes those exact files from the broad
+// integration surfaces. All other overlaps still fail closed, not first-match.
+const CERTIFICATION_BUILD_INPUT_PATH_PATTERN = /^(?:(?:bin|scripts|\.githooks|packages\/[^/]+)\/(?:[^/]+\/)*)?(?:package(?:-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb|tsconfig(?:\.[^/]+)?\.json|lattice\.config\.json|proof-or-stop\.config\.json)$/;
+const CERTIFICATION_NON_BUILD_INPUT_PREFIX = `^(?!${CERTIFICATION_BUILD_INPUT_PATH_PATTERN.source})`;
+
 // Exported for the B-5a15:F-393 regression test only. certificationDomainForPath
 // requires `matches.length === 1`, so the rules must stay mutually exclusive by
 // hand -- a second matching rule fails closed to undefined exactly like no match,
@@ -142,7 +150,7 @@ const CERTIFICATION_DOMAIN_DEPENDENCIES: Readonly<Record<CausalDependencyDomain,
 // classifier) lets a test assert that invariant without widening behavioural API.
 export const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDependencyDomain, RegExp]> = [
   ['test', /^packages\/main\/(?:tests\/|src\/tasks\/)/],
-  ['build-input', /(?:^|\/)(?:package(?:-lock)?\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb|tsconfig(?:\.[^/]+)?\.json|lattice\.config\.json|proof-or-stop\.config\.json)$/],
+  ['build-input', CERTIFICATION_BUILD_INPUT_PATH_PATTERN],
   ['manifest-semantic', /^(?:\.proof-or-stop-codex|\.codex|\.claude)\//],
   ['manifest-semantic', /^\.proof-or-stop\/proof-or-stop\.json$/],
   // B-5a15: `scripts/` here anchors at the repo root, so a per-package verifier
@@ -162,8 +170,8 @@ export const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDepe
   // packages/lab/scripts/** double-match and would have broken certification for
   // any future story touching them, while passing here only because this story
   // touches neither. Verified by enumeration, not by inspection.
-  ['integration', /^(?:bin|scripts|\.githooks|packages\/(?:utils|lab))\//],
-  ['integration', /^packages\/(?!utils\/|lab\/)[^/]+\/scripts\//],
+  ['integration', new RegExp(`${CERTIFICATION_NON_BUILD_INPUT_PREFIX}(?:bin|scripts|\\.githooks|packages/(?:utils|lab))/`)],
+  ['integration', new RegExp(`${CERTIFICATION_NON_BUILD_INPUT_PREFIX}packages/(?!utils/|lab/)[^/]+/scripts/`)],
   ['source', /^packages\/main\/src\/(?!tasks\/)/],
   ['review-subject', /^(?:docs\/|(?:AGENTS|CLAUDE|README)(?:\.[^/]+)?$)/],
 ];
@@ -171,6 +179,22 @@ export const CERTIFICATION_DOMAIN_PATH_RULES: ReadonlyArray<readonly [CausalDepe
 function certificationDomainForPath(path: string): CausalDependencyDomain | undefined {
   const matches = CERTIFICATION_DOMAIN_PATH_RULES.filter(([, pattern]) => pattern.test(path));
   return matches.length === 1 ? matches[0][0] : undefined;
+}
+
+// Migration-only audit inputs, never a restored runtime namespace. The shared
+// Git resolver retains these deleted paths and rename old sides after identity
+// cutover. Keep their full path/tombstone in the review subject and its dependent
+// integration/test closure; live old-namespace files and unknown shapes refuse.
+const HISTORICAL_STORY_MIGRATION_PATH = /^\.lattice\/story\/actives\/B-[A-Za-z0-9][A-Za-z0-9-]*\/(?:background\.md|checklist\.json|execution-boundary\.json|index\.json|init-check\.json|process-events\.jsonl|scope-boundary\.json|scope-freeze-check\.json)$/;
+
+function certificationDomainForEntry(entry: StoryChangedFile): CausalDependencyDomain | undefined {
+  if (HISTORICAL_STORY_MIGRATION_PATH.test(entry.path)) {
+    return entry.blobId === '<deleted>'
+      && (entry.status === 'deleted' || (entry.status === 'renamed' && entry.oldPath === entry.path))
+      ? 'review-subject'
+      : undefined;
+  }
+  return certificationDomainForPath(entry.path);
 }
 
 /**
@@ -190,7 +214,7 @@ export function deriveCertificationDomainInputHashes(
     CAUSAL_DEPENDENCY_DOMAINS.map(domain => [domain, []]),
   );
   for (const entry of entries) {
-    const domain = certificationDomainForPath(entry.path);
+    const domain = certificationDomainForEntry(entry);
     if (!domain) return undefined;
     byDomain.get(domain)!.push(`${entry.path}\0${entry.blobId || '<deleted>'}`);
   }

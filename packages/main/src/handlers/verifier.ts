@@ -63,6 +63,7 @@ import { runLintGateCli, resolveChangedFiles } from './validate-lint.js';
 import { buildVerificationCoverage, renderVerificationCoverage, detectLegacyEvidenceWithoutIntent, VERIFICATION_INTENT_REPAIR_COMMAND } from '../core/verification.js';
 import { captureEvidenceHashSnapshot, checkEvidenceFreshnessForGit, checkEvidenceHashSnapshotReuse, currentMaterialHash, currentStoryFilesHash, isMaterialExcludedPath } from '../core/evidence-freshness.js';
 import { syncClusterResolves } from '../core/cluster-sync.js';
+import { createAuthoritativeFindingMutation } from './finding-ledger.js';
 import { resolveGitCwd, resolveProjectGitRoot, evaluateStoryDirConfigInsideGitRoot } from '../core/story-signed-workspace-resolution.js';
 import { resolveVerificationIntentPolicy, resolveWorkflowPolicy } from '../core/workflow-policy.js';
 import type { ChecklistData, ChecklistItem, ScopeContractData, StoryInfo, TestEvidenceData, VerificationEvidence, VerificationIntentItem } from '../core/types.js';
@@ -689,11 +690,32 @@ export function createValidationCausalPreflightGate(
   );
   const input = { command, cwd, timeoutMs };
   const initialFacts = probeValidationCausalPreflightFacts(ctx, storyId, input);
-  const factsUnchanged = () => causalCanonical(probeValidationCausalPreflightFacts(ctx, storyId, input)) === causalCanonical(initialFacts);
+  let latestFacts = initialFacts;
+  const factsUnchanged = () => {
+    latestFacts = probeValidationCausalPreflightFacts(ctx, storyId, input);
+    return causalCanonical(latestFacts) === causalCanonical(initialFacts);
+  };
+  const changedFactFields = (before: unknown, after: unknown, path = ''): string[] => {
+    if (causalCanonical(before) === causalCanonical(after)) return [];
+    if (before && after && typeof before === 'object' && typeof after === 'object'
+      && !Array.isArray(before) && !Array.isArray(after)) {
+      const left = before as Record<string, unknown>;
+      const right = after as Record<string, unknown>;
+      return [...new Set([...Object.keys(left), ...Object.keys(right)])].sort().flatMap(key => {
+        const field = path ? `${path}.${key}` : key;
+        return Object.prototype.hasOwnProperty.call(left, key) !== Object.prototype.hasOwnProperty.call(right, key)
+          ? [field] : changedFactFields(left[key], right[key], field);
+      });
+    }
+    return [path || 'snapshot'];
+  };
   const storyDir = ctx.store.storyDirPath(storyId);
+  let leaseFailureReason = 'lease_refresh_not_refreshed';
   const refreshSameOwnerLease = () => {
     const lease = readOwnerLease(storyDir);
-    if (!lease || lease.sessionId !== getSessionId()) return false;
+    if (!lease) { leaseFailureReason = 'lease_missing_or_invalid'; return false; }
+    if (lease.sessionId !== getSessionId()) { leaseFailureReason = 'lease_foreign_session'; return false; }
+    leaseFailureReason = 'lease_refresh_not_refreshed';
     return acquireOrRefreshOwnerLease(storyDir, { command: 'validate', cwd }).action === 'refreshed';
   };
   const identity = {
@@ -724,8 +746,16 @@ export function createValidationCausalPreflightGate(
       // later scheduler launch. Keep this session's lease alive at each child
       // boundary, while refusing missing/foreign leases rather than acquiring
       // ownership as a side effect of causal preflight.
-      if (!refreshSameOwnerLease() || !verifyCausalPreflight(report, identity) || !factsUnchanged()) {
-        throw new Error('validate preflight refused: state_changed_before_launch commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]');
+      const refuse = (reason: string): never => {
+        throw new Error(`validate preflight refused: state_changed_before_launch reason=${reason} commandExecutions=0 evidenceWrites=0 [causal_preflight_refused]`);
+      };
+      if (!refreshSameOwnerLease()) refuse(leaseFailureReason);
+      if (!verifyCausalPreflight(report, identity)) refuse('preflight_verification_failed');
+      if (!factsUnchanged()) {
+        // Diagnose the exact already-compared snapshots, without another probe
+        // or values that could disclose a key, environment, path, or identity.
+        const fields = changedFactFields(JSON.parse(causalCanonical(initialFacts)), JSON.parse(causalCanonical(latestFacts)));
+        refuse(`facts_changed changedFields=${fields.join(',')}`);
       }
     },
   };
@@ -1447,6 +1477,7 @@ function decorateAndMaybePersistStoryValidation(
 }
 
 export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...args: any[]) => any> {
+  const authoritativeMutation = createAuthoritativeFindingMutation(ctx);
   return {
     /**
      * proof-or-stop validate [--full[=filter]] [--story=B-xxx] [--json]
@@ -1523,7 +1554,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
       if (args.story) {
         assertCwdInWorktree(ctx.store, args.story);
         if (!args.noSync) {
-          const synced = syncClusterResolves(args.story, ctx.store, projectRoot, ctx.log);
+          const synced = syncClusterResolves(args.story, ctx.store, projectRoot, ctx.log, authoritativeMutation);
           if (synced.resolved > 0) {
             ctx.log?.(`cluster-sync: auto-resolved ${synced.resolved} finding(s) from commit message Resolves tags`);
           }
