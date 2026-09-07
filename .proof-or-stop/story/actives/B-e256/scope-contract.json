@@ -3,8 +3,10 @@
   "mode": "shadow",
   "allowedModify": [
     "packages/main/package.json",
+    "packages/main/src/core/acceptance-discovery-adapters.ts",
     "packages/main/src/core/runtime-environment-checks.ts",
     "packages/main/src/handlers/doctor.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts",
     "packages/main/tests/global-core-realpath.test.mjs",
@@ -17,6 +19,7 @@
     "packages/main/tests/red/red-global-cli-exec-bit.mjs"
   ],
   "allowedTest": [
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts",
     "packages/main/tests/global-core-realpath.test.mjs",
@@ -27,7 +30,7 @@
     "scripts/build-lock-target.mjs"
   ],
   "explicitExcludes": [],
-  "scopeChangeReason": "Carries B-83aa's fix to validate-progress-heartbeat-smoke.ts, a byte-identical copy of the file from its commit 92a12ee0ad, so this story's REVIEW to TEST gate can pass. That registered smoke failed this story's gate twice and B-83aa's four times under fork-heavy load while passing alone; B-83aa diagnosed the cause (the child CLI's own setup consumed its budget so no descendant ever started) and owns the fix and lands it on main first; the identical copy merges cleanly when main catches up. No other change rides with it.",
+  "scopeChangeReason": "F-051 is a verified high gate-truth blocker. The real 71KB repository config exceeds the acceptance discovery reader 64KB cap and makes the signed coverage basis unsupported. Add only the discovery adapter and its focused smoke to repair that current Story acceptance blocker while preserving all existing launcher and build scope.",
   "acknowledgements": [
     {
       "actor": "main-agent",
@@ -47,7 +50,9 @@
     }
   ],
   "createdAt": "2026-09-02T15:27:28.092Z",
-  "updatedAt": "2026-09-04T15:48:36.644Z",
+  "updatedAt": "2026-09-07T08:12:06.113Z",
+  "fileRules": [],
+  "protectedAnchors": [],
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -64,6 +69,8 @@
     "scripts/build-lock-target.mjs": "scripts/build-lock-target.mjs",
     "packages/main/src/tasks/validation-tier-planner-smoke.ts": "packages/main/src/tasks/validation-tier-planner-smoke.ts",
     "packages/main/src/core/version-bump.ts": "packages/main/src/core/version-bump.ts",
-    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "packages/main/src/core/acceptance-discovery-adapters.ts": "packages/main/src/core/acceptance-discovery-adapters.ts",
+    "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts"
   }
 }
