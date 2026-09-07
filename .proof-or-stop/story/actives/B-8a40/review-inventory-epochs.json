@@ -2567,9 +2567,9 @@
       "epochId": "B-8a40:RI-015",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-07T07:37:25.032Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-07T08:26:10.729Z",
-      "updatedAt": "2026-09-07T08:26:10.729Z",
+      "updatedAt": "2026-09-07T08:44:01.303Z",
       "cutoff": {
         "headHash": "7e8512edf88d60b71f7804849a840345f05f37f2",
         "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
@@ -2589,7 +2589,30 @@
         "B-8a40:F-086",
         "B-8a40:F-087"
       ],
-      "_hash": "8fd960741d31d55c701642113f0a0cb8e30b2cfcac8265d6b9c7b9a7d77e38d5"
+      "cancelledAt": "2026-09-07T08:44:01.303Z",
+      "cancelReason": "The baseline finding set changed during canonical latest-run evidence maintenance. All current required independent lanes have now completed on unchanged source, with F089-F091 preserving the three open observations and historical originals superseded only as bindings. No current implementation repair is required. Abandon this unusable remediation inventory and use the explicit no-OPEN completeness-only PRE_CERT path after independent RR161 closure audit. This does not assert saturation, topology PASS, TEST permission or DONE; all validation and host-assurance gates remain required.",
+      "terminalRunSequenceBoundary": 161,
+      "_hash": "b936fb01d472fd3ae816fc138c96960ea09b61e33f231d060049f8b50456a853"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-8a40:RIE-016",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-07T08:44:02.421Z",
+      "updatedAt": "2026-09-07T08:44:02.421Z",
+      "cutoff": {
+        "headHash": "001e5f79caa711d9cebe94c2061e4f4797078b76",
+        "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+        "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b"
+      },
+      "scopeDigest": "1679e62030b16bea2f3919fd9092e0a847acad2657888324a6e2ae340af47c41",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-8a40:RIE-016:RCP-001",
+      "_hash": "bcb4c636549239792d0c007444c8a3876167a7def62e15d34a9574e40294884d"
     }
   ],
   "receipts": [
@@ -2754,6 +2777,28 @@
       "issuedAt": "2026-09-07T07:18:15.471Z",
       "consumedAt": "2026-09-07T07:18:43.694Z",
       "_hash": "71f6fdd7280e546184f68509f7a6cb6522e15d07ff70aa3efaf5212e8e14a456"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-8a40:RIE-016:RCP-001",
+      "epochId": "B-8a40:RIE-016",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "cutoff": {
+        "headHash": "001e5f79caa711d9cebe94c2061e4f4797078b76",
+        "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+        "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b"
+      },
+      "scopeDigest": "1679e62030b16bea2f3919fd9092e0a847acad2657888324a6e2ae340af47c41",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T08:44:02.421Z",
+      "_hash": "6d32544d56abaaece1c3e2451bb00cbbb35cfef0d3c9159ce4e236c3415f25fd"
     }
   ],
   "criticReceipts": [
