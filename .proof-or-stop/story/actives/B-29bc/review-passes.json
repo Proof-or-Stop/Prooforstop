@@ -1195,6 +1195,37 @@
       },
       "readDiagnostics": [],
       "_hash": "cd8ba662c28ed0bdd552197b8c212d52d01ef091751525b4d4503de9e5379cdb"
+    },
+    {
+      "id": "B-29bc:RP-028",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Independent inventory-completeness review only for B-29bc:RI-005 wave 1, material 2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8. Fully inspected the exact four terminal objects: concept RR-027/RP-026, quality RR-028/RP-027, coverage RR-029/RP-024, docs RR-030/RP-025. Each run and pass signature verifies; all runs bind the same round, material, Story files, scope and diff, have distinct canonical lanes and prompt identities, and are after signed run boundary 26. All four terminals include both manifest and mechanical log with no read diagnostics. Read the signed current epoch object, verified its signature and empty baseline, and checked this critic run started after all four terminals with exact explicit inventory purpose/epoch/wave/cutoff binding. Pure production wave evaluation independently returns all four lanes, no missing lanes or duplicate identities, empty raw Finding/family/new-family/disposition/baseline-mismatch sets. Official full Finding inspection and exact signature checks retain F-001 through F-004 as resolved with their original observations and severity; no historical Finding was dropped or rewritten. Reviewed repair explanations against the integrated same-material quality inspection just completed under RR-028, including producer/consumer mechanical-read guards, current critic aggregation and heartbeat fixture repair; no missed current inventory path or new defect established. Current terminal records and selected run/epoch fields were bounded reads, not full reads of their entire historical JSON files. The decision document was freshly read in full for this critic run; prior Story and source reads were reused only on the unchanged signed material and Story-file subject. This independent critic is not the implementer; the quality terminal was my separately assigned earlier lane and is identified as such, not another host. Docs records its own agy-b29bc-ri005-docs writer. Historical incomplete RP-021 remains history and is not selected. This credential supplies no topology certification, actual-host quorum, validation, TEST/DONE or historical CAS-restoration claim. No source edits, tests, builds, lifecycle or owner actions performed. Exact current aggregate is empty, so empty critic dispositions are justified.",
+      "createdAt": "2026-09-07T13:34:59.427Z",
+      "reviewRound": "2026-09-07T13:21:43.709Z",
+      "reviewRunId": "B-29bc:RR-031",
+      "envelopeId": "a35b0b8f88536e2e3dc99b154768d09f43d9cbab02c5acf3a6e5d1716a958084",
+      "writerSessionId": "codex-b29bc-ri005-inventory",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "264f174e10899770f9f9ada1feca8dde0df861859b70ab94ac70f80a3a7644e1"
     }
   ]
 }
