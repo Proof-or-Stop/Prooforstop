@@ -513,7 +513,8 @@ for (const changes of [
 ]) {
   const changed = { ...firstCritic.receipt, ...changes };
   // Correctly re-sign semantic mutations: rejection must not rely solely on a stale hash.
-  changed._hash = signReviewInventoryCriticReceipt(changed);
+  const { _hash: _oldSignature, ...unsignedChanged } = changed;
+  changed._hash = signReviewInventoryCriticReceipt(unsignedChanged);
   assert.equal(verifyReviewInventoryCriticReceipt(changed), true, 'semantic mutation must retain a valid signature');
   const rejected = validateReviewInventoryCriticReceipt({ ...criticInput, receipt: changed });
   assert.equal(rejected.ok, false, `critic subject substitution rejected: ${JSON.stringify(changes)}`);
@@ -529,7 +530,8 @@ for (const terminal of [undefined, { ...firstCritic.pass, readManifest: undefine
   assert.equal(validateReviewInventoryCriticReceipt({ ...criticInput, passes: [...firstPasses, ...(terminal ? [terminal] : [])], receipt: firstCritic.receipt }).ok, false, 'missing or tampered signed read terminal rejected');
 }
 const incompleteDispositions = { ...firstCritic.receipt, findingDispositions: [] };
-incompleteDispositions._hash = signReviewInventoryCriticReceipt(incompleteDispositions);
+const { _hash: _oldDispositionSignature, ...unsignedDispositions } = incompleteDispositions;
+incompleteDispositions._hash = signReviewInventoryCriticReceipt(unsignedDispositions);
 assert.equal(verifyReviewInventoryCriticReceipt(incompleteDispositions), true, 'disposition mutation must retain a valid signature');
 const rejectedDispositions = validateReviewInventoryCriticReceipt({ ...criticInput, receipt: incompleteDispositions });
 assert.equal(rejectedDispositions.ok, false, 'signed receipt cannot omit a verified historical Finding disposition');
