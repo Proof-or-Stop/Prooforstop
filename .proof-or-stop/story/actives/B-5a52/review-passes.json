@@ -258,6 +258,27 @@
       },
       "readDiagnostics": [],
       "_hash": "3f9f2a481b4bcee2cf7d18ee5c75bb98d82cfe41d325cde51fc96bc0e7975ba3"
+    },
+    {
+      "id": "B-5a52:RP-012",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Current merged-main coverage passed: three browser intents, three explicit manual-visual automation waivers, zero must gaps. Read current checklist and verified playback.js is identical to original branding commit c8263eb450; current main diff is empty. Independently reopened both decoded light MP4 and dark GIF frames: Proof-or-stop, Story Graph and story identifier are readable without overlap. Both initial and initialized DOM title assignments still use PLAYBACK_BRAND. Original waivers remain original bindings, not reexecuted or newly rebound; permanent waiver coverage precedes freshness checks. No automated pixels claimed, and no claim that current B-5a52 full validation or DONE-required suite already ran.",
+      "createdAt": "2026-09-07T06:22:16.970Z",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "reviewRunId": "B-5a52:RR-012",
+      "envelopeId": "2ad5bb1d6ea3910944a8a7590bd49030990b8b399afe53d947143b59e381d9bf",
+      "writerSessionId": "sess-6cc59cd2a21240a96c9b5b2667610cb0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-5a52/background.md",
+          ".proof-or-stop/story/actives/B-5a52/checklist.json",
+          "packages/graph/README.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "bd091ca5d7b99e6e9906bd9d896e6e9ba68e687030e1e373dfa9be02d00b09f3"
     }
   ]
 }

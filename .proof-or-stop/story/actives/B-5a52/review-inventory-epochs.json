@@ -28,8 +28,54 @@
       "cancelReason": "Cancel unnecessary remediation inventory: no code repair is needed. User approved an administrative one-time focused-validation policy for this closeout; existing implementation reviews remain recorded. No completeness or remediation authority is claimed by cancellation.",
       "terminalRunSequenceBoundary": 6,
       "_hash": "c45c1254905e431a65610094b60ad02c187e9da9877e3185d6d1e26fd6e72820"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-5a52:RIE-002",
+      "storyId": "B-5a52",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "state": "FINALIZED",
+      "begunAt": "2026-09-07T06:22:42.964Z",
+      "updatedAt": "2026-09-07T06:23:01.486Z",
+      "cutoff": {
+        "headHash": "6fb53854ed638fef6c0602b52db428b833c309da",
+        "materialHash": "cb166efa035ca321a6ec8f4c6a35d3dd8f3631239b5180fb60e2f516c64134f4",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scopeDigest": "b91ccf712ebdc7810900d5104f6e119e27ca8e9ab3f34ae656dfb1374b20196a",
+      "requiredLanes": [],
+      "maxWaves": 1,
+      "waves": [],
+      "receiptId": "B-5a52:RIE-002:RCP-001",
+      "consumedAt": "2026-09-07T06:23:01.486Z",
+      "consumedByReviewRound": "2026-09-07T02:28:57.003Z",
+      "_hash": "5d18454916482dafa2ad1e7ac998ec4125dfc05282289f1b6f84573c68e8206d"
     }
   ],
-  "receipts": [],
+  "receipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-5a52:RIE-002:RCP-001",
+      "epochId": "B-5a52:RIE-002",
+      "storyId": "B-5a52",
+      "reviewRound": "2026-09-07T02:28:57.003Z",
+      "cutoff": {
+        "headHash": "6fb53854ed638fef6c0602b52db428b833c309da",
+        "materialHash": "cb166efa035ca321a6ec8f4c6a35d3dd8f3631239b5180fb60e2f516c64134f4",
+        "storyFilesHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "scopeDigest": "b91ccf712ebdc7810900d5104f6e119e27ca8e9ab3f34ae656dfb1374b20196a",
+      "requiredLanes": [],
+      "waveCount": 0,
+      "findingSetDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "coverageDigest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T06:22:42.964Z",
+      "consumedAt": "2026-09-07T06:23:01.486Z",
+      "_hash": "fcfeebe1cb2c0e0dc9a1ad0fb025fedc2321d3ac698322946fb8dd46afce6151"
+    }
+  ],
   "criticReceipts": []
 }
