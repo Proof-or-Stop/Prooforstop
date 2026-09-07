@@ -4,7 +4,7 @@
   "title": "Integrate remote main while preserving completed local branding and validation repairs",
   "description": "Integrate origin/main c853ab5e63 with local main d5b00d0ff3 after the user explicitly requested remote publication and chose integration instead of a separate branch. Preserve both histories and resolve the eleven observed conflicts without weakening evidence or validation behavior. Verify the integrated result and publish a normal fast-forward remote main update after local completion.",
   "type": "chore",
-  "phase": "REVIEW",
+  "phase": "TEST",
   "priority": "high",
   "keywords": [
     "remote-integration",
@@ -117,6 +117,15 @@
       "phase": "REVIEW",
       "action": "advance",
       "timestamp": "2026-09-07T11:48:29.914Z",
+      "branch": "story/B-42f6",
+      "user": "Pan Qi",
+      "sessionId": "sess-111f787341add2cdbadb7c69b7d6e96a",
+      "agent": "main"
+    },
+    {
+      "phase": "TEST",
+      "action": "advance",
+      "timestamp": "2026-09-07T12:15:55.023Z",
       "branch": "story/B-42f6",
       "user": "Pan Qi",
       "sessionId": "sess-111f787341add2cdbadb7c69b7d6e96a",
