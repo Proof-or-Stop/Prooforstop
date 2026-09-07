@@ -3698,6 +3698,60 @@
       },
       "readDiagnostics": [],
       "_hash": "313772657fddd243230fb60bad625e5dfca19aafbaca0b8ef6cb20fd30abed28"
+    },
+    {
+      "id": "B-8a40:RP-086",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-015 wave 1, quality lane, run RR-160 at HEAD 7e8512edf8. NO BLOCKING FINDING; this is not a claim of zero observations. Three verified observations remain OPEN on this current run: B-8a40:F-089 medium (mutation tree created inside the repository working tree at prompt-full-context-envelope-smoke.ts:2114/2137 with no matching .gitignore pattern), B-8a40:F-090 low (TRIAGE_INVENTORY_AUTHORITY_ACTION declared and never read at prompt-envelope.ts:379), B-8a40:F-091 low (nested guard at prompt-envelope.ts:233-235 provably equivalent to a single relationRange.end greater than conceptEnd test, both relationRange.start comparisons dead). Each was re-verified line-exact at this HEAD and each is routed to docs/story/drafts/classifier-smoke-nonblocking-cleanup as future owner. They are advisory under the current round decay because they are medium and low; I applied no decay to any high or critical, and none exists in this lane. Their canonical originals F-085, F-086 and F-087 were resolved by the Owner as superseded, and I independently confirmed that record states supersession of the active binding only, with the observation remaining open, severity unchanged and no claim of repair, dismissal, disproval or signed deferral; nothing was erased. Independently audited this wave and found accurate: scope_contract_check now reports Scope gate: warn (4 warning(s), mode=enforce) with zero blocking rows, and the acknowledgement covers exactly one path .proof-or-stop/story/actives/B-8a40/dev-memory-candidates.jsonl with assuranceLabel acknowledged-expansion and a reason that itself states no general artifact exemption or runtime registry change is included; F-088 is resolved as partially_mitigated and its reason correctly limits itself to occurrence-level operational repair, names the remaining producer gap as owned by docs/story/drafts/dev-memory-candidate-scope-registration, and explicitly declines to infer anything about F-085 from that different producer, which I concur with because F-085/F-089 is a distinct conditional abrupt-termination mechanism with no executed interruption witness; commit b51de58e20 genuinely contains all three follow-up draft routes with reproduction, impact, owner and escalation rules; and no source or configuration implementation changed, because git diff a28a4017dd HEAD -- packages/main/src scripts bin package.json .gitignore is empty, so the five-file candidate is byte-identical to my original RR-151 audit. Scope of this pass: the bounded candidate plus changed Story metadata only; no arbitrary expansion. Retained limitations, none of which this pass resolves: no interruption witness exists for F-089; the dev-memory producer registry gap is NOT durably fixed and only the single occurrence was acknowledged at lower assurance; I ran no rebuild and no root npm test; the previously reported 65/65 root member PASS lines came from a run that exited 1 under HEAD and material identity drift and is explicitly NOT a gate PASS; pre-review is observe/inconclusive; a rollout fixture report is NOT real host quorum. I submit no quorum and make no formal validation, cross-host assurance or DONE readiness claim.",
+      "createdAt": "2026-09-07T08:34:49.650Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-160",
+      "envelopeId": "41bdaca8dc461d2a6612582fdab7843dcabd784705410e047614aa6ba24b04fe",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/summary.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/review-passes.json",
+          "package.json",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "6e18fce089dcde3ff377e54fb05eb694e749a58b238b6352cd0e88f2928498fe"
     }
   ]
 }
