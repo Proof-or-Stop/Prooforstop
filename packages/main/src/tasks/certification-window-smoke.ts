@@ -16,7 +16,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, w
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { StoryStore } from '../core/store.js';
-import { CERTIFICATION_DOMAIN_PATH_RULES, deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
+import { CERTIFICATION_DOMAIN_PATH_RULES, deriveCertificationDomainInputHashes, buildCertificationDecision } from '../handlers/certification-window.js';
 import { causalDigest } from '../core/causal-evidence.js';
 import { resolveStoryChangedFiles } from '../core/story-aware-validation.js';
 import { PROCESS_FACT_LEVELS } from '../core/process-fact-levels.js';
@@ -1246,6 +1246,75 @@ console.log(findingOutput);
       assert.equal(hashes['certification:build-input'], causalDigest(entries.map(entry => `${entry.path}\0${entry.blobId}`).sort()),
         'every admitted current build input must bind its actual Git blob');
     } finally { rmSync(dir, { recursive: true, force: true }); }
+  });
+
+  check('release provenance ledgers bind actual added, modified and deleted Git inputs', () => {
+    for (const path of ['.proof-or-stop/artifact-releases.jsonl', '.proof-or-stop/capability-releases.jsonl']) {
+      assert.deepEqual(CERTIFICATION_DOMAIN_PATH_RULES.filter(([, pattern]) => pattern.test(path)).map(([domain]) => domain),
+        ['review-subject'], `release ledger must have exactly one review-subject domain: ${path}`);
+      for (const action of ['added', 'modified', 'deleted'] as const) {
+        const dir = makeGitRoot();
+        try {
+          if (action !== 'added') {
+            write(dir, path, '{"fixture":"baseline provenance"}\n');
+            commit(dir, 'baseline release provenance');
+          }
+          git(dir, ['checkout', '-b', 'story/B-c011']);
+          if (action === 'deleted') rmSync(join(dir, path));
+          else write(dir, path, '{"fixture":"current provenance"}\n');
+          commit(dir, `exercise ${action} release provenance`);
+          const entries = resolveStoryChangedFiles(dir, 'HEAD', dir);
+          assert.equal(entries.length, 1, 'fixture must exercise only its exact release ledger');
+          assert.equal(entries[0].path, path);
+          assert.equal(entries[0].status, action);
+          if (action === 'deleted') assert.equal(entries[0].blobId, '<deleted>');
+          const hashes = deriveCertificationDomainInputHashes(dir, 'HEAD', dir);
+          assert.ok(hashes, 'tracked release provenance must not strand certification');
+          assert.equal(hashes['certification:review-subject'], causalDigest(entries.map(entry => `${entry.path}\0${entry.blobId}`).sort()),
+            'release provenance binds the actual Git blob or deletion tombstone');
+          if (action !== 'deleted') {
+            const frozen = {
+              headHash: currentGitHead(dir)!, materialHash: currentMaterialHash(dir, 'HEAD', dir)!,
+              storyFilesHash: currentStoryFilesHash(dir, 'HEAD', dir)!, causalInputHashes: hashes,
+              expectedMainSha: git(dir, ['rev-parse', 'main']), verifierIdentity: 'proof-or-stop:done_required_validate',
+              testIdentity: 'npm test',
+            };
+            write(dir, path, '{"fixture":"changed provenance bytes"}\n');
+            commit(dir, 'change release provenance bytes');
+            const changed = deriveCertificationDomainInputHashes(dir, 'HEAD', dir)!;
+            assert.ok(changed);
+            assert.notEqual(changed['certification:review-subject'], hashes['certification:review-subject']);
+            for (const domain of Object.keys(hashes).filter(key => key !== 'certification:review-subject')) {
+              assert.equal(changed[domain], hashes[domain], `release provenance must not alter unrelated direct input ${domain}`);
+            }
+            const decision = buildCertificationDecision('B-c011', {
+              headHash: currentGitHead(dir), materialHash: currentMaterialHash(dir, 'HEAD', dir),
+              storyFilesHash: currentStoryFilesHash(dir, 'HEAD', dir), causalInputHashes: changed,
+            }, frozen);
+            assert.deepEqual(decision?.affectedNodeIds,
+              ['certification-integration', 'certification-review-subject', 'certification-test'],
+              'release provenance drift must invalidate the complete integration/test dependent closure');
+            assert.equal(decision?.gateAdmissible, false, 'changed provenance must not reuse certification without reruns');
+          }
+        } finally { rmSync(dir, { recursive: true, force: true }); }
+      }
+    }
+  });
+
+  check('release ledger near misses remain unclassified', () => {
+    for (const path of ['.proof-or-stop/artifact-releases.jsonl.backup', '.proof-or-stop/capability-releases.jsonl/child',
+      '.proof-or-stop/nested/artifact-releases.jsonl', '.proof-or-stop/other-releases.jsonl',
+      '.lattice/artifact-releases.jsonl', '.proof-or-stop-extra/capability-releases.jsonl']) {
+      const dir = makeGitRoot();
+      try {
+        git(dir, ['checkout', '-b', 'story/B-c011']);
+        write(dir, path, 'unknown provenance-shaped path\n');
+        commit(dir, 'exercise release ledger near miss');
+        assert.ok(resolveStoryChangedFiles(dir, 'HEAD', dir).some(entry => entry.path === path));
+        assert.equal(deriveCertificationDomainInputHashes(dir, 'HEAD', dir), undefined,
+          `a familiar ledger name must not authorize an unknown path: ${path}`);
+      } finally { rmSync(dir, { recursive: true, force: true }); }
+    }
   });
 
   check('build-like basenames do not admit unknown namespaces', () => {

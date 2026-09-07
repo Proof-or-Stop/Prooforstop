@@ -1561,7 +1561,7 @@ export const PROCESS_FACT_ARTIFACTS = [
     producer: 'handlers/certification-window',
     consumerGate: 'done_required_validate / validate --full PRE_CERT certification-window gate',
     artifact: PROCESS_FACT_ARTIFACT_BY_COMMAND.certification_window_begin,
-    rationale: 'Signed CertificationWindow and PRE_CERT receipt bind frozen head/main/storyFiles identity. Inventory completeness receipts never authorize certification.',
+    rationale: 'Signed CertificationWindow and PRE_CERT receipt bind frozen head/main/storyFiles identity. Exact canonical artifact-releases.jsonl and capability-releases.jsonl paths are review-subject causal inputs bound to actual Git blobs/tombstones, with integration/test dependency invalidation; release provenance is never gate evidence and unknown paths fail closed. Inventory completeness receipts never authorize certification.',
   },
   {
     name: 'artifact:draft-check.json',

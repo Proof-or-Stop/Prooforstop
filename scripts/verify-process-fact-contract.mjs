@@ -5570,6 +5570,12 @@ function assertCertificationWindowCommandContract(cliToolNameSet, registry, leve
       );
     }
   }
+  const certificationArtifact = registry.get('artifact:certification-window.json');
+  for (const term of ['artifact-releases.jsonl', 'capability-releases.jsonl', 'review-subject',
+    'Git blobs/tombstones', 'integration/test', 'never gate evidence', 'unknown paths fail closed']) {
+    assert(certificationArtifact?.rationale.includes(term),
+      `${processFactRegistryPath}: certification release provenance contract missing ${term}`);
+  }
   const statusSource = read('packages/main/src/core/certification-window.ts');
   assert(
     /status must never claim inventory completeness is certification/.test(statusSource),
