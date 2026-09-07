@@ -514,7 +514,10 @@ for (const changes of [
   const changed = { ...firstCritic.receipt, ...changes };
   // Correctly re-sign semantic mutations: rejection must not rely solely on a stale hash.
   changed._hash = signReviewInventoryCriticReceipt(changed);
-  assert.equal(validateReviewInventoryCriticReceipt({ ...criticInput, receipt: changed }).ok, false, `critic subject substitution rejected: ${JSON.stringify(changes)}`);
+  assert.equal(verifyReviewInventoryCriticReceipt(changed), true, 'semantic mutation must retain a valid signature');
+  const rejected = validateReviewInventoryCriticReceipt({ ...criticInput, receipt: changed });
+  assert.equal(rejected.ok, false, `critic subject substitution rejected: ${JSON.stringify(changes)}`);
+  assert.equal(rejected.reason, 'critic inventory purpose/subject binding missing or mismatched');
 }
 for (const changes of [{ reviewPurpose: undefined, inventoryBinding: undefined }, { reviewPurpose: 'topology' as const, inventoryBinding: undefined }, { inventoryBinding: { ...firstCritic.run.inventoryBinding!, wave: 99 } }]) {
   const changed = { ...firstCritic.run, ...changes };
@@ -527,7 +530,11 @@ for (const terminal of [undefined, { ...firstCritic.pass, readManifest: undefine
 }
 const incompleteDispositions = { ...firstCritic.receipt, findingDispositions: [] };
 incompleteDispositions._hash = signReviewInventoryCriticReceipt(incompleteDispositions);
-assert.equal(validateReviewInventoryCriticReceipt({ ...criticInput, receipt: incompleteDispositions }).ok, false, 'signed receipt cannot omit a verified historical Finding disposition');
+assert.equal(verifyReviewInventoryCriticReceipt(incompleteDispositions), true, 'disposition mutation must retain a valid signature');
+const rejectedDispositions = validateReviewInventoryCriticReceipt({ ...criticInput, receipt: incompleteDispositions });
+assert.equal(rejectedDispositions.ok, false, 'signed receipt cannot omit a verified historical Finding disposition');
+assert.match(rejectedDispositions.reason ?? '', /^critic finding dispositions missing: /);
+assert.equal(validateReviewInventoryCriticReceipt({ ...criticInput, receipt: firstCritic.receipt }).ok, true, 'the unmodified signed receipt remains the positive control');
 console.log('B29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS');
 assert.match(criticTerminalStatus, /Next: proof-or-stop review_inventory_critic_set/);
 assert.match(criticTerminalStatus, /"findingDispositions":\[/, 'critic Next must include the CLI-required disposition inventory');
