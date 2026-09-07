@@ -229,7 +229,7 @@
           "packages/main/src/tasks/prompt-registry-smoke.ts"
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-09-07T09:24:33.472Z",
       "endTime": "2026-09-07T09:59:16.748Z",
       "verificationIntent": {
@@ -415,6 +415,15 @@
       "from": "in_progress",
       "to": "done",
       "reason": "Committed runtime repair 0ffe4cc619 and formal batch 74997ad satisfy original intent plus F-001/F-002 regression controls."
+    },
+    {
+      "timestamp": "2026-09-07T11:03:50.035Z",
+      "phase": "DEV",
+      "itemId": "CHK-002",
+      "action": "update",
+      "from": "done",
+      "to": "in_progress",
+      "reason": "Close the bounded documentary contradiction tracked by F-003/F-004 using committed audit b2e7b6f495 and fresh formal evidence 74997ad."
     }
   ]
 }
