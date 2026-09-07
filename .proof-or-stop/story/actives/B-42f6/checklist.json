@@ -33,7 +33,35 @@
       },
       "status": "pending",
       "startTime": null,
-      "endTime": null
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "Read-only Git checks prove both d5b00d0ff3 and c853ab5e63 are ancestors of integrated HEAD and playback.js remains byte-identical to branding commit c8263eb450, including initial/post-parse Proof-or-stop headings and exported frame branding.",
+            "type": "cli"
+          },
+          {
+            "desc": "Merged CLI retains Lab and config routing and aligned package/lockfile/runtime versions; existing cli-surface-smoke and version-bump-smoke pass against the built merge.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "Existing english-early-check-smoke passes against compiled merged code, resolves repository guidance correctly and retains early rejection of non-English authoring artifacts.",
+            "type": "cli"
+          },
+          {
+            "desc": "Existing done-required-validation-smoke passes with canonical ambient transport neutrality, semantic and explicit-overlay sensitivity, and unchanged historical key-list digest.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "Existing verification-run-and-guard-smoke passes while retaining remote context/provenance separation, pinned docs recovery, true execution timestamps and local mixed-selector negative assertions; mismatched commands, absent selectors and failing verifiers never mint passing mechanical evidence.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }

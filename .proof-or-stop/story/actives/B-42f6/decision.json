@@ -1,0 +1,56 @@
+{
+  "principles": [
+    "Preserve both user-owned histories",
+    "Retain stronger evidence integrity boundaries",
+    "Verify actual merged code before publication"
+  ],
+  "drivers": [
+    "User requested remote integration",
+    "Overlapping independent baseline repairs",
+    "Remote has newer lifecycle behavior"
+  ],
+  "options": [
+    {
+      "name": "Normal merge with intent-based conflict resolution",
+      "pros": [
+        "Preserves both histories and independent improvements",
+        "Publishes by fast-forward after merge"
+      ],
+      "cons": [
+        "Requires resolving conflicting versions and verifying combined semantics"
+      ]
+    },
+    {
+      "name": "Reapply only local commits on remote",
+      "pros": [
+        "Smaller apparent patch against remote"
+      ],
+      "cons": [
+        "Rewrites local integration history and may lose completed Story lineage"
+      ]
+    }
+  ],
+  "chosen": "Normal merge with intent-based conflict resolution",
+  "rationale": "The user selected integration; a true merge preserves completed local Story lineage and remote improvements while allowing explicit conflict resolution.",
+  "preMortem": [
+    {
+      "scenario": "Blind local selection drops remote receipt safeguards",
+      "trigger": "Overlapping checklist and regression conflicts",
+      "consequence": "Signed evidence identity becomes weaker",
+      "mitigation": "Preserve remote provenance/context logic and run both selector negative checks."
+    },
+    {
+      "scenario": "Inconsistent package versions break runtime binding",
+      "trigger": "Version conflict across five synchronized paths",
+      "consequence": "CLI build or compatibility validation fails",
+      "mitigation": "Keep remote0.3.278 consistently and verify build/version contract."
+    },
+    {
+      "scenario": "Remote changes after integration invalidate fast-forward",
+      "trigger": "Concurrent origin/main update",
+      "consequence": "Push rejection or lost remote commits if forced",
+      "mitigation": "Fetch immediately before publication and never force-push; re-integrate new commits if needed."
+    }
+  ],
+  "timestamp": "2026-09-07T07:55:22.598Z"
+}

@@ -1,0 +1,40 @@
+{
+  "storyId": "B-42f6",
+  "mode": "enforce",
+  "allowedModify": [
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proof-or-stop-brand.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-09-07T07:56:00.637Z",
+  "updatedAt": "2026-09-07T07:56:00.637Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "package-lock.json": "package-lock.json",
+    "package.json": "package.json",
+    "packages/main/package-lock.json": "packages/main/package-lock.json",
+    "packages/main/package.json": "packages/main/package.json",
+    "packages/main/src/core/machine.ts": "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proof-or-stop-brand.ts": "packages/main/src/core/proof-or-stop-brand.ts",
+    "packages/main/src/handlers/checklist.ts": "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts": "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+  }
+}

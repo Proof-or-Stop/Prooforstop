@@ -1,0 +1,31 @@
+{
+  "task": "Integrate divergent remote main with completed local work through a normal merge.",
+  "outcome": "Both main parents are ancestors of the published result, branding remains visible, and merged receipt behavior passes regression validation.",
+  "facts": [
+    "Merge-tree found eleven content conflicts between d5b00d0ff3 and c853ab5e63.",
+    "Remote version0.3.278 supersedes local0.3.276.",
+    "Remote receipt grouping includes stricter context and provenance identity, with selector-specific causal receipts.",
+    "Local extra negative selector test should remain alongside remote stronger assertions."
+  ],
+  "constraints": [
+    "Preserve both histories and all nonconflicting remote changes.",
+    "No force push or unrelated cleanup.",
+    "Story and evidence records remain CLI-owned; resolve metadata only through supported merge handling.",
+    "Record release approval before remote publication."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "package-lock.json",
+    "package.json",
+    "packages/main/package-lock.json",
+    "packages/main/package.json",
+    "packages/main/src/core/machine.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "packages/main/src/core/proof-or-stop-brand.ts",
+    "packages/main/src/handlers/checklist.ts",
+    "packages/main/src/tasks/done-required-validation-smoke.ts",
+    "packages/main/src/tasks/english-early-check-smoke.ts",
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+  ],
+  "timestamp": "2026-09-07T07:55:16.946Z"
+}
