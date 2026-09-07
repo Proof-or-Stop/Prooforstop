@@ -6284,6 +6284,42 @@
         "scanEscalationReason": null
       },
       "_hash": "5fa71581aa4123ca2ff2be5bb9b0c8f7188ddae93c327285a1ab42254274b1bd"
+    },
+    {
+      "id": "B-e256:RP-142",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed the complete current main...HEAD business diff and Story acceptance surface, with focused scrutiny of BUG-001 commit af32b8a179. The guidance allocator derives missing rounds as required minus valid, excludes every valid/invalid/ignored occupied run id, emits r2/r3/r4 for the live duplicate-poisoned r1 state, and emits no replay commands after satisfaction. No dead code, unsafe cast introduced by the fix, swallowed error, I/O boundary violation, proof-metadata asymmetry, or promised-but-undelivered behavior was found. Fresh targeted evidence: review-assurance-floor smoke 19/19, global-core-realpath, red-global-cli-exec-bit, typecheck, and git diff --check all passed; live review_escalation_status produced distinct r2/r3/r4 reviewer-host recipes bound to current material/story-files hashes.",
+      "createdAt": "2026-09-07T13:32:35.156Z",
+      "reviewRound": "2026-09-07T13:24:02.709Z",
+      "reviewRunId": "B-e256:RR-204",
+      "envelopeId": "318f6cab19bb162e05395cd5d9265d4e79c522753518267507396e7cfb22fcd2",
+      "writerSessionId": "sess-c935e50075761dec3627bc760a943985",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/bug.json",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          "packages/main/src/core/review-assurance-floor.ts",
+          "packages/main/src/tasks/review-assurance-floor-smoke.ts",
+          "scripts/promote-dist.mjs"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/acceptance-discovery-adapters.ts",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/src/core/version-bump.ts",
+          "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
+          "packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/src/tasks/validation-tier-planner-smoke.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "3c445b22d43316c5a3995133eb5331d47c0e6662b19da2d327b0525d397fc802"
     }
   ]
 }
