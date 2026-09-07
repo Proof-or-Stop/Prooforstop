@@ -6090,6 +6090,27 @@
       },
       "readDiagnostics": [],
       "_hash": "70a93c39ace9f66c75c58f7ae8667f9b7e10eb924187479ff10ba5113207312a"
+    },
+    {
+      "id": "B-e256:RP-136",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Test coverage review passed: 18/18 intents are mapped, all 16 must intents have current tool-owned PASS receipts with matched selectors, no waivers or required gaps; fresh full validation reports 132/132 commands with zero failures. Independent reruns passed the global executable RED regression, global-core-realpath POSIX and simulated Windows three-peer shim suite, acceptance-basis, pre-review mutation suite, and 58-assertion rollout suite covering full-3x2, degraded-3x1 rejection, tamper, mode parity, enforce-only blocking, and rollback history.",
+      "createdAt": "2026-09-07T11:17:49.099Z",
+      "reviewRound": "2026-09-07T11:03:41.655Z",
+      "reviewRunId": "B-e256:RR-197",
+      "envelopeId": "982b9c95b203eacfbcc0b11acba17cdecb62f8ec8a7ad894cffd9739f4d9f505",
+      "writerSessionId": "sess-6b6f22c800196565f2babfb8de931f4e",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "8db5d8365c18eb7d9c2be4bf66301fa7460aa1811e1ea3981c4e5729b1e38170"
     }
   ]
 }
