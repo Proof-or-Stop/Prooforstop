@@ -4171,6 +4171,56 @@
       },
       "readDiagnostics": [],
       "_hash": "7ccd708570310125a3ba10eb38f4f8dac1eff7fc14668fdcdac3ffed90d1c507"
+    },
+    {
+      "id": "B-8a40:RP-095",
+      "agent": "proof-or-stop-review-quality",
+      "note": "REVIEW round 7 fresh audit, quality lane, run RR-173 at HEAD 8a0c5225c8, NEW material 9384a1a40bcd6d77766caa86fd17295d8a06621ccb22574beba1dff784975a25 and NEW storyFiles 80ae8e3835eecf88fdee3a977157686a4481dd5c0cbba26794279c056242a4f0. I consumed the ENTIRE canonical assembled prompt through END EXACT ASSEMBLED REVIEW PROMPT with no truncating pipe. Because material changed I performed a FRESH audit of the two newly changed test files and did NOT reuse an old-source pass. NO BLOCKING FINDING and NO new finding registered. HEARTBEAT SMOKE, packages/main/src/tasks/validate-progress-heartbeat-smoke.ts: the diff touches only the assertOuterWatchdogsKillDescendants max row, adding startupDelayMs 1000 via a synchronous Atomics.wait before the descendant spawn, widening that rows fixture maxMs from 700 to 10000, and raising ONLY that rows command timeout from 5000 to 20000 so the outer-max layer rather than the command layer is exercised. The idle row keeps startupDelayMs 0, where Atomics.wait with a zero timeout returns immediately, so that row is behaviorally unchanged. I verified the unchanged-production claim mechanically rather than accepting it: NON_MAX_OUTER_TIMEOUT_MS remains 120000 at line 50, and the two tight max-layer rows that actually pin deadline enforcement remain maxMs 180 at lines 335 and 414. The widened values are fixture config and fixture env, not production defaults. This is a premise repair, not a loosened production deadline. LEDGER GUARD, packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs: it no longer requires the absent clone-local CAS object, yet the historical binding is PRESERVED through tracked records rather than discarded, namely original.failureReceiptHash equals the pinned PROBE_DIGEST at line 409, original.baselineHeadHash equals BASELINE_HEAD at line 410, official.note must still match all four historical IDs PROBE_ID, REVIEW_ID, RELATION_ID and EVALUATION_ID at lines 416 to 418, official.baselineHeadHash equals BASELINE_HEAD at 419 with a merge-base ancestry check at 420, and the IMMUTABLE_RED_BLOB cat-file check at 360 is untouched. The real baseline and current executions at explicit historical and current roots remain at lines 443 to 449. It ADDS a genuine strengthening at lines 439 to 440, asserting the historical checkout truly lacks packages/main/src/core/finding-ledger.ts, which closes the unbuilt-checkout false-witness hole. The fresh candidate work runs in a private fixture under tmpdir inside relationScratch and is removed in the finally block, so nothing is written into the repository working tree. Anti-impersonation and isolation are positively proven, not merely asserted: evidenceScope equals evidence-candidate on probe, relation, review and evaluation; three notEqual assertions forbid reusing PROBE_ID, RELATION_ID and REVIEW_ID; and absentHistoricalProbe requires that querying PROBE_ID inside the private fixture FAILS with artifact ref not found, which simultaneously proves no old-CAS recovery and real store isolation. Integrity negatives are executed, namely the unreviewed relation must not pass with a missing red-reviewed reason, and a one-bit digest mutation must be rejected with an integrity reason. The narrow registration-mirror special case is NOT widened; the mirror ternaries for probe and relation were removed so both paths now run the same fresh fixture, which narrows it. Selector prefixes for the caller are preserved and suffixed with explicit proof domains, plus a new red.evidence_provenance line stating restoredHistoricalCAS=false. OWNER RESOLUTION AUDIT: I inspected the resolution texts for F-092, F-093, F-094 and F-095 and independently verified every load-bearing claim against the actual committed diff, as listed above, and I find NO basis to overrule any of them; they are accurate and correctly bounded, including their own statements that this is focused repair evidence and not a fresh formal 132 validation PASS. I treat metadata closure as insufficient by itself, which is why each claim above was checked against source rather than against the resolution text. CANDIDATE CLASSIFIER UNCHANGED: the original five-file implementation is byte-identical to my earlier full audits, so the classifier itself required no re-review beyond confirming non-change. A CANDIDATE I CONSIDERED AND REJECTED, disclosed rather than dropped: at lines 457 to 460 baselineCommandSpec and currentCommandSpec are built from the same process.execPath expression and the same anchoredArgs binding, so assert.equal on command and assert.deepEqual on args cannot fail today. I nearly filed this as a vacuous assertion, then concluded it is a legitimate divergence pin that would fire if a future editor made the two specs differ, so filing it would have been speculative cleanup and wrong on the merits. PRESERVED UNMODIFIED: F-089, F-090 and F-091 remain OPEN and behaviorally unaddressed, owned by docs/story/drafts/classifier-smoke-nonblocking-cleanup; F-096 remains OPEN with evidenceState suspected and no proven worst-case slowdown, owned by docs/story/drafts/reviewer-classifier-input-cost. I resolved, superseded, dismissed, refiled and re-severitied nothing, and I manufactured no re-observation to hide any binding or latest-run issue. LIMITATIONS: the formal 132-command routine validation and the 65-member DONE-required run are BOTH still pending on this new material, and the historical formal 132 FAIL is not a current PASS; the focused executions reported by root are focused results only and I did not rerun them; summary acceptanceVerdict is partial; pre-review remains observe or inconclusive with stale or unsupported basis diagnostics; topology is NOT PASS; the fresh acceptance rollout report is fixture assurance and NOT actual independent-host quorum, which must still be obtained separately after current formal validation; scope remains WARN with six acknowledged expansion paths and no blocking rows, which is not the original unchanged boundary. This lane record is NOT TEST readiness, NOT DONE readiness and NOT global readiness. I made no source, test, build, dist, scope, checklist or owner change, took no lease, and submitted no host quorum.",
+      "createdAt": "2026-09-07T10:23:06.269Z",
+      "reviewRound": "2026-09-07T10:16:28.881Z",
+      "reviewRunId": "B-8a40:RR-173",
+      "envelopeId": "8b21d752ccc8a021c49b8ac2c9550fa02d7fd9851d9cd460b3726b95f0152164",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "e25e7b0d5856c508d4e62ee33993b9e3d1350a77f89a5d9dfbaa7faefa85f510"
     }
   ]
 }
