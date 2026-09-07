@@ -1,11 +1,11 @@
 {
   "storyId": "B-e256",
-  "changes": "The dist promotion pipeline restores executable bits for every declared package bin before eviction, rejects symlink and parent-chain escapes, and keeps both wrapper integrations covered. Global runtime checks bind the PATH-selected command to the canonical package target, honor PATHEXT order, and validate a Windows shim only when the canonical target occupies the actual Node script argument; echo, node --version, node -e, unreadable, mismatched, or non-invoking decoys fail closed. AC-001 now binds the benign missing-bin must intent, and validation_plan exposes the regression by stable id and label.",
+  "changes": "The dist promotion pipeline restores executable bits for every declared package bin before eviction, rejects symlink and parent-chain escapes, and keeps both wrapper integrations covered. Global runtime checks bind the PATH-selected command to the canonical package target, honor PATHEXT order, and validate a Windows shim only when the canonical target occupies the actual Node script argument; echo, node --version, node -e, unreadable, mismatched, or non-invoking decoys fail closed. AC-001 binds the benign missing-bin must intent, and validation_plan exposes the regression by stable id and label.",
   "usage": "Run npm --prefix packages/main run build; then invoke proof-or-stop normally from PATH. For direct regression evidence run node packages/main/tests/red/red-global-cli-exec-bit.mjs and node packages/main/tests/global-core-realpath.test.mjs. Use proof-or-stop validation_plan --explain to inspect the registered red-global-cli-exec-bit validation entry.",
   "expectedOutcome": "After any supported dist rebuild, the globally linked proof-or-stop command remains executable and resolves to the canonical package target. Invalid POSIX paths, unsafe promotion targets, and Windows shims that merely mention but do not execute the target remain non-pass; validation_plan exposes the regression by stable identity.",
-  "actualTranscript": "Current focused verification passed: package build exit 0; global-core-realpath prints ok with option-consuming and eval decoys rejected; red-global-cli-exec-bit reports live mode 0755 and all hermetic promotion cases GREEN; runtime fact contract verified; ProofStory review completeness reports pass with zero gaps; validation-tier-planner-smoke PASS; git diff --check exit 0.",
-  "outcomeDiff": "No observed difference in focused verification; current-material full Story validation and final independent review remain to be refreshed before DONE.",
-  "acceptanceVerdict": "partial",
+  "actualTranscript": "Current-material validation executed all 132 configured commands and returned allPass=true. Focused verification also passed: global-core-realpath rejects node --version and node -e target decoys; red-global-cli-exec-bit reports live mode 0755 and all hermetic promotion cases GREEN; runtime fact contract verified; ProofStory review completeness reports pass with zero gaps; validation-tier-planner-smoke PASS; git diff --check exit 0.",
+  "outcomeDiff": "No observed difference: focused and full validation match the expected user-visible and fail-closed outcomes.",
+  "acceptanceVerdict": "accepted",
   "outcomeKind": "success",
   "realMachineCoverage": {
     "ran": [],
@@ -28,7 +28,7 @@
     },
     "DEV": {
       "count": 32,
-      "durationMs": 88289678
+      "durationMs": 89819701
     },
     "REVIEW": {
       "count": 23,
@@ -39,7 +39,7 @@
       "durationMs": 17052748
     }
   },
-  "totalDurationMs": 384889075,
+  "totalDurationMs": 386419098,
   "fixtureStats": {
     "totalRuns": 0,
     "totalCases": 0,
@@ -52,5 +52,5 @@
     "open": 0
   },
   "createdAt": "2026-09-03T01:57:56.411Z",
-  "updatedAt": "2026-09-07T00:09:59.323Z"
+  "updatedAt": "2026-09-07T00:35:29.345Z"
 }
