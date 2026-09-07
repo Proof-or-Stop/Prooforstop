@@ -325,7 +325,7 @@
       "desc": "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:408 wave-2 reconfirmation of existing canonical blocker B-42f6:F-006, duplicate observation only, no new defect family. Candidate source unchanged; line408 still calls repro_probe_get for fixed rp-mtifubae-dfbh4w. Existing frozen full132 artifact /private/tmp/B-42f6-final-validate.json and independent clean-clone single-check both fail with evidence-store: artifact ref not found: rp-mtifubae-dfbh4w. No source repair or new test execution occurred this wave. F-006 remains unresolved and directly blocks required validation; do not interpret this contribution as PASS, repair or deferral. Route this observation to canonical F-006 for current-Story repair.",
       "severity": "high",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-07T10:35:20.114Z",
@@ -353,7 +353,10 @@
       "signatureTag": "missing|mjs|packages-main-tests",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr3txo3_19t2_cb5edc81838643ab810fb3db8c3fd75d",
-      "ledgerCommitReceiptId": "lrc_mtr3txo3_19t2_46aa05c6e48742969c62df317234e5fa"
+      "ledgerCommitReceiptId": "lrc_mtr3txo3_19t2_46aa05c6e48742969c62df317234e5fa",
+      "resolvedAt": "2026-09-07T10:55:22.953Z",
+      "resolvedReason": "Fixed by commits 780cc42ed6, a1d58dd487 and df2133a1c8 in the existing ledger integrity guard. Historical Story identity assertions remain; actual fixed historical missing-module and current GREEN imports feed fresh production candidate fixtures. Real CLI probe reads and good/bad relation evaluation are exercised; changed commands fail closed. Original historical artifacts are not recreated. Focused final guard, registration 26 GREEN and process-fact contract passed; /private/tmp/B-42f6-integration/ledger-cli-final-guard.log and ledger-cli-registration.log preserve results. Full132 on final code is still required.",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-42f6:F-010",
