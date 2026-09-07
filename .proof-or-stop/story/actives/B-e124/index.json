@@ -1,0 +1,28 @@
+{
+  "storyId": "B-e124",
+  "name": "repair-main-lab-alias-and-transport-smoke",
+  "title": "Restore nested Lab commands and align transport smoke coverage with canonical environment names",
+  "description": "On main 1a7fb6292c, cli-surface-smoke fails because lab create is not normalized, and done-required-validation-smoke iterates frozen retired names rather than active canonical transport keys. Reproduced both before and after rebuilding main. Restore the advertised Lab command forms and correct test coverage without weakening validation semantics.",
+  "type": "bug",
+  "phase": "INIT",
+  "priority": "medium",
+  "createdAt": "2026-09-07T03:02:50.624Z",
+  "startedAt": "2026-09-07T03:02:50.624Z",
+  "endedAt": null,
+  "events": [
+    {
+      "phase": "INIT",
+      "action": "create",
+      "timestamp": "2026-09-07T03:02:51.477Z",
+      "branch": "main",
+      "user": "Pan Qi",
+      "sessionId": "sess-778dd2b7376f29d38a095db48df558dc",
+      "agent": "main"
+    }
+  ],
+  "worktree": {
+    "path": ".worktrees/B-e124",
+    "branch": "story/B-e124",
+    "createdAt": "2026-09-07T03:03:52.436Z"
+  }
+}
