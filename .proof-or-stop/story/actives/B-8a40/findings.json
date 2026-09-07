@@ -4808,6 +4808,68 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtr1k8nk_7kt_c680a300e9b0478cbd11d296c1a81241",
       "ledgerCommitReceiptId": "lrc_mtr1k8nl_7kt_630dbc5b6a7c4e86a8f0fd23e111562e"
+    },
+    {
+      "id": "B-8a40:F-094",
+      "desc": "RI-016 wave-2 independent re-observation of OPEN verified B-8a40:F-092 (hash df9349f877de012cd84522688af335649349ac19eb817e5743ec28002e7b2254), same family b8a40-validation-historical-probe-portability / BUG-VALIDATION-PROBE-PORTABILITY, not a new defect family or superseding disposition. packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:35/408 still requires the historical candidate probe rp-mtifubae-dfbh4w before its actual baseline/current/integrity controls. Fresh node bin/proof-or-stop.js repro_probe_get --probeId=rp-mtifubae-dfbh4w in the Story worktree again exits 1 with evidence-store: artifact ref not found. Fresh canonical test_list.latest.output still binds material fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd / storyFiles 6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b, timestamp 2026-09-07T09:21:27.902Z, complete FAIL with 132 required commands, 130 successes and two failures: command[127] is code 1 / 2329 ms with the same missing probe and stack at lines 79/408. No receipt replaces this failure. Additional bounded dependency read this wave: finding-ledger-runtime-smoke.ts:1948-2017 invokes the exact guard from repository and arbitrary cwd, requires exit 0, and consumes its pinned selectors and immutable allocator anchor; therefore a portable guard repair must preserve that real executable caller contract, not merely print a new success sentence. This dependency is part of the existing F092 repair boundary, not a separately alleged broken family or authorization to change the caller. The fully read 578-line guard and its finite mirror predicate/static subset remain unchanged; no promotion of incomplete mirror data into the original CAS identity, broadening the mirror predicate, omitted registration or waiver is acceptable. Whole-Story scope was rechecked, not just this test: git diff from wave-1 freeze 67f9bd6 through current HEAD is empty for packages/main/src, this RED guard, the process-fact verifier, configuration, background/plan/checklist and all four fully read decision sources. Fresh checklist_get confirms 13 current must-intent mechanical PASS receipts, no gaps/waivers; complete original all-role safety and both independent fourteen-cell mutant assessments remain on identical source. scope_contract_check remains warn/enforce with four exact acknowledged rows and zero blocking rows, not durable runtime-classification repair. DONE-required still has build/npm test PASS with 65/65; it remains separate from failed routine validation. F089-F093 were freshly queried as OPEN with their preserved hashes; incidental F089-F091 cleanup remains traceably routed, not repaired or declared non-applicable. No additional unregistered coverage family found in this bounded whole-Story review. This medium test dependency defect remains a current TEST/DONE blocker; no PASS, host quorum, source/build edit, test rerun or baseline finding-status mutation is claimed.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-test-coverage",
+      "createdAt": "2026-09-07T09:45:46.296Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-166",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/test-evidence.json",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/review-escalation.ts",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+          "proof-or-stop.config.json",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 4,
+          "tokenCount": null
+        },
+        "digest": "d33601fea8d758db734e1982479f59c61a2043662a5b89f1a3ffb8a06bc7c1c3"
+      },
+      "readDiagnostics": [],
+      "_hash": "84e6a0362bc6691e74eab954b3456191a44f90c48d86d39d4c990d81d5c3361d",
+      "files": [
+        "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+        "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+        "proof-or-stop.config.json"
+      ],
+      "signatureTag": "b8a40-validation-historical-probe-portability",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0",
+      "ledgerCommitReceiptId": "lrc_mtr22723_vgf_870539642bbe4599bf25b3b7098bad8d"
     }
   ]
 }

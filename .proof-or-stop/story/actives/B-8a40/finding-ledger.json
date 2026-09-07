@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "5201e5902914f413049c2966046643462d9cc11ecbba1ea095eaf00e19c57c63",
+  "committedLedgerDigest": "d74527b37d93b234016abb235cf418f2221958893962c1d5b51e1a05e5c7c467",
   "records": [
     {
       "recordId": "lr_mtq8jp5b_eyh_44d19748b4144021b776c74cf7482e96",
@@ -3497,6 +3497,76 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T09:31:48.560Z"
+    },
+    {
+      "recordId": "lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0",
+      "recordType": "finding",
+      "idempotencyKey": "b8a40-ri016-wave2-coverage-probe-portability-rr166",
+      "payload": {
+        "id": "B-8a40:F-094",
+        "desc": "RI-016 wave-2 independent re-observation of OPEN verified B-8a40:F-092 (hash df9349f877de012cd84522688af335649349ac19eb817e5743ec28002e7b2254), same family b8a40-validation-historical-probe-portability / BUG-VALIDATION-PROBE-PORTABILITY, not a new defect family or superseding disposition. packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:35/408 still requires the historical candidate probe rp-mtifubae-dfbh4w before its actual baseline/current/integrity controls. Fresh node bin/proof-or-stop.js repro_probe_get --probeId=rp-mtifubae-dfbh4w in the Story worktree again exits 1 with evidence-store: artifact ref not found. Fresh canonical test_list.latest.output still binds material fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd / storyFiles 6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b, timestamp 2026-09-07T09:21:27.902Z, complete FAIL with 132 required commands, 130 successes and two failures: command[127] is code 1 / 2329 ms with the same missing probe and stack at lines 79/408. No receipt replaces this failure. Additional bounded dependency read this wave: finding-ledger-runtime-smoke.ts:1948-2017 invokes the exact guard from repository and arbitrary cwd, requires exit 0, and consumes its pinned selectors and immutable allocator anchor; therefore a portable guard repair must preserve that real executable caller contract, not merely print a new success sentence. This dependency is part of the existing F092 repair boundary, not a separately alleged broken family or authorization to change the caller. The fully read 578-line guard and its finite mirror predicate/static subset remain unchanged; no promotion of incomplete mirror data into the original CAS identity, broadening the mirror predicate, omitted registration or waiver is acceptable. Whole-Story scope was rechecked, not just this test: git diff from wave-1 freeze 67f9bd6 through current HEAD is empty for packages/main/src, this RED guard, the process-fact verifier, configuration, background/plan/checklist and all four fully read decision sources. Fresh checklist_get confirms 13 current must-intent mechanical PASS receipts, no gaps/waivers; complete original all-role safety and both independent fourteen-cell mutant assessments remain on identical source. scope_contract_check remains warn/enforce with four exact acknowledged rows and zero blocking rows, not durable runtime-classification repair. DONE-required still has build/npm test PASS with 65/65; it remains separate from failed routine validation. F089-F093 were freshly queried as OPEN with their preserved hashes; incidental F089-F091 cleanup remains traceably routed, not repaired or declared non-applicable. No additional unregistered coverage family found in this bounded whole-Story review. This medium test dependency defect remains a current TEST/DONE blocker; no PASS, host quorum, source/build edit, test rerun or baseline finding-status mutation is claimed.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-test-coverage",
+        "createdAt": "2026-09-07T09:45:46.296Z",
+        "reviewRound": "2026-09-07T07:37:25.032Z",
+        "reviewRunId": "B-8a40:RR-166",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-8a40/background.md",
+            ".proof-or-stop/story/actives/B-8a40/checklist.json",
+            ".proof-or-stop/story/actives/B-8a40/plan.md",
+            "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md",
+            "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-8a40/test-evidence.json",
+            "packages/main/src/core/process-fact-registry.ts",
+            "packages/main/src/core/prompt-envelope.ts",
+            "packages/main/src/core/review-escalation.ts",
+            "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+            "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+            "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+            "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+            "proof-or-stop.config.json",
+            "scripts/verify-process-fact-contract.mjs"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+            "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+            "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+            "docs/requirements/decisions/validate-progress-heartbeat-forced-exit-cleanup-execution-plan.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 4,
+            "tokenCount": null
+          },
+          "digest": "d33601fea8d758db734e1982479f59c61a2043662a5b89f1a3ffb8a06bc7c1c3"
+        },
+        "readDiagnostics": [],
+        "_hash": "84e6a0362bc6691e74eab954b3456191a44f90c48d86d39d4c990d81d5c3361d",
+        "files": [
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "packages/main/src/tasks/finding-ledger-runtime-smoke.ts",
+          "proof-or-stop.config.json"
+        ],
+        "signatureTag": "b8a40-validation-historical-probe-portability",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "fc580e6b71e94645a2f20be0369abef7fe965181fdd2e109fedbd2db01a7f081",
+      "priorDigest": "5201e5902914f413049c2966046643462d9cc11ecbba1ea095eaf00e19c57c63",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T09:45:46.298Z"
     }
   ],
   "receipts": [
@@ -8273,6 +8343,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "e070dc055a0ddbaccba5b9ce75250de586060bc27b04b71b3513757de969aa59",
         "signature": "/g82DPxldAhoFOGIb1LPWDH6yTobsLnVY76jsBlOh3JHXPPk4EKoTOVfCKUcsRxtgHnWC5s4x8ho9bmuSxKBDw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtr22723_vgf_870539642bbe4599bf25b3b7098bad8d",
+      "operation": "append_finding",
+      "idempotencyKey": "b8a40-ri016-wave2-coverage-probe-portability-rr166",
+      "requestDigest": "6656ddbb2603fd9fb429336c1098d356812fdbdd09b5fab5430037e9ecdfc36f",
+      "recordIds": [
+        "lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0"
+      ],
+      "priorLedgerDigest": "5201e5902914f413049c2966046643462d9cc11ecbba1ea095eaf00e19c57c63",
+      "committedLedgerDigest": "d74527b37d93b234016abb235cf418f2221958893962c1d5b51e1a05e5c7c467",
+      "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+      "writerFenceToken": "ba0c379a-1cf6-4b1e-9bfc-4d3d1400435f",
+      "committedAt": "2026-09-07T09:45:46.298Z",
+      "replayed": false,
+      "exactRequestDigest": "0717909bedc14cb6d9ec31cc2c2c0aa2982d45c8f0e7727005b3e310d63f5d1c",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtr22723_vgf_870539642bbe4599bf25b3b7098bad8d",
+        "storyId": "B-8a40",
+        "idempotencyKey": "b8a40-ri016-wave2-coverage-probe-portability-rr166",
+        "exactRequestDigest": "0717909bedc14cb6d9ec31cc2c2c0aa2982d45c8f0e7727005b3e310d63f5d1c",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtr22722_vgf_cd93006b05d34605b0b2a180c2c460b0"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "5201e5902914f413049c2966046643462d9cc11ecbba1ea095eaf00e19c57c63",
+        "committedLedgerDigest": "d74527b37d93b234016abb235cf418f2221958893962c1d5b51e1a05e5c7c467",
+        "replayed": false,
+        "committedAt": "2026-09-07T09:45:46.298Z",
+        "writerSessionId": "sess-759062f8e317628ec86bb15c7dd201ae",
+        "writerLeaseId": "sess-301b4a859a684edd7ef6e9593e057a4c",
+        "writerFenceToken": "ba0c379a-1cf6-4b1e-9bfc-4d3d1400435f",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "ae68347545f82e23dab6aa6dfc85278aca1a9df210952a8b017883783bfd7346",
+        "signature": "L7dE7q0pig46ih5Y0TkB+9HFATtNmlqsWcOibShESK2AQOLERZo5nOqVbhZlFNFHSg0WIVK/PRWC0Zlpz6khCw=="
       }
     }
   ]
