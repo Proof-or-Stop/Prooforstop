@@ -1282,7 +1282,7 @@
       "desc": "doc-promise-undelivered: .proof-or-stop/story/actives/B-e256/checklist.json:10 still states as an unqualified user-visible result that `ls -la packages/main/dist/cli.js` shows `-rwxr-xr-x` after a rebuild. That contradicts the repaired cross-platform intent at checklist.json:25 and ProofStory AC-001 at proofstory.json:49, which correctly use POSIX executable bits versus a byte-identical Windows npm-shim target. delivery-check.json:11-14 repeats the universal promise and marks it delivered only with POSIX `ls -la`/0755 evidence. On Windows neither `ls -la` nor `-rwxr-xr-x` is the observable contract, so the machine-owned F-024 cross-platform acceptance family remains partially unresolved despite the repaired intent/selector. Repair CHK-001.userSees and refresh its dependent delivery evidence through the CLI. severity: critical",
       "severity": "critical",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-concept",
       "createdAt": "2026-09-06T19:17:47.582Z",
@@ -1333,7 +1333,11 @@
         ".proof-or-stop/story/actives/B-e256/delivery-check.json"
       ],
       "signatureTag": "cross-platform-acceptance-contract",
-      "signatureTagSource": "confirmed"
+      "signatureTagSource": "confirmed",
+      "resolvedReason": "CHK-001.userSees now states the cross-platform contract: POSIX keeps executable bits and Windows keeps a validated npm command shim bound to the promoted CLI. Independent delivery_check_set commit 015efa2087 is current-bound, verifies all 3 docs promises and all 3 real-machine test records with no waiver or unresolved TODO, including live macOS build/global 0755 and simulated Windows extensionless/.cmd/.ps1 peers with exact --version and fail-closed tamper cases.",
+      "resolvedAt": "2026-09-07T11:27:47.064Z",
+      "resolutionType": "fixed",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-e256:F-032",
