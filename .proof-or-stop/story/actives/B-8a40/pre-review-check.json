@@ -1,0 +1,348 @@
+{
+  "schemaVersion": "proofstory.pre_review_check.v1",
+  "storyId": "B-8a40",
+  "mode": "observe",
+  "cutoffAt": "2026-09-07T07:28:27.501Z",
+  "planBasisDigest": "sha256:e86aecf14223b5ce5a23662a1ad859d5e2b7687ea18c3f23de529f18939296c9",
+  "preReviewBasisArtifact": {
+    "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+    "basis": {
+      "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+      "storyId": "B-8a40",
+      "phaseBasis": "pre_review",
+      "priorPlanBasisDigest": "sha256:e86aecf14223b5ce5a23662a1ad859d5e2b7687ea18c3f23de529f18939296c9",
+      "status": "unsupported",
+      "generatedBy": {
+        "verifier": "acceptance-coverage-basis-verifier",
+        "command": "proof-or-stop pre_review_check",
+        "algorithmVersion": "v1"
+      },
+      "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+      "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+      "discoveryMethods": [
+        "scope_contract",
+        "process_fact_registry",
+        "handler_dispatch_inventory",
+        "static_call_graph",
+        "runtime_trace"
+      ],
+      "adapterResults": [
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "handler-dispatch-inventory:plan:v1",
+          "method": "handler_dispatch_inventory",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for handler_dispatch_inventory"
+          ],
+          "provenanceRefs": [
+            "registered:handler_dispatch_inventory:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/main/src/core/prompt-envelope.ts",
+              "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+            ]
+          },
+          "resultDigest": "sha256:b0ab9f9a6daf471cb87b3754627d77db4a0d9b5e1f790d363d36aefa96271a05"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "process-fact-registry:plan:v1",
+          "method": "process_fact_registry",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for process_fact_registry"
+          ],
+          "provenanceRefs": [
+            "registered:process_fact_registry:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/main/src/core/prompt-envelope.ts",
+              "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+            ]
+          },
+          "resultDigest": "sha256:52a32d5564517832a209689f99f78cfc265ea1e3aa12121da0f3ba73fd51e81c"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "runtime-trace:plan:v1",
+          "method": "runtime_trace",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for runtime_trace"
+          ],
+          "provenanceRefs": [
+            "registered:runtime_trace:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/main/src/core/prompt-envelope.ts",
+              "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+            ]
+          },
+          "resultDigest": "sha256:57fe5d334cf30ef9ae900f5c5fc13890358cd481ab4820aeb14c613dee43c433"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "scope-contract:plan:v1",
+          "method": "scope_contract",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for scope_contract"
+          ],
+          "provenanceRefs": [
+            "registered:scope_contract:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/main/src/core/prompt-envelope.ts",
+              "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+            ]
+          },
+          "resultDigest": "sha256:c922197bb5a70615a9fd0c20f7067e7f9a6aac7869a37e067fee28d2ee17820b"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "static-call-graph:plan:v1",
+          "method": "static_call_graph",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for static_call_graph"
+          ],
+          "provenanceRefs": [
+            "registered:static_call_graph:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:file:packages/main/src/core/prompt-envelope.ts",
+              "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+            ]
+          },
+          "resultDigest": "sha256:7715d622b69279764aae089bc8108b20cf080cd3728e846bf48de0105f84b9c7"
+        }
+      ],
+      "scopeRefs": [
+        "scope:checklist:CHK-001",
+        "scope:file:packages/main/src/core/prompt-envelope.ts",
+        "scope:file:packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "sourceInventoryRefs": [],
+      "plannedPathRecords": [],
+      "plannedActualReconciliations": [],
+      "enumeratedPathRefs": [],
+      "excludedPathRefs": [],
+      "blindSpots": [
+        "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+        "snapshot-seal:snapshot_missing:config:proof-or-stop.config.json",
+        "unsupported discovery profile for handler_dispatch_inventory",
+        "unsupported discovery profile for process_fact_registry",
+        "unsupported discovery profile for runtime_trace",
+        "unsupported discovery profile for scope_contract",
+        "unsupported discovery profile for static_call_graph"
+      ],
+      "snapshotSeal": {
+        "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+        "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inventoryDirectoryCount": 0,
+        "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "sourceSnapshotCount": 0,
+        "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "status": "partial",
+        "issues": [
+          {
+            "code": "inventory_unsealable",
+            "targetKind": "inventory",
+            "canonicalRef": "configured-source-root"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "config",
+            "canonicalRef": "proof-or-stop.config.json"
+          }
+        ],
+        "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
+      },
+      "binding": {
+        "headHash": "a542c644d72fd1948760f60c6c23d79d3f5daf44",
+        "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+        "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b",
+        "scopeCheckDigest": "sha256:aa2303d7a84aaf39d6b881ff4a1490eb4b475eee34f758e83ef9cafa9676f5d3",
+        "scopeContractDigest": "sha256:1b068592fdc3267f8462eef335dc901f5adc126b04c0f94ba6a990a5eab9d0ce",
+        "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "receiptRef": "receipt:coverage-basis:B-8a40:pre_review:a9bd9c3115658f57",
+      "basisDigest": "sha256:6a74109e0dc12334c10a65c7c608035340578c649423e0a860fe3f787023b243"
+    },
+    "receipt": {
+      "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+      "receiptRef": "receipt:coverage-basis:B-8a40:pre_review:a9bd9c3115658f57",
+      "issuer": "acceptance-coverage-basis-verifier",
+      "issuerKeyId": "sha256:88c38c129a5fa2cc9611a6a42e29bd486882476e837bcc10cb4d8c57b1eb5c80",
+      "signerPublicKey": "TUhHCWWnF3l4K94Cb2b+UWichXM0znjU7zftclFBBMs=",
+      "storyId": "B-8a40",
+      "phaseBasis": "pre_review",
+      "basisDigest": "sha256:6a74109e0dc12334c10a65c7c608035340578c649423e0a860fe3f787023b243",
+      "topologyDigest": "sha256:f964bda86b87f26e13e8fc8373d7c2be20ede4d2b1cd84239c7028d352773925",
+      "scopeCheckDigest": "sha256:aa2303d7a84aaf39d6b881ff4a1490eb4b475eee34f758e83ef9cafa9676f5d3",
+      "scopeContractDigest": "sha256:1b068592fdc3267f8462eef335dc901f5adc126b04c0f94ba6a990a5eab9d0ce",
+      "headHash": "a542c644d72fd1948760f60c6c23d79d3f5daf44",
+      "materialHash": "fb029a3a2ab4f657f5f23706cf24679ebdc15e079a3332a200a84dcdd80712fd",
+      "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b",
+      "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
+      "workspaceIdentityDigest": "sha256:54560ba40e6d629a574270d6c714e464db662cb325fa633b7f5591d4f85da2dc",
+      "signature": "fCp2NvmoZsPZodx0497xy2h92NT/aEKKYd3t3ZiyY2V+Gxi09VMjw38neQMIlk/hiQXLg55dJotqK898rzkVDQ=="
+    }
+  },
+  "topologyDigest": "sha256:f964bda86b87f26e13e8fc8373d7c2be20ede4d2b1cd84239c7028d352773925",
+  "scopeCheckDigest": "sha256:aa2303d7a84aaf39d6b881ff4a1490eb4b475eee34f758e83ef9cafa9676f5d3",
+  "scopeContractDigest": "sha256:1b068592fdc3267f8462eef335dc901f5adc126b04c0f94ba6a990a5eab9d0ce",
+  "storyFilesHash": "6bac3354f4138bbaffd125c8018bdd18ecf93f9420e9b00b3980370506fcae3b",
+  "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 11,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a54069bb2d48238c63fb0ada645178ff5276e52f614c59b1b09ab7c90cc80b68"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 12,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:cf10443dca68c3daa1923d50515bb6693fd1bf648dce5e6e76795ad6e37d2e03"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:b08d393b363fdec51fc3e3abbcee044e35cc5fbdcfec986ce52535718ce7221a"
+    },
+    {
+      "intentRef": "CHK-001:edge:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:97bb198692535bb58a6dff117dd6491cf50e021426cc97f314c34df286e9d775"
+    },
+    {
+      "intentRef": "CHK-001:edge:2",
+      "itemId": "CHK-001",
+      "evidenceIndex": 3,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:9f16577f564f21650c14cef52fba2c41aa07800a833ffe5150363710912d2582"
+    },
+    {
+      "intentRef": "CHK-001:edge:3",
+      "itemId": "CHK-001",
+      "evidenceIndex": 4,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:c866744bee753e126160f2f0b8ce533280f4b124423fb6b993ba3580f8d8b3d6"
+    },
+    {
+      "intentRef": "CHK-001:edge:4",
+      "itemId": "CHK-001",
+      "evidenceIndex": 5,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:eea3e263e61e82ba9e73c82ea44cafad7c52c7317f789658a88706c3805feb93"
+    },
+    {
+      "intentRef": "CHK-001:edge:5",
+      "itemId": "CHK-001",
+      "evidenceIndex": 6,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:2448944a59a0ded23bb4372f2ea02c25085617fa8fd1eff66d6e435cccd7b1a5"
+    },
+    {
+      "intentRef": "CHK-001:edge:6",
+      "itemId": "CHK-001",
+      "evidenceIndex": 7,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:a97c76ee2dc2c30c176d767eea12572b17dfd0d160bb1c5da0ffdca2e56c3a1e"
+    },
+    {
+      "intentRef": "CHK-001:edge:7",
+      "itemId": "CHK-001",
+      "evidenceIndex": 8,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:e6a9fabbe716208d152b9a6c72bf97d397b684a4f4c6039849cbdcab3f47afb4"
+    },
+    {
+      "intentRef": "CHK-001:edge:8",
+      "itemId": "CHK-001",
+      "evidenceIndex": 9,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:3a5cbfca94de2ab03fb654aeae8a71e14af7bdedfb802015d04d576ae1ebfa9a"
+    },
+    {
+      "intentRef": "CHK-001:edge:9",
+      "itemId": "CHK-001",
+      "evidenceIndex": 10,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:2a563f1003dd2c9329c1d097107a74029e4066e0fa01a02dc37b19500880bda6"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "logic_test",
+      "evidenceDigest": "sha256:6fceafcc671b0779ff25d01e9aac56d39537a9b6149018202c4ecf1e7ae198c7"
+    }
+  ],
+  "executableProof": {
+    "schemaVersion": "proofstory.pre_review_executable_proof.v1",
+    "storyId": "B-8a40",
+    "producer": "registered-verification-command",
+    "verifier": "pre-review-check-command-runner",
+    "commandDigests": [],
+    "caseRecordsEncoding": "gzip-base64",
+    "caseRecords": "",
+    "provenance": {
+      "runnerPath": "",
+      "runnerDigest": "",
+      "targetPath": "",
+      "targetDigest": "",
+      "buildCommand": ""
+    },
+    "bindingProofs": []
+  },
+  "criticReceiptDigest": "sha256:e7de46d768f7f7f3741256da285437cd4881697e2a98ed8f3fc9085bb805a778",
+  "codes": [
+    "PR_COVERAGE_INCONCLUSIVE",
+    "PR_PRODUCTION_PATH_UNPROVEN",
+    "PR_MUTATION_EVIDENCE_MISSING",
+    "PR_MUTATION_DID_NOT_BITE",
+    "PR_CONTROL_NOT_RESTORED",
+    "PR_TRANSCRIPT_MISSING",
+    "PR_AUTHORITY_INADMISSIBLE"
+  ],
+  "status": "inconclusive",
+  "issuedAt": "2026-09-07T07:28:27.501Z",
+  "signerPublicKey": "uendfEEh3WTk6SOX8NFS9CxZae6O6w72u/FrK9Zqu8s=",
+  "signature": "wxVNJpESjclex2KmAb6mBE7h+3fyXOkVithAlvZ3bS3OknZ2zeXu1llZapGaQq4pNGOWF+eJT6WPesnSaYnlCA=="
+}
