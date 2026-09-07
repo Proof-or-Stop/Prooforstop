@@ -1,0 +1,438 @@
+{
+  "schemaVersion": "proofstory.pre_review_check.v1",
+  "storyId": "B-29bc",
+  "mode": "observe",
+  "cutoffAt": "2026-09-07T09:59:40.139Z",
+  "planBasisDigest": "sha256:fe4effa6e474e297c4b9e91f9bb16fb6f71ede3c1d9b57e2d39f52f7d97aaab3",
+  "preReviewBasisArtifact": {
+    "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
+    "basis": {
+      "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
+      "storyId": "B-29bc",
+      "phaseBasis": "pre_review",
+      "priorPlanBasisDigest": "sha256:fe4effa6e474e297c4b9e91f9bb16fb6f71ede3c1d9b57e2d39f52f7d97aaab3",
+      "status": "unsupported",
+      "generatedBy": {
+        "verifier": "acceptance-coverage-basis-verifier",
+        "command": "proof-or-stop pre_review_check",
+        "algorithmVersion": "v1"
+      },
+      "discoveryProfileRef": "profile:typescript-proof-gate:plan:v1",
+      "discoveryProfileDigest": "sha256:45ef323962cb942f0df4ca6d9947f3bd0b553d4a509e149d5fef27175dd9f18d",
+      "discoveryMethods": [
+        "scope_contract",
+        "process_fact_registry",
+        "handler_dispatch_inventory",
+        "static_call_graph",
+        "runtime_trace"
+      ],
+      "adapterResults": [
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "handler-dispatch-inventory:plan:v1",
+          "method": "handler_dispatch_inventory",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for handler_dispatch_inventory"
+          ],
+          "provenanceRefs": [
+            "registered:handler_dispatch_inventory:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
+              "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+              "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-inventory-epoch.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/review-inventory.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
+              "scope:file:packages/main/src/handlers/story-dispatch.ts",
+              "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/prompt-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-run-smoke.ts",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:32f958ac12bb7bbbf7d3fdcb5d9d298781a9bf396cd60ec057e4bb89a3d88fd6"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "process-fact-registry:plan:v1",
+          "method": "process_fact_registry",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for process_fact_registry"
+          ],
+          "provenanceRefs": [
+            "registered:process_fact_registry:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
+              "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+              "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-inventory-epoch.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/review-inventory.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
+              "scope:file:packages/main/src/handlers/story-dispatch.ts",
+              "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/prompt-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-run-smoke.ts",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:d11294456bbff8f3cd09bc3f815e59a439ee399816a77578cdb887cf17ab6598"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "runtime-trace:plan:v1",
+          "method": "runtime_trace",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for runtime_trace"
+          ],
+          "provenanceRefs": [
+            "registered:runtime_trace:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
+              "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+              "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-inventory-epoch.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/review-inventory.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
+              "scope:file:packages/main/src/handlers/story-dispatch.ts",
+              "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/prompt-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-run-smoke.ts",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:239284d91e2efca1418d7aea1c3a97d969e8680b38dff3ab094747c0d1d367d2"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "scope-contract:plan:v1",
+          "method": "scope_contract",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for scope_contract"
+          ],
+          "provenanceRefs": [
+            "registered:scope_contract:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
+              "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+              "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-inventory-epoch.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/review-inventory.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
+              "scope:file:packages/main/src/handlers/story-dispatch.ts",
+              "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/prompt-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-run-smoke.ts",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:165f84b2a9e8ea85f758028b3fda6ce3bdc1c5a463eaa566d8a15892a0cf89ef"
+        },
+        {
+          "schemaVersion": "proofstory.coverage_adapter_result.v1",
+          "adapterId": "static-call-graph:plan:v1",
+          "method": "static_call_graph",
+          "pathRefs": [],
+          "coverageClaim": "unsupported",
+          "blindSpots": [
+            "unsupported discovery profile for static_call_graph"
+          ],
+          "provenanceRefs": [
+            "registered:static_call_graph:v1"
+          ],
+          "asymmetryPolicy": {
+            "kind": "unsupported",
+            "policyRef": "policy:unsupported:v1",
+            "scopeRefs": [
+              "scope:checklist:CHK-001",
+              "scope:checklist:CHK-002",
+              "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
+              "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+              "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+              "scope:file:packages/main/src/cli/command-catalog.ts",
+              "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+              "scope:file:packages/main/src/core/process-fact-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-inventory-epoch.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/core/types.ts",
+              "scope:file:packages/main/src/handlers/review-inventory.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
+              "scope:file:packages/main/src/handlers/story-dispatch.ts",
+              "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/prompt-registry-smoke.ts",
+              "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
+              "scope:file:packages/main/src/tasks/review-run-smoke.ts",
+              "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+              "scope:file:scripts/verify-process-fact-contract.mjs"
+            ]
+          },
+          "resultDigest": "sha256:2227f4e36733f54d1907472a1b945581fb088309523fc3b534d4750c4609203e"
+        }
+      ],
+      "scopeRefs": [
+        "scope:checklist:CHK-001",
+        "scope:checklist:CHK-002",
+        "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
+        "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+        "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+        "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+        "scope:file:packages/main/src/cli/command-catalog.ts",
+        "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
+        "scope:file:packages/main/src/core/process-fact-registry.ts",
+        "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+        "scope:file:packages/main/src/core/review-inventory-epoch.ts",
+        "scope:file:packages/main/src/core/review-run.ts",
+        "scope:file:packages/main/src/core/types.ts",
+        "scope:file:packages/main/src/handlers/review-inventory.ts",
+        "scope:file:packages/main/src/handlers/review-run.ts",
+        "scope:file:packages/main/src/handlers/story-dispatch.ts",
+        "scope:file:packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+        "scope:file:packages/main/src/tasks/prompt-registry-smoke.ts",
+        "scope:file:packages/main/src/tasks/proofstory-pre-review-check-smoke.ts",
+        "scope:file:packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
+        "scope:file:packages/main/src/tasks/review-run-smoke.ts",
+        "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+        "scope:file:scripts/verify-process-fact-contract.mjs"
+      ],
+      "sourceInventoryRefs": [],
+      "plannedPathRecords": [],
+      "plannedActualReconciliations": [],
+      "enumeratedPathRefs": [],
+      "excludedPathRefs": [],
+      "blindSpots": [
+        "snapshot-seal:inventory_unsealable:inventory:configured-source-root",
+        "snapshot-seal:snapshot_missing:config:proof-or-stop.config.json",
+        "unsupported discovery profile for handler_dispatch_inventory",
+        "unsupported discovery profile for process_fact_registry",
+        "unsupported discovery profile for runtime_trace",
+        "unsupported discovery profile for scope_contract",
+        "unsupported discovery profile for static_call_graph"
+      ],
+      "snapshotSeal": {
+        "schemaVersion": "proofstory.acceptance_snapshot_seal.v1",
+        "inventoryDirectoryDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "inventoryDirectoryCount": 0,
+        "sourceSnapshotDigest": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "sourceSnapshotCount": 0,
+        "configSnapshotDigest": "sha256:74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "status": "partial",
+        "issues": [
+          {
+            "code": "inventory_unsealable",
+            "targetKind": "inventory",
+            "canonicalRef": "configured-source-root"
+          },
+          {
+            "code": "snapshot_missing",
+            "targetKind": "config",
+            "canonicalRef": "proof-or-stop.config.json"
+          }
+        ],
+        "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
+      },
+      "binding": {
+        "headHash": "1948000ae301887df179a726f33dac6a9149f42d",
+        "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+        "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+        "scopeCheckDigest": "sha256:9a6a908729d570eb0db5a9efae8398408b464b9d1a6bf9b9fe30f3bfb4856438",
+        "scopeContractDigest": "sha256:f227a73c628b7a60ebc3851a961f9cedf1c3da4412fd180aff79d560a6b46187",
+        "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "receiptRef": "receipt:coverage-basis:B-29bc:pre_review:dd41b7999675c692",
+      "basisDigest": "sha256:ff17639486d48fcbe5fa3a8593080992e61bfdb7af6527baa89c1f361b4d9c2d"
+    },
+    "receipt": {
+      "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
+      "receiptRef": "receipt:coverage-basis:B-29bc:pre_review:dd41b7999675c692",
+      "issuer": "acceptance-coverage-basis-verifier",
+      "issuerKeyId": "sha256:88c38c129a5fa2cc9611a6a42e29bd486882476e837bcc10cb4d8c57b1eb5c80",
+      "signerPublicKey": "TUhHCWWnF3l4K94Cb2b+UWichXM0znjU7zftclFBBMs=",
+      "storyId": "B-29bc",
+      "phaseBasis": "pre_review",
+      "basisDigest": "sha256:ff17639486d48fcbe5fa3a8593080992e61bfdb7af6527baa89c1f361b4d9c2d",
+      "topologyDigest": "sha256:134039d719ecc86e3908811b563bda4ad4a6869c8b96a5a8c8c90a65e2aa2242",
+      "scopeCheckDigest": "sha256:9a6a908729d570eb0db5a9efae8398408b464b9d1a6bf9b9fe30f3bfb4856438",
+      "scopeContractDigest": "sha256:f227a73c628b7a60ebc3851a961f9cedf1c3da4412fd180aff79d560a6b46187",
+      "headHash": "1948000ae301887df179a726f33dac6a9149f42d",
+      "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+      "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+      "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
+      "workspaceIdentityDigest": "sha256:aa32dbd8d8c123d673776b04871cb4353c3643a75d695ea5e90ede66ed2fd076",
+      "signature": "BBVpWL/NZeaSKo8WRwK5eaMnypngNvTFX7EQv4/cAyWo7u3ZZFIxhrFgn4gL0wNb8d61/Tm1D0ICJu2zojbwAA=="
+    }
+  },
+  "topologyDigest": "sha256:134039d719ecc86e3908811b563bda4ad4a6869c8b96a5a8c8c90a65e2aa2242",
+  "scopeCheckDigest": "sha256:9a6a908729d570eb0db5a9efae8398408b464b9d1a6bf9b9fe30f3bfb4856438",
+  "scopeContractDigest": "sha256:f227a73c628b7a60ebc3851a961f9cedf1c3da4412fd180aff79d560a6b46187",
+  "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+  "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+  "evidenceRefs": [
+    {
+      "intentRef": "CHK-001:adversarial:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 2,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:8be6f78d4541104d1dc4efdfdfbc7729de4f5b2dc1945e6ae5af979c35165591"
+    },
+    {
+      "intentRef": "CHK-001:adversarial:1",
+      "itemId": "CHK-001",
+      "evidenceIndex": 3,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:855b539bfc1dc65b38c4bf051dadc7fc634e573be8a96adaf8cd4ff64b287fcc"
+    },
+    {
+      "intentRef": "CHK-001:edge:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 1,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:61814d40f76c68235858b4d1bf12f59db0fd8be604e0dd5a8aff7463edb4eb4c"
+    },
+    {
+      "intentRef": "CHK-001:happy:0",
+      "itemId": "CHK-001",
+      "evidenceIndex": 0,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:502eb08fefcfab9d9c9ec8e11485f1a426c078fda5154fbe4c1a41798be24261"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 2,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:6b85571e24bd2d480467a6a3dc3f1d2010fc9b9a8beafb36cc5048b6bdf27d92"
+    },
+    {
+      "intentRef": "CHK-002:adversarial:1",
+      "itemId": "CHK-002",
+      "evidenceIndex": 3,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:b121522489f79aeec673317f04649a5be80af63229b3fd70d3e75602601d2f18"
+    },
+    {
+      "intentRef": "CHK-002:edge:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 1,
+      "kind": "docs_check",
+      "evidenceDigest": "sha256:25df144c7e382c665451c41fc7d2d1d3c87c26efa7b5b67887e419cf08c8286e"
+    },
+    {
+      "intentRef": "CHK-002:happy:0",
+      "itemId": "CHK-002",
+      "evidenceIndex": 0,
+      "kind": "manual_transcript",
+      "evidenceDigest": "sha256:f5c3ab6720f648b4be470bf62f92aa406054f20f8c12027db73047cad6bc1345"
+    }
+  ],
+  "executableProof": {
+    "schemaVersion": "proofstory.pre_review_executable_proof.v1",
+    "storyId": "B-29bc",
+    "producer": "registered-verification-command",
+    "verifier": "pre-review-check-command-runner",
+    "commandDigests": [],
+    "caseRecordsEncoding": "gzip-base64",
+    "caseRecords": "",
+    "provenance": {
+      "runnerPath": "",
+      "runnerDigest": "",
+      "targetPath": "",
+      "targetDigest": "",
+      "buildCommand": ""
+    },
+    "bindingProofs": []
+  },
+  "codes": [
+    "PR_COVERAGE_INCONCLUSIVE",
+    "PR_PRODUCTION_PATH_UNPROVEN",
+    "PR_MUTATION_EVIDENCE_MISSING",
+    "PR_MUTATION_DID_NOT_BITE",
+    "PR_CONTROL_NOT_RESTORED",
+    "PR_TRANSCRIPT_MISSING",
+    "PR_AUTHORITY_INADMISSIBLE"
+  ],
+  "status": "inconclusive",
+  "issuedAt": "2026-09-07T09:59:40.139Z",
+  "signerPublicKey": "uendfEEh3WTk6SOX8NFS9CxZae6O6w72u/FrK9Zqu8s=",
+  "signature": "zwi5dKx8Jz5UqHMlih3EYsppywM/z9Ere7wu4F9wKofh4u+MZpyuzZZXxJDHjcfswMQsAERXdzfjkrWqDjufCA=="
+}
