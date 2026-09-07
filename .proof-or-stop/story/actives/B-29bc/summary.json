@@ -1,0 +1,56 @@
+{
+  "storyId": "B-29bc",
+  "changes": "Separated inventory-completeness critic dispatch and signed reviewer-run provenance from default topology certification. Enforced signed terminal read evidence at the PASS producer and inventory consumer, included critic discoveries in the exact Finding aggregate, corrected the English implementation audit, and hardened the validation heartbeat fixture readiness and cleanup witness without changing production deadlines.",
+  "usage": "Use the worktree-local CLI to dispatch proof-or-stop-review-topology-critic with reviewPurpose=inventory-completeness and the current inventoryEpochId. The independent reviewer starts the matching signed run, records complete terminal read evidence and exact Finding dispositions; the owner finalizes the unchanged complete inventory before certification.",
+  "expectedOutcome": "A real independent reviewer can complete inventory review under ordinary Harmonynet Git attribution, while missing or stale purpose/read bindings remain refusals and inventory receipts grant no topology or TEST/DONE authority.",
+  "actualTranscript": "RI-005 admitted all four current signed reviewer lanes and the independent purpose-bound critic; its complete exact Finding-set receipt was finalized and consumed by admitted CW-002. Eight current mechanical intent rows pass. The complete configured validation executed 132 commands successfully in bb997deb72 and was subsequently reused by the official CLI with zero command executions and trusted metadata lineage. Genuine Codex and Agy each submitted three signed review rounds; review_escalation_status confirms full-3x2. The live transcript now captures the actual epoch suite exiting zero, including signed-read, critic-aggregate and tampered-purpose assertions; its replay metrics remain simulated. DONE-required results and final lifecycle status are not inferred from those observations.",
+  "outcomeDiff": "The inventory-purpose implementation matches its bounded acceptance. The live transcript is an executed epoch regression suite, not a production rollout; public-handler coverage and independent review are separate evidence. Dependent Story completion is not claimed.",
+  "acceptanceVerdict": "accepted",
+  "outcomeKind": "success",
+  "realMachineCoverage": {
+    "ran": [],
+    "skipped": []
+  },
+  "limitations": "Inventory completeness does not certify topology, independent hosts or dependent Story completion. The configured pre-review topology profile remains observe/inconclusive; the rollout PASS is a synthetic fixture cohort. Historical missing read logs and unavailable old CAS bytes are not reconstructed. Parent process closure does not prove descendant cleanup; uncertain cleanup retains the disposable fixture.",
+  "pitfalls": "Final inventory receipts consumed by DEV cannot admit certification, so complete repairs before final REVIEW and consume only through certification_window_begin. Use the current worktree-local CLI and independent reviewer environment; an earlier Agy coverage PASS with no readLog was preserved and excluded, then replaced by real native evidence. Whole validation must run standalone to avoid story_advance's shorter watchdog; refresh only materially stale intent evidence before final reviewer terminals. The heartbeat RED used a real six-second delayed child, and GREEN separately proved terminal diagnostics and close-before-delete behavior. During TEST, direct validate initially mismatched two watchdog environment inputs and then shadow mode launched the full oracle; the eventual official dynamicMode=off call reused the exact full PASS. A concurrent dispatch appended process metadata and a restarted run stopped at a gitIndex content-digest preflight; preserve those events and serialize evidence writes. A REVIEW-only inventory status capture failed in TEST, and the full public-handler capture exceeded its fixed 60-second ceiling; those failed transcripts remain in Git history. The successful current capture executes the bounded epoch suite and does not relabel those failures as passes. macOS power logs independently record a 925-second sleep during an earlier abnormal elapsed-time timeout.",
+  "phaseStats": {
+    "INIT": {
+      "count": 1,
+      "durationMs": 189415
+    },
+    "INIT_CHECK": {
+      "count": 1,
+      "durationMs": 21308
+    },
+    "PLAN": {
+      "count": 1,
+      "durationMs": 429568
+    },
+    "DEV": {
+      "count": 3,
+      "durationMs": 9358462
+    },
+    "REVIEW": {
+      "count": 3,
+      "durationMs": 13328472
+    },
+    "TEST": {
+      "count": 1,
+      "durationMs": 2950074
+    }
+  },
+  "totalDurationMs": 26278652,
+  "fixtureStats": {
+    "totalRuns": 0,
+    "totalCases": 0,
+    "cumulativeCasesRun": 0,
+    "cumulativePassedCases": 0
+  },
+  "bugStats": {
+    "found": 2,
+    "fixed": 2,
+    "open": 0
+  },
+  "createdAt": "2026-09-07T15:30:37.531Z",
+  "updatedAt": "2026-09-07T15:30:37.531Z"
+}
