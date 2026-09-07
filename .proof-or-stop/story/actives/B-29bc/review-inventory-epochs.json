@@ -6,9 +6,9 @@
       "epochId": "B-29bc:RI-001",
       "storyId": "B-29bc",
       "reviewRound": "2026-09-07T10:03:42.307Z",
-      "state": "OPEN",
+      "state": "CANCELLED",
       "begunAt": "2026-09-07T10:04:10.046Z",
-      "updatedAt": "2026-09-07T10:04:10.046Z",
+      "updatedAt": "2026-09-07T10:22:01.758Z",
       "cutoff": {
         "headHash": "e29af9b18b1e9985da86ab88c6ab33182a145739",
         "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
@@ -25,7 +25,39 @@
       "maxWaves": 3,
       "waves": [],
       "baselineFindingIds": [],
-      "_hash": "1c4aa81f2410527865c4f74ead524a012583966d1ba379cdcb74eee6cf24f3b5"
+      "cancelledAt": "2026-09-07T10:22:01.758Z",
+      "cancelReason": "Recover RI-001 after independent critic registered B-29bc:F-001 and F-002. Current-wave aggregation omits critic-lane Findings, so its exact-set disposition is refused. Preserve both signed observations and cancelled history; begin a new unchanged-material epoch whose official signed baseline captures these already-registered Findings. Refresh required-lane mechanical read evidence, complete honest inventory, then use the receipt solely for scoped DEV remediation. No empty-set fallback, dismissal, approval downgrade, or source edit in REVIEW.",
+      "terminalRunSequenceBoundary": 5,
+      "_hash": "7e77d45281e6e4067af825afb0284798081f5e793870e3f26171300df3df4c70"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_epoch.v1",
+      "epochId": "B-29bc:RI-002",
+      "storyId": "B-29bc",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "state": "OPEN",
+      "begunAt": "2026-09-07T10:22:03.007Z",
+      "updatedAt": "2026-09-07T10:22:03.007Z",
+      "cutoff": {
+        "headHash": "9aa96505bbb4310fc9d3cff2fbdc15d3e0a22b3b",
+        "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+        "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c"
+      },
+      "scopeDigest": "4e5fab9ccf62199f638f5f2964bb7e9fd1c74be45f8ed4585cdde8901bc9396a",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage",
+        "proof-or-stop-review-docs"
+      ],
+      "initialRunSequenceBoundary": 5,
+      "maxWaves": 3,
+      "waves": [],
+      "baselineFindingIds": [
+        "B-29bc:F-001",
+        "B-29bc:F-002"
+      ],
+      "_hash": "b08447f804aa42357ec4bc864771918e3352007a66bccd5377ab6745cbf77f65"
     }
   ],
   "receipts": [],
