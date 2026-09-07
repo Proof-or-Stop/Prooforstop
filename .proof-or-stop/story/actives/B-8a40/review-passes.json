@@ -3801,6 +3801,64 @@
       },
       "readDiagnostics": [],
       "_hash": "1b55483c64f9391c9c976e29f4700850d4fb9d6fa7237de656b58bb78be2e41a"
+    },
+    {
+      "id": "B-8a40:RP-088",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI-016 wave 1, quality lane, run RR-164 at HEAD 67f9bd6b13, material fb029a3a and storyFiles 6bac3354 unchanged. NO BLOCKING FINDING IN THIS LANE, and this is expressly NOT a claim of TEST or DONE readiness, zero observations, or that the Story is releasable; two registered TEST blockers are open and are not mine to clear. Candidate reviewed: exactly five code files, git diff main...HEAD limited to packages and scripts returns process-fact-registry.ts, prompt-envelope.ts, prompt-full-context-envelope-smoke.ts, retired-authority-vocabulary-guard-smoke.ts and verify-process-fact-contract.mjs, and git diff a28a4017dd HEAD -- packages/main/src scripts bin package.json .gitignore is EMPTY, so the candidate is byte-identical to my original full RR-151 source audit and no new source defect can have appeared. I independently read the persisted routine validate FAIL rather than trusting prose, and I attribute NEITHER failure to this candidate, on positive evidence rather than file disjointness: (1) neither failing file is in the five-file candidate; (2) the ONLY candidate-modified file present in the routine validate command universe is retired-authority-vocabulary-guard-smoke.js as configured validate.commands[2], and that row is recorded PASS with a check mark in this same failing run, while configured validate.commands[11] validate-progress-heartbeat-smoke.js is the failing row; (3) I formed and then FALSIFIED a load-contribution hypothesis, because the project guidance records the heartbeat fixture as load sensitive and my open F-089 documents a 16 MB copy, but prompt-full-context-envelope-smoke.js does not appear anywhere in configured validate.commands, so it does not execute during routine validate and cannot perturb its timing; (4) each failure has an identified cause in an unrelated subsystem, namely evidence-store candidate CAS portability where repro_probe_get cannot resolve artifact ref rp-mtifubae-dfbh4w, thrown by parseCliJson at packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:79 from the probe read I confirmed at line 408 inside the supportedRegistrationMirror ternary, and a watchdog descendant fixture premise contradiction in validate-progress-heartbeat-smoke.js that timed out after 153119 ms waiting for max-descendant.pid; and (5) test:retired-authority-vocabulary-guard also passed at 77.9s in the DONE-required 65 of 65 run bound to this same material. I make no claim that the classifier regressed and no claim that the failures are proven harmless; they are current TEST blockers owned by BUG-VALIDATION-PROBE-PORTABILITY and BUG-VALIDATION-DESCENDANT-PREMISE, both open, whose registered text already forbids fabricating the historical identity, widening the registration-mirror exception, removing registration, waiving the failure, suppressing the result or extending production deadlines; I concur with those bounds and add no competing instruction. On universes: the DONE-required npm test full-suite-runner set and the routine validate.commands set are DIFFERENT command universes, so the 65 of 65 PASS does not override this routine FAIL and this FAIL does not retroactively invalidate that PASS; both describe the same material. Baseline handling: B-8a40:F-089 medium, F-090 low and F-091 low remain OPEN and untouched as the RI-016 frozen signed baseline; I did not resolve, supersede, dismiss, re-file or ask the Owner to alter them mid-epoch, and I claim no repair, resolution or deferral proof for any of them. Retained limitations: no interruption witness exists for F-089; the dev-memory producer registry gap remains durably unfixed with only one occurrence acknowledged at lower assurance; RIE-016 was completeness-only with authorizesTest false and CW-002 is cancelled; I ran no build, no tests and no rebuild this wave; pre-review is observe or inconclusive; rollout fixture output is not real host quorum; and I submit no cross-host verdict.",
+      "createdAt": "2026-09-07T09:32:07.516Z",
+      "reviewRound": "2026-09-07T07:37:25.032Z",
+      "reviewRunId": "B-8a40:RR-164",
+      "envelopeId": "a6c4527b781421fdcb21f1e2f2218800ff9b395b62664dd890cf927eeb0dac21",
+      "writerSessionId": "sess-f63e8c8d21d1df7212eb6b46435ee0af",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".gitignore",
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/certification-window.json",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/summary.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md",
+          "packages/main/tsconfig.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-8a40/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-8a40/review-passes.json",
+          "package.json",
+          "packages/main/src/core/dev-memory.ts",
+          "packages/main/src/core/evidence-freshness.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-envelope.ts",
+          "packages/main/src/core/prompt-registry.ts",
+          "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts",
+          "packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts",
+          "packages/main/src/tasks/run-all-smokes.ts",
+          "packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md",
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "866bd0f31978c2ee6760ca51685298ac6c4184c294776df5cf3192b7bfd823e1"
+      },
+      "readDiagnostics": [],
+      "_hash": "13e5659cfa14257802d62a31ded594f3034dfcb5f59ec0932e22e1525a179ecb"
     }
   ]
 }
