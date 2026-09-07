@@ -2340,9 +2340,9 @@
       "epochId": "B-8a40:RI-013",
       "storyId": "B-8a40",
       "reviewRound": "2026-09-06T23:51:29.750Z",
-      "state": "OPEN",
+      "state": "FINALIZED",
       "begunAt": "2026-09-07T00:10:01.975Z",
-      "updatedAt": "2026-09-07T07:12:02.284Z",
+      "updatedAt": "2026-09-07T07:18:43.694Z",
       "cutoff": {
         "headHash": "2deffae938b05d313f3c0596a770cc2cc3cab2ae",
         "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
@@ -2405,10 +2405,62 @@
           "criticDigest": "b9e9db7ee1b7c61747171c9fbf655990261fa8e0683d883dba01af3b8ceb816c",
           "saturated": false,
           "nextRunSequenceBoundary": 144
+        },
+        {
+          "wave": 2,
+          "startedAt": "2026-09-07T07:12:02.284Z",
+          "completedAt": "2026-09-07T07:18:15.471Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-146",
+              "terminal": "finding",
+              "hostIdentity": "d245f444aa9a3167f20332ff88835471503bad4e6cfe11ec93e6198969f7c323",
+              "promptIdentity": "5084a559ddfa2e4ced3dd27a6efb5521353aab16af2ca7459ddb8483f5fc77da",
+              "evidenceIds": [
+                "B-8a40:F-082"
+              ],
+              "coverageDigest": "b19cdfe90436e1aafc297a721688c19db2a6b2a3b28d1a200c2f7a8361fad510"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-147",
+              "terminal": "finding",
+              "hostIdentity": "d245f444aa9a3167f20332ff88835471503bad4e6cfe11ec93e6198969f7c323",
+              "promptIdentity": "9931213a956355d0f7ab5bb36345488d25288c951141f5d3fe9258c8b4006e62",
+              "evidenceIds": [
+                "B-8a40:F-084"
+              ],
+              "coverageDigest": "acbd6e194d7b334d9942f12ed11785641a8b7c122d57b21b88e4257b6f6bfc1a"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-145",
+              "terminal": "finding",
+              "hostIdentity": "d245f444aa9a3167f20332ff88835471503bad4e6cfe11ec93e6198969f7c323",
+              "promptIdentity": "d9f6ca9438d27a865cf1b825c9e4677c579bca7aefae67a002321ad41b44af06",
+              "evidenceIds": [
+                "B-8a40:F-083"
+              ],
+              "coverageDigest": "43de27782cab5b62578c7fb3a50bab5c2689259ffc000f50c4c3a807442cdfe9"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "b8a40-mutant-loader-guard-admission",
+            "b8a40-retired-authority-assertion-wording"
+          ],
+          "verifiedFindingSetDigest": "66c25527f557f7d343ee0ee84818f3836074fb23caf27f333e3b37c6bc9b3d2f",
+          "newVerifiedFindingCount": 0,
+          "criticDigest": "8d87cbe382f7b8b2bd00c7b9abc4ea1372b8066c7c1ee547b457e4775f682293",
+          "saturated": true,
+          "nextRunSequenceBoundary": 148
         }
       ],
       "baselineFindingIds": [],
-      "_hash": "8a005e0b8269a2183e2fed4fc05a2d34535e1fd037d81986331fa69acf1c7ff1"
+      "receiptId": "B-8a40:RI-013:RCP-001",
+      "consumedAt": "2026-09-07T07:18:43.694Z",
+      "consumedByReviewRound": "2026-09-06T23:51:29.750Z",
+      "_hash": "fd55644862813253f081edd25e7c38d8b67486ba20d80bbfa3e2068054e1a838"
     }
   ],
   "receipts": [
@@ -2546,6 +2598,33 @@
       "issuedAt": "2026-09-07T00:00:52.237Z",
       "consumedAt": "2026-09-07T00:00:54.425Z",
       "_hash": "cb1b7c9adbd2f233fee5073a836faafab1428f6cb8b328f9c67b8ed98ec7c9f5"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_receipt.v1",
+      "receiptId": "B-8a40:RI-013:RCP-001",
+      "epochId": "B-8a40:RI-013",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T23:51:29.750Z",
+      "cutoff": {
+        "headHash": "2deffae938b05d313f3c0596a770cc2cc3cab2ae",
+        "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
+        "storyFilesHash": "712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd"
+      },
+      "scopeDigest": "bdc70ab91487f3206bee10fa2d4e4eaf703f7583ea98d03425ed1b821e0e7062",
+      "requiredLanes": [
+        "proof-or-stop-review-concept",
+        "proof-or-stop-review-quality",
+        "proof-or-stop-review-test-coverage"
+      ],
+      "waveCount": 2,
+      "findingSetDigest": "66c25527f557f7d343ee0ee84818f3836074fb23caf27f333e3b37c6bc9b3d2f",
+      "coverageDigest": "9e5b939243ea0447d30b04cfa72afcc364fab75532810454b22b2a1b1f018a6a",
+      "saturationResult": "ZERO_NEW_VERIFIED_FINDINGS",
+      "authority": "inventory-completeness-only",
+      "authorizesTest": false,
+      "issuedAt": "2026-09-07T07:18:15.471Z",
+      "consumedAt": "2026-09-07T07:18:43.694Z",
+      "_hash": "71f6fdd7280e546184f68509f7a6cb6522e15d07ff70aa3efaf5212e8e14a456"
     }
   ],
   "criticReceipts": [
@@ -4482,6 +4561,50 @@
       ],
       "createdAt": "2026-09-07T00:21:13.827Z",
       "_hash": "aacf86a0724d0558faec503cd934b4bfad18105e92a3d89e05c845a988c239d8"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-013:CRIT-02",
+      "epochId": "B-8a40:RI-013",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T23:51:29.750Z",
+      "wave": 2,
+      "cutoff": {
+        "headHash": "2deffae938b05d313f3c0596a770cc2cc3cab2ae",
+        "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
+        "storyFilesHash": "712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd"
+      },
+      "aggregateFindingSetDigest": "66c25527f557f7d343ee0ee84818f3836074fb23caf27f333e3b37c6bc9b3d2f",
+      "requiredLaneCoverageDigest": "cca8da0f4cc6d81701ef108a707ed90965074eeeda5c3d967ffd79acc7a44dbc",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-148",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-078"
+      ],
+      "readEvidenceDigest": "61fff1044e95af700343748ab06b20a9fd3cee0cec619707bc2c8a1b49939753",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-082",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-retired-authority-assertion-wording",
+          "reason": "Current-wave re-attestation of existing wave-1 family and original open F-079: same active diagnostic at smoke line 2188, unchanged banned rule and contract, unchanged target-bound DONE-required FAIL. Fresh source/contract diff is empty and current record cites the same source hash and output digest. Reuse the signed wave-1 family key; this is not a new family and the verified open high observation remains a direct current-Story blocker. No cross-wave duplicate pointer, repair closure, waiver or scope approval is asserted."
+        },
+        {
+          "findingId": "B-8a40:F-083",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-mutant-loader-guard-admission",
+          "reason": "Current-wave re-attestation of existing wave-1 family and original open F-080: same introduced runtime-generated module import at line 2123, same guard admission failure, command witness and canonical AST fingerprint 55ccba2baaaea566f2b25fedb2b2187d258d45e2d08b54515004c2627f5c65ce on unchanged source. Reuse the signed wave-1 family key. Medium severity does not make the direct DONE-required failure nonblocking or deferrable. No new mechanism, cross-wave duplicate pointer, scanner exemption or authorization is inferred."
+        },
+        {
+          "findingId": "B-8a40:F-084",
+          "disposition": "duplicate",
+          "familyKey": "b8a40-mutant-loader-guard-admission",
+          "canonicalFindingId": "B-8a40:F-083",
+          "reason": "Same-wave quality Finding has the identical complete observation, severity, file/line, runtime-loader expression, target-bound witness and fingerprint as current F-083. Both records bind unchanged current material and REVIEW round; F-083 is a verified_family row here, so this duplicate chain is noncircular. Original F-080 and both current repeats remain open under Story Owner responsibility. Inventory grouping preserves all observations and does not dismiss, resolve, defer or authorize any guard weakening."
+        }
+      ],
+      "createdAt": "2026-09-07T07:17:34.888Z",
+      "_hash": "ba7bba8a3db370dc1dace1f731a110b57bd4d934c2f66740515936afbe96d44c"
     }
   ]
 }
