@@ -322,6 +322,42 @@
       },
       "readDiagnostics": [],
       "_hash": "86bbcb8fb45ce62c9f4e3f047492ff9890323e749586b68ebc4ffbbb694735b3"
+    },
+    {
+      "id": "B-29bc:RP-008",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Inventory-completeness-only terminal for RI-002 wave 1: no additional unrecorded issue discovered. Independently inspected all current required terminals: concept F-003/RR-006, docs RP-005/RR-007, coverage RP-007/RR-008, quality RP-006/RR-009. Production signature verification confirms every terminal and run; all four carry signed manifests and mechanical readLog. Exact aggregate contains F-001,F-002,F-003 with no missing lanes, duplicate identities or baseline mismatch. F-001 and F-002 remain open verified baseline defects; F-003 is the documented audit-promise manifestation of F-001 and will share its inventory family only, without status/severity alteration. Fresh logs cure this wave evidence omission, not the production acceptance predicate. This terminal certifies only that known Findings and read records are accounted for; it does not approve implementation, repair any Finding, authorize TEST/DONE, certify topology, or establish independent-host quorum. Files listed fully were actually read in this continuing critic session; source and review-run metadata were inspected through bounded excerpts/projections, not falsely claimed as full-file reads.",
+      "createdAt": "2026-09-07T10:32:09.156Z",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "reviewRunId": "B-29bc:RR-010",
+      "envelopeId": "361fe5b63f1c85b4aef957d8852904e7d8e3eb250ad77de1c0975b92bd1e56ec",
+      "writerSessionId": "codex-b29bc-inventory-critic",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          ".proof-or-stop/story/actives/B-29bc/review-inventory-epochs.json",
+          ".proof-or-stop/story/actives/B-29bc/review-passes.json",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "2a2e517115846f67d3c04f514d01aee35527c1f61238bd9493e9c247d529de94"
     }
   ]
 }
