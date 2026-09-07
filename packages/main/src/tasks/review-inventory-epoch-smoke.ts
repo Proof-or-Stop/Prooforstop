@@ -29,7 +29,7 @@ import {
   type ReviewInventoryEvaluation,
 } from '../core/review-inventory-epoch.js';
 import { signReviewRun } from '../core/review-run.js';
-import { signReviewPass, signFinding } from '../core/finding-verify.js';
+import { signReviewPass, signFinding, verifyReviewPass, verifyFinding } from '../core/finding-verify.js';
 import type {
   Finding,
   ReviewInventoryCriticReceipt,
@@ -233,6 +233,77 @@ const clean = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns, pas
 assert.deepEqual(clean.missingLanes, []);
 assert.equal(clean.newFamilies.length, 0);
 assert.equal(buildWave(initial, clean, '2026-08-14T00:10:00.000Z').saturated, true);
+
+// B-29bc F-001/F-002: collect both regression failures on the unchanged
+// implementation so the RED proves two independent acceptance gaps.
+const recoveryFailures: string[] = [];
+for (const [label, check] of [
+  ['F-001 signed PASS requires both read fields', () => {
+    for (const field of ['readManifest', 'readLog'] as const) {
+      const incomplete = { ...firstPasses[0] };
+      delete incomplete[field];
+      incomplete._hash = signReviewPass(storyId, incomplete.id, incomplete.agent, incomplete.note,
+        incomplete.createdAt!, reviewRound, incomplete.reviewRunId, incomplete.readManifest, incomplete.readLog);
+      assert.equal(verifyReviewPass(storyId, incomplete), true, 'semantic negative control has a valid signature');
+      const result = evaluateReviewInventoryWave({ epoch: initial, runs: firstRuns,
+        passes: [incomplete, ...firstPasses.slice(1)], findings: [] });
+      assert.ok(result.missingLanes.includes(firstRuns[0].lane), `signed PASS without ${field} cannot terminate a lane`);
+    }
+  }],
+  ['F-002 current purpose-bound critic findings enter the exact aggregate', () => {
+    const critic = criticEvidence(initial, clean, 9, '2026-08-14T00:09:00.000Z');
+    const discovered = finding(critic.run);
+    assert.equal(verifyFinding(storyId, discovered), true);
+    const input = { epoch: initial, runs: [...firstRuns, critic.run], passes: [...firstPasses, critic.pass], findings: [discovered] };
+    const missing = evaluateReviewInventoryWave(input);
+    assert.deepEqual(missing.rawFindingIds, [discovered.id], 'critic discovery must not disappear because critic is not a required lane');
+    assert.deepEqual(missing.unresolvedFindingIds, [discovered.id]);
+    assert.equal(missing.lanes.length, clean.lanes.length, 'critic discovery never adds required-lane coverage');
+    assert.equal(validateReviewInventoryCriticReceipt({ ...input, evaluation: missing, receipt: critic.receipt }).ok, false,
+      'a previously empty receipt becomes invalid after critic discovery');
+    const dispositions: ReviewInventoryFindingDisposition[] = [{ findingId: discovered.id, disposition: 'verified_family',
+      familyKey: 'critic-discovered-family', reason: 'Independent critic verified the current signed observation.' }];
+    const complete = evaluateReviewInventoryWave({ ...input, findingDispositions: dispositions });
+    assert.deepEqual(complete.invalidDispositionIds, []);
+    assert.deepEqual(complete.unresolvedFindingIds, []);
+    assert.deepEqual(complete.newFamilies, ['critic-discovered-family']);
+    const terminal = criticEvidence(initial, complete, 9, '2026-08-14T00:09:00.000Z', dispositions);
+    terminal.receipt.terminalEvidenceIds = [terminal.pass.id, discovered.id].sort();
+    terminal.receipt.readEvidenceDigest = reviewInventoryDigest([terminal.pass, discovered].map(row => ({
+      id: row.id, readManifest: row.readManifest, readLog: row.readLog?.digest ?? null,
+    })));
+    const { _hash: _oldSignature, ...unsigned } = terminal.receipt;
+    terminal.receipt._hash = signReviewInventoryCriticReceipt(unsigned);
+    assert.equal(validateReviewInventoryCriticReceipt({ ...input, evaluation: complete, receipt: terminal.receipt }).ok, true,
+      'exact critic disposition and signed terminal set are accepted');
+    for (const mutation of [
+      { reviewPurpose: undefined, inventoryBinding: undefined },
+      { reviewPurpose: 'topology' as const, inventoryBinding: undefined },
+      { inventoryBinding: { ...critic.run.inventoryBinding!, wave: 99 } },
+      { inventoryBinding: { ...critic.run.inventoryBinding!, epochId: 'wrong-epoch' } },
+      { lane: 'proof-or-stop-review-quality', agent: 'proof-or-stop-review-quality' },
+    ]) {
+      const changed = { ...critic.run, ...mutation };
+      changed._hash = signReviewRun(changed.storyId, changed.reviewRunId, changed.agent, changed.lane,
+        changed.reviewRound, changed.startedAt, changed.headHash, changed.materialHash, changed.promptHash,
+        undefined, undefined, changed.storyFilesHash, undefined, undefined, changed.reviewPurpose, changed.inventoryBinding);
+      assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, changed] }).rawFindingIds, [],
+        'signed wrong-purpose/subject/role critic cannot supply inventory discovery');
+    }
+    const canonical = { ...critic.run, lane: 'proof-or-stop-review-topology-critic', agent: 'proof-or-stop-review-topology-critic' };
+    canonical._hash = signReviewRun(canonical.storyId, canonical.reviewRunId, canonical.agent, canonical.lane,
+      canonical.reviewRound, canonical.startedAt, canonical.headHash, canonical.materialHash, canonical.promptHash,
+      undefined, undefined, canonical.storyFilesHash, undefined, undefined, canonical.reviewPurpose, canonical.inventoryBinding);
+    assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, canonical] }).rawFindingIds, [discovered.id],
+      'canonical and registered critic alias share the exact purpose contract');
+    const tampered = { ...critic.run, _hash: 'tampered' };
+    assert.deepEqual(evaluateReviewInventoryWave({ ...input, runs: [...firstRuns, tampered] }).rawFindingIds, []);
+  }],
+] as const) {
+  try { check(); console.log(`B29BC_RECOVERY ${label}: PASS`); }
+  catch (error) { recoveryFailures.push(`${label}: ${error instanceof Error ? error.message : String(error)}`); }
+}
+assert.deepEqual(recoveryFailures, [], `B29BC_RECOVERY RED/GREEN\n${recoveryFailures.join('\n')}`);
 
 const equalTimestampEpoch = epoch({ initialRunSequenceBoundary: 3 });
 const equalOldRun = run(requiredLanes[0], 3, equalTimestampEpoch.begunAt);
