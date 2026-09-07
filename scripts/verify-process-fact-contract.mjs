@@ -2197,7 +2197,12 @@ function assertCloseoutTrustBoundary() {
     "'packages/main/src/handlers/fixture-executors.ts'",
     '5c518f1967f915dcf6ee270c5f7f4f58c5dfafac4beb76fd9801e7191938f303',
     'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
-    'bin/bootstrap-runner.js, packages/main/src/handlers/graph.ts and packages/main/src/cli.ts are each pinned in BOTH the benign-loader and dynamic-code exemption maps, making eleven exact whole-source executable exemption entries; no broad pattern exemptions are allowed',
+    'the eleven existing exact executable entries plus the B-8a40 test-only benign-loader pin make twelve; no broad pattern exemptions are allowed',
+    'any executable drift revokes the envelope mutation loader fingerprint',
+    'mutant path rebound to external input',
+    'mutant producer type widened',
+    'mutant producer nested shadow',
+    'mutant URL helper shadow',
     'BENIGN_NON_LITERAL_LOADER_SOURCE_FINGERPRINTS',
     'd1542f5222c9a89055a739ca7e9dd5da4556e48c0e44f525959b61555b927e26',
     '023017290826cb42ede2577f5e43a20b8f13733fc80599056dcd8367a68f8506',
@@ -2800,6 +2805,10 @@ function assertCloseoutTrustBoundary() {
     'GeneratorFunction',
   ]) {
     assert(retiredVocabularyGuardText.includes(token), `retired vocabulary guard must enforce narrow compatibility usage: ${token}`);
+  }
+  const requiredValidationFact = registry.get('artifact:done-required-evidence.json');
+  for (const token of ['exact call shape', 'whole-source fingerprint', 'producer provenance', 'Loader admission is not a validation PASS or a dynamic-code exemption']) {
+    assert(requiredValidationFact?.rationale.includes(token), `${processFactRegistryPath}: test-only loader admission boundary must remain registered: ${token}`);
   }
   const scopeAckPolicy = parseCommandPolicyEntries().find(entry => entry.name === 'scope_contract_acknowledge');
   assert(scopeAckPolicy && !scopeAckPolicy.allowedPhases.includes('TEST'), `${commandPolicyPath}: scope_contract_acknowledge must remain rejected in TEST`);

@@ -2110,24 +2110,32 @@ assert.throws(
 );
 
 const builtEnvelopeUrl = new URL('../core/prompt-envelope.js', import.meta.url);
+const builtEnvelopeSource = readFileSync(builtEnvelopeUrl, 'utf8');
 const mutantModuleRoot = mkdtempSync(fileURLToPath(new URL('../../../../.prompt-envelope-mutants-', import.meta.url)));
-try {
-  const mutantCoreRoot = join(mutantModuleRoot, 'core');
-  cpSync(new URL('../core/', import.meta.url), mutantCoreRoot, { recursive: true });
-  const builtEnvelopeSource = readFileSync(builtEnvelopeUrl, 'utf8');
-  async function importEnvelopeMutant(label: string, anchor: string, injectedStatement: string) {
-    assert.equal(occurrenceCount(builtEnvelopeSource, anchor), 1,
-      `${label} has one mutation anchor in the built implementation`);
-    const mutantPath = join(mutantCoreRoot, `prompt-envelope.b8a40-${label}-${process.pid}.js`);
-    writeFileSync(mutantPath, builtEnvelopeSource.replace(anchor, `${anchor}    ${injectedStatement}\n`));
-    return import(`${pathToFileURL(mutantPath).href}?run=${Date.now()}`);
-  }
+const mutantCoreRoot = join(mutantModuleRoot, 'core');
 
-  const noSafeNarrowingMutant = await importEnvelopeMutant(
-    'no-safe-narrowing',
-    'function isStandaloneNegativeDismissalObservation(segment) {\n',
-    'return false;',
-  );
+// Test-owned producer: neither a module path nor injected code is caller input.
+// The guard pins this exact producer signature and the complete source structure.
+function writeEnvelopeMutant(label: 'no-safe-narrowing' | 'broad-deletion'): string {
+  assert.ok(label === 'no-safe-narrowing' || label === 'broad-deletion', 'only the two fixed mutants are admitted');
+  const anchor = label === 'no-safe-narrowing'
+    ? 'function isStandaloneNegativeDismissalObservation(segment) {\n'
+    : 'function hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal(segments) {\n';
+  assert.equal(occurrenceCount(builtEnvelopeSource, anchor), 1,
+    `${label} has one mutation anchor in the built implementation`);
+  const mutantPath = join(mutantCoreRoot, `prompt-envelope.b8a40-${label}.js`);
+  writeFileSync(mutantPath, builtEnvelopeSource.replace(anchor, `${anchor}    return false;\n`));
+  return mutantPath;
+}
+
+async function importEnvelopeMutant(label: 'no-safe-narrowing' | 'broad-deletion') {
+  const mutantPath = writeEnvelopeMutant(label);
+  return import(pathToFileURL(mutantPath).href);
+}
+
+try {
+  cpSync(new URL('../core/', import.meta.url), mutantCoreRoot, { recursive: true });
+  const noSafeNarrowingMutant = await importEnvelopeMutant('no-safe-narrowing');
   for (const roleId of ACTIVE_MODULAR_REVIEWER_ROLE_IDS) {
     const roleCommon = roleAssemblyInput(roleId, `B-envelope:RR-no-safe-${roleId}`);
     for (const safeDescription of [currentBbcaeDescription, structurallyEquivalentNegativeDescription]) {
@@ -2149,11 +2157,7 @@ try {
     );
   }
 
-  const broadDeletionMutant = await importEnvelopeMutant(
-    'broad-deletion',
-    'function hasBoundedLinkedResponsibilityConclusionAfterNegativeDismissal(segments) {\n',
-    'return false;',
-  );
+  const broadDeletionMutant = await importEnvelopeMutant('broad-deletion');
   const broadMutantCellResults: Array<{
     roleId: string;
     unsafeDescription: string;
@@ -2185,7 +2189,7 @@ try {
         broadMutantEscapeCount += 1;
       } catch (error) {
         assert.match(String(error), /REVIEW Task Context contains unsafe Finding-triage authority/,
-          `the helper-only mutant fails only through the production authority oracle for ${roleId}`);
+          `the helper-only mutant fails only through the production triage oracle for ${roleId}`);
         rejected = true;
         broadMutantRetainedRejectionCount += 1;
       }
