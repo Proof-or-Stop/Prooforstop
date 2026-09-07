@@ -89,10 +89,11 @@
       "evidence": "understanding.json still describes only two regressions and three touchpoints; decision.json excludes unrelated baseline failures; checklist CHK-003 and scope acknowledgements now explicitly include four additional smokes and production docs-verifier recovery.",
       "sourcePointers": [
         ".proof-or-stop/story/actives/B-e124/understanding.json",
-        ".proof-or-stop/story/actives/B-e124/decision.json",
         ".proof-or-stop/story/actives/B-e124/checklist.json",
         ".proof-or-stop/story/actives/B-e124/scope-contract.json"
-      ]
+      ],
+      "resolution": "The updated understanding and CHK-003 supersede the initial two-regression boundary only for the six named reproduced smokes and the config alias mappings exposed by cli-surface-smoke. The scope acknowledgements record diagnosed causes and required registry bookkeeping. Validation policy, environment identity semantics and unrelated runtime behavior remain unchanged.",
+      "resolvedAt": "2026-09-07T03:19:20.261Z"
     }
   ]
 }

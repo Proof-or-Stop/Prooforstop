@@ -62,10 +62,26 @@
       "phase": "DEV",
       "headHash": "0f3f19a35626c00e717137e013fb064fb1662d38",
       "materialHash": "3784f8bbe5fa0506551de95a73a97c8b50473981856b0a895ff96fa321b16611"
+    },
+    {
+      "actor": "main-agent",
+      "reason": "Repository two-layer contract requires registry documentation for the repaired verification receipt behavior. Record that pinned docs/manual refresh consumes the executed receipt and preserves the shared execution timestamp; no new authority or policy is added.",
+      "timestamp": "2026-09-07T03:16:43.052Z",
+      "paths": [
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "assuranceLabel": "acknowledged-expansion",
+      "affectedPaths": [
+        "packages/main/src/core/process-fact-registry.ts"
+      ],
+      "affectedPathCount": 1,
+      "phase": "DEV",
+      "headHash": "dd10b611ac37163fdd39906998262ea56411f321",
+      "materialHash": "ed0fd21168136f1dc5d6cef1fb9b7afdc44f6512d2610866f95448ba259ab75a"
     }
   ],
   "createdAt": "2026-09-07T03:06:20.200Z",
-  "updatedAt": "2026-09-07T03:13:22.110Z",
+  "updatedAt": "2026-09-07T03:16:43.052Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -77,6 +93,7 @@
     "packages/main/src/tasks/english-early-check-smoke.ts": "packages/main/src/tasks/english-early-check-smoke.ts",
     "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
     "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts": "packages/main/src/tasks/proofstory-acceptance-basis-smoke.ts",
-    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts"
+    "packages/main/src/tasks/verification-run-and-guard-smoke.ts": "packages/main/src/tasks/verification-run-and-guard-smoke.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts"
   }
 }
