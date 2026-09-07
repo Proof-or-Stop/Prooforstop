@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "lattice.scope_freeze_check.v1",
+  "storyId": "B-42f6",
+  "checkedAt": "2026-09-07T07:52:13.633Z",
+  "mode": "maintenance",
+  "status": "pass",
+  "scopeBoundaryHash": "b1783595783bb44fced8498ed2b8a0fda32fb739d95c94ca11a6a10bb97daf3a",
+  "executionBoundaryHash": "e4b1a87bfdbcc7ab6fe94b5ec019e297f8d00147efd5fc0fe90342a74bd30da5",
+  "freshnessHash": "2cb65d39c84a201faa348b2edd52fb014c8ba1f5d63ad966d38046315eaec00e",
+  "effectiveExcludedKeywords": [
+    "Deleting unrelated runtime logs",
+    "Force-push or rewriting history",
+    "Unrelated new features"
+  ],
+  "keywordHits": [
+    {
+      "keyword": "Deleting unrelated runtime logs",
+      "source": "checklist.excludes",
+      "text": "Deleting unrelated runtime logs",
+      "itemId": "CHK-001",
+      "excluded": true
+    },
+    {
+      "keyword": "Deleting unrelated runtime logs",
+      "source": "scopeBoundary.excluded",
+      "text": "Deleting unrelated runtime logs",
+      "excluded": true
+    },
+    {
+      "keyword": "Force-push or rewriting history",
+      "source": "scopeBoundary.excluded",
+      "text": "Force-push or rewriting history",
+      "excluded": true
+    },
+    {
+      "keyword": "Unrelated new features",
+      "source": "scopeBoundary.excluded",
+      "text": "Unrelated new features",
+      "excluded": true
+    }
+  ],
+  "repeatDiscardOverlaps": [
+    {
+      "digest": "3f3843dbd2a0f88a1da9f726644bf6605a019059df0ccd44e472e1a0ed56232b",
+      "overlapTerms": [
+        "## Conversational Texture The user wants the already completed Proof-or-stop branding visible remotely and has authorized integration. They expect the main baseline repairs to remain functional, the formal lifecycle to complete, and an actual remote result rather than another speculative completion claim.",
+        "## Key Insights A read-only merge-tree preview found eleven content conflicts, concentrated in version synchronization and overlapping validation evidence repairs. Remote history also includes lifecycle and runtime integrity improvements that must survive the integration unchanged where not conflicting.",
+        "## Solution Tradeoffs Use a normal merge in an isolated Story worktree, preserving both parent histories. Resolve only observed conflicts by comparing original intent and regression checks. Do not force-push, replace remote history, or expand into unrelated cleanup of existing runtime logs.",
+        "## Trigger Event On 2026-09-07 the user requested publication after B-5a52 and B-e124 completed locally. Fetch showed local d5b00d0ff3 and origin/main c853ab5e63 diverged. The user explicitly selected integrating remote main before publication.",
+        "## Trigger Event On 2026-09-07 the user requested publication after B-5a52 and B-e124 completed locally. Fetch showed local d5b00d0ff3 and origin/main c853ab5e63 diverged. The user explicitly selected integrating remote main before publication. ## Key Insights A read-only merge-tree preview found eleven content conflicts, concentrated in version synchronization and overlapping validation evidence repairs. Remote history also includes lifecycle and runtime integrity improvements that must survive the integration unchanged where not conflicting. ## Solution Tradeoffs Use a normal merge in an isolated Story worktree, preserving both parent histories. Resolve only observed conflicts by comparing original intent and regression checks. Do not force-push, replace remote history, or expand into unrelated cleanup of existing runtime logs. ## Conversational Texture The user wants the already completed Proof-or-stop branding visible remotely and has authorized integration. They expect the main baseline repairs to remain functional, the formal lifecycle to complete, and an actual remote result rather than another speculative completion claim.",
+        "Integrate origin/main c853ab5e63 with local main d5b00d0ff3 after the user explicitly requested remote publication and chose integration instead of a separate branch. Preserve both histories and resolve the eleven observed conflicts without weakening evidence or validation behavior. Verify the integrated result and publish a normal fast-forward remote main update after local completion.",
+        "Integrate remote main while preserving completed local branding and validation repairs"
+      ],
+      "overlapRatio": 0.7777777777777778,
+      "previousStoryId": "B-d05d",
+      "previousReason": "Intake omitted the initial checklist and created an IDEA without a checklist artifact; checklist_add cannot initialize it. Replace this empty intake through story_create with the complete checklist so normal INIT review applies.",
+      "previousDiscardedAt": "2026-09-07T07:50:34.163Z",
+      "mitigation": "B-d05d was discarded only because its checklist-free intake produced an IDEA without the checklist artifact and checklist_add could not initialize it. The integration direction remains explicitly authorized by the user. B-42f6 was created with a complete checklist and normal independent INIT review; no discarded technical approach is being repeated."
+    }
+  ],
+  "issues": [],
+  "_hash": "407409d0215b7cf3ebce3d91b1a122d0e21759057a66b593de74747c677aa734"
+}
