@@ -1068,6 +1068,58 @@
       },
       "readDiagnostics": [],
       "_hash": "6981db9d42e12587ed0e4430a0da966818882d3dcef77f8bc902d2f7478d6c6f"
+    },
+    {
+      "id": "B-29bc:RP-025",
+      "agent": "proof-or-stop-review-docs",
+      "note": "Documentation and code consistency review for story B-29bc. Step 1: extracted 5 exported symbols/types (ReviewInventoryPurposeBinding, reviewInventoryPurposeBinding, inventoryPurposeMatchesEpoch, requireInventoryCriticSubjectLocked, validateCriticReviewPurpose) plus field additions (reviewPurpose, inventoryEpochId, inventoryBinding). Step 2/3: compared 8 referenced documentation sections across docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md, docs/audits/inventory-critic-purpose-isolation.md, docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md, and agent templates against code. No blocker: all documented CLI commands, parameter schemas, runtime behaviors, and audit records match code diff exactly with zero doc-code drift and no promised-but-undelivered features.",
+      "createdAt": "2026-09-07T13:26:23.811Z",
+      "reviewRound": "2026-09-07T13:21:43.709Z",
+      "reviewRunId": "B-29bc:RR-030",
+      "envelopeId": "3622ff2e853050eadd91c8f77214dc13cdfea9c5af96e8f356ee6e407ea79889",
+      "writerSessionId": "agy-b29bc-ri005-docs",
+      "sessionSource": "explicit-env",
+      "readManifest": {
+        "filesReadFully": [
+          ".claude/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
+          ".proof-or-stop/story/actives/B-29bc/background.md",
+          ".proof-or-stop/story/actives/B-29bc/checklist.json",
+          ".proof-or-stop/story/actives/B-29bc/plan.md",
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
+          "packages/main/src/cli/command-catalog.ts",
+          "packages/main/src/core/agent-dispatch-registry.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/core/prompt-role-contract-registry.ts",
+          "packages/main/src/core/review-inventory-epoch.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/core/types.ts",
+          "packages/main/src/handlers/finding.ts",
+          "packages/main/src/handlers/review-inventory.ts",
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/proofstory-acceptance-topology-and-pre-review-gates-execution-plan.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "b829fda08caef8d54e1669971fdfdb9bd5d7d1e302d29b14ba9265b9430cf935"
+      },
+      "readDiagnostics": [],
+      "_hash": "dd36032ec8061d3791a7546b06847fc3f381d9acaf2dbc78d0d287ba6d5eac74"
     }
   ]
 }
