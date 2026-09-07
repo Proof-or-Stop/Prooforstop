@@ -4343,7 +4343,7 @@
       "desc": "quality-cleanup: packages/main/src/core/prompt-envelope.ts:379 declares TRIAGE_INVENTORY_AUTHORITY_ACTION and nothing ever reads it, so this diff adds dead code that no build or lint step can catch. Mechanical evidence at this HEAD: a repository-wide search for the identifier returns exactly one hit in executable source, packages/main/src/core/prompt-envelope.ts:1, which is the declaration itself; the only other hits are B-8a40 story metadata (findings.json, review-inventory-epochs.json, prompt-envelopes.json). The constant is a module-local const with no export, so no other module can reference it. Provenance: it was the finite verb blacklist that the earlier resolved test-inventory finding rejected; the repair replaced that approach with isNominalTriageTestTopics plus the recursive reviewTriageAuthorityViolation call at lines 716-722, and the old constant was left behind. Failure scenario: packages/main/tsconfig.json (read end to end) sets strict but does not set noUnusedLocals or noUnusedParameters, so tsc --noEmit, and therefore the proof-or-stop validate --lint REVIEW gate, compiles this file clean and the dead declaration survives indefinitely; a future editor of this classifier reads a live-looking verb blacklist next to the live specs and can reasonably believe the inventory path still consults it. Suggested fix: delete line 379. Severity low: no runtime behaviour depends on it and no gate evidence is affected. Read boundary for this finding: packages/main/tsconfig.json end to end, the complete git diff main...HEAD hunk that introduces line 379, prompt-envelope.ts lines 150-285, 376-382 and 586-645, and a repository-wide identifier search.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "verified",
       "agent": "proof-or-stop-review-quality",
       "createdAt": "2026-09-07T07:57:00.471Z",
@@ -4382,7 +4382,11 @@
       "signatureTag": "b8a40-classifier-dead-code",
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqy6bp6_97s_5f383acaa89f4c3e9294a35b83a65838",
-      "ledgerCommitReceiptId": "lrc_mtqy6bp7_97s_0cfc181053d54d0ea6fa808944edd49d"
+      "ledgerCommitReceiptId": "lrc_mtqy6bp7_97s_0cfc181053d54d0ea6fa808944edd49d",
+      "resolvedAt": "2026-09-07T08:32:15.772Z",
+      "resolvedReason": "Historical observation retained without repair, dismissal or disproval. The actual same independent Claude session re-verified this exact observation and carried it forward through finding_add as OPEN verified B-8a40:F-090, bound to current RR160, because the mechanical REVIEW consumer requires latest-run binding. This old record is superseded only as the active binding; the current observation remains open with unchanged severity, reproduction limits and named future owner docs/story/drafts/classifier-smoke-nonblocking-cleanup. This is not evidence of implementation repair, signed deferral or non-applicability. Treat any new acceptance, protected-surface or evidence-integrity impact as a current-Story blocker immediately.",
+      "resolutionType": "superseded",
+      "resolveEvidenceStrength": "strong"
     },
     {
       "id": "B-8a40:F-087",
