@@ -37,7 +37,7 @@
       "reviewRound": "2026-09-07T10:03:42.307Z",
       "state": "OPEN",
       "begunAt": "2026-09-07T10:22:03.007Z",
-      "updatedAt": "2026-09-07T10:22:03.007Z",
+      "updatedAt": "2026-09-07T10:33:45.539Z",
       "cutoff": {
         "headHash": "9aa96505bbb4310fc9d3cff2fbdc15d3e0a22b3b",
         "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
@@ -52,14 +52,135 @@
       ],
       "initialRunSequenceBoundary": 5,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T10:22:03.007Z",
+          "completedAt": "2026-09-07T10:33:45.539Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-29bc:RR-006",
+              "terminal": "finding",
+              "hostIdentity": "ac80f38e64894b8d8102cdb90f43a0da3d799c75a07090959d31eeab027cc31a",
+              "promptIdentity": "477b03c66547e525ff7bbffc58694a6bb55b1b24db544726038e54515c9fc3de",
+              "evidenceIds": [
+                "B-29bc:F-003"
+              ],
+              "coverageDigest": "c872454df11018ef475eeccc6ce56e68b65a95f78c22650f72bc6da5d5c61d9d"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-29bc:RR-009",
+              "terminal": "pass",
+              "hostIdentity": "ac80f38e64894b8d8102cdb90f43a0da3d799c75a07090959d31eeab027cc31a",
+              "promptIdentity": "ca8f1ac55b5f04b04d73b8544f011cd13407e5046b35b9c488317f0ffd65c32c",
+              "evidenceIds": [
+                "B-29bc:RP-006"
+              ],
+              "coverageDigest": "888a25c96f41f14f34514406c5480419ac2045a3641335d08f2a54e0bf0f0fce"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-29bc:RR-008",
+              "terminal": "pass",
+              "hostIdentity": "ac80f38e64894b8d8102cdb90f43a0da3d799c75a07090959d31eeab027cc31a",
+              "promptIdentity": "54e4142a916557dfb2a753306339533b2c3f674a0ac35c592f650629fe2d9fed",
+              "evidenceIds": [
+                "B-29bc:RP-007"
+              ],
+              "coverageDigest": "ed61b6f7c8384965e0ecf046ba84503a09eff491e5b6f0e5b8f36e306b54975d"
+            },
+            {
+              "lane": "proof-or-stop-review-docs",
+              "reviewRunId": "B-29bc:RR-007",
+              "terminal": "pass",
+              "hostIdentity": "ac80f38e64894b8d8102cdb90f43a0da3d799c75a07090959d31eeab027cc31a",
+              "promptIdentity": "6f5814abbd9c9cf9ce1e875b18d8cce5f5bd2e2d977529556e348fda149eae92",
+              "evidenceIds": [
+                "B-29bc:RP-005"
+              ],
+              "coverageDigest": "33593e5191fa490a5edd80ceb3f74e70d48a716763336f2cf5197ad89d7ae023"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "inventory-current-critic-finding-aggregate-omission",
+            "inventory-required-pass-missing-mechanical-readlog"
+          ],
+          "verifiedFindingSetDigest": "44e4e9d345204f798bf0050c596ecd59c55e91ddf6358e84076cbcdc47145591",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "4c525944c616c18528b6910a7718384e8618961668ca380dbdf21d10ddb7a876",
+          "saturated": false,
+          "nextRunSequenceBoundary": 10
+        }
+      ],
       "baselineFindingIds": [
         "B-29bc:F-001",
         "B-29bc:F-002"
       ],
-      "_hash": "b08447f804aa42357ec4bc864771918e3352007a66bccd5377ab6745cbf77f65"
+      "_hash": "2d0330992415498d637f47b1c510df715613f28b85a71029a5d092635305fc5d"
     }
   ],
   "receipts": [],
-  "criticReceipts": []
+  "criticReceipts": [
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-29bc:RI-002:CRIT-01",
+      "epochId": "B-29bc:RI-002",
+      "storyId": "B-29bc",
+      "reviewRound": "2026-09-07T10:03:42.307Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "9aa96505bbb4310fc9d3cff2fbdc15d3e0a22b3b",
+        "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+        "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c"
+      },
+      "aggregateFindingSetDigest": "44e4e9d345204f798bf0050c596ecd59c55e91ddf6358e84076cbcdc47145591",
+      "requiredLaneCoverageDigest": "849a135822e6103f14efec9df6414de66a80c8c9d256e4f6bff4b66399c6433f",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-29bc:RR-010",
+      "reviewPurpose": "inventory-completeness",
+      "inventoryBinding": {
+        "storyId": "B-29bc",
+        "epochId": "B-29bc:RI-002",
+        "reviewRound": "2026-09-07T10:03:42.307Z",
+        "wave": 1,
+        "cutoff": {
+          "headHash": "9aa96505bbb4310fc9d3cff2fbdc15d3e0a22b3b",
+          "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
+          "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c"
+        },
+        "scopeDigest": "4e5fab9ccf62199f638f5f2964bb7e9fd1c74be45f8ed4585cdde8901bc9396a",
+        "requiredLanesDigest": "ba00ad1fce574db2b6f0bac705e2a6fee4e2f5d2962ec5fd666626a447444141",
+        "runSequenceBoundary": 5
+      },
+      "terminalEvidenceIds": [
+        "B-29bc:RP-008"
+      ],
+      "readEvidenceDigest": "4f79fb77eb27888a26fc782877cb18752e2429561ef30d62a5823ff10f588a63",
+      "findingDispositions": [
+        {
+          "findingId": "B-29bc:F-001",
+          "disposition": "verified_family",
+          "familyKey": "inventory-required-pass-missing-mechanical-readlog",
+          "reason": "Signature-valid open verified baseline Finding records real missing mechanical readLog admission through the pass producer and inventory consumer. RI-002 terminals now include valid logs, but unchanged material leaves the predicate and promised refusal uncorrected. Retain this runtime/read-evidence family for owner remediation, without severity or status change."
+        },
+        {
+          "findingId": "B-29bc:F-002",
+          "disposition": "verified_family",
+          "familyKey": "inventory-current-critic-finding-aggregate-omission",
+          "reason": "Signature-valid open verified baseline Finding records production rejection of the critic own current-wave Finding disposition because raw aggregation traverses only required lanes. RI-002 signed baseline recovers both original observations but does not repair that unchanged predicate. This is distinct from missing read logs and remains a separate owner-remediation family."
+        },
+        {
+          "findingId": "B-29bc:F-003",
+          "disposition": "duplicate",
+          "familyKey": "inventory-required-pass-missing-mechanical-readlog",
+          "canonicalFindingId": "B-29bc:F-001",
+          "reason": "Independently compared full F-003 and F-001 with the audit and retained saturation contract: F-003 explicitly identifies the documentary manifestation of the same missing-readLog pass-admission predicate at core/review-inventory-epoch.ts:309, relies on F-001 exact witness, and adds no independent runtime root cause. Canonical F-001 is signature-valid, verified and open under the live B-29bc owner; F-001 has no duplicate link, so this chain is acyclic. This inventory-family duplicate classification preserves F-003 critical severity, open status and audit-correction obligation; it is not dismissal, repair, applicability waiver or final-review approval."
+        }
+      ],
+      "createdAt": "2026-09-07T10:32:34.286Z",
+      "_hash": "544368f0564b6ea86f6eb757835c809885034bfc1f6464231e0dcfe6a13a6b7e"
+    }
+  ]
 }
