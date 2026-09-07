@@ -1,0 +1,12 @@
+{
+  "schemaVersion": "proofstory.intent_collision.v1",
+  "storyId": "B-e256",
+  "id": "IC-20260902152727",
+  "decision": "pass",
+  "status": "accepted",
+  "acceptedInterpretation": "Fix the deterministic defect (promoteDist restores package.json bin executable bits after every rebuild, main and utils builds) and add a committed red test; make doctor report realpath into a .worktrees checkout or a non-executable bin target with the exact repoint/chmod command, without touching the host global install. Rejected readings: automating npm link (out of scope), routing the global command through a wrapper (does not fix the published bin target).",
+  "acceptedInterpretationHash": "sha256:aff44073e14d1fd999c2770566c29e6559d86eb9d5b7c687c2d7709e1e535a9c",
+  "notes": "Confirmed against the user request, RED transcript run4-global-cli.txt and independent repro review rr-mtk4acx4-oqze5c; INIT reviewers recorded advisory issues only.",
+  "createdAt": "2026-09-02T15:27:27.593Z",
+  "updatedAt": "2026-09-02T15:27:27.593Z"
+}

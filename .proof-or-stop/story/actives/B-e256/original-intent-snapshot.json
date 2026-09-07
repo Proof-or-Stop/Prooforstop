@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-e256",
+  "sourceText": "The global proof-or-stop points at another worktree / is unreliable every session; worth scheduling in the same batch. Write a RED/GREEN proof, create the story, develop it through the normal process until DONE (user, 2026-09-02).",
+  "normalizedOutcome": "The global proof-or-stop executable keeps working after every dist rebuild, and doctor reports global-executable realpath/mode drift with an exact remediation.",
+  "acceptanceClaim": "packages/main/tests/red/red-global-cli-exec-bit.mjs exits 0 in the story worktree (build pipeline restores the bin executable bit; tsc-emitted 0644 bin target becomes 0755 after promotion) while it still exits 1 against the unfixed main checkout.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:50d5a0a828279cc57c2944b587afbd769376aa30f71cd133695f07a629d9578c",
+  "createdAt": "2026-09-02T15:27:27.064Z",
+  "updatedAt": "2026-09-02T15:27:27.064Z"
+}

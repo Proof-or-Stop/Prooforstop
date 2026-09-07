@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-e256",
+  "records": [
+    {
+      "id": "RED-20260902152729",
+      "trigger": "global proof-or-stop executable breaks after dist rebuild (repro probe rp-mtk46lj8-90q9av, review rr-mtk4acx4-oqze5c)",
+      "acceptanceTargetRef": "CHK-001:happy:1",
+      "baselineHeadHash": "bb17eba32d9dd52a6fa6662f12c66966a8055666",
+      "baselineMaterialHash": "b9b94d68a9ffc826e19915e788ecf08aa0ec109de531a85f50548f5d351588aa",
+      "observedFailure": "RED red-global-cli-exec-bit: 1 desired property not met: neither scripts/build-main-with-binding.mjs nor scripts/promote-dist.mjs chmods the bin target dist/cli.js after a rebuild; tsc-emitted shebang file mode 0644 (transcript .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/run4-global-cli.txt; live symptom: permission denied: proof-or-stop after the 13:29 build)",
+      "failingCommand": "RED_REPO_ROOT=/Users/jek/Documents/GitHub/Prooforstop node .proof-or-stop/evidence/red-proofs/2026-09-02-framework-defects/red-global-cli-exec-bit.mjs",
+      "expectedGreenCommand": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
+      "greenRelation": {
+        "targetRef": "CHK-001:happy:1",
+        "relation": "same_acceptance",
+        "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      },
+      "note": "GREEN candidate proven in a scratch worktree (run4-global-cli-GREEN.txt, green-4-promote-dist.patch).",
+      "createdAt": "2026-09-02T15:27:29.584Z"
+    }
+  ],
+  "createdAt": "2026-09-02T15:27:29.584Z",
+  "updatedAt": "2026-09-02T15:27:29.584Z"
+}

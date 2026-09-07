@@ -336,7 +336,11 @@ try {
     writeFileSync(configPath, configControl);
     rmSync(configSwapRoot, { recursive: true, force: true });
   }
-  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(70 * 1024) }));
+  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(96 * 1024) }));
+  const policyRichConfig = deriveAcceptanceCoverageBasis(input);
+  assert.equal(policyRichConfig.basis.status, 'complete', 'a policy-rich config above the former 64 KiB ceiling remains discoverable');
+  assert.ok(!policyRichConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'an admitted policy-rich config has no bounded-read blind spot');
+  writeFileSync(configPath, JSON.stringify({ scanRoot: 'packages/main', rootDir: 'src', padding: 'x'.repeat(129 * 1024) }));
   const oversizedConfig = deriveAcceptanceCoverageBasis(input);
   assert.equal(oversizedConfig.basis.status, 'partial', 'oversized config is rejected by the strict config snapshot cap');
   assert.ok(oversizedConfig.basis.blindSpots.some(item => item.includes('lexical scan budget')), 'oversized config produces a bounded-read blind spot');

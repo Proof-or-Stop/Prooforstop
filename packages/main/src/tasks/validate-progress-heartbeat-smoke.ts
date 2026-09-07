@@ -30,7 +30,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { persistSyntheticAdmittedWindowForTest } from '../core/certification-window.js';
 import { deriveCertificationDomainInputHashes } from '../handlers/certification-window.js';
@@ -49,7 +49,6 @@ const HEARTBEAT_MS = 250;
 // their guards wide so only rows explicitly named "max" exercise a tight max.
 const NON_MAX_OUTER_TIMEOUT_MS = 120_000;
 const NON_MAX_HARNESS_CEILING_MS = 60_000;
-const DESCENDANT_PID_READY_TIMEOUT_MS = 30_000;
 
 type CliResult = {
   status: number | null;
@@ -101,6 +100,67 @@ function gitOutput(root: string, args: string[]): string {
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
   }).trim();
+}
+
+// A child CLI (or its descendant) publishes fixture files while it runs. Wait
+// on the CHILD'S LIFECYCLE, not on a fixed clock: the file or the child's exit,
+// whichever comes first, bounded by the child's own configured outer budget
+// plus this margin (CLI boot + pre-spawn setup under load). B-83aa: a fixed
+// 60s ceiling stalled a full minute for a pid file that no live process could
+// write, because the child had already exited without spawning its command.
+const CHILD_FILE_WAIT_MARGIN_MS = 10_000;
+
+type StartedCliRun = { result: CliRun; kill: () => void };
+
+type ChildFileWait =
+  | { outcome: 'written' }
+  | { outcome: 'exited_without_file'; result: CliResult }
+  | { outcome: 'bound_expired'; result: CliResult };
+
+function fileHasContent(path: string): boolean {
+  try {
+    return readFileSync(path, 'utf8').trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+async function waitForChildFile(run: StartedCliRun, path: string, boundMs: number): Promise<ChildFileWait> {
+  let exited: CliResult | undefined;
+  const settled = run.result.then((result) => { exited = result; return result; });
+  const deadline = Date.now() + boundMs;
+  while (true) {
+    if (fileHasContent(path)) return { outcome: 'written' };
+    if (exited) {
+      // The file may land in the same instant the child is torn down.
+      if (fileHasContent(path)) return { outcome: 'written' };
+      return { outcome: 'exited_without_file', result: exited };
+    }
+    if (Date.now() >= deadline) {
+      run.kill();
+      return { outcome: 'bound_expired', result: await settled };
+    }
+    await new Promise((resolve) => setTimeout(resolve, 20));
+  }
+}
+
+function commandStarted(result: CliResult, label: string): boolean {
+  return result.stderr.includes(`started ${label}`);
+}
+
+function describeChildFileWait(
+  wait: Exclude<ChildFileWait, { outcome: 'written' }>,
+  path: string,
+  label: string,
+  boundMs: number,
+): string {
+  const { result } = wait;
+  const head = wait.outcome === 'bound_expired'
+    ? `child still running when the ${boundMs}ms bound (configured budget + ${CHILD_FILE_WAIT_MARGIN_MS}ms margin) expired; ${path} was not written`
+    : `child exited (status=${result.status}, elapsedMs=${result.elapsedMs}) without writing ${path}: ` + (commandStarted(result, label)
+      ? `the configured command "${label}" started but was killed before its descendant published a pid`
+      : `the configured command "${label}" never started (the CLI's own setup consumed the outer budget)`);
+  return `${head}\nstderr=${result.stderr.slice(-1500)}`;
 }
 
 async function waitForFile(path: string, timeoutMs = 5_000): Promise<void> {
@@ -373,7 +433,7 @@ function admitSyntheticWindow(root: string, storyId: string): void {
   persistFixtureCertificationWindow(new StoryStore(root), storyId, root);
 }
 
-function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): CliRun {
+function startCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): StartedCliRun {
   const start = Date.now();
   const inheritedEnv = stripCanonicalBrandEnvTwins(
     { ...process.env },
@@ -400,20 +460,21 @@ function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILIN
   child.stderr?.on('data', (chunk: Buffer) => { stderr += chunk.toString(); });
 
   const closed = new Promise<void>(resolveClosed => child.once('close', () => resolveClosed()));
-  return Object.assign(new Promise<CliResult>((resolveResult) => {
+  const result = Object.assign(new Promise<CliResult>((resolveResult) => {
+    let ceilingTriggered = false;
     const ceiling = setTimeout(() => {
-      child.kill('SIGKILL');
-      resolveResult({
-        status: null,
-        stdout,
-        stderr: `${stderr}\nsmoke timed out waiting for validate child pid ${child.pid}`,
-        elapsedMs: Date.now() - start,
-      });
+      ceilingTriggered = true;
+      killCliProcessTree(child.pid);
     }, ceilingMs);
     ceiling.unref?.();
     child.on('close', (status) => {
       clearTimeout(ceiling);
-      resolveResult({ status, stdout, stderr, elapsedMs: Date.now() - start });
+      resolveResult({
+        status: ceilingTriggered ? null : status,
+        stdout,
+        stderr: ceilingTriggered ? `${stderr}\nsmoke timed out waiting for validate child pid ${child.pid}` : stderr,
+        elapsedMs: Date.now() - start,
+      });
     });
     child.on('error', (error) => {
       clearTimeout(ceiling);
@@ -425,6 +486,156 @@ function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILIN
       });
     });
   }), { closed });
+  return {
+    result,
+    kill: () => killCliProcessTree(child.pid),
+  };
+}
+
+function killCliProcessTree(rootPid: number | undefined): void {
+  if (!rootPid) return;
+  if (process.platform === 'win32') {
+    try {
+      execFileSync('taskkill', ['/PID', String(rootPid), '/T', '/F'], { stdio: 'ignore' });
+    } catch {
+      // The process may already have exited between the lifecycle check and cleanup.
+    }
+    return;
+  }
+  const children = new Map<number, number[]>();
+  try {
+    const rows = execFileSync('ps', ['-axo', 'pid=,ppid='], { encoding: 'utf8' });
+    for (const row of rows.split('\n')) {
+      const [pidText, parentText] = row.trim().split(/\s+/);
+      const pid = Number(pidText);
+      const parent = Number(parentText);
+      if (!Number.isInteger(pid) || !Number.isInteger(parent)) continue;
+      const siblings = children.get(parent) ?? [];
+      siblings.push(pid);
+      children.set(parent, siblings);
+    }
+  } catch {
+    // Fall through to killing the known root when process enumeration fails.
+  }
+  const descendants: number[] = [];
+  const visit = (pid: number): void => {
+    for (const childPid of children.get(pid) ?? []) visit(childPid);
+    if (pid !== rootPid) descendants.push(pid);
+  };
+  visit(rootPid);
+  for (const pid of [...descendants, rootPid]) {
+    try { process.kill(pid, 'SIGKILL'); } catch { /* already gone */ }
+  }
+}
+
+function runCli(root: string, args: string[], ceilingMs = NON_MAX_HARNESS_CEILING_MS, env: Record<string, string> = {}): CliRun {
+  return startCli(root, args, ceilingMs, env).result;
+}
+
+// A platform-neutral hanging DONE-required command whose descendant publishes
+// its pid as soon as Node spawns it. The descendant inherits the command's
+// process group, which is exactly what each validation timeout must terminate.
+function descendantTreeCommand(label: string, pidFile: string, timeoutMs: number, startupDelayMs = 0) {
+  const script = [
+    'const { spawn } = require("node:child_process");',
+    'const { writeFileSync } = require("node:fs");',
+    `Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ${startupDelayMs});`,
+    'const descendant = spawn(process.execPath, ["-e", "setTimeout(() => {}, 600000)"], { stdio: "ignore" });',
+    'writeFileSync(process.argv[1], `${descendant.pid}\\n`);',
+    'descendant.on("exit", () => process.exit(0));',
+    'setInterval(() => {}, 600000);',
+  ].join('');
+  return {
+    label,
+    command: process.execPath,
+    args: ['-e', script, pidFile],
+    timeoutMs,
+  };
+}
+
+interface DescendantKillRow {
+  layer: 'command' | 'idle' | 'max';
+  /** Budget of the layer under test; doubled only after a vacuous attempt. */
+  baseBudgetMs: number;
+  /** Optional pre-spawn delay proving that cleanup does not rely on immediate command startup. */
+  startupDelayMs?: number;
+  /** Command timeoutMs + watchdog env so the layer under test is the FIRST deadline able to fire. */
+  plan(budgetMs: number): { commandTimeoutMs: number; env: Record<string, string> };
+  killMessage: string;
+  extraAssertions?(result: CliResult): void;
+}
+
+const DESCENDANT_KILL_ESCALATIONS = 5;
+
+// Proves "<layer> timeout kills the command's descendants before the structured
+// return". The idle/max layers are wall-clock deadlines counted from CLI start,
+// and the CLI's own pre-spawn setup (worktree/cwd checks, capacity lock with
+// git probes, status probe) takes a load-dependent share of that clock: 0.4-0.7s
+// alone, 1.8-2.2s under a fork-heavy sibling load (B-83aa reproduction). When
+// the layer fires before the command is even spawned, the run is VACUOUS - the
+// layer classification is still asserted, but there is no descendant to prove
+// killed - so the budget is doubled and the attempt repeated, bounded, instead
+// of betting a fixed clock. Only an attempt where the descendant actually
+// published its pid can pass; a published-but-alive descendant fails outright.
+async function proveTimeoutLayerKillsDescendant(
+  fixture: { root: string; storyId: string },
+  pidFile: string,
+  row: DescendantKillRow,
+): Promise<void> {
+  const label = `${row.layer}-descendant-tree-timeout`;
+  const configPath = join(fixture.root, 'proof-or-stop.config.json');
+  const gitignorePath = join(fixture.root, '.gitignore');
+  const ignored = readFileSync(gitignorePath, 'utf8');
+  if (!ignored.split('\n').includes(basename(pidFile))) {
+    writeFileSync(gitignorePath, `${ignored}${basename(pidFile)}\n`, 'utf8');
+  }
+  const vacuous: string[] = [];
+  for (let attempt = 0; attempt < DESCENDANT_KILL_ESCALATIONS; attempt++) {
+    const budgetMs = row.baseBudgetMs * 2 ** attempt;
+    const { commandTimeoutMs, env } = row.plan(budgetMs);
+    const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
+    config.doneRequiredCommands = [descendantTreeCommand(label, pidFile, commandTimeoutMs, row.startupDelayMs)];
+    writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
+    rmSync(pidFile, { force: true });
+    commitAll(fixture.root, `configure ${label} budget ${budgetMs}`);
+    admitSyntheticWindow(fixture.root, fixture.storyId);
+    const run = startCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, env);
+    const boundMs = budgetMs + CHILD_FILE_WAIT_MARGIN_MS;
+    let descendantPid: number | null = null;
+    try {
+      const wait = await waitForChildFile(run, pidFile, boundMs);
+      const result = await run.result;
+      if (wait.outcome === 'bound_expired') {
+        assert.fail(`${label}: ${describeChildFileWait(wait, pidFile, label, boundMs)}`);
+      }
+      assert.equal(result.status, 1, `${label}: structured ${row.layer} timeout must exit nonzero:\n${result.stderr}`);
+      const parsed = JSON.parse(result.stdout);
+      assert.equal(parsed.result, 'timed_out', `${label}: budget ${budgetMs}ms must report timed_out`);
+      assert.equal(parsed.timeoutLayer, row.layer, `${label}: budget ${budgetMs}ms must attribute the ${row.layer} layer`);
+      row.extraAssertions?.(result);
+      if (wait.outcome === 'exited_without_file') {
+        vacuous.push(`budget ${budgetMs}ms: ${describeChildFileWait(wait, pidFile, label, boundMs)}`);
+        continue;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 150));
+      const pidText = readFileSync(pidFile, 'utf8').trim();
+      descendantPid = Number(pidText);
+      assert.ok(Number.isInteger(descendantPid) && descendantPid > 0, `${label}: pid file must hold the descendant pid, got "${pidText}"`);
+      assert.throws(() => process.kill(descendantPid as number, 0), /ESRCH/, row.killMessage);
+      return;
+    } finally {
+      run.kill();
+      await run.result;
+      if (descendantPid === null && fileHasContent(pidFile)) descendantPid = Number(readFileSync(pidFile, 'utf8').trim());
+      if (Number.isInteger(descendantPid) && (descendantPid as number) > 0) {
+        try { process.kill(descendantPid as number, 'SIGKILL'); } catch { /* already gone */ }
+      }
+    }
+  }
+  assert.fail([
+    `${label}: the ${row.layer} layer fired before the command published a descendant in all ${DESCENDANT_KILL_ESCALATIONS} escalating budgets, so the kill property could not be observed:`,
+    ...vacuous,
+  ].join('\n'));
 }
 
 function configureDoneRequired(root: string, durationMs: number, timeoutMs: number): void {
@@ -521,26 +732,21 @@ async function assertDirectDoneRequiredTimeoutMatrix(): Promise<void> {
   const descendantFixture = setupStoryAdvanceFixture();
   try {
     const pidFile = join(descendantFixture.root, 'descendant.pid');
-    const configPath = join(descendantFixture.root, 'proof-or-stop.config.json');
-    const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
-    config.doneRequiredCommands = [{
-      label: 'descendant-tree-timeout',
-      command: process.execPath,
-      args: ['-e', `const {spawn}=require('child_process');const fs=require('fs');const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync(${JSON.stringify(pidFile)},String(c.pid));setInterval(()=>{},1000)`],
-      timeoutMs: 200,
-    }];
-    writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
-    commitAll(descendantFixture.root, 'configure descendant timeout');
-    admitSyntheticWindow(descendantFixture.root, descendantFixture.storyId);
-    const timed = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
-      PROOF_OR_STOP_IDLE_TIMEOUT_MS: '1000', PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS), PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
+    await proveTimeoutLayerKillsDescendant(descendantFixture, pidFile, {
+      layer: 'command',
+      baseBudgetMs: 200,
+      // The command deadline counts from the spawn; keep idle/max at the wide
+      // outer budget so no watchdog can fire during pre-spawn silence.
+      plan: (budgetMs) => ({
+        commandTimeoutMs: budgetMs,
+        env: {
+          PROOF_OR_STOP_IDLE_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
+          PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
+          PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
+        },
+      }),
+      killMessage: 'command timeout must kill descendant process group',
     });
-    assert.equal(timed.status, 1, 'structured command timeout must exit nonzero');
-    assert.equal(JSON.parse(timed.stdout).timeoutLayer, 'command');
-    await waitForFile(pidFile, 5_000);
-    await new Promise((resolve) => setTimeout(resolve, 150));
-    const descendantPid = Number(readFileSync(pidFile, 'utf8'));
-    assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, 'command timeout must kill descendant process group');
     configureDoneRequired(descendantFixture.root, 0, 2_000);
     admitSyntheticWindow(descendantFixture.root, descendantFixture.storyId);
     const retry = await runCli(descendantFixture.root, ['done_required_validate', JSON.stringify({ storyId: descendantFixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
@@ -601,49 +807,53 @@ async function assertDonePrepareRoutineTimeoutMatrix(): Promise<void> {
 }
 
 async function assertOuterWatchdogsKillDescendants(): Promise<void> {
-  const cases = [
-    { name: 'idle', idleMs: '500', maxMs: String(NON_MAX_OUTER_TIMEOUT_MS), heartbeatMs: '2000', startupDelayMs: 0 },
-    // This row tests cleanup of an EXISTING descendant, not CLI startup speed.
-    // A 700ms outer deadline could prevent the command from spawning it at all;
-    // waiting for the PID after that deadline cannot establish the premise.
-    // Deliberately slow startup, with headroom only in this fixture's max budget.
-    // The separate tight-max rows still pin production deadline enforcement.
-    { name: 'max', idleMs: '2000', maxMs: '10000', heartbeatMs: '50', startupDelayMs: 1000 },
-  ] as const;
-  for (const testCase of cases) {
+  const noHeartbeatAfterTerminal = (name: string) => (result: CliResult): void => {
+    const terminalIndex = result.stderr.lastIndexOf('completed with structured failure');
+    const heartbeatAfterTerminal = result.stderr.slice(Math.max(0, terminalIndex)).includes('validate heartbeat:');
+    assert.equal(heartbeatAfterTerminal, false, `${name} timeout must not emit heartbeat after terminal output`);
+  };
+  const rows: DescendantKillRow[] = [
+    {
+      layer: 'idle',
+      baseBudgetMs: 500,
+      // Idle counts from the last output line; a heartbeat slower than idle lets
+      // it fire during the command, and the command timeout stays well behind.
+      plan: (budgetMs) => ({
+        commandTimeoutMs: budgetMs * 10,
+        env: {
+          PROOF_OR_STOP_IDLE_TIMEOUT_MS: String(budgetMs),
+          PROOF_OR_STOP_MAX_TIMEOUT_MS: String(NON_MAX_OUTER_TIMEOUT_MS),
+          PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: String(budgetMs * 4),
+        },
+      }),
+      killMessage: 'idle watchdog must kill descendants before structured return',
+      extraAssertions: noHeartbeatAfterTerminal('idle'),
+    },
+    {
+      layer: 'max',
+      baseBudgetMs: 10_000,
+      startupDelayMs: 1_000,
+      // This row proves cleanup of an existing descendant, not CLI startup speed.
+      // Give fixture/CLI startup explicit headroom and deliberately delay the
+      // configured command before it spawns; the separate tight-max rows still
+      // pin production deadline enforcement.
+      plan: (budgetMs) => ({
+        commandTimeoutMs: budgetMs * 2,
+        env: {
+          PROOF_OR_STOP_IDLE_TIMEOUT_MS: String(Math.max(20_000, budgetMs * 2)),
+          PROOF_OR_STOP_MAX_TIMEOUT_MS: String(budgetMs),
+          PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: '50',
+        },
+      }),
+      killMessage: 'max watchdog must kill descendants before structured return',
+      extraAssertions: noHeartbeatAfterTerminal('max'),
+    },
+  ];
+  for (const row of rows) {
     const fixture = setupStoryAdvanceFixture();
     try {
-      const pidFile = join(fixture.root, `${testCase.name}-descendant.pid`);
-      const configPath = join(fixture.root, 'proof-or-stop.config.json');
-      const config = JSON.parse(readFileSync(configPath, 'utf8')) as Record<string, unknown>;
-      config.doneRequiredCommands = [{
-        label: `${testCase.name}-descendant-tree-timeout`,
-        command: process.execPath,
-        args: ['-e', `const {spawn}=require('child_process');const fs=require('fs');Atomics.wait(new Int32Array(new SharedArrayBuffer(4)),0,0,${testCase.startupDelayMs});const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'});fs.writeFileSync(${JSON.stringify(pidFile)},String(c.pid));setInterval(()=>{},1000)`],
-        // Keep the max row's command timeout later than its outer max; otherwise the
-        // test would exercise a different cleanup layer after widening startup.
-        timeoutMs: testCase.name === 'max' ? 20_000 : 5_000,
-      }];
-      writeFileSync(configPath, JSON.stringify(config, null, 2) + '\n', 'utf8');
-      writeFileSync(join(fixture.root, '.gitignore'), `${readFileSync(join(fixture.root, '.gitignore'), 'utf8')}${testCase.name}-descendant.pid\n`, 'utf8');
-      commitAll(fixture.root, `configure ${testCase.name} descendant timeout`);
-      admitSyntheticWindow(fixture.root, fixture.storyId);
-      const result = await runCli(fixture.root, ['done_required_validate', JSON.stringify({ storyId: fixture.storyId, json: true })], NON_MAX_HARNESS_CEILING_MS, {
-        PROOF_OR_STOP_IDLE_TIMEOUT_MS: testCase.idleMs,
-        PROOF_OR_STOP_MAX_TIMEOUT_MS: testCase.maxMs,
-        PROOF_OR_STOP_VALIDATE_HEARTBEAT_MS: testCase.heartbeatMs,
-      });
-      assert.equal(result.status, 1);
-      const parsed = JSON.parse(result.stdout);
-      assert.equal(parsed.result, 'timed_out');
-      assert.equal(parsed.timeoutLayer, testCase.name);
-      await waitForFile(pidFile, DESCENDANT_PID_READY_TIMEOUT_MS);
-      await new Promise((resolve) => setTimeout(resolve, 150));
-      const descendantPid = Number(readFileSync(pidFile, 'utf8'));
-      assert.throws(() => process.kill(descendantPid, 0), /ESRCH/, `${testCase.name} watchdog must kill descendants before structured return`);
-      const terminalIndex = result.stderr.lastIndexOf('completed with structured failure');
-      const heartbeatAfterTerminal = result.stderr.slice(Math.max(0, terminalIndex)).includes('validate heartbeat:');
-      assert.equal(heartbeatAfterTerminal, false, `${testCase.name} timeout must not emit heartbeat after terminal output`);
+      const pidFile = join(fixture.root, `${row.layer}-descendant.pid`);
+      await proveTimeoutLayerKillsDescendant(fixture, pidFile, row);
     } finally {
       rmSync(fixture.root, { recursive: true, force: true });
     }

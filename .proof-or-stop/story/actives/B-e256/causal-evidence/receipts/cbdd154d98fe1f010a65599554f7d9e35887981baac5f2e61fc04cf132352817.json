@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-e256",
+  "executionKey": "ce:v1:6793f31305f2c83b31ef28dda036e21e81bc161bc27147bf6f99d0c2518dc7d5",
+  "identityDigest": "6793f31305f2c83b31ef28dda036e21e81bc161bc27147bf6f99d0c2518dc7d5",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-e256",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "5b2ad5e25c1ff178aac5f4d60a1ea6c599e70d33606dd5bb2115718a43046d70",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:e5de86be1e450cb6f99db689d3cae680fe6eae7f9697332253d293d146969076",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-e256/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "ebab241980ab945d41c44f81040e1f6bd45ff4e6",
+          "materialHash": "5b2ad5e25c1ff178aac5f4d60a1ea6c599e70d33606dd5bb2115718a43046d70",
+          "storyFilesHash": "a9556759a4051ae8c1bfb5516b96fba35d0ac9360b83c29d0ac07a5ee75eb1df"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "refreshExecutionKey": "{\"version\":1,\"command\":\"node packages/main/tests/red/red-global-cli-exec-bit.mjs\",\"selector\":\"contract: global-cli-bin-target-restored\",\"intentType\":\"logic\",\"evidenceKind\":\"logic_test\",\"cwd\":\"/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256\",\"effectiveTimeoutMs\":180000,\"timeoutProvenance\":{\"source\":\"configured-command-timeout\",\"configuredTimeoutMs\":180000}}",
+      "storyId": "B-e256",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "a9556759a4051ae8c1bfb5516b96fba35d0ac9360b83c29d0ac07a5ee75eb1df",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/49bfef8b-d1b7-4471-84a8-3ad0baf1dd9b.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg03Ki9di:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.277",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "7865d71664e25f82a8b28f6157c4f4776887c9464baa5929838312f72f49aadb",
+  "outputTail": "bin targets: dist/cli.js\ntsc-emitted shebang file mode: 0644 (executable bits: false)\npipeline staging restore hook present: true; staging restoration precedes old-dist eviction: true (scripts/build-main-with-binding.mjs + scripts/promote-dist.mjs)\nGREEN build pipeline validates and restores package.json bin targets on staging before evicting the old dist\nlive: packages/main/dist/cli.js mode 0755\nGREEN live: packages/main/dist/cli.js is executable\nhermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: true\nGREEN hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits(dist)\nhermetic (a): dist/cli.js mode 0644 -> 0755; restored=[\"dist/cli.js\"]\ncontract: global-cli-bin-target-restored\nGREEN hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored\nGREEN hermetic (b): an absent bin target returns [] without throwing\nhermetic (c): no bin field -> []\nhermetic (c): unparseable package.json -> []\nhermetic (c): missing package.json -> []\nGREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing\nGREEN hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target\nGREEN hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal\nGREEN hermetic (c4): a directory declared as a bin target is rejected before promotion\nGREEN hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree\nhermetic (d): dist 0000 -> restoreBinExecutableBits threw code=EACCES\nGREEN hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed\nhermetic (e): staging dist/cli.js mode 0644 -> promoted 0755; staging=false trash=false\nGREEN hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable\nhermetic (f): staging 0000 -> promoteDist threw code=EACCES; dist=true staging=true trash=false\nGREEN hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted\n\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable\n",
+  "outputProbe": "bin targets: dist/cli.js\ntsc-emitted shebang file mode: 0644 (executable bits: false)\npipeline staging restore hook present: true; staging restoration precedes old-dist eviction: true (scripts/build-main-with-binding.mjs + scripts/promote-dist.mjs)\nGREEN build pipeline validates and restores package.json bin targets on staging before evicting the old dist\nlive: packages/main/dist/cli.js mode 0755\nGREEN live: packages/main/dist/cli.js is executable\nhermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: true\nGREEN hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits(dist)\nhermetic (a): dist/cli.js mode 0644 -> 0755; restored=[\"dist/cli.js\"]\ncontract: global-cli-bin-target-restored\nGREEN hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored\nGREEN hermetic (b): an absent bin target returns [] without throwing\nhermetic (c): no bin field -> []\nhermetic (c): unparseable package.json -> []\nhermetic (c): missing package.json -> []\nGREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing\nGREEN hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target\nGREEN hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal\nGREEN hermetic (c4): a directory declared as a bin target is rejected before promotion\nGREEN hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree\nhermetic (d): dist 0000 -> restoreBinExecutableBits threw code=EACCES\nGREEN hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed\nhermetic (e): staging dist/cli.js mode 0644 -> promoted 0755; staging=false trash=false\nGREEN hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable\nhermetic (f): staging 0000 -> promoteDist threw code=EACCES; dist=true staging=true trash=false\nGREEN hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted\n\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable\n",
+  "outputLength": 2340,
+  "executedAt": "2026-09-06T18:13:39.482Z",
+  "durationMs": 1001,
+  "timeoutMs": 180000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "P0HBZHpQXS7HhdOFUww6zU8EuYbfbLIQV3T8Io2EGcfADe/fhLGClcSmBbSCKmcJIHHk2L5pQvRcwii8josGDg==",
+  "receiptHash": "cbdd154d98fe1f010a65599554f7d9e35887981baac5f2e61fc04cf132352817"
+}

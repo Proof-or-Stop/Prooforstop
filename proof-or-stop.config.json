@@ -1581,6 +1581,22 @@
       {
         "command": "node",
         "args": [
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs"
+        ],
+        "timeoutMs": 180000,
+        "id": "red-global-cli-exec-bit",
+        "label": "B-e256 global CLI rebuild and promotion regression",
+        "resources": [
+          {
+            "class": "git-common-dir",
+            "key": ".",
+            "access": "shared"
+          }
+        ]
+      },
+      {
+        "command": "node",
+        "args": [
           "packages/main/tests/red/red-1734-desktop-asset-manifest.mjs"
         ],
         "timeoutMs": 180000,

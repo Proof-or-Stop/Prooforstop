@@ -1,0 +1,147 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-e256",
+  "executionKey": "ce:v1:770a966ff0c2c3906ccddcf232bc233143a0a302c8228e831083680751cf0bb1",
+  "identityDigest": "770a966ff0c2c3906ccddcf232bc233143a0a302c8228e831083680751cf0bb1",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-e256",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/dist/cli.js",
+        "validation_plan",
+        "--storyId=B-e256",
+        "--tier=full",
+        "--explain"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "ca4c6e11759f445b3f153b8294707fb2e04a1f7d25c3566e1b61728b90945498",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:8487e5afa9a830d4797336030e8fe840c8764fb1a7aa64c90b65df8cf14c2b2e",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-e256/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "f9eb3fe87e16f3cdd545690f927cb23b14ff1fda",
+          "materialHash": "ca4c6e11759f445b3f153b8294707fb2e04a1f7d25c3566e1b61728b90945498",
+          "storyFilesHash": "90dd2d292944f613fa7ccf59ea6c1de48146a2d14dfa910c3d69b55a5c981ecc"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "storyId": "B-e256",
+      "timeoutMs": 270000,
+      "verificationExecutionSemanticsKey": "{\"version\":1,\"rawExecutionKey\":\"{\\\"version\\\":1,\\\"command\\\":{\\\"executable\\\":\\\"node\\\",\\\"args\\\":[\\\"packages/main/dist/cli.js\\\",\\\"validation_plan\\\",\\\"--storyId=B-e256\\\",\\\"--tier=full\\\",\\\"--explain\\\"]},\\\"cwd\\\":\\\"/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256\\\",\\\"effectiveTimeoutMs\\\":270000,\\\"timeoutProvenance\\\":{\\\"source\\\":\\\"executor-default\\\",\\\"configuredTimeoutMs\\\":null}}\",\"selector\":\"red-global-cli-exec-bit [B-e256 global CLI rebuild and promotion regression]\",\"intentType\":\"cli\",\"evidenceKind\":\"integration_test\"}"
+    },
+    "storyFilesHash": "90dd2d292944f613fa7ccf59ea6c1de48146a2d14dfa910c3d69b55a5c981ecc",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/9fa2f60e-acd6-4d7f-8eec-3a553e15d0be.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg0sdXHW0:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.277",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "a021a41ffcb250e20e6b05bcba12b512493a531d33b67b796f2fa2638ec8f991",
+  "outputTail": "d the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [evidence-pin] CHK-003 CHK-003:edge:2: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n    CHK-003 CHK-003:edge:2: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [evidence-pin] CHK-003 CHK-003:adversarial:1: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n    CHK-003 CHK-003:adversarial:1: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [evidence-pin] CHK-003 CHK-003:adversarial:2: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n    CHK-003 CHK-003:adversarial:2: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n\nestimatedDuration: 769ms across 1 unit(s) with history, 131 unit(s) unknown\n  basis: 1 of 132 selected unit(s) have prior signed validation receipts (2 sample(s) read); the remaining 131 report unknown-duration rather than zero. Duration is estimate-only and never changes what runs.\ninventoryWarnings (1):\n  131 of 132 validation commands still lack a declared id and are running on provisional ids (prefix \"prov-\") derived from command, args, declared cwd and declared shell. Declare a stable id on each so its planner identity survives an edit to any of those fields.\ncommandSetDigest: aa98863a809d4e19e5380bc7ffaaab0c4ac8f522961a5fa7b00e6ddc0a06ea3a\nselectionDigest: 5637a438b99dddaa196ae6c417ac86f24cb36d89f845bfbd5dd6b3e6e34de3b1\n",
+  "outputProbe": "[0.1s] running validation_plan...\n[1.2s] validation_plan done\nvalidation_plan: B-e256\nstoryPhase: DEV\nstatus: plan\nrequestedTier: repository-full (requested as \"full\")\neffectiveTier: repository-full\nsourceKind: configured\nexecutionMode: command-set\nselected: 132 of 132 validation unit(s)\ntierSelection story-fast: 132 unit(s)\ntierSelection story-intermediate: 132 unit(s)\ntierSelection repository-full: 132 unit(s)\nreductionApplied: false\nfreshnessBinding: bound (head f9eb3fe87e16f3cdd545690f927cb23b14ff1fda, material ca4c6e11759f445b3f153b8294707fb2e04a1f7d25c3566e1b61728b90945498, storyFiles 90dd2d292944f613fa7ccf59ea6c1de48146a2d14dfa910c3d69b55a5c981ecc)\nfinalAuthority: no\n  This is explain-only planning output. It is not evidence that anything passed, and a fast or intermediate plan is never final authority.\nartifact: none (validation_plan is explain-only and writes no selection artifact. A selection artifact is produced by executing tiers in a later Rollout Story, not by this command.)\n\nescalation reasons (12):\n  [pinned_command_non_inventory] outcome=repository-full\n    gloss: Evidence names a command that is not one of this project’s registered validation commands — it may still be a real, runnable script, just not a member of the inventory the planner selects from — so it proves nothing about any command and cannot make the set smaller, and the full repository set runs.\n    detail: CHK-002 CHK-002:edge:0: pinned_command_non_inventory: the evidence command \"node -e \\\"const c=JSON.parse(require('fs').readFileSync('proof-or-stop.config.json','utf8'));const e=c.validate.commands.find(x=>(x.args||[]).includes('packages/main/tests/red/red-global-cli-exec-bit.mjs'));console.log('registered='+JSON.stringify(e))\\\"\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [pinned_command_non_inventory] outcome=repository-full\n    gloss: Evidence names a command that is not one of this project’s registered validation commands — it may still be a real, runnable script, just not a member of the inventory the planner selects from — so it proves nothing about any command and cannot make the set smaller, and the full repository set runs.\n    detail: CHK-003 CHK-003:edge:0: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [pinned_command_non_inventory] outcome=repository-full\n    gloss: Evidence names a command that is not one of this project’s registered validation commands — it may still be a real, runnable script, just not a member of the inventory the planner selects from — so it proves nothing about any command and cannot make the set smaller, and the full repository set runs.\n    detail: CHK-003 CHK-003:edge:1: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [pinned_command_non_inventory] outcome=repository-full\n    gloss: Evidence names a command that is not one of this project’s registered validation commands — it may still be a real, runnable script, just not a member of the inventory the planner selects from — so it proves nothing about any command and cannot make the set smaller, and the full repository set runs.\n    detail: CHK-003 CHK-003:adversarial:0: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [pinned_command_non_inventory] outcome=repository-full\n    gloss: Evidence names a command that is not one of this project’s registered validation commands — it may still be a real, runnable script, just not a member of the inventory the planner selects from — so it proves nothing about any command and cannot make the set smaller, and the full repository set runs.\n    detail: CHK-003 CHK-003:happy:0: pinned_command_non_inventory: the evidence command \"node packages/main/dist/cli.js doctor\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [pinned_command_non_inventory] outcome=repository-full\n    gloss: Evidence names a command that is not one of this project’s registered validation commands — it may still be a real, runnable script, just not a member of the inventory the planner selects from — so it proves nothing about any command and cannot make the set smaller, and the fu\n<causal-output-gap>\nr it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [evidence-pin] CHK-003 CHK-003:happy:0: pinned_command_non_inventory: the evidence command \"node packages/main/dist/cli.js doctor\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n    CHK-003 CHK-003:happy:0: pinned_command_non_inventory: the evidence command \"node packages/main/dist/cli.js doctor\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [evidence-pin] CHK-003 CHK-003:happy:1: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n    CHK-003 CHK-003:happy:1: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [evidence-pin] CHK-003 CHK-003:edge:2: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n    CHK-003 CHK-003:edge:2: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [evidence-pin] CHK-003 CHK-003:adversarial:1: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n    CHK-003 CHK-003:adversarial:1: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n  [evidence-pin] CHK-003 CHK-003:adversarial:2: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n    CHK-003 CHK-003:adversarial:2: pinned_command_non_inventory: the evidence command \"node packages/main/tests/global-core-realpath.test.mjs\" is not one of this project’s registered validation commands. It may well be a real, runnable script; it is simply not a member of the validation inventory the planner selects from, so it binds to nothing, narrows nothing, and the full repository set runs. Register it in the validation command inventory if it should take part in selection; otherwise no action is needed.\n\nestimatedDuration: 769ms across 1 unit(s) with history, 131 unit(s) unknown\n  basis: 1 of 132 selected unit(s) have prior signed validation receipts (2 sample(s) read); the remaining 131 report unknown-duration rather than zero. Duration is estimate-only and never changes what runs.\ninventoryWarnings (1):\n  131 of 132 validation commands still lack a declared id and are running on provisional ids (prefix \"prov-\") derived from command, args, declared cwd and declared shell. Declare a stable id on each so its planner identity survives an edit to any of those fields.\ncommandSetDigest: aa98863a809d4e19e5380bc7ffaaab0c4ac8f522961a5fa7b00e6ddc0a06ea3a\nselectionDigest: 5637a438b99dddaa196ae6c417ac86f24cb36d89f845bfbd5dd6b3e6e34de3b1\n",
+  "outputLength": 115206,
+  "executedAt": "2026-09-06T22:53:09.131Z",
+  "durationMs": 2497,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "wevZiRTdPE7geXvIFTCwb+p7EBnYdzTl1ODr/jFxtuXDKtiFhJAWywVn+/ZuE31pdB3Twnfj3L6yZQgXRUZAAg==",
+  "receiptHash": "58924a977eba68c6ec39929bf5bcd156a0b6d082c38388747009786e7688abb6"
+}

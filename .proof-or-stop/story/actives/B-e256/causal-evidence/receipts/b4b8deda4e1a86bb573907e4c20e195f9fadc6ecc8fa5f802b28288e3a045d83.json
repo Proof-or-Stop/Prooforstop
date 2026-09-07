@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "proofbound.causal-evidence-receipt.v1",
+  "storyId": "B-e256",
+  "executionKey": "ce:v1:b301a33fdd23b07d68f591711fe17498aaa1ce1c35676c9655f4327a2ab805e8",
+  "identityDigest": "b301a33fdd23b07d68f591711fe17498aaa1ce1c35676c9655f4327a2ab805e8",
+  "identity": {
+    "schemaVersion": "proofbound.causal-execution-key.v1",
+    "storyId": "B-e256",
+    "cwd": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+    "command": {
+      "executable": "node",
+      "args": [
+        "packages/main/dist/cli.js",
+        "doctor"
+      ]
+    },
+    "bootstrap": {
+      "executable": "proof-or-stop",
+      "args": [
+        "verification-evidence"
+      ]
+    },
+    "inputs": {
+      "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+      "preflightFacts": {
+        "cli": {
+          "available": true,
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/bin/proof-or-stop.js"
+        },
+        "evidenceTarget": {
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "probe": "access_w:/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/.proof-or-stop/story/actives/B-e256/causal-evidence/receipts",
+          "writable": true
+        },
+        "gitIndex": {
+          "contentDigest": "sha256:08f8714afa9acbaedd88e9580e4cc929772d2d875443b772f4389b3980305a8a",
+          "path": "/Users/jek/Documents/GitHub/Prooforstop/.git/worktrees/B-e256/index",
+          "readable": true
+        },
+        "gitMaterial": {
+          "available": true,
+          "headHash": "11b64eca391ab8908898a5b3b6c16b0530ac5b17",
+          "materialHash": "ad5b5e767843c2099cd0854c35e42b377b139556685520983d4e22209b7ab984",
+          "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d"
+        },
+        "providerCapability": {
+          "available": [
+            "allowlisted-command",
+            "bounded-output"
+          ],
+          "required": [
+            "allowlisted-command",
+            "bounded-output"
+          ]
+        },
+        "resources": {
+          "available": {
+            "timeoutMs": 270000
+          },
+          "required": {
+            "timeoutMs": 270000
+          }
+        },
+        "sideChannel": {
+          "available": true,
+          "maxOutputChars": 12000,
+          "maxProgressEvents": 1
+        },
+        "worktree": {
+          "actual": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+          "expected": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256"
+        },
+        "writerLease": {
+          "available": true,
+          "valid": true
+        }
+      },
+      "refreshExecutionKey": "{\"version\":1,\"command\":\"node packages/main/dist/cli.js doctor\",\"selector\":\"global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=\",\"intentType\":\"cli\",\"evidenceKind\":\"integration_test\",\"cwd\":\"/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256\",\"effectiveTimeoutMs\":270000,\"timeoutProvenance\":{\"source\":\"executor-default\",\"configuredTimeoutMs\":null}}",
+      "storyId": "B-e256",
+      "timeoutMs": 270000
+    },
+    "storyFilesHash": "e855231bf2cd1ffabde92529778f511e27403aaa42942782aa0e06fb366eef0d",
+    "effectiveEnvironment": {
+      "CODEX_APP_TOOLS_PIPE_PATH": "/tmp/codex-browser-use/49bfef8b-d1b7-4471-84a8-3ad0baf1dd9b.sock",
+      "CODEX_CI": "1",
+      "CODEX_INTERNAL_ORIGINATOR_OVERRIDE": "Codex Desktop",
+      "CODEX_MCP_NODE_PATH": "/Applications/ChatGPT.app/Contents/Resources/cua_node/bin/node",
+      "CODEX_PERMISSION_PROFILE": ":danger-full-access",
+      "CODEX_SAGE_BACKFILL_TRACKER_TAB_REUSE": "1",
+      "CODEX_SHELL": "1",
+      "COLORTERM": "",
+      "COMMAND_MODE": "unix2003",
+      "DISABLE_AUTO_UPDATE": "true",
+      "FPATH": "/opt/homebrew/share/zsh/site-functions:/opt/homebrew/share/zsh/site-functions:/usr/local/share/zsh/site-functions:/usr/share/zsh/site-functions:/usr/share/zsh/5.9/functions",
+      "GH_PAGER": "cat",
+      "GIT_PAGER": "cat",
+      "HOME": "/Users/jek",
+      "HOMEBREW_CELLAR": "/opt/homebrew/Cellar",
+      "HOMEBREW_PREFIX": "/opt/homebrew",
+      "HOMEBREW_REPOSITORY": "/opt/homebrew",
+      "INFOPATH": "/opt/homebrew/share/info:/opt/homebrew/share/info:",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LC_CTYPE": "C.UTF-8",
+      "LOGNAME": "jek",
+      "LOG_FORMAT": "json",
+      "MallocNanoZone": "0",
+      "NO_COLOR": "1",
+      "OSLogRateLimit": "64",
+      "PAGER": "cat",
+      "PATH": "/Users/jek/.local/bin:/Users/jek/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/jek/.codex/tmp/arg0/codex-arg03Ki9di:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/jek/.local/bin:/Users/jek/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "PWD": "/Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256",
+      "RUST_LOG": "warn",
+      "SHELL": "/bin/zsh",
+      "SSH_AUTH_SOCK": "<redacted>:sha256:e26bae31870071c5cd0415121e77a823e2199a52ba9b93cfe23d5fa88bc4115e",
+      "TERM": "dumb",
+      "TMPDIR": "/var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/",
+      "USER": "jek",
+      "XPC_FLAGS": "0x0",
+      "XPC_SERVICE_NAME": "0",
+      "ZSH_TMUX_AUTOSTART": "false",
+      "ZSH_TMUX_AUTOSTARTED": "true",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0:2"
+    },
+    "runtimeVersion": "v26.8.1",
+    "toolVersion": "0.3.277",
+    "selectorPolicyDigest": "7625d6e244e82d6c4eb2298d42c4c42728fc65b57131ce8b3537af2af445c8f3",
+    "complete": true
+  },
+  "status": "pass",
+  "exitCode": 0,
+  "outputDigest": "2a12e084bcbd75941d7d329a597e7dc2bf0d7a59a5d880325451a92ec832a095",
+  "outputTail": "ex, status=active\n  ✓ B-f458: watcher-fallback, provider=codex, status=active\n\nstoryDir / gitRoot scan:\n  ✓ storyDir resolves inside the resolved gitRoot\n\nStory metadata protection scan:\n  ✓ story metadata is tracked or protected (38 active leaf/leaves checked)\n  - managed ignore allowlist not fully installed (missing 1 pattern(s))\n  → proof-or-stop doctor --repair to install the managed allowlist so story metadata stays tracked while runtime stays ignored.\n\nRed-evidence policy: red_evidence_policy_missing: pinnedPath (advisory only; doctor is not a gate)\n\nRuntime scan:\n  scope: self\n  runtimeMode: compatibility-launcher (repo-local-dist)\n  status: fail (5 pass, 1 warn, 2 fail)\n  ✓ entrypoint-authority [hard] pass\n  ✗ cli-entrypoint [hard] missing\n    - PATH lookup for `proof-or-stop` did not resolve a CLI executable\n    repair: Run `command -v proof-or-stop`, rebuild/link the intended package, or use `node packages/main/dist/cli.js` for current-worktree checks.\n  ✗ global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.277 mode=0644 executable=no\n    - global bin target /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js is not executable by the current user (mode 0644); fix: chmod +x /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js\n    repair: Relink or reinstall the global @proof-or-stop/core package, then rerun `proof-or-stop doctor --format=json`.\n  ✓ project-local-bin [warn] absent\n  ✓ node-version [warn] v26.8.1\n  ✓ package-version [hard] 0.3.277\n  ✓ validate-source [warn] source=configured\n  ⚠ external-reference-policy [warn] 790 external refs, connectivityChecked=false\n    - CLAUDE.md:673 story-review.ts:274 is reference-only; no health command semantics found\n    - CLAUDE.md:813 scope-question-resolve.ts:28 is reference-only; no health command semantics found\n    - CLAUDE.md:1235 fn.ts:42 is reference-only; no health command semantics found\n    - README.md:3 https://img.shields.io/badge/arXiv-2607.14890-b31b1b.svg is reference-only; no health command semantics found\n    - ... and 775 more\n    repair: Document the owning health command or mark the reference as policy-only; localhost examples are treated as internal.\n  note: runtime facts describe environment drift; process gates remain in process-fact-registry.\n\nValidation scan:\n  active validate file: none\n  configured commands: 132; discovered fallback labels: package.json test script\n  no-validator warning: no\n  warnings: none\n\nCodex adapter scan:\n  ✗ Codex adapter checks failed (1 hard failure(s))\n    [!] Codex agent asset resolution: mode=full-asset; promptRegistryHash=6204e20f52c2; assets absent=0 matches-runtime=34 stale=2 override=0; authorityBoundary=localNonAuthorityAudit; This projection is a local admissibility audit of prompt asset ownership; lifecycle completion stays with local gate evidence, receipt bundles, and review quorum.\n    [✓] Codex manifest: global-thin project: Codex adapter behavior runs from the global proof-or-stop CLI (.proof-or-stop/proof-or-stop.json present)\n    [✓] Codex prompt registry: 18 prompt(s) render from package registry; hash=6204e20f52c2\n    [✓] Codex runtime exclusions: no uppercase-only .proof-or-stop-codex/hooks or .proof-or-stop-codex/settings.json\n    [✓] Codex native PreToolUse hook: .codex/hooks.json wires apply_patch/Edit/Write to proof-or-stop-scope-pretool.cjs\n    [✓] Local Codex wrapper: global-thin project: local wrapper not required; use global proof-or-stop codex verify / proof-or-stop codex doctor\n    [✗] Global fallback heartbeat: heartbeat command failed: spawnSync proof-or-stop EACCES\n        → PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief\n    [✓] Aux command availability: aux_doc_list registered\n\n→ Brief view. Full diagnostics: proof-or-stop doctor --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.\n",
+  "outputProbe": "[0.0s] running doctor...\n[9.5s] doctor done\nRuntime footprint:\nRuntime mode: compatibility-launcher\nRuntime source: repo-local-dist\nProject-local JavaScript runtime required: no\nAuthority: local-runtime-diagnostic-only\nNext action: compatibility launcher is using the repository-local Proof-or-Stop dist runtime; run npm --prefix packages/main run build after core edits\n\nagentAssetMode: runtime-owned\n  ⚠ 18 managed agent file(s) in .claude/agents shadow the global ~/.claude/agents source; run proof-or-stop init --upgrade to migrate\n\nHost burn scan (advisory):\n  window: sessions active in the last 48h | thresholds: file > 100.0 MB, input > 100_000_000 tok, age > 7d (env-tunable via PROOF_OR_STOP_BURN_ALERT_FILE_MB/PROOF_OR_STOP_BURN_ALERT_INPUT_TOKENS/PROOF_OR_STOP_BURN_ALERT_AGE_DAYS/PROOF_OR_STOP_BURN_ALERT_RECENT_HOURS)\n  ✗ BURN ALERT claude sess-3d43db3176c0b9b772929e2f49d4b197 (claude-code) ~707_783_514 input tokens; tripped: input-tokens\n  ✗ BURN ALERT claude sess-87ca20a66a0c1bac4b95a3e0e4f306f0 (claude-code) ~625_977_480 input tokens; tripped: input-tokens\n  ✗ BURN ALERT claude sess-83fa0f695d26a3827245edebb28ed3b9 (claude-code) ~291_409_519 input tokens; tripped: input-tokens\n  ... and 6 more over threshold (use proof-or-stop doctor --full for every session detail)\n  → 9 session(s) over burn thresholds out of 161 scanned. Close/restart long-lived sessions; use proof-or-stop doctor --full for every session detail; advisory only, never gate evidence.\n\nproof-or-stop doctor — health issues\n  source: /Users/jek/.proof-or-stop/health.jsonl\n  total : 1000 issues recorded\n  shown : 32 (last 24h)\n\nBy category:\n  mutation:storyMetadataCommit   915\n  persist:codexProcessEvent      43\n  persist:closeoutWriteReceipt   39\n  mutation:worktreeCleanup       3\n\nRecent issues:\n  [2026-09-06T11:09:41.522Z] persist:closeoutWriteReceipt: File not found: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-full-suite-member-qHhEGz/proof-or-stop-v…\n  [2026-09-06T11:08:44.860Z] persist:closeoutWriteReceipt: File not found: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-full-suite-member-qHhEGz/proof-or-stop-v…\n  [2026-09-06T11:06:31.036Z] persist:closeoutWriteReceipt: unsupported closeout receipt schema for summary.json\n  [2026-09-06T11:06:24.230Z] persist:closeoutWriteReceipt: non-canonical writer for checklist.json: checklist_update\n  [2026-09-06T11:05:23.525Z] mutation:storyMetadataCommit: autoCommitStoryMetadata: configured story directory for B-review-assurance-floor is outside the resolved git workspace…\n  [2026-09-06T10:48:19.162Z] persist:closeoutWriteReceipt: File not found: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-full-suite-member-iVdZ3l/proof-or-stop-v…\n  [2026-09-06T10:47:18.641Z] persist:closeoutWriteReceipt: File not found: /var/folders/b1/89qtvzk15r91rzn6hk10g8g00000gn/T/proof-or-stop-full-suite-member-iVdZ3l/proof-or-stop-v…\n  [2026-09-06T10:44:57.179Z] persist:closeoutWriteReceipt: unsupported closeout receipt schema for summary.json\n  [2026-09-06T10:44:50.365Z] persist:closeoutWriteReceipt: non-canonical writer for checklist.json: checklist_update\n  [2026-09-06T10:43:39.961Z] mutation:storyMetadataCommit: autoCommitStoryMetadata: configured story directory for B-review-assurance-floor is outside the resolved git workspace…\n  ... and 22 more (use --full or --format=json for the full list)\n\n→ These issues are all non-fatal errors (caught by reportHealthIssue), but may indicate incomplete data/audit.\n→ To clear: rm /Users/jek/.proof-or-stop/health.jsonl\n\nRuntime artifacts:\n  ✓ no tracked runtime artifacts found\n\nWorktree scan:\n  registered: 14\n  terminal registered: 0\n  orphan dirs        : 0\n  terminal dirs      : 0\n  auxiliary residues : 0\n  ✓ No orphan or terminal worktree cleanup issues.\n\nPartial-DONE scan:\n  ✓ no partial-DONE stories found\n\nMain write lock:\n  ✓ not held — no main write lock present.\n\nStory owner leases:\n  lease files  : 7\n  stale leases : 0\n  terminal stale leases: 6 (summarized; not actionable)\n  ✓ No actionable stale story owner leases — active owner leases have a fresh heartbeat.\n  ↳ 6 terminal stale lease(s) kept as lifecycle history, not takeover actions: B-3523:DONE, B-3f3d:DONE, B-74af:DONE, B-9812:DONE, B-a2a6:DONE, +1 more\n\nOwner session identity:\n  session identity: sess-8ed619de153af3bf [derived-ppid]\n  session identity degraded: derived-ppid; export PROOF_OR_STOP_SESSION_ID or use a supported host adapter with task + agent/role identity before repeated mutating commands.\n  generated-token store: healthy=0 expired=0 corrupt=0 orphanLocks=0 orphanTemps=0\n\nGuard session scan:\n  PreToolUse hook (Claude Code): installed (3 hooks)\n  sessions found : 3 (3 active, 0 with violations)\n  ✓ B-91f3: watcher-fallback, provider=codex, status=active\n  ✓ B-ec3b: watcher-fallback, provider=codex, status=active\n  ✓ B-f458: watcher-fallback, provider=codex, status=active\n\nstoryDir / gitRoot scan:\n  ✓ storyDir resolves inside the resolved gitRoot\n\nStory metadata protection scan:\n  ✓ story metadata is tracked or protected (38 active leaf/leaves checked)\n  - managed ignore allowlist not fully installed (missing 1 pattern(s))\n  → proof-or-stop doctor --repair to install the managed allowlist so story metadata stays tracked while runtime stays ignored.\n\nRed-evidence policy: red_evidence_policy_missing: pinnedPath (advisory only; doctor is not a gate)\n\nRuntime scan:\n  scope: self\n  runtimeMode: compatibility-launcher (repo-local-dist)\n  status: fail (5 pass, 1 warn, 2 fail)\n  ✓ entrypoint-authority [hard] pass\n  ✗ cli-entrypoint [hard] missing\n    - PATH lookup for `proof-or-stop` did not resolve a CLI executable\n    repair: Run `command -v proof-or-stop`, rebuild/link the intended package, or use `node packages/main/dist/cli.js` for current-worktree checks.\n  ✗ global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.277 mode=0644 executable=no\n    - global bin target /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js is not executable by the current user (mode 0644); fix: chmod +x /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js\n    repair: Relink or reinstall the global @proof-or-stop/core package, then rerun `proof-or-stop doctor --format=json`.\n  ✓ project-local-bin [warn] absent\n  ✓ node-version [warn] v26.8.1\n  ✓ package-version [hard] 0.3.277\n  ✓ validate-source [warn] source=configured\n  ⚠ external-reference-policy [warn] 790 external refs, connectivityChecked=false\n    - CLAUDE.md:673 story-review.ts:274 is reference-only; no health command semantics found\n    - CLAUDE.md:813 scope-question-resolve.ts:28 is reference-only; no health command semantics found\n    - CLAUDE.md:1235 fn.ts:42 is reference-only; no health command semantics found\n    - README.md:3 https://img.shields.io/badge/arXiv-2607.14890-b31b1b.svg is reference-only; no health command semantics found\n    - ... and 775 more\n    repair: Document the owning health command or mark the reference as policy-only; localhost examples are treated as internal.\n  note: runtime facts describe environment drift; process gates remain in process-fact-registry.\n\nValidation scan:\n  active validate file: none\n  configured commands: 132; discovered fallback labels: package.json test script\n  no-validator warning: no\n  warnings: none\n\nCodex adapter scan:\n  ✗ Codex adapter checks failed (1 hard failure(s))\n    [!] Codex agent asset resolution: mode=full-asset; promptRegistryHash=6204e20f52c2; assets absent=0 matches-runtime=34 stale=2 override=0; authorityBoundary=localNonAuthorityAudit; This projection is a local admissibility audit of prompt asset ownership; lifecycle completion stays with local gate evidence, receipt bundles, and review quorum.\n    [✓] Codex manifest: global-thin project: Codex adapter behavior runs from the global proof-or-stop CLI (.proof-or-stop/proof-or-stop.json present)\n    [✓] Codex prompt registry: 18 prompt(s) render from package registry; hash=6204e20f52c2\n    [✓] Codex runtime exclusions: no uppercase-only .proof-or-stop-codex/hooks or .proof-or-stop-codex/settings.json\n    [✓] Codex native PreToolUse hook: .codex/hooks.json wires apply_patch/Edit/Write to proof-or-stop-scope-pretool.cjs\n    [✓] Local Codex wrapper: global-thin project: local wrapper not required; use global proof-or-stop codex verify / proof-or-stop codex doctor\n    [✗] Global fallback heartbeat: heartbeat command failed: spawnSync proof-or-stop EACCES\n        → PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief\n    [✓] Aux command availability: aux_doc_list registered\n\n→ Brief view. Full diagnostics: proof-or-stop doctor --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.\n",
+  "outputLength": 8843,
+  "executedAt": "2026-09-06T12:21:21.021Z",
+  "durationMs": 10189,
+  "timeoutMs": 270000,
+  "reusable": true,
+  "commandReruns": 0,
+  "signerPublicKey": "1cbkOmJFUYnymMAZ1vsFgA8l2lZ274gpBaWqRSmx0dI=",
+  "signature": "QTTz/83p54rwXSVtFdzYE0O4Babm9T8PBESdgjlHjL9PpZHUsUZP5++LFJx9CcWd0/IjPI7+pbKAMVuntm1oAg==",
+  "receiptHash": "b4b8deda4e1a86bb573907e4c20e195f9fadc6ecc8fa5f802b28288e3a045d83"
+}
