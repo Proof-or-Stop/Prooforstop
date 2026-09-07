@@ -49,6 +49,7 @@
             "scope:file:packages/main/src/core/review-inventory-epoch.ts",
             "scope:file:packages/main/src/core/review-run.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
             "scope:file:packages/main/src/handlers/review-inventory.ts",
             "scope:file:packages/main/src/handlers/review-run.ts",
             "scope:file:packages/main/src/handlers/story-dispatch.ts",
@@ -62,7 +63,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:32f958ac12bb7bbbf7d3fdcb5d9d298781a9bf396cd60ec057e4bb89a3d88fd6"
+        "resultDigest": "sha256:a96ac70a1bd2122a5a7da4850232b7c2ffc4b60970f6ca767925500eb6aa8814"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -93,6 +94,7 @@
             "scope:file:packages/main/src/core/review-inventory-epoch.ts",
             "scope:file:packages/main/src/core/review-run.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
             "scope:file:packages/main/src/handlers/review-inventory.ts",
             "scope:file:packages/main/src/handlers/review-run.ts",
             "scope:file:packages/main/src/handlers/story-dispatch.ts",
@@ -106,7 +108,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:d11294456bbff8f3cd09bc3f815e59a439ee399816a77578cdb887cf17ab6598"
+        "resultDigest": "sha256:c710f925e96dd590c901bccf231d86ec64fa126959b9e2d02e127d850439b24a"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -137,6 +139,7 @@
             "scope:file:packages/main/src/core/review-inventory-epoch.ts",
             "scope:file:packages/main/src/core/review-run.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
             "scope:file:packages/main/src/handlers/review-inventory.ts",
             "scope:file:packages/main/src/handlers/review-run.ts",
             "scope:file:packages/main/src/handlers/story-dispatch.ts",
@@ -150,7 +153,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:239284d91e2efca1418d7aea1c3a97d969e8680b38dff3ab094747c0d1d367d2"
+        "resultDigest": "sha256:b1c05466b08c2bd13897ccc42eb9e9bf8db9f16a30bf71b65df2751e6ef21219"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -181,6 +184,7 @@
             "scope:file:packages/main/src/core/review-inventory-epoch.ts",
             "scope:file:packages/main/src/core/review-run.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
             "scope:file:packages/main/src/handlers/review-inventory.ts",
             "scope:file:packages/main/src/handlers/review-run.ts",
             "scope:file:packages/main/src/handlers/story-dispatch.ts",
@@ -194,7 +198,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:165f84b2a9e8ea85f758028b3fda6ce3bdc1c5a463eaa566d8a15892a0cf89ef"
+        "resultDigest": "sha256:90b4eb032267e9553151c40eb191ee38c87025cc60a41b9d8e7f2fcaf62919f4"
       },
       {
         "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -225,6 +229,7 @@
             "scope:file:packages/main/src/core/review-inventory-epoch.ts",
             "scope:file:packages/main/src/core/review-run.ts",
             "scope:file:packages/main/src/core/types.ts",
+            "scope:file:packages/main/src/handlers/finding.ts",
             "scope:file:packages/main/src/handlers/review-inventory.ts",
             "scope:file:packages/main/src/handlers/review-run.ts",
             "scope:file:packages/main/src/handlers/story-dispatch.ts",
@@ -238,7 +243,7 @@
             "scope:file:scripts/verify-process-fact-contract.mjs"
           ]
         },
-        "resultDigest": "sha256:2227f4e36733f54d1907472a1b945581fb088309523fc3b534d4750c4609203e"
+        "resultDigest": "sha256:740c39c3636b7e15e23b9e7a2d43c19bcaae035ee44349e11c30013711f39ea8"
       }
     ],
     "scopeRefs": [
@@ -255,6 +260,7 @@
       "scope:file:packages/main/src/core/review-inventory-epoch.ts",
       "scope:file:packages/main/src/core/review-run.ts",
       "scope:file:packages/main/src/core/types.ts",
+      "scope:file:packages/main/src/handlers/finding.ts",
       "scope:file:packages/main/src/handlers/review-inventory.ts",
       "scope:file:packages/main/src/handlers/review-run.ts",
       "scope:file:packages/main/src/handlers/story-dispatch.ts",
@@ -304,15 +310,15 @@
       "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
     },
     "binding": {
-      "headHash": "d79b02af035a7a8da07f1ccbf03669ee414f8814",
-      "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
-      "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+      "headHash": "e299cd8a179187ce5af881794ecc7782eeb7671f",
+      "materialHash": "130d0e588b87d8a5b9cba9b5b76624e6c673445dd0e1d469092dd4decaf24a78",
+      "storyFilesHash": "3692899e996b07b3ab553ea739ce26656e31ea419e1ec471c816267a26354d57",
       "scopeCheckDigest": "sha256:9a6a908729d570eb0db5a9efae8398408b464b9d1a6bf9b9fe30f3bfb4856438",
-      "scopeContractDigest": "sha256:f227a73c628b7a60ebc3851a961f9cedf1c3da4412fd180aff79d560a6b46187",
+      "scopeContractDigest": "sha256:c6411da67d3dba4aec464c5c37cf90e3b176802d2261f5e6e66b2db17cd6094f",
       "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
     "receiptRef": "receipt:coverage-basis:B-29bc:plan:e7fbb5de9ad6a6b6",
-    "basisDigest": "sha256:fe4effa6e474e297c4b9e91f9bb16fb6f71ede3c1d9b57e2d39f52f7d97aaab3"
+    "basisDigest": "sha256:f0d5db2ebf34b8b866a03961a5b68d3490818a71245e689ba377fc5c8035e4fc"
   },
   "receipt": {
     "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
@@ -322,16 +328,16 @@
     "signerPublicKey": "TUhHCWWnF3l4K94Cb2b+UWichXM0znjU7zftclFBBMs=",
     "storyId": "B-29bc",
     "phaseBasis": "plan",
-    "basisDigest": "sha256:fe4effa6e474e297c4b9e91f9bb16fb6f71ede3c1d9b57e2d39f52f7d97aaab3",
+    "basisDigest": "sha256:f0d5db2ebf34b8b866a03961a5b68d3490818a71245e689ba377fc5c8035e4fc",
     "topologyDigest": "sha256:134039d719ecc86e3908811b563bda4ad4a6869c8b96a5a8c8c90a65e2aa2242",
     "scopeCheckDigest": "sha256:9a6a908729d570eb0db5a9efae8398408b464b9d1a6bf9b9fe30f3bfb4856438",
-    "scopeContractDigest": "sha256:f227a73c628b7a60ebc3851a961f9cedf1c3da4412fd180aff79d560a6b46187",
-    "headHash": "d79b02af035a7a8da07f1ccbf03669ee414f8814",
-    "materialHash": "53c005326e1983ac509b225500969c1c668c04f4e4655d049c6dd35f94dc067d",
-    "storyFilesHash": "e96ef8ef6ea78e6b15ba759f7e4d4d82cd3da65731a89ec9b3a07fa724855b2c",
+    "scopeContractDigest": "sha256:c6411da67d3dba4aec464c5c37cf90e3b176802d2261f5e6e66b2db17cd6094f",
+    "headHash": "e299cd8a179187ce5af881794ecc7782eeb7671f",
+    "materialHash": "130d0e588b87d8a5b9cba9b5b76624e6c673445dd0e1d469092dd4decaf24a78",
+    "storyFilesHash": "3692899e996b07b3ab553ea739ce26656e31ea419e1ec471c816267a26354d57",
     "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
     "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
     "workspaceIdentityDigest": "sha256:aa32dbd8d8c123d673776b04871cb4353c3643a75d695ea5e90ede66ed2fd076",
-    "signature": "HHFLvlRCjCyA27UBa5xkALDYMVu1VCdgtAH3pPlVQtvAT8MRH5pw0HfmVok3srI+QAWll4qDMaezwQiGcX9CAw=="
+    "signature": "xV/OY7fjdY2G+GTGCyYfCsyvR6kvwZbbKo5bEDcr/FZ/sjcyueS5E/Jhnm6BG/lyeE8g7ZhKt9T4TKU2f1UOCA=="
   }
 }
