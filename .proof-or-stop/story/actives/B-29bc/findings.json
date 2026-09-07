@@ -294,6 +294,48 @@
       "signatureTagSource": "auto",
       "recordId": "lr_mtri5w02_t4r_6e6a60d0c2924d32a48902dc94a91e50",
       "ledgerCommitReceiptId": "lrc_mtri5w02_t4r_a6439732146242d795287ada8a89bf59"
+    },
+    {
+      "id": "B-29bc:F-007",
+      "desc": "doc-promise-undelivered: RI-007 wave-2 documentary re-observation of canonical B-29bc:F-005, also represented by coverage B-29bc:F-006; no distinct runtime root or additional defect family is claimed. docs/audits/inventory-critic-purpose-isolation.md:87-89 says the pure epoch suite re-signs semantic substitutions and is not limited to hash corruption. Fresh source inspection at packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 confirms both copied receipts still include the old _hash when passed to signReviewInventoryCriticReceipt. core/review-inventory-epoch.ts:190-197 hashes all supplied keys but removes _hash during verification, so these purported semantic receipt controls fail at signature verification. Official current finding_list preserves verified open F-005 and F-006 and their independent signature-valid control reproductions. This supports the same test-plus-audit repair already owned by the Story; it is not evidence of a production authority bypass. Critical/missing records this lane's mandatory closing rule for a promised-but-undelivered behavior claim, without rewriting F-005/F-006 severity or observations. The trusted SAFE_INCREMENTAL basis and git diff 9337c00...HEAD show only reviewer metadata changed, so prior full integrated CHK-001/002 source review remains reusable; no en-masse concept deletion or new root was discovered. Fresh full audit and inventory-decision reads confirm the overclaim remains unfixed. Repair the exact unsigned mutation constructors with signature-validity and intended-diagnostic assertions, refresh CLI evidence, and reconcile the audit within the existing F-005 repair. This terminal cannot claim no blockers, F-005 repair, saturation, host quorum or lifecycle completion; family disposition remains the independent critic's responsibility.",
+      "severity": "critical",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T17:25:29.269Z",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "reviewRunId": "B-29bc:RR-048",
+      "readManifest": {
+        "filesReadFully": [
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+        ],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 1,
+          "tokenCount": null
+        },
+        "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+      },
+      "readDiagnostics": [],
+      "_hash": "d900cb38782a9505bfc3e571851ef573fd2565b6076acf36b1dcaf155b1e7495",
+      "files": [
+        "docs/audits/inventory-critic-purpose-isolation.md",
+        "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+        "packages/main/src/core/review-inventory-epoch.ts"
+      ],
+      "signatureTag": "missing|md|promise-undelivered-wave",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtrihe7q_zay_a1e45a4a40814627a59300e7bc11602c",
+      "ledgerCommitReceiptId": "lrc_mtrihe7q_zay_a4e305c1303f4c4b80ca6086d4eeba08"
     }
   ]
 }

@@ -538,7 +538,7 @@
       "reviewRound": "2026-09-07T17:10:43.986Z",
       "state": "OPEN",
       "begunAt": "2026-09-07T17:11:19.330Z",
-      "updatedAt": "2026-09-07T17:11:19.330Z",
+      "updatedAt": "2026-09-07T17:23:29.164Z",
       "cutoff": {
         "headHash": "a36b3b36af5d127e0cfade64868c27ed9ce9957f",
         "materialHash": "43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b",
@@ -553,9 +553,69 @@
       ],
       "initialRunSequenceBoundary": 41,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T17:11:19.330Z",
+          "completedAt": "2026-09-07T17:23:29.164Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-29bc:RR-042",
+              "terminal": "pass",
+              "hostIdentity": "009244f77b79bfa7fb30e3cbaabd29d20debc0dc932dede1e95b599d73305370",
+              "promptIdentity": "947e11edb1a20f53c62e46e685c7f3f5aa763100bc08944498c70ecd3f779c2d",
+              "evidenceIds": [
+                "B-29bc:RP-035"
+              ],
+              "coverageDigest": "5f5d01aecafc063c697e13aeeb9a1aa9117e722af09cfe1c36d8a3909a6a9bea"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-29bc:RR-043",
+              "terminal": "finding",
+              "hostIdentity": "009244f77b79bfa7fb30e3cbaabd29d20debc0dc932dede1e95b599d73305370",
+              "promptIdentity": "f69aa79a6eeb77866e274bd73892bb2ba7290a630d56913f58ccc8148f4ac394",
+              "evidenceIds": [
+                "B-29bc:F-005"
+              ],
+              "coverageDigest": "54cd98c375bdc9f9e610fd33cc0e77d6b7f2d3fd9767576e15c242189f87102f"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-29bc:RR-044",
+              "terminal": "finding",
+              "hostIdentity": "009244f77b79bfa7fb30e3cbaabd29d20debc0dc932dede1e95b599d73305370",
+              "promptIdentity": "604b21dfa8f56ba1129c6249c9ba950f416284c3f63e23fefa9c9ee763d4f15c",
+              "evidenceIds": [
+                "B-29bc:F-006"
+              ],
+              "coverageDigest": "a3c8a110de0c184569e2b4641b8326c0b63a23761c31e7af2c1eb96c700e7742"
+            },
+            {
+              "lane": "proof-or-stop-review-docs",
+              "reviewRunId": "B-29bc:RR-045",
+              "terminal": "pass",
+              "hostIdentity": "009244f77b79bfa7fb30e3cbaabd29d20debc0dc932dede1e95b599d73305370",
+              "promptIdentity": "bc7ab74e944649f4d5aca9fdd264ffaa34394c1fe206902dd512685863988c6b",
+              "evidenceIds": [
+                "B-29bc:RP-034"
+              ],
+              "coverageDigest": "6e752cacd8d75ec011c6b783e3575558762b3eabe32effecbe7fb74bd1d4490c"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "finding:B-29bc:F-005"
+          ],
+          "verifiedFindingSetDigest": "17c5c79fae750f6cca3c750908ecc6f211fbf4a31bffd8642a86db9fcf109cb8",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "db627b0de29546e6857a7f99613863f192bbe21cf1154d9a0744dfc9ce99819a",
+          "saturated": false,
+          "nextRunSequenceBoundary": 47
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "2c96e5ab18b25e02fe97f22c0b874bc2947d22e082a3c7f2023cd24d6b24fa73"
+      "_hash": "b796a1057fdfdabb3032a4f3ec6c01253e17d7bfdc7ff6a374bb99c20f31e539"
     }
   ],
   "receipts": [
@@ -961,6 +1021,59 @@
       "findingDispositions": [],
       "createdAt": "2026-09-07T16:03:16.686Z",
       "_hash": "df7e3244ebf45e48c3fcfa7b3a1a4f3052f457436fcf94b93ccc575db4239984"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-29bc:RI-007:CRIT-01",
+      "epochId": "B-29bc:RI-007",
+      "storyId": "B-29bc",
+      "reviewRound": "2026-09-07T17:10:43.986Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "a36b3b36af5d127e0cfade64868c27ed9ce9957f",
+        "materialHash": "43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b",
+        "storyFilesHash": "6ba1ae8bec78df00939425d6b2bc024c4b19a1a393a285fed1a2e808970704a0"
+      },
+      "aggregateFindingSetDigest": "17c5c79fae750f6cca3c750908ecc6f211fbf4a31bffd8642a86db9fcf109cb8",
+      "requiredLaneCoverageDigest": "62ac5e35f4e4c0a9704ea1ba4c1460b2f8a143ec1d00ca30cd66e19d49901265",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-29bc:RR-047",
+      "reviewPurpose": "inventory-completeness",
+      "inventoryBinding": {
+        "storyId": "B-29bc",
+        "epochId": "B-29bc:RI-007",
+        "reviewRound": "2026-09-07T17:10:43.986Z",
+        "wave": 1,
+        "cutoff": {
+          "headHash": "a36b3b36af5d127e0cfade64868c27ed9ce9957f",
+          "materialHash": "43337776ee8b2111012aee39272a07b6b01f7b5807537393394fcf9630d9423b",
+          "storyFilesHash": "6ba1ae8bec78df00939425d6b2bc024c4b19a1a393a285fed1a2e808970704a0"
+        },
+        "scopeDigest": "f934311220950689bb89291f27ff4b0d8e250d50237243316dfb047aff9eafd2",
+        "requiredLanesDigest": "ba00ad1fce574db2b6f0bac705e2a6fee4e2f5d2962ec5fd666626a447444141",
+        "runSequenceBoundary": 41
+      },
+      "terminalEvidenceIds": [
+        "B-29bc:RP-037"
+      ],
+      "readEvidenceDigest": "2edcee0b0f88b035edd6a5ec5fdc95acee709276d9a6b8c80fd464c340085ab8",
+      "findingDispositions": [
+        {
+          "findingId": "B-29bc:F-005",
+          "disposition": "verified_family",
+          "familyKey": "finding:B-29bc:F-005",
+          "reason": "The current signed verified open observation identifies receipt mutant constructors at review-inventory-epoch-smoke.ts:516 and :529 that include old _hash and fail signature-first. Source inspection and true/false/true runtime controls verify this current-Story test-evidence defect; retain it for Story-owner repair before acceptance. No runtime authority bypass or repair is claimed."
+        },
+        {
+          "findingId": "B-29bc:F-006",
+          "disposition": "duplicate",
+          "familyKey": "finding:B-29bc:F-005",
+          "canonicalFindingId": "B-29bc:F-005",
+          "reason": "F-006 is a signature-valid current coverage observation of the same two constructors, signer/verifier mismatch and identical controlled reproduction as live open verified F-005. Both require the same bounded Story-owner repair. This direct duplicate points to the verified_family F-005 and cannot form a cycle; it preserves both observations and statuses. The matching familyKey is included and the exact disposition set passed the production evaluator before this submission."
+        }
+      ],
+      "createdAt": "2026-09-07T17:22:36.868Z",
+      "_hash": "dc7e4ba423cca46c916ab0ab2dad8cb78a24ff0bd28d0a50b9b1d2139504bfdc"
     }
   ]
 }

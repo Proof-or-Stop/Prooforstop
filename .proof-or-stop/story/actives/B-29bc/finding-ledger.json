@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "9b5304ff3de108daa05659587953ffa9d3dde58b549ce8013470ba6fcb63f79e",
+  "committedLedgerDigest": "ecb49b1b23ea0ba52453de19267c1b87a9f86779df0c2c28fbf33c670bf22f4c",
   "records": [
     {
       "recordId": "lr_mtr39s73_llr_aabb254b5b984770916241c8dad66557",
@@ -422,6 +422,56 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T17:16:32.450Z"
+    },
+    {
+      "recordId": "lr_mtrihe7q_zay_a1e45a4a40814627a59300e7bc11602c",
+      "recordType": "finding",
+      "idempotencyKey": "b29bc-ri007-wave2-concept-f005-documentary",
+      "payload": {
+        "id": "B-29bc:F-007",
+        "desc": "doc-promise-undelivered: RI-007 wave-2 documentary re-observation of canonical B-29bc:F-005, also represented by coverage B-29bc:F-006; no distinct runtime root or additional defect family is claimed. docs/audits/inventory-critic-purpose-isolation.md:87-89 says the pure epoch suite re-signs semantic substitutions and is not limited to hash corruption. Fresh source inspection at packages/main/src/tasks/review-inventory-epoch-smoke.ts:516 and :529 confirms both copied receipts still include the old _hash when passed to signReviewInventoryCriticReceipt. core/review-inventory-epoch.ts:190-197 hashes all supplied keys but removes _hash during verification, so these purported semantic receipt controls fail at signature verification. Official current finding_list preserves verified open F-005 and F-006 and their independent signature-valid control reproductions. This supports the same test-plus-audit repair already owned by the Story; it is not evidence of a production authority bypass. Critical/missing records this lane's mandatory closing rule for a promised-but-undelivered behavior claim, without rewriting F-005/F-006 severity or observations. The trusted SAFE_INCREMENTAL basis and git diff 9337c00...HEAD show only reviewer metadata changed, so prior full integrated CHK-001/002 source review remains reusable; no en-masse concept deletion or new root was discovered. Fresh full audit and inventory-decision reads confirm the overclaim remains unfixed. Repair the exact unsigned mutation constructors with signature-validity and intended-diagnostic assertions, refresh CLI evidence, and reconcile the audit within the existing F-005 repair. This terminal cannot claim no blockers, F-005 repair, saturation, host quorum or lifecycle completion; family disposition remains the independent critic's responsibility.",
+        "severity": "critical",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-07T17:25:29.269Z",
+        "reviewRound": "2026-09-07T17:10:43.986Z",
+        "reviewRunId": "B-29bc:RR-048",
+        "readManifest": {
+          "filesReadFully": [
+            "docs/audits/inventory-critic-purpose-isolation.md",
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [
+            "docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md"
+          ],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 1,
+            "tokenCount": null
+          },
+          "digest": "af2e6cad41d9d1b1b424078aacbeaca5e87395ff856057ec20af5a0a8662561a"
+        },
+        "readDiagnostics": [],
+        "_hash": "d900cb38782a9505bfc3e571851ef573fd2565b6076acf36b1dcaf155b1e7495",
+        "files": [
+          "docs/audits/inventory-critic-purpose-isolation.md",
+          "packages/main/src/tasks/review-inventory-epoch-smoke.ts",
+          "packages/main/src/core/review-inventory-epoch.ts"
+        ],
+        "signatureTag": "missing|md|promise-undelivered-wave",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "5adb9d0062a5ead3f2e2816e73e75db57a5b0e17e62fb5f3df5193c4af7ea7bb",
+      "priorDigest": "9b5304ff3de108daa05659587953ffa9d3dde58b549ce8013470ba6fcb63f79e",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T17:25:29.270Z"
     }
   ],
   "receipts": [
@@ -889,6 +939,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "e6a2ae44de5f72d1c8623a466e1e7a27d5130e6438ea8798060481349a43f95b",
         "signature": "bHJfmt8qbGavfG4pbEuVJVn3XJwN9QKKBrMoEizUwCp7/yieMYvZyWsrGweNMB+dqrc1rYgixLzjQgjGsJ0tCQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtrihe7q_zay_a4e305c1303f4c4b80ca6086d4eeba08",
+      "operation": "append_finding",
+      "idempotencyKey": "b29bc-ri007-wave2-concept-f005-documentary",
+      "requestDigest": "0d433c02da1ab9d86ffcc4bf15bc505a32de738a3c4cbae1c6493b488ea11995",
+      "recordIds": [
+        "lr_mtrihe7q_zay_a1e45a4a40814627a59300e7bc11602c"
+      ],
+      "priorLedgerDigest": "9b5304ff3de108daa05659587953ffa9d3dde58b549ce8013470ba6fcb63f79e",
+      "committedLedgerDigest": "ecb49b1b23ea0ba52453de19267c1b87a9f86779df0c2c28fbf33c670bf22f4c",
+      "writerSessionId": "codex-b29-ri007-concept",
+      "writerFenceToken": "fe259baf-5a11-4e28-8731-c4207a07118c",
+      "committedAt": "2026-09-07T17:25:29.270Z",
+      "replayed": false,
+      "exactRequestDigest": "c1890f49306642463eac8babf8b70773ffbf111a0cae10886ae83729911cb973",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtrihe7q_zay_a4e305c1303f4c4b80ca6086d4eeba08",
+        "storyId": "B-29bc",
+        "idempotencyKey": "b29bc-ri007-wave2-concept-f005-documentary",
+        "exactRequestDigest": "c1890f49306642463eac8babf8b70773ffbf111a0cae10886ae83729911cb973",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtrihe7q_zay_a1e45a4a40814627a59300e7bc11602c"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "9b5304ff3de108daa05659587953ffa9d3dde58b549ce8013470ba6fcb63f79e",
+        "committedLedgerDigest": "ecb49b1b23ea0ba52453de19267c1b87a9f86779df0c2c28fbf33c670bf22f4c",
+        "replayed": false,
+        "committedAt": "2026-09-07T17:25:29.270Z",
+        "writerSessionId": "codex-b29-ri007-concept",
+        "writerLeaseId": "codex-01a05441-inventory-recovery-owner",
+        "writerFenceToken": "fe259baf-5a11-4e28-8731-c4207a07118c",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "9f0c0afd3b84eb65cf6b3fe9d23bfeac4541c45af3dcd6f3cc00b4e37e28d01d",
+        "signature": "7aQUWuDQUQEkK1uL8sbJKHQM6f7ePgA8g0r5ZVDEyenxOqiVJf+rifY5MN/10o3QfkpDjdQL5m2f7HeArqD5Bw=="
       }
     }
   ]
