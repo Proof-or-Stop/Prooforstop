@@ -633,7 +633,7 @@
       "desc": "Imported original Claude final round 2, observation 4. Original source: /private/tmp/B-42f6-cross-host/claude-final-2.verdict.json. Original packages/main/tests/red/red-bfe8f-ledger-runtime-integrity.mjs:438 severity=low. Original text verbatim: The dynamic import of packages/main/dist/core/repro-intake.js is at top level of the module body, outside the try/finally that owns relationScratch, and is not existence-guarded. In a checkout where dist is not built, this throws ERR_MODULE_NOT_FOUND before any of the guard's characterization assertions run, converting a 'ledger contracts absent' RED signal into an opaque module-resolution crash — the same failure class this guard exists to characterize. Note the guard already reaches into dist at line 449 for the GREEN import, so a dist dependency is not new; but that one is executed as a child process whose failure is assertable with a clear message. Actionable: the prior candidate's dependency was on a non-Git-distributed probe artifact; this candidate correctly removes that, but substitutes a build-order dependency. Since the guard is registered in proof-or-stop.config.json validate.commands (asserted at 388-398), it runs after build in the normal path, so this is a robustness rather than correctness issue.\nIndependent current assessment at df2133a1c8: The final df2133a1c8 commit moves the dynamic import inside try/finally so import failure cleans relationScratch. Built dist remains the configured normal prerequisite, and no successful result is claimed for an unbuilt checkout. No deferral, repair receipt, or external host authority is fabricated by this observation import.",
       "severity": "low",
       "category": "missing",
-      "status": "open",
+      "status": "resolved",
       "evidenceState": "suspected",
       "uncertaintyReason": "Literal external observation registration: original concern is addressed or advisory in current source; no remaining current verified defect established.",
       "agent": "proof-or-stop-review-quality",
@@ -662,7 +662,10 @@
       "signatureTag": "missing|mjs|imported-original-claude",
       "signatureTagSource": "auto",
       "recordId": "lr_mtr4nane_oc9_bc84e78114fd40d9b457dc2f937bbf0d",
-      "ledgerCommitReceiptId": "lrc_mtr4nanf_oc9_6425764adf204d2692e01c608b15669a"
+      "ledgerCommitReceiptId": "lrc_mtr4nanf_oc9_6425764adf204d2692e01c608b15669a",
+      "resolvedAt": "2026-09-07T10:59:24.788Z",
+      "resolvedReason": "df2133a1c8 moved the runtime import inside the existing try/finally so temporary relation directories are cleaned even if import fails. Build remains a pre-existing guard prerequisite; final focused guard passed.",
+      "resolutionType": "fixed"
     },
     {
       "id": "B-42f6:F-018",
