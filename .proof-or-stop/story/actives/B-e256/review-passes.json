@@ -4881,6 +4881,51 @@
       },
       "readDiagnostics": [],
       "_hash": "a98f5b755b71eaa30deebcbbbc04bacad1d26fccf4d128c1bbd1218fda39d8c2"
+    },
+    {
+      "id": "B-e256:RP-111",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "RI-011 wave 2 unchanged-material incremental test-coverage review found zero new defect families beyond preserved F-031 and F-047 through F-051. Current checklist has 18 intents, 16 must, zero waivers, and all must intents have non-failing material/story-bound evidence with successful mechanical selectors; proofstory completeness enforce reports pass with zero gaps and the focused global-core fixture passes. Windows parser variants were classified under existing F-047 runtime binding, F-049 reachability/execution, or F-050 target-base token semantics rather than duplicated. Acceptance topology scope staleness remains F-048, while unsupported/missing topology and inconclusive pre-review proof remain F-051; rollout report/check remain read-only PASS. Canonical validate was attempted but correctly refused by the active Owner lease, so no takeover or implementation mutation occurred.",
+      "createdAt": "2026-09-07T00:54:58.396Z",
+      "reviewRound": "2026-09-07T00:35:44.550Z",
+      "reviewRunId": "B-e256:RR-159",
+      "envelopeId": "0d89e59b6e9eb5f27feac1d45b56d16ef5d6f191872b34afb4c50d6b1e34c89e",
+      "writerSessionId": "sess-79fa6c9f2bcd285437701996e2d42f4b",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-basis.json",
+          ".proof-or-stop/story/actives/B-e256/background.md",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/plan.md",
+          ".proof-or-stop/story/actives/B-e256/pre-review-check.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/test-evidence.json",
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          "proof-or-stop.config.json"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-e256/acceptance-rollout-report.json",
+          ".proof-or-stop/story/actives/B-e256/findings.json",
+          ".proof-or-stop/story/actives/B-e256/scope-check.json",
+          "packages/main/src/handlers/doctor.ts",
+          "packages/main/tests/red/red-global-cli-exec-bit.mjs",
+          "scripts/promote-dist.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "afeef0739ca84864f27139513a80a4a4284821d1c9c8350aed231a65000e14d5"
     }
   ]
 }
