@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "dd9f06f1840c5c330d87ed35798b1ec98f3e7de00a5f0717481103159812ee2a",
+  "committedLedgerDigest": "d9db10ed59090e2d1deebdd552b5d9cf6fc901c020d7d85fffe89518d0db7b50",
   "records": [
     {
       "recordId": "lr_mtq6und9_1emf_0bdf9521418a4770bd9ca3665e2f676e",
@@ -2152,6 +2152,65 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-07T01:20:43.123Z"
+    },
+    {
+      "recordId": "lr_mtqkb6o0_1ct3_2b9767e5d0ee4ba69964e7f60abe4206",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:b9d803a8-f99b-4727-a1fb-a1cbfe22a6ee",
+      "payload": {
+        "id": "B-e256:F-058",
+        "desc": "windows-command-shim-argument-injection false pass: packages/main/src/core/runtime-environment-checks.ts:780-798 validates only the runtime token and canonical target in Node script position; it does not constrain argv after that target. A current compiled-runtime probe supplied an otherwise canonical package/version/PATH-selected .cmd containing `node \"<canonical-target>\" definitely-no-such-command %*`; runRuntimeEnvironmentChecks returned global-core-realpath status=pass, verification=ok, executable=true and rendered the healthy row. Yet the concrete CLI witness `node packages/main/dist/cli.js definitely-no-such-command --version` exits 1 with `Unknown command`, whereas the caller-intended `node packages/main/dist/cli.js --version` exits 0 and prints the version. Thus a shim may forward `%*` and execute the right target but still prepend an argument that replaces/corrupts the caller operation, while doctor certifies it healthy. packages/main/tests/global-core-realpath.test.mjs:229-355 has Node-option decoys and one positive npm-shaped shim but no extra-argv mutation. This is distinct from F-055 missing forwarding: requiring `%*` does not reject this witness; it is also distinct from F-056 because exit propagation may be exact. Require the supported npm-generated invocation tail to preserve caller argv without injected prefix/suffix arguments (or execute a bounded semantic probe), and add a mutation proving extra arguments cannot emit the healthy marker. Direct CHK-001 userSees and CHK-003 happy:0/adversarial:2 acceptance violation; severity: high",
+        "severity": "high",
+        "category": "adversarial",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-07T01:28:52.606Z",
+        "reviewRound": "2026-09-07T00:35:44.550Z",
+        "reviewRunId": "B-e256:RR-170",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-e256/background.md",
+            ".proof-or-stop/story/actives/B-e256/checklist.json",
+            ".proof-or-stop/story/actives/B-e256/plan.md",
+            ".proof-or-stop/story/actives/B-e256/proofstory.json",
+            ".proof-or-stop/story/actives/B-e256/summary.json"
+          ],
+          "filesTriagedByName": [
+            ".proof-or-stop/story/actives/B-e256/findings.json",
+            ".proof-or-stop/story/actives/B-e256/review-inventory-epochs.json",
+            "packages/main/src/core/runtime-environment-checks.ts",
+            "packages/main/tests/global-core-realpath.test.mjs",
+            "proof-or-stop.config.json"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "04fc1b8d33c4095d12a41c992e9d0273aeae28da9b6b8404aa654fb9aa0cd054",
+        "files": [
+          "packages/main/src/core/runtime-environment-checks.ts",
+          "packages/main/tests/global-core-realpath.test.mjs",
+          ".proof-or-stop/story/actives/B-e256/checklist.json",
+          ".proof-or-stop/story/actives/B-e256/proofstory.json",
+          ".proof-or-stop/story/actives/B-e256/summary.json"
+        ],
+        "signatureTag": "windows-command-shim-argument-injection-false-pass",
+        "signatureTagSource": "confirmed"
+      },
+      "payloadHash": "bd864ce62a9e26c2d0dc3869610d07d683105b88631fcb045e8c07626bd8832f",
+      "priorDigest": "dd9f06f1840c5c330d87ed35798b1ec98f3e7de00a5f0717481103159812ee2a",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-07T01:28:52.608Z"
     }
   ],
   "receipts": [
@@ -4716,6 +4775,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "ac375d88fd2d2df76ef04e0a9871369ab04e7e4d8cd09761517fca9a686f1a2d",
         "signature": "OB2cZnwS/pWKPcURZgwphEmHlMU87uXr2JUUgiv/PTeMDtLA8jg6oTaTQOZGKAumCa9kldHBxVTZe85LnGc8Bw=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtqkb6o1_1ct3_dc71e2554a584f7190b2e8dd052333f2",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:b9d803a8-f99b-4727-a1fb-a1cbfe22a6ee",
+      "requestDigest": "db71f7f276f404ceb55efa876ebe2f171cc005be37f92c7dbd639b3f623e0e01",
+      "recordIds": [
+        "lr_mtqkb6o0_1ct3_2b9767e5d0ee4ba69964e7f60abe4206"
+      ],
+      "priorLedgerDigest": "dd9f06f1840c5c330d87ed35798b1ec98f3e7de00a5f0717481103159812ee2a",
+      "committedLedgerDigest": "d9db10ed59090e2d1deebdd552b5d9cf6fc901c020d7d85fffe89518d0db7b50",
+      "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+      "writerFenceToken": "b8f64432-30db-4514-a02e-af197e6d21fd",
+      "committedAt": "2026-09-07T01:28:52.608Z",
+      "replayed": false,
+      "exactRequestDigest": "925fd7f949985302233f41e6d976195fd61685720ca7aac608ed92c54ee810b4",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtqkb6o1_1ct3_dc71e2554a584f7190b2e8dd052333f2",
+        "storyId": "B-e256",
+        "idempotencyKey": "finding_add:b9d803a8-f99b-4727-a1fb-a1cbfe22a6ee",
+        "exactRequestDigest": "925fd7f949985302233f41e6d976195fd61685720ca7aac608ed92c54ee810b4",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtqkb6o0_1ct3_2b9767e5d0ee4ba69964e7f60abe4206"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "dd9f06f1840c5c330d87ed35798b1ec98f3e7de00a5f0717481103159812ee2a",
+        "committedLedgerDigest": "d9db10ed59090e2d1deebdd552b5d9cf6fc901c020d7d85fffe89518d0db7b50",
+        "replayed": false,
+        "committedAt": "2026-09-07T01:28:52.608Z",
+        "writerSessionId": "sess-d838b994fe977361560d2b38b5064325",
+        "writerLeaseId": "sess-98aa66a7d2f2a955aa03d0499d117e96",
+        "writerFenceToken": "b8f64432-30db-4514-a02e-af197e6d21fd",
+        "keyId": "finding-ledger-6bf7f760c1cdee4c767f1f90",
+        "algorithm": "ed25519",
+        "trustRootDigest": "ca95dd947d8427000eb0c4c54f689a3749b513d6fedefa288d08ca508e17d92b",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "a210d7a90e7c4cfdfd3edb8060d6658cc9fb6b89f30f45453e97ff34aafb0f26",
+        "signature": "HuBxuoP/u4Cnyalm65DORQzfBtpeAT8W3fXDxOkAhQimpcROCTMUOSmGmY7SRXKhR3i8ruzC7b7EtrFE7nhIDQ=="
       }
     }
   ]
