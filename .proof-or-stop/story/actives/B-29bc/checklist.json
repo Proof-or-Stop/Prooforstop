@@ -100,9 +100,9 @@
           "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
           "result": "pass",
           "note": "Test-only RED commit 0c726415ea failed explicit inventory dispatch after complete signed required lanes and default topology controls. The current public CLI campaign retains that assertion and proves ordinary-author inventory dispatch, purpose-bound signed ReviewRun, terminal reads and accepted exact-set receipt in legacy and full-envelope modes. Disposable host identities are fixtures, not real independent-host assurance. Review recovery adds test-only RED d2461f5794 and GREEN 0ffe4cc619: signed incomplete PASS refusal at producer and inventory consumer, exact current critic discovery disposition, retained prior-run Finding and immutable receipt controls. Audit correction b2e7b6f495 records the observed gap and fixture limitations.",
-          "headHash": "0fc834f56dc11152e8e9e7e1adec536c07c95369",
-          "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-          "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+          "headHash": "feba6c0e0e812dcb9354c0db10af117b8a06ab6d",
+          "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+          "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -110,13 +110,13 @@
             "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_CRITIC_OWN_FINDING_DISPOSITION PASS\nB29BC_RECOVERY F-001 signed PASS requires both read fields: PASS\nB29BC_RECOVERY F-002 current purpose-bound critic findings enter the exact aggregate: PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK001_MATRIX PASS",
-            "executedAt": "2026-09-07T13:05:08.345Z",
+            "executedAt": "2026-09-07T15:40:43.083Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:6885f8dee2781ebcaf01f153d20461d033be86ab16d35f43a27bee850018bc49",
-            "causalReceiptHash": "0f9048cdcb5d92505ffaf49f97da27c29db224156b7c4794209c86c04f738730",
+            "executionKey": "ce:v1:2cc6dd002fa63291d5a112ffa8ac21783d83bd7dcf3bd137588a7ec3a51dd742",
+            "causalReceiptHash": "d8bf287fc6552ca2ee251f47f8d620d242b6cab41b95e19168cff69d959238bc",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T13:14:36.931Z"
+          "timestamp": "2026-09-07T15:46:47.117Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -125,9 +125,9 @@
           "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
           "result": "pass",
           "note": "Public canonical and registered-alias ingress, malformed purpose and epoch arguments, omitted/default topology controls, no implicit fallback, and two ordinary Git identities are exercised. The epoch mutation suite supplies current signed subject binding controls. Both programs must exit zero. Review recovery adds test-only RED d2461f5794 and GREEN 0ffe4cc619: signed incomplete PASS refusal at producer and inventory consumer, exact current critic discovery disposition, retained prior-run Finding and immutable receipt controls. Audit correction b2e7b6f495 records the observed gap and fixture limitations.",
-          "headHash": "0fc834f56dc11152e8e9e7e1adec536c07c95369",
-          "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-          "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+          "headHash": "feba6c0e0e812dcb9354c0db10af117b8a06ab6d",
+          "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+          "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -135,13 +135,13 @@
             "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_CRITIC_OWN_FINDING_DISPOSITION PASS\nB29BC_RECOVERY F-001 signed PASS requires both read fields: PASS\nB29BC_RECOVERY F-002 current purpose-bound critic findings enter the exact aggregate: PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK001_MATRIX PASS",
-            "executedAt": "2026-09-07T13:05:08.345Z",
+            "executedAt": "2026-09-07T15:40:43.083Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:6885f8dee2781ebcaf01f153d20461d033be86ab16d35f43a27bee850018bc49",
-            "causalReceiptHash": "0f9048cdcb5d92505ffaf49f97da27c29db224156b7c4794209c86c04f738730",
+            "executionKey": "ce:v1:2cc6dd002fa63291d5a112ffa8ac21783d83bd7dcf3bd137588a7ec3a51dd742",
+            "causalReceiptHash": "d8bf287fc6552ca2ee251f47f8d620d242b6cab41b95e19168cff69d959238bc",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T13:14:36.931Z"
+          "timestamp": "2026-09-07T15:46:47.117Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -150,9 +150,9 @@
           "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
           "result": "pass",
           "note": "Real inventory cancellation versus ReviewRun publication is serialized by the shared lock. Public epoch tamper, dispatch tamper, finalized/rebegun epoch, scope drift, dirty-run and committed source drift controls combine with correctly re-signed nested epoch/wave/cutoff/Story/scope/boundary substitutions. No stale or altered subject may issue authority. Review recovery adds test-only RED d2461f5794 and GREEN 0ffe4cc619: signed incomplete PASS refusal at producer and inventory consumer, exact current critic discovery disposition, retained prior-run Finding and immutable receipt controls. Audit correction b2e7b6f495 records the observed gap and fixture limitations.",
-          "headHash": "0fc834f56dc11152e8e9e7e1adec536c07c95369",
-          "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-          "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+          "headHash": "feba6c0e0e812dcb9354c0db10af117b8a06ab6d",
+          "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+          "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -160,13 +160,13 @@
             "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_CRITIC_OWN_FINDING_DISPOSITION PASS\nB29BC_RECOVERY F-001 signed PASS requires both read fields: PASS\nB29BC_RECOVERY F-002 current purpose-bound critic findings enter the exact aggregate: PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK001_MATRIX PASS",
-            "executedAt": "2026-09-07T13:05:08.345Z",
+            "executedAt": "2026-09-07T15:40:43.083Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:6885f8dee2781ebcaf01f153d20461d033be86ab16d35f43a27bee850018bc49",
-            "causalReceiptHash": "0f9048cdcb5d92505ffaf49f97da27c29db224156b7c4794209c86c04f738730",
+            "executionKey": "ce:v1:2cc6dd002fa63291d5a112ffa8ac21783d83bd7dcf3bd137588a7ec3a51dd742",
+            "causalReceiptHash": "d8bf287fc6552ca2ee251f47f8d620d242b6cab41b95e19168cff69d959238bc",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T13:14:36.932Z"
+          "timestamp": "2026-09-07T15:46:47.117Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -175,9 +175,9 @@
           "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
           "result": "pass",
           "note": "Public missing dispatch/wrong-role refusals and durable signed terminal reads combine with receipt-level missing or tampered terminal/read evidence, incomplete historical Finding dispositions and superseded run controls. The witness preserves original observations and does not treat Git author text as reviewer independence. Review recovery adds test-only RED d2461f5794 and GREEN 0ffe4cc619: signed incomplete PASS refusal at producer and inventory consumer, exact current critic discovery disposition, retained prior-run Finding and immutable receipt controls. Audit correction b2e7b6f495 records the observed gap and fixture limitations.",
-          "headHash": "0fc834f56dc11152e8e9e7e1adec536c07c95369",
-          "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-          "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+          "headHash": "feba6c0e0e812dcb9354c0db10af117b8a06ab6d",
+          "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+          "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -185,13 +185,13 @@
             "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_CRITIC_OWN_FINDING_DISPOSITION PASS\nB29BC_RECOVERY F-001 signed PASS requires both read fields: PASS\nB29BC_RECOVERY F-002 current purpose-bound critic findings enter the exact aggregate: PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK001_MATRIX PASS",
-            "executedAt": "2026-09-07T13:05:08.345Z",
+            "executedAt": "2026-09-07T15:40:43.083Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:6885f8dee2781ebcaf01f153d20461d033be86ab16d35f43a27bee850018bc49",
-            "causalReceiptHash": "0f9048cdcb5d92505ffaf49f97da27c29db224156b7c4794209c86c04f738730",
+            "executionKey": "ce:v1:2cc6dd002fa63291d5a112ffa8ac21783d83bd7dcf3bd137588a7ec3a51dd742",
+            "causalReceiptHash": "d8bf287fc6552ca2ee251f47f8d620d242b6cab41b95e19168cff69d959238bc",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T13:14:36.932Z"
+          "timestamp": "2026-09-07T15:46:47.117Z"
         }
       ],
       "userSeesSnapshot": {
@@ -284,9 +284,9 @@
           "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/agent-dispatch-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-run-smoke.js\\\"],[\\\"packages/main/dist/tasks/prompt-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"],[\\\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\"],[\\\"scripts/verify-process-fact-contract.mjs\\\"]]) {const r=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(r.error)throw r.error; if(r.status!==0)process.exit(r.status??1);} console.log(\\\"B29BC_CHK002_COMPATIBILITY PASS\\\");\"",
           "result": "pass",
           "note": "Execute all seven affected programs with fail-on-nonzero orchestration: full inventory handler/epoch, full ProofStory signed topology receipt and gate controls, dispatch registry, reviewer-run, prompt registry, and process-fact verifier. Canonical fixture corrections preserve historical anchors and admission assertions. Review recovery adds test-only RED d2461f5794 and GREEN 0ffe4cc619: signed incomplete PASS refusal at producer and inventory consumer, exact current critic discovery disposition, retained prior-run Finding and immutable receipt controls. Audit correction b2e7b6f495 records the observed gap and fixture limitations.",
-          "headHash": "0fc834f56dc11152e8e9e7e1adec536c07c95369",
-          "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-          "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+          "headHash": "feba6c0e0e812dcb9354c0db10af117b8a06ab6d",
+          "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+          "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -294,10 +294,10 @@
             "outputTail": "overage artifact=checklist.json\n- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist gate=validate verification freshness gate artifact=checklist.json\n- verification_intent_repair [L2/command] producer=handlers/checklist\n- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard\n- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match\n- verification_run [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\n- workflow_explain [L0/command] producer=core/config\n- workflow_set [L1/command] producer=core/config\n- workflow_show [L0/command] producer=core/config\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- phase advance\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/transition-orchestrator.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/core/machine.ts\n- review_run_start\n  packages/main/src/core/owner-session-adapters.ts\n  packages/main/src/handlers/story-dispatch.ts\n  packages/main/src/handlers/review-run.ts\n  packages/main/src/cli/command-catalog.ts\n- finding_add\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n- flow fact policy\n  packages/main/src/core/flow-fact-policy.ts\n  packages/main/src/core/process-fact-registry.ts\n- finding evidenceState gate dimension\n  packages/main/src/core/advisory.ts\n  packages/main/src/core/machine.ts\n  packages/main/src/core/types.ts\n- gap_log\n  packages/main/src/handlers/gap-log.ts\n  packages/main/src/core/audit-meta-store.ts\n  packages/main/src/registry.ts\n- review_pass_set\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/review-pass-provenance.ts\n  packages/main/src/core/finding-verify.ts\n- verification evidence\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts\n  packages/main/src/core/verification.ts\n  packages/main/src/core/machine.ts\n- init check\n  packages/main/src/handlers/init-check.ts\n  packages/main/src/core/init-check-gate.ts\n  packages/main/src/core/machine.ts\n- scope anti-expansion\n  packages/main/src/core/machine.ts\n  packages/main/src/handlers/story-create.ts\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/handlers/story-query.ts\n  packages/main/src/handlers/scope-anti-expansion.ts\n  packages/main/src/core/scope-anti-expansion.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/command-policy.ts\n  packages/main/src/handlers/worktree.ts\n  packages/main/src/core/process-fact-registry.ts\n  packages/main/src/core/lifecycle-registry.ts\n- scope check\n  packages/main/src/handlers/scope-check.ts\n  packages/main/src/handlers/story-review.ts\n- delivery check\n  packages/main/src/handlers/delivery-check.ts\n  packages/main/src/core/machine.ts\n- REVIEW/TEST/DONE gates\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/handlers/review-preflight.ts\n  packages/main/src/core/machine.ts\n- lifecycle registry\n  packages/main/src/core/lifecycle-registry.ts\n  packages/main/src/core/phase-flow.ts\n  packages/main/src/handlers/context.ts\n  packages/main/src/tasks/flow-stability-smoke.ts\n- CLI schema\n  packages/main/src/cli/command-catalog.ts\n  packages/main/src/core/config.ts\n\nProcess fact contract verified\nProcess-fact contract verification passed\nB29BC_CHK002_COMPATIBILITY PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK002_COMPATIBILITY PASS",
-            "executedAt": "2026-09-07T13:14:33.454Z",
+            "executedAt": "2026-09-07T15:46:45.254Z",
             "timeoutMs": 600000,
-            "executionKey": "ce:v1:eb2cbc41b515a73b452a75725bb83f4078565c37c3bc0596ce8e72e30b4789d5",
-            "causalReceiptHash": "0308f97babf20518089e2038299cfa36922dc4cca20a7dd76b9597f9b6debb2b",
+            "executionKey": "ce:v1:5f906cd6f570cc28b4db47f75a921e121b8e342e0fbb335063c436bc61b9f784",
+            "causalReceiptHash": "8be8a928c8b1b8d371d6b29d51ba8436543221fa94596e05adfb89991efbff23",
             "commandReruns": 0,
             "timeoutOverride": {
               "timeoutMs": 600000,
@@ -305,7 +305,7 @@
               "reason": "Bounded sequential compatibility campaign: production CLI inventory interleavings and signed topology receipt/gate fixtures plus five smaller registry checks need a shared ten-minute ceiling. This does not skip checks or extend the outer lifecycle watchdog."
             }
           },
-          "timestamp": "2026-09-07T13:14:36.932Z"
+          "timestamp": "2026-09-07T15:46:47.117Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -314,9 +314,9 @@
           "command": "node -e \"const assert=require(\\\"node:assert/strict\\\"); const {readFileSync}=require(\\\"node:fs\\\"); const {createHash}=require(\\\"node:crypto\\\"); const {execFileSync}=require(\\\"node:child_process\\\"); const text=readFileSync(\\\"docs/audits/inventory-critic-purpose-isolation.md\\\",\\\"utf8\\\"); assert.doesNotMatch(text,/[\\\\u3400-\\\\u9fff]/u); for(const token of [\\\"0c726415eab8a599ae2844d42386bc5a57d49d07\\\",\\\"91d8133a8f92aff7e02efff4fea31362bd6f4949\\\",\\\"f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8\\\",\\\"ff4e1bc2c7\\\",\\\"211fcc3\\\"]) {assert.ok(text.includes(token));execFileSync(\\\"git\\\",[\\\"cat-file\\\",\\\"-e\\\",token+\\\"^{commit}\\\"]);} for(const file of [\\\"packages/main/src/core/topology-critic-receipt.ts\\\",\\\"packages/main/src/core/machine.ts\\\",\\\"proof-or-stop.config.json\\\"]){execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--exit-code\\\",\\\"main...HEAD\\\",\\\"--\\\",file],{stdio:\\\"pipe\\\"});} const template=\\\"packages/main/templates/agents/proof-or-stop-review-topology-critic.md\\\"; assert.equal(readFileSync(template,\\\"utf8\\\"),execFileSync(\\\"git\\\",[\\\"show\\\",\\\"0c726415ea:\\\"+template],{encoding:\\\"utf8\\\"})); for(const token of [\\\"not a DONE certificate\\\",\\\"only preliminary symptom\\\",\\\"signed terminal\\\",\\\"authorizesTest=false\\\",\\\"Disposable fixture\\\",\\\"never declare an old hash fresh\\\",\\\"B-e6d9\\\"])assert.ok(text.includes(token),token); const outside=execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--name-only\\\",\\\"main...HEAD\\\",\\\"--\\\",\\\".proof-or-stop/story/actives/B-7abb\\\",\\\".proof-or-stop/story/actives/B-03b7\\\"],{encoding:\\\"utf8\\\"}); assert.equal(outside.trim(),\\\"\\\"); for(const file of [\\\"packages/main/src/handlers/story-dispatch.ts\\\",\\\"packages/main/src/handlers/review-run.ts\\\",\\\"packages/main/src/handlers/review-inventory.ts\\\"])assert.doesNotMatch(readFileSync(file,\\\"utf8\\\"),/Harmonynet|ordinary@example/); const guide=readFileSync(\\\"docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md\\\",\\\"utf8\\\");assert.ok(guide.includes('\\\"reviewPurpose\\\":\\\"inventory-completeness\\\"'));assert.ok(guide.includes('\\\"inventoryEpochId\\\":\\\"<epoch>\\\"'));console.log(\\\"B29BC_AUDIT_AND_BOUNDARIES PASS\\\");\"",
           "result": "pass",
           "note": "Check English audit text, resolved RED/GREEN/compatibility commits, explicit preliminary-RED limitation and synthetic-host limitations, current operator fields, and protected source/template/no-other-Story diff. This mechanical check supports but does not replace independent docs review. Review recovery adds test-only RED d2461f5794 and GREEN 0ffe4cc619: signed incomplete PASS refusal at producer and inventory consumer, exact current critic discovery disposition, retained prior-run Finding and immutable receipt controls. Audit correction b2e7b6f495 records the observed gap and fixture limitations.",
-          "headHash": "0fc834f56dc11152e8e9e7e1adec536c07c95369",
-          "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-          "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+          "headHash": "feba6c0e0e812dcb9354c0db10af117b8a06ab6d",
+          "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+          "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -324,13 +324,13 @@
             "outputTail": "B29BC_AUDIT_AND_BOUNDARIES PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_AUDIT_AND_BOUNDARIES PASS",
-            "executedAt": "2026-09-07T13:14:36.816Z",
+            "executedAt": "2026-09-07T15:46:47.057Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:eccfeb184dc040eda19706c4cfc50bb0272dd569ad0e16b8ea9b50d68eb2c06e",
-            "causalReceiptHash": "43cee98ade91ff1f30a68c1fa9a1149b987abaabd5805c8b2a87c5fe8464ee70",
+            "executionKey": "ce:v1:765d0365a647b1fa1df69fd7dc1edfc50012c24906f4634da45cf04d85635d20",
+            "causalReceiptHash": "592cdcb0a167ef10ef33141c8ef685bed092d892e8bb0941ae7277262edd0d91",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T13:14:36.932Z"
+          "timestamp": "2026-09-07T15:46:47.117Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -339,9 +339,9 @@
           "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/agent-dispatch-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-run-smoke.js\\\"],[\\\"packages/main/dist/tasks/prompt-registry-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"],[\\\"packages/main/dist/tasks/proofstory-pre-review-check-smoke.js\\\"],[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\"],[\\\"scripts/verify-process-fact-contract.mjs\\\"]]) {const r=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(r.error)throw r.error; if(r.status!==0)process.exit(r.status??1);} console.log(\\\"B29BC_CHK002_COMPATIBILITY PASS\\\");\"",
           "result": "pass",
           "note": "The full inventory campaign includes actual inventory carrier purpose removal/mutation/alias rejection at the unchanged topology provenance consumer; epoch mutations reject default topology runs and authority promotion. Full ProofStory tests separately retain signed topology receipt, gate and rollback positive/negative controls. No synthetic host fixture is actual host-quorum assurance. Review recovery adds test-only RED d2461f5794 and GREEN 0ffe4cc619: signed incomplete PASS refusal at producer and inventory consumer, exact current critic discovery disposition, retained prior-run Finding and immutable receipt controls. Audit correction b2e7b6f495 records the observed gap and fixture limitations.",
-          "headHash": "0fc834f56dc11152e8e9e7e1adec536c07c95369",
-          "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-          "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+          "headHash": "feba6c0e0e812dcb9354c0db10af117b8a06ab6d",
+          "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+          "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -349,10 +349,10 @@
             "outputTail": "overage artifact=checklist.json\n- verification_evidence_batch_add [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verification_evidence_refresh_stale [L4/execution-status] producer=handlers/checklist gate=validate verification freshness gate artifact=checklist.json\n- verification_intent_repair [L2/command] producer=handlers/checklist\n- verification_pin_guard_check [L0/command] producer=handlers/evidence-pin-guard\n- verification_pin_narrow [L4/execution-status] producer=handlers/checklist gate=validate verification coverage and the tool-executed receipt selector match\n- verification_run [L4/execution-status] producer=handlers/checklist gate=storyMachine.checklistAllDone and validate verification coverage artifact=checklist.json\n- verify_codex [L4/gate-evidence] producer=handlers/verify-codex gate=Codex adapter REVIEW and DONE evidence gate artifact=process-events.jsonl\n- workflow_explain [L0/command] producer=core/config\n- workflow_set [L1/command] producer=core/config\n- workflow_show [L0/command] producer=core/config\nPrompt drift scan: 38 reviewer prompt files checked\n\nProcess Fact Inventory\n- phase advance\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/transition-orchestrator.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/core/machine.ts\n- review_run_start\n  packages/main/src/core/owner-session-adapters.ts\n  packages/main/src/handlers/story-dispatch.ts\n  packages/main/src/handlers/review-run.ts\n  packages/main/src/cli/command-catalog.ts\n- finding_add\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n- flow fact policy\n  packages/main/src/core/flow-fact-policy.ts\n  packages/main/src/core/process-fact-registry.ts\n- finding evidenceState gate dimension\n  packages/main/src/core/advisory.ts\n  packages/main/src/core/machine.ts\n  packages/main/src/core/types.ts\n- gap_log\n  packages/main/src/handlers/gap-log.ts\n  packages/main/src/core/audit-meta-store.ts\n  packages/main/src/registry.ts\n- review_pass_set\n  packages/main/src/handlers/finding.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/review-pass-provenance.ts\n  packages/main/src/core/finding-verify.ts\n- verification evidence\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/tasks/tool-executed-evidence-receipt-smoke.ts\n  packages/main/src/core/verification.ts\n  packages/main/src/core/machine.ts\n- init check\n  packages/main/src/handlers/init-check.ts\n  packages/main/src/core/init-check-gate.ts\n  packages/main/src/core/machine.ts\n- scope anti-expansion\n  packages/main/src/core/machine.ts\n  packages/main/src/handlers/story-create.ts\n  packages/main/src/handlers/checklist.ts\n  packages/main/src/handlers/story-query.ts\n  packages/main/src/handlers/scope-anti-expansion.ts\n  packages/main/src/core/scope-anti-expansion.ts\n  packages/main/src/cli-engine.ts\n  packages/main/src/core/command-policy.ts\n  packages/main/src/handlers/worktree.ts\n  packages/main/src/core/process-fact-registry.ts\n  packages/main/src/core/lifecycle-registry.ts\n- scope check\n  packages/main/src/handlers/scope-check.ts\n  packages/main/src/handlers/story-review.ts\n- delivery check\n  packages/main/src/handlers/delivery-check.ts\n  packages/main/src/core/machine.ts\n- REVIEW/TEST/DONE gates\n  packages/main/src/handlers/story-advance.ts\n  packages/main/src/handlers/phase-gates.ts\n  packages/main/src/handlers/verifier.ts\n  packages/main/src/handlers/review-preflight.ts\n  packages/main/src/core/machine.ts\n- lifecycle registry\n  packages/main/src/core/lifecycle-registry.ts\n  packages/main/src/core/phase-flow.ts\n  packages/main/src/handlers/context.ts\n  packages/main/src/tasks/flow-stability-smoke.ts\n- CLI schema\n  packages/main/src/cli/command-catalog.ts\n  packages/main/src/core/config.ts\n\nProcess fact contract verified\nProcess-fact contract verification passed\nB29BC_CHK002_COMPATIBILITY PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_CHK002_COMPATIBILITY PASS",
-            "executedAt": "2026-09-07T13:14:33.454Z",
+            "executedAt": "2026-09-07T15:46:45.254Z",
             "timeoutMs": 600000,
-            "executionKey": "ce:v1:eb2cbc41b515a73b452a75725bb83f4078565c37c3bc0596ce8e72e30b4789d5",
-            "causalReceiptHash": "0308f97babf20518089e2038299cfa36922dc4cca20a7dd76b9597f9b6debb2b",
+            "executionKey": "ce:v1:5f906cd6f570cc28b4db47f75a921e121b8e342e0fbb335063c436bc61b9f784",
+            "causalReceiptHash": "8be8a928c8b1b8d371d6b29d51ba8436543221fa94596e05adfb89991efbff23",
             "commandReruns": 0,
             "timeoutOverride": {
               "timeoutMs": 600000,
@@ -360,7 +360,7 @@
               "reason": "Bounded sequential compatibility campaign: production CLI inventory interleavings and signed topology receipt/gate fixtures plus five smaller registry checks need a shared ten-minute ceiling. This does not skip checks or extend the outer lifecycle watchdog."
             }
           },
-          "timestamp": "2026-09-07T13:14:36.932Z"
+          "timestamp": "2026-09-07T15:46:47.117Z"
         },
         {
           "intentRef": "CHK-002:adversarial:1",
@@ -369,9 +369,9 @@
           "command": "node -e \"const assert=require(\\\"node:assert/strict\\\"); const {readFileSync}=require(\\\"node:fs\\\"); const {createHash}=require(\\\"node:crypto\\\"); const {execFileSync}=require(\\\"node:child_process\\\"); const text=readFileSync(\\\"docs/audits/inventory-critic-purpose-isolation.md\\\",\\\"utf8\\\"); assert.doesNotMatch(text,/[\\\\u3400-\\\\u9fff]/u); for(const token of [\\\"0c726415eab8a599ae2844d42386bc5a57d49d07\\\",\\\"91d8133a8f92aff7e02efff4fea31362bd6f4949\\\",\\\"f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8\\\",\\\"ff4e1bc2c7\\\",\\\"211fcc3\\\"]) {assert.ok(text.includes(token));execFileSync(\\\"git\\\",[\\\"cat-file\\\",\\\"-e\\\",token+\\\"^{commit}\\\"]);} for(const file of [\\\"packages/main/src/core/topology-critic-receipt.ts\\\",\\\"packages/main/src/core/machine.ts\\\",\\\"proof-or-stop.config.json\\\"]){execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--exit-code\\\",\\\"main...HEAD\\\",\\\"--\\\",file],{stdio:\\\"pipe\\\"});} const template=\\\"packages/main/templates/agents/proof-or-stop-review-topology-critic.md\\\"; assert.equal(readFileSync(template,\\\"utf8\\\"),execFileSync(\\\"git\\\",[\\\"show\\\",\\\"0c726415ea:\\\"+template],{encoding:\\\"utf8\\\"})); for(const token of [\\\"not a DONE certificate\\\",\\\"only preliminary symptom\\\",\\\"signed terminal\\\",\\\"authorizesTest=false\\\",\\\"Disposable fixture\\\",\\\"never declare an old hash fresh\\\",\\\"B-e6d9\\\"])assert.ok(text.includes(token),token); const outside=execFileSync(\\\"git\\\",[\\\"diff\\\",\\\"--name-only\\\",\\\"main...HEAD\\\",\\\"--\\\",\\\".proof-or-stop/story/actives/B-7abb\\\",\\\".proof-or-stop/story/actives/B-03b7\\\"],{encoding:\\\"utf8\\\"}); assert.equal(outside.trim(),\\\"\\\"); for(const file of [\\\"packages/main/src/handlers/story-dispatch.ts\\\",\\\"packages/main/src/handlers/review-run.ts\\\",\\\"packages/main/src/handlers/review-inventory.ts\\\"])assert.doesNotMatch(readFileSync(file,\\\"utf8\\\"),/Harmonynet|ordinary@example/); const guide=readFileSync(\\\"docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md\\\",\\\"utf8\\\");assert.ok(guide.includes('\\\"reviewPurpose\\\":\\\"inventory-completeness\\\"'));assert.ok(guide.includes('\\\"inventoryEpochId\\\":\\\"<epoch>\\\"'));console.log(\\\"B29BC_AUDIT_AND_BOUNDARIES PASS\\\");\"",
           "result": "pass",
           "note": "Verify branch-relative protected topology consumer/machine/config and historical critic template remain unchanged, no B-7abb/B-03b7 metadata was modified by this branch, no named-user admission appears in changed handlers, and audit/current workflow require canonical freshness before local consumer recovery. Review recovery adds test-only RED d2461f5794 and GREEN 0ffe4cc619: signed incomplete PASS refusal at producer and inventory consumer, exact current critic discovery disposition, retained prior-run Finding and immutable receipt controls. Audit correction b2e7b6f495 records the observed gap and fixture limitations.",
-          "headHash": "0fc834f56dc11152e8e9e7e1adec536c07c95369",
-          "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-          "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+          "headHash": "feba6c0e0e812dcb9354c0db10af117b8a06ab6d",
+          "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+          "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -379,13 +379,13 @@
             "outputTail": "B29BC_AUDIT_AND_BOUNDARIES PASS\n",
             "selectorMatched": true,
             "selector": "B29BC_AUDIT_AND_BOUNDARIES PASS",
-            "executedAt": "2026-09-07T13:14:36.816Z",
+            "executedAt": "2026-09-07T15:46:47.057Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:eccfeb184dc040eda19706c4cfc50bb0272dd569ad0e16b8ea9b50d68eb2c06e",
-            "causalReceiptHash": "43cee98ade91ff1f30a68c1fa9a1149b987abaabd5805c8b2a87c5fe8464ee70",
+            "executionKey": "ce:v1:765d0365a647b1fa1df69fd7dc1edfc50012c24906f4634da45cf04d85635d20",
+            "causalReceiptHash": "592cdcb0a167ef10ef33141c8ef685bed092d892e8bb0941ae7277262edd0d91",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T13:14:36.932Z"
+          "timestamp": "2026-09-07T15:46:47.117Z"
         }
       ],
       "userSeesSnapshot": {
