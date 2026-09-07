@@ -2342,7 +2342,7 @@
       "reviewRound": "2026-09-06T23:51:29.750Z",
       "state": "OPEN",
       "begunAt": "2026-09-07T00:10:01.975Z",
-      "updatedAt": "2026-09-07T00:10:01.975Z",
+      "updatedAt": "2026-09-07T07:12:02.284Z",
       "cutoff": {
         "headHash": "2deffae938b05d313f3c0596a770cc2cc3cab2ae",
         "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
@@ -2356,9 +2356,59 @@
       ],
       "initialRunSequenceBoundary": 140,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-07T00:10:01.975Z",
+          "completedAt": "2026-09-07T07:12:02.284Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-8a40:RR-143",
+              "terminal": "finding",
+              "hostIdentity": "9b65e9a34f9aad7776e9ab18d76d4b09c012fceb0c5f60f785a4cb043fe1bc12",
+              "promptIdentity": "83bba05b96f02e19dcc038f79983f52589e8ebf0590428de8d583c235839bfd9",
+              "evidenceIds": [
+                "B-8a40:F-079"
+              ],
+              "coverageDigest": "c4ce54bd42c1f82651f377dd7fd2865d77f07dfe5ec34cb03a6fc9537518ccd2"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-8a40:RR-142",
+              "terminal": "finding",
+              "hostIdentity": "9b65e9a34f9aad7776e9ab18d76d4b09c012fceb0c5f60f785a4cb043fe1bc12",
+              "promptIdentity": "94c9711eeef30ee3f2388a6826e49dda02235fd94a845f577658aba229fea8ed",
+              "evidenceIds": [
+                "B-8a40:F-081"
+              ],
+              "coverageDigest": "d4b4131a49d77fea500ed0500e278c353e7c84c3bf6b4a6702d62f0751b96649"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-8a40:RR-141",
+              "terminal": "finding",
+              "hostIdentity": "9b65e9a34f9aad7776e9ab18d76d4b09c012fceb0c5f60f785a4cb043fe1bc12",
+              "promptIdentity": "1cc5b1df821e6af3638499c52e17c8ece47364b78628cc351b344a8980cdd4c4",
+              "evidenceIds": [
+                "B-8a40:F-080"
+              ],
+              "coverageDigest": "3e01664722e010eb3dc9419dbf687d1ffc6830fe07fa278aaeb653c1516560eb"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "b8a40-mutant-loader-guard-admission",
+            "b8a40-retired-authority-assertion-wording"
+          ],
+          "verifiedFindingSetDigest": "66c25527f557f7d343ee0ee84818f3836074fb23caf27f333e3b37c6bc9b3d2f",
+          "newVerifiedFindingCount": 2,
+          "criticDigest": "b9e9db7ee1b7c61747171c9fbf655990261fa8e0683d883dba01af3b8ceb816c",
+          "saturated": false,
+          "nextRunSequenceBoundary": 144
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "279f6bbe554a951a99ab1e01e2286b9780c416d5afa74f6eef48343ef5c8a09c"
+      "_hash": "8a005e0b8269a2183e2fed4fc05a2d34535e1fd037d81986331fa69acf1c7ff1"
     }
   ],
   "receipts": [
@@ -4388,6 +4438,50 @@
       "findingDispositions": [],
       "createdAt": "2026-09-07T00:00:38.326Z",
       "_hash": "50249b9dcf56381b75e9e85efedfe43518cb29214d68151c858d0e0c7e9f3253"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-8a40:RI-013:CRIT-01",
+      "epochId": "B-8a40:RI-013",
+      "storyId": "B-8a40",
+      "reviewRound": "2026-09-06T23:51:29.750Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "2deffae938b05d313f3c0596a770cc2cc3cab2ae",
+        "materialHash": "63bdbb760abf9dd821fb1964976c9ee7d2cbd1e9f964a4f7119e63fa6aef0639",
+        "storyFilesHash": "712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd"
+      },
+      "aggregateFindingSetDigest": "66c25527f557f7d343ee0ee84818f3836074fb23caf27f333e3b37c6bc9b3d2f",
+      "requiredLaneCoverageDigest": "98e7aac8fc3706185fce4a7b3ac4e337c1950cc38d4dd24516ce794f64627d0f",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-8a40:RR-144",
+      "terminalEvidenceIds": [
+        "B-8a40:RP-077"
+      ],
+      "readEvidenceDigest": "69440c84a4eb1c8324a017f5e37beb6471b8f645723b995662998066fde57a1a",
+      "findingDispositions": [
+        {
+          "findingId": "B-8a40:F-079",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-retired-authority-assertion-wording",
+          "reason": "Distinct current-Story family: committed live smoke diagnostic at line 2188 contains the retired phrase banned by the current vocabulary contract and guard line 43. Target-bound DONE-required npm test FAIL records that exact violation. Neutral in-scope diagnostic repair is required; the original high verified open Finding remains unchanged. This completeness classification is neither repair nor scope/policy approval."
+        },
+        {
+          "findingId": "B-8a40:F-080",
+          "disposition": "verified_family",
+          "familyKey": "b8a40-mutant-loader-guard-admission",
+          "reason": "Distinct current-Story family: the introduced importEnvelopeMutant helper at line 2123 dynamically imports a generated module URL without the existing finite loader-admission contract. Current guard reproduction and DONE-required FAIL identify fingerprint 55ccba2baaaea566f2b25fedb2b2187d258d45e2d08b54515004c2627f5c65ce. This direct DONE-required blocker is separate from wording at line 2188. Preserve independently biting complete mutant matrices and fail-closed load checks; this inventory receipt supplies no third-file scope expansion or guard exemption. Original medium verified open Finding remains unchanged."
+        },
+        {
+          "findingId": "B-8a40:F-081",
+          "disposition": "duplicate",
+          "familyKey": "b8a40-mutant-loader-guard-admission",
+          "canonicalFindingId": "B-8a40:F-080",
+          "reason": "Same-wave quality observation matches live canonical F-080 in description, severity, file/line, exact dynamic-import expression, command failure and canonical AST fingerprint; both bind the same current Story material and REVIEW round. F-080 is a verified_family row here, not a duplicate, so the inventory chain is noncircular. The Story Owner retains repair responsibility for both original open records. This duplicate grouping is inventory accounting only and does not dismiss, resolve, defer or rewrite either observation."
+        }
+      ],
+      "createdAt": "2026-09-07T00:21:13.827Z",
+      "_hash": "aacf86a0724d0558faec503cd934b4bfad18105e92a3d89e05c845a988c239d8"
     }
   ]
 }

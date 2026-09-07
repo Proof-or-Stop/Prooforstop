@@ -4113,6 +4113,58 @@
       "signatureTagSource": "confirmed",
       "recordId": "lr_mtqhptk6_1qcz_65e7b936e2ce48c5aa3edb954ae4ef37",
       "ledgerCommitReceiptId": "lrc_mtqhptk7_1qcz_5fb4b3958b4342a89cdcc5e7f74fdcb5"
+    },
+    {
+      "id": "B-8a40:F-082",
+      "desc": "RI-013 wave-2 re-attestation of the existing verified family B-8a40:F-079, not a new defect family: packages/main/src/tasks/prompt-full-context-envelope-smoke.ts:2188 still emits `the helper-only mutant fails only through the production authority oracle for ${roleId}` as an active diagnostic. Fresh rg confirms the exact banned phrase remains; git diff 27e32af...HEAD across the two scoped implementation files and the vocabulary guard is empty. bannedActiveRules at packages/main/src/tasks/retired-authority-vocabulary-guard-smoke.ts:43 still forbids this phrase, and the active vocabulary contract permits smoke occurrences only as scanner positive controls or explicit legacy quarantine; this diagnostic is neither. The unchanged target-bound done-required-evidence.json remains FAIL for npm test exit 1 with outputDigest 93450a9c651423583397d1d024ef06747d04d653727145788fc3a44c81fa1dfc and source hash 712ec2484e4172a81c3751f30e16944d0538303a83253fa5682d0eebb622e6dd. CLI finding_list confirms canonical F-079 is still verified/open under this Story. The defect still directly blocks DONE-required validation. Replace only the diagnostic wording with precise neutral terminology and rerun real guard/focused checks; no weakening or hidden encoding of the banned phrase, no fake human reapproval. Current declared scope and verification intents are unchanged; any minimal scanner companion requires actual Owner scope workflow, not reviewer-inferred authority. No additional concept family was found.",
+      "severity": "high",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-07T07:15:06.464Z",
+      "reviewRound": "2026-09-06T23:51:29.750Z",
+      "reviewRunId": "B-8a40:RR-146",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-8a40/background.md",
+          ".proof-or-stop/story/actives/B-8a40/checklist.json",
+          ".proof-or-stop/story/actives/B-8a40/decision.json",
+          ".proof-or-stop/story/actives/B-8a40/done-required-evidence.json",
+          ".proof-or-stop/story/actives/B-8a40/plan.md",
+          ".proof-or-stop/story/actives/B-8a40/scope-contract.json",
+          ".proof-or-stop/story/actives/B-8a40/understanding.json",
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [
+          "docs/requirements/decisions/authority-server-vocabulary-retirement.md",
+          "docs/requirements/decisions/review-finding-triage-prompt-change-proposal.md"
+        ],
+        "filesTriagedByName": [
+          "docs/requirements/decisions/role-prompt-modularization-and-budget-execution-plan.md"
+        ],
+        "summary": {
+          "readCount": 2,
+          "tokenCount": null
+        },
+        "digest": "05e5d7fff9d4b01aa023a7c28d4b2a3c20d912f9081d146b1ea420fecbfd05c1"
+      },
+      "readDiagnostics": [],
+      "_hash": "91b66abdbc52e660a9499bd6eb3439fa74e778cdff02afb29792f04d2433f9d2",
+      "files": [
+        "packages/main/src/tasks/prompt-full-context-envelope-smoke.ts"
+      ],
+      "signatureTag": "b8a40-retired-authority-assertion-wording",
+      "signatureTagSource": "confirmed",
+      "recordId": "lr_mtqwofvn_w64_287aeaba245c40188d7574a9642a53e4",
+      "ledgerCommitReceiptId": "lrc_mtqwofvn_w64_5805fffedd8e48b7b930278594a58f6d"
     }
   ]
 }
