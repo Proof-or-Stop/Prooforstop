@@ -45,7 +45,9 @@ function cli(root: string, command: string, payload: Record<string, unknown>, en
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'codex-cli',
+      PROOF_OR_STOP_AGENT: 'main',
+      PROOF_OR_STOP_SESSION_ID: 'inventory-handler-fixture-owner',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
       ...env,
     },
   }).trim();
@@ -57,7 +59,9 @@ function cliAsync(root: string, command: string, payload: Record<string, unknown
     encoding: 'utf8',
     env: {
       ...process.env,
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'codex-cli',
+      PROOF_OR_STOP_AGENT: 'main',
+      PROOF_OR_STOP_SESSION_ID: 'inventory-handler-fixture-owner',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex',
       ...env,
     },
   }, (error, stdout, stderr) => resolve({ ok: !error, output: `${stdout}${stderr}` })));
@@ -76,8 +80,8 @@ function setup(author = { name: 'lattice-implementer', email: 'lattice-implement
   mkdirSync(join(root, 'packages/main/src'), { recursive: true });
   mkdirSync(join(root, 'packages/main/tests'), { recursive: true });
   mkdirSync(join(root, 'docs/requirements/decisions'), { recursive: true });
-  writeFileSync(join(root, 'lattice.config.json'), JSON.stringify({
-    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.lattice/story/actives', requirementsDir: 'docs/requirements',
+  writeFileSync(join(root, 'proof-or-stop.config.json'), JSON.stringify({
+    scanRoot: 'packages/main', rootDir: 'src', storyDir: '.proof-or-stop/story/actives', requirementsDir: 'docs/requirements',
   }));
   writeFileSync(join(root, 'packages/main/src/subject.ts'), 'export const subject = 1;\n');
   writeFileSync(join(root, 'packages/main/src/consumer-a.ts'), "export { subject } from './subject.js';\n");
@@ -352,13 +356,13 @@ const first = setup();
 seedProofStoryAcceptance(first.store);
 const originalProofStoryContract = structuredClone(first.store.readProofStoryContract(storyId)!);
 const criticDispatch = cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic' }, {
-  LATTICE_AGENT: 'proof-or-stop-review-topology-critic',
-  LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
+  PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic',
+  PROOF_OR_STOP_SESSION_ID: 'sess-inventory-topology-critic',
 });
 assert.match(criticDispatch, /findingDispositions/);
 const actualCriticRun = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic' }, {
-  LATTICE_AGENT: 'proof-or-stop-review-topology-critic',
-  LATTICE_SESSION_ID: 'sess-inventory-topology-critic',
+  PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic',
+  PROOF_OR_STOP_SESSION_ID: 'sess-inventory-topology-critic',
 });
 assert.match(actualCriticRun, /Review run B-inventory-handler:RR-/);
 const listedCriticRuns = JSON.parse(cli(first.root, 'review_run_list', {
@@ -391,8 +395,8 @@ let realFindingId = '';
 const firstWaveRuns = new Map<string, { reviewRunId: string; sessionId: string }>();
 for (const [index, lane] of epoch.requiredLanes.entries()) {
   const sessionId = `sess-inventory-${lane}`;
-  cli(first.root, 'dispatch', { storyId, agentType: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
-  const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  cli(first.root, 'dispatch', { storyId, agentType: lane }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
+  const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
   const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
   assert.ok(reviewRunId, `real review_run_start must return a signed run for ${lane}: ${started}`);
   firstWaveRuns.set(lane, { reviewRunId, sessionId });
@@ -408,7 +412,7 @@ for (const [index, lane] of epoch.requiredLanes.entries()) {
       files: ['packages/main/src/subject.ts'],
       readManifest,
       readEvents,
-    }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+    }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
     realFindingId = finding.match(/(B-inventory-handler:F-\d+)/)?.[1] ?? '';
     assert.ok(realFindingId, `real finding_add must persist an ID: ${finding}`);
   } else {
@@ -419,7 +423,7 @@ for (const [index, lane] of epoch.requiredLanes.entries()) {
       note: `Real handler smoke found no blocker for ${lane}.`,
       readManifest,
       readEvents,
-    }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+    }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
   }
 }
 const retryLane = epoch.requiredLanes[1];
@@ -429,7 +433,7 @@ const passEventsBeforeRetry = reloaded.readProcessEvents(storyId).filter(row => 
 const ambiguousRetry = cli(first.root, 'review_pass_set', {
   storyId, agent: retryLane, reviewRunId: retryRun.reviewRunId,
   note: `Real handler smoke found no blocker for ${retryLane}.`, readManifest, readEvents,
-}, { LATTICE_AGENT: retryLane, LATTICE_SESSION_ID: retryRun.sessionId });
+}, { PROOF_OR_STOP_AGENT: retryLane, PROOF_OR_STOP_SESSION_ID: retryRun.sessionId });
 const retryPassId = reloaded.readReviewPasses(storyId).passes.find(row => row.reviewRunId === retryRun.reviewRunId)!.id;
 assert.match(ambiguousRetry, new RegExp(`Review pass ${retryPassId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} already recorded`));
 assert.equal(reloaded.readReviewPasses(storyId).passes.length, passCountBeforeRetry, 'F046: an ambiguous exact retry preserves one RP');
@@ -438,21 +442,21 @@ assert.throws(
   () => cli(first.root, 'review_pass_set', {
     storyId, agent: retryLane, reviewRunId: retryRun.reviewRunId,
     note: 'Conflicting semantic evidence for the same terminal must fail closed.', readManifest, readEvents,
-  }, { LATTICE_AGENT: retryLane, LATTICE_SESSION_ID: retryRun.sessionId }),
+  }, { PROOF_OR_STOP_AGENT: retryLane, PROOF_OR_STOP_SESSION_ID: retryRun.sessionId }),
   /conflicting terminal pass/,
 );
 const multiRunLane = epoch.requiredLanes[0];
 const multiRunSession = `sess-inventory-newer-pass-${multiRunLane}`;
-cli(first.root, 'dispatch', { storyId, agentType: multiRunLane }, { LATTICE_AGENT: multiRunLane, LATTICE_SESSION_ID: multiRunSession });
+cli(first.root, 'dispatch', { storyId, agentType: multiRunLane }, { PROOF_OR_STOP_AGENT: multiRunLane, PROOF_OR_STOP_SESSION_ID: multiRunSession });
 const newerSameLaneStarted = cli(first.root, 'review_run_start', { storyId, agent: multiRunLane }, {
-  LATTICE_AGENT: multiRunLane, LATTICE_SESSION_ID: multiRunSession,
+  PROOF_OR_STOP_AGENT: multiRunLane, PROOF_OR_STOP_SESSION_ID: multiRunSession,
 });
 const newerSameLaneRunId = newerSameLaneStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(newerSameLaneRunId);
 cli(first.root, 'review_pass_set', {
   storyId, agent: multiRunLane, reviewRunId: newerSameLaneRunId,
   note: 'Newer same-lane pass must not hide the older run verified finding.', readManifest, readEvents,
-}, { LATTICE_AGENT: multiRunLane, LATTICE_SESSION_ID: multiRunSession });
+}, { PROOF_OR_STOP_AGENT: multiRunLane, PROOF_OR_STOP_SESSION_ID: multiRunSession });
 const beforeCriticAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
 assert.throws(
   () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
@@ -461,10 +465,10 @@ assert.throws(
 );
 assert.equal(JSON.stringify(reloaded.readReviewInventoryEpochs(storyId)), beforeCriticAdvance, 'critic-incomplete rejection is side-effect free');
 cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
-  LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
+  PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-critic-terminal',
 });
 const criticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
-  LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal',
+  PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-critic-terminal',
 });
 const criticReviewRunId = criticStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(criticReviewRunId, `real critic review_run_start must return a signed run: ${criticStarted}`);
@@ -475,7 +479,7 @@ cli(first.root, 'review_pass_set', {
   note: 'Independent critic reviewed the exact aggregate and lane coverage.',
   readManifest,
   readEvents,
-}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
+}, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-critic-terminal' });
 const criticPassCount = reloaded.readReviewPasses(storyId).passes.length;
 const criticPassRetry = cli(first.root, 'review_pass_set', {
   storyId,
@@ -484,7 +488,7 @@ const criticPassRetry = cli(first.root, 'review_pass_set', {
   note: 'Independent critic reviewed the exact aggregate and lane coverage.',
   readManifest,
   readEvents,
-}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-critic-terminal' });
+}, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-critic-terminal' });
 assert.match(criticPassRetry, /already recorded/, 'F046: critic pass uses the same idempotent terminal writer');
 assert.equal(reloaded.readReviewPasses(storyId).passes.length, criticPassCount);
 const critic = cli(first.root, 'review_inventory_critic_set', {
@@ -496,7 +500,7 @@ const critic = cli(first.root, 'review_inventory_critic_set', {
     familyKey: `finding:${realFindingId}`,
     reason: 'Independent critic conservatively retained this verified family',
   }],
-}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic' });
+}, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic' });
 assert.match(critic, /Completeness critic: complete/);
 const discoveryStatus = cli(first.root, 'review_inventory_status', { storyId });
 assert.match(discoveryStatus, /Blockers: REVIEW_INVENTORY_NEW_FINDINGS_REQUIRE_NEXT_WAVE/);
@@ -517,7 +521,7 @@ assert.throws(
   () => cli(first.root, 'review_pass_set', {
     storyId, agent: oldWaveLane, reviewRunId: oldWaveRun.reviewRunId,
     note: 'A late terminal from the prior wave must be rejected.', readManifest, readEvents,
-  }, { LATTICE_AGENT: oldWaveLane, LATTICE_SESSION_ID: oldWaveRun.sessionId }),
+  }, { PROOF_OR_STOP_AGENT: oldWaveLane, PROOF_OR_STOP_SESSION_ID: oldWaveRun.sessionId }),
   /REVIEW_INVENTORY_WAVE_EVIDENCE_SEALED/,
   'F031: wave checkpoint seals every ReviewRun that started before the new wave boundary',
 );
@@ -545,8 +549,8 @@ reloaded.writeReviewInventoryEpochs(storyId, budgetData);
 const secondWaveRuns = new Map<string, { reviewRunId: string; sessionId: string }>();
 for (const lane of epoch.requiredLanes) {
   const sessionId = `sess-inventory-wave2-${lane}`;
-  cli(first.root, 'dispatch', { storyId, agentType: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
-  const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  cli(first.root, 'dispatch', { storyId, agentType: lane }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
+  const started = cli(first.root, 'review_run_start', { storyId, agent: lane }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
   const reviewRunId = started.match(/Review run (\S+) started/)?.[1];
   assert.ok(reviewRunId, `second-wave review_run_start must return a signed run for ${lane}: ${started}`);
   secondWaveRuns.set(lane, { reviewRunId, sessionId });
@@ -554,24 +558,24 @@ for (const lane of epoch.requiredLanes) {
     storyId, agent: lane, reviewRunId,
     note: `Second complete unchanged-material wave found no new family for ${lane}.`,
     readManifest, readEvents,
-  }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
 }
 cli(first.root, 'dispatch', { storyId, agentType: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
-  LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
+  PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-wave2-critic',
 });
 const secondCriticStarted = cli(first.root, 'review_run_start', { storyId, agent: 'proof-or-stop-review-topology-critic', reviewPurpose: 'inventory-completeness', inventoryEpochId: epoch.epochId }, {
-  LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic',
+  PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-wave2-critic',
 });
 const secondCriticReviewRunId = secondCriticStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(secondCriticReviewRunId);
 cli(first.root, 'review_pass_set', {
   storyId, agent: 'proof-or-stop-review-topology-critic', reviewRunId: secondCriticReviewRunId,
   note: 'Second-wave critic verified zero new finding families.', readManifest, readEvents,
-}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic', LATTICE_SESSION_ID: 'sess-inventory-wave2-critic' });
+}, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic', PROOF_OR_STOP_SESSION_ID: 'sess-inventory-wave2-critic' });
 cli(first.root, 'review_inventory_critic_set', {
   storyId, epochId: epoch.epochId, reviewRunId: secondCriticReviewRunId,
   agent: 'proof-or-stop-review-topology-critic', findingDispositions: [],
-}, { LATTICE_AGENT: 'proof-or-stop-review-topology-critic' });
+}, { PROOF_OR_STOP_AGENT: 'proof-or-stop-review-topology-critic' });
 const beforeZeroNewAdvance = JSON.stringify(reloaded.readReviewInventoryEpochs(storyId));
 assert.throws(
   () => cli(first.root, 'review_inventory_wave_advance', { storyId }),
@@ -605,7 +609,7 @@ assert.throws(
 // Restore the exact frozen semantic subject so the remaining independent
 // receipt/aggregate tests can exercise their intended rejection boundaries.
 reloaded.writeProofStoryContract(storyId, originalProofStoryContract);
-unlinkSync(join(first.root, '.lattice/story/actives', storyId, 'scope-shrinkage-decision.json'));
+unlinkSync(first.store.storyFilePath(storyId, 'scope-shrinkage-decision.json'));
 assert.ok(finalizedUnconsumedReviewInventory(reloaded, storyId), 'finalized signed receipt is visible to the begin barrier');
 assert.throws(() => cli(first.root, 'review_inventory_begin', { storyId }), /REVIEW_INVENTORY_RECEIPT_UNCONSUMED/);
 const finalizedData = reloaded.readReviewInventoryEpochs(storyId);
@@ -616,7 +620,7 @@ assert.throws(
   () => cli(first.root, 'review_pass_set', {
     storyId, agent: sealedLane, reviewRunId: sealedRun.reviewRunId,
     note: 'Late pass must not mutate a finalized review inventory.', readManifest, readEvents,
-  }, { LATTICE_AGENT: sealedLane, LATTICE_SESSION_ID: sealedRun.sessionId }),
+  }, { PROOF_OR_STOP_AGENT: sealedLane, PROOF_OR_STOP_SESSION_ID: sealedRun.sessionId }),
   /REVIEW_INVENTORY_EVIDENCE_SEALED/,
   'review_pass_set cannot append after FINALIZED',
 );
@@ -626,7 +630,7 @@ assert.throws(
     desc: 'Late verified finding must not escape the finalized aggregate.',
     severity: 'medium', category: 'adversarial', evidenceState: 'verified',
     files: ['packages/main/src/subject.ts'], readManifest, readEvents,
-  }, { LATTICE_AGENT: sealedLane, LATTICE_SESSION_ID: sealedRun.sessionId }),
+  }, { PROOF_OR_STOP_AGENT: sealedLane, PROOF_OR_STOP_SESSION_ID: sealedRun.sessionId }),
   /REVIEW_INVENTORY_EVIDENCE_SEALED/,
   'finding_add cannot append after FINALIZED',
 );
@@ -682,7 +686,7 @@ assert.throws(
     desc: 'An old review run cannot append evidence after DEV phase publication.',
     severity: 'medium', category: 'adversarial', evidenceState: 'verified',
     files: ['packages/main/src/subject.ts'], readManifest, readEvents,
-  }, { LATTICE_AGENT: sealedLane, LATTICE_SESSION_ID: sealedRun.sessionId }),
+  }, { PROOF_OR_STOP_AGENT: sealedLane, PROOF_OR_STOP_SESSION_ID: sealedRun.sessionId }),
   /REVIEW_EVIDENCE_PHASE_REQUIRED/,
   'F030: reviewer evidence is phase-bound, so DEV cannot accept an old-run writer',
 );
@@ -833,8 +837,8 @@ const cancelRace = setup();
 cli(cancelRace.root, 'review_inventory_begin', { storyId });
 const raceLane = 'proof-or-stop-review-concept';
 const raceSession = 'sess-inventory-cancel-race';
-cli(cancelRace.root, 'dispatch', { storyId, agentType: raceLane }, { LATTICE_AGENT: raceLane, LATTICE_SESSION_ID: raceSession });
-const raceStarted = cli(cancelRace.root, 'review_run_start', { storyId, agent: raceLane }, { LATTICE_AGENT: raceLane, LATTICE_SESSION_ID: raceSession });
+cli(cancelRace.root, 'dispatch', { storyId, agentType: raceLane }, { PROOF_OR_STOP_AGENT: raceLane, PROOF_OR_STOP_SESSION_ID: raceSession });
+const raceStarted = cli(cancelRace.root, 'review_run_start', { storyId, agent: raceLane }, { PROOF_OR_STOP_AGENT: raceLane, PROOF_OR_STOP_SESSION_ID: raceSession });
 const raceRunId = raceStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(raceRunId);
 const [cancelRaceResult, findingRaceResult] = await Promise.all([
@@ -844,7 +848,7 @@ const [cancelRaceResult, findingRaceResult] = await Promise.all([
     desc: 'Concurrent finding is either durably before cancel or rejected after its boundary.',
     severity: 'high', category: 'adversarial', evidenceState: 'verified',
     files: ['packages/main/src/subject.ts'], readManifest, readEvents,
-  }, { LATTICE_AGENT: raceLane, LATTICE_SESSION_ID: raceSession }),
+  }, { PROOF_OR_STOP_AGENT: raceLane, PROOF_OR_STOP_SESSION_ID: raceSession }),
 ]);
 assert.equal(cancelRaceResult.ok, true, cancelRaceResult.output);
 if (!findingRaceResult.ok) assert.match(findingRaceResult.output, /REVIEW_INVENTORY_EVIDENCE_SEALED/);
@@ -894,8 +898,8 @@ assert.match(cli(finalizedRecovery.root, 'review_inventory_begin', { storyId }),
 const carryForward = setup();
 const carryLane = 'proof-or-stop-review-concept';
 const carrySession = 'sess-inventory-carry-forward';
-cli(carryForward.root, 'dispatch', { storyId, agentType: carryLane }, { LATTICE_AGENT: carryLane, LATTICE_SESSION_ID: carrySession });
-const carryStarted = cli(carryForward.root, 'review_run_start', { storyId, agent: carryLane }, { LATTICE_AGENT: carryLane, LATTICE_SESSION_ID: carrySession });
+cli(carryForward.root, 'dispatch', { storyId, agentType: carryLane }, { PROOF_OR_STOP_AGENT: carryLane, PROOF_OR_STOP_SESSION_ID: carrySession });
+const carryStarted = cli(carryForward.root, 'review_run_start', { storyId, agent: carryLane }, { PROOF_OR_STOP_AGENT: carryLane, PROOF_OR_STOP_SESSION_ID: carrySession });
 const carryRunId = carryStarted.match(/Review run (\S+) started/)?.[1];
 assert.ok(carryRunId);
 const carryFindingOutput = cli(carryForward.root, 'finding_add', {
@@ -903,7 +907,7 @@ const carryFindingOutput = cli(carryForward.root, 'finding_add', {
   desc: 'Pre-epoch verified finding must survive cancel and begin recovery.',
   severity: 'high', category: 'adversarial', evidenceState: 'verified',
   files: ['packages/main/src/subject.ts'], readManifest, readEvents,
-}, { LATTICE_AGENT: carryLane, LATTICE_SESSION_ID: carrySession });
+}, { PROOF_OR_STOP_AGENT: carryLane, PROOF_OR_STOP_SESSION_ID: carrySession });
 const carryFindingId = carryFindingOutput.match(/(B-inventory-handler:F-\d+)/)?.[1];
 assert.ok(carryFindingId);
 cli(carryForward.root, 'review_inventory_begin', { storyId });
@@ -1190,12 +1194,12 @@ cli(publicationRace.root, 'review_inventory_begin', { storyId });
 const publicationLane = 'proof-or-stop-review-concept';
 const publicationSession = 'sess-review-run-publication-race';
 cli(publicationRace.root, 'dispatch', { storyId, agentType: publicationLane }, {
-  LATTICE_AGENT: publicationLane, LATTICE_SESSION_ID: publicationSession,
+  PROOF_OR_STOP_AGENT: publicationLane, PROOF_OR_STOP_SESSION_ID: publicationSession,
 });
 const publicationReady = join(publicationRace.root, 'review-run-publication.ready');
 const runPublication = cliAsync(publicationRace.root, 'review_run_start', { storyId, agent: publicationLane }, {
-  LATTICE_AGENT: publicationLane,
-  LATTICE_SESSION_ID: publicationSession,
+  PROOF_OR_STOP_AGENT: publicationLane,
+  PROOF_OR_STOP_SESSION_ID: publicationSession,
   NODE_ENV: 'test',
   LATTICE_INTERNAL_REVIEW_RUN_HOLD_MS: '1000',
   LATTICE_INTERNAL_REVIEW_RUN_READY_FILE: publicationReady,
@@ -1213,7 +1217,7 @@ assert.throws(
   () => cli(publicationRace.root, 'review_pass_set', {
     storyId, agent: publicationLane, reviewRunId: publishedRunId,
     note: 'A run published before cancel must remain sealed by cancel.', readManifest, readEvents,
-  }, { LATTICE_AGENT: publicationLane, LATTICE_SESSION_ID: publicationSession }),
+  }, { PROOF_OR_STOP_AGENT: publicationLane, PROOF_OR_STOP_SESSION_ID: publicationSession }),
   /REVIEW_INVENTORY_EVIDENCE_SEALED/,
   'F038: cancel cannot fall between inventory precheck and RR durable publication',
 );
@@ -1223,8 +1227,8 @@ const longLanes = ['proof-or-stop-review-concept', 'proof-or-stop-review-quality
 const longRuns = new Map<string, { reviewRunId: string; sessionId: string }>();
 for (const lane of longLanes) {
   const sessionId = `sess-long-holder-${lane}`;
-  cli(longHolder.root, 'dispatch', { storyId, agentType: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
-  const started = cli(longHolder.root, 'review_run_start', { storyId, agent: lane }, { LATTICE_AGENT: lane, LATTICE_SESSION_ID: sessionId });
+  cli(longHolder.root, 'dispatch', { storyId, agentType: lane }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
+  const started = cli(longHolder.root, 'review_run_start', { storyId, agent: lane }, { PROOF_OR_STOP_AGENT: lane, PROOF_OR_STOP_SESSION_ID: sessionId });
   longRuns.set(lane, { reviewRunId: started.match(/Review run (\S+) started/)![1], sessionId });
 }
 const readyFile = join(longHolder.root, 'long-review-pass.ready');
@@ -1235,7 +1239,7 @@ const firstLongPromise = cliAsync(longHolder.root, 'review_pass_set', {
   storyId, agent: longLanes[0], reviewRunId: firstLong.reviewRunId,
   note: 'Long live-holder pass remains authoritative beyond ten seconds.', readManifest, readEvents,
 }, {
-  LATTICE_AGENT: longLanes[0], LATTICE_SESSION_ID: firstLong.sessionId, NODE_ENV: 'test',
+  PROOF_OR_STOP_AGENT: longLanes[0], PROOF_OR_STOP_SESSION_ID: firstLong.sessionId, NODE_ENV: 'test',
   LATTICE_INTERNAL_REVIEW_PASS_HOLD_MS: '11000',
   LATTICE_INTERNAL_REVIEW_PASS_READY_FILE: readyFile,
 });
@@ -1243,7 +1247,7 @@ waitForFile(readyFile);
 const secondLongPromise = cliAsync(longHolder.root, 'review_pass_set', {
   storyId, agent: longLanes[1], reviewRunId: secondLong.reviewRunId,
   note: 'Concurrent waiter must not reclaim a live review-pass lock.', readManifest, readEvents,
-}, { LATTICE_AGENT: longLanes[1], LATTICE_SESSION_ID: secondLong.sessionId, NODE_ENV: 'test' });
+}, { PROOF_OR_STOP_AGENT: longLanes[1], PROOF_OR_STOP_SESSION_ID: secondLong.sessionId, NODE_ENV: 'test' });
 const [firstLongResult, secondLongResult] = await Promise.all([firstLongPromise, secondLongPromise]);
 assert.equal(firstLongResult.ok, true, firstLongResult.output);
 assert.equal(secondLongResult.ok, true, secondLongResult.output);

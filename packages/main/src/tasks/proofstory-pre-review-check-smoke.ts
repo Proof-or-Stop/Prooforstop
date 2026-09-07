@@ -564,8 +564,7 @@ function cli(root: string, command: string, args: Record<string, unknown>, allow
         // verifier. Nested fixture CLI calls must resolve their own adapter
         // actor from the explicit session envelope instead of inheriting that
         // non-dispatch actor marker.
-        PROOF_OR_STOP_AGENT: undefined,
-        LATTICE_AGENT: agent,
+        PROOF_OR_STOP_AGENT: agent,
         ...adapterSessionEnv(sessionTask, agent),
       },
       encoding: 'utf8',
