@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-29bc",
   "mode": "observe",
-  "cutoffAt": "2026-09-07T13:15:24.343Z",
-  "planBasisDigest": "sha256:a28c77405fd507ddb13f2524fb2206220c4915ca0e1cf3cb8d4b46ba1396c318",
+  "cutoffAt": "2026-09-07T15:47:43.849Z",
+  "planBasisDigest": "sha256:4ddb48b009e459eb8c43594047f1823b8154da4ba665065af84d858442f3a8ba",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-29bc",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:a28c77405fd507ddb13f2524fb2206220c4915ca0e1cf3cb8d4b46ba1396c318",
+      "priorPlanBasisDigest": "sha256:4ddb48b009e459eb8c43594047f1823b8154da4ba665065af84d858442f3a8ba",
       "status": "unsupported",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -48,6 +48,9 @@
               "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
               "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+              "scope:file:docs/requirements/baselines/role-prompt-measurement-baseline.json",
               "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
               "scope:file:packages/main/src/cli/command-catalog.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -68,10 +71,11 @@
               "scope:file:packages/main/src/tasks/review-run-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
-              "scope:file:scripts/verify-process-fact-contract.mjs"
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:ca7e2cdad45f2400eeefa5fa0c3ba8ea073e4f286888a1fd9d4468869d0936b8"
+          "resultDigest": "sha256:c60e5e9838a33b3dadc4c3bc8dfaa1cb54148b4e61c1c5afd1cee9c09103ba66"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -94,6 +98,9 @@
               "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
               "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+              "scope:file:docs/requirements/baselines/role-prompt-measurement-baseline.json",
               "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
               "scope:file:packages/main/src/cli/command-catalog.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -114,10 +121,11 @@
               "scope:file:packages/main/src/tasks/review-run-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
-              "scope:file:scripts/verify-process-fact-contract.mjs"
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:9b31f2f458a7e28d7df191cbfa18d1aac6bd960dcad79468a53951b53ee65829"
+          "resultDigest": "sha256:8af6ae5084dc4f6699a2a55916e73f2e4eda387a7ff9e17b1bea2d264a3a1e43"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -140,6 +148,9 @@
               "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
               "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+              "scope:file:docs/requirements/baselines/role-prompt-measurement-baseline.json",
               "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
               "scope:file:packages/main/src/cli/command-catalog.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -160,10 +171,11 @@
               "scope:file:packages/main/src/tasks/review-run-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
-              "scope:file:scripts/verify-process-fact-contract.mjs"
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:04845a3fabbb87901ea65c1f340fdedeb658bd3690e8ea80b1e5b46475d29797"
+          "resultDigest": "sha256:73878f98d77be23254add152fb6f709559362d8be288c00c6ac091b8fdb0e5fe"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -186,6 +198,9 @@
               "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
               "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+              "scope:file:docs/requirements/baselines/role-prompt-measurement-baseline.json",
               "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
               "scope:file:packages/main/src/cli/command-catalog.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -206,10 +221,11 @@
               "scope:file:packages/main/src/tasks/review-run-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
-              "scope:file:scripts/verify-process-fact-contract.mjs"
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:01a1824b5fba8111eb456f26d06b1e37ab94f67e7a6d1abd4966d89f4ec60526"
+          "resultDigest": "sha256:e5d1e76ffd0c6b05e28d52d25f465cc79752211ab600bc49c88e20ae1bf954e8"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -232,6 +248,9 @@
               "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
               "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+              "scope:file:docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+              "scope:file:docs/requirements/baselines/role-prompt-measurement-baseline.json",
               "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
               "scope:file:packages/main/src/cli/command-catalog.ts",
               "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -252,10 +271,11 @@
               "scope:file:packages/main/src/tasks/review-run-smoke.ts",
               "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
-              "scope:file:scripts/verify-process-fact-contract.mjs"
+              "scope:file:scripts/verify-process-fact-contract.mjs",
+              "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
             ]
           },
-          "resultDigest": "sha256:3023576c33e0d89d27ea8b1928cbebe12ef151a69c083dc3ec356a403c5ddf65"
+          "resultDigest": "sha256:466584b1e5f1a2138f914505a4dcb98688615a44cbd6a25919c764471d8883e7"
         }
       ],
       "scopeRefs": [
@@ -264,6 +284,9 @@
         "scope:file:.claude/agents/proof-or-stop-review-story-init.md",
         "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-story-init.md",
         "scope:file:docs/audits/inventory-critic-purpose-isolation.md",
+        "scope:file:docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+        "scope:file:docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+        "scope:file:docs/requirements/baselines/role-prompt-measurement-baseline.json",
         "scope:file:docs/requirements/decisions/review-inventory-epoch-and-saturation-gate.md",
         "scope:file:packages/main/src/cli/command-catalog.ts",
         "scope:file:packages/main/src/core/agent-dispatch-registry.ts",
@@ -284,7 +307,8 @@
         "scope:file:packages/main/src/tasks/review-run-smoke.ts",
         "scope:file:packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
         "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
-        "scope:file:scripts/verify-process-fact-contract.mjs"
+        "scope:file:scripts/verify-process-fact-contract.mjs",
+        "scope:file:scripts/verify-proof-or-stop-prompt-baseline.mjs"
       ],
       "sourceInventoryRefs": [],
       "plannedPathRecords": [],
@@ -323,15 +347,15 @@
         "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
       },
       "binding": {
-        "headHash": "17d34095f2c79d9c3371dff7fc05127d327c033a",
-        "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-        "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+        "headHash": "86c62cbf9621c25829864e63385baead03cfbf29",
+        "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+        "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
         "scopeCheckDigest": "sha256:9a6a908729d570eb0db5a9efae8398408b464b9d1a6bf9b9fe30f3bfb4856438",
-        "scopeContractDigest": "sha256:6d464b50d3f5052a4f78f638a6e950ae2213de4471912513038f5bb23ff1a896",
+        "scopeContractDigest": "sha256:35773483e2967c7c9e7ea30e79a764e61dc09b5ef20eda8707c8ab6611e2e5b5",
         "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "receiptRef": "receipt:coverage-basis:B-29bc:pre_review:dd41b7999675c692",
-      "basisDigest": "sha256:6e4a9484e21cb0c48c0abb10c50b78c3024460bb0ec057f803b9f342ffedf395"
+      "basisDigest": "sha256:06d67699166ff78bfbd87f8ddafe39272ba949e9b0589981bb96168f739b97c8"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
@@ -341,23 +365,23 @@
       "signerPublicKey": "TUhHCWWnF3l4K94Cb2b+UWichXM0znjU7zftclFBBMs=",
       "storyId": "B-29bc",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:6e4a9484e21cb0c48c0abb10c50b78c3024460bb0ec057f803b9f342ffedf395",
+      "basisDigest": "sha256:06d67699166ff78bfbd87f8ddafe39272ba949e9b0589981bb96168f739b97c8",
       "topologyDigest": "sha256:134039d719ecc86e3908811b563bda4ad4a6869c8b96a5a8c8c90a65e2aa2242",
       "scopeCheckDigest": "sha256:9a6a908729d570eb0db5a9efae8398408b464b9d1a6bf9b9fe30f3bfb4856438",
-      "scopeContractDigest": "sha256:6d464b50d3f5052a4f78f638a6e950ae2213de4471912513038f5bb23ff1a896",
-      "headHash": "17d34095f2c79d9c3371dff7fc05127d327c033a",
-      "materialHash": "2d9237537f984f82aaa5a62964126c02efa26f6c46f61af4ea6590b5e4a8eca8",
-      "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+      "scopeContractDigest": "sha256:35773483e2967c7c9e7ea30e79a764e61dc09b5ef20eda8707c8ab6611e2e5b5",
+      "headHash": "86c62cbf9621c25829864e63385baead03cfbf29",
+      "materialHash": "acbb6c308d67dcd56d6f8e544e8b5f159974aff933a9fa6ae4e94a58486c001b",
+      "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
       "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
       "workspaceIdentityDigest": "sha256:aa32dbd8d8c123d673776b04871cb4353c3643a75d695ea5e90ede66ed2fd076",
-      "signature": "7S/fFSYuZJGmeVIRdOhSSjPTS2j6YB1Pds++266No7pd6DjAW36CoeXDti+i7PjaAiYHKsHmI7XGyFQ3ZQXPCA=="
+      "signature": "48+tcAv3Co9jsjz3lF7xJ5ANS8MN7R7EWgz4guNfxnFrxHohN5XctxfSJ+z3YIhDRIj0XHUdskvZjuQskSO4Aw=="
     }
   },
   "topologyDigest": "sha256:134039d719ecc86e3908811b563bda4ad4a6869c8b96a5a8c8c90a65e2aa2242",
   "scopeCheckDigest": "sha256:9a6a908729d570eb0db5a9efae8398408b464b9d1a6bf9b9fe30f3bfb4856438",
-  "scopeContractDigest": "sha256:6d464b50d3f5052a4f78f638a6e950ae2213de4471912513038f5bb23ff1a896",
-  "storyFilesHash": "1243892b62c0974d0f5a20e45ba437f7307558dc7702f869d7b1c0a094822543",
+  "scopeContractDigest": "sha256:35773483e2967c7c9e7ea30e79a764e61dc09b5ef20eda8707c8ab6611e2e5b5",
+  "storyFilesHash": "5b32f2140614b3db75e501644823989797e5e0dfb26c0644486eb40013bc96cb",
   "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
   "evidenceRefs": [
     {
@@ -365,56 +389,56 @@
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:f297a1921acca3ce54d7a9da3409942aac84272068ee149ea458129ddc10e31e"
+      "evidenceDigest": "sha256:52f34d4eb94868deafc4ed233028c97235c8ff29a5eb5a8e72b89a564701e449"
     },
     {
       "intentRef": "CHK-001:adversarial:1",
       "itemId": "CHK-001",
       "evidenceIndex": 3,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:4a8e4c827ff1a92a5070a56e982f0cc4671f99e3363c7056a0f2eac556c25b39"
+      "evidenceDigest": "sha256:67decbe8e43e9d8d92f8e277d9d55051111d9aa53204fc4bc01bdcf454639aff"
     },
     {
       "intentRef": "CHK-001:edge:0",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:f851a19f64dbe9ddc6cbce15155236d65f98fd192ae72993ef1d6c52d106790f"
+      "evidenceDigest": "sha256:d3e36ebbfcc2dbf656cd7ffc2fd79174d097ae6ecf1238f20f7539f3bbf8ed5e"
     },
     {
       "intentRef": "CHK-001:happy:0",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:425e73d189be1a2229e62f42e4b4c8fd64894d0310042a39613fd55aadf64fad"
+      "evidenceDigest": "sha256:8ad46475af501fef847b9970a3f88e9d68517f0ef643ac49a8760e69df291034"
     },
     {
       "intentRef": "CHK-002:adversarial:0",
       "itemId": "CHK-002",
       "evidenceIndex": 2,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:cc3f40405c365e3eee0bf47c51ae2826311f42369cf5dc2cb75befc3025dc7ca"
+      "evidenceDigest": "sha256:1f60a3911519717423a091300192a0e9c576b92d18f4af5f0032da987ebcbff5"
     },
     {
       "intentRef": "CHK-002:adversarial:1",
       "itemId": "CHK-002",
       "evidenceIndex": 3,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:b69fa7e5a3ab3df8b5825a075d4fecbe74baf26e9d93aa6beceeb9e1e6fe662d"
+      "evidenceDigest": "sha256:4754e697a5c62d1f9dcb07d5a6a8358a1685d8e3d9cae75020ba3d54ad941ea9"
     },
     {
       "intentRef": "CHK-002:edge:0",
       "itemId": "CHK-002",
       "evidenceIndex": 1,
       "kind": "docs_check",
-      "evidenceDigest": "sha256:2e956ee5ed47d13606e872051c60d3e268e41cf516bdf39a4c96341bae6cb292"
+      "evidenceDigest": "sha256:302dc8b876ce505d1eea0f3913e9ab4aa3d1c5950a414d44e839603967fc6413"
     },
     {
       "intentRef": "CHK-002:happy:0",
       "itemId": "CHK-002",
       "evidenceIndex": 0,
       "kind": "manual_transcript",
-      "evidenceDigest": "sha256:fe883259cc2cb1d7ba3b9b235506c03a3864916c118528156156337f08147109"
+      "evidenceDigest": "sha256:d1186104d37fed955693145ba8b6acfae5cfedb4c398cfce3c3a60767e6f7700"
     }
   ],
   "executableProof": {
@@ -444,7 +468,7 @@
     "PR_AUTHORITY_INADMISSIBLE"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-09-07T13:15:24.343Z",
+  "issuedAt": "2026-09-07T15:47:43.849Z",
   "signerPublicKey": "uendfEEh3WTk6SOX8NFS9CxZae6O6w72u/FrK9Zqu8s=",
-  "signature": "W5Fq3qLRfJT6ErcL3TTer8QvAMthbAjNI4fDmkjifdhYwtt8eHA6eg/6cwoHiWDXBgmS14xG5Co0iKLa+GsSBQ=="
+  "signature": "MHbPevtMlZC0LLp8XGY0P2vR8EG4UDssSaLsSqeDPw/TyaVT4CZXpKIKB7AXz9lN+HMCk8ab6vwKN69KzwcFCQ=="
 }
