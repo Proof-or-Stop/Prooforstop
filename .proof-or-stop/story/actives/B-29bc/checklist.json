@@ -53,29 +53,147 @@
           {
             "desc": "Before implementation, reproduce the role-author-coupled inventory dispatch refusal through production dispatch and reviewer-run handlers in a disposable Git repository with Harmonynet attribution and an otherwise valid current OPEN inventory whose required lanes have terminated. Passing setup and topology controls distinguish the intended RED from missing dependencies or malformed fixtures. After repair the same assertions prove explicit inventory-completeness dispatch, a signature-valid purpose-bound critic run and terminal read evidence, and an accepted critic receipt over the exact current Finding set without changing Git authors.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
+              "selector": "B29BC_CHK001_MATRIX PASS"
+            }
           }
         ],
         "edge": [
           {
             "desc": "Exercise the public dispatch and run schemas with canonical critic role, accepted compatibility role aliases and more than one ordinary non-role Git identity. Trusted prompt/run artifacts retain the explicit inventory purpose and exact epoch, wave and cutoff. Omitting purpose preserves the existing topology path and its valid-positive and missing-business-author refusal behavior; unrelated roles, unknown purpose values and conflicting purpose arguments are rejected without fallback.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
+              "selector": "B29BC_CHK001_MATRIX PASS"
+            }
           }
         ],
         "adversarial": [
           {
             "desc": "Tamper with, omit or mismatch purpose, Story, epoch, wave, cutoff or signature in dispatch/run bindings; replay after wave advance, cancel, finalization, rebegin, scope change or material drift. Production launch and inventory receipt consumers must revalidate the canonical signed current OPEN subject and reject invalid bindings without issuing a current critic credential. Exercise an interleaving at the existing inventory-lock boundary so a concurrent lifecycle or wave change cannot occur between validation and publication.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
+              "selector": "B29BC_CHK001_MATRIX PASS"
+            }
           },
           {
             "desc": "Verify the inventory path cannot replace independent reviewer execution with matching Git text, a caller-authored actor ID, missing eligible dispatch, stale run, missing or tampered terminal signature/read evidence, or incomplete per-Finding dispositions. A newer pass or replacement run cannot hide an earlier verified Finding on the current inventory subject; failed admission leaves no new accepted inventory-completeness receipt.",
             "type": "cli",
-            "priority": "must"
+            "priority": "must",
+            "verification": {
+              "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
+              "selector": "B29BC_CHK001_MATRIX PASS"
+            }
           }
         ]
-      }
+      },
+      "verificationEvidence": [
+        {
+          "intentRef": "CHK-001:happy:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
+          "result": "pass",
+          "note": "Test-only RED commit 0c726415ea failed explicit inventory dispatch after complete signed required lanes and default topology controls. The current public CLI campaign retains that assertion and proves ordinary-author inventory dispatch, purpose-bound signed ReviewRun, terminal reads and accepted exact-set receipt in legacy and full-envelope modes. Disposable host identities are fixtures, not real independent-host assurance.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ad0c482680a0bb12077556cdb3f791aa09b38dec0e6ce524081d1c7c3b8e7460",
+            "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
+            "selectorMatched": true,
+            "selector": "B29BC_CHK001_MATRIX PASS",
+            "executedAt": "2026-09-07T09:23:22.020Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:f47314bf58233a34f9bacf827717b282d80a13fea914b56e7e35dd731be6b468",
+            "causalReceiptHash": "3201e0061ebebd2dd7c98dda5cc5fa6d70752a76f3079d6c8c35d2d3b29b8982",
+            "commandReruns": 0
+          },
+          "headHash": "f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8",
+          "materialHash": "1369a841626875e3887f7b1d5334989491a3fd6fc4c252448340313e3b8f2c0f",
+          "storyFilesHash": "1a9e57ff66cb58950c81af0a452f0e0e5b5791c6d8b82905e9195ffe403df054",
+          "timestamp": "2026-09-07T09:23:25.496Z"
+        },
+        {
+          "intentRef": "CHK-001:edge:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
+          "result": "pass",
+          "note": "Public canonical and registered-alias ingress, malformed purpose and epoch arguments, omitted/default topology controls, no implicit fallback, and two ordinary Git identities are exercised. The epoch mutation suite supplies current signed subject binding controls. Both programs must exit zero.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ad0c482680a0bb12077556cdb3f791aa09b38dec0e6ce524081d1c7c3b8e7460",
+            "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
+            "selectorMatched": true,
+            "selector": "B29BC_CHK001_MATRIX PASS",
+            "executedAt": "2026-09-07T09:23:22.020Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:f47314bf58233a34f9bacf827717b282d80a13fea914b56e7e35dd731be6b468",
+            "causalReceiptHash": "3201e0061ebebd2dd7c98dda5cc5fa6d70752a76f3079d6c8c35d2d3b29b8982",
+            "commandReruns": 0
+          },
+          "headHash": "f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8",
+          "materialHash": "1369a841626875e3887f7b1d5334989491a3fd6fc4c252448340313e3b8f2c0f",
+          "storyFilesHash": "1a9e57ff66cb58950c81af0a452f0e0e5b5791c6d8b82905e9195ffe403df054",
+          "timestamp": "2026-09-07T09:23:25.496Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:0",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
+          "result": "pass",
+          "note": "Real inventory cancellation versus ReviewRun publication is serialized by the shared lock. Public epoch tamper, dispatch tamper, finalized/rebegun epoch, scope drift, dirty-run and committed source drift controls combine with correctly re-signed nested epoch/wave/cutoff/Story/scope/boundary substitutions. No stale or altered subject may issue authority.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ad0c482680a0bb12077556cdb3f791aa09b38dec0e6ce524081d1c7c3b8e7460",
+            "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
+            "selectorMatched": true,
+            "selector": "B29BC_CHK001_MATRIX PASS",
+            "executedAt": "2026-09-07T09:23:22.020Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:f47314bf58233a34f9bacf827717b282d80a13fea914b56e7e35dd731be6b468",
+            "causalReceiptHash": "3201e0061ebebd2dd7c98dda5cc5fa6d70752a76f3079d6c8c35d2d3b29b8982",
+            "commandReruns": 0
+          },
+          "headHash": "f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8",
+          "materialHash": "1369a841626875e3887f7b1d5334989491a3fd6fc4c252448340313e3b8f2c0f",
+          "storyFilesHash": "1a9e57ff66cb58950c81af0a452f0e0e5b5791c6d8b82905e9195ffe403df054",
+          "timestamp": "2026-09-07T09:23:25.496Z"
+        },
+        {
+          "intentRef": "CHK-001:adversarial:1",
+          "kind": "manual_transcript",
+          "file": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+          "command": "node -e \"const {spawnSync}=require(\\\"node:child_process\\\"); for(const args of [[\\\"packages/main/dist/tasks/review-inventory-handler-smoke.js\\\",\\\"--purpose-only\\\"],[\\\"packages/main/dist/tasks/review-inventory-epoch-smoke.js\\\"]]) { const result=spawnSync(process.execPath,args,{stdio:\\\"inherit\\\"}); if(result.error) throw result.error; if(result.status!==0) process.exit(result.status??1); } console.log(\\\"B29BC_CHK001_MATRIX PASS\\\");\"",
+          "result": "pass",
+          "note": "Public missing dispatch/wrong-role refusals and durable signed terminal reads combine with receipt-level missing or tampered terminal/read evidence, incomplete historical Finding dispositions and superseded run controls. The witness preserves original observations and does not treat Git author text as reviewer independence.",
+          "mechanical": true,
+          "receipt": {
+            "exitCode": 0,
+            "outputDigest": "ad0c482680a0bb12077556cdb3f791aa09b38dec0e6ce524081d1c7c3b8e7460",
+            "outputTail": "B29BC_INVENTORY_SETUP PASS: signed required lanes terminated; default topology controls preserved\nB29BC_CROSS_PURPOSE_TOPOLOGY_REFUSED PASS\nB29BC_INVENTORY_PURPOSE PASS\nB29BC_PURPOSE_SCHEMA_ALIAS_DEFAULT PASS\nB29BC_PURPOSE_FULL_ENVELOPE PASS\nB29BC_PURPOSE_LOCKED_FRESHNESS PASS\nB29BC_PURPOSE_TAMPER_TERMINAL_DISPOSITION PASS\nBaseline mutation-driven redispatches: >=5 (5)\nNew mutation-driven redispatches: 0\nAccepted OPEN commits: 0\nRemediation DEV transitions: 1\nClean final-review epochs: <=1 (1)\nRequired lane count: 3 -> 3 (unchanged)\nRequired host count: 2 -> 2 (unchanged)\nQuality regression counter stalePassAcceptances: 0\nQuality regression counter criticalHighEscapes: 0\nQuality regression counter budgetManufacturedPasses: 0\n{\n  \"result\": \"PASS\",\n  \"replay\": {\n    \"baselineMutationDrivenRedispatches\": 5,\n    \"proposedMutationDrivenRedispatches\": 0,\n    \"discoveryEpochs\": 1,\n    \"acceptedOpenMaterialCommits\": 0,\n    \"stalePassAcceptances\": 0,\n    \"aggregatedRemediationTransitions\": 1,\n    \"finalReviewEpochsWithoutRegression\": 1,\n    \"requiredHostCountBefore\": 2,\n    \"requiredHostCountAfter\": 2,\n    \"requiredLaneCountBefore\": 3,\n    \"requiredLaneCountAfter\": 3,\n    \"criticalHighEscapes\": 0,\n    \"budgetManufacturedPasses\": 0\n  }\n}\nB29BC_CHK001_MATRIX PASS\n",
+            "selectorMatched": true,
+            "selector": "B29BC_CHK001_MATRIX PASS",
+            "executedAt": "2026-09-07T09:23:22.020Z",
+            "timeoutMs": 270000,
+            "executionKey": "ce:v1:f47314bf58233a34f9bacf827717b282d80a13fea914b56e7e35dd731be6b468",
+            "causalReceiptHash": "3201e0061ebebd2dd7c98dda5cc5fa6d70752a76f3079d6c8c35d2d3b29b8982",
+            "commandReruns": 0
+          },
+          "headHash": "f7f80b4aaf7840f6c1f604e5609c2df2b4cfdcf8",
+          "materialHash": "1369a841626875e3887f7b1d5334989491a3fd6fc4c252448340313e3b8f2c0f",
+          "storyFilesHash": "1a9e57ff66cb58950c81af0a452f0e0e5b5791c6d8b82905e9195ffe403df054",
+          "timestamp": "2026-09-07T09:23:25.496Z"
+        }
+      ]
     },
     {
       "id": "CHK-002",
