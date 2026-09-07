@@ -92,9 +92,9 @@
           "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
           "result": "pass",
           "note": "Hermetic case imports restoreBinExecutableBits from scripts/promote-dist.mjs, chmods a temp package bin target from 0644 to 0755 and verifies content is byte-identical.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -102,13 +102,13 @@
             "outputTail": "bin targets: dist/cli.js\ntsc-emitted shebang file mode: 0644 (executable bits: false)\npipeline wrappers wired: scripts/build-main-with-binding.mjs=true, scripts/build-utils-with-binding.mjs=true; staging restoration precedes old-dist eviction: true\nGREEN build pipeline validates and restores package.json bin targets on staging before evicting the old dist\nlive: packages/main/dist/cli.js mode 0755\nGREEN live: packages/main/dist/cli.js is executable\nhermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: true\nGREEN hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits(dist)\nhermetic (a): dist/cli.js mode 0644 -> 0755; restored=[\"dist/cli.js\"]\ncontract: global-cli-bin-target-restored\nGREEN hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored\nGREEN hermetic (b): an absent bin target returns [] without throwing\nhermetic (c): no bin field -> []\nhermetic (c): unparseable package.json -> []\nhermetic (c): missing package.json -> []\nGREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing\nGREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction\nGREEN hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target\nGREEN hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal\nGREEN hermetic (c4): a directory declared as a bin target is rejected before promotion\nGREEN hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c7): an intermediate symlink escape is rejected even when the outside final target is absent\nhermetic (d): dist 0000 -> restoreBinExecutableBits threw code=EACCES\nGREEN hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed\nhermetic (e): staging dist/cli.js mode 0644 -> promoted 0755; staging=false trash=false\nGREEN hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable\nhermetic (f): staging 0000 -> promoteDist threw code=EACCES; dist=true staging=true trash=false\nGREEN hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted\n\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable\n",
             "selectorMatched": true,
             "selector": "contract: global-cli-bin-target-restored",
-            "executedAt": "2026-09-07T00:08:34.599Z",
+            "executedAt": "2026-09-07T09:53:22.099Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:0b2336e801480077a94c564d3b2f46d22e62b4676993280c47ff920a4f102bf7",
-            "causalReceiptHash": "999664c61fbbbd894359253b719afe17c10dfa94df5651ab7c08dad8bea70de6",
+            "executionKey": "ce:v1:196952ad74154fe0974f35d5ea00b87a2d99fa020331721ab987afef6d360cf2",
+            "causalReceiptHash": "aa39b76ef719131b064cb5a70b596bd358cef34fd4f6ca6aeb6fd96ec95fdf59",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.438Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         },
         {
           "intentRef": "CHK-001:happy:1",
@@ -117,9 +117,9 @@
           "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
           "result": "pass",
           "note": "The committed red test (6ef5e9120f) is GREEN in the story worktree after CHK-001 (7e3bef85f0).",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -127,13 +127,13 @@
             "outputTail": "bin targets: dist/cli.js\ntsc-emitted shebang file mode: 0644 (executable bits: false)\npipeline wrappers wired: scripts/build-main-with-binding.mjs=true, scripts/build-utils-with-binding.mjs=true; staging restoration precedes old-dist eviction: true\nGREEN build pipeline validates and restores package.json bin targets on staging before evicting the old dist\nlive: packages/main/dist/cli.js mode 0755\nGREEN live: packages/main/dist/cli.js is executable\nhermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: true\nGREEN hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits(dist)\nhermetic (a): dist/cli.js mode 0644 -> 0755; restored=[\"dist/cli.js\"]\ncontract: global-cli-bin-target-restored\nGREEN hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored\nGREEN hermetic (b): an absent bin target returns [] without throwing\nhermetic (c): no bin field -> []\nhermetic (c): unparseable package.json -> []\nhermetic (c): missing package.json -> []\nGREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing\nGREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction\nGREEN hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target\nGREEN hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal\nGREEN hermetic (c4): a directory declared as a bin target is rejected before promotion\nGREEN hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c7): an intermediate symlink escape is rejected even when the outside final target is absent\nhermetic (d): dist 0000 -> restoreBinExecutableBits threw code=EACCES\nGREEN hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed\nhermetic (e): staging dist/cli.js mode 0644 -> promoted 0755; staging=false trash=false\nGREEN hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable\nhermetic (f): staging 0000 -> promoteDist threw code=EACCES; dist=true staging=true trash=false\nGREEN hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted\n\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable\n",
             "selectorMatched": true,
             "selector": "GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable",
-            "executedAt": "2026-09-07T00:08:35.880Z",
+            "executedAt": "2026-09-07T09:53:24.024Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:82191a76834f35aedb3fe17e88082555858ac64411b150c82e5b9a4cf280acb3",
-            "causalReceiptHash": "784d3aa7b0eaafd20254c3c3e058bcac9c0acafbf5802d77ec47fbcd09fe5626",
+            "executionKey": "ce:v1:6bdd9f5797d25cf180be3d1b589858f0db9fc97b6d667b0ca3a21878d6e3dc7f",
+            "causalReceiptHash": "7bca3098824f144eb414c7ea07721d9a487300cbe88485aafc9d0448073a3d1a",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -142,9 +142,9 @@
           "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
           "result": "pass",
           "note": "Absent bin target path: ENOENT swallowed per target, nothing restored, no throw.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -152,13 +152,13 @@
             "outputTail": "bin targets: dist/cli.js\ntsc-emitted shebang file mode: 0644 (executable bits: false)\npipeline wrappers wired: scripts/build-main-with-binding.mjs=true, scripts/build-utils-with-binding.mjs=true; staging restoration precedes old-dist eviction: true\nGREEN build pipeline validates and restores package.json bin targets on staging before evicting the old dist\nlive: packages/main/dist/cli.js mode 0755\nGREEN live: packages/main/dist/cli.js is executable\nhermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: true\nGREEN hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits(dist)\nhermetic (a): dist/cli.js mode 0644 -> 0755; restored=[\"dist/cli.js\"]\ncontract: global-cli-bin-target-restored\nGREEN hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored\nGREEN hermetic (b): an absent bin target returns [] without throwing\nhermetic (c): no bin field -> []\nhermetic (c): unparseable package.json -> []\nhermetic (c): missing package.json -> []\nGREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing\nGREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction\nGREEN hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target\nGREEN hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal\nGREEN hermetic (c4): a directory declared as a bin target is rejected before promotion\nGREEN hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c7): an intermediate symlink escape is rejected even when the outside final target is absent\nhermetic (d): dist 0000 -> restoreBinExecutableBits threw code=EACCES\nGREEN hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed\nhermetic (e): staging dist/cli.js mode 0644 -> promoted 0755; staging=false trash=false\nGREEN hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable\nhermetic (f): staging 0000 -> promoteDist threw code=EACCES; dist=true staging=true trash=false\nGREEN hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted\n\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable\n",
             "selectorMatched": true,
             "selector": "GREEN hermetic (b): an absent bin target returns [] without throwing",
-            "executedAt": "2026-09-07T00:08:37.185Z",
+            "executedAt": "2026-09-07T09:53:25.945Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:b60553d93d7b9de4b535dca6e704b9f1b7fd53f7b860a3f582a3d51c04a135ae",
-            "causalReceiptHash": "41e0c6c3bedb873028f516d5d1c84c3bbeb26bfb3d684bee9c6c4252f872ef5c",
+            "executionKey": "ce:v1:1359b2506e7b714b349a395a9951e867b7350a2e5621a451cd5d0c6b83d86297",
+            "causalReceiptHash": "c64a99f155692eaabf5db0990191242ac0a2d6d6ea5880878d9c6fa746f07c51",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         },
         {
           "intentRef": "CHK-001:edge:1",
@@ -166,12 +166,12 @@
           "file": "scripts/build-main-with-binding.mjs",
           "result": "pass",
           "note": "Implementer transcript (2026-09-02, worktree B-e256): build #1 with dist absent performed a real emit in 12.5s and left -rwxr-xr-x@ 1 jek staff 1933 Sep 2 16:29 packages/main/dist/cli.js; build #2 took the content-bound fast path in 0.58s with the mode unchanged; PASS red-1734-content-binding (its real rebuilds left cli.js 0755). Mode bits are not part of the build binding digest.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": false,
           "nonMechanicalReason": "A real rebuild plus fast-path skip takes the workspace validation/build lock and 10+ seconds and mutates the gitignored dist, so it is recorded from the implementer transcript rather than pinned as a receipt command.",
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -180,9 +180,9 @@
           "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
           "result": "pass",
           "note": "No bin field, unparseable package.json and missing package.json each return [] and never throw, so promoteDist behaviour is unchanged for those packages.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -190,13 +190,13 @@
             "outputTail": "bin targets: dist/cli.js\ntsc-emitted shebang file mode: 0644 (executable bits: false)\npipeline wrappers wired: scripts/build-main-with-binding.mjs=true, scripts/build-utils-with-binding.mjs=true; staging restoration precedes old-dist eviction: true\nGREEN build pipeline validates and restores package.json bin targets on staging before evicting the old dist\nlive: packages/main/dist/cli.js mode 0755\nGREEN live: packages/main/dist/cli.js is executable\nhermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: true\nGREEN hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits(dist)\nhermetic (a): dist/cli.js mode 0644 -> 0755; restored=[\"dist/cli.js\"]\ncontract: global-cli-bin-target-restored\nGREEN hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored\nGREEN hermetic (b): an absent bin target returns [] without throwing\nhermetic (c): no bin field -> []\nhermetic (c): unparseable package.json -> []\nhermetic (c): missing package.json -> []\nGREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing\nGREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction\nGREEN hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target\nGREEN hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal\nGREEN hermetic (c4): a directory declared as a bin target is rejected before promotion\nGREEN hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c7): an intermediate symlink escape is rejected even when the outside final target is absent\nhermetic (d): dist 0000 -> restoreBinExecutableBits threw code=EACCES\nGREEN hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed\nhermetic (e): staging dist/cli.js mode 0644 -> promoted 0755; staging=false trash=false\nGREEN hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable\nhermetic (f): staging 0000 -> promoteDist threw code=EACCES; dist=true staging=true trash=false\nGREEN hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted\n\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable\n",
             "selectorMatched": true,
             "selector": "GREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing",
-            "executedAt": "2026-09-07T00:08:38.547Z",
+            "executedAt": "2026-09-07T09:53:27.863Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:1eadfb2dd44043c34f7eacd9c4abc9ebf61214c08db8953d5f79583a4fe2da4c",
-            "causalReceiptHash": "a7d297d15a8dd17fcf992551dabe373804956006fab93f01797a80bf8cf4e88a",
+            "executionKey": "ce:v1:4ba2dec7d8b06fa040d6128b1ebe53ce5663b3a83eb2ba150472c97d086866ba",
+            "causalReceiptHash": "3099bc63c18fba6ebe1ce548650cf2a9afe13c28ebe102f1987df7c0af8ce284",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         },
         {
           "intentRef": "CHK-001:adversarial:1",
@@ -205,9 +205,9 @@
           "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
           "result": "pass",
           "note": "The hermetic injected read failure proves non-ENOENT package manifest errors propagate before the old dist is renamed.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -215,13 +215,13 @@
             "outputTail": "bin targets: dist/cli.js\ntsc-emitted shebang file mode: 0644 (executable bits: false)\npipeline wrappers wired: scripts/build-main-with-binding.mjs=true, scripts/build-utils-with-binding.mjs=true; staging restoration precedes old-dist eviction: true\nGREEN build pipeline validates and restores package.json bin targets on staging before evicting the old dist\nlive: packages/main/dist/cli.js mode 0755\nGREEN live: packages/main/dist/cli.js is executable\nhermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: true\nGREEN hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits(dist)\nhermetic (a): dist/cli.js mode 0644 -> 0755; restored=[\"dist/cli.js\"]\ncontract: global-cli-bin-target-restored\nGREEN hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored\nGREEN hermetic (b): an absent bin target returns [] without throwing\nhermetic (c): no bin field -> []\nhermetic (c): unparseable package.json -> []\nhermetic (c): missing package.json -> []\nGREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing\nGREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction\nGREEN hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target\nGREEN hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal\nGREEN hermetic (c4): a directory declared as a bin target is rejected before promotion\nGREEN hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c7): an intermediate symlink escape is rejected even when the outside final target is absent\nhermetic (d): dist 0000 -> restoreBinExecutableBits threw code=EACCES\nGREEN hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed\nhermetic (e): staging dist/cli.js mode 0644 -> promoted 0755; staging=false trash=false\nGREEN hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable\nhermetic (f): staging 0000 -> promoteDist threw code=EACCES; dist=true staging=true trash=false\nGREEN hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted\n\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable\n",
             "selectorMatched": true,
             "selector": "GREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction",
-            "executedAt": "2026-09-07T00:08:39.894Z",
+            "executedAt": "2026-09-07T09:53:29.784Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:c3aa6c2bb1147ab1475b35af817eccfbf6bbf7845bd5c4895749b8d7ffcb9d26",
-            "causalReceiptHash": "db55cbf10f0903f3328f6794fcd60dcfed3ba880cb18dcf82ea1398201ac93b4",
+            "executionKey": "ce:v1:77dcc13a26ed03cb0b5e1037672c78f06e1e0ba87a2f1c7e1a5b96eec4ff6c7b",
+            "causalReceiptHash": "227430f4e896c25c203fbcd1280870d894041444691fa82028bc9800a2d37caa",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         }
       ]
     },
@@ -302,9 +302,9 @@
           "command": "node packages/main/tests/red/red-global-cli-exec-bit.mjs",
           "result": "pass",
           "note": "Committed red test exits 0 in the story worktree.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -312,13 +312,13 @@
             "outputTail": "bin targets: dist/cli.js\ntsc-emitted shebang file mode: 0644 (executable bits: false)\npipeline wrappers wired: scripts/build-main-with-binding.mjs=true, scripts/build-utils-with-binding.mjs=true; staging restoration precedes old-dist eviction: true\nGREEN build pipeline validates and restores package.json bin targets on staging before evicting the old dist\nlive: packages/main/dist/cli.js mode 0755\nGREEN live: packages/main/dist/cli.js is executable\nhermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: true\nGREEN hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits(dist)\nhermetic (a): dist/cli.js mode 0644 -> 0755; restored=[\"dist/cli.js\"]\ncontract: global-cli-bin-target-restored\nGREEN hermetic (a): a 0644 package.json bin target becomes executable with byte-identical content and is reported as restored\nGREEN hermetic (b): an absent bin target returns [] without throwing\nhermetic (c): no bin field -> []\nhermetic (c): unparseable package.json -> []\nhermetic (c): missing package.json -> []\nGREEN hermetic (c): package.json with no bin field, unparseable package.json and missing package.json each return [] without throwing\nGREEN hermetic (c1): non-absence package.json read failures propagate and abort before old-dist eviction\nGREEN hermetic (c2): string-shorthand and multiple bin declarations restore every byte-identical target\nGREEN hermetic (c3): an in-dist basename beginning with two dots is not mistaken for parent traversal\nGREEN hermetic (c4): a directory declared as a bin target is rejected before promotion\nGREEN hermetic (c5): an in-tree symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c6): an intermediate directory symlink cannot chmod a referent outside the promoted tree\nGREEN hermetic (c7): an intermediate symlink escape is rejected even when the outside final target is absent\nhermetic (d): dist 0000 -> restoreBinExecutableBits threw code=EACCES\nGREEN hermetic (d): a non-ENOENT stat/chmod failure on an existing bin target propagates instead of being swallowed\nhermetic (e): staging dist/cli.js mode 0644 -> promoted 0755; staging=false trash=false\nGREEN hermetic (e): promoteDist restores the executable bit on the staging tree so the promoted dist bin target is executable\nhermetic (f): staging 0000 -> promoteDist threw code=EACCES; dist=true staging=true trash=false\nGREEN hermetic (f): a failed staging executable-bit restoration aborts promotion before the old dist is evicted\n\nGREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable\n",
             "selectorMatched": true,
             "selector": "GREEN red-global-cli-exec-bit: rebuilds keep the global bin target executable",
-            "executedAt": "2026-09-07T00:08:35.880Z",
+            "executedAt": "2026-09-07T09:53:24.024Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:82191a76834f35aedb3fe17e88082555858ac64411b150c82e5b9a4cf280acb3",
-            "causalReceiptHash": "784d3aa7b0eaafd20254c3c3e058bcac9c0acafbf5802d77ec47fbcd09fe5626",
+            "executionKey": "ce:v1:6bdd9f5797d25cf180be3d1b589858f0db9fc97b6d667b0ca3a21878d6e3dc7f",
+            "causalReceiptHash": "7bca3098824f144eb414c7ea07721d9a487300cbe88485aafc9d0448073a3d1a",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         },
         {
           "intentRef": "CHK-002:edge:0",
@@ -327,9 +327,9 @@
           "command": "node -e \"const c=JSON.parse(require('fs').readFileSync('proof-or-stop.config.json','utf8'));const e=c.validate.commands.find(x=>(x.args||[]).includes('packages/main/tests/red/red-global-cli-exec-bit.mjs'));console.log('registered='+JSON.stringify(e))\"",
           "result": "pass",
           "note": "Config probe proves the entry is registered with the sibling shape; validation_plan --tier=full --explain lists the file as [material-path] at line 406 (implementer transcript 2026-09-02).",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -337,13 +337,13 @@
             "outputTail": "registered={\"command\":\"node\",\"args\":[\"packages/main/tests/red/red-global-cli-exec-bit.mjs\"],\"timeoutMs\":180000,\"id\":\"red-global-cli-exec-bit\",\"label\":\"B-e256 global CLI rebuild and promotion regression\",\"resources\":[{\"class\":\"git-common-dir\",\"key\":\".\",\"access\":\"shared\"}]}\n",
             "selectorMatched": true,
             "selector": "registered={\"command\":\"node\",\"args\":[\"packages/main/tests/red/red-global-cli-exec-bit.mjs\"],\"timeoutMs\":180000",
-            "executedAt": "2026-09-07T00:08:41.522Z",
+            "executedAt": "2026-09-07T09:53:32.387Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:9122ca50b6da26a1b99f85546fb12b518cb642eac1ee203e3845f569b6fbe77a",
-            "causalReceiptHash": "df66fdb037cad8160ee481435ed4d01548bd91abdb95331b20f2aca22595f8a3",
+            "executionKey": "ce:v1:470b6cc541064a8d41b5feb39fc7bed256b55e35298d6a41bf825a2762c24a34",
+            "causalReceiptHash": "d8d279386d167d4f45ffdc120de48d822473211952a46930774bffb1b5d06d6e",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         },
         {
           "intentRef": "CHK-002:adversarial:0",
@@ -351,12 +351,12 @@
           "file": "packages/main/tests/red/red-global-cli-exec-bit.mjs",
           "result": "pass",
           "note": "Implementer transcript (2026-09-02): RED_REPO_ROOT=/Users/jek/Documents/GitHub/Prooforstop node packages/main/tests/red/red-global-cli-exec-bit.mjs -> exit 1, RED red-global-cli-exec-bit: 5 desired properties not met (pre-fix defect present), including hermetic: scripts/promote-dist.mjs exports restoreBinExecutableBits: false and pipeline restores bin executable bit: false.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": false,
           "nonMechanicalReason": "The discriminating run needs RED_REPO_ROOT pointing at the unfixed main checkout; env-var driven commands cannot be pinned as executable+argv and main changes after merge, so the pre-merge transcript is recorded verbatim.",
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         },
         {
           "intentRef": "CHK-002:edge:1",
@@ -365,9 +365,9 @@
           "command": "node packages/main/dist/tasks/validation-tier-planner-smoke.js",
           "result": "pass",
           "note": "The registered bounded planner smoke invokes production planCli against the real validation universe and emits a concise stable-identity marker.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -375,13 +375,13 @@
             "outputTail": "validation-tier-planner-smoke: running CHK-001 stable command identity cases\n  ok  25 cases passed\n\nvalidation-tier-planner-smoke: running CHK-002 legacy pin resolver cases\n  ok  13 cases passed\n\nvalidation-tier-planner-smoke: running CHK-003 Story input collector cases\n  ok  18 cases passed\n\nvalidation-tier-planner-smoke: running CHK-004 tier planner and widening matrix cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running CHK-005 validation_plan CLI cases\n  ok  19 cases passed\n\nvalidation-tier-planner-smoke: running B-a745 F-022 incomplete hash snapshot cases\n  ok  11 cases passed\n\nvalidation-tier-planner-smoke: running CHK-006 cross-cutting acceptance guards\n  ok  a RED fixture commit precedes the implementing commit for every item this suite declares\n  ok  guard fixtures: GREEN without RED, squashed pair, bare marker fail; reasoned marker passes\n  ok  a temp repository with RED(F-007) squashed into its GREEN fails naming F-007\n  ok  prior-RED acceptance is story-qualified: GREEN(B-xxxx:id) with a prior RED(B-xxxx:id) passes; bare ids and other stories fail\n  ok  a temp repository with RED(B-dc2e:CHK-001) on main before the branch point accepts the branch GREEN(B-dc2e:CHK-001); a bare RED(CHK-001) there rescues nothing\n  ok  merge-base movement: a RED on main after the branch point satisfies the branch GREEN only after git merge main, and only when story-qualified\n  ok  priorRedIds on this real repository does not throw and matches an independent bounded git query\n  ok  priorRedIds reads a merge-base history whose matching subjects exceed 1 MB (the default execFileSync maxBuffer)\n  ok  priorRedIds raises when the git call fails instead of returning an empty set\n[PASS] RED-before-GREEN guard: every GREEN(CHK-nnn) and GREEN(F-nnn) subject on main..HEAD has a preceding RED or a no-RED marker with a reason\n  ok  main..HEAD passes the RED-before-GREEN helper\n  ok  every zod-constrained validation_plan field is still rejected when the schema is bypassed\n  ok  the REAL package.json chain and the REAL RESOURCE_POLICY both register test:validation-tier-planner\n  ok  the real validation_plan output exposes red-global-cli-exec-bit by stable id and label\n  ok  every DoneWhen of CHK-001..CHK-005 is covered by a fixture case that actually ran and passed\ndefault stdout projection: 2507 chars (bound 11000)\n  ok  bound (F-003): the default (VALIDATION_TIER_PLANNER_VERBOSE unset) total stdout of this smoke is under 11000 chars\n\nvalidation-tier-planner-smoke: PASS\n",
             "selectorMatched": true,
             "selector": "ok  the real validation_plan output exposes red-global-cli-exec-bit by stable id and label",
-            "executedAt": "2026-09-07T00:08:50.083Z",
+            "executedAt": "2026-09-07T09:53:40.113Z",
             "timeoutMs": 180000,
-            "executionKey": "ce:v1:5228004ad178e0a3f831083396535262e94982d71c516f17854fe01f8db2f543",
-            "causalReceiptHash": "ea68c09b95700c402172696b1962a65f261b00d68aebc9741417e03c14a21356",
+            "executionKey": "ce:v1:bd27aeb5e4409bbfb5d192aab5e9fe43d086c0955aea6c03353f127a6b880ad8",
+            "causalReceiptHash": "abce0275f697881619591c9f07646ed7e61057d6bb5ec26e2a204a7a585ae0b4",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.666Z"
         }
       ]
     },
@@ -502,9 +502,9 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs",
           "result": "pass",
           "note": "Case 6 of the test: empty global root and null npm root -g both produce an informational pass row naming the npm link command.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -512,13 +512,13 @@
             "outputTail": "ok global-core-realpath\n",
             "selectorMatched": true,
             "selector": "ok global-core-realpath",
-            "executedAt": "2026-09-07T00:09:11.375Z",
+            "executedAt": "2026-09-07T09:54:04.546Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:cbae430224e5113f807a58df29a69070086780fe3e19e82babcc8f37145ff962",
-            "causalReceiptHash": "152b31f644f807de3c9c1007438d1cdd412c520c36c3ec9ba6c0be936130a315",
+            "executionKey": "ce:v1:df54966480f5118fe47a63b4e739151ac27d9d7bad6cf0b0b19acb7c0fbb7940",
+            "causalReceiptHash": "a40fed36ad82e191a640fa9a96a6fa18e2c049e64be2c4c38e4b473969ba1d8e",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.667Z"
         },
         {
           "intentRef": "CHK-003:edge:1",
@@ -527,9 +527,9 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs",
           "result": "pass",
           "note": "The three pre-existing cases (worktree-built CLI resolving to the canonical main checkout accepted; unrelated drift and non-git fallback warn) still pass, plus case 4 (0644 bin target).",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -537,13 +537,13 @@
             "outputTail": "ok global-core-realpath\n",
             "selectorMatched": true,
             "selector": "ok global-core-realpath",
-            "executedAt": "2026-09-07T00:09:11.375Z",
+            "executedAt": "2026-09-07T09:54:04.546Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:cbae430224e5113f807a58df29a69070086780fe3e19e82babcc8f37145ff962",
-            "causalReceiptHash": "152b31f644f807de3c9c1007438d1cdd412c520c36c3ec9ba6c0be936130a315",
+            "executionKey": "ce:v1:df54966480f5118fe47a63b4e739151ac27d9d7bad6cf0b0b19acb7c0fbb7940",
+            "causalReceiptHash": "a40fed36ad82e191a640fa9a96a6fa18e2c049e64be2c4c38e4b473969ba1d8e",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.667Z"
         },
         {
           "intentRef": "CHK-003:adversarial:0",
@@ -552,9 +552,9 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs",
           "result": "pass",
           "note": "Case 4: non-executable bin target warns with chmod +x <abs path>; case 5: realpath inside a .worktrees/ checkout warns with the exact repoint (cd -- <canonical core root> && npm link); neither passes silently.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -562,13 +562,13 @@
             "outputTail": "ok global-core-realpath\n",
             "selectorMatched": true,
             "selector": "ok global-core-realpath",
-            "executedAt": "2026-09-07T00:09:11.375Z",
+            "executedAt": "2026-09-07T09:54:04.546Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:cbae430224e5113f807a58df29a69070086780fe3e19e82babcc8f37145ff962",
-            "causalReceiptHash": "152b31f644f807de3c9c1007438d1cdd412c520c36c3ec9ba6c0be936130a315",
+            "executionKey": "ce:v1:df54966480f5118fe47a63b4e739151ac27d9d7bad6cf0b0b19acb7c0fbb7940",
+            "causalReceiptHash": "a40fed36ad82e191a640fa9a96a6fa18e2c049e64be2c4c38e4b473969ba1d8e",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.667Z"
         },
         {
           "intentRef": "CHK-003:happy:0",
@@ -577,23 +577,23 @@
           "command": "node packages/main/dist/cli.js doctor",
           "result": "pass",
           "note": "doctor (dist/cli.js entry) renders the global-core-realpath row with realpath, version, mode and executable flag on this machine; the row is produced by checkGlobalCoreRealpath in core/runtime-environment-checks.ts. Selector no longer pins the CLI version literal so version bumps on main do not invalidate it.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
-            "outputDigest": "fa6c7980bc3b5c390a6f9c16f7b0d8bf7ce364b769e7bd1c1cdeac70523d3cfd",
+            "outputDigest": "f579f937f0a0ab147404f484e651d3b4594581e3dd9476576dc701c363869678",
             "outputTail": "llback, provider=codex, status=active\n  ✓ B-ec3b: watcher-fallback, provider=codex, status=active\n  ✓ B-f458: watcher-fallback, provider=codex, status=active\n\nstoryDir / gitRoot scan:\n  ✓ storyDir resolves inside the resolved gitRoot\n\nStory metadata protection scan:\n  ✓ story metadata is tracked or protected (40 active leaf/leaves checked)\n  - managed ignore allowlist not fully installed (missing 1 pattern(s))\n  → proof-or-stop doctor --repair to install the managed allowlist so story metadata stays tracked while runtime stays ignored.\n\nRed-evidence policy: red_evidence_policy_missing: pinnedPath (advisory only; doctor is not a gate)\n\nRuntime scan:\n  scope: self\n  runtimeMode: compatibility-launcher (repo-local-dist)\n  status: fail (6 pass, 1 warn, 1 fail)\n  ✓ entrypoint-authority [hard] pass\n  ✓ cli-entrypoint [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main/dist/cli.js\n  ✓ global-core-realpath [hard] /Users/jek/Documents/GitHub/Prooforstop/packages/main version=0.3.278 mode=0755 executable=yes\n    contract: global-core-realpath-pass\n  ✓ project-local-bin [warn] absent\n  ✓ node-version [warn] v26.8.1\n  ✗ package-version [hard] 0.3.277\n    - Proof-or-Stop package versions are missing or inconsistent\n    repair: Align root/package versions and rebuild before publishing or using the global CLI as evidence.\n  ✓ validate-source [warn] source=configured\n  ⚠ external-reference-policy [warn] 790 external refs, connectivityChecked=false\n    - CLAUDE.md:673 story-review.ts:274 is reference-only; no health command semantics found\n    - CLAUDE.md:813 scope-question-resolve.ts:28 is reference-only; no health command semantics found\n    - CLAUDE.md:1235 fn.ts:42 is reference-only; no health command semantics found\n    - README.md:3 https://img.shields.io/badge/arXiv-2607.14890-b31b1b.svg is reference-only; no health command semantics found\n    - ... and 775 more\n    repair: Document the owning health command or mark the reference as policy-only; localhost examples are treated as internal.\n  note: runtime facts describe environment drift; process gates remain in process-fact-registry.\n\nValidation scan:\n  active validate file: none\n  configured commands: 132; discovered fallback labels: package.json test script\n  no-validator warning: no\n  warnings: none\n\nCodex adapter scan:\n  ✓ Codex adapter checks passed (6/8 pass)\n    [!] Codex agent asset resolution: mode=full-asset; promptRegistryHash=6204e20f52c2; assets absent=0 matches-runtime=34 stale=2 override=0; authorityBoundary=localNonAuthorityAudit; This projection is a local admissibility audit of prompt asset ownership; lifecycle completion stays with local gate evidence, receipt bundles, and review quorum.\n    [✓] Codex manifest: global-thin project: Codex adapter behavior runs from the global proof-or-stop CLI (.proof-or-stop/proof-or-stop.json present)\n    [✓] Codex prompt registry: 18 prompt(s) render from package registry; hash=6204e20f52c2\n    [✓] Codex runtime exclusions: no uppercase-only .proof-or-stop-codex/hooks or .proof-or-stop-codex/settings.json\n    [✓] Codex native PreToolUse hook: .codex/hooks.json wires apply_patch/Edit/Write to proof-or-stop-scope-pretool.cjs\n    [✓] Local Codex wrapper: global-thin project: local wrapper not required; use global proof-or-stop codex verify / proof-or-stop codex doctor\n    [!] Global fallback heartbeat: global @proof-or-stop/core resolves to /Users/jek/Documents/GitHub/Prooforstop/packages/main, not current worktree /Users/jek/Documents/GitHub/Prooforstop/.worktrees/B-e256/packages/main; treat global proof-or-stop as heartbeat-only, not current-worktree gate/status evidence\n        → PROOF_OR_STOP_ACTIVITY_SOURCE=codex PROOF_OR_STOP_ACTIVITY_RECORD_READONLY=1 PROOF_OR_STOP_CODEX_ENTRYPOINT=global-fallback proof-or-stop session_brief\n    [✓] Aux command availability: aux_doc_list registered\n\n→ Brief view. Full diagnostics: proof-or-stop doctor --full (or PROOF_OR_STOP_BRIEF_OUTPUT=0); --format=json keeps the full machine shape.\n",
             "selectorMatched": true,
             "selector": "contract: global-core-realpath-pass",
-            "executedAt": "2026-09-07T00:09:03.787Z",
+            "executedAt": "2026-09-07T09:53:55.581Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:356ac0bba6480697bc8d9e4f351e3db8148751b050500de106ffe74d7a21dc66",
-            "causalReceiptHash": "1ad9cc72a1f06a855f4f7c76bac0af794ee7665e6a79cc84bb185233e385c70c",
+            "executionKey": "ce:v1:671df7f951ccf26b59189faa89b752c928cca5c92c30343d0d90f12c35066d53",
+            "causalReceiptHash": "e38182f7ed1f1d7ca64afa2c617d37b51aa1691082f020d2686c3010bdf30b61",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.667Z"
         },
         {
           "intentRef": "CHK-003:happy:1",
@@ -602,9 +602,9 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs",
           "result": "pass",
           "note": "The cross-platform fixture constructs and validates a representative Windows npm command shim and preserves POSIX executable checks.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -612,13 +612,13 @@
             "outputTail": "ok global-core-realpath\n",
             "selectorMatched": true,
             "selector": "ok global-core-realpath",
-            "executedAt": "2026-09-07T00:09:11.375Z",
+            "executedAt": "2026-09-07T09:54:04.546Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:cbae430224e5113f807a58df29a69070086780fe3e19e82babcc8f37145ff962",
-            "causalReceiptHash": "152b31f644f807de3c9c1007438d1cdd412c520c36c3ec9ba6c0be936130a315",
+            "executionKey": "ce:v1:df54966480f5118fe47a63b4e739151ac27d9d7bad6cf0b0b19acb7c0fbb7940",
+            "causalReceiptHash": "a40fed36ad82e191a640fa9a96a6fa18e2c049e64be2c4c38e4b473969ba1d8e",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.667Z"
         },
         {
           "intentRef": "CHK-003:edge:2",
@@ -627,9 +627,9 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs",
           "result": "pass",
           "note": "The fixture self-check rejects zero assertion groups and keeps non-link assertions running when link capabilities are unavailable.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -637,13 +637,13 @@
             "outputTail": "ok global-core-realpath\n",
             "selectorMatched": true,
             "selector": "ok global-core-realpath",
-            "executedAt": "2026-09-07T00:09:11.375Z",
+            "executedAt": "2026-09-07T09:54:04.546Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:cbae430224e5113f807a58df29a69070086780fe3e19e82babcc8f37145ff962",
-            "causalReceiptHash": "152b31f644f807de3c9c1007438d1cdd412c520c36c3ec9ba6c0be936130a315",
+            "executionKey": "ce:v1:df54966480f5118fe47a63b4e739151ac27d9d7bad6cf0b0b19acb7c0fbb7940",
+            "causalReceiptHash": "a40fed36ad82e191a640fa9a96a6fa18e2c049e64be2c4c38e4b473969ba1d8e",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.667Z"
         },
         {
           "intentRef": "CHK-003:adversarial:1",
@@ -652,9 +652,9 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs",
           "result": "pass",
           "note": "Final and intermediate bin-target realpath escapes plus injected realpath EIO remain non-pass with diagnostic evidence.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -662,13 +662,13 @@
             "outputTail": "ok global-core-realpath\n",
             "selectorMatched": true,
             "selector": "ok global-core-realpath",
-            "executedAt": "2026-09-07T00:09:11.375Z",
+            "executedAt": "2026-09-07T09:54:04.546Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:cbae430224e5113f807a58df29a69070086780fe3e19e82babcc8f37145ff962",
-            "causalReceiptHash": "152b31f644f807de3c9c1007438d1cdd412c520c36c3ec9ba6c0be936130a315",
+            "executionKey": "ce:v1:df54966480f5118fe47a63b4e739151ac27d9d7bad6cf0b0b19acb7c0fbb7940",
+            "causalReceiptHash": "a40fed36ad82e191a640fa9a96a6fa18e2c049e64be2c4c38e4b473969ba1d8e",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.667Z"
         },
         {
           "intentRef": "CHK-003:adversarial:2",
@@ -677,9 +677,9 @@
           "command": "node packages/main/tests/global-core-realpath.test.mjs",
           "result": "pass",
           "note": "Missing, unreadable, and mismatched Windows command shims remain non-pass and suppress the healthy contract marker.",
-          "headHash": "e521893d7f88cd585574b33586330f8ed02cf6e0",
-          "materialHash": "b25423a5b29411b85c008f41608c7c19ad4e06ac3fe3870c600507651955e2ee",
-          "storyFilesHash": "efe5a8bf9052626518763f18f38a0a3ba2c4bf01094fa71c3ef0659726252f46",
+          "headHash": "eb5412a3e2b41eaa9fbbdc083b44cf380151a533",
+          "materialHash": "f26eeda5d8851ec6c9699f63a02f28c30771c9c6c53c4adf7a37f45b18c4d3b6",
+          "storyFilesHash": "d8f8888075c898debc4a16048f45ddf872a3f95339020150b3fcdde121894317",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -687,13 +687,13 @@
             "outputTail": "ok global-core-realpath\n",
             "selectorMatched": true,
             "selector": "ok global-core-realpath",
-            "executedAt": "2026-09-07T00:09:11.375Z",
+            "executedAt": "2026-09-07T09:54:04.546Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:cbae430224e5113f807a58df29a69070086780fe3e19e82babcc8f37145ff962",
-            "causalReceiptHash": "152b31f644f807de3c9c1007438d1cdd412c520c36c3ec9ba6c0be936130a315",
+            "executionKey": "ce:v1:df54966480f5118fe47a63b4e739151ac27d9d7bad6cf0b0b19acb7c0fbb7940",
+            "causalReceiptHash": "a40fed36ad82e191a640fa9a96a6fa18e2c049e64be2c4c38e4b473969ba1d8e",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-07T00:09:11.439Z"
+          "timestamp": "2026-09-07T09:54:10.667Z"
         }
       ]
     }
