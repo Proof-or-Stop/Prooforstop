@@ -504,6 +504,121 @@
         "scanEscalationReason": null
       },
       "_hash": "48c6c61f680406efc5c0a2c387aeb38b35d595d73b50f513d16473ddebd9be14"
+    },
+    {
+      "id": "B-0208:RP-017",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "RI-004 completeness review inspected quality RR016 F002, coverage RR017/RP014 and replacement genuinely independent concept RR020/RP016. Earlier RP015 had owner explicit-env identity, so I required independent replacement and do not rely on it. Current lane read coverage supports no additional family beyond F002. Independently inspected validate consumerGate lacking toolVersion clause and verifier script using global includes only: per-producer omission is verified and requires current scoped repair. F001 remains resolved. No runtime identity failure or topology bypass claimed. Finding artifact fully read; pass projections and source regions selectively inspected. This terminal does not resolve F002 or authorize TEST/DONE.",
+      "createdAt": "2026-09-08T15:29:34.128Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-019",
+      "envelopeId": "1955895929a43b318c26adc0414efa9778eb846d3d96cff8d8e7da83e69691c9",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "c531f28a41e014a02a195dfa4204b07ff15268fc06dd25fe614d3bd66c7ae4a4"
+    },
+    {
+      "id": "B-0208:RP-018",
+      "agent": "proof-or-stop-review-topology-critic",
+      "note": "Fresh critic after independent concept RR020/RP016 terminal. Current quality RR016 finding, coverage RR017/RP014 and independent concept RR020/RP016 coverage inspected; owner-token RP015 is not relied upon. Prior RR019 terminal could not bind receipt because it preceded replacement lane terminal; source and aggregate unchanged. Independently verified F002 validate registry omission and global-only verifier assertion, requiring current repair with per-producer checks. No additional family; F001 remains resolved. This pass records completeness discovery only, not F002 resolution or lifecycle approval. Findings fully read in retained context; current lane projections and bounded source sections inspected.",
+      "createdAt": "2026-09-08T15:30:13.190Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-021",
+      "envelopeId": "555b841e26ebe82e5801a363725d4103956be9bdbd0f82aa3b9befdb28c736b3",
+      "writerSessionId": "sess-520d3c92ce15df9ad603ef4912bf2ef0",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/findings.json"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "cd997793d8a28c28843032d0ab69d4da2907a302f5e996f86850459c505aa9b9"
+    },
+    {
+      "id": "B-0208:RP-019",
+      "agent": "proof-or-stop-review-quality",
+      "note": "RI004 wave2 bounded quality saturation at unchanged24950bfd. Rechecked production consumer registry inventory and empty scoped source diff; no distinct additional family beyond verified open F002. F002 remains OPEN and requires current-scope repair of validate semantics and per-producer protection. This discovery terminal does not resolve or dismiss F002 and does not claim lifecycle admission or full-suite PASS.",
+      "createdAt": "2026-09-08T15:31:30.530Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-022",
+      "envelopeId": "580ade44bde96540c72e3a0024765b61eb702bb9543d1fd3c8385efdb5835972",
+      "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [],
+        "filesTriagedByName": [
+          "packages/main/src/core/process-fact-registry.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "2678e004211d31aa6d3a92a1f80ecd3f6a087d026afbda45f509e592f72062a9"
+    },
+    {
+      "id": "B-0208:RP-020",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Independent RI-004 wave-2 concept confirmation: source files remain byte-for-byte unchanged from 24950bfd. Current resolver-callsite and concept-residue scans again show the removed target/cwd manifest lookup only as negative smoke coverage, with no runtime or documentation residue. No distinct finding exists beyond already-open F-002, which is not duplicated.",
+      "createdAt": "2026-09-08T15:31:43.067Z",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "reviewRunId": "B-0208:RR-023",
+      "envelopeId": "971928bb3c4ab044fa3f6905b7f2448f7976c0474524c071ca739a68c818920d",
+      "writerSessionId": "sess-4e7c0959c3e86986b2e2585b3071dd25",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "docs/evidence/evidence-platform-architecture.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "packages/main/src/handlers/checklist.ts",
+          "packages/main/src/handlers/verifier.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "f7cbc459c83284a7dd1825a6bb8fcd7aa252b5114ba2068db281f344668008e4"
     }
   ]
 }

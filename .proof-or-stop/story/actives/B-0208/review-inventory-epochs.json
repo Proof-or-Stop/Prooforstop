@@ -234,7 +234,7 @@
       "reviewRound": "2026-09-08T14:53:58.016Z",
       "state": "OPEN",
       "begunAt": "2026-09-08T15:21:31.926Z",
-      "updatedAt": "2026-09-08T15:21:31.926Z",
+      "updatedAt": "2026-09-08T15:30:50.731Z",
       "cutoff": {
         "headHash": "09d856fc2eb185f12b1c45cf812a600d7e514146",
         "materialHash": "9ca71625279058df31e6ce9e6eb048c41fb8f8b0181ccb785089bdccc7b678e9",
@@ -248,9 +248,58 @@
       ],
       "initialRunSequenceBoundary": 15,
       "maxWaves": 3,
-      "waves": [],
+      "waves": [
+        {
+          "wave": 1,
+          "startedAt": "2026-09-08T15:21:31.926Z",
+          "completedAt": "2026-09-08T15:30:50.731Z",
+          "lanes": [
+            {
+              "lane": "proof-or-stop-review-concept",
+              "reviewRunId": "B-0208:RR-020",
+              "terminal": "pass",
+              "hostIdentity": "008cc00e0cd356762147308cb6f65aedc1877df4b88c95184de14e775bbdab07",
+              "promptIdentity": "0e94825919fae0feefa9cd9de1f277269d6e713680ef3e203fa84a61b75eca2e",
+              "evidenceIds": [
+                "B-0208:RP-016"
+              ],
+              "coverageDigest": "d35196c504ae79dd69d1ffe08ada0e58bb7865834653493e896504681234db6b"
+            },
+            {
+              "lane": "proof-or-stop-review-quality",
+              "reviewRunId": "B-0208:RR-016",
+              "terminal": "finding",
+              "hostIdentity": "1599da1d929ec19662b00f33124b7ff9752948210fb42e279b5a77ecf9a1f10c",
+              "promptIdentity": "e279910af15115502cc2767cf9c63a3acfc52a4a9d50bbbb9bfc76473a76b13a",
+              "evidenceIds": [
+                "B-0208:F-002"
+              ],
+              "coverageDigest": "71884e1e3c04b27be8d17421913e614f2991067414675d0db3f98f2125655846"
+            },
+            {
+              "lane": "proof-or-stop-review-test-coverage",
+              "reviewRunId": "B-0208:RR-017",
+              "terminal": "pass",
+              "hostIdentity": "1599da1d929ec19662b00f33124b7ff9752948210fb42e279b5a77ecf9a1f10c",
+              "promptIdentity": "2c680417fca2255a09e9631dbe59bcf7ecba068a6ff519ff0384491b46df4a9a",
+              "evidenceIds": [
+                "B-0208:RP-014"
+              ],
+              "coverageDigest": "573e15dcfb7362ec98e86948e314d6779666f5eda63853f054a7426e900b8ced"
+            }
+          ],
+          "verifiedFindingFamilies": [
+            "causal-version-per-producer-registry-contract-coverage"
+          ],
+          "verifiedFindingSetDigest": "a4df7ebea583156c247d7ad06fe1eb0ac1e6caa5932ef6b5812bdf5b117ed58c",
+          "newVerifiedFindingCount": 1,
+          "criticDigest": "d0898cca4bdc5a140cef6de0a4132a7fdcff0ce3410a312a5b6f8e61e4d90cf6",
+          "saturated": false,
+          "nextRunSequenceBoundary": 21
+        }
+      ],
       "baselineFindingIds": [],
-      "_hash": "d333f8fad500d0ea36aaa4100c8d65f81c82e3b426f337891490b11a359b2334"
+      "_hash": "c4ac7ca4d030a928830d46775fd61089c0df9d69adcac4dda6bcc80f8a9f07f3"
     }
   ],
   "receipts": [
@@ -409,6 +458,37 @@
       "findingDispositions": [],
       "createdAt": "2026-09-08T14:59:27.746Z",
       "_hash": "ca7e7d2ff285cdec8a15bb29f7a9829fc7d7d9566e62ba9d7b865b75465fcdcc"
+    },
+    {
+      "schemaVersion": "proofbound.review_inventory_critic_receipt.v1",
+      "criticReceiptId": "B-0208:RI-004:CRIT-01",
+      "epochId": "B-0208:RI-004",
+      "storyId": "B-0208",
+      "reviewRound": "2026-09-08T14:53:58.016Z",
+      "wave": 1,
+      "cutoff": {
+        "headHash": "09d856fc2eb185f12b1c45cf812a600d7e514146",
+        "materialHash": "9ca71625279058df31e6ce9e6eb048c41fb8f8b0181ccb785089bdccc7b678e9",
+        "storyFilesHash": "50088399a0ad3887400c36b9531d8dc1fa0f843b238310cf3a6c9f7fab623d0a"
+      },
+      "aggregateFindingSetDigest": "a4df7ebea583156c247d7ad06fe1eb0ac1e6caa5932ef6b5812bdf5b117ed58c",
+      "requiredLaneCoverageDigest": "18c00a97b896d6e9d255b1e247a2a3f5129e0994d9e05bd741f5b08431a58edc",
+      "criticLane": "proof-or-stop-review-topology-critic",
+      "reviewRunId": "B-0208:RR-021",
+      "terminalEvidenceIds": [
+        "B-0208:RP-018"
+      ],
+      "readEvidenceDigest": "c968917247ec83f6f03a55e135345d0efb0d7a881c9e067612240561cc4719d6",
+      "findingDispositions": [
+        {
+          "findingId": "B-0208:F-002",
+          "disposition": "verified_family",
+          "familyKey": "causal-version-per-producer-registry-contract-coverage",
+          "reason": "Independent source inspection confirms validate consumerGate omits executing-CLI causal identity and global includes verifier cannot reject individual producer omissions. Runtime resolver remains correct. This current scoped documentation and regression coverage defect requires validate semantics plus per-producer assertions. Preserve low severity, original advisory and current repair obligation."
+        }
+      ],
+      "createdAt": "2026-09-08T15:30:18.897Z",
+      "_hash": "79e87139d79fe35b160d4a986edbbfa6c60e9ac282cbb7e03d354df488cb5388"
     }
   ]
 }
