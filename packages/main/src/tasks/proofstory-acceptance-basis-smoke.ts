@@ -173,6 +173,18 @@ function writeCanonicalAcceptanceRegistration(root: string): void {
   // relevant -- they must be stubbed here too, or they surface as snapshot_missing blind spots.
   write(root, 'packages/main/src/core/acceptance-rollout.ts', 'export const acceptanceRollout = "acceptance_basis acceptance_basis_generate";\n');
   write(root, 'scripts/run-proofstory-acceptance-rollout-cohort.mjs', 'export const acceptanceRolloutCohortRunner = true;\n');
+  // The current registration resolves these shared validation dependencies while
+  // sealing a PLAN-time snapshot.  They are not implementation prerequisites of
+  // this fixture, but the synthetic workspace must contain every source ref the
+  // real registry declares or the control case becomes spuriously partial.
+  for (const path of [
+    'packages/main/src/core/evidence-freshness.ts',
+    'packages/main/src/core/material-path-policy.ts',
+    'packages/main/src/core/shared-validation-execution.ts',
+    'packages/main/src/core/story-aware-validation.ts',
+    'packages/main/src/core/story-owner-lease.ts',
+    'packages/main/src/core/validation-execution-lock.ts',
+  ]) write(root, path, 'export const fixtureDependency = true;\n');
   // Inventory artifact registry lists these as producer/consumer source refs, so the
   // bounded snapshot closure requires them once that entry is live.
   write(root, 'packages/main/src/core/machine.ts', 'export const machine = "acceptance_basis";\n');
