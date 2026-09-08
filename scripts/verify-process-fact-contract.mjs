@@ -8410,6 +8410,15 @@ function assertFilePatterns(entryName, relPath, patterns) {
 
 const inventory = [
   {
+    name: 'Explicit Lab maintenance integration boundary',
+    files: [
+      { relPath: 'packages/main/src/core/process-fact-registry.ts', patterns: ['runtime:lab_local_maintenance_integration', 'never Story REVIEW/TEST/DONE'] },
+      { relPath: 'scripts/lab-worktree.mjs', patterns: ['acquireMainWriteLock', 'createHmac', 'Fresh GREEN', 'synced-green', 'candidate-green', 'main-green', '--ff-only', "phase = 'verified'", "'branch', '-d'"] },
+      { relPath: 'docs/lab-maintenance.md', patterns: ['not formal Story', 'RED', 'GREEN', '--confirm'] },
+    ],
+  },
+
+  {
     name: 'phase advance',
     files: [
       {

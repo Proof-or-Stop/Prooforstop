@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased - Temporary Lab maintenance
+
+- Added manually invoked create, sync, RED/GREEN, release preparation recovery,
+  and local finish commands for bounded system bugs and performance regressions.
+- Reused the main write lock and synchronized version rules. Finish records
+  maintenance notes, verifies the candidate and main, and only then removes the
+  worktree and merged branch; failures retain the workspace and local audit record.
+- Lab provenance remains separate from formal Story and product-release evidence.
+- Verification: isolated Git lifecycle scenarios, shared version-bump regression
+  assertions, main-package build, and process/runtime contract checks.
+
 ## Proof-or-Stop v0.3.267 - 2026-08-20
 
 This release completes the state and package identity migration, strengthens signed

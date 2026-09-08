@@ -161,6 +161,19 @@ free-form text such as "checks passed" as evidence.
   instead of hard-coding paths. Story evidence is a process artifact, not a
   runtime artifact.
 
+## Explicit Lab maintenance exception
+
+When the user explicitly requests a Lab for a bounded system bug or performance
+regression, use the repository-local `npm run lab:worktree -- ...` commands and
+[the Lab maintenance guide](docs/lab-maintenance.md). This is an authorized local
+maintenance exception to Story lifecycle administration, not a replacement for
+normal Stories. Create/sync from local main, record target RED, commit the minimal
+repair, and record GREEN. Only an explicit user integration request authorizes
+`finish --confirm`. Finish follows shared version rules and records changes;
+remove the worktree and merged branch only after verified local integration.
+Failures retain the workspace. Never label Lab records as formal Story DONE or
+signed product-release evidence, disable hooks, or push automatically.
+
 ## Story lifecycle
 
 Always use the `hint` and structured blocker output returned by

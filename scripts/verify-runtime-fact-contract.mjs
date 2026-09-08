@@ -59,6 +59,10 @@ async function importDist(root, relPath) {
 async function main() {
   const root = findRepoRoot(process.cwd());
   const registrySource = read(root, 'packages/main/src/core/runtime-fact-registry.ts');
+  check(registrySource.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS'), 'Lab optional runtime requirements must be registered');
+  const labLoader = read(root, 'scripts/lab-source-loader.mjs');
+  check(labLoader.includes('LAB_MAINTENANCE_RUNTIME_REQUIREMENTS') && labLoader.includes('process.features.typescript') && labLoader.includes('nodeModule.registerHooks'), 'Lab source loader must consume its runtime contract and check native capabilities');
+
   const checksSource = read(root, 'packages/main/src/core/runtime-environment-checks.ts');
   const cliEngineSource = read(root, 'packages/main/src/cli-engine.ts');
   const doctorSource = read(root, 'packages/main/src/handlers/doctor.ts');

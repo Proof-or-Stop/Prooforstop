@@ -153,3 +153,12 @@ export function getRuntimeFactEntry(id: RuntimeFactId): RuntimeFactRegistryEntry
   if (!entry) throw new Error(`unknown runtime fact: ${id}`);
   return entry;
 }
+
+/** Optional self-maintenance runtime; this does not raise the general CLI floor. */
+export const LAB_MAINTENANCE_RUNTIME_REQUIREMENTS = {
+  scope: 'self-maintenance-only',
+  nativeTypeScript: true,
+  synchronousModuleHooks: true,
+  execution: 'checkout-source',
+  globalInstallationMutation: false,
+} as const;

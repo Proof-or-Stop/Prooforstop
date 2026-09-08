@@ -1781,7 +1781,19 @@ export const PROCESS_FACT_REQUIRED_ARTIFACTS = PROCESS_FACT_ARTIFACTS.filter(
   (entry) => entry.artifact && PROCESS_FACT_REQUIRED_ARTIFACT_NAMES.includes(entry.artifact.path as typeof PROCESS_FACT_REQUIRED_ARTIFACT_NAMES[number]),
 ) as readonly ProcessFactRegistryEntry[];
 
+// Lab maintenance is an explicit local integration exception, never Story evidence.
+export const PROCESS_FACT_LAB_MAINTENANCE = [{
+  name: 'runtime:lab_local_maintenance_integration',
+  kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'validation-result', 'gate-evidence'],
+  level: 'L4',
+  producer: 'scripts/lab-worktree.mjs',
+  consumerGate: 'Lab finish only; never Story REVIEW/TEST/DONE',
+  rationale: 'Explicit local finish requires a keyed tool-recorded RED command and fresh committed GREEN; replays after synchronizing main and on the prepared candidate and main. The shared main write lock, unchanged HEAD checks, synchronized version helper and fast-forward-only merge protect integration. Cleanup requires post-merge verification and ancestor reachability and never force-deletes. These local records grant no formal Story or signed product-release credentials.',
+}] as const satisfies readonly ProcessFactRegistryEntry[];
+
 export const PROCESS_FACT_REGISTRY: readonly ProcessFactRegistryEntry[] = [
+  ...PROCESS_FACT_LAB_MAINTENANCE,
   ...COMMAND_PROCESS_FACTS,
   ...PROCESS_FACT_REVIEWER_LANES,
   ...PROCESS_FACT_ARTIFACTS,
