@@ -35,6 +35,14 @@
         "fixEvidence": "Commit b0d262e5df updates only four approved baseline files. Default verifier and manifest/baseline/matrix mutation probes PASS; all18roles remain and unauthorized repinning is rejected.",
         "reproTest": "node scripts/verify-proof-or-stop-prompt-baseline.mjs"
       }
+    },
+    {
+      "id": "BUG-003",
+      "title": "Dispatch registry regression expects inventory instructions in REVIEW without an OPEN inventory, conflicting with the scoped responsibility contract",
+      "status": "open",
+      "foundAt": "2026-09-08T12:34:48.967Z",
+      "fixedAt": null,
+      "checklistId": "CHK-001"
     }
   ]
 }

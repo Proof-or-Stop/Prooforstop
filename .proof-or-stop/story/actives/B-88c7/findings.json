@@ -236,6 +236,48 @@
       "resolvedReason": "Commit4943d0bd2f propagates selected registered semantics into eligibility, authenticates the optional marker and preserves pre-marker historical calculation. Stable actual pre-fix signed records now omit false FULL_ROLE_CONTRACT_CHANGED and both historical controls pass. Full/incremental/handler regressions and final four tool receipts pass; original dynamic Story probe separately reports approved scope/task drift, not a claimed full GREEN.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-88c7:F-006",
+      "desc": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts:829 still requires review_run_start followed by review_inventory_critic_set merely because line820 changes phase to REVIEW. The fixture never creates an OPEN inventory epoch. Current story-dispatch.ts:977 correctly selects strict topology-only instructions without signed OPEN inventory, so this obsolete assertion fails. Actual required full-suite capture /private/tmp/B88-done-required-full-output.log lines69-90 records flow-stability failure and the exact agent-dispatch-registry assertion at built line594. Independent source inspection confirms no inventory initialization anywhere in this fixture; existing real-handler smoke already covers OPEN inventory and strict topology outside OPEN. This current-Story behavior change left its compatibility test unsynchronized and directly blocks required validation; repair in current Story is required. Replace the obsolete positive inventory expectation with explicit no-epoch setup assertion, positive topology receipt commands and negative inventory-only/critic-set assertions; retain canonical/alias/phase coverage. No production relaxation or test removal is justified.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-quality",
+      "createdAt": "2026-09-08T12:37:47.542Z",
+      "reviewRound": "2026-09-08T12:02:23.829Z",
+      "reviewRunId": "B-88c7:RR-063",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/background.md",
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/handlers/story-dispatch.ts",
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+          "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+        ],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "6c790d77dc54a35ac98ce170ca5d33cadcc23242987719f7af470cdb3b3090d5",
+      "files": [
+        "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+      ],
+      "signatureTag": "missing|ts|packages-main-tasks",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850",
+      "ledgerCommitReceiptId": "lrc_mtsnn9nb_16ha_be8f51df042b4fd9adee32d00e535cd8"
     }
   ]
 }

@@ -99,9 +99,9 @@
       "schemaVersion": "proofbound.certification_window.v1",
       "windowId": "B-88c7:CW-004",
       "storyId": "B-88c7",
-      "state": "RUNNING",
+      "state": "CANCELLED",
       "createdAt": "2026-09-08T12:10:48.907Z",
-      "updatedAt": "2026-09-08T12:11:27.824Z",
+      "updatedAt": "2026-09-08T12:35:49.641Z",
       "frozen": {
         "headHash": "4abd12dc55ddf1e23cb4fc65292e4731c1a9afe9",
         "materialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
@@ -124,8 +124,9 @@
         "authority": "inventory-completeness-only",
         "authorizesTest": false
       },
-      "receiptId": "B-88c7:PRECERT-003",
-      "_hash": "c1829ac5cdfc538e0bcbc1c060d1ef8d25c47891d7273f2bf8801642a1d808fc"
+      "cancelledAt": "2026-09-08T12:35:49.641Z",
+      "cancelReason": "Required full suite revealed BUG-003 stale no-inventory dispatch expectation; reopen bounded test repair",
+      "_hash": "5bceae0d0f6847081c631d529eb99828e88534839e7ca2f3e22b8f91a360fa5c"
     }
   ],
   "receipts": [

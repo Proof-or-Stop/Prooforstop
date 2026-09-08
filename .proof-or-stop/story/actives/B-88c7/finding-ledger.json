@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "5c5d18661524fe9a72bd747bb64f00f52014916adeeb726c3eb1e59d20796b08",
+  "committedLedgerDigest": "4d533808c69b14b084d501a0c45a77f40bbf48e085b4a27efdbbdd8d0e3d1a09",
   "records": [
     {
       "recordId": "lr_mtsczeqv_1i0u_b68c7142577b4aec93be6f640f923b9e",
@@ -375,6 +375,56 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-08T10:46:54.300Z"
+    },
+    {
+      "recordId": "lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:bd8eb66f-ae25-4661-acc9-2956014a1356",
+      "payload": {
+        "id": "B-88c7:F-006",
+        "desc": "packages/main/src/tasks/agent-dispatch-registry-smoke.ts:829 still requires review_run_start followed by review_inventory_critic_set merely because line820 changes phase to REVIEW. The fixture never creates an OPEN inventory epoch. Current story-dispatch.ts:977 correctly selects strict topology-only instructions without signed OPEN inventory, so this obsolete assertion fails. Actual required full-suite capture /private/tmp/B88-done-required-full-output.log lines69-90 records flow-stability failure and the exact agent-dispatch-registry assertion at built line594. Independent source inspection confirms no inventory initialization anywhere in this fixture; existing real-handler smoke already covers OPEN inventory and strict topology outside OPEN. This current-Story behavior change left its compatibility test unsynchronized and directly blocks required validation; repair in current Story is required. Replace the obsolete positive inventory expectation with explicit no-epoch setup assertion, positive topology receipt commands and negative inventory-only/critic-set assertions; retain canonical/alias/phase coverage. No production relaxation or test removal is justified.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-quality",
+        "createdAt": "2026-09-08T12:37:47.542Z",
+        "reviewRound": "2026-09-08T12:02:23.829Z",
+        "reviewRunId": "B-88c7:RR-063",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-88c7/background.md",
+            ".proof-or-stop/story/actives/B-88c7/plan.md"
+          ],
+          "filesTriagedByName": [
+            "packages/main/src/handlers/story-dispatch.ts",
+            "packages/main/src/tasks/agent-dispatch-registry-smoke.ts",
+            "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+          ],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "6c790d77dc54a35ac98ce170ca5d33cadcc23242987719f7af470cdb3b3090d5",
+        "files": [
+          "packages/main/src/tasks/agent-dispatch-registry-smoke.ts"
+        ],
+        "signatureTag": "missing|ts|packages-main-tasks",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "79948683cc9a71f9a6816dbd86cd658e5ee7fde2025e1c58bff03e118d8cccd8",
+      "priorDigest": "5c5d18661524fe9a72bd747bb64f00f52014916adeeb726c3eb1e59d20796b08",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-08T12:37:47.543Z"
     }
   ],
   "receipts": [
@@ -851,6 +901,49 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "f8d8293b2f049f4fb960d43acc95bb022e59369f4a93f1f8f8c785f79c0c2480",
         "signature": "QkB5KUaXrbk5PN5pKQgxA2QTo+DDrxteLO7jNgjtOiMFu2UDL7G7c0+9cOkil1iDAJSNlpv1kuncyVsS/Dn7Ag=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtsnn9nb_16ha_be8f51df042b4fd9adee32d00e535cd8",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:bd8eb66f-ae25-4661-acc9-2956014a1356",
+      "requestDigest": "18e3080d270251b1b42da6e6f9b227a2626dc7e8a5bb0b6edc64991f0aa201ed",
+      "recordIds": [
+        "lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850"
+      ],
+      "priorLedgerDigest": "5c5d18661524fe9a72bd747bb64f00f52014916adeeb726c3eb1e59d20796b08",
+      "committedLedgerDigest": "4d533808c69b14b084d501a0c45a77f40bbf48e085b4a27efdbbdd8d0e3d1a09",
+      "writerSessionId": "sess-adbeff15a6053058f4d17e943364023a",
+      "writerFenceToken": "2bccae5a-1319-4645-a8ec-9ea733012eda",
+      "committedAt": "2026-09-08T12:37:47.543Z",
+      "replayed": false,
+      "exactRequestDigest": "331fd2f7b10523684c41105c2e5b1b7e2e710dedc42ce3d050d14ea3a20b184c",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtsnn9nb_16ha_be8f51df042b4fd9adee32d00e535cd8",
+        "storyId": "B-88c7",
+        "idempotencyKey": "finding_add:bd8eb66f-ae25-4661-acc9-2956014a1356",
+        "exactRequestDigest": "331fd2f7b10523684c41105c2e5b1b7e2e710dedc42ce3d050d14ea3a20b184c",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "5c5d18661524fe9a72bd747bb64f00f52014916adeeb726c3eb1e59d20796b08",
+        "committedLedgerDigest": "4d533808c69b14b084d501a0c45a77f40bbf48e085b4a27efdbbdd8d0e3d1a09",
+        "replayed": false,
+        "committedAt": "2026-09-08T12:37:47.543Z",
+        "writerSessionId": "sess-adbeff15a6053058f4d17e943364023a",
+        "writerLeaseId": "sess-3a086337cc563b750e4116c389ce9cb3",
+        "writerFenceToken": "2bccae5a-1319-4645-a8ec-9ea733012eda",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "a36395e2449e2991dadaf82c284ae6a6712e983b68c472c1612925c13c829e76",
+        "signature": "kVGrLJxmTyA/3TIqVNr4uTwyDHqMtCMohgD7VHigzhasdROsaKTqh5PQPwOCA+DxFjtRp8m0tPG4mR04hJj8AA=="
       }
     }
   ]
