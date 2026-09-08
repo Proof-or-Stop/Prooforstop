@@ -45,6 +45,7 @@ export interface FullPromptAssemblyInput {
   lane?: string;
   createdAt: string;
   launcherSpec?: unknown;
+  reviewerDispatchBindingDigest?: string;
   commandPolicy?: unknown;
   toolPolicy?: unknown;
   systemInstruction?: string;
@@ -1177,6 +1178,7 @@ export function assembleFullPromptEnvelope(input: FullPromptAssemblyInput): Full
     assemblerVersion: PROMPT_ENVELOPE_ASSEMBLER_VERSION,
     dispatchProtocolVersion: PROMPT_DISPATCH_PROTOCOL_VERSION,
     launcherSpecDigest: domainSeparatedDigest('prompt-launcher-spec.v1', input.launcherSpec ?? { kind: input.dispatchKind }),
+    ...(input.reviewerDispatchBindingDigest !== undefined ? { reviewerDispatchBindingDigest: input.reviewerDispatchBindingDigest } : {}),
     commandPolicyDigest: domainSeparatedDigest('prompt-command-policy.v1', input.commandPolicy ?? input.roleContract.allowedCommandIds),
     ...(input.toolPolicy !== undefined ? { toolPolicyDigest: domainSeparatedDigest('prompt-tool-policy.v1', input.toolPolicy) } : {}),
     ...(input.systemInstruction !== undefined ? { systemInstructionDigest: domainSeparatedDigest('prompt-system-instruction.v1', input.systemInstruction) } : {}),
@@ -1311,6 +1313,7 @@ export function verifyFullPromptAssemblyIntegrity(input: {
   roleContract: RoleContract;
   rolePrompt: string;
   dispatchPrompt?: string;
+  reviewerDispatchBindingDigest?: string;
   hostRenderIdentityDigest?: string;
 }): boolean {
   try {
@@ -1358,6 +1361,7 @@ export function verifyFullPromptAssemblyIntegrity(input: {
       && envelope.runtimeSemanticDigest === input.runtimeContract.semanticDigest
       && envelope.runtimeRenderDigest === input.runtimeContract.renderDigest
       && envelope.roleContractVersion === input.roleContract.schemaVersion
+      && envelope.reviewerDispatchBindingDigest === input.reviewerDispatchBindingDigest
       && envelope.roleSemanticDigest === input.roleContract.semanticDigest
       && envelope.roleRenderDigest === input.roleContract.renderDigest
       && envelope.dispatchPromptDigest === (
@@ -1387,6 +1391,7 @@ export function verifyIncrementalPromptAssemblyIntegrity(input: {
   roleContract: RoleContract;
   rolePrompt: string;
   dispatchPrompt: string;
+  reviewerDispatchBindingDigest?: string;
   hostRenderIdentityDigest: string;
 }): boolean {
   try {
@@ -1426,6 +1431,7 @@ export function verifyIncrementalPromptAssemblyIntegrity(input: {
       && envelope.runtimeSemanticDigest === input.runtimeContract.semanticDigest
       && envelope.runtimeRenderDigest === input.runtimeContract.renderDigest
       && envelope.roleContractVersion === input.roleContract.schemaVersion
+      && envelope.reviewerDispatchBindingDigest === input.reviewerDispatchBindingDigest
       && envelope.roleSemanticDigest === input.roleContract.semanticDigest
       && envelope.roleRenderDigest === input.roleContract.renderDigest
       && envelope.dispatchPromptDigest === reviewerDispatchPromptDigest(input.dispatchPrompt)

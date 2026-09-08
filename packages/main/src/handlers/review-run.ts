@@ -332,6 +332,7 @@ export function createReviewRunHandlers(ctx: HandlerContext) {
             createdAt: startedAt,
             dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
             hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
+            reviewerDispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest,
             launcherSpec: {
               reviewedIntentRefs: args.reviewedIntentRefs ?? [],
               dispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest,

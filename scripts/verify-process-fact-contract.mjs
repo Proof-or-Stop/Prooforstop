@@ -4520,6 +4520,16 @@ function assertReviewInventoryRemediationContract() {
     && reviewRunHandler.includes("responsibility.storyFilesHash !== (inventory.cutoff.storyFilesHash ?? '')")
     && reviewRunHandler.indexOf('critic dispatch lacks bound responsibility') < reviewRunHandler.indexOf('const reviewRunId ='),
     'critic new-run responsibility must be digest-bound and compared before run/envelope publication');
+  const envelopeText = read('packages/main/src/core/prompt-envelope.ts');
+  assert(contractsText.includes('reviewerDispatchBindingDigest?: string')
+    && envelopeText.includes('reviewerDispatchBindingDigest: input.reviewerDispatchBindingDigest')
+    && envelopeText.includes('envelope.reviewerDispatchBindingDigest === input.reviewerDispatchBindingDigest')
+    && reviewRunHandler.includes('reviewerDispatchBindingDigest: dispatchBinding.binding.dispatchBindingDigest')
+    && reviewRunText.includes('verifyHistoricalReviewerDispatchBinding')
+    && reviewRunText.includes('expectedDispatchBindingDigest: expected')
+    && reviewRunText.includes("domainSeparatedDigest('prompt-launcher-spec.v1'")
+    && reviewRunText.includes('identities.length !== 1'),
+    'historical envelopes must authenticate and select the original dispatch; legacy fallback requires exact launcher reconstruction');
   const certificationText = read('packages/main/src/handlers/certification-window.ts');
   assert(certificationText.includes('templates\\/agents\\/[^/]+\\.md$')
     && certificationText.includes("matches.length === 1")

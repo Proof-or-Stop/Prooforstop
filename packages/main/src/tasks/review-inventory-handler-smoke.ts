@@ -15,7 +15,9 @@ import {
   signReviewInventoryReceipt,
 } from '../core/review-inventory-epoch.js';
 import { promptRoleContract, promptRoleContractForSemanticDigest } from '../core/prompt-role-contract-registry.js';
-import { verifyReviewRunPromptEnvelope } from '../core/review-run.js';
+import { computePromptEnvelopeId, verifyPromptEnvelopeIntegrity } from '../core/prompt-envelope.js';
+import { domainSeparatedDigest } from '../core/prompt-contracts.js';
+import { verifyHistoricalReviewerDispatchBinding, verifyReviewRunPromptEnvelope } from '../core/review-run.js';
 import { signFinding } from '../core/finding-verify.js';
 import type { Finding, ProofStoryContractData, StoryInfo } from '../core/types.js';
 import { createReviewInventoryHandlers } from '../handlers/review-inventory.js';
@@ -238,6 +240,52 @@ const topologyDispatch = JSON.parse(cli(strictTopology.root, 'dispatch', criticA
 assert.ok(embeddedRoleContract(topologyDispatch.prompt).requiredOutputIds.includes('topology-critic-receipt'),
   'full-envelope topology dispatch retains topology output outside OPEN inventory');
 
+// Real A/B lifecycle: later dispatch must not become the historical run's input.
+const history = setup(false, true);
+cli(history.root, 'review_inventory_begin', { storyId });
+cli(history.root, 'dispatch', criticArgs, criticEnv);
+cli(history.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+const runA = history.store.readReviewRuns(storyId).runs.at(-1)!;
+const dispatchA = history.store.readProcessEvents(storyId).filter(row => row.type === 'dispatch').at(-1)!;
+cli(history.root, 'review_inventory_cancel', { storyId, reason: 'historical dispatch lifecycle witness' });
+cli(history.root, 'review_inventory_begin', { storyId });
+assert.throws(() => cli(history.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv), /dispatch|inventory/);
+cli(history.root, 'dispatch', criticArgs, criticEnv);
+cli(history.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+const runB = history.store.readReviewRuns(storyId).runs.at(-1)!;
+assert.equal(verifyReviewRunPromptEnvelope(history.store, runA).ok, true, 'historical A remains valid after B dispatch');
+assert.equal(verifyReviewRunPromptEnvelope(history.store, runB).ok, true);
+const envelopeA = history.store.readPromptEnvelopes(storyId).envelopes.find(row => row.envelopeId === runA.envelopeId)!;
+assert.equal(envelopeA.reviewerDispatchBindingDigest, dispatchA.dispatchBindingDigest);
+const omittedBinding = { ...envelopeA };
+delete omittedBinding.reviewerDispatchBindingDigest;
+assert.equal(verifyPromptEnvelopeIntegrity(omittedBinding), false, 'omitting the new field invalidates envelope identity');
+assert.equal(verifyPromptEnvelopeIntegrity({ ...envelopeA, reviewerDispatchBindingDigest: '0'.repeat(64) }), false,
+  'tampering the new field invalidates envelope identity');
+for (const refs of [[], ['CHK-001:happy:0', 'CHK-001:edge:0']]) {
+  // Reconstructible pre-field launcher payloads, both default and explicit scoped refs.
+  const legacyEnvelope = { ...omittedBinding, launcherSpecDigest: domainSeparatedDigest('prompt-launcher-spec.v1', {
+    reviewedIntentRefs: refs, dispatchBindingDigest: dispatchA.dispatchBindingDigest, hostRenderHost: dispatchA.hostRenderHost,
+  }) };
+  legacyEnvelope.envelopeId = computePromptEnvelopeId(legacyEnvelope);
+  assert.equal(verifyPromptEnvelopeIntegrity(legacyEnvelope), true);
+  const result = verifyHistoricalReviewerDispatchBinding({ store: history.store, storyId, lane: criticArgs.agentType,
+    reviewRound, projectRoot: history.root, envelope: legacyEnvelope, reviewedIntentRefs: refs });
+  assert.equal(result.ok, true, 'pre-field history selects the exact launcher identity');
+  if (result.ok) assert.equal(result.binding.dispatchBindingDigest, dispatchA.dispatchBindingDigest);
+  if (refs.length) assert.equal(verifyHistoricalReviewerDispatchBinding({ store: history.store, storyId,
+    lane: criticArgs.agentType, reviewRound, projectRoot: history.root, envelope: legacyEnvelope,
+    reviewedIntentRefs: [...refs].reverse() }).ok, false, 'unreconstructible legacy raw-ref order refuses');
+}
+
+const withoutA = Object.create(history.store) as StoryStore;
+withoutA.readProcessEvents = () => history.store.readProcessEvents(storyId).filter(row => row.dispatchBindingDigest !== dispatchA.dispatchBindingDigest);
+assert.equal(verifyReviewRunPromptEnvelope(withoutA, runA).ok, false, 'missing original dispatch cannot fall back to B');
+const corruptA = Object.create(history.store) as StoryStore;
+corruptA.readProcessEvents = () => history.store.readProcessEvents(storyId).map(row => row.dispatchBindingDigest === dispatchA.dispatchBindingDigest
+  ? { ...row, dispatchPrompt: `${row.dispatchPrompt} corrupted` } : row);
+assert.equal(verifyReviewRunPromptEnvelope(corruptA, runA).ok, false, 'tampered original dispatch cannot fall back to B');
+
 function assertCriticDispatchRefused(fixture: ReturnType<typeof setup>, env = criticEnv): void {
   const runs = fixture.store.readReviewRuns(storyId).runs.length;
   const envelopes = fixture.store.readPromptEnvelopes(storyId).envelopes.length;
@@ -262,6 +310,7 @@ for (const mode of [false, true]) {
   cli(fixture.root, 'dispatch', criticArgs, criticEnv);
   git(fixture.root, ['commit', '--allow-empty', '-m', 'metadata-only head advance']);
   cli(fixture.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+  const previousWaveRun = fixture.store.readReviewRuns(storyId).runs.at(-1)!;
   const waveState = fixture.store.readReviewInventoryEpochs(storyId);
   // Signed synthetic checkpoint isolates new-run wave binding in both rollout modes.
   waveState.epochs.at(-1)!.waves.push({ wave: 1, startedAt: reviewRound, lanes: [], verifiedFindingFamilies: [] });
@@ -271,6 +320,16 @@ for (const mode of [false, true]) {
   assertCriticDispatchRefused(fixture);
   cli(fixture.root, 'dispatch', criticArgs, criticEnv);
   cli(fixture.root, 'review_run_start', { storyId, agent: criticArgs.agentType }, criticEnv);
+  if (mode) {
+    const currentWaveRun = fixture.store.readReviewRuns(storyId).runs.at(-1)!;
+    const envelopes = fixture.store.readPromptEnvelopes(storyId).envelopes;
+    const prior = envelopes.find(row => row.envelopeId === previousWaveRun.envelopeId)!;
+    const current = envelopes.find(row => row.envelopeId === currentWaveRun.envelopeId)!;
+    assert.equal(prior.dispatchPromptDigest, current.dispatchPromptDigest, 'wave prompts intentionally have identical bytes');
+    assert.notEqual(prior.reviewerDispatchBindingDigest, current.reviewerDispatchBindingDigest, 'wave identities remain distinct');
+    assert.equal(verifyReviewRunPromptEnvelope(fixture.store, previousWaveRun).ok, true);
+    assert.equal(verifyReviewRunPromptEnvelope(fixture.store, currentWaveRun).ok, true);
+  }
   const state = fixture.store.readReviewInventoryEpochs(storyId);
   state.epochs.at(-1)!.state = 'FINALIZED';
   const { _hash: _hash, ...unsigned } = state.epochs.at(-1)!;

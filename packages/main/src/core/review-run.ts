@@ -638,6 +638,7 @@ export function verifyCurrentReviewerDispatchBinding(args: {
   reviewRound: string;
   projectRoot: string;
   rolloutMode?: 'legacy-full-context' | 'full-envelope';
+  expectedDispatchBindingDigest?: string;
 }): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
   const canonicalLane = canonicalAgentRoleId(args.lane);
   const event = [...args.store.readProcessEvents(args.storyId)].reverse().find(candidate =>
@@ -645,7 +646,8 @@ export function verifyCurrentReviewerDispatchBinding(args: {
     && candidate.targetKind === (canonicalLane === 'proof-or-stop-review-topology-critic' ? 'topology-critic-review' : 'story-review')
     && typeof candidate.agentType === 'string'
     && agentRoleIdsEqual(candidate.agentType, canonicalLane)
-    && candidate.reviewRound === args.reviewRound);
+    && candidate.reviewRound === args.reviewRound
+    && (args.expectedDispatchBindingDigest === undefined || candidate.dispatchBindingDigest === args.expectedDispatchBindingDigest));
   if (!event) {
     return { ok: false, reason: `no trusted story-review dispatch binding for ${args.lane} in the current REVIEW round` };
   }
@@ -761,6 +763,34 @@ function verifyLegacyReviewRunPromptBinding(
   }
 }
 
+/** Historical selection is content-bound, never a latest-dispatch or prompt-only lookup. */
+export function verifyHistoricalReviewerDispatchBinding(args: {
+  store: StoryStore; storyId: string; lane: string; reviewRound: string; projectRoot: string;
+  envelope: PromptEnvelope; reviewedIntentRefs: readonly string[];
+}): { ok: true; binding: VerifiedReviewerDispatchBinding } | { ok: false; reason: string } {
+  let expected = args.envelope.reviewerDispatchBindingDigest;
+  if (expected === undefined) {
+    const matches = args.store.readProcessEvents(args.storyId).filter(event =>
+      event.type === 'dispatch' && event.reviewRound === args.reviewRound
+      && typeof event.agentType === 'string' && agentRoleIdsEqual(event.agentType, args.lane)
+      && typeof event.dispatchBindingDigest === 'string'
+      && domainSeparatedDigest('prompt-launcher-spec.v1', {
+        reviewedIntentRefs: args.reviewedIntentRefs,
+        dispatchBindingDigest: event.dispatchBindingDigest,
+        hostRenderHost: event.hostRenderHost,
+      }) === args.envelope.launcherSpecDigest);
+    const identities = [...new Set(matches.map(event => event.dispatchBindingDigest as string))];
+    if (identities.length !== 1) {
+      return { ok: false, reason: 'historical dispatch launcher identity is missing or cannot be reconstructed exactly' };
+    }
+    expected = identities[0];
+  }
+  return verifyCurrentReviewerDispatchBinding({
+    store: args.store, storyId: args.storyId, lane: args.lane, reviewRound: args.reviewRound,
+    projectRoot: args.projectRoot, expectedDispatchBindingDigest: expected,
+  });
+}
+
 export function verifyReviewRunPromptEnvelope(
   store: StoryStore,
   run: ReviewRun,
@@ -805,12 +835,14 @@ export function verifyReviewRunPromptEnvelope(
   if (resolvedRoleBody.mode !== 'full-envelope') {
     return { ok: false, reason: `Prompt Envelope cannot be consumed while ${canonicalLane} is ${resolvedRoleBody.mode}` };
   }
-  const dispatchBinding = verifyCurrentReviewerDispatchBinding({
+  const dispatchBinding = verifyHistoricalReviewerDispatchBinding({
     store,
     storyId: run.storyId,
     lane: run.lane,
     reviewRound: run.reviewRound,
     projectRoot: metadataRoot,
+    envelope,
+    reviewedIntentRefs: run.scopeBinding?.reviewedIntentRefs ?? [],
   });
   if (!dispatchBinding.ok) return dispatchBinding;
   const assemblyValid = envelope.contextMode === 'incremental'
@@ -820,6 +852,7 @@ export function verifyReviewRunPromptEnvelope(
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
       rolePrompt: resolvedRoleBody.body,
+      reviewerDispatchBindingDigest: envelope.reviewerDispatchBindingDigest === undefined ? undefined : dispatchBinding.binding.dispatchBindingDigest,
       dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
       hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
     })
@@ -829,6 +862,7 @@ export function verifyReviewRunPromptEnvelope(
       runtimeContract: BASELINE_RUNTIME_CONTRACT,
       roleContract,
       rolePrompt: resolvedRoleBody.body,
+      reviewerDispatchBindingDigest: envelope.reviewerDispatchBindingDigest === undefined ? undefined : dispatchBinding.binding.dispatchBindingDigest,
       dispatchPrompt: dispatchBinding.binding.dispatchPrompt,
       hostRenderIdentityDigest: dispatchBinding.binding.hostRenderIdentityDigest,
     });
