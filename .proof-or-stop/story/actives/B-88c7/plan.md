@@ -9,6 +9,8 @@
 - Modify: packages/main/src/core/prompt-registry.ts (registered exact prompt reconstruction digest)
 - Test: packages/main/src/tasks/review-inventory-handler-smoke.ts
 
+- Modify: packages/main/src/core/prompt-role-contract-registry.ts, packages/main/src/handlers/review-run.ts, packages/main/src/core/review-run.ts
+
 **Execution**:
 Use current signed OPEN inventory and REVIEW round to select completeness-only critic instructions. Preserve reviewer dispatch digest, host identity and round bindings. Outside that exact context preserve strict topology implementation provenance. Do not modify topology receipt signing helpers. Update canonical role and managed mirrors to obey the selected responsibility. Add real CLI regression cases before the fix, including ordinary-author success, invalid/missing/closed/stale inventory refusal, and no topology receipt authority. Keep completed-lane and independent-identity checks intact.
 
@@ -23,3 +25,6 @@ Use current signed OPEN inventory and REVIEW round to select completeness-only c
 - Valid inventory completeness dispatch works without dedicated implementer authorship.
 - Invalid contexts cannot select the inventory-only path and topology proof protections remain intact.
 - All declared executable intents have tool-owned evidence and independent review results.
+
+## Verified finding F-001 repair
+Register an immutable inventory-completeness role contract and select it only from a signed OPEN epoch matching the Story and review round, in both dispatch and ReviewRun creation. Reconstruct signed envelope integrity from the registered semantic digest so inventory finalization preserves historical verification. Reject unknown or tampered digests. Keep the default topology contract and receipt authority unchanged. Extend the real handler witness to full-envelope dispatch and run creation, ordinary-author success, invalid contexts, and post-finalization verification while retaining the legacy path.

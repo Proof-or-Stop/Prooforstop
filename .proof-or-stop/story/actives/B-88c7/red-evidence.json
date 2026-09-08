@@ -18,8 +18,25 @@
       },
       "note": "The real target project failure was observed before implementation; bounded handler regression will additionally exercise refusal controls.",
       "createdAt": "2026-09-08T06:55:18.660Z"
+    },
+    {
+      "id": "RED-20260908075743",
+      "trigger": "Verified B-88c7:F-001 full-envelope inventory output contract conflicts with inventory-only responsibility",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "080fc66aea27cf0e92871191531cc5cae882f78f",
+      "baselineMaterialHash": "f765041e792f8e32d21f8b12382a60ae1e3e994745132978bf3449dd44013edf",
+      "observedFailure": "Real full-envelope handler fixture exits 1 at full-envelope inventory contract requires only inventory outputs: actual topology-critic-receipt plus review-finding-or-pass; expected review-finding-or-pass plus review-inventory-critic-receipt. Production implementation remains unchanged for this red witness.",
+      "failingCommand": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+      "expectedGreenCommand": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js"
+      },
+      "note": "Actual red transcript /tmp/B-88c7-F001-red.log was produced by the independent registered implementer before production changes; native Codex and concept finding independently identified the same conflict.",
+      "createdAt": "2026-09-08T07:57:43.267Z"
     }
   ],
   "createdAt": "2026-09-08T06:55:18.660Z",
-  "updatedAt": "2026-09-08T06:55:18.660Z"
+  "updatedAt": "2026-09-08T07:57:43.267Z"
 }

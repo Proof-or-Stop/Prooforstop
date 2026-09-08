@@ -5,13 +5,16 @@
     "B-0208 was permitted to implement through express channel.",
     "Three independent lanes passed before completeness critic dispatch failed.",
     "The topology reviewer binding is currently required unconditionally.",
-    "Current signed review runs already protect critic independence and lane evidence."
+    "Current signed review runs already protect critic independence and lane evidence.",
+    "Verified F-001: inventory-only full envelopes still require a topology receipt through the unconditional role contract; both dispatch and ReviewRun production and verification consume that contract."
   ],
   "constraints": [
     "Do not invent implementer authorship or dispatch records.",
     "Retain topology proof signing and provenance rules.",
     "Only verified current OPEN inventory context selects completeness-only instructions.",
-    "Keep registered role template and rendered mirrors consistent."
+    "Keep registered role template and rendered mirrors consistent.",
+    "Keep the default topology role contract unchanged.",
+    "Select the inventory role contract only from a signed matching OPEN epoch, and verify historical signed envelopes by registered semantic digest after finalization."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -21,7 +24,11 @@
     "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
     ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
     ".claude/agents/proof-or-stop-review-topology-critic.md",
+    "packages/main/src/core/prompt-registry.ts",
+    "packages/main/src/core/prompt-role-contract-registry.ts",
+    "packages/main/src/handlers/review-run.ts",
+    "packages/main/src/core/review-run.ts",
     "packages/main/src/tasks/review-inventory-handler-smoke.ts"
   ],
-  "timestamp": "2026-09-08T06:53:54.247Z"
+  "timestamp": "2026-09-08T07:52:54.291Z"
 }

@@ -1,23 +1,37 @@
 {
   "storyId": "B-88c7",
-  "checkedAt": "2026-09-08T07:14:04.840Z",
+  "checkedAt": "2026-09-08T07:53:43.689Z",
   "features": [
     {
-      "feature": "Valid signed current OPEN inventory permits independent critic dispatch without implementer-specific authorship",
+      "feature": "Valid signed matching OPEN inventory selects completeness-only dispatch without implementer-specific authorship",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
     },
     {
-      "feature": "Missing cancelled finalized tampered or stale-round epochs cannot select inventory-only dispatch",
+      "feature": "Invalid closed tampered or stale contexts retain strict topology dispatch prerequisites",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
     },
     {
-      "feature": "Inventory instructions do not grant topology proof and preserve strict topology provenance elsewhere",
+      "feature": "Dispatch and ReviewRun production select the same registered inventory responsibility contract",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
+    },
+    {
+      "feature": "Signed historical envelope integrity reconstructs the registered semantic digest after inventory finalization and rejects unknown or tampered digests",
+      "covered_by": "CHK-001",
+      "status": "covered",
+      "excluded_by": null,
+      "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
+    },
+    {
+      "feature": "Default topology role contract and topology receipt signing authority remain unchanged",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
@@ -31,14 +45,14 @@
       "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
     },
     {
-      "feature": "Canonical template managed mirrors and registered prompt reconstruction digest remain aligned",
+      "feature": "Canonical template managed mirrors and prompt reconstruction digest remain aligned",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
       "source": ".proof-or-stop/story/actives/B-88c7/plan.md"
     },
     {
-      "feature": "Real CLI regression process-fact verification and actual B-0208 dispatch demonstrate bounded repair",
+      "feature": "Real CLI full-envelope and historical verification regressions cover F-001 within CHK-001",
       "covered_by": "CHK-001",
       "status": "covered",
       "excluded_by": null,
@@ -59,14 +73,14 @@
     "scanEscalationReason": null
   },
   "summary": {
-    "total": 6,
-    "covered": 6,
+    "total": 8,
+    "covered": 8,
     "excluded": 0,
     "gaps": 0,
     "orphanSuspect": 0,
     "drift": 0
   },
-  "reviewRound": "",
-  "_hash": "1c2562f8efc6b2872defa2de3f54ab6b90fb4738146b5f6d6bf500f57de9a71b",
+  "reviewRound": "2026-09-08T07:37:13.526Z",
+  "_hash": "8258113c53b340357cbacdb2f2bb80b6975f251381d381eaa11ac6a84b0c341d",
   "openQuestions": []
 }

@@ -2,15 +2,15 @@
   "schemaVersion": "proofstory.pre_review_check.v1",
   "storyId": "B-88c7",
   "mode": "observe",
-  "cutoffAt": "2026-09-08T07:31:22.557Z",
-  "planBasisDigest": "sha256:d4569bcafca426bf5382f9835ca32a841b8be749650af55b2bb6ca166358d180",
+  "cutoffAt": "2026-09-08T08:08:43.514Z",
+  "planBasisDigest": "sha256:90fccb19f778c206ffbb2a8086b2f4a7ceb4795804f2ccd6f6fdbcadc15f4799",
   "preReviewBasisArtifact": {
     "schemaVersion": "proofstory.acceptance_basis_artifact.v1",
     "basis": {
       "schemaVersion": "proofstory.acceptance_coverage_basis.v1",
       "storyId": "B-88c7",
       "phaseBasis": "pre_review",
-      "priorPlanBasisDigest": "sha256:d4569bcafca426bf5382f9835ca32a841b8be749650af55b2bb6ca166358d180",
+      "priorPlanBasisDigest": "sha256:90fccb19f778c206ffbb2a8086b2f4a7ceb4795804f2ccd6f6fdbcadc15f4799",
       "status": "unsupported",
       "generatedBy": {
         "verifier": "acceptance-coverage-basis-verifier",
@@ -48,13 +48,16 @@
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/prompt-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:0b981fc6ec413a1b77f315f1c126c6e6f57b4fce9fd0bcf4ffb538f7321a7b29"
+          "resultDigest": "sha256:2bc052da15f99f9db1e93782a8d386bee5a38dfe0ac08f2d20ee16b7e06a379b"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -77,13 +80,16 @@
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/prompt-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:b2edd0dfd0f74623a01c2974524146da3108a3f7fb1d4d4ad416ca853ba67338"
+          "resultDigest": "sha256:3c5b2ac074859b0c1b8c821699056db91562f8512bc3bbc0ef35769ce4fd7962"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -106,13 +112,16 @@
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/prompt-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:1d43eef6c721b415c468bf718a01868a82e3c399c3699fa73729a1b6a8132d27"
+          "resultDigest": "sha256:e5d6626405b751b065fe89116d794e7905e60b13f6b45b37e800f453790e7fda"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -135,13 +144,16 @@
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/prompt-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:bcaa8c358fbf641bc4700ab0fd696d65cd18619f0634b5e3e54ff405a5ef0f60"
+          "resultDigest": "sha256:8b9ca37ebc32b8aa7d40de61b8b156cda3e095bd717bb47dfe1128c99d12f22c"
         },
         {
           "schemaVersion": "proofstory.coverage_adapter_result.v1",
@@ -164,13 +176,16 @@
               "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:packages/main/src/core/process-fact-registry.ts",
               "scope:file:packages/main/src/core/prompt-registry.ts",
+              "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+              "scope:file:packages/main/src/core/review-run.ts",
+              "scope:file:packages/main/src/handlers/review-run.ts",
               "scope:file:packages/main/src/handlers/story-dispatch.ts",
               "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
               "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
               "scope:file:scripts/verify-process-fact-contract.mjs"
             ]
           },
-          "resultDigest": "sha256:b632780677ec434225ba1d7ef98ef8580657d19def8f8fc4e19979f635232218"
+          "resultDigest": "sha256:f6cb491dc7b9e0de09c1a0a6a582411d20fde0a22c70f63319a4966e9fa814ce"
         }
       ],
       "scopeRefs": [
@@ -179,6 +194,9 @@
         "scope:file:.proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
         "scope:file:packages/main/src/core/process-fact-registry.ts",
         "scope:file:packages/main/src/core/prompt-registry.ts",
+        "scope:file:packages/main/src/core/prompt-role-contract-registry.ts",
+        "scope:file:packages/main/src/core/review-run.ts",
+        "scope:file:packages/main/src/handlers/review-run.ts",
         "scope:file:packages/main/src/handlers/story-dispatch.ts",
         "scope:file:packages/main/src/tasks/review-inventory-handler-smoke.ts",
         "scope:file:packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
@@ -221,15 +239,15 @@
         "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e"
       },
       "binding": {
-        "headHash": "ae8386a95240a7fedb983969ca70b42940ec2385",
-        "materialHash": "f765041e792f8e32d21f8b12382a60ae1e3e994745132978bf3449dd44013edf",
-        "storyFilesHash": "7a786866f763c98c5ff156d81783b29d9def0caeccdbc1ea7c6e9a661e84dae1",
-        "scopeCheckDigest": "sha256:6fae6300a839e990585d4df2c2e86252226ce85be041abf5b3d464d3d38f7e78",
-        "scopeContractDigest": "sha256:f3f858fea56f3faf4ca52d73bd9724de5781f775982b6b3192604ca3d1a1a8fa",
+        "headHash": "68ee4dc044296fb3d7a3108e650487e1a9c1810a",
+        "materialHash": "70fc1841566b92a4aa6949b0593615756fc2fc344d56183c29c9dcda4347c252",
+        "storyFilesHash": "33f212d183403004663141a3dfdbea804814a559da6ba869613364ee3dca8b20",
+        "scopeCheckDigest": "sha256:ff316291282ef6608f36eddd28f79f7e5a1df96094b5498e7a7b9f02c8598a0e",
+        "scopeContractDigest": "sha256:c37e2d15d4b441f90c70ee53dd9635aeef5cf97bde4bcc64b40ef9291153714b",
         "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       },
       "receiptRef": "receipt:coverage-basis:B-88c7:pre_review:134958ce48a18db5",
-      "basisDigest": "sha256:7531abbca9f43a1bf720f5a065a99bbccc34cc33f89db0bd062867684bda99dc"
+      "basisDigest": "sha256:e4f711d344d4f24bb67c64492316b00d276d6b0c01f8a0ebab94039ec918c698"
     },
     "receipt": {
       "schemaVersion": "proofstory.acceptance_basis_receipt.v1",
@@ -239,23 +257,23 @@
       "signerPublicKey": "KwFmo5bRLWrhI7wKjbpDmQnv+QelTsY549l9lL1TyaY=",
       "storyId": "B-88c7",
       "phaseBasis": "pre_review",
-      "basisDigest": "sha256:7531abbca9f43a1bf720f5a065a99bbccc34cc33f89db0bd062867684bda99dc",
+      "basisDigest": "sha256:e4f711d344d4f24bb67c64492316b00d276d6b0c01f8a0ebab94039ec918c698",
       "topologyDigest": "sha256:5ece70190db47c33b3ace0b38da9e2f62364be6a39d66684fc82c830f07614d5",
-      "scopeCheckDigest": "sha256:6fae6300a839e990585d4df2c2e86252226ce85be041abf5b3d464d3d38f7e78",
-      "scopeContractDigest": "sha256:f3f858fea56f3faf4ca52d73bd9724de5781f775982b6b3192604ca3d1a1a8fa",
-      "headHash": "ae8386a95240a7fedb983969ca70b42940ec2385",
-      "materialHash": "f765041e792f8e32d21f8b12382a60ae1e3e994745132978bf3449dd44013edf",
-      "storyFilesHash": "7a786866f763c98c5ff156d81783b29d9def0caeccdbc1ea7c6e9a661e84dae1",
+      "scopeCheckDigest": "sha256:ff316291282ef6608f36eddd28f79f7e5a1df96094b5498e7a7b9f02c8598a0e",
+      "scopeContractDigest": "sha256:c37e2d15d4b441f90c70ee53dd9635aeef5cf97bde4bcc64b40ef9291153714b",
+      "headHash": "68ee4dc044296fb3d7a3108e650487e1a9c1810a",
+      "materialHash": "70fc1841566b92a4aa6949b0593615756fc2fc344d56183c29c9dcda4347c252",
+      "storyFilesHash": "33f212d183403004663141a3dfdbea804814a559da6ba869613364ee3dca8b20",
       "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
       "sealDigest": "sha256:2b77f9cb596b2d70ccd65cfb87e6e8700c0dff8b12847192682669aaf58e208e",
       "workspaceIdentityDigest": "sha256:c686468c854b86b0ac9aa63f7d13e37f36b27f650cfb3c851d6bf1fd0e8a3e66",
-      "signature": "PzVLqdfrcJBtcNGm5ce4VCj4LIkNFazoPJu+mBhycZw198qiw+tykJyQ07whvsXrfvyAr+208oeSeBdArLQpAA=="
+      "signature": "0JcURTQKsB3/QnTDmf11Jjnfa+SxUZl1qhZrKXay13lK0KwAwJcvI7oa1zzUCApGYjh/tg4Ev5APthFZJVRaAQ=="
     }
   },
   "topologyDigest": "sha256:5ece70190db47c33b3ace0b38da9e2f62364be6a39d66684fc82c830f07614d5",
-  "scopeCheckDigest": "sha256:6fae6300a839e990585d4df2c2e86252226ce85be041abf5b3d464d3d38f7e78",
-  "scopeContractDigest": "sha256:f3f858fea56f3faf4ca52d73bd9724de5781f775982b6b3192604ca3d1a1a8fa",
-  "storyFilesHash": "7a786866f763c98c5ff156d81783b29d9def0caeccdbc1ea7c6e9a661e84dae1",
+  "scopeCheckDigest": "sha256:ff316291282ef6608f36eddd28f79f7e5a1df96094b5498e7a7b9f02c8598a0e",
+  "scopeContractDigest": "sha256:c37e2d15d4b441f90c70ee53dd9635aeef5cf97bde4bcc64b40ef9291153714b",
+  "storyFilesHash": "33f212d183403004663141a3dfdbea804814a559da6ba869613364ee3dca8b20",
   "closureFilesHash": "sha256:4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
   "evidenceRefs": [
     {
@@ -263,28 +281,28 @@
       "itemId": "CHK-001",
       "evidenceIndex": 2,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:728545300efc3f6a41fe7271e1d55538baf512794ac1b1fb3acb799dbd51ee6c"
+      "evidenceDigest": "sha256:395cebd448b3dfa2fff005496e52c7ac2a13462f19dd3a3b7b33f44719e290b7"
     },
     {
       "intentRef": "CHK-001:adversarial:1",
       "itemId": "CHK-001",
       "evidenceIndex": 3,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:f0184d9da15d010ca0af8fe74160b09202a3aa445686b524cd87ebd8b7f6465c"
+      "evidenceDigest": "sha256:b11e4b5278455ba1682bd97d49507809ae3cf90c36b41160a1170a074c11483f"
     },
     {
       "intentRef": "CHK-001:edge:0",
       "itemId": "CHK-001",
       "evidenceIndex": 1,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:4e4ef607f3a909b7d28993dbea18098ad94fa546986604ada0faeb75253c57c5"
+      "evidenceDigest": "sha256:e05ef60c4f3129f3932ae6bd33cb852fbfbcb92d18e04fc4576858ef10adc90c"
     },
     {
       "intentRef": "CHK-001:happy:0",
       "itemId": "CHK-001",
       "evidenceIndex": 0,
       "kind": "integration_test",
-      "evidenceDigest": "sha256:eb5cf863fed3a91071a75ff3ba18d823a9f875f37918a7b7a63ae2994b57c80d"
+      "evidenceDigest": "sha256:9f6192ffd543326c2d588eb5fe802e4ea8baba8f52c797db79dc8f03ea9af243"
     }
   ],
   "executableProof": {
@@ -314,7 +332,7 @@
     "PR_AUTHORITY_INADMISSIBLE"
   ],
   "status": "inconclusive",
-  "issuedAt": "2026-09-08T07:31:22.557Z",
+  "issuedAt": "2026-09-08T08:08:43.514Z",
   "signerPublicKey": "Vk8Szjse1H/bpS7CSJZAHaa19VFMJPDZaOIo5dYz7CU=",
-  "signature": "+SQUQCumvA0bsdi5d/8BLOONVfEiGAWavMP4hCx6LyFicpahe4i09kA4WplbQ4YsRrhzh3POzf8/glK/R/AfBQ=="
+  "signature": "nWZg8WuDgPVa1GrRJIvZn7bmYh/I5pAoWM4ywKgzQMv08jUAB9f6G38sIxoTYJ0LVDDooJDWpeCK2C/0Q+YIBA=="
 }
