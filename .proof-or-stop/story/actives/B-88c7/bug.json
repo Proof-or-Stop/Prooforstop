@@ -39,10 +39,20 @@
     {
       "id": "BUG-003",
       "title": "Dispatch registry regression expects inventory instructions in REVIEW without an OPEN inventory, conflicting with the scoped responsibility contract",
-      "status": "open",
+      "status": "fixed",
       "foundAt": "2026-09-08T12:34:48.967Z",
-      "fixedAt": null,
-      "checklistId": "CHK-001"
+      "fixedAt": "2026-09-08T13:09:39.279Z",
+      "checklistId": "CHK-001",
+      "evidence": {
+        "symptom": "Required flow-stability fullsuite member failed obsolete inventory prompt assertion in registry fixture without OPEN inventory.",
+        "reproSteps": [
+          "Run node packages/main/dist/tasks/agent-dispatch-registry-smoke.js before0ca9a0ab1f; exit1.",
+          "Full error /private/tmp/B88-done-required-full-output.log and focusedRED /private/tmp/B88-dispatch-registry-red.log."
+        ],
+        "rootCause": "Fixture only enters REVIEW but never begins inventory, so its old unconditional inventory expectation conflicts with intended signedOPEN selection.",
+        "fixEvidence": "Commit0ca9a0ab1f changes one test: explicitnoOPENpremise, topologyset/check positive, inventorynegative. All registry16roles/15aliases preserved; exactregistry/liveness/flow commands terminalexit0.",
+        "reproTest": "node packages/main/dist/tasks/agent-dispatch-registry-smoke.js"
+      }
     }
   ]
 }

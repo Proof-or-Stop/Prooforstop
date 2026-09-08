@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "4d533808c69b14b084d501a0c45a77f40bbf48e085b4a27efdbbdd8d0e3d1a09",
+  "committedLedgerDigest": "58a25fe2002482d38afa7c5533c2a3fa078821c279c70c7bb1b6d8d2dfebe684",
   "records": [
     {
       "recordId": "lr_mtsczeqv_1i0u_b68c7142577b4aec93be6f640f923b9e",
@@ -425,6 +425,29 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-08T12:37:47.543Z"
+    },
+    {
+      "recordId": "lr_mtsos748_5b8_7bb99a1bebec4abc966a462950024960",
+      "recordType": "finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850:resolved",
+      "uniqueBindingKey": "finding-lifecycle:lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850",
+      "payload": {
+        "schemaVersion": 1,
+        "transitionId": "finding-transition-ae3aa8bf-ed07-433a-8050-0258602c2b51",
+        "findingId": "B-88c7:F-006",
+        "findingRecordId": "lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850",
+        "fromStatus": "open",
+        "toStatus": "resolved",
+        "at": "2026-09-08T13:09:37.159Z",
+        "reason": "Fixed in0ca9a0ab1f: the registry fixture explicitly has no OPEN inventory, requires topology receipt set/check and rejects inventory-only instructions. Existing canonical/alias/phase loop preserved. Focused registry, agent-liveness and flow-stability commands all terminalexit0, logs /private/tmp/B88-agent-dispatch-registry-smoke-green.log, /private/tmp/B88-agent-liveness-suite-smoke-green.log, /private/tmp/B88-flow-stability-smoke-green.log. No production relaxation.",
+        "resolutionType": "fixed",
+        "resolveEvidenceStrength": "strong"
+      },
+      "payloadHash": "89d37609987766a3e85f164fe01a1acc834d4da88e970dc9d48da9a9136bc706",
+      "priorDigest": "4d533808c69b14b084d501a0c45a77f40bbf48e085b4a27efdbbdd8d0e3d1a09",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-08T13:09:37.160Z"
     }
   ],
   "receipts": [
@@ -944,6 +967,58 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "a36395e2449e2991dadaf82c284ae6a6712e983b68c472c1612925c13c829e76",
         "signature": "kVGrLJxmTyA/3TIqVNr4uTwyDHqMtCMohgD7VHigzhasdROsaKTqh5PQPwOCA+DxFjtRp8m0tPG4mR04hJj8AA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtsos748_5b8_10a43841c701478785f50994a53ddc42",
+      "operation": "append_finding_lifecycle_transition",
+      "idempotencyKey": "finding-lifecycle:lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850:resolved",
+      "requestDigest": "1291bd2119ff0afb4c6e29d222e681b95632839d34784dabe980d7a3548ba5a1",
+      "recordIds": [
+        "lr_mtsos748_5b8_7bb99a1bebec4abc966a462950024960"
+      ],
+      "priorLedgerDigest": "4d533808c69b14b084d501a0c45a77f40bbf48e085b4a27efdbbdd8d0e3d1a09",
+      "committedLedgerDigest": "58a25fe2002482d38afa7c5533c2a3fa078821c279c70c7bb1b6d8d2dfebe684",
+      "writerSessionId": "sess-3a086337cc563b750e4116c389ce9cb3",
+      "writerFenceToken": "2c45936e-bb12-4e7f-a26f-e5f8b5aef445",
+      "committedAt": "2026-09-08T13:09:37.160Z",
+      "replayed": false,
+      "exactRequestDigest": "c2957c9e89cb8ff1cd9306dd3850c309db23762acd92d9bbbb4baf3490eda908",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtsos748_5b8_10a43841c701478785f50994a53ddc42",
+        "storyId": "B-88c7",
+        "idempotencyKey": "finding-lifecycle:lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850:resolved",
+        "exactRequestDigest": "c2957c9e89cb8ff1cd9306dd3850c309db23762acd92d9bbbb4baf3490eda908",
+        "operation": "append_finding_lifecycle_transition",
+        "recordIds": [
+          "lr_mtsos748_5b8_7bb99a1bebec4abc966a462950024960"
+        ],
+        "casBindings": [
+          {
+            "recordType": "finding",
+            "expectedRecordId": "lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850",
+            "expectedRecordHash": "30fbe227e616c38539544651c7618870c982e7660a994707434cf665553686b4",
+            "observedChainHeadId": "lr_mtsnn9nb_16ha_a698ff52cb824934833a787dc0f64850",
+            "observedChainHeadHash": "30fbe227e616c38539544651c7618870c982e7660a994707434cf665553686b4",
+            "predicateDigest": "0eb713d51c17e1889c3b3f4c2ecc476a6b674a79327d736d17cc48af6e17983b"
+          }
+        ],
+        "priorLedgerDigest": "4d533808c69b14b084d501a0c45a77f40bbf48e085b4a27efdbbdd8d0e3d1a09",
+        "committedLedgerDigest": "58a25fe2002482d38afa7c5533c2a3fa078821c279c70c7bb1b6d8d2dfebe684",
+        "replayed": false,
+        "committedAt": "2026-09-08T13:09:37.160Z",
+        "writerSessionId": "sess-3a086337cc563b750e4116c389ce9cb3",
+        "writerLeaseId": "sess-3a086337cc563b750e4116c389ce9cb3",
+        "writerFenceToken": "2c45936e-bb12-4e7f-a26f-e5f8b5aef445",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "6636b6435cc4e560907cf55c1708469469e3e828794539398bc01c2b8af89fd3",
+        "signature": "aFEsmZnA0uhEDTX1rblM5gZvIUQHXfHrYLQQ9MLJVDreLNCs2t6uvRn+p+Xq+NNLgau4UrunJpU3UsA2trhaCA=="
       }
     }
   ]
