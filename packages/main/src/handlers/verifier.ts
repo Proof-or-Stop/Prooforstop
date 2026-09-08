@@ -1550,7 +1550,7 @@ export function createVerifierHandlers(ctx: HandlerContext): Record<string, (...
         command: 'validate',
         ...(!args.channel && !args.concept && !args.lint && !findValidateFile(projectRoot)
           ? declaredValidationCapacity(configuredValidationCommands(projectRoot), handlerGitCwd) : {}),
-        sharedExecution: args.story && dynamicMode === 'off' ? {
+        sharedExecution: args.story && (dynamicMode === 'off' || projectConfig?.validate?.sharedExecution === true) ? {
           storyId: args.story, receiptStore: ctx.store,
           probe: input => probeValidationCausalPreflightFacts(ctx, args.story!, input),
         } : undefined,

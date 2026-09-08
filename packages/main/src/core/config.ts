@@ -227,6 +227,8 @@ export interface ProofOrStopConfig {
   };
   /** 项目级验证命令；没有 validate.ts/js 时由 proof-or-stop validate 使用 */
   validate?: {
+    /** Exact-input result sharing is independent of dynamic test selection. */
+    sharedExecution?: boolean;
     command?: string;
     dynamic?: {
       mode?: DynamicValidationModeConfig;

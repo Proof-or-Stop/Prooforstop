@@ -1,6 +1,7 @@
 import { createHash, createPublicKey, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
   effectiveValidationCommandEnvironment,
   isValidationTransportEnvKey,
@@ -489,11 +490,12 @@ export function effectiveCausalEnvironment(
   return effectiveValidationCommandEnvironment(processEnvironment, overlay, cwd);
 }
 
-export function resolveCausalToolVersion(projectRoot: string): string | undefined {
+export function resolveCausalToolVersion(_projectRoot: string): string | undefined {
   const packagePaths = [
-    join(projectRoot, 'packages', 'main', 'package.json'),
-    join(process.cwd(), 'packages', 'main', 'package.json'),
-  ].filter((path, index, paths) => paths.indexOf(path) === index);
+    // This is the executor's version, not the version of an arbitrary target
+    // project's packages/main manifest. The loaded source/dist module owns it.
+    join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'package.json'),
+  ];
   for (const packagePath of packagePaths) {
     if (!existsSync(packagePath)) continue;
     try {

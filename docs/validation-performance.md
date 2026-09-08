@@ -126,3 +126,22 @@ evidence covers them. Existing acceptance and final review remain mandatory, and
 acceptance hashes invalidate obsolete review inventories. This is attributable
 repair provenance, not formal PASS evidence. A Lab fixture is not a real Story
 completion or evidence that every ongoing session has adopted the candidate.
+
+
+## Shared execution identity and dynamic selection
+
+`validate.sharedExecution: true` explicitly enables exact-input shared execution
+also when dynamic selection is observe/on. Selection mode alone does not grant
+command reuse. Each command must still declare executionReuse and executionInputs,
+and existing forbidden, never-reuse, risk and build-proof exclusions remain in force.
+The receipt now includes the loaded implementation digest automatically; callers
+cannot replace it with a displayed package version. Changes to runtime bytes or
+explicit ignored inputs invalidate reuse. The engine checks the runtime digest at
+consumption/publication as well as before a child launch. These checks cost time;
+short commands can be faster to execute than to share. Measure total wall time
+before opting a production command into reuse.
+
+The tool version in causal receipts is read from the loaded core package, never
+from an unrelated target project's packages/main/package.json. The optional host
+pin still refuses before dispatch, after bootstrap modules have been loaded.
+It is not a hostile-host sandbox or proof that every running reviewer adopted it.
