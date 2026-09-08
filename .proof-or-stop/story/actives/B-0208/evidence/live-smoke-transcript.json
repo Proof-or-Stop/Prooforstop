@@ -1,0 +1,20 @@
+{
+  "storyId": "B-0208",
+  "expected": "External-project verification records the actual executing CLI version.",
+  "actual": {
+    "command": "node /private/tmp/pos-causal-version-probe.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-0208/packages/main/dist",
+    "exitCode": 0,
+    "stdout": "{\"expected\":\"0.3.278\",\"absent\":\"0.3.278\",\"unrelated\":\"0.3.278\"}\nCAUSAL_TOOL_VERSION_EXTERNAL_PASS\n"
+  },
+  "mode": {
+    "runCommands": true,
+    "writeEvidence": true
+  },
+  "capturedAtIso": "2026-09-08T07:18:35.409Z",
+  "claims": {
+    "authorityDone": false,
+    "productionDone": false
+  },
+  "headHash": "65311709b348069d0354af1ed0119aef3be18783",
+  "materialHash": "5d833cd03c751c182930510e46e970f172a170bf7997b523f3d28bf9ab8d3bd9"
+}
