@@ -41,7 +41,12 @@ function cli(root: string, command: string, payload: Record<string, unknown>, en
     stdio: ['ignore', 'pipe', 'pipe'],
     env: {
       ...process.env,
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'codex-cli',
+      // The executor deliberately clears host context; this isolated fixture owns its host.
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex-cli',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: env.LATTICE_SESSION_ID ?? 'inventory-fixture-owner',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: env.PROOF_OR_STOP_AGENT ?? env.LATTICE_AGENT ?? 'main',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: '',
+      PROOF_OR_STOP_SESSION_ID: '',
       ...env,
     },
   }).trim();
@@ -53,7 +58,12 @@ function cliAsync(root: string, command: string, payload: Record<string, unknown
     encoding: 'utf8',
     env: {
       ...process.env,
-      LATTICE_OWNER_SESSION_ADAPTER_PROVIDER: process.env.LATTICE_OWNER_SESSION_ADAPTER_PROVIDER ?? 'codex-cli',
+      // The executor deliberately clears host context; this isolated fixture owns its host.
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_PROVIDER: 'codex-cli',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_TASK: env.LATTICE_SESSION_ID ?? 'inventory-fixture-owner',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_AGENT: env.PROOF_OR_STOP_AGENT ?? env.LATTICE_AGENT ?? 'main',
+      PROOF_OR_STOP_OWNER_SESSION_ADAPTER_ROLE: '',
+      PROOF_OR_STOP_SESSION_ID: '',
       ...env,
     },
   }, (error, stdout, stderr) => resolve({ ok: !error, output: `${stdout}${stderr}` })));
