@@ -1,0 +1,82 @@
+{
+  "passes": [
+    {
+      "id": "B-0208:RP-001",
+      "agent": "proof-or-stop-review-quality",
+      "note": "Reviewed CHK-001 integrated committed diff across all four material files, resolver call compatibility, version source, smoke cleanup and receipt assertions, and process contract assertions. No unused introduced imports, unsafe casts, swallowed errors, or unimplemented new promises found. Resolver preserves its argument and removes project filesystem identity dependence. Read complete background/checklist/smoke and related evidence architecture; reviewed changed regions of large core/registry/contract files. plan.md absent; concrete understanding and checklist supply bounded intent. Current acceptance rollout read reports signed current PASS full-3x2; rollout mechanics are unchanged by this diff.",
+      "createdAt": "2026-09-08T06:28:58.893Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-002",
+      "envelopeId": "98a4beeec5df2211ba07e659d66b162076f11fc6d670dca459ec7cde88e49dac",
+      "writerSessionId": "sess-54a5d811f0834c7abd5dac37d3dc0452",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "_hash": "50de482116c1be3f358642da4f5b68f421eb3bf60540bb5a6745fc1313fce87b"
+    },
+    {
+      "id": "B-0208:RP-002",
+      "agent": "proof-or-stop-review-concept",
+      "note": "Reviewed CHK-001 and the complete four-file material diff at bea28cea82, plus resolver call-site and version-source scans. No concept deletion or vocabulary replacement occurs: target-manifest lookup is corrected while the resolver API remains compatible. Shared checklist and verifier consumers now obtain the executing compiled version. Missing-version checks still apply to arbitrary incomplete identities, so they are not stale residue. Smoke coverage exercises absent, malformed, unrelated, conflicting and copied manifests plus signed receipt identity. No promised but undelivered additions or applicable concept blockers found. plan.md is absent; checklist and understanding provide the current scoped requirements. No decision-directory escalation.",
+      "createdAt": "2026-09-08T06:29:08.829Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-001",
+      "envelopeId": "8e04f829722fd3ebfe0bb9e44cfb3128d1b4051932dd8c5db877d94fd2e6c8eb",
+      "writerSessionId": "sess-68cbcb7ea507bcb384bbb5132d4fd9f2",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          ".proof-or-stop/story/actives/B-0208/understanding.json",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "37c8e61dccfc7d6b1abe3f9e29bf9e1cfde14f7f0bc784b578191f212ffb34be"
+    },
+    {
+      "id": "B-0208:RP-003",
+      "agent": "proof-or-stop-review-test-coverage",
+      "note": "Reviewed all three CHK-001 intents and current tool-owned evidence against committed changed hunks. Independently ran built causal-evidence-smoke successfully. Seven external manifest scenarios cover missing, malformed, conflicting business versions and copied stale tool manifests; signed receipt checks preserve resolved CLI version and complete identity. Total intents 3, must gaps 0, waivers 0. plan.md is absent; current checklist provides the plan. Canonical validate attempt was refused by active owner lease; no validation success claimed and no takeover attempted. No coverage blocker.",
+      "createdAt": "2026-09-08T06:29:32.654Z",
+      "reviewRound": "2026-09-08T06:27:31.318Z",
+      "reviewRunId": "B-0208:RR-003",
+      "envelopeId": "bb98a5d61c54d896f2fbac3cff62041ced83a03498c595797cfb3954d64fd150",
+      "writerSessionId": "sess-63bb7ada0e07e223388fd49ed9065ada",
+      "sessionSource": "host-adapter",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-0208/background.md",
+          ".proof-or-stop/story/actives/B-0208/checklist.json",
+          "packages/main/src/core/proof-or-stop-brand.ts",
+          "packages/main/src/tasks/causal-evidence-smoke.ts"
+        ],
+        "filesTriagedByName": [
+          ".proof-or-stop/story/actives/B-0208/plan.md",
+          "docs/evidence/evidence-platform-architecture.md",
+          "packages/main/src/core/causal-evidence.ts",
+          "packages/main/src/core/process-fact-registry.ts",
+          "scripts/verify-process-fact-contract.mjs"
+        ],
+        "scanEscalationReason": null
+      },
+      "_hash": "c4faaa3dc2f7f006b4db640c83be31e7cb3d869ebcd6dbe5307fe985e031e220"
+    }
+  ]
+}
