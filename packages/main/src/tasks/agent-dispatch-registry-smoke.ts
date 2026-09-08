@@ -825,9 +825,13 @@ try {
     () => handlers.dispatch({ storyId, itemId: 'CHK-001', agentType: 'proof-or-stop-review-quality' }),
     /story-only; omit itemId/,
   );
+  assert.ok(!store.readReviewInventoryEpochs(storyId).epochs.some(epoch => epoch.state === 'OPEN'),
+    'this REVIEW dispatch fixture has no OPEN inventory');
   const criticReviewPrompt = handlers.dispatch({ storyId, agentType: 'lattice-review-topology-critic' }).prompt;
-  assert.match(criticReviewPrompt, /review_run_start[\s\S]*review_inventory_critic_set/,
-    'REVIEW critic prompt must require fresh terminal ReviewRun evidence and bound critic receipt');
+  assert.match(criticReviewPrompt, /topology_critic_receipt_set[\s\S]*topology_critic_receipt_check/,
+    'REVIEW critic without OPEN inventory retains topology receipt authority');
+  assert.doesNotMatch(criticReviewPrompt, /Inventory completeness only|review_inventory_critic_set/i,
+    'REVIEW alone must not select inventory-only responsibility');
 
   const promptPatterns: Record<string, RegExp> = {
     'implementer-dispatch': /git commit --author=.*proof-or-stop-implementer/,
