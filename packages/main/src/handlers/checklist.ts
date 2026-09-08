@@ -1,3 +1,5 @@
+import { acceptanceIntentHash, createIntentAmendment } from '../core/verification-intent-amendment.js';
+import { currentGitHead } from '../core/evidence-freshness.js';
 
 import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'fs';
 import { dirname, isAbsolute, join, resolve } from 'path';
@@ -3227,6 +3229,39 @@ export function createChecklistHandlers(ctx: HandlerContext) {
      * intents are priority='should' so the backfill can never retroactively
      * weaponize the hard coverage gate. Refused in INIT/INIT_CHECK/terminal.
      */
+    verification_intent_append(args: {
+      storyId: string; itemId: string; expectedIntentHash: string; reason: string; addition: Partial<VerificationIntent>;
+    }): string {
+      return withChecklistLock(ctx, args.storyId, () => {
+        const story = assertChecklistMutationCwd(store, args.storyId);
+        if (story.phase !== 'DEV') throw new Error('AMENDMENT_DEV_REQUIRED: return to DEV for repair; final review remains required');
+        const gitCwd = resolveStoryGitCwd(args.storyId);
+        const owner = probeWriterLease(store.storyDirPath(args.storyId), gitCwd);
+        if (!owner.valid) throw new Error('AMENDMENT_OWNER_REQUIRED: ' + owner.reason);
+        if (resolveAgentMutationAuthority({command:'checklist_update'}).entry) throw new Error('AMENDMENT_OWNER_REQUIRED: dispatched agents cannot amend acceptance');
+        const cl = store.readChecklist(args.storyId), item = cl.items.find(i => i.id === args.itemId);
+        if (!item || isWithdrawnChecklistStatus(item.status)) throw new Error('AMENDMENT_ACTIVE_ITEM_REQUIRED');
+        if (item.verificationIntent && args.expectedIntentHash !== acceptanceIntentHash(item.verificationIntent)) throw new Error('AMENDMENT_STALE_INTENT');
+        const occupied = new Set(cl.items.flatMap(collectVerificationIntents).map(row => row.ref));
+        for (const rows of Object.values(args.addition ?? {})) {
+          if (!Array.isArray(rows)) throw new Error('AMENDMENT_INVALID_LANE');
+          for (const row of rows) if (typeof row?.id === 'string' && occupied.has(row.id)) throw new Error('AMENDMENT_DUPLICATE_ID');
+        }
+        const lease = readOwnerLease(store.storyDirPath(args.storyId))!;
+        if (!lease.leaseId) throw new Error('AMENDMENT_OWNER_GENERATION_REQUIRED');
+        const headHash = currentGitHead(gitCwd);
+        if (!headHash) throw new Error('AMENDMENT_HEAD_REQUIRED');
+        const {intent, amendment} = createIntentAmendment({...args,item,sessionId:getSessionId(),leaseId:lease.leaseId,headHash,gitCwd});
+        assertEnglishAuthoringText('verification_intent_append', checklistEnglishAuthoringFields({verificationIntent:intent}, args.itemId));
+        assertChecklistScopeChangeAllowed(store,args.storyId,{title:item.title,context:JSON.stringify(args.addition),excludes:item.excludes,itemId:item.id});
+        item.verificationIntent = intent;
+        (item.verificationIntentAmendments ??= []).push(amendment);
+        item.status = 'in_progress'; item.endTime = null;
+        store.writeChecklist(args.storyId,cl);
+        return `Acceptance appended for ${args.itemId}; amendment=${amendment.id}; new intents require tool-executed evidence and fresh review.`;
+      });
+    },
+
     verification_intent_repair(args: {
       storyId: string;
       mode: 'fromEvidence';

@@ -159,7 +159,8 @@ function proofStoryDiagnosticInput(store: StoryStore, storyId: string, projectRo
   let checklist;
   try {
     checklist = store.readChecklist(storyId);
-  } catch {
+  } catch (error) {
+    if (String(error).includes('AMENDMENT_')) throw error;
     checklist = { items: [] };
   }
   const trusted = readTrustedProofStoryScopeArtifacts(store, storyId);
@@ -880,7 +881,7 @@ export function evaluateReviewVerdict(context: StoryMachineContext): ReviewVerdi
         // canonical impact closure; unknown impact fails closed to all active lanes.
         // Round number alone never narrows the required set.
         let checklist: { items: unknown[] } = { items: [] };
-        try { checklist = context.store.readChecklist(context.storyId); } catch {}
+        try { checklist = context.store.readChecklist(context.storyId); } catch (error) { if (String(error).includes('AMENDMENT_')) throw error; }
         let decision = null;
         try { decision = context.store.readDecision(context.storyId); } catch {}
         const understanding = context.store.readUnderstanding(context.storyId);

@@ -104,3 +104,25 @@ through the existing immutable lifecycle transaction before execution. This keep
 admission metadata from disabling exact-input reuse, without trusting pre-existing
 dirty metadata or committing adjacent staged source. Receipt consumers retain
 independent acceptance and build-proof rules; the root command policy is unchanged.
+
+
+## Audited acceptance additions during repair
+
+The owner may call `verification_intent_append` in DEV with `storyId`, `itemId`,
+`expectedIntentHash`, a substantive `reason`, and `addition` (happy/edge/adversarial
+arrays). Each new row must have a unique stable id, an English description, an
+executable type (cli/logic/browser), and priority must. Compute expectedIntentHash
+using acceptanceIntentHash: pin execution fields are excluded from acceptance
+semantics. The command refuses stale intent, absent/foreign/stale ownership,
+dispatched agents, terminal/withdrawn items, caller-authored pins or receipts,
+and replacement or removal of original requirements. It does not approve scope
+expansion. Use the scope workflow for new capabilities or affected files.
+
+The CLI appends a repository-key-signed amendment within checklist.json, retaining
+original intent semantics, scope binding, owner lease generation, and the prior
+amendment signature. Canonical checklist reads and writes verify the chain. The
+item reopens in progress; added requirements remain missing until tool-executed
+evidence covers them. Existing acceptance and final review remain mandatory, and
+acceptance hashes invalidate obsolete review inventories. This is attributable
+repair provenance, not formal PASS evidence. A Lab fixture is not a real Story
+completion or evidence that every ongoing session has adopted the candidate.

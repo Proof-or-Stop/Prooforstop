@@ -191,6 +191,7 @@ const requiredProcessFactSemantics = {
   validate: ['validation-status', 'validation-result', 'gate-evidence'],
   test_add: ['test-evidence', 'validation-result'],
   test_story: ['test-evidence', 'validation-result'],
+  verification_intent_append: ['signed-artifact','verification-policy','gate-evidence'],
   verification_evidence_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_batch_add: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],

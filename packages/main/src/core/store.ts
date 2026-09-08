@@ -1,3 +1,4 @@
+import { assertIntentAmendments } from './verification-intent-amendment.js';
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, renameSync, rmSync, appendFileSync, utimesSync } from 'fs';
 import { dirname, join } from 'path';
 import type {
@@ -757,10 +758,24 @@ export class StoryStore {
   // ── Checklist ──
 
   readChecklist(storyId: string): ChecklistData {
-    return this.readJson<ChecklistData>(storyId, 'checklist.json');
+    const data = this.readJson<ChecklistData>(storyId, 'checklist.json');
+    for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
+    return data;
   }
 
   writeChecklist(storyId: string, data: ChecklistData): void {
+    // Canonical writers cannot erase an existing signed amendment by dropping
+    // its field, its item, or a prefix of its history on a later metadata write.
+    if (existsSync(this.storyFilePath(storyId, 'checklist.json'))) {
+      const previous = this.readJson<ChecklistData>(storyId, 'checklist.json');
+      for (const old of previous.items) {
+        if (!old.verificationIntentAmendments?.length) continue;
+        const next = data.items.find(item => item.id === old.id);
+        const prefix = next?.verificationIntentAmendments?.slice(0, old.verificationIntentAmendments.length);
+        if (JSON.stringify(prefix) !== JSON.stringify(old.verificationIntentAmendments)) throw new Error('AMENDMENT_HISTORY_REMOVAL_REFUSED');
+      }
+    }
+    for (const item of data.items) assertIntentAmendments(item, storyId, this.storyDirPath(storyId));
     this.writeJson(storyId, 'checklist.json', data);
   }
 

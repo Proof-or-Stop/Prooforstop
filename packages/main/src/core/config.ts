@@ -513,6 +513,7 @@ export const DEFAULT_PHASE_TOOLS: Record<string, string[]> = {
     'candidate_spec_route', // B-8038: owner development and focused verification
     'dev_start', // B-804c CHK-002 / B-da89: explicit worktree recovery entry; reconcile config with command-policy + worktree handler 4-phase set (DEV still in the pre-REVIEW bootstrap window)
     'checklist_add', 'checklist_update', 'checklist_remove',
+    'verification_intent_append',
     'verification_intent_repair', // B-4e06: audited legacy intent backfill
     'decision_doc_proposal', 'decision_doc_save',
     'light_review',

@@ -196,6 +196,7 @@ export const PROCESS_FACT_REQUIRED_SEMANTICS = {
   verification_evidence_refresh_stale: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_run: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
   verification_pin_narrow: ['execution-evidence', 'verification-evidence', 'gate-evidence'],
+  verification_intent_append: ['signed-artifact','verification-policy','gate-evidence'],
   finding_ledger_query: ['schema-contract', 'signed-artifact', 'atomic-persistence'],
   finding_runtime_evidence_run: ['atomic-persistence', 'signed-artifact', 'schema-contract'],
   finding_runtime_evidence_verify: ['execution-evidence', 'signed-artifact', 'schema-contract', 'freshness-policy', 'workspace-binding'],
@@ -441,6 +442,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     producerCommand: 'checklist_update',
     consumerGate: 'storyMachine.checklistAllDone DEV to REVIEW gate',
   },
+  verification_intent_append: {name:'checklist.json',path:'checklist.json',signed:false,signature:'repository-local Ed25519 amendment chain binding owner, scope, before and after intent semantics',producerCommand:'verification_intent_append',consumerGate:'StoryStore.readChecklist and writeChecklist validate signatures before coverage and review consumers'},
   verification_evidence_add: {
     name: 'checklist.json',
     path: 'checklist.json',

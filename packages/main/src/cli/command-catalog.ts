@@ -553,6 +553,11 @@ Behavior:
     storyId: z.string().describe('Story ID'),
     dryRun: z.boolean().optional().describe('Report stale evidence that would be refreshed, without writing.'),
   }},
+  { name: 'verification_intent_append', description: 'Owner-only DEV repair: append signed must-level executable acceptance within an existing item scope. Original intents and scope remain unchanged; new coverage and fresh final review remain mandatory.', schema: {
+    storyId: z.string(), itemId: z.string(), expectedIntentHash: z.string().regex(/^[a-f0-9]{64}$/),
+    reason: z.string().min(30),
+    addition: z.object({happy:z.array(z.object({id:z.string(),desc:z.string(),type:z.enum(['cli','logic','browser']),priority:z.literal('must')}).strict()).optional(),edge:z.array(z.object({id:z.string(),desc:z.string(),type:z.enum(['cli','logic','browser']),priority:z.literal('must')}).strict()).optional(),adversarial:z.array(z.object({id:z.string(),desc:z.string(),type:z.enum(['cli','logic','browser']),priority:z.literal('must')}).strict()).optional()}).strict(),
+  }},
   { name: 'verification_intent_repair', description: 'Controlled legacy repair: back-fill only the missing verificationIntent lanes inferred from existing PASSING verificationEvidence (never overwrites authored intent; synthesized intent uses should priority)', schema: {
     storyId: z.string().describe('Story ID'),
     mode: z.literal('fromEvidence').describe('Only supported mode: infer the missing intent from verificationEvidence.intentRef'),

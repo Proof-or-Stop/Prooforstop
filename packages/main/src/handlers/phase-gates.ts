@@ -176,7 +176,8 @@ export function proofStoryDiagnosticInput(store: StoryStore, storyId: string, ro
   let checklist: ChecklistData;
   try {
     checklist = store.readChecklist(storyId);
-  } catch {
+  } catch (error) {
+    if (String(error).includes('AMENDMENT_')) throw error;
     checklist = { items: [] };
   }
   const trusted = readTrustedProofStoryScopeArtifacts(store, storyId);
@@ -495,7 +496,7 @@ export function runScopeTransitionGate(
     // No scope contract: distinguish new-scope stories (must have contract) from
     // legacy stories (backward-compatible, visible degradation at REVIEW only).
     let checklist: ChecklistData | null = null;
-    try { checklist = ctx.store.readChecklist(storyId); } catch { /* missing checklist → legacy */ }
+    try { checklist = ctx.store.readChecklist(storyId); } catch (error) { if (String(error).includes('AMENDMENT_')) throw error; /* missing checklist → legacy */ }
     if (checklistHasFileDeclarations(checklist)) {
       // New-scope story: BLOCK — file declarations require an explicit contract.
       throw new Error(
@@ -545,7 +546,7 @@ export function runScopeTransitionGate(
  */
 export function runPlanToDevScopeAdvice(ctx: HandlerContext, storyId: string): string {
   let checklist: ChecklistData | null = null;
-  try { checklist = ctx.store.readChecklist(storyId); } catch { return ''; }
+  try { checklist = ctx.store.readChecklist(storyId); } catch (error) { if (String(error).includes('AMENDMENT_')) throw error; return ''; }
   if (!checklistHasFileDeclarations(checklist)) return '';
 
   // Contract already exists — no advisory needed.
