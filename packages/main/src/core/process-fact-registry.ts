@@ -460,7 +460,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_refresh_stale',
-    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context, while selector/type/kind bind distinct signed causal identities and receipt-keyed import checks; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
+    consumerGate: 'validate verification freshness gate: every immutable pinned intent, including docs/manual, re-executes through the same command/selector/timeout stamping boundary; raw refresh execution binds command/cwd/effective-timeout/provenance and current material/environment/runtime context, while selector/type/kind bind distinct signed causal identities and receipt-keyed import checks; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests; execution time is projected from the signed causal receipt; failed or pinless rows never regain mechanical authority',
   },
   verification_run: {
     name: 'checklist.json',
