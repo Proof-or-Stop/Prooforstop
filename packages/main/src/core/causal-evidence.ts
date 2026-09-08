@@ -14,6 +14,7 @@ import {
   type SignatureBase64,
 } from './authority-signing.js';
 import { resolveSharedLockRoot } from './validation-execution-lock.js';
+import { PROOF_OR_STOP_CLI_VERSION } from './proof-or-stop-brand.js';
 
 /**
  * CausalEvidence is deliberately a small, dependency-light boundary.  The
@@ -489,21 +490,10 @@ export function effectiveCausalEnvironment(
   return effectiveValidationCommandEnvironment(processEnvironment, overlay, cwd);
 }
 
-export function resolveCausalToolVersion(projectRoot: string): string | undefined {
-  const packagePaths = [
-    join(projectRoot, 'packages', 'main', 'package.json'),
-    join(process.cwd(), 'packages', 'main', 'package.json'),
-  ].filter((path, index, paths) => paths.indexOf(path) === index);
-  for (const packagePath of packagePaths) {
-    if (!existsSync(packagePath)) continue;
-    try {
-      const pkg = JSON.parse(readFileSync(packagePath, 'utf8')) as { version?: unknown };
-      if (typeof pkg.version === 'string' && pkg.version.length > 0) return pkg.version;
-    } catch { // PROBE: an unreadable tool manifest is skipped; no version is fabricated.
-      continue;
-    }
-  }
-  return undefined;
+/** Tool version belongs to this CLI build, never to the project being verified. */
+export function resolveCausalToolVersion(_projectRoot: string): string {
+  // Keep the argument for existing callers; project layout and cwd are irrelevant.
+  return PROOF_OR_STOP_CLI_VERSION;
 }
 
 export function serializeCausalReceipt(receipt: CausalEvidenceReceipt): string {

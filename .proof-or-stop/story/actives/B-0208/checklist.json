@@ -19,9 +19,29 @@
           "packages/main/src/tasks/causal-evidence-smoke.ts"
         ]
       },
-      "status": "pending",
-      "startTime": null,
-      "endTime": null
+      "status": "in_progress",
+      "startTime": "2026-09-08T06:18:12.819Z",
+      "endTime": null,
+      "verificationIntent": {
+        "happy": [
+          {
+            "desc": "The built causal-evidence smoke proves external-project resolution returns the compiled CLI version and signed execution identity persists that same version.",
+            "type": "cli"
+          }
+        ],
+        "edge": [
+          {
+            "desc": "The built causal-evidence smoke proves missing and malformed target-project and current-directory packages/main/package.json never omit or change the executing CLI version.",
+            "type": "cli"
+          }
+        ],
+        "adversarial": [
+          {
+            "desc": "The built causal-evidence smoke proves unrelated business manifests, including conflicting target and cwd versions, cannot replace the executing CLI version.",
+            "type": "cli"
+          }
+        ]
+      }
     }
   ]
 }

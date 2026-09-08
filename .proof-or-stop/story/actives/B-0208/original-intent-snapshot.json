@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "proofstory.original_intent_snapshot.v1",
+  "storyId": "B-0208",
+  "sourceText": "修复这个问题：在别的项目下运行时，它去 packages/main/package.json 中找对应的版本号以记录到证据中。",
+  "normalizedOutcome": "External project causal evidence records the executing PoS CLI version regardless of business manifests or cwd.",
+  "acceptanceClaim": "The recorded causal identity toolVersion equals the executing CLI version with missing, malformed, and conflicting business manifests.",
+  "keyRequirementIds": [
+    "REQ-001"
+  ],
+  "requestHash": "sha256:42c8e41fc365596efeb3219ecf4f0b7b935fa296f25a0e4178c1a94d072c2657",
+  "createdAt": "2026-09-08T06:14:21.515Z",
+  "updatedAt": "2026-09-08T06:14:21.515Z"
+}

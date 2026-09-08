@@ -446,14 +446,14 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_add',
-    consumerGate: 'validate verification coverage and freshness gates',
+    consumerGate: 'validate verification coverage and freshness gates; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   verification_evidence_batch_add: {
     name: 'checklist.json',
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_evidence_batch_add',
-    consumerGate: 'validate verification coverage and freshness gates',
+    consumerGate: 'validate verification coverage and freshness gates; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   verification_evidence_refresh_stale: {
     name: 'checklist.json',
@@ -467,7 +467,7 @@ export const PROCESS_FACT_ARTIFACT_BY_COMMAND: Record<string, ProcessFactArtifac
     path: 'checklist.json',
     signed: false,
     producerCommand: 'verification_run',
-    consumerGate: 'validate verification coverage and freshness gates',
+    consumerGate: 'validate verification coverage and freshness gates; causal toolVersion binds the executing CLI build independently of target-project and cwd manifests',
   },
   recover_evidence: {
     name: 'checklist.json',

@@ -1,0 +1,27 @@
+{
+  "storyId": "B-0208",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/causal-evidence-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "Initialized from checklist files declared during PLAN.",
+  "acknowledgements": [],
+  "createdAt": "2026-09-08T06:14:23.324Z",
+  "updatedAt": "2026-09-08T06:14:23.324Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/core/causal-evidence.ts": "packages/main/src/core/causal-evidence.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/src/tasks/causal-evidence-smoke.ts": "packages/main/src/tasks/causal-evidence-smoke.ts"
+  }
+}
