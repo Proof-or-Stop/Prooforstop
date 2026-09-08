@@ -8409,6 +8409,10 @@ function assertFilePatterns(entryName, relPath, patterns) {
 }
 
 const inventory = [
+  {name:'DONE admission metadata preserves clean reusable input',files:[
+    {relPath:'packages/main/src/handlers/done-required-validation.ts',patterns:['captureLifecycleMetadataTransaction','readLifecycleMetadataOutputHashes','commitLifecycleMetadataTransaction',"kind: 'certification-running'",'realpathSync(gitCwd)']},
+    {relPath:'packages/main/src/core/auto-commit-metadata.ts',patterns:["'certification-running'","['certification-window.json']"]},
+  ]},
   {name:'Pinned implementation and original batch publication',files:[
     {relPath:'packages/main/src/cli-engine.ts',patterns:['enforceExecutionImplementationPin();','--implementation-identity']},
     {relPath:'packages/main/src/handlers/checklist.ts',patterns:["withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_add'","withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_batch_add'",'commitCanonicalCausalEvidence']},

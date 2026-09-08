@@ -161,6 +161,7 @@ export interface ValidationReuseMetadataTransactionCommitResult {
 
 export type LifecycleMetadataTransactionKind =
   | 'test-transition'
+  | 'certification-running'
   | 'codex-command-terminal'
   | 'quorum-submit';
 
@@ -198,7 +199,9 @@ function lifecycleMetadataPaths(
   const prefix = `${normalizeRelPath(storyRel)}/`;
   const filenames = kind === 'test-transition'
     ? ['index.json', 'process-events.jsonl', 'process-metrics.json']
-    : ['process-events.jsonl'];
+    : kind === 'certification-running'
+      ? ['certification-window.json']
+      : ['process-events.jsonl'];
   return filenames.map((filename) => `${prefix}${filename}`).sort((a, b) => a.localeCompare(b));
 }
 

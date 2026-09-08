@@ -47,7 +47,7 @@ for(let trial=1;trial<=5;trial++){
    const begin=performance.now();let events=[];
    if(mode==='RED'){for(const name of ['left','right'])write(repo,name+'.mjs',implementations[name]);run(repo,['add','left.mjs','right.mjs']);run(repo,['commit','-qm','deliver complete scope']);}
    else {const a=join(root,'a'),b=join(root,'b');run(repo,['worktree','add','-q','-b','left',a]);run(repo,['worktree','add','-q','-b','right',b]);events=await pairChildren([[a,'left',''],[b,'right','']]);run(repo,['merge','--no-edit','left','right']);}
-   const transcript=execFileSync(process.execPath,['--test','--test-concurrency=2','tests/left.mjs','tests/right.mjs'],{cwd:repo,encoding:'utf8'});assert.match(transcript,/# fail 0/);const elapsedMs=performance.now()-begin;
+   const transcript=execFileSync(process.execPath,['--test','--test-reporter=tap','--test-concurrency=2','tests/left.mjs','tests/right.mjs'],{cwd:repo,encoding:'utf8'});assert.match(transcript,/# fail 0/);const elapsedMs=performance.now()-begin;
    const bytes={left:readFileSync(join(repo,'left.mjs'),'utf8'),right:readFileSync(join(repo,'right.mjs'),'utf8')};assert.deepEqual(bytes,implementations);rows.push({kind:'decomposition',trial,mode,elapsedMs,events,acceptanceCases:7442,finalBytes:bytes,transcript});
   }finally{rmSync(root,{recursive:true,force:true});}
  }

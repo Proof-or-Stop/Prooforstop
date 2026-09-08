@@ -43,7 +43,6 @@ export async function executeSharedValidationCommand(
   if (!normalized.executableDigest || (normalized.shell && !normalized.shellExecutableDigest)) return run();
   const input = { command: causalCanonical({command:command.command,args:command.args,shell:normalized.shell}), cwd:normalized.cwd, timeoutMs };
   const probe = () => context.probe(input);
-  const initial = probe();
   const additionalInputs = () => command.executionInputs!.map(path => {
     const actual = realpathSync(resolve(normalized.cwd,path));
     return {path:actual,digest:createHash('sha256').update(readFileSync(actual)).digest('hex')};
@@ -62,6 +61,9 @@ export async function executeSharedValidationCommand(
   // Untracked file bytes are not covered by git diff. A dirty workspace cannot
   // publish or consume shared results, even if an ordinary execution is allowed.
   if (execFileSync('git',['status','--porcelain=v1','--untracked-files=all'],{cwd:normalized.cwd,encoding:'utf8'}).trim()) return run();
+  // git status may refresh index stat caches. Freeze raw index facts only after
+  // the clean-workspace probe has completed its own legitimate refresh.
+  const initial = probe();
   const unchanged = () => causalCanonical(probe()) === causalCanonical(initial) && workspaceState() === workspace && causalCanonical(additionalInputs()) === causalCanonical(inputFiles);
   const {label: _label, optional: _optional, focus: _focus, ...execution} = normalized;
   const identity = {

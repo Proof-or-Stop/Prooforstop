@@ -97,3 +97,10 @@ The candidate also renews an existing same-owner lease through the actual
 canonical publication paths. A missing, expired or transferred generation remains
 a refusal, and existing valid receipts retain their zero-command import path.
 These changes are retained in Lab for user verification; no version is released.
+
+For explicitly eligible shared commands on a clean workspace, the Lab DONE
+candidate commits its own ADMITTED-to-RUNNING certification window
+through the existing immutable lifecycle transaction before execution. This keeps
+admission metadata from disabling exact-input reuse, without trusting pre-existing
+dirty metadata or committing adjacent staged source. Receipt consumers retain
+independent acceptance and build-proof rules; the root command policy is unchanged.
