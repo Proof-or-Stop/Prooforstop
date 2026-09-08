@@ -15,7 +15,11 @@
     "packages/main/src/handlers/certification-window.ts",
     "packages/main/src/core/prompt-contracts.ts",
     "packages/main/src/core/prompt-envelope.ts",
-    "packages/main/src/core/review-incremental-context.ts"
+    "packages/main/src/core/review-incremental-context.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json"
   ],
   "allowedCreate": [],
   "allowedTest": [
@@ -25,10 +29,10 @@
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Verified F-005 incorrectly compares unchanged inventory responsibility against default topology semantics, producing false FULL_ROLE_CONTRACT_CHANGED. Bind selected registered eligibility semantics while preserving pre-marker historical verification and real responsibility transitions. The required canonical validation independently reproduces a pre-existing max-watchdog fixture startup race on main:700ms expires before the descendant command executes. Correct only the fixture timing relationship, retaining descendant startup, max-layer classification and ESRCH cleanup assertions.",
+  "scopeChangeReason": "BUG-002: The changed critic body left the independent approval manifest and role matrix at topology-only content, directly failing required npm test. Update only its reviewed exact approval hash, truthful dual-responsibility matrix and three generated snapshots; preserve all role-count, exact-hash and unauthorized-drift rejection checks.",
   "acknowledgements": [],
   "createdAt": "2026-09-08T06:54:59.815Z",
-  "updatedAt": "2026-09-08T10:28:28.885Z",
+  "updatedAt": "2026-09-08T11:42:01.965Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -48,6 +52,10 @@
     "packages/main/src/tasks/certification-window-smoke.ts": "packages/main/src/tasks/certification-window-smoke.ts",
     "packages/main/src/core/prompt-envelope.ts": "packages/main/src/core/prompt-envelope.ts",
     "packages/main/src/core/review-incremental-context.ts": "packages/main/src/core/review-incremental-context.ts",
-    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts"
+    "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts": "packages/main/src/tasks/validate-progress-heartbeat-smoke.ts",
+    "scripts/verify-proof-or-stop-prompt-baseline.mjs": "scripts/verify-proof-or-stop-prompt-baseline.mjs",
+    "docs/requirements/baselines/proof-or-stop-prompt-baseline.json": "docs/requirements/baselines/proof-or-stop-prompt-baseline.json",
+    "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md": "docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md",
+    "docs/requirements/baselines/role-prompt-measurement-baseline.json": "docs/requirements/baselines/role-prompt-measurement-baseline.json"
   }
 }

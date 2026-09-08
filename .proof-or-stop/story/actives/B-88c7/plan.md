@@ -60,3 +60,11 @@ Register an immutable inventory-completeness role contract and select it only fr
 - The max watchdog row currently expires at700ms before its descendant command starts. Provide bounded startup margin and ensure the max deadline remains below idle and child-command deadlines. Preserve PID existence, max-layer classification, ESRCH cleanup, and no-heartbeat-after-terminal assertions; do not change production timeouts or skip the case.
 - RED: node packages/main/dist/tasks/validate-progress-heartbeat-smoke.js fails on both41b and main with missing max-descendant.pid. Paired logs /private/tmp/B88-heartbeat-repro.log and /private/tmp/B88-heartbeat-main-baseline.log. Independent isolated3000ms timing probe passed descendant startup and cleanup.
 - GREEN: run the unchanged full heartbeat smoke command and canonical validation after the fixture correction.
+
+
+### BUG-002: Reviewed prompt baseline completion
+
+- Modify: scripts/verify-proof-or-stop-prompt-baseline.mjs, docs/requirements/baselines/proof-or-stop-prompt-baseline.json, docs/requirements/baselines/proof-or-stop-prompt-overlap-matrix.md, docs/requirements/baselines/role-prompt-measurement-baseline.json.
+- Independent product review confirmed the exact critic content delta adds the inventory branch and preserves the original topology body. Repin only this role approval entry to the legacyized assembled content hash, update its hand-authored role matrix to describe both responsibilities, and generate baseline/matrix/measurement via the verifier --write.
+- Preserve18role count, exact content addressing, all unapproved mutation refusals and source guards. Inspect all generated changes and explain derived prompt count/token drift.
+- RED: node scripts/verify-proof-or-stop-prompt-baseline.mjs fails with approved critic hash mismatch. GREEN: same command plus existing --probe-prompt-policy-manifest, --probe-baseline-drift and --probe-role-matrix-snapshot-drift modes. Then run required full suite without skips and refresh final evidence/review.

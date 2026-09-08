@@ -154,6 +154,20 @@
         }
       ],
       "_hash": "10fe787271ca9fd0b0b47ca0b619d1ddcda5b242b4f550123791ccfa4be8078f"
+    },
+    {
+      "timestamp": "2026-09-08T11:43:12.171Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "2ff6c0f9d5dc4c300663f4ca06e45d6bf37764ad66169180c780888a772770a0"
     }
   ]
 }

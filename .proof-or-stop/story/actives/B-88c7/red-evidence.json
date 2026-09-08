@@ -120,8 +120,25 @@
       },
       "note": "Pre-existing fixture failure directly blocks requiredvalidation; paired real logs/private/tmp/B88-heartbeat-repro.log and/private/tmp/B88-heartbeat-main-baseline.log. Isolated3000ms probe starts child and confirms max-timeout cleanup without changing production.",
       "createdAt": "2026-09-08T10:28:31.408Z"
+    },
+    {
+      "id": "RED-20260908114204",
+      "trigger": "BUG-002 DONE-required full suite rejected stale prompt approval manifest",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "231094b8010b9049ff8645e427cf0d4d8eb99420",
+      "baselineMaterialHash": "51c59144e62320f5dc04631123f017c7a0fbf95a46bff139e52b4c1ab395a4b6",
+      "observedFailure": "Approved topology critic hash9bcf9f36 differs from current reviewed assembled body392271b8; fullsuite9/65 completed then remaining jobs interrupted.",
+      "failingCommand": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "expectedGreenCommand": "node scripts/verify-proof-or-stop-prompt-baseline.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node scripts/verify-proof-or-stop-prompt-baseline.mjs"
+      },
+      "note": "Current Story changed critic instructions without synchronizing independent manifest and generated snapshots. Preserve exact approval and mutation guards; bounded four-file repair.",
+      "createdAt": "2026-09-08T11:42:04.713Z"
     }
   ],
   "createdAt": "2026-09-08T06:55:18.660Z",
-  "updatedAt": "2026-09-08T10:28:31.408Z"
+  "updatedAt": "2026-09-08T11:42:04.713Z"
 }
