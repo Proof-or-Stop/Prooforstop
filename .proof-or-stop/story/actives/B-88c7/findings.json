@@ -43,6 +43,83 @@
       "resolvedReason": "Fixed in 68ee4dc044: registered inventory contract selected by signed current OPEN context in both producers; verifier reconstructs registered authenticated semantics. Fresh tool-owned full-envelope and legacy handler smoke plus process contract passed, covering tamper rejection and finalization.",
       "resolutionType": "fixed",
       "resolveEvidenceStrength": "strong"
+    },
+    {
+      "id": "B-88c7:F-002",
+      "desc": "handlers/review-run.ts:292 selects responsibility from live OPEN inventory but line 314 reuses prior dispatchPrompt. core/review-run.ts:640 matches that dispatch by lane/round and validates prompt/host digests without epoch/responsibility freshness. Source-traced trigger: inventory dispatch then cancel then delayed review_run_start selects topology contract with Inventory completeness only instructions; cancel/rebegin retains old epoch instructions. This reintroduces conflicting output obligations for ordinary-author work. Require matching dispatch epoch/responsibility at new run creation and redispatch on change, preserving authenticated historical run verification. Verified by precise producer/consumer source tracing, not an end-to-end mutation reproduction.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T08:28:40.170Z",
+      "reviewRound": "2026-09-08T08:14:21.977Z",
+      "reviewRunId": "B-88c7:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "9ad521f27f5cc01c20b67ef4d22eadc9e965ecc4452d74109f10395fe2dd2517",
+      "files": [
+        "packages/main/src/handlers/review-run.ts",
+        "packages/main/src/core/review-run.ts",
+        "packages/main/src/handlers/story-dispatch.ts"
+      ],
+      "signatureTag": "missing|ts|handlers-review-selects",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtseqw6j_1p5s_a33edabc67884337bb896e8fb78454e0",
+      "ledgerCommitReceiptId": "lrc_mtseqw6j_1p5s_5ecffdfb13404d03b5660da24d5dc191"
+    },
+    {
+      "id": "B-88c7:F-003",
+      "desc": "handlers/certification-window.ts:151 CERTIFICATION_DOMAIN_PATH_RULES omits canonical role templates. Independently executed current built exports in real B-88c7: packages/main/templates/agents/proof-or-stop-review-topology-critic.md has matches=[] and deriveCertificationDomainInputHashes(cwd,HEAD,cwd) returns undefined. The required scoped template edit therefore aborts causal domain derivation at line 222 and prevents PRE_CERT completion (owner command reported pre_cert_causal_freshness_required). This is a direct acceptance blocker despite the classifier being pre-existing. Add a bounded disjoint rule for the canonical role-template family with hash/change/deletion and unknown-sibling regressions, not a broad templates namespace admission.",
+      "severity": "medium",
+      "category": "missing",
+      "status": "open",
+      "evidenceState": "verified",
+      "agent": "proof-or-stop-review-concept",
+      "createdAt": "2026-09-08T08:28:45.370Z",
+      "reviewRound": "2026-09-08T08:14:21.977Z",
+      "reviewRunId": "B-88c7:RR-017",
+      "readManifest": {
+        "filesReadFully": [
+          ".proof-or-stop/story/actives/B-88c7/plan.md"
+        ],
+        "filesTriagedByName": [],
+        "scanEscalationReason": null
+      },
+      "readLog": {
+        "filesReadFully": [],
+        "filesTriagedByName": [],
+        "summary": {
+          "readCount": 0,
+          "tokenCount": null
+        },
+        "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+      },
+      "readDiagnostics": [],
+      "_hash": "3ca4d77d01711e03fae2f49dae91289168eb24127ed820e9373fa5a2c8f4a220",
+      "files": [
+        "packages/main/src/handlers/certification-window.ts",
+        "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+      ],
+      "signatureTag": "missing|ts|handlers-certification-window",
+      "signatureTagSource": "auto",
+      "recordId": "lr_mtser06z_1pji_b9a3b419b970444090de9fdfbe0898d5",
+      "ledgerCommitReceiptId": "lrc_mtser06z_1pji_7c30e4b5b0d6471782d1dbe3514061e8"
     }
   ]
 }

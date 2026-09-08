@@ -11,18 +11,21 @@
     "packages/main/src/core/prompt-registry.ts",
     "packages/main/src/core/prompt-role-contract-registry.ts",
     "packages/main/src/handlers/review-run.ts",
-    "packages/main/src/core/review-run.ts"
+    "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/core/prompt-contracts.ts"
   ],
   "allowedCreate": [],
   "allowedTest": [
-    "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts"
   ],
   "protectedFiles": [],
   "explicitExcludes": [],
-  "scopeChangeReason": "Repair verified F-001 within the original inventory-only outcome: full-envelope dispatch and ReviewRun production must select a registered responsibility contract, and signed run verification must reconstruct that same registered contract after finalization.",
+  "scopeChangeReason": "Verified F-002 requires rejecting stale critic dispatch context before publishing a ReviewRun. Verified F-003 directly prevents PRE_CERT for the canonical role template already in scope; classify only canonical agent Markdown templates and preserve unknown-path refusal.",
   "acknowledgements": [],
   "createdAt": "2026-09-08T06:54:59.815Z",
-  "updatedAt": "2026-09-08T07:52:17.556Z",
+  "updatedAt": "2026-09-08T08:37:18.418Z",
   "pathCanonicalizerVersion": "repo-relative-v1",
   "pathCanonicalizationMode": "enforce",
   "originalPathInputs": {
@@ -36,6 +39,9 @@
     "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts",
     "packages/main/src/core/prompt-role-contract-registry.ts": "packages/main/src/core/prompt-role-contract-registry.ts",
     "packages/main/src/handlers/review-run.ts": "packages/main/src/handlers/review-run.ts",
-    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts"
+    "packages/main/src/core/review-run.ts": "packages/main/src/core/review-run.ts",
+    "packages/main/src/handlers/certification-window.ts": "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/core/prompt-contracts.ts": "packages/main/src/core/prompt-contracts.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts": "packages/main/src/tasks/certification-window-smoke.ts"
   }
 }

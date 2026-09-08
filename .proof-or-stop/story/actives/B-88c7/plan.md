@@ -28,3 +28,12 @@ Use current signed OPEN inventory and REVIEW round to select completeness-only c
 
 ## Verified finding F-001 repair
 Register an immutable inventory-completeness role contract and select it only from a signed OPEN epoch matching the Story and review round, in both dispatch and ReviewRun creation. Reconstruct signed envelope integrity from the registered semantic digest so inventory finalization preserves historical verification. Reject unknown or tampered digests. Keep the default topology contract and receipt authority unchanged. Extend the real handler witness to full-envelope dispatch and run creation, ordinary-author success, invalid contexts, and post-finalization verification while retaining the legacy path.
+
+## Verified F-002 and F-003 acceptance-blocking repair
+
+- Modify packages/main/src/handlers/certification-window.ts; test packages/main/src/tasks/certification-window-smoke.ts. Existing dispatch/run, process registry/verifier and inventory smoke remain scoped.
+- Authenticate and compare critic dispatch responsibility and inventory epoch at new ReviewRun creation, rejecting cancellation, finalization, rebegin and topology-to-inventory stale dispatch before publication; require redispatch. Preserve historical signed-run verification after finalization.
+- Classify only canonical packages/main/templates/agents/*.md assets as manifest-semantic, consistent with rendered host agent assets. Bind blob changes/deletions, retain unknown siblings and ambiguous classification refusal, and exercise actual domain-hash derivation.
+- Extend existing full-envelope handler regressions and process contract. Run certification-window smoke and the actual B88 template-domain probe, then refresh tool-owned coverage and independent reviews before PRE_CERT/validation.
+
+- Modify packages/main/src/core/prompt-contracts.ts to type and digest-bind critic responsibility (topology-proof or inventory-completeness with epoch, wave, material/story-files cutoff). Reject missing or tampered context only for new critic run creation in both prompt modes; retain historical signed-run verification and metadata-only freshness semantics.

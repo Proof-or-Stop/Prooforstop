@@ -6,7 +6,9 @@
     "Three independent lanes passed before completeness critic dispatch failed.",
     "The topology reviewer binding is currently required unconditionally.",
     "Current signed review runs already protect critic independence and lane evidence.",
-    "Verified F-001: inventory-only full envelopes still require a topology receipt through the unconditional role contract; both dispatch and ReviewRun production and verification consume that contract."
+    "Verified F-001: inventory-only full envelopes still require a topology receipt through the unconditional role contract; both dispatch and ReviewRun production and verification consume that contract.",
+    "Verified F-002: a delayed critic run may reuse an old dispatch after inventory cancellation or rebegin in the same round.",
+    "Verified F-003: the exact canonical agent template modified here matches no certification domain and prevents PRE_CERT."
   ],
   "constraints": [
     "Do not invent implementer authorship or dispatch records.",
@@ -14,7 +16,9 @@
     "Only verified current OPEN inventory context selects completeness-only instructions.",
     "Keep registered role template and rendered mirrors consistent.",
     "Keep the default topology role contract unchanged.",
-    "Select the inventory role contract only from a signed matching OPEN epoch, and verify historical signed envelopes by registered semantic digest after finalization."
+    "Select the inventory role contract only from a signed matching OPEN epoch, and verify historical signed envelopes by registered semantic digest after finalization.",
+    "Reject stale dispatch responsibility and epoch before new run or envelope publication; historical signed runs remain verifiable.",
+    "Classify only canonical agent Markdown templates as manifest-semantic, retain unknown siblings and ambiguity refusal."
   ],
   "unknowns": [],
   "touchpoints": [
@@ -28,7 +32,10 @@
     "packages/main/src/core/prompt-role-contract-registry.ts",
     "packages/main/src/handlers/review-run.ts",
     "packages/main/src/core/review-run.ts",
-    "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+    "packages/main/src/handlers/certification-window.ts",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/tasks/certification-window-smoke.ts",
+    "packages/main/src/core/prompt-contracts.ts"
   ],
-  "timestamp": "2026-09-08T07:52:54.291Z"
+  "timestamp": "2026-09-08T08:37:19.093Z"
 }

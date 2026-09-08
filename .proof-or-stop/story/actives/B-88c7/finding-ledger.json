@@ -2,7 +2,7 @@
   "schemaVersion": "finding-ledger.v1",
   "ledgerSchemaEpoch": 1,
   "minimumWriterCapability": "finding-ledger-writer-v1",
-  "committedLedgerDigest": "3f181b0a07643db77ef8e128ea88e50b3adf90c795143dab794b949b469bccf2",
+  "committedLedgerDigest": "499f8774b38bdca8cc32a4f80714d3dbb13ebbcd85af3ded81abf6c063acdf17",
   "records": [
     {
       "recordId": "lr_mtsczeqv_1i0u_b68c7142577b4aec93be6f640f923b9e",
@@ -74,6 +74,99 @@
       "ledgerSchemaEpoch": 1,
       "writerCapability": "finding-ledger-writer-v1",
       "createdAt": "2026-09-08T08:14:43.894Z"
+    },
+    {
+      "recordId": "lr_mtseqw6j_1p5s_a33edabc67884337bb896e8fb78454e0",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:6a6dcac1-c840-4b34-aea3-776a6475428f",
+      "payload": {
+        "id": "B-88c7:F-002",
+        "desc": "handlers/review-run.ts:292 selects responsibility from live OPEN inventory but line 314 reuses prior dispatchPrompt. core/review-run.ts:640 matches that dispatch by lane/round and validates prompt/host digests without epoch/responsibility freshness. Source-traced trigger: inventory dispatch then cancel then delayed review_run_start selects topology contract with Inventory completeness only instructions; cancel/rebegin retains old epoch instructions. This reintroduces conflicting output obligations for ordinary-author work. Require matching dispatch epoch/responsibility at new run creation and redispatch on change, preserving authenticated historical run verification. Verified by precise producer/consumer source tracing, not an end-to-end mutation reproduction.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-08T08:28:40.170Z",
+        "reviewRound": "2026-09-08T08:14:21.977Z",
+        "reviewRunId": "B-88c7:RR-017",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-88c7/plan.md"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "9ad521f27f5cc01c20b67ef4d22eadc9e965ecc4452d74109f10395fe2dd2517",
+        "files": [
+          "packages/main/src/handlers/review-run.ts",
+          "packages/main/src/core/review-run.ts",
+          "packages/main/src/handlers/story-dispatch.ts"
+        ],
+        "signatureTag": "missing|ts|handlers-review-selects",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "155792285317500fde5b1344544ee04f6b457430c4b3dff59b83e575ae2f5d13",
+      "priorDigest": "3f181b0a07643db77ef8e128ea88e50b3adf90c795143dab794b949b469bccf2",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-08T08:28:40.171Z"
+    },
+    {
+      "recordId": "lr_mtser06z_1pji_b9a3b419b970444090de9fdfbe0898d5",
+      "recordType": "finding",
+      "idempotencyKey": "finding_add:cc788ce0-ad05-42fc-b15c-413788022d27",
+      "payload": {
+        "id": "B-88c7:F-003",
+        "desc": "handlers/certification-window.ts:151 CERTIFICATION_DOMAIN_PATH_RULES omits canonical role templates. Independently executed current built exports in real B-88c7: packages/main/templates/agents/proof-or-stop-review-topology-critic.md has matches=[] and deriveCertificationDomainInputHashes(cwd,HEAD,cwd) returns undefined. The required scoped template edit therefore aborts causal domain derivation at line 222 and prevents PRE_CERT completion (owner command reported pre_cert_causal_freshness_required). This is a direct acceptance blocker despite the classifier being pre-existing. Add a bounded disjoint rule for the canonical role-template family with hash/change/deletion and unknown-sibling regressions, not a broad templates namespace admission.",
+        "severity": "medium",
+        "category": "missing",
+        "status": "open",
+        "evidenceState": "verified",
+        "agent": "proof-or-stop-review-concept",
+        "createdAt": "2026-09-08T08:28:45.370Z",
+        "reviewRound": "2026-09-08T08:14:21.977Z",
+        "reviewRunId": "B-88c7:RR-017",
+        "readManifest": {
+          "filesReadFully": [
+            ".proof-or-stop/story/actives/B-88c7/plan.md"
+          ],
+          "filesTriagedByName": [],
+          "scanEscalationReason": null
+        },
+        "readLog": {
+          "filesReadFully": [],
+          "filesTriagedByName": [],
+          "summary": {
+            "readCount": 0,
+            "tokenCount": null
+          },
+          "digest": "8b750a7da8a48eb38119994013502d4e0000c9976e1ad91f59e630f82290bfc7"
+        },
+        "readDiagnostics": [],
+        "_hash": "3ca4d77d01711e03fae2f49dae91289168eb24127ed820e9373fa5a2c8f4a220",
+        "files": [
+          "packages/main/src/handlers/certification-window.ts",
+          "packages/main/templates/agents/proof-or-stop-review-topology-critic.md"
+        ],
+        "signatureTag": "missing|ts|handlers-certification-window",
+        "signatureTagSource": "auto"
+      },
+      "payloadHash": "73bf84266038bfd56ebc1318f07e383628fc74b1b5ef7fec248b08f06b33f76e",
+      "priorDigest": "94db6c4850be449d1f38291131bc93d940736225693c84cc15088cc2f86e318b",
+      "ledgerSchemaEpoch": 1,
+      "writerCapability": "finding-ledger-writer-v1",
+      "createdAt": "2026-09-08T08:28:45.371Z"
     }
   ],
   "receipts": [
@@ -170,6 +263,92 @@
         "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
         "receiptHash": "e4b39fb97157fa1b834509658773b77ced4f41423607a7efaba612927a0bb8a4",
         "signature": "e5mmh1Ma5ANrPchfQSu0mdEtgf4B/zb801eu9G0sEsbbSkFy0D8DB03QkmFJyQh5ImxmCEb8sFYWJAjLGMrPDA=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtseqw6j_1p5s_5ecffdfb13404d03b5660da24d5dc191",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:6a6dcac1-c840-4b34-aea3-776a6475428f",
+      "requestDigest": "2681c3f1fbe5cc837dcb7f3c9ae954548b70e3300e34f06836a8548aa26dabf8",
+      "recordIds": [
+        "lr_mtseqw6j_1p5s_a33edabc67884337bb896e8fb78454e0"
+      ],
+      "priorLedgerDigest": "3f181b0a07643db77ef8e128ea88e50b3adf90c795143dab794b949b469bccf2",
+      "committedLedgerDigest": "94db6c4850be449d1f38291131bc93d940736225693c84cc15088cc2f86e318b",
+      "writerSessionId": "sess-18523cc5882700448dde73d7e280cac6",
+      "writerFenceToken": "0465a89c-39c5-4f39-bb9f-4190d4526260",
+      "committedAt": "2026-09-08T08:28:40.171Z",
+      "replayed": false,
+      "exactRequestDigest": "5eee6a819bf85c2981bfbc7009b0550695fb2bd32ad4546214520230d368639a",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtseqw6j_1p5s_5ecffdfb13404d03b5660da24d5dc191",
+        "storyId": "B-88c7",
+        "idempotencyKey": "finding_add:6a6dcac1-c840-4b34-aea3-776a6475428f",
+        "exactRequestDigest": "5eee6a819bf85c2981bfbc7009b0550695fb2bd32ad4546214520230d368639a",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtseqw6j_1p5s_a33edabc67884337bb896e8fb78454e0"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "3f181b0a07643db77ef8e128ea88e50b3adf90c795143dab794b949b469bccf2",
+        "committedLedgerDigest": "94db6c4850be449d1f38291131bc93d940736225693c84cc15088cc2f86e318b",
+        "replayed": false,
+        "committedAt": "2026-09-08T08:28:40.171Z",
+        "writerSessionId": "sess-18523cc5882700448dde73d7e280cac6",
+        "writerLeaseId": "sess-3a086337cc563b750e4116c389ce9cb3",
+        "writerFenceToken": "0465a89c-39c5-4f39-bb9f-4190d4526260",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "81e76f946de7648cca69cd397b25bef6765898366a052b682d068a8b280a7436",
+        "signature": "MtQGLQW6DzMGdvmgefrDFHJ8ahBnxgQ5c79PUcIqUaH4B5bwQ48A4cR2BkuyLE6EkMHw8fXdAmQz0RSX7EyFBQ=="
+      }
+    },
+    {
+      "receiptId": "lrc_mtser06z_1pji_7c30e4b5b0d6471782d1dbe3514061e8",
+      "operation": "append_finding",
+      "idempotencyKey": "finding_add:cc788ce0-ad05-42fc-b15c-413788022d27",
+      "requestDigest": "aa6e65121883700a96c260aaf0730aff95022e3cd9662b3823121a7126ee4aec",
+      "recordIds": [
+        "lr_mtser06z_1pji_b9a3b419b970444090de9fdfbe0898d5"
+      ],
+      "priorLedgerDigest": "94db6c4850be449d1f38291131bc93d940736225693c84cc15088cc2f86e318b",
+      "committedLedgerDigest": "499f8774b38bdca8cc32a4f80714d3dbb13ebbcd85af3ded81abf6c063acdf17",
+      "writerSessionId": "sess-18523cc5882700448dde73d7e280cac6",
+      "writerFenceToken": "69094691-5db9-4cc3-9a34-55a052559d2d",
+      "committedAt": "2026-09-08T08:28:45.371Z",
+      "replayed": false,
+      "exactRequestDigest": "99d6950e0c9cde2164a6653805dc1493878f8fe152a4a6fe9cecb0f7dea61d3c",
+      "findingLedgerReceipt": {
+        "schemaVersion": 1,
+        "ledgerSchemaEpoch": 1,
+        "minimumWriterCapability": "finding-ledger-writer-v1",
+        "receiptId": "lrc_mtser06z_1pji_7c30e4b5b0d6471782d1dbe3514061e8",
+        "storyId": "B-88c7",
+        "idempotencyKey": "finding_add:cc788ce0-ad05-42fc-b15c-413788022d27",
+        "exactRequestDigest": "99d6950e0c9cde2164a6653805dc1493878f8fe152a4a6fe9cecb0f7dea61d3c",
+        "operation": "append_finding",
+        "recordIds": [
+          "lr_mtser06z_1pji_b9a3b419b970444090de9fdfbe0898d5"
+        ],
+        "casBindings": [],
+        "priorLedgerDigest": "94db6c4850be449d1f38291131bc93d940736225693c84cc15088cc2f86e318b",
+        "committedLedgerDigest": "499f8774b38bdca8cc32a4f80714d3dbb13ebbcd85af3ded81abf6c063acdf17",
+        "replayed": false,
+        "committedAt": "2026-09-08T08:28:45.371Z",
+        "writerSessionId": "sess-18523cc5882700448dde73d7e280cac6",
+        "writerLeaseId": "sess-3a086337cc563b750e4116c389ce9cb3",
+        "writerFenceToken": "69094691-5db9-4cc3-9a34-55a052559d2d",
+        "keyId": "finding-ledger-cf80c5ddac9fb3c429a605a5",
+        "algorithm": "ed25519",
+        "trustRootDigest": "c21e0ffc0b588afb0abe173e31f7c418c6bcc58ce116b285f5c97c508c4d167f",
+        "keyFreshnessPolicyDigest": "0036dcabb430e328d144d4176f7be12bdd6a7e3b274fd98f1843ee9cd927c823",
+        "receiptHash": "eb65e7b8992be83f0c0eeaf657d1a46f66be927c409cfd3d8c25df056f2276fb",
+        "signature": "HjbpJX+JLXRbvLBiQCc8rgGfSsgBoJjCUmZHmwWpU4ofDUxGn7tzr/9x5my+AXxmBwo7dAWewBQIyZLK9mQCDg=="
       }
     }
   ]

@@ -79,6 +79,39 @@
         }
       ],
       "_hash": "7802fae58ab38445f6450abb04cd251f23a58f2488d2485403397b14547a4820"
+    },
+    {
+      "timestamp": "2026-09-08T08:37:43.614Z",
+      "issueCount": 2,
+      "blockerCount": 1,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        },
+        {
+          "type": "scope_check_stale",
+          "severity": "blocker",
+          "message": "scope-check.json reviewRound (2026-09-08T07:37:13.526Z) does not match the current review round (2026-09-08T08:14:21.977Z); please rerun the scope agent"
+        }
+      ],
+      "_hash": "d259bc514b3a1f145a3a517a6dbeb7ecc0629c1a540d8f56f8af02bd47a5728c"
+    },
+    {
+      "timestamp": "2026-09-08T08:38:37.470Z",
+      "issueCount": 1,
+      "blockerCount": 0,
+      "issues": [
+        {
+          "type": "abstract_user_sees",
+          "severity": "advisory",
+          "itemId": "CHK-001",
+          "message": "CHK-001 userSees may be too abstract (does not contain specific output text in quotes). Should describe the exact text the user sees, not descriptions like \"feature works correctly\""
+        }
+      ],
+      "_hash": "3a487fddd45b2e94ce62a87f8e67f1335c03891d6d423f48ef1d0215db9ca196"
     }
   ]
 }

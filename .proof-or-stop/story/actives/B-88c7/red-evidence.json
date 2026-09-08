@@ -35,8 +35,42 @@
       },
       "note": "Actual red transcript /tmp/B-88c7-F001-red.log was produced by the independent registered implementer before production changes; native Codex and concept finding independently identified the same conflict.",
       "createdAt": "2026-09-08T07:57:43.267Z"
+    },
+    {
+      "id": "RED-20260908083720",
+      "trigger": "Verified F-002 delayed inventory critic dispatch after cancellation",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "e0d55b376206d65e08e706a6ecc14689c02d5c22",
+      "baselineMaterialHash": "70fc1841566b92a4aa6949b0593615756fc2fc344d56183c29c9dcda4347c252",
+      "observedFailure": "Actual fixture cancels inventory A via CLI, but delayed review_run_start publishes RR-001; expected refusal before run/envelope publication.",
+      "failingCommand": "node /private/tmp/B-88c7-stale-dispatch-probe.mjs",
+      "expectedGreenCommand": "node /private/tmp/B-88c7-stale-dispatch-probe.mjs",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node /private/tmp/B-88c7-stale-dispatch-probe.mjs"
+      },
+      "note": "Actual baseline execution failed before source repair; logs retained in /private/tmp/B-88c7-stale-dispatch-red.log",
+      "createdAt": "2026-09-08T08:37:20.749Z"
+    },
+    {
+      "id": "RED-20260908083721",
+      "trigger": "Verified F-003 real Story PRE_CERT classification failure",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "e0d55b376206d65e08e706a6ecc14689c02d5c22",
+      "baselineMaterialHash": "70fc1841566b92a4aa6949b0593615756fc2fc344d56183c29c9dcda4347c252",
+      "observedFailure": "Exact canonical agent template matches no certification domain, all-domain hashes are undefined, and real certification_window_begin refuses causal freshness.",
+      "failingCommand": "node /private/tmp/B-88c7-template-domain-probe.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+      "expectedGreenCommand": "node /private/tmp/B-88c7-template-domain-probe.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node /private/tmp/B-88c7-template-domain-probe.mjs /Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7"
+      },
+      "note": "Actual baseline execution failed before source repair; logs retained in /private/tmp/B-88c7-template-domain-red.log",
+      "createdAt": "2026-09-08T08:37:21.714Z"
     }
   ],
   "createdAt": "2026-09-08T06:55:18.660Z",
-  "updatedAt": "2026-09-08T07:57:43.267Z"
+  "updatedAt": "2026-09-08T08:37:21.714Z"
 }
