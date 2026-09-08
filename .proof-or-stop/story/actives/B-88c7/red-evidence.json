@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "proofstory.red_evidence.v1",
+  "storyId": "B-88c7",
+  "records": [
+    {
+      "id": "RED-20260908065518",
+      "trigger": "Inventory critic dispatch rejects valid express implementation without topology provenance",
+      "acceptanceTargetRef": "REQ-001",
+      "baselineHeadHash": "b2aef10827f40443a42ddbad485041782b69bad3",
+      "baselineMaterialHash": "c611e77b752f73d0fe38b5468018f00fcd6d59d5c0eb79efa7a1923a643e9d79",
+      "observedFailure": "On real B-0208 with signed OPEN RI-001 and all three lanes PASS, critic dispatch exited 1: implementation provenance is missing a business commit authored by proof-or-stop-implementer.",
+      "failingCommand": "proof-or-stop --root /Users/qipan/work/repo/Prooforstop/.worktrees/B-0208 dispatch --storyId=B-0208 --agentType=proof-or-stop-review-topology-critic",
+      "expectedGreenCommand": "node packages/main/dist/tasks/review-inventory-handler-smoke.js",
+      "greenRelation": {
+        "targetRef": "REQ-001",
+        "relation": "regression_to_green",
+        "command": "node packages/main/dist/tasks/review-inventory-handler-smoke.js"
+      },
+      "note": "The real target project failure was observed before implementation; bounded handler regression will additionally exercise refusal controls.",
+      "createdAt": "2026-09-08T06:55:18.660Z"
+    }
+  ],
+  "createdAt": "2026-09-08T06:55:18.660Z",
+  "updatedAt": "2026-09-08T06:55:18.660Z"
+}

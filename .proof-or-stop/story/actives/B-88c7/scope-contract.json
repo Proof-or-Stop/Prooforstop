@@ -1,0 +1,35 @@
+{
+  "storyId": "B-88c7",
+  "mode": "enforce",
+  "allowedModify": [
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+    ".claude/agents/proof-or-stop-review-topology-critic.md",
+    "packages/main/src/core/prompt-registry.ts"
+  ],
+  "allowedCreate": [],
+  "allowedTest": [
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+  ],
+  "protectedFiles": [],
+  "explicitExcludes": [],
+  "scopeChangeReason": "User authorized workflow repair; canonical critic prompt changes require updating its registered reconstruction digest so actual dispatch remains executable.",
+  "acknowledgements": [],
+  "createdAt": "2026-09-08T06:54:59.815Z",
+  "updatedAt": "2026-09-08T07:02:11.385Z",
+  "pathCanonicalizerVersion": "repo-relative-v1",
+  "pathCanonicalizationMode": "enforce",
+  "originalPathInputs": {
+    "packages/main/src/handlers/story-dispatch.ts": "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/process-fact-registry.ts": "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs": "scripts/verify-process-fact-contract.mjs",
+    "packages/main/templates/agents/proof-or-stop-review-topology-critic.md": "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md": ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+    ".claude/agents/proof-or-stop-review-topology-critic.md": ".claude/agents/proof-or-stop-review-topology-critic.md",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts": "packages/main/src/tasks/review-inventory-handler-smoke.ts",
+    "packages/main/src/core/prompt-registry.ts": "packages/main/src/core/prompt-registry.ts"
+  }
+}

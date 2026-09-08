@@ -1,0 +1,27 @@
+{
+  "task": "Separate inventory completeness reviewer dispatch from topology-proof provenance",
+  "outcome": "Dispatching the independent critic for B-0208 OPEN inventory returns inventory review instructions without the error 'implementation provenance is missing a business commit'; topology-only dispatch still rejects absent provenance.",
+  "facts": [
+    "B-0208 was permitted to implement through express channel.",
+    "Three independent lanes passed before completeness critic dispatch failed.",
+    "The topology reviewer binding is currently required unconditionally.",
+    "Current signed review runs already protect critic independence and lane evidence."
+  ],
+  "constraints": [
+    "Do not invent implementer authorship or dispatch records.",
+    "Retain topology proof signing and provenance rules.",
+    "Only verified current OPEN inventory context selects completeness-only instructions.",
+    "Keep registered role template and rendered mirrors consistent."
+  ],
+  "unknowns": [],
+  "touchpoints": [
+    "packages/main/src/handlers/story-dispatch.ts",
+    "packages/main/src/core/process-fact-registry.ts",
+    "scripts/verify-process-fact-contract.mjs",
+    "packages/main/templates/agents/proof-or-stop-review-topology-critic.md",
+    ".proof-or-stop-codex/agents/proof-or-stop-review-topology-critic.md",
+    ".claude/agents/proof-or-stop-review-topology-critic.md",
+    "packages/main/src/tasks/review-inventory-handler-smoke.ts"
+  ],
+  "timestamp": "2026-09-08T06:53:54.247Z"
+}
