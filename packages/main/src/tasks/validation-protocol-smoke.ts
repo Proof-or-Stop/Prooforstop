@@ -2104,6 +2104,10 @@ try {
     writeFileSync(join(gateStaleRoot, 'packages/main/src/app.ts'), 'export const base = 3;\n');
     gitQuiet(gateStaleRoot, ['add', 'packages/main/src/app.ts']);
     gitQuiet(gateStaleRoot, ['commit', '-m', 'second story change']);
+    // The direct gate call bypasses the CLI ownership entry point. Reacquire
+    // after its fixture commits so the official validation heartbeat observes
+    // the lease generation it is expected to renew.
+    acquireOwnerLease(store.storyDirPath(storyId), { command: 'validate', cwd: gateStaleRoot });
     let stopped = false;
     const logs: string[] = [];
     const actor = { stop() { stopped = true; } };
@@ -2285,6 +2289,9 @@ try {
       currentReviewRound: aliasNow, events: [],
     });
     aliasStore.writeChecklist('B-alias-smoke', { items: [] });
+    // This calls the verifier directly, bypassing the CLI path that acquires
+    // the story owner lease before a story-scoped validation begins.
+    acquireOwnerLease(aliasStore.storyDirPath('B-alias-smoke'), { command: 'validate', cwd: storyIdAliasRoot });
     const aliasJson = await createVerifierHandlers({
       root: storyIdAliasRoot,
       scanRoot: storyIdAliasRoot,
@@ -2323,6 +2330,8 @@ try {
       currentReviewRound: storyFlagNow, events: [],
     });
     storyFlagStore.writeChecklist('B-story-flag-smoke', { items: [] });
+    // Match the real CLI ownership precondition for this direct verifier call.
+    acquireOwnerLease(storyFlagStore.storyDirPath('B-story-flag-smoke'), { command: 'validate', cwd: storyFlagRoot });
     const storyFlagJson = await createVerifierHandlers({
       root: storyFlagRoot,
       scanRoot: storyFlagRoot,
