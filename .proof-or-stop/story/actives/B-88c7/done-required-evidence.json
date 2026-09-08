@@ -2,13 +2,13 @@
   "schema": "proof-or-stop.done-required-evidence",
   "version": 1,
   "storyId": "B-88c7",
-  "status": "FAIL",
-  "startedAt": "2026-09-08T12:23:42.278Z",
-  "endedAt": "2026-09-08T12:32:46.188Z",
-  "durationMs": 543910,
-  "headHash": "2d1058fb5854d910680b24ae6a9e97157287c90b",
-  "materialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
-  "storyFilesHash": "bc2e43439e8a2e23d84132f99ce08c483c124f3ca3665f0e4919f4cf61b59115",
+  "status": "PASS",
+  "startedAt": "2026-09-08T13:20:23.748Z",
+  "endedAt": "2026-09-08T13:37:19.965Z",
+  "durationMs": 1016217,
+  "headHash": "e8776ad2b84ec4674df211997c6afdff566fefc8",
+  "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+  "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd",
   "policyHash": "6e3b308d27b3ecbdc367f7f51340bbd181a7f52483c83a6298eb0d6378cd18c3",
   "commandSetHash": "03ffa95173e47709916f9181a6a61b482281186802535c1d9c22cbc09baf1fad",
   "receipts": [
@@ -40,17 +40,17 @@
       "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
       "status": "PASS",
       "exitCode": 0,
-      "durationMs": 822,
+      "durationMs": 1339,
       "outputDigest": "8fd5c32973e90ca8c6632abdf2688555f76fc19f15c670d7c05044008c4a4606",
       "outputTail": "\n> @proof-or-stop/core@0.3.278 build\n> node ../../scripts/build-main-with-binding.mjs\n\n",
-      "startedAt": "2026-09-08T12:23:42.279Z",
-      "endedAt": "2026-09-08T12:23:43.102Z",
+      "startedAt": "2026-09-08T13:20:23.749Z",
+      "endedAt": "2026-09-08T13:20:25.089Z",
       "effectiveEnvironmentDigest": "9acad65084c34346f2dcb6155c78482c2b6b6b7afa34a9125090fa751f8cb727",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "2d1058fb5854d910680b24ae6a9e97157287c90b",
-      "materialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
-      "storyFilesHash": "bc2e43439e8a2e23d84132f99ce08c483c124f3ca3665f0e4919f4cf61b59115"
+      "headHash": "e8776ad2b84ec4674df211997c6afdff566fefc8",
+      "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+      "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd"
     },
     {
       "label": "root full test suite",
@@ -72,22 +72,20 @@
         "timeoutMs": 7200000
       },
       "cwd": "/Users/qipan/work/repo/Prooforstop/.worktrees/B-88c7",
-      "status": "FAIL",
-      "exitCode": 1,
-      "durationMs": 542039,
-      "outputDigest": "7ead9155fb2cecd593466876aeeec0ab1148d7fa094888b1c3b0c5b51b221b94",
-      "outputTail": " null,\n    stderr: null\n  }\n}\n\nNode.js v26.8.1\n\n\n--- test:milestone-status INTERRUPTED ---\n\n\n--- test:review-incremental-context-smoke INTERRUPTED ---\n\n\n--- test:validation-protocol INTERRUPTED ---\n\n> proof-or-stop@0.3.278 test:validation-protocol\n> node packages/main/dist/tasks/validation-protocol-smoke.js\n\n[PASS] validation-protocol-smoke registered in npm scripts, test:serial-reference, RESOURCE_POLICY and validate.commands\n[PASS] full-suite runner refuses a test:serial-reference member without a RESOURCE_POLICY row: test:validation-protocol\ntasks sweep: 380 files under packages/main/src/tasks; registered by inventory: test:all=333 validate.commands=72 npm-script=133 serial-reference=39 RESOURCE_POLICY=39\ntasks sweep: files referenced by no inventory (npm scripts, serial-reference, RESOURCE_POLICY, validate.commands, test:all discovery):\n  adapter-session-env  kept-unregistered: reached by path from packages/main/src/tasks/finding-ledger-runtime-smoke.ts (+3 more)\n  browser-client  kept-unregistered: reached by path from packages/main/src/tasks/browser-executor.ts (+1 more)\n  browser-executor  kept-unregistered: reached by path from packages/main/src/handlers/test-auto.ts\n  browser-server  kept-unregistered: reached by path from packages/main/src/tasks/browser-executor.ts\n  browser-vite-plugin  kept-unregistered: reached by path from packages/main/src/index.ts\n  bug-report  kept-unregistered: reached by path from packages/main/src/handlers/bug.ts\n  cli-executor  kept-unregistered: legacy @task-annotation real-machine CLI executor with no importer (superseded by verifier/cli-executor); scripts/audit-silent-catches-baseline.json still pins entries for it, so removal belongs to a dedicated dead-code story\n  coverage  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+1 more)\n  drift-check  kept-unregistered: legacy @task-annotation drift checker over extract.ts with no importer; pinned by scripts/audit-silent-catches-baseline.json and docs/metadata/task.json; removal deferred to a dedicated dead-code story\n  extract  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+10 more)\n  full-suite-fixed-port-os-collision  kept-unregistered: reached by path from packages/main/src/tasks/full-suite-runner-smoke.ts\n  gap-analyze  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+4 more)\n  locate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  metadata-cross-check  kept-unregistered: loaded at runtime by the logic fixture packages/main/tests/fixtures/metadata-cross-check.json (dynamic import in its execute block) under the configured fixturesDir; not an inventory member by design\n  metadata-store  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+2 more)\n  metadata-validate  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts\n  profiler  kept-unregistered: reached by path from packages/main/src/core/extension-runtime.ts (+5 more)\n  quorum-submit-shards  kept-unregistered: pure re-export shim: its whole body forwards VALIDATION_SHARD_RECEIPT_SCHEMA, aggregateShards, aggregateValidationShards, buildValidationShards, createValidationShardReceipt and verifyValidationShardReceipt from core/story-aware-validation.js. 14 lines, no test body, and grep finds no importer under packages/main/src, so registering it in an inventory would run nothing; removal belongs to a dedicated dead-code story alongside its sibling\n  review-pass-shards  kept-unregistered: pure re-export shim identical in shape to quorum-submit-shards, forwarding the same six validation-shard symbols from core/story-aware-validation.js with no importer; same dead-code story\n  story-aware-validation-historical-replay  kept-unregistered: Section 19.1 replay harness (890 lines, #!/usr/bin/env bun) that reconstructs real Story base/head pairs from the St\n...[truncated 2526 chars]",
-      "startedAt": "2026-09-08T12:23:43.548Z",
-      "endedAt": "2026-09-08T12:32:45.707Z",
+      "status": "PASS",
+      "exitCode": 0,
+      "durationMs": 1013750,
+      "outputDigest": "14e242ab1ee71f882ce1161e0dd4ff9c1e3b9b1f584a30bd8f9d33eb20cf3198",
+      "outputTail": "\n> proof-or-stop@0.3.278 pretest\n> node scripts/ensure-dist.mjs\n\n\n> proof-or-stop@0.3.278 test\n> node packages/main/dist/tasks/full-suite-runner.js\n\nPASS test:brief-output 73.2s\nPASS test:experiments 24.1s\nPASS test:full-suite-runner-smoke 37.3s\nPASS test:full-suite-resource-sentinel 0.4s\nPASS test:main-write-lock-coverage 0.5s\nPASS test:production-test-seam-guard 2.7s\nPASS test:proof-or-stop-residue 0.7s\nPASS test:residue-inject-repro 2.7s\nPASS test:retired-authority-vocabulary-guard 97.5s\nPASS test:proof-or-stop-prompt-baseline 17.6s\nPASS test:codex-heartbeat-timeout 3.3s\nPASS test:audit-scan-bin-token 0.2s\nPASS test:review-convergence-smoke 0.2s\nPASS test:review-loop-smoke 1.2s\nPASS test:delivery-context-pack-smoke 15.9s\nPASS test:review-assurance-floor-smoke 14.8s\nPASS test:scope-shrinkage-withdrawal-floor-smoke 2.0s\nPASS test:withdrawn-disposition-smoke 3.4s\nPASS test:global-core-realpath 1.0s\nPASS test:brand-path-resolver-smoke 0.8s\nPASS test:config-filename-migration-smoke 2.0s\nPASS test:core-package-rename 6.9s\nPASS test:state-dir-migration 1.2s\nPASS test:identity-state-migrate-atomicity 0.3s\nPASS test:migration-contract 1.3s\nPASS test:review-assurance-floor-storyfileshash-smoke 0.5s\nPASS test:docs-drift-smoke 0.2s\nPASS test:proofstory-acceptance-rollout 312.4s\nPASS test:docs-drift-wrapper-root 1.3s\nPASS test:graph-story-flag-smoke 9.2s\nPASS test:gitroot-cwd-contract 0.3s\nPASS test:process-fact-contract 7.8s\nPASS test:closeout-trust 86.8s\nPASS test:verifier-causal-preflight 2.4s\nPASS test:runtime-fact-contract 4.2s\nPASS test:evidence-quality 0.2s\nPASS test:anti-stall 0.2s\nPASS test:storydir-inside-gitroot-smoke 1.4s\nPASS test:gitroot-cwd-routing 3.2s\nPASS test:bare-gate-gitroot-cwd 0.7s\nPASS test:project-gitroot-cwd 0.7s\nPASS test:done-oracle-wrapper-root 3.5s\nPASS test:done-premerge-mainsha-recheck 15.4s\nPASS test:done-escalation-drift-advisory 3.1s\nPASS test:review-escalation-freshness-root 9.2s\nPASS test:dispatch-checklist-doctor-wrapper-root 1.6s\nPASS test:graceful-sites-gitroot-cwd 1.5s\nPASS test:experience-hint-worktree-cache 2.1s\nPASS test:done-merge-experience-refresh 4.4s\nPASS test:experience-coverage-gap 2.2s\nPASS test:nested-worktree-bootstrap 29.7s\nPASS test:e2e 5.3s\nPASS test:experience-arm-gate 0.5s\nPASS test:proofstory-intent-hardening-smoke 206.9s\nPASS test:experience-arm-isolation-e2e 16.9s\nPASS test:convergence-breaker 0.5s\nPASS test:topology-signing-source-guard 0.3s\nPASS test:signing-guard-mutation-proof 0.4s\nPASS test:validation-tier-planner 13.1s\nPASS test:single-owner-extraction 19.7s\nPASS test:validation-protocol 92.0s\nPASS test:narrowing-repin 59.4s\nPASS test:flow-stability-smoke 202.4s\nPASS test:review-incremental-context-smoke 223.5s\nPASS test:milestone-status 65.1s\nfull-suite: 65/65 passed in 1010.7s; retries=0; jobs=2\n",
+      "startedAt": "2026-09-08T13:20:25.541Z",
+      "endedAt": "2026-09-08T13:37:19.460Z",
       "effectiveEnvironmentDigest": "9acad65084c34346f2dcb6155c78482c2b6b6b7afa34a9125090fa751f8cb727",
       "executableDigest": "8e5f6f3429f8cdbe693cdc29904e9d5a7b127a494bd15c804bd54c7403bfcbe7",
       "shellExecutableDigest": null,
-      "headHash": "2d1058fb5854d910680b24ae6a9e97157287c90b",
-      "materialHash": "671b55026634ef1aaee8892e6a479c73b6aa5a6258e8730a546bcc3e569e12cd",
-      "storyFilesHash": "bc2e43439e8a2e23d84132f99ce08c483c124f3ca3665f0e4919f4cf61b59115"
+      "headHash": "e8776ad2b84ec4674df211997c6afdff566fefc8",
+      "materialHash": "a9784d2374c7522e7228cb3e75a36f1094c1118eb960d17456bfdfd9e0eee901",
+      "storyFilesHash": "06f664d7e2691bc9917a6c281072bb4e614d00f3327f91a46fe7b9b5fa1144cd"
     }
   ],
-  "reasons": [
-    "command-failed: FAIL root full test suite: npm test exitCode=1"
-  ]
+  "reasons": []
 }
