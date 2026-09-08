@@ -79,3 +79,21 @@ NUL-framed Git names when looking up blobs, including Unicode and control
 characters. See [the hash decision](requirements/decisions/story-files-hash-material-drift.md)
 for migration boundaries and the independent oracle regression. This correction
 carries no percentage performance claim.
+
+
+## Unreleased Lab candidate: explicit implementation transport
+
+Use the intended checkout's `node bin/proof-or-stop.js --implementation-identity`
+to inspect the actual core, workspace extension, dependency and Node content
+identity. A host can pass `PROOF_OR_STOP_REQUIRE_IMPLEMENTATION_PIN=1` and
+`PROOF_OR_STOP_EXPECTED_IMPLEMENTATION_DIGEST=<verified digest>` to every owner,
+reviewer and gate invocation. The shared CLI dispatcher refuses missing or
+mismatched required pins before dispatch. This is opt-in: it does not silently
+upgrade old worktrees or assert that unpinned sessions have uniform provenance.
+It does not authenticate a hostile host or replace signed evidence/freshness.
+
+The candidate also renews an existing same-owner lease through the actual
+`verification_evidence_add` and `verification_evidence_batch_add` execution and
+canonical publication paths. A missing, expired or transferred generation remains
+a refusal, and existing valid receipts retain their zero-command import path.
+These changes are retained in Lab for user verification; no version is released.

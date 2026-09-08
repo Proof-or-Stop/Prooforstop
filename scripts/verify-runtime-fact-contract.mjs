@@ -80,6 +80,9 @@ async function main() {
     check(checksSource.includes(outputKey), `missing runtime checker output key reference: ${outputKey}`);
   }
 
+  check(registrySource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY'), 'runtime registry must define optional implementation pin policy');
+  const pinSource=readFileSync(join(root,'packages/main/src/core/execution-implementation.ts'),'utf8');
+  check(pinSource.includes('EXECUTION_IMPLEMENTATION_PIN_POLICY.schema') && pinSource.includes('IMPLEMENTATION_PIN_MISMATCH'), 'implementation pin must consume registry and refuse mismatch');
   check(registrySource.includes('selfSeverity'), 'runtime registry entries should declare selfSeverity');
   check(registrySource.includes('externalSeverity'), 'runtime registry entries should declare externalSeverity');
   check(registrySource.includes('checker:'), 'runtime registry entries should declare checker');

@@ -21,7 +21,7 @@ import { effectiveExcludedKeywords, normalizeBoundaryArray, scanExcludedKeywordH
 import type { ScopeFreezeTextSource } from '../core/types.js';
 import { resolveAgentMutationAuthority } from '../core/agent-dispatch-registry.js';
 import { getSessionId } from '../core/owner-session.js';
-import { isLeaseStale, readOwnerLease } from '../core/story-owner-lease.js';
+import { isLeaseStale, readOwnerLease, withOwnerLeaseHeartbeat } from '../core/story-owner-lease.js';
 import { agentRoleIdsEqual } from '../core/agent-role-identity.js';
 import {
   isAcceptanceMatrixDerivedEvidence,
@@ -2695,6 +2695,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // lock (execution is async; withChecklistLock releases synchronously). The
       // pin write + evidence write then happen atomically inside the lock.
       const gitCwd = resolveStoryGitCwd(args.storyId);
+      return withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_add', cwd: gitCwd }, async () => {
       const preItem = store.readChecklist(args.storyId).items.find(i => i.id === args.itemId);
       if (!preItem) throw new Error(`Checklist item ${args.itemId} not found`);
       const causalBatch = createCausalEvidenceBatch();
@@ -2772,6 +2773,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_add');
         return `Verification evidence recorded for ${args.itemId} → ${args.intentRef} (${kind}${aliasNote}${receiptNote})${commitHint}`;
       });
+      });
     },
 
     async verification_evidence_batch_add(args: {
@@ -2830,6 +2832,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
       // refusal throws before the all-or-nothing write below, so the batch path is never
       // an unguarded bypass.
       const gitCwd = resolveStoryGitCwd(args.storyId);
+      return withOwnerLeaseHeartbeat(store.storyDirPath(args.storyId), { command: 'verification_evidence_batch_add', cwd: gitCwd }, async () => {
       const runCommand: SingleCommandRunner = (command, cwd, timeoutMs) => {
         const effectiveTimeoutMs = timeoutMs ?? resolvePinnedCommandTimeoutMs(root, command);
         return runSingleAllowlistedCommand(
@@ -2912,6 +2915,7 @@ export function createChecklistHandlers(ctx: HandlerContext) {
         const commitHint = autoCommitStoryMetadata(root, args.storyId, 'verification_evidence_batch_add');
         const causalMetrics = renderCausalMetrics(deriveCausalMetrics(causalBatch.ledger));
         return `Verification evidence batch recorded for ${args.storyId}: ${written} item intent(s)${commitHint}; ${causalMetrics}`;
+      });
       });
     },
 

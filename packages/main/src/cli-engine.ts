@@ -1,3 +1,4 @@
+import {enforceExecutionImplementationPin,executionImplementationIdentity} from './core/execution-implementation.js';
 /**
  * Proof-or-Stop engine
  *
@@ -722,6 +723,11 @@ export async function runCli(opts?: {
   extraOwnershipClasses?: Readonly<Record<string, import('./core/command-policy.js').OwnershipClass>>;
   extraAllowedPhases?: Readonly<Record<string, readonly string[] | 'all'>>;
 }): Promise<void> {
+  enforceExecutionImplementationPin();
+  if (process.argv.slice(2).includes('--implementation-identity')) {
+    console.log(JSON.stringify(executionImplementationIdentity()));
+    return;
+  }
   const externalAdmission = validateExternalCommandDeclarations({
     mainTools: MAIN_TOOLS,
     extraTools: opts?.extraTools,

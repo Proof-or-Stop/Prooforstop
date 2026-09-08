@@ -1793,12 +1793,19 @@ export const PROCESS_FACT_LAB_MAINTENANCE = [{
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_VALIDATION_EXECUTION = [{
+  name: 'runtime:execution_implementation_pin', kind: 'runtime-behavior',
+  semantics: ['runtime-behavior', 'workspace-binding', 'verification-policy'],
+  level: 'L4', producer: 'core/execution-implementation',
+  producerSourceRefs: ['packages/main/src/core/execution-implementation.ts', 'packages/main/src/cli-engine.ts'],
+  consumerGate: 'CLI dispatch when an explicit implementation transport pin is required',
+  rationale: 'An opt-in host transport pin compares actual implementation and dependency bytes plus Node before dispatch; package version equality is not an implementation proof. Missing required pins and mismatches refuse. Unpinned invocations retain compatibility and are not claimed pinned.',
+}, {
   name: 'runtime:shared_validation_execution', kind: 'runtime-behavior',
   semantics: ['runtime-behavior', 'validation-result', 'signed-artifact', 'freshness-policy', 'workspace-binding'],
   level: 'L4', producer: 'core/shared-validation-execution',
-  producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts'],
+  producerSourceRefs: ['packages/main/src/core/shared-validation-execution.ts', 'packages/main/src/core/validation-execution-lock.ts', 'packages/main/src/core/story-owner-lease.ts', 'packages/main/src/handlers/checklist.ts'],
   consumerGate: 'validate and done_required_validate retain their independent acceptance and build-proof predicates',
-  rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution.',
+  rationale: 'Explicit exact-inputs reuse consumes signed causal PASS receipts only with current material, clean workspace, environment, executable and policy identity. Forbidden reuse and build proof always execute. Declared nonconflicting resources may share capacity; missing claims stay exclusive. Same-owner generation renewal is atomic with takeover and never acquires a missing lease. Reuse retains original execution attribution. Single and batch checklist evidence commands renew the existing owner generation through actual command execution and canonical publication, preserving zero-command receipt import recovery.',
 }] as const satisfies readonly ProcessFactRegistryEntry[];
 
 export const PROCESS_FACT_EVIDENCE_HASH_INPUTS = [{
@@ -1833,3 +1840,4 @@ export function getProcessFactRegistryEntry(name: string): ProcessFactRegistryEn
 export function hasProcessFactSemantic(name: string, semantic: ProcessFactSemantic): boolean {
   return PROCESS_FACT_REGISTRY_BY_NAME[name]?.semantics.includes(semantic) ?? false;
 }
+

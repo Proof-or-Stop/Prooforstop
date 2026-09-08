@@ -171,3 +171,11 @@ export const VALIDATION_EXECUTION_RUNTIME_REQUIREMENTS = {
   unknownResources: 'exclusive',
   receiptReusePolicy: 'exact-inputs',
 } as const;
+
+/** Optional explicit host transport pin; no package-version equality fallback. */
+export const EXECUTION_IMPLEMENTATION_PIN_POLICY = {
+  schema: 'execution-implementation.v1',
+  mismatch: 'refuse-before-dispatch',
+  missingWhenRequired: 'refuse',
+  scope: 'loaded-core-workspace-extensions-dependency-closure-and-node',
+} as const;

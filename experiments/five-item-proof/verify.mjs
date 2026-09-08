@@ -41,4 +41,5 @@ await check('P1','actual batch publishes after accelerated lease threshold',asyn
  return {log:'batch-result.json',clockScale:1000,commandExecutions:1};
  }finally{if(clockActive){globalThis.Date=NativeDate;globalThis.setInterval=interval;}rmSync(fixture,{recursive:true,force:true});resetConfigCache();}
 });
+await check('P0-3','two real persisted consumers share eligible execution',()=>{const p=spawnSync(process.execPath,['experiments/five-item-proof/consumers.mjs'],{cwd:root,encoding:'utf8',timeout:120000,env:{...process.env,FIVE_ITEM_PAIRS:'1',FIVE_ITEM_PROOF_OUTPUT:join(output,'consumers')}});writeFileSync(join(output,'consumers.log'),p.stdout+p.stderr);assert.equal(p.status,0,p.stdout+p.stderr);return {log:'consumers/consumer-trials.json'};});
 writeFileSync(join(output,'summary.json'),JSON.stringify({head:execFileSync('git',['rev-parse','HEAD'],{cwd:root,encoding:'utf8'}).trim(),rows,failures,status:failures.length?'FAIL':'PASS',wholeStorySpeedup:null},null,2));console.log('Evidence '+output);if(failures.length)process.exitCode=1;

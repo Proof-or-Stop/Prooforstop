@@ -1,0 +1,23 @@
+import cp from 'node:child_process';
+import {syncBuiltinESMExports} from 'node:module';
+const originalExec=cp.execFileSync;
+cp.execFileSync=(command,args,options)=>{const result=originalExec(command,args,options);if(command==='git'&&args?.[0]==='status'&&String(result).trim())process.stderr.write('FIXTURE_GIT_STATUS '+String(result));return result;};syncBuiltinESMExports();
+import {execFileSync} from 'node:child_process';
+import {readFileSync,writeFileSync} from 'node:fs';
+import {join,resolve,dirname} from 'node:path';
+import {fileURLToPath} from 'node:url';
+const impl=resolve(dirname(fileURLToPath(import.meta.url)),'../../packages/main/dist');
+const {StoryStore}=await import(impl+'/core/store.js');
+const {createVerifierHandlers}=await import(impl+'/handlers/verifier.js');
+const {createDoneRequiredValidationHandlers}=await import(impl+'/handlers/done-required-validation.js');
+const {acquireOwnerLease}=await import(impl+'/core/story-owner-lease.js');
+const {persistSyntheticAdmittedWindowForTest}=await import(impl+'/core/certification-window.js');
+const {deriveCertificationDomainInputHashes}=await import(impl+'/handlers/certification-window.js');
+const {resetConfigCache}=await import(impl+'/core/config.js');
+const [kind,root,out]=process.argv.slice(2),storyId='B-labconsumer';resetConfigCache();
+const store=new StoryStore(root),ctx={store,root,scanRoot:join(root,'src'),log:x=>process.stderr.write(x+'\n')};
+acquireOwnerLease(store.storyDirPath(storyId),{command:'isolated-consumer-fixture',cwd:root});
+// The isolated admission fixture was created and committed before either consumer.
+writeFileSync(out+'.preflight.json',JSON.stringify({status:execFileSync('git',['status','--porcelain=v1','-uall'],{cwd:root,encoding:'utf8'})},null,2));
+let result=kind==='routine'?await createVerifierHandlers(ctx).validate({story:storyId,json:true,noSync:true}):await createDoneRequiredValidationHandlers(ctx).done_required_validate({storyId,json:true});
+writeFileSync(out,typeof result==='string'?result:JSON.stringify(result,null,2));console.log(result);
