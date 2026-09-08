@@ -19,7 +19,7 @@
           "packages/main/src/tasks/causal-evidence-smoke.ts"
         ]
       },
-      "status": "done",
+      "status": "in_progress",
       "startTime": "2026-09-08T06:18:12.819Z",
       "endTime": "2026-09-08T06:21:21.943Z",
       "verificationIntent": {
@@ -62,9 +62,9 @@
           "command": "node packages/main/dist/tasks/causal-evidence-smoke.js",
           "result": "pass",
           "note": "Compiled CLI version resolves across external layouts and is preserved in a verified signed causal receipt.",
-          "headHash": "89bcc5526334427b77066a441fdf5b7116283619",
-          "materialHash": "fcaa92ef85a6b8b9e8bb1e3223a6ce8a4a3dbcf08419ec578324d1ad0e04d72a",
-          "storyFilesHash": "dabc01d5423c6c5c435d2cdf463b4b6ba6ba398d2de99b0932d077fe499ef968",
+          "headHash": "24950bfd5c3dc49cfead5063be79ccd67c8c32e2",
+          "materialHash": "9ca71625279058df31e6ce9e6eb048c41fb8f8b0181ccb785089bdccc7b678e9",
+          "storyFilesHash": "50088399a0ad3887400c36b9531d8dc1fa0f843b238310cf3a6c9f7fab623d0a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -72,13 +72,13 @@
             "outputTail": "causal-evidence-smoke: PASS — CausalEvidence: intentCount=2 uniqueExecutionKeys=1 commandExecutions=1 cacheHitRate=50% commandReruns=0 commitFailureReruns=0 unrelatedSpecializedRerun=0 affectedNodeRerun=0% falseFresh=0\n",
             "selectorMatched": true,
             "selector": "causal-evidence-smoke: PASS",
-            "executedAt": "2026-09-08T14:33:43.680Z",
+            "executedAt": "2026-09-08T14:46:59.652Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:48b507d994bf9a6625e7762649b214a2cb7b7566452c5d1a8e198ce1d599fe87",
-            "causalReceiptHash": "63a5f98107f20c5986afbe7cd4c3341d59c752345bd48bf68c32538d6d803816",
+            "executionKey": "ce:v1:14991220d26e14e3a19ec76004f0c0b6db5945a9a213a8b7ae507b502192b558",
+            "causalReceiptHash": "39be05a36c57d1840ec20e017d5fa57e8dbe79c9ed54599d52105adf37b612f9",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-08T14:33:43.789Z"
+          "timestamp": "2026-09-08T14:46:59.765Z"
         },
         {
           "intentRef": "CHK-001:edge:0",
@@ -87,9 +87,9 @@
           "command": "node packages/main/dist/tasks/causal-evidence-smoke.js",
           "result": "pass",
           "note": "Missing and malformed target and cwd manifests retain CLI version.",
-          "headHash": "89bcc5526334427b77066a441fdf5b7116283619",
-          "materialHash": "fcaa92ef85a6b8b9e8bb1e3223a6ce8a4a3dbcf08419ec578324d1ad0e04d72a",
-          "storyFilesHash": "dabc01d5423c6c5c435d2cdf463b4b6ba6ba398d2de99b0932d077fe499ef968",
+          "headHash": "24950bfd5c3dc49cfead5063be79ccd67c8c32e2",
+          "materialHash": "9ca71625279058df31e6ce9e6eb048c41fb8f8b0181ccb785089bdccc7b678e9",
+          "storyFilesHash": "50088399a0ad3887400c36b9531d8dc1fa0f843b238310cf3a6c9f7fab623d0a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -97,13 +97,13 @@
             "outputTail": "causal-evidence-smoke: PASS — CausalEvidence: intentCount=2 uniqueExecutionKeys=1 commandExecutions=1 cacheHitRate=50% commandReruns=0 commitFailureReruns=0 unrelatedSpecializedRerun=0 affectedNodeRerun=0% falseFresh=0\n",
             "selectorMatched": true,
             "selector": "causal-evidence-smoke: PASS",
-            "executedAt": "2026-09-08T14:33:43.680Z",
+            "executedAt": "2026-09-08T14:46:59.652Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:48b507d994bf9a6625e7762649b214a2cb7b7566452c5d1a8e198ce1d599fe87",
-            "causalReceiptHash": "63a5f98107f20c5986afbe7cd4c3341d59c752345bd48bf68c32538d6d803816",
+            "executionKey": "ce:v1:14991220d26e14e3a19ec76004f0c0b6db5945a9a213a8b7ae507b502192b558",
+            "causalReceiptHash": "39be05a36c57d1840ec20e017d5fa57e8dbe79c9ed54599d52105adf37b612f9",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-08T14:33:43.789Z"
+          "timestamp": "2026-09-08T14:46:59.765Z"
         },
         {
           "intentRef": "CHK-001:adversarial:0",
@@ -112,9 +112,9 @@
           "command": "node packages/main/dist/tasks/causal-evidence-smoke.js",
           "result": "pass",
           "note": "Conflicting business manifests and copied stale tool package manifests cannot substitute tool version.",
-          "headHash": "89bcc5526334427b77066a441fdf5b7116283619",
-          "materialHash": "fcaa92ef85a6b8b9e8bb1e3223a6ce8a4a3dbcf08419ec578324d1ad0e04d72a",
-          "storyFilesHash": "dabc01d5423c6c5c435d2cdf463b4b6ba6ba398d2de99b0932d077fe499ef968",
+          "headHash": "24950bfd5c3dc49cfead5063be79ccd67c8c32e2",
+          "materialHash": "9ca71625279058df31e6ce9e6eb048c41fb8f8b0181ccb785089bdccc7b678e9",
+          "storyFilesHash": "50088399a0ad3887400c36b9531d8dc1fa0f843b238310cf3a6c9f7fab623d0a",
           "mechanical": true,
           "receipt": {
             "exitCode": 0,
@@ -122,13 +122,13 @@
             "outputTail": "causal-evidence-smoke: PASS — CausalEvidence: intentCount=2 uniqueExecutionKeys=1 commandExecutions=1 cacheHitRate=50% commandReruns=0 commitFailureReruns=0 unrelatedSpecializedRerun=0 affectedNodeRerun=0% falseFresh=0\n",
             "selectorMatched": true,
             "selector": "causal-evidence-smoke: PASS",
-            "executedAt": "2026-09-08T14:33:43.680Z",
+            "executedAt": "2026-09-08T14:46:59.652Z",
             "timeoutMs": 270000,
-            "executionKey": "ce:v1:48b507d994bf9a6625e7762649b214a2cb7b7566452c5d1a8e198ce1d599fe87",
-            "causalReceiptHash": "63a5f98107f20c5986afbe7cd4c3341d59c752345bd48bf68c32538d6d803816",
+            "executionKey": "ce:v1:14991220d26e14e3a19ec76004f0c0b6db5945a9a213a8b7ae507b502192b558",
+            "causalReceiptHash": "39be05a36c57d1840ec20e017d5fa57e8dbe79c9ed54599d52105adf37b612f9",
             "commandReruns": 0
           },
-          "timestamp": "2026-09-08T14:33:43.789Z"
+          "timestamp": "2026-09-08T14:46:59.766Z"
         }
       ],
       "userSeesSnapshot": {
